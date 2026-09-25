@@ -2,12 +2,16 @@ module Wasp.Cli.Port
   ( findFirstFreeLocalPortInRange,
     findFirstFreeLocalPortAmong,
     checkIfLocalPortIsTaken,
+    resolvePort,
   )
 where
 
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
 import Data.List ((\\))
 import Network.Socket (PortNumber)
-import Wasp.Util (ifM)
+import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
 findFirstFreeLocalPortInRange :: PortNumber -> [PortNumber] -> String -> IO (Either String PortNumber)
@@ -31,6 +35,35 @@ findFirstFreeLocalPortAmong (port : remainingPorts) =
     (checkIfLocalPortIsTaken port)
     (findFirstFreeLocalPortAmong remainingPorts)
     (return $ Just port)
+
+resolvePort ::
+  Maybe PortNumber ->
+  PortNumber ->
+  [PortNumber] ->
+  String ->
+  String ->
+  Command PortNumber
+resolvePort specifiedPort defaultPort skipPorts specifiedPortTakenMessage noFreePortsMessage =
+  maybe
+    (findPort defaultPort skipPorts)
+    assertPort
+    specifiedPort
+  where
+    assertPort port = do
+      whenM (liftIO $ checkIfLocalPortIsTaken port) $ do
+        throwResolvingError $ "Port " ++ show port ++ " is already in use. " ++ specifiedPortTakenMessage
+      return port
+
+    findPort startPort portsToSkip =
+      liftIO
+        ( findFirstFreeLocalPortInRange
+            startPort
+            portsToSkip
+            noFreePortsMessage
+        )
+        >>= either throwResolvingError return
+
+    throwResolvingError = throwError . CommandError "Failed to find ports"
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
 checkIfLocalPortIsTaken port =

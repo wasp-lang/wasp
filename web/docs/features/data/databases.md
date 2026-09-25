@@ -78,10 +78,13 @@ If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 The command `wasp start db` will start a default PostgreSQL dev database for you.
 
 Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background.
-Also, make sure that:
+Also, make sure that you have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
 
-- You have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
-- The port `5432` isn't taken.
+By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
+
+```bash
+wasp start db --db-port 8080
+```
 
 :::tip
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.

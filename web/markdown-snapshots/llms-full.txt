@@ -3465,10 +3465,13 @@ If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 
 The command `wasp start db` will start a default PostgreSQL dev database for you.
 
-Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background. Also, make sure that:
+Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background. Also, make sure that you have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
 
-- You have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
-- The port `5432` isn't taken.
+By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
+
+```bash
+wasp start db --db-port 8080
+```
 
 :::tip
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
@@ -13326,9 +13329,10 @@ COMMANDS
                           Runs Wasp app in development mode, watching for file changes.
                           Optionally specify the ports the client and the server run on.
                           If not specified, Wasp picks the first free port when the default one is taken.
-    start db [--db-image <image>] [--db-volume-mount-path <path>]
+    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
-                          Optionally specify a custom Docker image or Docker volume mount path.
+                          Optionally specify a custom port, Docker image, or Docker volume mount path.
+                          If the port is not specified, Wasp picks the first free port when the default one is taken.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
@@ -13406,7 +13410,7 @@ wasp db start
 #### Project Commands
 
 - `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
-- `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
+- `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app. By default, it runs on port 5432, or the next free port if that one is taken. Use `--db-port <port>` to choose the port yourself; if you do, Wasp won't look for an alternative when it's taken.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
 ```
