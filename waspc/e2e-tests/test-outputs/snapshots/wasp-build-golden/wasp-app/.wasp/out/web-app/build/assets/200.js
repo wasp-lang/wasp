@@ -272,8 +272,6 @@ z.object({
 * ```typescript
 * console.log(colorize('red', 'This is red text'));
 * ```
-*
-* @internal This is a private API for: SDK, client.
 */
 function colorize(color, text) {
 	if (!supportsAnsiFormatting()) return text;
