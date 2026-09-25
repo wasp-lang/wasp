@@ -1,13 +1,13 @@
 import type { PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import {
+  detectServerImports,
+  envFile,
   typescriptCheck,
+  validateEnv,
   type WaspPluginOptions,
-} from '@wasp.sh/lib-sdk-core/node/vite'
+} from "@wasp.sh/lib-sdk-core/node/vite";
 import ssr from "@wasp.sh/lib-vite-ssr";
-import { validateEnv } from "./validateEnv.js";
-import { envFile } from "./envFile.js";
-import { detectServerImports } from "./detectServerImports.js";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
 import { waspConfig } from "./waspConfig.js";
@@ -24,13 +24,13 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     waspConfig(),
     virtualUserModules(),
     virtualWaspModules(),
-    envFile(),
-    detectServerImports(),
+    envFile(".env.client"),
+    detectServerImports("src/"),
     /**
      * Plugins running after core Vite plugins.
      */
     typescriptCheck({ srcTsConfigPath: "tsconfig.src.json" }),
-    validateEnv(),
+    validateEnv(".wasp/out/sdk/wasp/client/env.ts"),
     react(options?.reactOptions),
     ssr({
       clientEntrySrc: "/@wasp/client-entry.tsx",

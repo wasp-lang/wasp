@@ -116,8 +116,6 @@
       Internal server runtime API. Undocumented.
       ===============================================================
     =}
-    "./server/auth/email": "./dist/server/auth/email/index.js",
-    "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
     "./server/auth/session": "./dist/server/auth/session.js",
@@ -125,7 +123,6 @@
     "./server/core/auth": "./dist/server/core/auth.js",
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
-    "./server/jobs/*": "./dist/server/jobs/*.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     {=! FIXME: Reconsider during refactoring whether this is still needed. =}
