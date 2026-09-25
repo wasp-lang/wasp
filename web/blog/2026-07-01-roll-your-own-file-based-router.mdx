@@ -152,7 +152,7 @@ export default app({
 
 ## Everything Wasp already does still works
 
-Because we're producing normal `route` and `page` spec objects, the rest of Wasp neither knows nor cares that they were generated. So all the features you'd expect keep working, including [type-safe links](/docs/advanced/links):
+Because we're producing normal `route` and `page` spec objects, the rest of Wasp neither knows nor cares that they were generated. So all the features you'd expect keep working, including [type-safe links](/docs/features/pages-and-routes#navigating-between-pages):
 
 ```tsx
 import { Link } from "wasp/client/router";
@@ -225,7 +225,7 @@ These are _your_ conventions. Don't like parentheses for this? Use a `.auth.tsx`
 
 ## Dynamic and optional segments
 
-Wasp routing also supports [dynamic](/docs/features/routes#dynamic-segments) (`:id`) and [optional](/docs/features/routes#optional-segments) (`:id?`) segments. Written out in the spec by hand, they look like this:
+Wasp routing also supports [dynamic](/docs/features/pages-and-routes#dynamic-segments) (`:id`) and [optional](/docs/features/pages-and-routes#optional-segments) (`:id?`) segments. Written out in the spec by hand, they look like this:
 
 ```tsx
 route("ProductRoute", "/products/:productId", page(ProductPage)),
