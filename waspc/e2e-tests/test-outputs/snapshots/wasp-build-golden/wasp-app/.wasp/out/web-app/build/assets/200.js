@@ -212,7 +212,7 @@ function createLocalStorageDataStore(prefix) {
 		},
 		clear() {
 			Object.keys(localStorage).forEach((key) => {
-				if (key.startsWith(prefix)) localStorage.removeItem(key);
+				if (key.startsWith(getPrefixedKey(""))) localStorage.removeItem(key);
 			});
 		}
 	};

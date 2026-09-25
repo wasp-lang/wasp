@@ -33,6 +33,7 @@
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
+- Fixed logging out removing your app's own `localStorage` keys whose names start with `wasp` (e.g. `waspello-theme`). Wasp now only removes its own `wasp:`-prefixed keys. ([#4898](https://github.com/wasp-lang/wasp/pull/4898))
 
 ### 🔧 Small improvements
 
