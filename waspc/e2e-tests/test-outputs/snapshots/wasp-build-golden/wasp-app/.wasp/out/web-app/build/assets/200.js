@@ -315,7 +315,7 @@ function interpolatePathParams(path, params) {
 	return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
 function isValidPathPart(part) {
-	return !!part;
+	return Boolean(part) || part === 0;
 }
 function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);

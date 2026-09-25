@@ -1135,6 +1135,7 @@ wasp-app/src/features/operations/pages/SerializationPage.tsx
 wasp-app/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/src/features/operations/pages/TasksPage.tsx
 wasp-app/src/features/operations/queries.ts
+wasp-app/src/features/operations/routes.test.ts
 wasp-app/src/features/prerender/pages/HydrationMismatchPage.tsx
 wasp-app/src/features/prerender/pages/PrerenderInstancesPage.tsx
 wasp-app/src/features/prerender/pages/PrerenderPage.tsx
