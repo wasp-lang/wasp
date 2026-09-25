@@ -8,7 +8,6 @@ module Wasp.ServerRoutes.ServerRoute
     getHttpMethodsRouteAnswersOn,
     makePathFromSegments,
     getRoutePath,
-    getRoutePathWithoutLeadingSlash,
     doRoutesOverlap,
   )
 where
@@ -55,10 +54,6 @@ getRoutePath :: ServerRoute -> String
 getRoutePath route = case path route of
   ExactPath exactPath -> exactPath
   SubtreePath subtreePath -> subtreePath
-
--- | E.g. "operations/get-tasks". The SDK names routes relative to the server's url.
-getRoutePathWithoutLeadingSlash :: ServerRoute -> String
-getRoutePathWithoutLeadingSlash = dropWhile (== '/') . getRoutePath
 
 -- | Whether some request could match both routes, so that the one registered first shadows
 -- the other. Express matches paths case-insensitively and ignores trailing slashes.

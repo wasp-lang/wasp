@@ -27,11 +27,11 @@ export function makeQueryCacheKey<Input, Output>(
 
 // PRIVATE API (unsed in SDK)
 export function createQuery<BackendQuery extends GenericBackendOperation>(
-  relativeQueryPath: string,
+  queryPath: string,
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
-  const queryRoute = makeOperationRoute(relativeQueryPath)
-  const queryCacheKey = [relativeQueryPath]
+  const queryRoute = makeOperationRoute(queryPath)
+  const queryCacheKey = [queryPath]
 
   const queryFn = (async (queryArgs) => {
     const serverResult = await callOperation(queryRoute, queryArgs)

@@ -43,7 +43,7 @@ getCrudOperationJson crudOperationName crud idField =
         operation
         ( object
             [ "route" .= CrudRoutes.crudOperationRouteInCrudRouter operation,
-              "fullPath" .= ServerRoute.getRoutePathWithoutLeadingSlash (CrudRoutes.crudOperationRoute crudOperationName operation),
+              "fullPath" .= ServerRoute.getRoutePath (CrudRoutes.crudOperationRoute crudOperationName operation),
               "isPublic" .= fromMaybe False (AS.Crud.isPublic options)
             ]
         )

@@ -361,7 +361,7 @@
             "file",
             "sdk/wasp/auth/useAuth.ts"
         ],
-        "bbe3b2827f098d120e907fad5e6226e47aecefeb09fdcf80635ff7099b2edd30"
+        "a15713c71b991e4a1bc5cd8978893b8d18fefb49c30ecb6b4de47f0b6ea1c62d"
     ],
     [
         [
@@ -536,14 +536,14 @@
             "file",
             "sdk/wasp/client/crud/taskVotes.ts"
         ],
-        "3ba7d1fb0aae92a269c6104a3791e3d39ed255ee5bb17ef40c0da771c4532da0"
+        "59672329bf4c8e3b8d71577ce384964de579fee6f616c6afaadf41763b9d32cf"
     ],
     [
         [
             "file",
             "sdk/wasp/client/crud/tasks.ts"
         ],
-        "104b7fdf4c109613bba5eaedfb0d8a5f443670ef917926cc05fc9bb031964fdc"
+        "118d2d677577e347a6ec2b09844348f37b5b696ca5b7416a7c47da7292f31fbf"
     ],
     [
         [
@@ -578,14 +578,14 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "02d2028c46cd470dec7be3344a94755521528135653066f99a01a338058f1805"
+        "baf2b7b0fbd69d5038eda13cfb4cd637449240f9476f0a6679c3b5b5872cf5b8"
     ],
     [
         [
             "file",
             "sdk/wasp/client/operations/actions/index.ts"
         ],
-        "69c620a993ef57498b05533f470f47e2b95abec482e4d6b3dea71c4575b9c416"
+        "ddd61383fcf2ac2ee48378e86e9f1f4a54144ca856e06714afa84b311e66ca92"
     ],
     [
         [
@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/client/operations/internal/index.ts"
         ],
-        "cd22c11fa94f24c132361772557e25d34149667eec1a080bead2aa74a4de3f2a"
+        "0be41606d0f9e93d2afa111ff306a26653e2b9c21019ae4fe4dbf1de92bdff24"
     ],
     [
         [
@@ -627,14 +627,14 @@
             "file",
             "sdk/wasp/client/operations/queries/core.ts"
         ],
-        "cf0cbee66bea7789d5eeac5798495c7f22f15868400bf0b6bab9c95d31bfe2ff"
+        "2dc9323941092b3a31f760a769af4b4c736dfa5478b6edc349fd804341aae766"
     ],
     [
         [
             "file",
             "sdk/wasp/client/operations/queries/index.ts"
         ],
-        "1cc8bd82293e22e9329ee3aeb6a37a071ecc659e250741f785642efaf413e38f"
+        "05616fd6e8d9ca99942bcfeb6707537de79f2c4fae0e51f9054075bb30f3a8b5"
     ],
     [
         [

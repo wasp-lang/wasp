@@ -48,23 +48,23 @@ export interface TaskDelete {
 
 function createCrud(): TaskCrud {
   const crudGetQuery = createQuery<RegisteredGetQuery>(
-    'crud/tasks/get',
+    '/crud/tasks/get',
     ["Task"]
   )
   const crudGetAllQuery = createQuery<RegisteredGetAllQuery>(
-    'crud/tasks/get-all',
+    '/crud/tasks/get-all',
     ["Task"]
   )
   const crudCreateAction = createAction<RegisteredCreateAction>(
-    'crud/tasks/create',
+    '/crud/tasks/create',
     ["Task"]
   )
   const crudUpdateAction = createAction<RegisteredUpdateAction>(
-    'crud/tasks/update',
+    '/crud/tasks/update',
     ["Task"]
   )
   const crudDeleteAction = createAction<RegisteredDeleteAction>(
-    'crud/tasks/delete',
+    '/crud/tasks/delete',
     ["Task"]
   )
   return {

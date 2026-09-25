@@ -71,7 +71,7 @@ genUseAuth auth =
     tmplData =
       object
         [ "entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName],
-          "getMeRelativePath" .= ServerRoute.getRoutePathWithoutLeadingSlash AuthRoutes.meRoute
+          "getMePath" .= ServerRoute.getRoutePath AuthRoutes.meRoute
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
