@@ -21,7 +21,7 @@ const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
 {=# isAuthEnabled =}
-router.use('/auth', middleware, auth)
+router.use('/{= authRouteInRootRouter =}', middleware, auth)
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
 {=# areThereAnyCrudRoutes =}

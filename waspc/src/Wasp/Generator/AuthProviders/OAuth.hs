@@ -1,10 +1,5 @@
 module Wasp.Generator.AuthProviders.OAuth
   ( clientOAuthCallbackPath,
-    serverOAuthLoginHandlerPath,
-    serverOAuthCallbackHandlerPath,
-    serverLoginUrl,
-    serverExchangeCodeForTokenHandlerPath,
-    serverExchangeCodeForTokenUrl,
     providerId,
     displayName,
     scopeStr,
@@ -38,18 +33,3 @@ scopeStr oai = makeJsArrayFromHaskellList $ _requiredScope oai
 
 clientOAuthCallbackPath :: String
 clientOAuthCallbackPath = "/oauth/callback"
-
-serverOAuthLoginHandlerPath :: String
-serverOAuthLoginHandlerPath = "login"
-
-serverLoginUrl :: OAuthAuthProvider -> String
-serverLoginUrl oai = "/auth/" ++ providerId oai ++ "/" ++ serverOAuthLoginHandlerPath
-
-serverOAuthCallbackHandlerPath :: String
-serverOAuthCallbackHandlerPath = "callback"
-
-serverExchangeCodeForTokenHandlerPath :: String
-serverExchangeCodeForTokenHandlerPath = "exchange-code"
-
-serverExchangeCodeForTokenUrl :: String
-serverExchangeCodeForTokenUrl = "/auth/" ++ serverExchangeCodeForTokenHandlerPath

@@ -2,13 +2,13 @@
 import { config, HttpError } from '../../index.js'
 
 // PRIVATE API (server)
-export const loginPath = '{= serverOAuthLoginHandlerPath =}'
+export const loginPath = '{= loginRouteInAuthProviderRouter =}'
 
 // PRIVATE API (server)
-export const exchangeCodeForTokenPath = '{= serverExchangeCodeForTokenHandlerPath =}'
+export const exchangeCodeForTokenPath = '{= exchangeCodeRouteInAuthRouter =}'
 
 // PRIVATE API (server)
-export const callbackPath = '{= serverOAuthCallbackHandlerPath =}'
+export const callbackPath = '{= callbackRouteInAuthProviderRouter =}'
 
 const clientOAuthCallbackPath = '{= clientOAuthCallbackPath =}'
 
@@ -31,7 +31,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
 
 // PRIVATE API (SDK)
 export function getRedirectUriForCallback(providerName: string): URL {
-  return new URL(`${config.serverUrl}/auth/${providerName}/${callbackPath}`);
+  return new URL(`${config.serverUrl}/{= authRouteInRootRouter =}/${providerName}/${callbackPath}`);
 }
 
 function getRedirectUriForError(error: string): URL {

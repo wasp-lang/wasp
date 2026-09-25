@@ -19,6 +19,7 @@ export type WebSocketContextValue = {
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   config.apiUrl,
   {
+    path: '{= webSocketPath =}',
     transports: ['websocket'],
     autoConnect: {= autoConnect =} && !import.meta.env.SSR,
   }

@@ -5,7 +5,6 @@
 
 module Wasp.Generator.ServerGenerator
   ( genServer,
-    operationsRouteInRootRouter,
     npmDepsFromWasp,
 
     -- * Exported for testing only
@@ -44,7 +43,6 @@ import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
-import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
@@ -74,6 +72,10 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.Crud as CrudRoutes
+import qualified Wasp.ServerRoutes.Liveness as LivenessRoutes
+import qualified Wasp.ServerRoutes.Operations as OperationRoutes
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -291,26 +293,16 @@ genRoutesIndex spec =
   where
     tmplData =
       object
-        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
-          "upRouteInRootRouter" .= (upRouteInRootRouter :: String),
+        [ "authRouteInRootRouter" .= AuthRoutes.authRouteInRootRouter,
+          "operationsRouteInRootRouter" .= OperationRoutes.operationsRouteInRootRouter,
+          "crudRouteInRootRouter" .= CrudRoutes.crudRouteInRootRouter,
+          "upRouteInRootRouter" .= LivenessRoutes.upRouteInRootRouter,
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (fst $ getApp spec :: String)
         ]
-
-operationsRouteInRootRouter :: String
-operationsRouteInRootRouter = "operations"
-
--- | Since our health check is just a simple liveness check,
--- we use the same @/up@ route that Rails and Laravel use.
---
--- Health checks (@/health@ route) are much more complex,
--- so we let users handle it themselves.
-upRouteInRootRouter :: String
-upRouteInRootRouter = "up"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

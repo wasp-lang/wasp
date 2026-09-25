@@ -209,7 +209,6 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.Common
     Wasp.Generator.Crud
-    Wasp.Generator.Crud.Routes
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -385,6 +384,14 @@ library
     Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
+    Wasp.ServerRoutes
+    Wasp.ServerRoutes.Auth
+    Wasp.ServerRoutes.Crud
+    Wasp.ServerRoutes.Liveness
+    Wasp.ServerRoutes.Operations
+    Wasp.ServerRoutes.ServerRoute
+    Wasp.ServerRoutes.UserApi
+    Wasp.ServerRoutes.WebSocket
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
@@ -401,6 +408,7 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH
+    Wasp.Util.UrlPath
     Wasp.Util.WebRouterPath
     Wasp.Valid
     Wasp.Validator
@@ -615,6 +623,8 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    ServerRoutes.ServerRouteTest
+    ServerRoutesTest
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
@@ -622,6 +632,7 @@ test-suite waspc-tests
     Util.JsTest
     Util.Prisma
     Util.StrongPathTest
+    Util.UrlPathTest
     Util.WebRouterPathTest
     UtilTest
     ValidatorTest

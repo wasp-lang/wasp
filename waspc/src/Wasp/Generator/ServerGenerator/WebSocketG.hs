@@ -30,6 +30,8 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
+import qualified Wasp.ServerRoutes.WebSocket as WebSocketRoutes
 
 depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec
@@ -54,7 +56,8 @@ genWebSocketInitialization spec =
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
-              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec),
+              "webSocketPath" .= ServerRoute.getRoutePath WebSocketRoutes.webSocketRoute
             ]
       )
   where
