@@ -1,14 +1,5 @@
-// PUBLIC API
-export type GetVerificationEmailContentFn = (params: { verificationLink: string }) => EmailContent;
-
-// PUBLIC API
-export type GetPasswordResetEmailContentFn = (params: { passwordResetLink: string }) => EmailContent;
-
-type EmailContent = {
-    subject: string;
-    html: string;
-    text: string;
-}
+import { type GetPasswordResetEmailContentFn, type GetVerificationEmailContentFn } from '@wasp.sh/lib-sdk-core/node'
+export { type GetPasswordResetEmailContentFn, type GetVerificationEmailContentFn } from '@wasp.sh/lib-sdk-core/node'
 
 export {
     createEmailVerificationLink,

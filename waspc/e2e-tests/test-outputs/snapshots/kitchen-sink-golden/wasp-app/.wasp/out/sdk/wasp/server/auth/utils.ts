@@ -1,6 +1,8 @@
-import { hashPassword } from './password.js'
+import { throwValidationError } from '../../auth/validation.js'
+export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp.sh/lib-sdk-core/node'
+
+import { ensurePasswordIsHashed } from '@wasp.sh/lib-sdk-core/node'
 import { prisma, HttpError } from '../index.js'
-import { sleep } from '../utils.js'
 import type {
   User,
   Auth,
@@ -8,13 +10,10 @@ import type {
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { throwValidationError } from '../../auth/validation.js'
-
 import {
   type ProviderId,
   type ProviderName,
   type PossibleProviderData,
-  providerDataHasPasswordField,
 } from '../../auth/providerData.js'
 
 import type { UserSignupFields, PossibleUserFields } from '../../auth/providers/types.js'
@@ -152,19 +151,6 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
 }
 
 // PRIVATE API
-// If an user exists, we don't want to leak information
-// about it. Pretending that we're doing some work
-// will make it harder for an attacker to determine
-// if a user exists or not.
-// NOTE: Attacker measuring time to response can still determine
-// if a user exists or not. We'll be able to avoid it when
-// we implement e-mail sending via jobs.
-export async function doFakeWork(): Promise<unknown> {
-  const timeToWork = Math.floor(Math.random() * 1000) + 1000;
-  return sleep(timeToWork);
-}
-
-// PRIVATE API
 export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
@@ -208,6 +194,10 @@ export function rethrowPossibleAuthError(e: unknown): void {
   throw e
 }
 
+function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
+  return JSON.stringify(providerData);
+}
+
 // PRIVATE API
 export async function validateAndGetUserFields(
   data: {
@@ -229,40 +219,21 @@ export async function validateAndGetUserFields(
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
-    } catch (e) {
-      throwValidationError(e.message)
+    } catch (error: unknown) {
+      if (hasStringMessage(error)) {
+        throwValidationError(error.message)
+      } else {
+        console.warn('Unknown validation error happened', error)
+        throwValidationError('Unknown validation error happened')
+      }
     }
   }
   return result;
 }
 
-// PUBLIC API
-export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<string> {
-  return serializeProviderData(
-    await ensurePasswordIsHashed(providerData)
-  );
-}
-
-function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
-  return JSON.stringify(providerData);
-}
-
-async function ensurePasswordIsHashed<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<PossibleProviderData[PN]> {
-  const data = {
-    ...providerData,
-  };
-  if (providerDataHasPasswordField(data)) {
-    data.hashedPassword = await hashPassword(data.hashedPassword);
-  }
-
-  return data;
-}
-
-// PRIVATE API
-export function createInvalidCredentialsError(message?: string): HttpError {
-  return new HttpError(401, 'Invalid credentials', { message })
+function hasStringMessage(value: unknown): value is { message: string } {
+  return typeof value === 'object'
+    && value !== null
+    && 'message' in value
+    && typeof value.message === 'string'
 }

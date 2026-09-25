@@ -37,11 +37,8 @@ wasp-app/.wasp/out/sdk/wasp/auth/forms/Login.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/ResetPassword.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/Signup.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/VerifyEmail.tsx
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/Form.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/Form.tsx
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/Message.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/Message.tsx
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/auth-styles.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx
@@ -49,9 +46,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/useEmail.ts
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/emailField.ts
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialButton.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialButton.tsx
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialIcons.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialIcons.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/util.ts
 wasp-app/.wasp/out/sdk/wasp/auth/forms/types.ts
@@ -73,7 +68,6 @@ wasp-app/.wasp/out/sdk/wasp/auth/user.ts
 wasp-app/.wasp/out/sdk/wasp/auth/validation.ts
 wasp-app/.wasp/out/sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/FullPageWrapper.tsx
-wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.module.css
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Message.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/WaspApp.tsx
@@ -195,13 +189,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Form.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Form.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Form.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Form.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Form.module.css
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.module.css
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/auth-styles.css
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/common/LoginSignupForm.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/common/LoginSignupForm.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/common/LoginSignupForm.jsx
@@ -231,12 +222,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.module.css
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialIcons.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialIcons.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialIcons.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialIcons.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialIcons.module.css
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/util.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/util.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/util.js
@@ -321,7 +310,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.module.css
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Message.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Message.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Message.jsx
