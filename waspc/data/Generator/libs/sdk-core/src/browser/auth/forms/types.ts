@@ -1,5 +1,9 @@
 import type { RegisterOptions, UseFormReturn } from "react-hook-form";
-import type { LoginSignupFormFields } from "./LoginSignupForm.js";
+
+export type LoginSignupFormFields = {
+  [key: string]: string;
+};
+
 export type CustomizationOptions = {
   logo?: string;
   socialLayout?: "horizontal" | "vertical";
