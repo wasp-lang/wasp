@@ -1,7 +1,4 @@
-/**
- * Register for type augmentation via declaration merging.
- */
-export interface Register {}
+import type { Register } from "./index";
 
 /**
  * Safely reads a value from {@link Register} by following {@link Path}.
