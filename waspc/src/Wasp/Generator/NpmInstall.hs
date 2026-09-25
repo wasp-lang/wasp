@@ -4,8 +4,7 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
-import Control.Concurrent.Async (concurrently)
+import Control.Concurrent (threadDelay)
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
@@ -13,17 +12,18 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
-import Wasp.Job (Job, JobMessage, JobType)
-import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Kind as Kind
+import qualified Wasp.Job.Node as Node
+import qualified Wasp.Job.Output as Job.Output
+import qualified Wasp.Job.Output.Event as Event
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
@@ -34,8 +34,6 @@ installNpmDependenciesWithInstallRecord ::
   Path' Abs (Dir GeneratedAppDir) ->
   IO (Either GeneratorError ())
 installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
-  messagesChan <- liftIO newChan
-
   let allNpmDeps = getAllNpmDeps spec
 
   shouldInstallNpmDeps <-
@@ -53,7 +51,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
-    liftIO (installProjectNpmDependencies messagesChan waspProjectDirPath)
+    liftIO (installProjectNpmDependencies waspProjectDirPath)
       >>= onLeftThrowError
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
@@ -65,46 +63,30 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
-  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir = do
-  (_, installExitCode) <- handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
+  SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependencies projectDir = do
+  installExitCode <- Job.Output.runAndPrintPrefixedOutput Kind.Wasp installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
   where
     installProjectDepsJob =
-      installNpmDependenciesAndReport
-        (runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp)
-        messagesChan
-        J.Wasp
-    handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
-    handleProjectInstallMessages = runPrefixedWriter . processMessages
-      where
-        processMessages :: Chan J.JobMessage -> PrefixedWriter ()
-        processMessages chan = do
-          jobMsg <- liftIO $ readChan chan
-          case J._data jobMsg of
-            J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
-            J.JobExit {} -> return ()
+      installNpmDependenciesAndReport projectDir
 
-installNpmDependenciesAndReport :: Job -> Chan JobMessage -> JobType -> IO ExitCode
-installNpmDependenciesAndReport installJob chan jobType = do
-  writeChan chan $ J.JobMessage {J._data = J.JobOutput "Starting npm install\n" J.Stdout, J._jobType = jobType}
-  result <- installJob chan `race` reportInstallationProgress chan jobType
-  case result of
-    Left exitCode -> return exitCode
-    Right _ -> error "This should never happen, reporting installation progress should run forever."
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
+installNpmDependenciesAndReport projectDir = do
+  Job.emitJobOutput Event.Stdout "Starting npm install\n"
+  Job.withBackgroundOutputWorker reportInstallationProgress $
+    Node.runChecked [] projectDir "npm" ["install"]
 
-reportInstallationProgress :: Chan JobMessage -> JobType -> IO ()
-reportInstallationProgress chan jobType =
+reportInstallationProgress :: (Event.JobOutputKind -> T.Text -> IO ()) -> IO ()
+reportInstallationProgress emit =
   mapM_ reportMessage $ cycle possibleMessages
   where
     reportMessage message = do
-      threadDelay $ secToMicroSec 5
-      writeChan chan $ J.JobMessage {J._data = J.JobOutput (T.append message "\n") J.Stdout, J._jobType = jobType}
-      threadDelay $ secToMicroSec 5
-
-    secToMicroSec = (* 1000000)
+      threadDelay $ secondsToMicroSeconds 5
+      emit Event.Stdout $ T.append message "\n"
+      threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =
       [ "Still installing npm dependencies!",
