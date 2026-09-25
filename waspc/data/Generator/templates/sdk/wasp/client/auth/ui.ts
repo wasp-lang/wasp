@@ -7,7 +7,7 @@ export { ForgotPasswordForm } from '../../auth/forms/ForgotPassword'
 export { VerifyEmailForm } from '../../auth/forms/VerifyEmail'
 export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
 {=/ isEmailAuthEnabled =}
-export type { CustomizationOptions } from '../../auth/forms/types'
+export type { CustomizationOptions } from '@wasp.sh/lib-sdk-core/browser'
 {=# isSlackAuthEnabled =}
 export { SignInButton as SlackSignInButton } from '../../auth/helpers/Slack'
 {=/ isSlackAuthEnabled =}
@@ -32,4 +32,4 @@ export {
   FormTextarea,
   FormItemGroup,
   FormLabel,
-} from '../../auth/forms/internal/Form'
+} from '@wasp.sh/lib-sdk-core/browser'

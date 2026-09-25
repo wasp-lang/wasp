@@ -1,6 +1,6 @@
-import { createAction, type ActionFor } from "../operations/actions/core";
-import { createQuery, type QueryFor } from "../operations/queries/core";
-import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers";
+import { createAction } from "../operations/actions/core";
+import { createQuery } from "../operations/queries/core";
+import { makeUseActionFor, makeUseQueryFor, type ActionFor, type QueryFor, type UseActionFor, type UseQueryFor } from "@wasp.sh/lib-sdk-core/browser";
 import type {
   RegisteredGetQuery,
   RegisteredGetAllQuery,
@@ -90,4 +90,3 @@ function createCrud(): TaskCrud {
     },
   }
 }
-

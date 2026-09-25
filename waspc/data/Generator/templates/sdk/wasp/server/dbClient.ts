@@ -1,7 +1,7 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-import type { FromRegister } from '../types/register'
+import type { FromRegister } from '@wasp.sh/lib-sdk-core'
 {=# prismaSetupFn.isDefined =}
 {=& prismaSetupFn.importStatement =}
 {=/ prismaSetupFn.isDefined =}

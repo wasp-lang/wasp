@@ -1,5 +1,10 @@
 {{={= =}=}}
-import { throwValidationError } from '../../auth/validation.js'
+import {
+  throwValidationError,
+  type ProviderId,
+  type ProviderName,
+  type PossibleProviderData,
+} from '@wasp.sh/lib-sdk-core'
 export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp.sh/lib-sdk-core/node'
 
 import { ensurePasswordIsHashed } from '@wasp.sh/lib-sdk-core/node'
@@ -10,12 +15,6 @@ import type {
   {= authIdentityEntityUpper =},
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
-
-import {
-  type ProviderId,
-  type ProviderName,
-  type PossibleProviderData,
-} from '../../auth/providerData.js'
 
 import type { UserSignupFields, PossibleUserFields } from '../../auth/providers/types.js'
 
@@ -32,7 +31,7 @@ export {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-} from '../../auth/providerData.js'
+} from '@wasp.sh/lib-sdk-core'
 
 // PRIVATE API
 export const contextWithUserEntity = {

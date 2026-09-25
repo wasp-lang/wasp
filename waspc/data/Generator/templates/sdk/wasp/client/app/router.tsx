@@ -6,7 +6,7 @@ import type { RouteObject } from 'react-router'
 import { OAuthCallbackPage } from "./pages/OAuthCallback"
 {=/ isExternalAuthEnabled =}
 
-import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+import { DefaultRootErrorBoundary } from '@wasp.sh/lib-sdk-core/browser'
 
 import { routes } from '../router/index'
 

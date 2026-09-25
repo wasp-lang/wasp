@@ -1,5 +1,5 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
+import { initializeQueryClient } from "@wasp.sh/lib-sdk-core/browser";
 import { Outlet } from "react-router"
 
 

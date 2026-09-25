@@ -1,5 +1,5 @@
 import { getSessionAndUserFromBearerToken } from '../auth/session.js'
-import { createInvalidCredentialsError } from '../auth/utils.js'
+import { createInvalidCredentialsError } from '@wasp.sh/lib-sdk-core/node'
 import { defineHandler } from '../utils.js'
 
 /**
