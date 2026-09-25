@@ -4,26 +4,22 @@ import { apiEventsEmitter } from "./events.js";
 
 const WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 
-// PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId);
   apiEventsEmitter.emit("sessionId.set");
 }
 
-// PRIVATE API (sdk)
 export function getSessionId(): string | null {
   const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as
     | string
     | undefined;
   return sessionId ?? null;
 }
-// PRIVATE API (sdk)
 export function clearSessionId(): void {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
   apiEventsEmitter.emit("sessionId.clear");
 }
 
-// PRIVATE API (sdk)
 export function removeLocalUserData(): void {
   storage.clear();
   apiEventsEmitter.emit("sessionId.clear");
@@ -48,7 +44,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-// PRIVATE API (sdk)
 /**
  * Takes an error returned by the app's API (as thrown by ky), and transforms it into a more
  * standard format to be further used by the client. It is also assumed that given API
@@ -92,7 +87,6 @@ class WaspHttpError extends Error {
 
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";
 
-// PRIVATE API
 export async function initSession(sessionId: string): Promise<void> {
   setSessionId(sessionId);
   // We need to invalidate queries after login in order to get the correct user

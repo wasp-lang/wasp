@@ -1,18 +1,13 @@
-// PRIVATE API
 export type RouteDefinitionsToRoutes<Routes extends RoutesDefinition> =
   RouteDefinitionsToRoutesObj<Routes>[keyof RouteDefinitionsToRoutesObj<Routes>];
 
-// PRIVATE API
 export type OptionalRouteOptions = {
   search?: Search;
   hash?: string;
 };
 
-// PRIVATE API
 export type ParamValue = string | number;
-// PRIVATE API
 export type Params = { [name: string]: ParamValue };
-// PRIVATE API
 export type Search =
   | string[][]
   | Record<string, string>
@@ -40,7 +35,6 @@ type ParamsFromBuildFn<BF extends BuildFn> = Parameters<BF>[0] extends {
   ? { params: Params }
   : { params?: never };
 
-// PRIVATE API (sdk)
 /**
  * Optional static segments handling: expands routes with optional segments
  * into multiple routes, one for each possible combination of optional segments.

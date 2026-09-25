@@ -1,7 +1,6 @@
 import "../auth-styles.css";
 import styles from "./SocialIcons.module.css";
 
-// PRIVATE API
 export const Google = () => (
   <svg
     className={styles.icon}
@@ -38,7 +37,6 @@ export const Keycloak = () => (
   </svg>
 );
 
-// PRIVATE API
 export const GitHub = () => (
   <svg
     className={styles.icon}

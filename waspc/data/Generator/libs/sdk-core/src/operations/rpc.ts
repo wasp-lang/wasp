@@ -1,9 +1,6 @@
 import type { Route } from "../http.js";
 import type { IfAny, _Awaited, _ReturnType } from "../utils/types.js";
 
-// PRIVATE API (for SDK, should maybe be public, users define values of this
-// type).
-//
 // Frontend queries are functions with some extra properties (metadata).
 //
 // To simplify working with the type (i.e., referencing the type's two different
@@ -16,20 +13,16 @@ import type { IfAny, _Awaited, _ReturnType } from "../utils/types.js";
  */
 export type Query<Input, Output> = QueryFunction<Input, Output> & QueryMetadata;
 
-// PRIVATE API (for SDK, should maybe be public, users define values of this
-// type)
 /**
  * The client Action object type (unlike a Query, it's just a normal function).
  */
 export type Action<Input, Output> = ClientOperation<Input, Output>;
 
-// PRIVATE API (for SDK)
 /**
  * The client Query function type.
  */
 export type QueryFunction<Input, Output> = ClientOperation<Input, Output>;
 
-// PRIVATE API (for SDK)
 // todo: revisit what we expose. Also, queryCacheKey is confusing and
 // incorrect.Details here: https://github.com/wasp-lang/wasp/issues/2017
 /**
@@ -40,7 +33,6 @@ export type QueryMetadata = {
   route: Route;
 };
 
-// PRIVATE API (needed in SDK)
 // Explanation:
 // - Custom `_Awaited` and `_ReturnType` - Read the comments above their
 // definitions.
@@ -58,14 +50,12 @@ export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
         _Awaited<_ReturnType<BackendOperation>>
       >;
 
-// PRIVATE API (needed in SDK)
 /**
  * A supertype of all possible backend operation definitions (i.e., Queries and
  * Actions)
  */
 export type GenericBackendOperation = (args: never, context: any) => unknown;
 
-// PRIVATE API (needed in SDK)
 /**
  * A supertype of all possible frontend RPC function types.
  */

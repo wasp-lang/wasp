@@ -1,6 +1,5 @@
 import type { Params, Search } from "./types";
 
-// PRIVATE API
 export function interpolatePath(
   path: string,
   params?: Params,

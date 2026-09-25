@@ -7,7 +7,6 @@ import {
 import { HttpError } from "../../HttpError.js";
 import { sleep } from "../../utils/sleep.js";
 
-// PRIVATE API
 // If an user exists, we don't want to leak information
 // about it. Pretending that we're doing some work
 // will make it harder for an attacker to determine

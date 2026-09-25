@@ -2,7 +2,6 @@ import * as z from "zod";
 
 import { colorize } from "../utils/ansiColors.js";
 
-// PRIVATE API (SDK)
 export function ensureEnvSchema<Schema extends z.ZodType>(
   data: unknown,
   schema: Schema,
@@ -16,7 +15,6 @@ export function ensureEnvSchema<Schema extends z.ZodType>(
   }
 }
 
-// PRIVATE API (SDK, Vite config)
 export function getValidatedEnvOrError<Schema extends z.ZodType>(
   env: unknown,
   schema: Schema,
@@ -24,7 +22,6 @@ export function getValidatedEnvOrError<Schema extends z.ZodType>(
   return schema.safeParse(env);
 }
 
-// PRIVATE API (SDK, Vite config)
 export function formatZodEnvError(error: z.ZodError): string {
   const flattenedIssues = z.flattenError(error);
 

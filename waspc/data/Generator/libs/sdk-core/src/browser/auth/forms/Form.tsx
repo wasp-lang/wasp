@@ -7,7 +7,6 @@ import styles from "./Form.module.css";
 import "./auth-styles.css";
 import { clsx } from "./util";
 
-// PRIVATE API
 export const Form = forwardRef<
   ComponentRef<"form">,
   ComponentPropsWithoutRef<"form">
@@ -62,7 +61,6 @@ export const FormError = forwardRef<
   </div>
 ));
 
-// PRIVATE API
 export const SubmitButton = forwardRef<
   ComponentRef<"button">,
   ComponentPropsWithoutRef<"button">

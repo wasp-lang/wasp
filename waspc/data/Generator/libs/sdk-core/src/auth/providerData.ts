@@ -11,7 +11,6 @@ export type UsernameProviderData = {
 
 export type OAuthProviderData = {};
 
-// PRIVATE API
 /**
  * This type is used for type-level programming e.g. to enumerate
  * all possible provider data types.
@@ -56,7 +55,6 @@ export function createProviderId(
   };
 }
 
-// PRIVATE API
 export function normalizeProviderUserId(
   providerName: ProviderName,
   providerUserId: string,
@@ -75,7 +73,7 @@ export function normalizeProviderUserId(
     /*
       Why the default case?
       In case users add a new auth provider in the user-land.
-      Users can't extend this function because it is private.
+      The switch can't enumerate user-defined providers.
       If there is an unknown `providerName` in runtime, we'll
       return the `providerUserId` as is.
 
@@ -113,7 +111,6 @@ function sanitizeProviderData<PN extends ProviderName>(
   }
 }
 
-// PRIVATE API
 export function providerDataHasPasswordField(
   providerData: PossibleProviderData[keyof PossibleProviderData],
 ): providerData is { hashedPassword: string } {
