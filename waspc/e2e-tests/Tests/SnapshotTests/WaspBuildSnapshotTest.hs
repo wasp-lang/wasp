@@ -76,9 +76,9 @@ wrapViteConfigForDeterministicBuild = do
               ...options,
               skipSelf: true,
             });
-            // Let Vite process core's injected CSS imports during SSR.
+            // Let Vite process @wasp.sh/lib-sdk-core so its component CSS is included in the snapshot.
             if (resolved?.id.includes("/node_modules/@wasp.sh/lib-sdk-core/")) return null;
-            if (resolved && resolved.id.includes("/node_modules/") && !resolved.id.endsWith(".css")) {
+            if (resolved && resolved.id.includes("/node_modules/")) {
               // We externalize the module
               return { id: source, external: true };
             } else {
