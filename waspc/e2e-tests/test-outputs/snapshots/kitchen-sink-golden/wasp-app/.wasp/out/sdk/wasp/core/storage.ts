@@ -63,8 +63,10 @@ function createLocalStorageDataStore(prefix: string): DataStore {
       localStorage.removeItem(getPrefixedKey(key));
     },
     clear() {
+      // Match the full `wasp:` prefix, so we don't remove the app's own keys
+      // that just happen to start with "wasp" (e.g. `waspello-theme`).
       Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith(prefix)) {
+        if (key.startsWith(getPrefixedKey(""))) {
           localStorage.removeItem(key);
         }
       });
