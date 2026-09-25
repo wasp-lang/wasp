@@ -66,7 +66,6 @@ export function ensureTokenIsPresent(args: object): void {
   ]);
 }
 
-// PRIVATE API
 export function throwValidationError(message: string): void {
   throw new HttpError(422, "Validation failed", { message });
 }

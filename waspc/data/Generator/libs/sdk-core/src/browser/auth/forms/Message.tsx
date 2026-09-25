@@ -7,7 +7,6 @@ import styles from "./Message.module.css";
 import "./auth-styles.css";
 import { clsx } from "./util";
 
-// PRIVATE API
 export const Message = forwardRef<
   ComponentRef<"div">,
   ComponentPropsWithoutRef<"div">
@@ -17,7 +16,6 @@ export const Message = forwardRef<
   </div>
 ));
 
-// PRIVATE API
 export const MessageError = forwardRef<
   ComponentRef<"div">,
   ComponentPropsWithoutRef<"div">
@@ -27,7 +25,6 @@ export const MessageError = forwardRef<
   </div>
 ));
 
-// PRIVATE API
 export const MessageSuccess = forwardRef<
   ComponentRef<"div">,
   ComponentPropsWithoutRef<"div">

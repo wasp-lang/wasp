@@ -6,7 +6,6 @@ let queryClientConfig: QueryClientConfig,
   resolveQueryClientInitialized: (...args: any[]) => any,
   isQueryClientInitialized: boolean;
 
-// PRIVATE API (framework code)
 export const queryClientInitialized: Promise<QueryClient> = new Promise(
   (resolve) => {
     resolveQueryClientInitialized = resolve;
@@ -23,7 +22,6 @@ export function configureQueryClient(config: QueryClientConfig): void {
   queryClientConfig = config;
 }
 
-// PRIVATE API (framework code)
 export function initializeQueryClient(): void {
   const queryClient = new QueryClient(
     queryClientConfig ?? defaultQueryClientConfig,

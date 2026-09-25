@@ -32,18 +32,15 @@ export type CustomizationOptions = {
   };
 };
 
-// PRIVATE API
 export type FormState = {
   isLoading: boolean;
 };
 
-// PRIVATE API
 export type AdditionalSignupFieldRenderFn = (
   hookForm: UseFormReturn<LoginSignupFormFields>,
   formState: FormState,
 ) => React.ReactNode;
 
-// PRIVATE API
 export type AdditionalSignupField = {
   name: string;
   label: string;
@@ -51,7 +48,6 @@ export type AdditionalSignupField = {
   validations?: RegisterOptions<LoginSignupFormFields>;
 };
 
-// PRIVATE API
 export type AdditionalSignupFields =
   | (AdditionalSignupField | AdditionalSignupFieldRenderFn)[]
   | AdditionalSignupFieldRenderFn;

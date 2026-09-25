@@ -5,13 +5,11 @@ import { BrowserRouter as Router } from "react-router";
 import type { Route } from "../../http.js";
 import type { Query } from "../../operations/rpc.js";
 
-// PRIVATE API
 export type MockQuery = <Input, Output, MockOutput extends Output>(
   query: Query<Input, Output>,
   resJson: MockOutput,
 ) => void;
 
-// PRIVATE API
 export type MockApi = (route: Route, resJson: unknown) => void;
 
 // Inspired by the Tanstack React Query helper:

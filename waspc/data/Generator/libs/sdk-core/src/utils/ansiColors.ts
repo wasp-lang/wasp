@@ -1,4 +1,3 @@
-// PRIVATE API (SDK, client)
 /**
  * Wraps each line of text with ANSI color codes.
  * Only works in Node.js (server-side), not in the browser.
@@ -11,8 +10,6 @@
  * ```typescript
  * console.log(colorize('red', 'This is red text'));
  * ```
- *
- * @internal This is a private API for: SDK, client.
  */
 export function colorize(
   color: keyof typeof ansiColorCodes,
