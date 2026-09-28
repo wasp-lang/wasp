@@ -127,6 +127,7 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/deployment/deployment-methods/wasp-deploy/overview", "/docs/deployment/methods/wasp-deploy/overview"),
   permanent("/docs/deployment/deployment-methods/wasp-deploy/railway",  "/docs/deployment/methods/wasp-deploy/railway"),
   permanent("/docs/deployment/intro",                                   "/docs/deployment/overview"),
+  permanent("/docs/features/routes",                                    "/docs/features/pages-and-routes"),
   permanent("/docs/general/cli",                                        "/docs/advanced/cli"),
   permanent("/docs/general/spec",                                       "/docs/features/spec"),
   permanent("/docs/project/client-config",                              "/docs/advanced/client-customization/client-config"),
