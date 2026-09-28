@@ -96,9 +96,10 @@ function validateOAuthState(
   req: ExpressRequest,
   state: OAuthStateWithCodeFor<OAuthType>
 ): void {
-  // NOTE: `getCode` stringifies the query param, so a missing `code`
-  // arrives as the string "undefined" instead of failing the type check.
-  if (typeof state.code !== 'string' || state.code === '' || state.code === 'undefined') {
+  // `getCode` throws at extraction when the code is absent, non-string, or
+  // empty, so a non-empty string is guaranteed here. Authorization codes are
+  // opaque (RFC 6749, Appendix A.11), so no string value is rejected here.
+  if (typeof state.code !== 'string' || state.code === '') {
     throw new HttpError(400, 'Unable to login with the OAuth provider. The authorization code is missing or invalid.');
   }
 
@@ -121,7 +122,14 @@ function generateCodeVerifier(): { codeVerifier: string } {
 }
 
 function getCode(req: ExpressRequest): { code: string } {
-  return { code: `${req.query.code}` };
+  const code = req.query.code;
+  // Reject absent, non-string, or empty codes at extraction instead of
+  // stringifying them: `undefined` is a valid opaque authorization code
+  // (RFC 6749, Appendix A.11), so no real value can be reserved as a sentinel.
+  if (typeof code !== 'string' || code === '') {
+    throw new HttpError(400, 'Unable to login with the OAuth provider. The authorization code is missing or invalid.');
+  }
+  return { code };
 }
 
 function getState(req: ExpressRequest): { state: string } {
