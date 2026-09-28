@@ -18,8 +18,7 @@ data AppComponentUrl
       { port :: PortNumber,
         path :: Maybe (Path Posix Abs (Dir ()))
       }
-  | -- | Listens on a local port, but is reachable at a URL the user chose (e.g.
-    -- a LAN hostname or an HTTPS tunnel that forwards to the local port).
+  | -- | Listens on a local port, but is reachable at a URL the user chose.
     Custom
       { port :: PortNumber,
         publicUrl :: URI
