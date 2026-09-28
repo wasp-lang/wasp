@@ -135,6 +135,6 @@ Wasp's client app is a single page application (SPA) which you build into static
 2. Build the client app with `npx vite build`.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 
-<!-- TOOD: update links below -->
+<!-- TODO: update links below -->
 
 Check out our instructions for deploying the client app to [Netlify](../guides/deployment/cloud-providers/netlify.md) or [Cloudflare](../guides/deployment/cloud-providers/cloudflare.md) where you can check out the example deployment using Github Actions.

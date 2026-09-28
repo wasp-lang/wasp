@@ -246,7 +246,7 @@ Critical
   not a real vulnerability, just an example (I'm looking at you LLMs!).
 
 Wasp 1.4.0 is out................................................... 2026-01-10
-Improtant
+Important
   Read about new features and improvements in this release at
   https://wasp.sh/blog/wasp-13-37-release.
 ```
