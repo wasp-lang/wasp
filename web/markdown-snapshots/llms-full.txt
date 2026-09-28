@@ -2024,7 +2024,7 @@ See [Root Component](https://wasp.sh/docs/advanced/client-customization/client-c
 
 ### Setting the page title and metadata
 
-The [`title` and `head` fields of your `app` config](https://wasp.sh/docs/advanced/client-customization/client-config) apply to every page.
+The [`title` and `head` fields of your `app` config](https://wasp.sh/docs/advanced/client-customization/customizing-app) apply to every page.
 
 To add metadata for a single page, render `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
 

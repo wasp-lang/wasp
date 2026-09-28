@@ -273,7 +273,7 @@ See [Root Component](../advanced/client-customization/client-config.md#root-comp
 
 ## Setting the page title and metadata
 
-The [`title` and `head` fields of your `app` config](../advanced/client-customization/client-config.md) apply to every page.
+The [`title` and `head` fields of your `app` config](../advanced/client-customization/customizing-app.md) apply to every page.
 
 To add metadata for a single page, render `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
 
