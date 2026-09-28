@@ -122,7 +122,7 @@ export default app({
 import { useParams } from "react-router"
 
 export function FilesPage() {
-  const { "*": filePath } = useParams()
+  const { "*": filePath } = useParams<"*">()
   // Visiting /files/docs/report.txt → filePath = "docs/report.txt"
   return <div>File: {filePath}</div>
 }
@@ -132,7 +132,7 @@ Read more in the [React Router docs on splats](https://reactrouter.com/8.0.1/sta
 
 ### Query strings and hashes
 
-Query strings (`?sortBy=date`) and hashes (`#comments`) are not part of the route path, so any route can receive them. Read them with the `useSearchParams` and `useLocation` hooks from `react-router`:
+You don't need to declare query strings (`?sortBy=date`) or hashes (`#comments`) in the route path. Any page can read them with the `useSearchParams` and `useLocation` hooks from `react-router`:
 
 ```tsx title="src/TasksPage.tsx" auto-js
 import { useSearchParams } from "react-router"
@@ -146,7 +146,7 @@ export function TasksPage() {
 
 ## Navigating between pages
 
-To link from one page to another, use the `Link` component from `wasp/client/router`. It behaves the same as [React Router's `Link`](https://reactrouter.com/8.0.1/api/components/Link), but we add types for route paths and parameters. If you give it a route path that doesn't exist or the wrong parameters, you'll get a type error.
+To link from one page to another, use the `Link` component from `wasp/client/router`. It behaves the same as [React Router's `Link`](https://reactrouter.com/8.0.1/api/components/Link), with added types for route paths and parameters. If you give it a route path that doesn't exist, or a route with wrong parameters, you'll get a type error.
 
 ```tsx title="src/PhotoList.tsx" auto-js
 import { Link } from "wasp/client/router"
@@ -273,7 +273,7 @@ See [Root Component](../advanced/client-customization/client-config.md#root-comp
 
 ## Setting the page title and metadata
 
-The `title` and `head` fields of your `app` config apply to every page.
+The [`title` and `head` fields of your `app` config](../advanced/client-customization/client-config.md) apply to every page.
 
 To add metadata for a single page, render `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
 
@@ -320,10 +320,10 @@ Most apps won't need to change this. But if you need a specific route to always 
 import { app, page, route } from "@wasp.sh/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
-// This route's page will be included in the initial bundle
 export default app({
   // ...
   spec: [
+    // This route's page will be included in the initial bundle
     route("DashboardRoute", "/dashboard", page(DashboardPage), { lazy: false }),
   ],
 })
