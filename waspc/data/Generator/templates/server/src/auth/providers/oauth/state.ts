@@ -96,13 +96,6 @@ function validateOAuthState(
   req: ExpressRequest,
   state: OAuthStateWithCodeFor<OAuthType>
 ): void {
-  // `getCode` throws at extraction when the code is absent, non-string, or
-  // empty, so a non-empty string is guaranteed here. Authorization codes are
-  // opaque (RFC 6749, Appendix A.11), so no string value is rejected here.
-  if (typeof state.code !== 'string' || state.code === '') {
-    throw new HttpError(400, 'Unable to login with the OAuth provider. The authorization code is missing or invalid.');
-  }
-
   const storedState = getOAuthCookieValue(provider, req, 'state');
   if (!state.state || !storedState || storedState !== state.state) {
     throw new HttpError(400, 'Unable to login with the OAuth provider. The state is invalid.');
