@@ -13,6 +13,8 @@ export function getRedirects({
 }): RedirectRule[] {
   // Order matters: Cloudflare applies the first matching rule, so list more
   // specific rules before more general ones.
+  // TODO: Also redirect the `.md` versions of these pages.
+  // https://github.com/wasp-lang/wasp/issues/4842
   const redirects: RedirectRule[] = [
     ...legacyDocsRedirects,
     ...docsReorganizationRedirects,
