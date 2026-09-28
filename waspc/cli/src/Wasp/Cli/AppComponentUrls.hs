@@ -5,6 +5,7 @@ module Wasp.Cli.AppComponentUrls
 where
 
 import Network.Socket (PortNumber)
+import Network.URI (URI)
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
@@ -18,7 +19,7 @@ makeDefaultUrls appSpec =
 -- optionally, the custom URLs the user said they are reachable at (e.g. a LAN
 -- hostname or an HTTPS tunnel forwarding to the local port). Without a custom
 -- URL, a component is reachable at @http://localhost:<port>@.
-makeAppComponentUrls :: AppSpec -> (PortNumber, PortNumber) -> (Maybe String, Maybe String) -> (AppComponentUrl, AppComponentUrl)
+makeAppComponentUrls :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> (AppComponentUrl, AppComponentUrl)
 makeAppComponentUrls appSpec (clientPort, serverPort) (customClientUrl, customServerUrl) =
   ( maybe (Local {port = clientPort, path = Just $ WebAppG.getBaseDir appSpec}) (Custom clientPort) customClientUrl,
     maybe (Local {port = serverPort, path = Nothing}) (Custom serverPort) customServerUrl

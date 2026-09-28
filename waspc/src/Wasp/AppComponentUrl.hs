@@ -6,6 +6,7 @@ module Wasp.AppComponentUrl
 where
 
 import Network.Socket (PortNumber)
+import Network.URI (URI, uriToString)
 import StrongPath (Abs, Dir, Path, Posix)
 import qualified StrongPath as SP
 
@@ -21,7 +22,7 @@ data AppComponentUrl
     -- a LAN hostname or an HTTPS tunnel that forwards to the local port).
     Custom
       { port :: PortNumber,
-        publicUrl :: String
+        publicUrl :: URI
       }
   deriving (Show, Eq)
 
@@ -30,7 +31,7 @@ url Local {port = port', path = path'} =
   concat $
     ["http://localhost:", show port']
       ++ [SP.fromAbsDirP p | Just p <- [path']]
-url Custom {publicUrl = publicUrl'} = publicUrl'
+url Custom {publicUrl = publicUrl'} = uriToString id publicUrl' ""
 
 isCustom :: AppComponentUrl -> Bool
 isCustom Custom {} = True
