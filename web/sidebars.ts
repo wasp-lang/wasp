@@ -4,6 +4,7 @@ import type {
   SidebarItemLink,
 } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
 import typedocSidebar from "./docs/api/typedoc-sidebar";
+import docsVersions from "./versions.json";
 
 const sidebars: SidebarsConfig = {
   docs: [
@@ -206,24 +207,7 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       collapsible: true,
       link: { type: "doc", id: "migration-guide" },
-      items: [
-        ...generateMigrationGuideLinks("0.11", [
-          "0.12",
-          "0.13",
-          "0.14",
-          "0.15",
-          "0.16",
-          "0.17",
-          "0.18",
-          "0.19",
-          "0.20",
-          "0.21",
-          "0.22",
-          "0.23",
-          "0.24",
-          "0.25",
-        ]),
-      ],
+      items: generateMigrationGuideLinks(),
     },
     {
       type: "link",
@@ -259,20 +243,23 @@ const sidebars: SidebarsConfig = {
 
 export default sidebars;
 
-function generateMigrationGuideLinks(
-  earliestUndocumentedVersion: string,
-  docsVersions: string[],
-): SidebarItemConfig[] {
-  return docsVersions
-    .map((currentVersion, index, arr): SidebarItemLink => {
-      const prevVersion =
-        index == 0 ? earliestUndocumentedVersion : arr[index - 1];
+function generateMigrationGuideLinks(): SidebarItemConfig[] {
+  return (
+    // `docsVersions`, coming from ../versions.json, is ordered newest-first.
+    docsVersions
 
-      return {
-        type: "link",
-        label: `From ${prevVersion} to ${currentVersion}`,
-        href: `/docs/${currentVersion}/migration-guide`,
-      };
-    })
-    .reverse();
+      // Every version has a migration guide from the one before it, except the
+      // oldest, which we have no guide for.
+      .slice(0, -1)
+
+      .map((currentVersion, index): SidebarItemLink => {
+        const previousVersion = docsVersions[index + 1];
+
+        return {
+          type: "link",
+          label: `From ${previousVersion} to ${currentVersion}`,
+          href: `/docs/${currentVersion}/migration-guide`,
+        };
+      })
+  );
 }
