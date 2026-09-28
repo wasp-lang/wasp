@@ -23,5 +23,5 @@ startArgsParser =
   StartArgs
     <$> portOption "client-port" "Port to run the client on"
     <*> portOption "server-port" "Port to run the server on"
-    <*> urlOption "client-url" "URL at which the client is reachable, if not http://localhost:<client-port>"
-    <*> urlOption "server-url" "URL at which the server is reachable, if not http://localhost:<server-port>"
+    <*> urlOption "client-url" "URL at which the client is reachable"
+    <*> urlOption "server-url" "URL at which the server is reachable"
