@@ -205,8 +205,8 @@ const sidebars: SidebarsConfig = {
       label: "Migration guides",
       collapsed: true,
       collapsible: true,
-      link: { type: "doc", id: "migration-guide" },
       items: [
+        { type: "doc", id: "migration-guide" },
         ...generateMigrationGuideLinks("0.11", [
           "0.12",
           "0.13",
