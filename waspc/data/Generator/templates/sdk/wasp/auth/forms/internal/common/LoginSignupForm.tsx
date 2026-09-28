@@ -102,7 +102,7 @@ export const LoginSignupForm = ({
     isLogin,
     onError: onErrorHandler,
     onSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
+      navigate({=& onAuthSucceededRedirectTo =})
     },
   });
   {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
@@ -115,7 +115,7 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
+      navigate({=& onAuthSucceededRedirectTo =})
     },
   });
   {=/ enabledProviders.isEmailAuthEnabled =}

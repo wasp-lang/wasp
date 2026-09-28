@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { toggleAllTasks } from '../../../../../src/features/operations/actions'
+import { toggleAllTasks } from "../../../../../src/features/operations/actions"
 
 
 export default async function (args, context) {

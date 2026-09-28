@@ -166,7 +166,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
     "cors",
     cors({
       origin: ["https://app.example.com", "https://admin.example.com"],
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
       maxAge: 86400, // 24 hours

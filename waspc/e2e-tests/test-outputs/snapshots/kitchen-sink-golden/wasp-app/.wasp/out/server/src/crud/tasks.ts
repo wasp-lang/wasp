@@ -8,8 +8,8 @@ import type {
   RegisteredUpdateAction,
   RegisteredDeleteAction,
 } from 'wasp/server/crud/tasks'
-import { crudGetAllTasks } from '../../../../../src/features/crud/crud'
-import { crudCreateTask } from '../../../../../src/features/crud/crud'
+import { crudGetAllTasks } from "../../../../../src/features/crud/crud"
+import { crudCreateTask } from "../../../../../src/features/crud/crud"
 
 const entities = {
   Task: prisma.task,

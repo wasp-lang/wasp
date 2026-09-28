@@ -39,6 +39,10 @@ export default app({
 
 Read more about the supported fields in the [API Reference](#api-reference).
 
+:::warning HEAD apis need extra care
+Express answers `HEAD` requests with the `GET` api on the same path, so a `HEAD` api only takes over if you declare it before the `GET` one.
+:::
+
 ### Defining the API's NodeJS Implementation
 
 <ShowForTs>

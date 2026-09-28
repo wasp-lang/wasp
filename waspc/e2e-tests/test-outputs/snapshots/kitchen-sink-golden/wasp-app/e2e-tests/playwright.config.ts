@@ -58,8 +58,8 @@ export default defineConfig({
     ? undefined
     : {
         command: `${WASP_APP_RUNNER_CLI_CMD} ${WASP_RUN_MODE} --path-to-app=../ --wasp-cli-cmd=${WASP_CLI_CMD}`,
-        // Wait for the backend to start
-        url: `http://localhost:${WASP_SERVER_PORT}`,
+        // Wait for the server to start.
+        url: `http://localhost:${WASP_SERVER_PORT}/up`,
         reuseExistingServer: !process.env.CI,
         timeout: 180 * 1000,
         gracefulShutdown: { signal: "SIGTERM", timeout: 500 },

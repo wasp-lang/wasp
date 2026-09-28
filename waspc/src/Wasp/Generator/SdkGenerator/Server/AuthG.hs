@@ -23,6 +23,7 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
@@ -118,8 +119,8 @@ genUtils auth =
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "failureRedirectPath" .= makeJsStringLiteral (AS.Auth.onAuthFailedRedirectTo auth),
+          "successRedirectPath" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

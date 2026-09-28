@@ -57,8 +57,8 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: `${WASP_APP_RUNNER_CLI_CMD} ${WASP_RUN_MODE} --path-to-app=${WASP_APP_PATH} --wasp-cli-cmd=${WASP_CLI_CMD}`,
-    // Wait for the backend to start
-    url: "http://localhost:3001",
+    // Wait for the server to start.
+    url: "http://localhost:3001/up",
     reuseExistingServer: false,
     timeout: 240 * 1000,
     gracefulShutdown: { signal: "SIGTERM", timeout: 2000 },

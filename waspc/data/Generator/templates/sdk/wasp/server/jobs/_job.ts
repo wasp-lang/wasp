@@ -14,7 +14,7 @@ export type {= typeName =}<Input extends JSONObject, Output extends JSONValue | 
 
 {=# jobSchedule.isDefined =}
 const jobSchedule = {
-  cron: "{= jobSchedule.cron =}",
+  cron: {=& jobSchedule.cron =},
   {=# jobSchedule.args.isDefined =}
   args: {=& jobSchedule.args.json =},
   {=/ jobSchedule.args.isDefined =}

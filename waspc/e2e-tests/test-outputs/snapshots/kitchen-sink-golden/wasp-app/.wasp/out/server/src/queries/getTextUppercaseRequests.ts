@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { getTextUppercaseRequests } from '../../../../../src/features/jobs/uppercaseText'
+import { getTextUppercaseRequests } from "../../../../../src/features/jobs/uppercaseText"
 
 
 export default async function (args, context) {

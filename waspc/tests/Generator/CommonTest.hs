@@ -12,4 +12,4 @@ spec_GeneratorCommonTest = do
 
     it "creates an array of strings from Haskell list of strings" $ do
       makeJsArrayFromHaskellList ["one", "two", "three"]
-        `shouldBe` "['one', 'two', 'three']"
+        `shouldBe` "[\"one\", \"two\", \"three\"]"

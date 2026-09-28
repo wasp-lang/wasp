@@ -324,7 +324,7 @@ Configure Caddy to retry connections during restarts:
 ```caddyfile
 api.myapp.com {
     reverse_proxy localhost:3001 {
-        health_uri /
+        health_uri /up
         lb_try_duration 15s
     }
 }

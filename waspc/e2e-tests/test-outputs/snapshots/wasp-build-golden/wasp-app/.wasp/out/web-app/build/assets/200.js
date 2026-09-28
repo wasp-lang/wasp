@@ -163,7 +163,9 @@ var HttpMethod;
 	HttpMethod["Get"] = "GET";
 	HttpMethod["Post"] = "POST";
 	HttpMethod["Put"] = "PUT";
+	HttpMethod["Patch"] = "PATCH";
 	HttpMethod["Delete"] = "DELETE";
+	HttpMethod["Head"] = "HEAD";
 })(HttpMethod || (HttpMethod = {}));
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
@@ -393,7 +395,7 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 				link.addEventListener("load", res);
 				link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
 			});
-		}));
+		}).filter((p) => p !== void 0));
 	}
 	function handlePreloadError(err) {
 		const e = new Event("vite:preloadError", { cancelable: true });

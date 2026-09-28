@@ -150,7 +150,7 @@ spec_GeneratorCrudTest = do
       object
         [ "name" .= crudOperationsName,
           "operations" .= object operations,
-          "entitiesArray" .= ("['Task']" :: String),
+          "entitiesArray" .= ("[\"Task\"]" :: String),
           "idFieldName" .= ("id" :: String),
           "entityLower" .= ("task" :: String),
           "entityUpper" .= ("Task" :: String)

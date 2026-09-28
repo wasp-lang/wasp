@@ -134,7 +134,14 @@ export type ExecutorOptions = {
   pgBoss: Optional<object>;
 };
 
-export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod =
+  | "ALL"
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD";
 
 export type HttpRoute = [HttpMethod, string];
 

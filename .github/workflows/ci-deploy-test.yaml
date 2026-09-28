@@ -177,7 +177,7 @@ jobs:
             echo "Timed out waiting for $url"
             return 1
           }
-          wait_for_url "https://${SERVER_HOSTNAME}"
+          wait_for_url "https://${SERVER_HOSTNAME}/up"
           wait_for_url "https://${CLIENT_HOSTNAME}"
 
       - name: Run E2E tests against deployed app

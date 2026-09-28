@@ -22,9 +22,9 @@ export function formatFromField({
 // PRIVATE API
 export function getDefaultFromField(): EmailFromField {
   return {
-    email: "{= defaultFromField.email =}",
+    email: {=& defaultFromField.email =},
     {=# defaultFromField.isNameDefined =}
-    name: "{= defaultFromField.name =}",
+    name: {=& defaultFromField.name =},
     {=/ defaultFromField.isNameDefined =}
   }
 }

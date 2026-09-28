@@ -20,6 +20,7 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as WS
 import Wasp.Util ((<++>))
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genClientApp :: AppSpec -> Generator [FileDraft]
 genClientApp spec =
@@ -91,14 +92,14 @@ genCreateAuthRequiredPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/createAuthRequiredPage.jsx|]
-      (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
+      (object ["onAuthFailedRedirectTo" .= makeJsStringLiteral (AS.Auth.onAuthFailedRedirectTo auth)])
 
 genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCallbackPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
+      (object ["onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth)])
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

@@ -4,15 +4,15 @@ import StrongPath (Dir, Path, Posix, Rel)
 import qualified StrongPath as SP
 import Test.Hspec
 import Wasp.AppSpec.ExtImport
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.JsImport
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
 import Wasp.JsImport as JI
+import Wasp.Project.Common (UserSrcDir)
 
 spec_GeneratorJsImportTest :: Spec
 spec_GeneratorJsImportTest = do
   describe "extImportToJsImport" $ do
-    let pathToExtCodeDir = [SP.reldirP|src|] :: (Path Posix (Rel ServerSrcDir) (Dir SourceExternalCodeDir))
+    let pathToExtCodeDir = [SP.reldirP|src|] :: (Path Posix (Rel ServerSrcDir) (Dir UserSrcDir))
         pathFromImportLocationToExtCodeDir = [SP.reldirP|../|]
         extImport =
           ExtImport
