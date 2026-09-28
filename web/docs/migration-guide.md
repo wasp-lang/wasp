@@ -159,6 +159,8 @@ To keep running on those ports, pass them to `wasp start` or `wasp build start` 
 wasp start --client-port 4000 --server-port 4001
 ```
 
+If you were setting those variables to make your app reachable at a URL other than `localhost` (e.g. a LAN address or an HTTPS tunnel), use `--client-url` and `--server-url` instead. Wasp derives `REACT_APP_API_URL` from the server URL.
+
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
 
 :::info

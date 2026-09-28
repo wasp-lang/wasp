@@ -62,6 +62,7 @@ throwOverriddenVarsError envVarsWithCtx overriddenNames =
     CommandError "Can't override managed environment variables" $
       "You specified the following environment variables, but Wasp sets them: "
         ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
-        ++ ". Please remove them so they don't cause conflicts when running."
+        ++ ". Please remove them so they don't cause conflicts when running. "
+        ++ "To make your app reachable at other URLs, use the --client-url and --server-url options instead."
   where
     overriddenEnvVars = filter (\(_, (name, _)) -> name `Set.member` overriddenNames) envVarsWithCtx

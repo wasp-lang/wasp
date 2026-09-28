@@ -26,12 +26,16 @@ makeRunConfigs (clientUrl, serverUrl) = (clientRunConfig, serverRunConfig)
 showRunConfigUrls :: (WebAppRunConfig, ServerRunConfig) -> String
 showRunConfigUrls (clientRunConfig, serverRunConfig) =
   unlines
-    [ " ℹ Client: "
-        ++ ensureTrailingSlash (AppComponentUrl.url $ WebAppRunConfig.url clientRunConfig),
-      " ℹ Server: "
-        ++ ensureTrailingSlash (AppComponentUrl.url $ ServerRunConfig.url serverRunConfig)
+    [ " ℹ Client: " ++ showUrl (WebAppRunConfig.url clientRunConfig),
+      " ℹ Server: " ++ showUrl (ServerRunConfig.url serverRunConfig)
     ]
   where
+    showUrl appComponentUrl =
+      ensureTrailingSlash (AppComponentUrl.url appComponentUrl)
+        ++ if AppComponentUrl.isCustom appComponentUrl
+          then " (listening on port " ++ show (AppComponentUrl.port appComponentUrl) ++ ")"
+          else ""
+
     -- The server and client URLs have different expectations for trailing
     -- slashes, so for display consistency we just ensure they both have it.
     ensureTrailingSlash url = if last url == '/' then url else url ++ "/"

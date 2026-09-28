@@ -1,8 +1,7 @@
 module Wasp.AppComponentUrl
   ( AppComponentUrl (..),
-    host,
-    protocol,
     url,
+    isCustom,
   )
 where
 
@@ -10,20 +9,29 @@ import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path, Posix)
 import qualified StrongPath as SP
 
-data AppComponentUrl = Local
-  { port :: PortNumber,
-    path :: Maybe (Path Posix Abs (Dir ()))
-  }
+-- | Where an app component (client or server) listens, and the URL under which
+-- it is reachable.
+data AppComponentUrl
+  = -- | Reachable on localhost, at the port it listens on.
+    Local
+      { port :: PortNumber,
+        path :: Maybe (Path Posix Abs (Dir ()))
+      }
+  | -- | Listens on a local port, but is reachable at a URL the user chose (e.g.
+    -- a LAN hostname or an HTTPS tunnel that forwards to the local port).
+    Custom
+      { port :: PortNumber,
+        publicUrl :: String
+      }
   deriving (Show, Eq)
 
-host :: AppComponentUrl -> String
-host (Local {}) = "localhost"
-
-protocol :: AppComponentUrl -> String
-protocol (Local {}) = "http"
-
 url :: AppComponentUrl -> String
-url loc =
+url Local {port = port', path = path'} =
   concat $
-    [protocol loc, "://", host loc, ":", show $ port loc]
-      ++ [SP.fromAbsDirP p | Just p <- [loc.path]]
+    ["http://localhost:", show port']
+      ++ [SP.fromAbsDirP p | Just p <- [path']]
+url Custom {publicUrl = publicUrl'} = publicUrl'
+
+isCustom :: AppComponentUrl -> Bool
+isCustom Custom {} = True
+isCustom Local {} = False
