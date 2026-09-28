@@ -12,10 +12,12 @@ export function getRedirects({
   redirectCurrentVersionToCanonical: boolean;
 }): RedirectRule[] {
   // Order matters: Cloudflare applies the first matching rule, so list more
-  // specific rules before more general ones.
+  // specific rules before more general ones. Cloudflare also recommends listing
+  // static rules before rules with splats or placeholders, for performance.
   const redirects: RedirectRule[] = [
     ...legacyDocsRedirects,
     ...docsReorganizationRedirects,
+    ...legacyWildcardRedirects,
   ];
 
   if (redirectCurrentVersionToCanonical) {
@@ -50,38 +52,6 @@ const legacyDocsRedirects: RedirectRule[] = [
   permanent("/docs/integrations/google",                "/docs/features/auth/social-auth/google"),
   permanent("/docs/project/css-frameworks",             "/docs/guides/libraries/tailwind"),
   permanent("/docs/tutorials/todo-app",                 "/docs/tutorial/create"),
-
-  // Migration guides
-  // We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}
-  // to /docs/{version}/migration-guide, so we want to redirect links going to the old
-  // URLs.
-  // You don't need to add new redirects for new versions.
-  permanent("/*/migrate-from-0-11-to-0-12", "/docs/0.12/migration-guide"),
-  permanent("/*/migrate-from-0-12-to-0-13", "/docs/0.13/migration-guide"),
-  permanent("/*/migrate-from-0-13-to-0-14", "/docs/0.14/migration-guide"),
-  permanent("/*/migrate-from-0-14-to-0-15", "/docs/0.15/migration-guide"),
-  permanent("/*/migrate-from-0-15-to-0-16", "/docs/0.16/migration-guide"),
-  permanent("/*/migrate-from-0-16-to-0-17", "/docs/0.17/migration-guide"),
-  permanent("/*/migrate-from-0-17-to-0-18", "/docs/0.18/migration-guide"),
-  permanent("/*/migrate-from-0-18-to-0-19", "/docs/0.19/migration-guide"),
-  permanent("/*/migrate-from-0-19-to-0-20", "/docs/0.20/migration-guide"),
-  permanent("/*/migrate-from-0-20-to-0-21", "/docs/0.21/migration-guide"),
-  permanent("/*/migrate-from-0-21-to-0-22", "/docs/0.22/migration-guide"),
-  permanent("/*/migrate-from-0-22-to-0-23", "/docs/0.23/migration-guide"),
-
-  // Legacy version path redirects (0.X.0 -> 0.X)
-  // These exist because docs versions used to be named 0.X.0 but were renamed to 0.X,
-  // so we want to redirect links going to the old URLs.
-  // You don't need to add new redirects for new versions.
-  permanent("/docs/0.12.0/*", "/docs/0.12/:splat"),
-  permanent("/docs/0.13.0/*", "/docs/0.13/:splat"),
-  permanent("/docs/0.14.0/*", "/docs/0.14/:splat"),
-  permanent("/docs/0.15.0/*", "/docs/0.15/:splat"),
-  permanent("/docs/0.16.0/*", "/docs/0.16/:splat"),
-  permanent("/docs/0.17.0/*", "/docs/0.17/:splat"),
-  permanent("/docs/0.18.0/*", "/docs/0.18/:splat"),
-  permanent("/docs/0.19.0/*", "/docs/0.19/:splat"),
-  permanent("/docs/0.20.0/*", "/docs/0.20/:splat"),
 ];
 
 // Redirects for the big docs reorganization that introduced the "Getting
@@ -139,6 +109,41 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/project/testing",                                    "/docs/advanced/testing"),
   permanent("/docs/wasp-ai/coding-agent-plugin",                        "/docs/getting-started/agent-integration"),
   permanent("/docs/wasp-ai/git-worktrees",                              "/docs/advanced/git-worktrees"),
+];
+
+// prettier-ignore
+const legacyWildcardRedirects: RedirectRule[] = [
+  // Migration guides
+  // We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}
+  // to /docs/{version}/migration-guide, so we want to redirect links going to the old
+  // URLs.
+  // You don't need to add new redirects for new versions.
+  permanent("/*/migrate-from-0-11-to-0-12", "/docs/0.12/migration-guide"),
+  permanent("/*/migrate-from-0-12-to-0-13", "/docs/0.13/migration-guide"),
+  permanent("/*/migrate-from-0-13-to-0-14", "/docs/0.14/migration-guide"),
+  permanent("/*/migrate-from-0-14-to-0-15", "/docs/0.15/migration-guide"),
+  permanent("/*/migrate-from-0-15-to-0-16", "/docs/0.16/migration-guide"),
+  permanent("/*/migrate-from-0-16-to-0-17", "/docs/0.17/migration-guide"),
+  permanent("/*/migrate-from-0-17-to-0-18", "/docs/0.18/migration-guide"),
+  permanent("/*/migrate-from-0-18-to-0-19", "/docs/0.19/migration-guide"),
+  permanent("/*/migrate-from-0-19-to-0-20", "/docs/0.20/migration-guide"),
+  permanent("/*/migrate-from-0-20-to-0-21", "/docs/0.21/migration-guide"),
+  permanent("/*/migrate-from-0-21-to-0-22", "/docs/0.22/migration-guide"),
+  permanent("/*/migrate-from-0-22-to-0-23", "/docs/0.23/migration-guide"),
+
+  // Legacy version path redirects (0.X.0 -> 0.X)
+  // These exist because docs versions used to be named 0.X.0 but were renamed to 0.X,
+  // so we want to redirect links going to the old URLs.
+  // You don't need to add new redirects for new versions.
+  permanent("/docs/0.12.0/*", "/docs/0.12/:splat"),
+  permanent("/docs/0.13.0/*", "/docs/0.13/:splat"),
+  permanent("/docs/0.14.0/*", "/docs/0.14/:splat"),
+  permanent("/docs/0.15.0/*", "/docs/0.15/:splat"),
+  permanent("/docs/0.16.0/*", "/docs/0.16/:splat"),
+  permanent("/docs/0.17.0/*", "/docs/0.17/:splat"),
+  permanent("/docs/0.18.0/*", "/docs/0.18/:splat"),
+  permanent("/docs/0.19.0/*", "/docs/0.19/:splat"),
+  permanent("/docs/0.20.0/*", "/docs/0.20/:splat"),
 ];
 
 /** Builds a permanent redirect rule (301). */
