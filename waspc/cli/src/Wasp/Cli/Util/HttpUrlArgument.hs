@@ -7,6 +7,7 @@ where
 import Data.Maybe (isJust)
 import Network.URI (URI (..), URIAuth (..), parseAbsoluteURI)
 import qualified Options.Applicative as Opt
+import Text.Read (readMaybe)
 
 httpUrlOption :: String -> String -> Opt.Parser (Maybe URI)
 httpUrlOption optionName helpText =
@@ -26,9 +27,20 @@ parseHttpUrl input = case parseAbsoluteURI input of
   Just uri
     | uriScheme uri `notElem` ["http:", "https:"] -> Left $ show input ++ " must start with http:// or https://"
     | not (hasHost uri) -> Left $ show input ++ " must contain a host"
+    | not (hasValidPort uri) -> Left $ show input ++ " has an invalid port, it must be between 1 and 65535"
     | not (null $ uriQuery uri) || not (null $ uriFragment uri) -> Left $ show input ++ " must not contain a query or a fragment"
     | otherwise -> Right uri
   where
     hasHost uri = isJust $ uriAuthority uri >>= nonEmpty . uriRegName
     nonEmpty "" = Nothing
     nonEmpty s = Just s
+
+    -- `network-uri` follows the URI RFC (3986), which allows a port with any
+    -- number of digits. The URL standard that browsers use (and so the
+    -- generated apps, when validating these URLs) is more restrictive and
+    -- rejects ports above 65535. We also reject 0, like the port options do.
+    hasValidPort uri = case uriPort <$> uriAuthority uri of
+      Just (':' : digits@(_ : _)) -> maybe False isValidPortNumber (readMaybe digits)
+      _ -> True
+    isValidPortNumber :: Integer -> Bool
+    isValidPortNumber portNumber = portNumber >= 1 && portNumber <= 65535

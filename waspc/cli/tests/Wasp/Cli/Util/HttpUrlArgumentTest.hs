@@ -6,8 +6,8 @@ import Network.URI (parseURI)
 import Test.Hspec
 import Wasp.Cli.Util.HttpUrlArgument (parseHttpUrl)
 
-spec_parseUrl :: Spec
-spec_parseUrl = do
+spec_parseHttpUrl :: Spec
+spec_parseHttpUrl = do
   describe "parseHttpUrl" $ do
     it "accepts http and https URLs with a host" $ do
       parseHttpUrl "http://192.168.1.39.nip.io:3000" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000")
@@ -15,6 +15,14 @@ spec_parseUrl = do
 
     it "accepts URLs with a path" $ do
       parseHttpUrl "http://192.168.1.39.nip.io:3000/app/" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000/app/")
+
+    it "accepts URLs with an empty port" $ do
+      parseHttpUrl "http://example.com:/" `shouldBe` Right (fromJust $ parseURI "http://example.com:/")
+
+    it "rejects ports outside of 1-65535" $ do
+      parseHttpUrl "http://example.com:0" `shouldSatisfy` isLeft
+      parseHttpUrl "http://example.com:65536" `shouldSatisfy` isLeft
+      parseHttpUrl "http://example.com:99999999999" `shouldSatisfy` isLeft
 
     it "rejects relative URLs" $ do
       parseHttpUrl "localhost:3000" `shouldSatisfy` isLeft
