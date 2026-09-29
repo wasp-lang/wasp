@@ -1,11 +1,14 @@
 .container {
+  /* Light palette, used by default and on the landing pages. */
+  --banner-background: var(--wasp-bg);
+  --banner-border: #ddd;
+  --banner-text: #4a4a4a;
+  --banner-link: var(--wasp-k);
+  --banner-hover: #eee;
+
   z-index: 1000;
-  /* The banner uses fixed light colors instead of theme variables. The
-     landing page has no dark design, but `data-theme="dark"` still applies
-     there when the OS is in dark mode. Theme variables then give light text
-     on the light page. */
-  background: var(--wasp-bg);
-  border: 1px solid #ddd;
+  background: var(--banner-background);
+  border: 1px solid var(--banner-border);
   border-radius: var(--custom-border-radius-md);
   padding: 16px;
   box-shadow: var(--custom-shadow-lw);
@@ -19,6 +22,26 @@
   align-items: stretch;
 }
 
+/* Dark palette, used when Docusaurus selects dark mode. */
+:global(:root[data-theme="dark"]) .container {
+  --banner-background: #2a2a2a;
+  --banner-border: #444;
+  --banner-text: #d0d0d0;
+  --banner-link: #f5c842;
+  --banner-hover: #3a3a3a;
+}
+
+/* The landing pages have no dark design, but `data-theme="dark"` still applies
+   to them when the OS is in dark mode. They keep the light palette. The
+   selector is more specific than the dark one above, so it wins. */
+:global(:root[data-theme]:has(.twLandingPage)) .container {
+  --banner-background: var(--wasp-bg);
+  --banner-border: #ddd;
+  --banner-text: #4a4a4a;
+  --banner-link: var(--wasp-k);
+  --banner-hover: #eee;
+}
+
 @media (min-width: 40rem) {
   .container {
     max-width: 380px;
@@ -29,13 +52,13 @@
 }
 
 .content {
-  color: #4a4a4a;
+  color: var(--banner-text);
   font-size: 14px;
   margin: 0 0 12px 0;
 }
 
 .content a {
-  color: var(--wasp-k);
+  color: var(--banner-link);
   text-decoration: underline;
 }
 
@@ -62,8 +85,8 @@
 
 .buttonDecline {
   background: transparent;
-  border: 1px solid #ddd;
-  color: #4a4a4a;
+  border: 1px solid var(--banner-border);
+  color: var(--banner-text);
   font-size: 14px;
   border-radius: var(--custom-border-radius);
   padding: 10px 24px;
@@ -72,5 +95,5 @@
 }
 
 .buttonDecline:hover {
-  background: #eee;
+  background: var(--banner-hover);
 }
