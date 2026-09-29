@@ -11,10 +11,12 @@ import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.Extra (concatMapM)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
+import Data.Maybe (fromMaybe)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort, resolveRequestedPorts)
 import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
@@ -22,6 +24,7 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.RunConfigs (makeRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import Wasp.Cli.Util.UrlArgument (UrlArgument (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -48,7 +51,9 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
+  (requestedClientPort, requestedServerPort) <- resolveRequestedPorts (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
+  let ports = (fromMaybe defaultDevClientPort requestedClientPort, fromMaybe defaultDevServerPort requestedServerPort)
+      appComponentUrls = makeAppComponentUrls appSpec ports (uri <$> args.clientUrl, uri <$> args.serverUrl)
       (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
 
   clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars

@@ -4,17 +4,26 @@ import Data.Either (isLeft)
 import Data.Maybe (fromJust)
 import Network.URI (parseURI)
 import Test.Hspec
-import Wasp.Cli.Util.UrlArgument (parseUrl)
+import Wasp.Cli.Util.UrlArgument (UrlArgument (..), parseUrl)
 
 spec_parseUrl :: Spec
 spec_parseUrl = do
   describe "parseUrl" $ do
     it "accepts http and https URLs with a host" $ do
-      parseUrl "http://192.168.1.39.nip.io:3000" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000")
-      parseUrl "https://my-app.loca.lt" `shouldBe` Right (fromJust $ parseURI "https://my-app.loca.lt")
+      parseUrl "http://192.168.1.39.nip.io:3000" `shouldBe` Right (urlArgument "http://192.168.1.39.nip.io:3000" (Just 3000))
+      parseUrl "https://my-app.loca.lt" `shouldBe` Right (urlArgument "https://my-app.loca.lt" Nothing)
 
     it "accepts URLs with a path" $ do
-      parseUrl "http://192.168.1.39.nip.io:3000/app/" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000/app/")
+      parseUrl "http://192.168.1.39.nip.io:3000/app/" `shouldBe` Right (urlArgument "http://192.168.1.39.nip.io:3000/app/" (Just 3000))
+
+    it "remembers only a port written in the URL" $ do
+      explicitPort <$> parseUrl "https://example.com:8443" `shouldBe` Right (Just 8443)
+      explicitPort <$> parseUrl "https://example.com" `shouldBe` Right Nothing
+      explicitPort <$> parseUrl "https://example.com:" `shouldBe` Right Nothing
+
+    it "rejects ports outside of 1-65535" $ do
+      parseUrl "http://example.com:0" `shouldSatisfy` isLeft
+      parseUrl "http://example.com:65536" `shouldSatisfy` isLeft
 
     it "rejects relative URLs" $ do
       parseUrl "localhost:3000" `shouldSatisfy` isLeft
@@ -30,3 +39,5 @@ spec_parseUrl = do
     it "rejects URLs with a query or a fragment" $ do
       parseUrl "https://example.com?x=1" `shouldSatisfy` isLeft
       parseUrl "https://example.com#top" `shouldSatisfy` isLeft
+  where
+    urlArgument url port = UrlArgument {uri = fromJust $ parseURI url, explicitPort = port}

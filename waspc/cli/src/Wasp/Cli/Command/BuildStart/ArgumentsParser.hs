@@ -4,20 +4,18 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
   )
 where
 
-import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
-import Network.URI (URI)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
 import Wasp.Cli.Util.PortArgument (portOption)
-import Wasp.Cli.Util.UrlArgument (urlOption)
+import Wasp.Cli.Util.UrlArgument (UrlArgument, urlOption)
 
 data BuildStartArgs = BuildStartArgs
-  { clientPort :: PortNumber,
-    serverPort :: PortNumber,
-    clientUrl :: Maybe URI,
-    serverUrl :: Maybe URI,
+  { clientPort :: Maybe PortNumber,
+    serverPort :: Maybe PortNumber,
+    clientUrl :: Maybe UrlArgument,
+    serverUrl :: Maybe UrlArgument,
     clientEnvVars :: [EnvVarArgument],
     serverEnvVars :: [EnvVarArgument]
   }
@@ -33,10 +31,9 @@ buildStartArgsParser =
     <*> environmentVariableParsersForComponent 's' "server"
   where
     portParserForComponent name defaultPort =
-      fromMaybe defaultPort
-        <$> portOption
-          (name ++ "-port")
-          ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
+      portOption
+        (name ++ "-port")
+        ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
 
     urlParserForComponent name =
       urlOption (name ++ "-url") ("URL at which the " ++ name ++ " is reachable")
