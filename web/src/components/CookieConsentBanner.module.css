@@ -1,7 +1,13 @@
 .container {
+  --banner-background: var(--ifm-background-color);
+  --banner-border: var(--ifm-color-emphasis-300);
+  --banner-text: var(--ifm-font-color-base);
+  --banner-link: var(--ifm-link-color);
+  --banner-hover: var(--ifm-color-emphasis-100);
+
   z-index: 1000;
-  background: var(--custom-background-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--banner-background);
+  border: 1px solid var(--banner-border);
   border-radius: var(--custom-border-radius-md);
   padding: 16px;
   box-shadow: var(--custom-shadow-lw);
@@ -15,6 +21,14 @@
   align-items: stretch;
 }
 
+:global(:root:has(.twLandingPage)) .container {
+  --banner-background: var(--wasp-bg);
+  --banner-border: var(--wasp-g2);
+  --banner-text: var(--wasp-g7);
+  --banner-link: var(--wasp-k);
+  --banner-hover: var(--wasp-g1);
+}
+
 @media (min-width: 40rem) {
   .container {
     max-width: 380px;
@@ -25,13 +39,13 @@
 }
 
 .content {
-  color: var(--ifm-font-color-base);
+  color: var(--banner-text);
   font-size: 14px;
   margin: 0 0 12px 0;
 }
 
 .content a {
-  color: var(--ifm-color-primary);
+  color: var(--banner-link);
   text-decoration: underline;
 }
 
@@ -42,7 +56,7 @@
 
 .buttonAccept {
   background: var(--ifm-color-primary);
-  color: #000;
+  color: var(--wasp-k);
   font-size: 14px;
   border-radius: var(--custom-border-radius);
   padding: 10px 24px;
@@ -58,8 +72,8 @@
 
 .buttonDecline {
   background: transparent;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  color: var(--ifm-font-color-base);
+  border: 1px solid var(--banner-border);
+  color: var(--banner-text);
   font-size: 14px;
   border-radius: var(--custom-border-radius);
   padding: 10px 24px;
@@ -68,5 +82,5 @@
 }
 
 .buttonDecline:hover {
-  background: var(--ifm-color-emphasis-100);
+  background: var(--banner-hover);
 }
