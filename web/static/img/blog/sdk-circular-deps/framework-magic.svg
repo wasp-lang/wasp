@@ -1,0 +1,138 @@
+<svg width="680" height="680" viewBox="0 0 680 680" role="img" xmlns="http://www.w3.org/2000/svg"
+  font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Framework magic tradeoff: where each piece comes from in tRPC vs Wasp</title>
+  <desc>A slider from explicit to magical, then two columns of steps for tRPC and Wasp. Inside each step, pills show the
+    pieces used: purple pills come from the framework or are generated, gray pills come from your own code. The tRPC
+    column is mostly gray with two purple pills; the Wasp column is mostly purple.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+      orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"
+        stroke-linejoin="round" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="680" height="680" rx="30" fill="#fbf7e8" stroke="#534AB7" stroke-width="0.5" />
+
+  <line x1="80" y1="70" x2="600" y2="70" stroke="#888780" stroke-width="1.5" stroke-linecap="round" />
+  <circle cx="190" cy="70" r="7" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <circle cx="510" cy="70" r="7" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="190" y="50" font-size="14" font-weight="500" fill="#2C2C2A" text-anchor="middle"
+    dominant-baseline="central">tRPC</text>
+  <text x="510" y="50" font-size="14" font-weight="500" fill="#2C2C2A" text-anchor="middle"
+    dominant-baseline="central">Wasp</text>
+  <text x="80" y="96" font-size="12" fill="#5F5E5A" text-anchor="start" dominant-baseline="central">Explicit · you wire
+    it</text>
+  <text x="600" y="96" font-size="12" fill="#5F5E5A" text-anchor="end" dominant-baseline="central">Magical · it wires
+    itself</text>
+
+  <rect x="60" y="122" width="12" height="12" rx="3" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="80" y="128" font-size="12" fill="#5F5E5A" text-anchor="start" dominant-baseline="central">From the framework
+    or generated</text>
+  <rect x="330" y="122" width="12" height="12" rx="3" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="350" y="128" font-size="12" fill="#5F5E5A" text-anchor="start" dominant-baseline="central">From your
+    code</text>
+
+  <text x="195" y="166" font-size="14" font-weight="500" fill="#2C2C2A" text-anchor="middle"
+    dominant-baseline="central">tRPC · library</text>
+  <text x="485" y="166" font-size="14" font-weight="500" fill="#2C2C2A" text-anchor="middle"
+    dominant-baseline="central">Wasp · framework</text>
+
+  <rect x="60" y="190" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="72" y="212" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Initialize tRPC</text>
+  <rect x="72" y="228" width="70" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="107" y="238" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">initTRPC</text>
+  <rect x="150" y="228" width="128" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="214" y="238" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">router, procedure</text>
+
+  <rect x="350" y="190" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="362" y="212" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Specify ops in spec</text>
+  <rect x="362" y="228" width="102" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="413" y="238" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">query, action</text>
+  <rect x="472" y="228" width="108" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="526" y="238" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">your file refs</text>
+
+  <line x1="195" y1="260" x2="195" y2="278" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="485" y1="260" x2="485" y2="278" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <rect x="60" y="284" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="72" y="306" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Define operations</text>
+  <rect x="72" y="322" width="116" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="130" y="332" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">publicProcedure</text>
+
+  <rect x="350" y="284" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="362" y="306" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Define operations</text>
+  <rect x="362" y="322" width="116" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="420" y="332" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">generated types</text>
+  <rect x="486" y="322" width="76" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="524" y="332" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">your code</text>
+
+  <line x1="195" y1="354" x2="195" y2="374" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="485" y1="354" x2="485" y2="374" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <rect x="60" y="378" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="72" y="400" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Assemble app router</text>
+  <rect x="72" y="416" width="70" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="107" y="426" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">router()</text>
+  <rect x="150" y="416" width="70" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="185" y="426" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">your ops</text>
+
+  <rect x="350" y="378" width="270" height="162" rx="8" fill="#FCFCFB" stroke="#534AB7" stroke-width="1"
+    stroke-dasharray="5 4" />
+  <text x="485" y="440" font-size="14" font-weight="500" fill="#3C3489" text-anchor="middle"
+    dominant-baseline="central">Wasp generates the wiring</text>
+  <rect x="392" y="458" width="82" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="433" y="468" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">app router</text>
+  <rect x="482" y="458" width="95" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="529" y="468" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">typed client</text>
+
+  <line x1="195" y1="448" x2="195" y2="468" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <rect x="60" y="472" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="72" y="494" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Create typed client</text>
+  <rect x="72" y="510" width="122" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="133" y="520" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">createTRPCClient</text>
+  <rect x="202" y="510" width="76" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="240" y="520" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">AppRouter</text>
+
+  <line x1="195" y1="542" x2="195" y2="562" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="485" y1="542" x2="485" y2="562" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <rect x="60" y="566" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="72" y="588" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Call the operation</text>
+  <rect x="72" y="604" width="122" height="20" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" />
+  <text x="133" y="614" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#444441"
+    text-anchor="middle" dominant-baseline="central">trpc.userGetAll</text>
+
+  <rect x="350" y="566" width="270" height="68" rx="8" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1" />
+  <text x="362" y="588" font-size="14" font-weight="500" fill="#444441" text-anchor="start"
+    dominant-baseline="central">Call the operation</text>
+  <rect x="362" y="604" width="161" height="20" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" />
+  <text x="442" y="614" font-size="11" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#3C3489"
+    text-anchor="middle" dominant-baseline="central">wasp/client/operations</text>
+
+  <text x="195" y="658" font-size="12" fill="#5F5E5A" text-anchor="middle" dominant-baseline="central">2 framework
+    imports — the rest is your code</text>
+  <text x="485" y="658" font-size="12" fill="#5F5E5A" text-anchor="middle" dominant-baseline="central">Framework
+    everywhere — your code plugs in</text>
+</svg>
