@@ -30,7 +30,7 @@ COMMANDS
                           Runs Wasp app in development mode, watching for file changes.
                           Optionally specify the ports the client and the server run on.
                           If not specified, Wasp picks the first free port when the default one is taken.
-                          Optionally specify the URLs the client and the server are reachable at,
+                          Optionally specify the public URLs the client and the server are reachable at,
                           if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).
     start db [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
@@ -42,7 +42,7 @@ COMMANDS
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
-                          Accepts the same port options as 'start'.
+                          Accepts the same port and URL options as 'start'.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -110,7 +110,7 @@ wasp db start
 ```
 
 ### Project Commands
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. A port in the URL works like the matching port option: Wasp runs on that port or fails if it's taken, and if you pass both, they must be the same.
+- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 

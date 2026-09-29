@@ -32,9 +32,9 @@ showRunConfigUrls (clientRunConfig, serverRunConfig) =
   where
     showUrl appComponentUrl =
       ensureTrailingSlash (AppComponentUrl.url appComponentUrl)
-        ++ if AppComponentUrl.isCustom appComponentUrl
-          then " (listening on port " ++ show (AppComponentUrl.port appComponentUrl) ++ ")"
-          else ""
+        ++ case appComponentUrl.customUrl of
+          Just _ -> " (local: " ++ ensureTrailingSlash (AppComponentUrl.localUrl appComponentUrl) ++ ")"
+          Nothing -> ""
 
     -- The server and client URLs have different expectations for trailing
     -- slashes, so for display consistency we just ensure they both have it.

@@ -10,7 +10,7 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.AppComponentUrl (AppComponentUrl)
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.AppComponentPorts (findAppComponentPorts, resolveRequestedPorts)
+import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
 import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
@@ -26,7 +26,6 @@ import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Cli.Util.UrlArgument (UrlArgument (..))
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -113,8 +112,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
 makeDevAppComponentUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
 makeDevAppComponentUrls appSpec args = do
-  ports <- findAppComponentPorts =<< resolveRequestedPorts (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
-  return $ makeAppComponentUrls appSpec ports (uri <$> args.clientUrl, uri <$> args.serverUrl)
+  ports <- findAppComponentPorts (args.clientPort, args.serverPort)
+  return $ makeAppComponentUrls appSpec ports (args.clientUrl, args.serverUrl)
 
 -- | The web app and server have their own logic for reading environment
 -- variables autonomously, so we don't need to merge the different sources of

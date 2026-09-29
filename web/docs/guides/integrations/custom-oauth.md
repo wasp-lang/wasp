@@ -72,7 +72,9 @@ GOOGLE_CLIENT_SECRET=x
 Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
 
 ```bash
-wasp start --client-url http://127.0.0.1:3000 --server-url http://127.0.0.1:3001
+wasp start \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
 ```
 
 :::note

@@ -2,12 +2,9 @@ module Wasp.Cli.AppComponentPorts
   ( defaultDevClientPort,
     defaultDevServerPort,
     findAppComponentPorts,
-    resolveRequestedPorts,
-    resolveRequestedPort,
   )
 where
 
-import Control.Applicative ((<|>))
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -15,7 +12,6 @@ import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Port (checkIfLocalPortIsTaken, findFirstFreeLocalPortInRange)
-import Wasp.Cli.Util.UrlArgument (UrlArgument (..))
 import Wasp.Util (whenM)
 
 defaultDevClientPort :: PortNumber
@@ -23,29 +19,6 @@ defaultDevClientPort = 3000
 
 defaultDevServerPort :: PortNumber
 defaultDevServerPort = 3001
-
-resolveRequestedPorts :: (Maybe PortNumber, Maybe PortNumber) -> (Maybe UrlArgument, Maybe UrlArgument) -> Command (Maybe PortNumber, Maybe PortNumber)
-resolveRequestedPorts (clientPortOption, serverPortOption) (clientUrl, serverUrl) =
-  either (throwError . CommandError "Conflicting ports") return $
-    (,)
-      <$> resolveRequestedPort "client" clientPortOption clientUrl
-      <*> resolveRequestedPort "server" serverPortOption serverUrl
-
--- | A port written in the @--<component>-url@ option requests that port, just
--- like the @--<component>-port@ option does, so the two must agree when both
--- are given.
-resolveRequestedPort :: String -> Maybe PortNumber -> Maybe UrlArgument -> Either String (Maybe PortNumber)
-resolveRequestedPort componentName portOption url =
-  case (portOption, urlPort) of
-    (Just optionPort, Just urlPort')
-      | optionPort /= urlPort' ->
-          Left $
-            ("--" ++ componentName ++ "-port is " ++ show optionPort)
-              ++ (", but the port in --" ++ componentName ++ "-url is " ++ show urlPort')
-              ++ ". Make them the same, or leave one of them out."
-    _ -> Right $ portOption <|> urlPort
-  where
-    urlPort = url >>= (.explicitPort)
 
 findAppComponentPorts :: (Maybe PortNumber, Maybe PortNumber) -> Command (PortNumber, PortNumber)
 findAppComponentPorts (requestedClientPort, requestedServerPort) = do

@@ -5,15 +5,16 @@ module Wasp.Cli.Command.Start.ArgumentsParser
 where
 
 import Network.Socket (PortNumber)
+import Network.URI (URI)
 import qualified Options.Applicative as Opt
+import Wasp.Cli.Util.HttpUrlArgument (httpUrlOption)
 import Wasp.Cli.Util.PortArgument (portOption)
-import Wasp.Cli.Util.UrlArgument (UrlArgument, urlOption)
 
 data StartArgs = StartArgs
   { clientPort :: Maybe PortNumber,
     serverPort :: Maybe PortNumber,
-    clientUrl :: Maybe UrlArgument,
-    serverUrl :: Maybe UrlArgument
+    clientUrl :: Maybe URI,
+    serverUrl :: Maybe URI
   }
   deriving (Eq, Show)
 
@@ -22,5 +23,5 @@ startArgsParser =
   StartArgs
     <$> portOption "client-port" "Port to run the client on"
     <*> portOption "server-port" "Port to run the server on"
-    <*> urlOption "client-url" "URL at which the client is reachable"
-    <*> urlOption "server-url" "URL at which the server is reachable"
+    <*> httpUrlOption "client-url" "Public URL at which the client is reachable"
+    <*> httpUrlOption "server-url" "Public URL at which the server is reachable"
