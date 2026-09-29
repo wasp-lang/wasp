@@ -16,7 +16,7 @@ makeDefaultUrls appSpec =
   makeAppComponentUrls appSpec (defaultDevClientPort, defaultDevServerPort) (Nothing, Nothing)
 
 -- | Builds the client and server URLs from the ports they listen on and,
--- optionally, custom public URLs to use instead of @http://localhost:<port>@.
+-- optionally, custom URLs to use instead of @http://localhost:<port>@.
 makeAppComponentUrls :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> (AppComponentUrl, AppComponentUrl)
 makeAppComponentUrls appSpec (clientPort, serverPort) (customClientUrl, customServerUrl) =
   ( AppComponentUrl {port = clientPort, path = Just $ WebAppG.getBaseDir appSpec, customUrl = customClientUrl},

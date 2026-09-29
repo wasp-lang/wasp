@@ -155,7 +155,7 @@ printUsage =
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
-              "                          Optionally specify the public URLs the client and the server are reachable at,",
+              "                          Optionally specify the URLs the client and the server are reachable at,",
               "                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).",
         cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
