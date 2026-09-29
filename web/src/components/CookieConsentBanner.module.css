@@ -1,7 +1,4 @@
 .container {
-  /* Theme colors from Infima and `custom.css`. They change with the color
-     mode. `--ifm-background-color` is `--wasp-bg` in light mode and the dark
-     page background in dark mode. */
   --banner-background: var(--ifm-background-color);
   --banner-border: var(--ifm-color-emphasis-300);
   --banner-text: var(--ifm-font-color-base);
@@ -24,9 +21,6 @@
   align-items: stretch;
 }
 
-/* The landing pages have no dark design, but `data-theme="dark"` still applies
-   to them when the OS is in dark mode. They use the landing page palette from
-   `custom.css`, which does not change with the color mode. */
 :global(:root:has(.twLandingPage)) .container {
   --banner-background: var(--wasp-bg);
   --banner-border: var(--wasp-g2);
