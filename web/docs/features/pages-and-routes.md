@@ -394,7 +394,22 @@ The `NavLink` component accepts the same `to`, `params`, `search`, and `hash` pr
 
 - All other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
 
-  - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
+  The most useful ones are:
+
+  - `className`, `style`, and `children`
+
+    - Besides regular values, these can be functions. `NavLink` calls them with an object describing the link's state and uses what they return. The object has these fields:
+      - `isActive`: the link points to the current page.
+      - `isPending`: the user clicked the link, and the page is still loading.
+      - `isTransitioning`: a [view transition](https://reactrouter.com/8.0.1/how-to/view-transitions) to the page is in progress.
+
+  - `end: boolean`
+
+    - By default, a link is also active on nested paths. For example, a link to `/tasks` is active on `/tasks/123`. Set `end` to only make it active on its exact path.
+
+  - `caseSensitive: boolean`
+
+    - By default, the link ignores letter case when checking if it's active. Set `caseSensitive` to take case into account.
 
 ### `routes` Object
 
@@ -450,4 +465,6 @@ The `params` object is required if the route contains params. The `search` and `
 
 ### React Router API
 
-Inside page components, you can use every hook and component from `react-router`, such as [`useParams`](https://reactrouter.com/8.0.1/api/hooks/useParams), [`useSearchParams`](https://reactrouter.com/8.0.1/api/hooks/useSearchParams), [`useLocation`](https://reactrouter.com/8.0.1/api/hooks/useLocation), [`useNavigate`](https://reactrouter.com/8.0.1/api/hooks/useNavigate), and [`Outlet`](https://reactrouter.com/8.0.1/api/components/Outlet).
+Inside page components, you can use most navigation-related hooks and components from `react-router`, such as [`useParams`](https://reactrouter.com/8.0.1/api/hooks/useParams), [`useSearchParams`](https://reactrouter.com/8.0.1/api/hooks/useSearchParams), [`useLocation`](https://reactrouter.com/8.0.1/api/hooks/useLocation), [`useNavigate`](https://reactrouter.com/8.0.1/api/hooks/useNavigate), and [`Outlet`](https://reactrouter.com/8.0.1/api/components/Outlet).
+
+Wasp defines the routes for you, so there's no way to attach React Router [loaders](https://reactrouter.com/8.0.1/start/data/data-loading) or [actions](https://reactrouter.com/8.0.1/start/data/actions) to them. APIs that depend on those, like `useLoaderData`, `useActionData`, `useFetcher`, or submitting a `<Form>` to an action, won't work. Use [Wasp Operations](./data/operations/overview) to fetch and change data instead.
