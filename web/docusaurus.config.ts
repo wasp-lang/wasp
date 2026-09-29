@@ -76,7 +76,10 @@ const config: Config = {
       logo: {
         alt: "Wasp logo",
         src: "img/wasp-logo.svg",
-        href: "https://wasp.sh/",
+        // `pathname://` makes this a regular link (full page load) instead of
+        // a client-side navigation. The link stays on the current origin, so
+        // it works on localhost and on preview deployments too.
+        href: "pathname:///",
         target: "_self",
       },
       items: [
