@@ -25,7 +25,7 @@ export default app({
 })
 ```
 
-The component is a regular React component. It doesn't receive any special props and doesn't need to be exported in a particular way:
+The component is a regular React component, and it doesn't need to be exported in any particular way:
 
 ```tsx title="src/AboutPage.tsx" auto-js
 export function AboutPage() {
@@ -38,7 +38,7 @@ export function AboutPage() {
 }
 ```
 
-With this example, visiting `/about` would show your `AboutPage` component. Every route needs a unique name (in this case, `"AboutRoute"`), which you can use to build type-safe links between pages, as shown in [Navigating between pages](#navigating-between-pages).
+With this example, visiting `/about` would show your `AboutPage` component. Every route needs a unique name (in this case, `"AboutRoute"`), which you can use to build type-safe links between pages, as shown in [Navigating between pages](#link-component).
 
 Wasp collects every route in the `spec` array and turns them into a single React Router configuration. If you have many pages, you can [split the routes across several `*.wasp.ts` files](./spec.md#splitting-your-spec-into-multiple-files).
 
@@ -140,28 +140,23 @@ import { useSearchParams } from "react-router"
 export function TasksPage() {
   const [searchParams] = useSearchParams()
   const sortBy = searchParams.get("sortBy") ?? "name"
+  // Visiting /tasks?sortBy=date → sortBy = "date"
   return <div>Tasks sorted by {sortBy}</div>
 }
 ```
 
-## Navigating between pages
+## Navigating between pages {#link-component}
 
 To link from one page to another, use the `Link` component from `wasp/client/router`. It behaves the same as [React Router's `Link`](https://reactrouter.com/8.0.1/api/components/Link), with added types for route paths and parameters. If you give it a route path that doesn't exist, or a route with wrong parameters, you'll get a type error.
 
-```tsx title="src/PhotoList.tsx" auto-js
+```tsx title="src/components/PhotoCard.tsx" auto-js
 import { Link } from "wasp/client/router"
 
-export function PhotoList({ photoIds }: { photoIds: string[] }) {
+export function PhotoCard({ photoId }: { photoId: string }) {
   return (
-    <ul>
-      {photoIds.map((photoId) => (
-        <li key={photoId}>
-          <Link to="/photo/:photoId" params={{ photoId }}>
-            Photo {photoId}
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <Link to="/photo/:photoId" params={{ photoId }}>
+      Photo {photoId}
+    </Link>
   )
 }
 ```
@@ -186,7 +181,7 @@ export function NewPhotoForm() {
 
 ### Reacting to navigation state with `NavLink`
 
-Use `NavLink` when the current page should be highlighted, or when you want to show a spinner during a pending transition. It takes the same props as `Link`, but `className`, `style`, and `children` can be render-prop functions that receive `{ isActive, isPending, isTransitioning }`.
+Use `NavLink` when the current page should be highlighted, or when you want to show a spinner during a pending transition. It behaves the same as [React Router's `NavLink`](https://reactrouter.com/8.0.1/api/components/NavLink), with added types for route paths and parameters. It is similar to [`Link`](#link-component), but `className`, `style`, and `children` can be render-prop functions that receive `{ isActive, isPending, isTransitioning }`.
 
 ```tsx title="src/Navigation.tsx" auto-js
 import { NavLink } from "wasp/client/router"
@@ -209,7 +204,7 @@ export function Navigation() {
 
 ## Restricting a page to logged-in users
 
-If your app uses [authentication](./auth/overview.md), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path in `auth.onAuthFailedRedirectTo`:
+If your app uses [authentication](./auth/overview.md), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path defined in `auth.onAuthFailedRedirectTo`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -271,11 +266,11 @@ export function Root() {
 
 See [Root Component](../advanced/client-customization/client-config.md#root-component) for more details and examples.
 
-## Setting the page title and metadata
+## Setting the page metadata
 
-The [`title` and `head` fields of your `app` config](../advanced/client-customization/customizing-app.md) apply to every page.
+The [`head` field of your `app` config](../advanced/client-customization/customizing-app.md) applies to every page.
 
-To add metadata for a single page, render `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
+But if you want to add metadata for only one of your pages, you can render `<meta>` elements inside the component. React moves them into the document's `<head>` for you:
 
 ```tsx title="src/PhotoPage.tsx" auto-js
 import { useParams } from "react-router"
@@ -293,7 +288,7 @@ export function PhotoPage() {
 
 Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/components/meta), and in the [SEO & GEO](../advanced/seo.md) page.
 
-## Showing a page for unknown URLs
+## Showing a page for not found URLs
 
 When a visitor opens a URL that no route matches, Wasp shows a generic error screen. To show your own "not found" page instead, add a route with a path of `/*`. The router picks the most specific matching route, so this route only renders when nothing else matches:
 

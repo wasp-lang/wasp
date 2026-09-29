@@ -606,7 +606,7 @@ Dockerfile  server/  web-app/  db/  # ship them anywhere`,
     id: "links",
     title: "Type-Safe Links",
     sub: "typed routes & params",
-    docUrl: "/docs/features/pages-and-routes#navigating-between-pages",
+    docUrl: "/docs/features/pages-and-routes#link-component",
     intro: (
       <>
         Wasp turns your route declarations into a typed{" "}
