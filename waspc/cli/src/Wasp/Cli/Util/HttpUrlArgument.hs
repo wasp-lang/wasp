@@ -20,7 +20,7 @@ httpUrlOption optionName helpText =
       )
 
 -- | Parses an absolute http(s) URL with a host, and without a query or a
--- fragment, i.e. a URL at which something can be reached over the web.
+-- fragment.
 parseHttpUrl :: String -> Either String URI
 parseHttpUrl input = case parseAbsoluteURI input of
   Nothing -> Left $ show input ++ " is not a valid absolute URL"
