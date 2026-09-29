@@ -1740,7 +1740,7 @@ export default app({
 
 ## Features / Pages and routes
 
-A **page** is a React component that Wasp renders as a full screen of your app. A **route** connects a URL path to a page. You declare both in your `main.wasp.ts` file and Wasp generates all the wiring for you. Internally, we use the industry-standard [React Router](https://reactrouter.com/8.0.1/home) to handle routing.
+A **page** is a React component that Wasp renders as a full screen of your app. A **route** connects a URL path to a page. You declare both in your `main.wasp.ts` file and Wasp generates all the wiring for you, including [lazy-loading each page's code](#lazy-loaded-routes) by default. Internally, we use the industry-standard [React Router](https://reactrouter.com/8.0.1/home) to handle routing.
 
 ### Declaring a page and a route
 
@@ -2048,7 +2048,7 @@ export default app({
 
 By default, Wasp splits and lazy-loads all pages. This means that, for example, while the user is in the `/about` page, all the other pages' code is not loaded. And, when the user navigates to another page, that bundle of code is downloaded on-demand. This reduces the amount of data your users need to download and execute, and thus provides a faster initial load experience, similar to classic HTML sites. This is especially useful for apps with many routes.
 
-Most apps won't need to change this. But if you need a specific route to always be loaded, and have instant rendering, you can set the `lazy: false` option on the `route` spec:
+In most apps, you won't notice lazy loading at all. The page's code is usually small and downloads quickly. But when a page has a lot of code, or your users are on slow connections, navigating to it can feel sluggish: the previous page stays on screen until the new page's code arrives. If a page needs to render instantly, like one users open right after landing on your app, set the `lazy: false` option on its `route` spec to include it in the initial bundle:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
