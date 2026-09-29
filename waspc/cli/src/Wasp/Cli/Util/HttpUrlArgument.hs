@@ -36,9 +36,8 @@ parseHttpUrl input = case parseAbsoluteURI input of
     nonEmpty s = Just s
 
     -- `network-uri` follows the URI RFC (3986), which allows a port with any
-    -- number of digits. The URL standard that browsers use (and also the
-    -- generated apps, when validating these URLs with `zod`) is more restrictive
-    -- and rejects ports outside of [1, 65535].
+    -- number of digits. The URL standard that browsers (and the generated apps'
+    -- `zod` validation) is more restrictive and rejects ports outside of [1, 65535].
     hasValidPort uri = case uriPort <$> uriAuthority uri of
       Just (':' : digits@(_ : _)) -> maybe False isValidPortNumber (readMaybe digits)
       _ -> True

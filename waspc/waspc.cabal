@@ -141,7 +141,7 @@ library
     mustache ^>=2.4.2,
     neat-interpolation ^>=0.5.1,
     network ^>=3.1.4,
-    network-uri,
+    network-uri ^>=2.6.4,
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,

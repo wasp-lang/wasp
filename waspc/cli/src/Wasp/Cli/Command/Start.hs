@@ -8,6 +8,7 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
+import qualified StrongPath as SP
 import Wasp.AppComponentUrl (AppComponentUrl)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
@@ -142,4 +143,4 @@ assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, se
 
     readProjectFileIfExists dotEnvFile =
       findFileInWaspProjectDir waspProjectDir dotEnvFile
-        >>= maybe (return []) (EnvVarWithCtx.readDotEnvFile (show dotEnvFile))
+        >>= maybe (return []) (EnvVarWithCtx.readDotEnvFile (SP.fromRelFile dotEnvFile))
