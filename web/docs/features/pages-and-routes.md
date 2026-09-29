@@ -386,13 +386,13 @@ The `Link` component accepts the following props:
 
 - `hash: string`
 
-- all other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
+- All other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
 
 ### `NavLink` Component
 
 The `NavLink` component accepts the same `to`, `params`, `search`, and `hash` props as the [`Link` component](#link-component), plus:
 
-- all other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
+- All other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
 
   - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
 
