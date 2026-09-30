@@ -161,6 +161,14 @@ wasp start --client-port 4000 --server-port 4001
 
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
 
+If you were setting those variables to make your app reachable at a URL other than `localhost` (e.g. a LAN address or an HTTPS tunnel), use `--client-url` and `--server-url` instead. Wasp derives `REACT_APP_API_URL` from the server URL. These URLs don't change the ports, so if a URL contains a port, pin it with the matching port option:
+
+```bash
+wasp start \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+```
+
 :::info
 
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.

@@ -66,7 +66,7 @@ export type AppConfig = Omit<App, "kind">;
  *
  * A page is a React component rendered by a {@link route}.
  *
- * See [Routing](https://wasp.sh/docs/features/routes) and the
+ * See [Pages & Routes](https://wasp.sh/docs/features/pages-and-routes) and the
  * [Auth overview](https://wasp.sh/docs/features/auth/overview#protecting-a-page-with-authrequired)
  * for protecting pages with `authRequired`.
  *
