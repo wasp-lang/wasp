@@ -34,7 +34,7 @@ showRunConfigUrls (clientRunConfig, serverRunConfig) =
       concat
         [ " ℹ ",
           name,
-          ":",
+          ": ",
           showUrl appComponentUrl,
           showLocalUrl appComponentUrl
         ]
