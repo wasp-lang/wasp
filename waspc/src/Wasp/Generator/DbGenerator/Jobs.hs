@@ -23,10 +23,10 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import qualified Wasp.Job.Node as Node
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
-migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job
+migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ()
 migrateDev generatedAppDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
@@ -60,7 +60,7 @@ asPrismaCliArgs migrateArgs = do
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
 -- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
-migrateDiff :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+migrateDiff :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 migrateDiff generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir
     generatedAppDir
@@ -80,7 +80,7 @@ migrateDiff generatedAppDir =
 -- An exit code of 1 could mean either: (a) there was a DB connection error,
 -- or (b) there are pending migrations to apply.
 -- Therefore, this should be checked **after** a command that ensures connectivity.
-migrateStatus :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+migrateStatus :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 migrateStatus generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir
     generatedAppDir
@@ -90,7 +90,7 @@ migrateStatus generatedAppDir =
 
 -- | Runs `prisma migrate reset`, which drops the tables (so schemas and data is lost) and then
 -- reapplies all the migrations.
-reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job
+reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job ()
 reset generatedAppDir resetArgs =
   runPrismaCommandAsJobFromWaspServerDir
     generatedAppDir
@@ -113,7 +113,7 @@ reset generatedAppDir resetArgs =
 --   NOTE: We are running this command from server dir since that's where we defined the "prisma.seed"
 --   script in package.json. In the future, we might want to allow users to specify the script name
 --   in the project package.json, in which case we would run this command from project root dir.
-seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
+seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ()
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
   runPrismaCommandAsJobWithExtraEnv
@@ -130,20 +130,20 @@ seed serverRunConfig generatedAppDir seedName =
 --
 -- Since nothing is passed to stdin, `prisma db execute` just runs an empty
 -- SQL command, which works perfectly for checking if the database is running.
-dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 dbExecuteTest generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
-runStudio :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+runStudio :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 runStudio generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
-generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 generatePrismaClient generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir
     generatedAppDir
@@ -160,7 +160,7 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag :: String
     disablePrismaPromotionsFlag = "--no-hints"
 
-runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job
+runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job ()
 runPrismaCommandAsJobFromWaspServerDir generatedAppDir cmdArgs =
   runPrismaCommandAsJobWithExtraEnv serverDir [] generatedAppDir cmdArgs
   where
@@ -175,9 +175,9 @@ runPrismaCommandAsJobWithExtraEnv ::
   [(String, String)] ->
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
-  J.Job
+  J.Job ()
 runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+  Node.runChecked extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
