@@ -6,7 +6,7 @@ where
 
 import Network.Socket (PortNumber)
 import Network.URI (URI)
-import Wasp.AppComponentUrl (AppComponentUrl (..))
+import Wasp.AppComponentUrl (AppComponentUrl, makeAppComponentUrl)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
@@ -19,6 +19,6 @@ makeDefaultUrls appSpec =
 -- optionally, custom URLs to use instead of @http://localhost:<port>@.
 makeAppComponentUrls :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> (AppComponentUrl, AppComponentUrl)
 makeAppComponentUrls appSpec (clientPort, serverPort) (customClientUrl, customServerUrl) =
-  ( AppComponentUrl {port = clientPort, path = Just $ WebAppG.getBaseDir appSpec, customUrl = customClientUrl},
-    AppComponentUrl {port = serverPort, path = Nothing, customUrl = customServerUrl}
+  ( makeAppComponentUrl clientPort (Just $ WebAppG.getBaseDir appSpec) customClientUrl,
+    makeAppComponentUrl serverPort Nothing customServerUrl
   )

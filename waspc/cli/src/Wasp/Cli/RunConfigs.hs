@@ -26,15 +26,25 @@ makeRunConfigs (clientUrl, serverUrl) = (clientRunConfig, serverRunConfig)
 showRunConfigUrls :: (WebAppRunConfig, ServerRunConfig) -> String
 showRunConfigUrls (clientRunConfig, serverRunConfig) =
   unlines
-    [ " ℹ Client: " ++ showUrl (WebAppRunConfig.url clientRunConfig),
-      " ℹ Server: " ++ showUrl (ServerRunConfig.url serverRunConfig)
+    [ showUrls "Client" clientRunConfig.url,
+      showUrls "Server" serverRunConfig.url
     ]
   where
-    showUrl appComponentUrl =
-      ensureTrailingSlash (AppComponentUrl.url appComponentUrl)
-        ++ case appComponentUrl.customUrl of
-          Just _ -> " (local: " ++ ensureTrailingSlash (AppComponentUrl.localUrl appComponentUrl) ++ ")"
-          Nothing -> ""
+    showUrls name appComponentUrl =
+      concat $
+        [ " ℹ ",
+          name,
+          ":",
+          showUrl appComponentUrl,
+          showLocalUrl appComponentUrl
+        ]
+
+    showUrl AppComponentUrl {url} = ensureTrailingSlash url
+
+    showLocalUrl AppComponentUrl {url, localUrl} =
+      if url /= localUrl
+        then " (local: " ++ ensureTrailingSlash localUrl ++ ")"
+        else ""
 
     -- The server and client URLs have different expectations for trailing
     -- slashes, so for display consistency we just ensure they both have it.

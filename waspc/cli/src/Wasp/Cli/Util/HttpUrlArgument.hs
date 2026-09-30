@@ -39,7 +39,7 @@ parseHttpUrl input = case parseAbsoluteURI input of
     -- number of digits. The URL standard that browsers (and the generated apps'
     -- `zod` validation) is more restrictive and rejects ports outside of [1, 65535].
     hasValidPort uri = case uriPort <$> uriAuthority uri of
-      Just (':' : digits@(_ : _)) -> maybe False isValidPortNumber (readMaybe digits)
+      Just (':' : digits) -> maybe False isValidPortNumber (readMaybe digits)
       _ -> True
     isValidPortNumber :: Integer -> Bool
     isValidPortNumber portNumber = portNumber >= 1 && portNumber <= 65535

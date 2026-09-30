@@ -16,9 +16,6 @@ spec_parseHttpUrl = do
     it "accepts URLs with a path" $ do
       parseHttpUrl "http://192.168.1.39.nip.io:3000/app/" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000/app/")
 
-    it "accepts URLs with an empty port" $ do
-      parseHttpUrl "http://example.com:/" `shouldBe` Right (fromJust $ parseURI "http://example.com:/")
-
     it "rejects ports outside of 1-65535" $ do
       parseHttpUrl "http://example.com:0" `shouldSatisfy` isLeft
       parseHttpUrl "http://example.com:65536" `shouldSatisfy` isLeft

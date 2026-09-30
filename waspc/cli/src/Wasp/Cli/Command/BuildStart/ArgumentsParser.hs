@@ -39,7 +39,7 @@ buildStartArgsParser =
           ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
 
     urlParserForComponent name =
-      httpUrlOption (name ++ "-url") ("URL at which the " ++ name ++ " is reachable, if not http://localhost:<port>")
+      httpUrlOption (name ++ "-url") ("URL at which the " ++ name ++ " is reachable")
 
     environmentVariableParsersForComponent shortOptionName name =
       liftA2
