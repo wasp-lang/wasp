@@ -54,6 +54,7 @@ createDevPostgresDb db image mountPath = do
   where
     args =
       [ "create",
+        "--rm",
         "--name",
         db.dockerContainerName,
         "--publish",
