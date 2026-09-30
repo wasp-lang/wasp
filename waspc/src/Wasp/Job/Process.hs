@@ -1,9 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Wasp.Job.Process
-  ( runProcessAsJob,
+  ( ProcessInput (..),
+    runProcessAsJob,
+    runInteractiveProcess,
     runNodeCommandAsJob,
     runNodeCommandAsJobWithExtraEnv,
+    runInteractiveNodeCommandAsJobWithExtraEnv,
   )
 where
 
@@ -20,7 +23,7 @@ import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import qualified System.Info
 import qualified System.Process as P
-import UnliftIO.Exception (bracket)
+import UnliftIO.Exception (bracket, onException)
 import qualified Wasp.Job as J
 import qualified Wasp.Node.Version as NodeVersion
 
@@ -28,17 +31,29 @@ import qualified Wasp.Node.Version as NodeVersion
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
+data ProcessInput = CloseStdin | InheritStdin
+  deriving (Eq)
+
+-- | Runs a given process while streaming its stderr and stdout to provided channel.
 --   Returns exit code of the process once it finishes, and also sends it to the channel.
 --   Makes sure to terminate the process (or process group on *nix) if exception occurs.
-runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob process jobType chan =
+runProcessAsJob :: ProcessInput -> P.CreateProcess -> J.JobType -> J.Job
+runProcessAsJob input process jobType chan =
   bracket
-    (CP.streamingProcess process)
-    (\(_, _, _, sph) -> terminateStreamingProcess sph)
+    startProcess
+    (\(_, _, sph) -> terminateStreamingProcess sph)
     runStreamingProcessAsJob
   where
-    runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
+    startProcess
+      | input == CloseStdin && System.Info.os /= "mingw32" = do
+          (CP.ClosedStream, stdoutStream, stderrStream, processHandle) <-
+            CP.streamingProcess process {P.create_group = True}
+          return (stdoutStream, stderrStream, processHandle)
+      | otherwise = do
+          (CP.Inherited, stdoutStream, stderrStream, processHandle) <- CP.streamingProcess process
+          return (stdoutStream, stderrStream, processHandle)
+
+    runStreamingProcessAsJob (stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
             runConduit $
               stdoutStream
@@ -77,31 +92,37 @@ runProcessAsJob process jobType chan =
 
       return exitCode
 
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
-    terminateStreamingProcess streamingProcessHandle = do
-      let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
-      return $ ExitFailure 1
+    terminateStreamingProcess = interruptProcess . CP.streamingProcessHandleRaw
+
+runInteractiveProcess :: P.CreateProcess -> IO ExitCode
+runInteractiveProcess process =
+  P.withCreateProcess
+    process {P.std_in = P.Inherit, P.std_out = P.Inherit, P.std_err = P.Inherit}
+    (\_ _ _ processHandle -> P.waitForProcess processHandle `onException` interruptProcess processHandle)
+
+interruptProcess :: P.ProcessHandle -> IO ()
+interruptProcess processHandle =
+  if System.Info.os == "mingw32"
+    then P.terminateProcess processHandle
+    else P.interruptProcessGroupOf processHandle
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
+runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithInput CloseStdin
+
+runInteractiveNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runInteractiveNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithInput InheritStdin
+
+runNodeCommandAsJobWithInput :: ProcessInput -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithInput input extraEnvVars fromDir command args jobType chan =
   NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     NodeVersion.VersionCheckSuccess -> do
       envVars <- getAllEnvVars
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-      runProcessAsJob nodeCommandProcess jobType chan
+      runProcessAsJob input nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
     -- vars in 'extraEnvVars' should override the inherited env vars, we

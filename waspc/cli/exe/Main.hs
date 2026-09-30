@@ -1,17 +1,24 @@
+{-# LANGUAGE CPP #-}
+
 module Main where
 
-import Control.Concurrent (threadDelay)
+import Control.Concurrent (newEmptyMVar, threadDelay, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
+import Control.Monad.IO.Class (liftIO)
 import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
-import System.Exit (exitFailure)
+import System.Exit (ExitCode (ExitFailure), exitFailure)
 import System.IO (BufferMode (LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
-import Wasp.Cli.Command (runCommand)
+#ifndef mingw32_HOST_OS
+import System.Posix.Signals (Handler (Catch), installHandler, keyboardSignal, softwareTermination, lostConnection)
+#endif
+import Wasp.Cli.Command (ShutdownContext)
+import qualified Wasp.Cli.Command as Command
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
@@ -45,7 +52,8 @@ import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
 main :: IO ()
-main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+main = withShutdownHandlers $ \shutdown -> withUtf8 . (`E.catch` handleInternalErrors) $ do
+  let runCommand = Command.runCommand shutdown
   -- If we don't explicitly set line buffering, the output gets block-buffered
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.
@@ -88,9 +96,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compileCommand
-    Command.Call.Db dbArgs -> dbCli dbArgs
+    Command.Call.Db dbArgs -> dbCli shutdown dbArgs
     Command.Call.Version -> printVersion
-    Command.Call.Doctor -> doctor
+    Command.Call.Doctor -> runCommand $ liftIO doctor
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
@@ -117,6 +125,19 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+withShutdownHandlers :: (ShutdownContext -> IO a) -> IO a
+withShutdownHandlers action = do
+  shutdown <- newEmptyMVar
+#ifndef mingw32_HOST_OS
+  let withHandler signal continuation = E.bracket
+        (installHandler signal (Catch $ void $ tryPutMVar shutdown $ ExitFailure $ 128 + fromIntegral signal) Nothing)
+        (\previous -> void $ installHandler signal previous Nothing)
+        (const continuation)
+  withHandler keyboardSignal $ withHandler softwareTermination $ withHandler lostConnection $ action shutdown
+#else
+  action shutdown
+#endif
 
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
@@ -202,16 +223,16 @@ printVersion = do
       ]
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
-dbCli :: [String] -> IO ()
-dbCli args = case args of
+dbCli :: ShutdownContext -> [String] -> IO ()
+dbCli shutdown args = case args of
   -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
+  "start" : optionalStartArgs -> Command.runCommand shutdown $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  "reset" : resetArgs -> runCommandThatRequiresDbRunning shutdown $ Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning shutdown $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  ["seed"] -> runCommandThatRequiresDbRunning shutdown $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runCommandThatRequiresDbRunning shutdown $ Command.Db.Seed.seed $ Just seedName
+  ["studio"] -> runCommandThatRequiresDbRunning shutdown Command.Db.Studio.studio
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}

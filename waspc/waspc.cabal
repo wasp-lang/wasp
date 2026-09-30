@@ -527,6 +527,9 @@ executable wasp-cli
   import: common-all, common-exe
   hs-source-dirs: cli/exe
   main-is: Main.hs
+  if !os(windows)
+    build-depends: unix >=2.8 && <2.9
+
   build-depends:
     async,
     base,
@@ -635,7 +638,9 @@ test-suite wasp-cli-tests
     tasty-discover:tasty-discover
 
   build-depends:
+    async,
     base,
+    exceptions,
     cli-lib,
     hspec,
     network,
@@ -646,6 +651,7 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
+    Wasp.Cli.CommandTest
     DbMigrateTest
     Paths_waspc
     TerminalTest

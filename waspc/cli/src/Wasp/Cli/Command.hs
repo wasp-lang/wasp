@@ -4,6 +4,8 @@
 module Wasp.Cli.Command
   ( Command,
     runCommand,
+    ShutdownContext,
+    checkForShutdown,
     CommandError (..),
 
     -- * Requirements
@@ -25,27 +27,55 @@ module Wasp.Cli.Command
   )
 where
 
+import Control.Concurrent (MVar, readMVar, tryReadMVar)
+import Control.Concurrent.Async (race)
+import Control.Exception (MaskingState (Unmasked), getMaskingState, throwIO)
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
-import System.Exit (exitFailure)
+import System.Exit (ExitCode, exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 
-newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
-  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)
+newtype Command a = Command {_runCommand :: ReaderT ShutdownContext (StateT [Requirement] (ExceptT CommandError IO)) a}
+  deriving (Functor, Applicative, Monad, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)
 
-runCommand :: Command a -> IO ()
-runCommand cmd = do
-  runExceptT (flip evalStateT [] $ _runCommand cmd) >>= \case
+runCommand :: ShutdownContext -> Command a -> IO ()
+runCommand shutdown cmd = do
+  runExceptT (flip evalStateT [] $ runReaderT (_runCommand $ cmd <* checkForShutdown) shutdown) >>= \case
     Left cmdError -> do
       cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
       exitFailure
     Right _ -> return ()
+
+type ShutdownContext = MVar ExitCode
+
+-- Normal Command IO is cancellable. Resource acquisition and release scoped
+-- with Command-level bracket run to completion. A bracket inside one lifted IO
+-- action remains inside that action's cancellation boundary.
+instance MonadIO Command where
+  liftIO action = Command $ do
+    shutdown <- ask
+    liftIO $ do
+      masking <- getMaskingState
+      if masking == Unmasked
+        then do
+          pending <- tryReadMVar shutdown
+          case pending of
+            Just exitCode -> throwIO exitCode
+            Nothing -> race (readMVar shutdown) action >>= either throwIO return
+        else action
+
+checkForShutdown :: Command ()
+checkForShutdown = Command $ do
+  shutdown <- ask
+  pending <- liftIO $ tryReadMVar shutdown
+  maybe (return ()) (liftIO . throwIO) pending
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?

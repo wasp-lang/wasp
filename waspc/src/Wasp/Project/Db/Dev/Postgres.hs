@@ -9,11 +9,14 @@ module Wasp.Project.Db.Dev.Postgres
   )
 where
 
+import Control.Exception (throwIO)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
-import System.Process (callCommand)
+import System.Exit (ExitCode (..))
+import System.Process (shell)
 import Text.Printf (printf)
 import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
+import Wasp.Job.Process (runInteractiveProcess)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 
@@ -43,7 +46,9 @@ getDevConnectionUrl devDbSpec =
 
 runDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO ()
 runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath =
-  callCommand runDbCommand
+  runInteractiveProcess (shell runDbCommand) >>= \case
+    ExitSuccess -> return ()
+    exitCode -> throwIO exitCode
   where
     -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
     --   only when initializing the database -> if the volume was created previously, they will be ignored.

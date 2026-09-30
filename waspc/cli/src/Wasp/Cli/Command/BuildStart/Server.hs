@@ -12,11 +12,12 @@ import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
-import Wasp.Job.Process (runProcessAsJob)
+import Wasp.Job.Process (ProcessInput (CloseStdin), runProcessAsJob)
 
 buildServer :: BuildStartConfig -> ExceptJob
 buildServer config =
   runProcessAsJob
+    CloseStdin
     (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
     J.Server
     & toExceptJob (("Building the server failed with exit code: " <>) . show)
@@ -28,6 +29,7 @@ buildServer config =
 startServer :: BuildStartConfig -> ExceptJob
 startServer config =
   runProcessAsJob
+    CloseStdin
     ( proc
         "docker"
         ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
