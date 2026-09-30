@@ -13,14 +13,33 @@ runs:
   using: composite
 
   steps:
-    - name: Install GNU tar on Alpine
+    - name: Install Mise and cache pre-dependencies
       if: ${{ runner.os == 'Linux' }}
       shell: sh
-      # Alpine's default `tar` and `bash` don't support GitHub's caches:
-      # https://github.com/actions/toolkit/issues/634
+      # Bare container images lack some tools that the steps below need. They
+      # must be installed before Mise, because it restores its cache first.
+      # - `curl` is needed to download Mise.
+      # - Alpine's default `tar` and `bash` (which are just BusyBox) don't
+      #   support GitHub's caches:
+      #   https://github.com/actions/toolkit/issues/634
+      # - We install `zstd` so caches can use a better, faster compression
+      #   method.
       run: |
-        if [ -f /etc/alpine-release ]; then
-          apk add --no-cache tar bash
+        tools="curl tar bash zstd"
+
+        missing=false
+        for package in $tools; do
+          command -v "$package" >/dev/null || missing=true
+        done
+
+        if [ "$missing" = true ]; then
+          if [ -f /etc/alpine-release ]; then
+            apk add --no-cache $tools
+          else
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -y
+            apt-get install -y $tools
+          fi
         fi
 
     - name: Select Mise environment
@@ -35,9 +54,9 @@ runs:
         echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
 
     - name: Install Mise
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@v5
       with:
-        version: 2026.8.9
+        version: 2026.9.15
         bootstrap: true
         bootstrap_args: --update --yes
 

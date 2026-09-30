@@ -54,12 +54,6 @@ jobs:
             # glibc than what it was built with (e.g. an older Ubuntu version).
             container: ubuntu:20.04
             static: false
-            install-deps: |
-              # We need either `curl` or `wget` to install Mise, which then
-              # installs everything else.
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update -y
-              apt-get install -y curl
 
           - os: linux
             arch: x86_64
@@ -80,12 +74,6 @@ jobs:
             # glibc than what it was built with (e.g. an older Ubuntu version).
             container: ubuntu:24.04
             static: false
-            install-deps: |
-              # We need either `curl` or `wget` to install Mise, which then
-              # installs everything else.
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update -y
-              apt-get install -y curl
 
           - os: macos
             arch: x86_64
@@ -115,10 +103,6 @@ jobs:
       BUILD_NAME: ${{ matrix.env.os }}-${{ matrix.env.arch }}${{ matrix.env.static && '-static' || '' }}
 
     steps:
-      - name: Install dependencies
-        if: ${{ matrix.env.install-deps }}
-        run: ${{ matrix.env.install-deps }}
-
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -169,30 +153,7 @@ jobs:
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           if-no-files-found: error
 
-      # Job outputs can't be declared dynamically, so instead of one output per
-      # build, each build uploads its metadata as an artifact, which the npm
-      # packaging job collects.
-      - name: Write build metadata
-        env:
-          TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
-          NPM_TARGET: ${{ steps.compute-artifact-names.outputs.npm-target }}
-        run: |
-          mkdir -p build-metadata
-          # The schema for this object is `TarballDataSchema` in
-          # `scripts/make-npm-packages/src/schema/input-data.ts`.
-          jq \
-            --null-input \
-            --arg fileName "$TARBALL_NAME" \
-            --argjson target "$NPM_TARGET" \
-            '{ fileName: $fileName, target: $target }' \
-            > "build-metadata/${BUILD_NAME}.json"
-
-      - uses: actions/upload-artifact@v7
-        with:
-          path: ./build-metadata/${{ env.BUILD_NAME }}.json
-          name: ${{ steps.compute-artifact-names.outputs.metadata-artifact-name }}
-          if-no-files-found: error
-
       - name: Set job outputs
         id: set-outputs
-        run: echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
+        run: |
+          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
