@@ -6791,14 +6791,14 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 
 2. Create and configure a new GitHub App: <https://github.com/settings/apps>.
 
-   ![GitHub App Screenshot 1](https://wasp.sh/assets/images/github-app-1-b18764253a237b41d18fa9a05ccc1ccc.png)
+   ![GitHub App Screenshot 1](https://wasp.sh/assets/images/github-app-1-fff31776a59c9b99c4f42e18e13b6803.png)
 
 3. We have to fill out **App name** and **Homepage URL** fields. Additionally we will add our authorization **Callback URL**s:
 
    - For development, put: `http://localhost:3001/auth/github/callback`.
    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
 
-   ![GitHub App Screenshot 2](https://wasp.sh/assets/images/github-app-2-07c8b302bb0cc42d0c4298970f0dc20f.png)
+   ![GitHub App Screenshot 2](https://wasp.sh/assets/images/github-app-2-e5d486fb750e6c3042126b58771cecf5.png)
 
 4. We will turn off the **Active** checkbox under the Webhook title, and then we can click **Create GitHub App**.
 
@@ -7137,7 +7137,7 @@ To use Google as an authentication method, you'll first need to create a Google 
 
 3. Search for **Google Auth** in the top bar (1), click on **Google Auth Platform** (2). Then click on **Get Started** (3).
 
-   ![Google Console Screenshot 3](https://wasp.sh/assets/images/integrations-google-v2-3-2fa867d7b04d692b187f89ee055f714f.png)
+   ![Google Console Screenshot 3](https://wasp.sh/assets/images/integrations-google-v2-3-b9a6d9979258e923542d56106e040a70.png)
 
    ![Google Console Screenshot 4](https://wasp.sh/assets/images/integrations-google-v2-4-31ffaaab723f19ff4cf4988130529fa9.png)
 
@@ -7170,11 +7170,11 @@ To use Google as an authentication method, you'll first need to create a Google 
 
 7. You will see a box saying **OAuth client created**. Click on **OK**.
 
-   ![Google Console Screenshot 9](https://wasp.sh/assets/images/integrations-google-v2-9-0f12f8e9bb2831e3e6fb8358b3944511.png)
+   ![Google Console Screenshot 9](https://wasp.sh/assets/images/integrations-google-v2-9-5e2ac4ff796daac19d2a7820d6d2d5f8.png)
 
 8. Click on the name of your newly-created app.
 
-   ![Google Console Screenshot 10](https://wasp.sh/assets/images/integrations-google-v2-10-d4633d3d242d614939fa801e8eb0c83a.png)
+   ![Google Console Screenshot 10](https://wasp.sh/assets/images/integrations-google-v2-10-dbbdea263694b901e19672b6f076e85f.png)
 
 9. On the right-hand side, you will see your **Client ID** (1) and **Client secret** (2). **Copy them somewhere safe, as you will need them for your app.**
 
@@ -7918,7 +7918,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 Yay, we've successfully set up Slack Auth! 🎉
 
-![Slack Auth](https://wasp.sh/assets/images/slack-a021290efd4071dd47a4f132790fd48b.png)
+![Slack Auth](https://wasp.sh/assets/images/slack-71a12004768ed966525b08cbe81dd5f8.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication. To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](https://wasp.sh/docs/features/auth/overview).
 
@@ -8544,7 +8544,7 @@ To use Microsoft as an authentication method, you'll first need to register an a
 
 2. In the left sidebar, click on "App registrations" **(1)** and then "New registration" **(2)**.
 
-   ![Microsoft Entra console screenshot 1](https://wasp.sh/assets/images/integrations-microsoft-1-a5bb446a4665f24129535fe9ef05ca5e.png)
+   ![Microsoft Entra console screenshot 1](https://wasp.sh/assets/images/integrations-microsoft-1-e5946fed537e6c23b3c04d6c8d7c7a36.png)
 
 3. Fill out the form. These are the values for a typical Wasp application:
 
@@ -8559,19 +8559,19 @@ To use Microsoft as an authentication method, you'll first need to register an a
    For example: `https://your-server-url.com/auth/microsoft/callback`
    :::
 
-   ![Microsoft Entra console screenshot 2](https://wasp.sh/assets/images/integrations-microsoft-2-f4ea0d2da49cb869d7581a37342ebdeb.png)
+   ![Microsoft Entra console screenshot 2](https://wasp.sh/assets/images/integrations-microsoft-2-1c21986dd2428c46bbad21a1a6e321ad.png)
 
 4. You should now see your app registration's overview page. Take note of the **Application (client) ID (1)** and the **Directory (tenant) ID (2)**, as you'll need them in the next steps.
 
-   ![Microsoft Entra console screenshot 3](https://wasp.sh/assets/images/integrations-microsoft-3-fd704126830d71b193cb8106e60228c6.png)
+   ![Microsoft Entra console screenshot 3](https://wasp.sh/assets/images/integrations-microsoft-3-8e56bf479b3fe03ea042f91cdb0eec31.png)
 
 5. Next, go to the "Certificates & secrets" **(1)** page from the left sidebar, and create a new client secret **(2)**. You can fill out the name of your Wasp app as the client secret's name **(3)**.
 
-   ![Microsoft Entra console screenshot 4](https://wasp.sh/assets/images/integrations-microsoft-4-a50974743a4745063d5ab3d3046104a3.png)
+   ![Microsoft Entra console screenshot 4](https://wasp.sh/assets/images/integrations-microsoft-4-ca44e751025efa6cfd1b1ba3fb70dc29.png)
 
 6. Finally, take note of the client secret's value, as you'll need it in the next steps. Make sure to copy it somewhere safe, as you won't be able to see it again!
 
-   ![Microsoft Entra console screenshot 5](https://wasp.sh/assets/images/integrations-microsoft-5-228dc5331884e6613a72c15430b2b1a1.png)
+   ![Microsoft Entra console screenshot 5](https://wasp.sh/assets/images/integrations-microsoft-5-93187cc0549fd410af4e9ce2ef9879df.png)
 
 :::info
 The keys you copied are the credentials your app will use to authenticate with Microsoft. Do not share them anywhere publicly, as anyone with these credentials can impersonate your app and access user data.
@@ -24218,7 +24218,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 |                                                                                                                                              |                                                                                                                                                      |
 | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ![Screenshot of a Lighthouse report overview](https://wasp.sh/assets/images/lighthouse-report-overview-547e11c0af057efa0f0327f22e88a053.png) | ![Screenshot of a Lighthouse report\&#39;s list of issues](https://wasp.sh/assets/images/lighthouse-report-seo-1f548e8d88373987fc5c665f9c0e3adf.png) |
+| ![Screenshot of a Lighthouse report overview](https://wasp.sh/assets/images/lighthouse-report-overview-9a2b0ab99e03b5db4a02262a41cab4e3.png) | ![Screenshot of a Lighthouse report\&#39;s list of issues](https://wasp.sh/assets/images/lighthouse-report-seo-1f548e8d88373987fc5c665f9c0e3adf.png) |
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
@@ -24329,7 +24329,7 @@ By default, Wasp apps are [single-page applications (SPAs)](https://en.wikipedia
 
 Most search engines (like Google) can also execute JavaScript when indexing a page too. But some crawlers (and many AI assistants) don't run JavaScript at all. So they see only the empty HTML, not your actual content. As such, they can't answer questions about your website, and they'll mostly ignore it.
 
-![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, \&#39;Without prerender\&#39;: the browser window shows \&#39;Loading...\&#39; and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as \&#39;Loading,\&#39; and responds \&#39;Hmm... I don\&#39;t know what this page is about,\&#39; marked with a red X. On the right, \&#39;With prerender\&#39;: the browser window shows \&#39;Welcome to Wasp,\&#39; and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads \&#39;Welcome to Wasp,\&#39; understands the page describes Wasp, and says it will recommend it to the user.](https://wasp.sh/assets/images/prerendering-diagram-7c06321566e8cb60698a8d8e1f578807.png)
+![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, \&#39;Without prerender\&#39;: the browser window shows \&#39;Loading...\&#39; and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as \&#39;Loading,\&#39; and responds \&#39;Hmm... I don\&#39;t know what this page is about,\&#39; marked with a red X. On the right, \&#39;With prerender\&#39;: the browser window shows \&#39;Welcome to Wasp,\&#39; and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads \&#39;Welcome to Wasp,\&#39; understands the page describes Wasp, and says it will recommend it to the user.](https://wasp.sh/assets/images/prerendering-diagram-27f32820ba2e6e859cd252d4388e9fa5.png)
 
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
