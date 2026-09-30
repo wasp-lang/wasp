@@ -4,7 +4,7 @@ module Wasp.Generator.Start
 where
 
 import Control.Concurrent (Chan, dupChan, newChan, readChan)
-import Control.Concurrent.Async (concurrently, race)
+import Control.Concurrent.Async (concurrently, race, withAsync)
 import Control.Concurrent.Extra (threadDelay)
 import Control.Monad (void)
 import StrongPath (Abs, Dir, Path')
@@ -30,10 +30,12 @@ start (webAppRunConfig, serverRunConfig) waspProjectDir outDir onJobsQuietDown =
         startServer serverRunConfig outDir chan
           `race` startWebApp webAppRunConfig waspProjectDir chan
 
-  ((serverOrWebExitCode, _), _) <-
-    runStartJobs
-      `concurrently` readJobMessagesAndPrintThemPrefixed chan
-      `concurrently` (dupChan chan >>= (`listenForJobsQuietDown` onJobsQuietDown))
+  quietDownChan <- dupChan chan
+  -- Listening for jobs quieting down never ends, so we stop it once the jobs
+  -- are done, instead of waiting for it.
+  (serverOrWebExitCode, _) <-
+    withAsync (listenForJobsQuietDown quietDownChan onJobsQuietDown) $ \_ ->
+      runStartJobs `concurrently` readJobMessagesAndPrintThemPrefixed chan
 
   case serverOrWebExitCode of
     Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
