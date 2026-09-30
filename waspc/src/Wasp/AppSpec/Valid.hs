@@ -416,20 +416,16 @@ validateUserApisDoNotCollideWithWaspRoutes spec =
     validateUserApi (apiName, api) userApiRoute =
       case filter (ServerRoute.doRoutesOverlap userApiRoute) waspServerRoutes of
         [] -> []
-        (shadowingRoute : otherShadowingRoutes) ->
+        shadowingRoutes ->
           [ GenericValidationWarning $
               "The api '"
                 ++ apiName
                 ++ "' has path "
                 ++ show (AS.Api.path api)
-                ++ ", which matches Wasp's own route "
-                ++ show (ServerRoute.getRoutePath shadowingRoute)
-                ++ showNumberOfOtherRoutes (length otherShadowingRoutes)
-                ++ ", so Wasp's route would answer instead of the api."
+                ++ ", which Wasp's own routes are registered ahead of: "
+                ++ intercalate ", " (map (show . ServerRoute.getRoutePath) shadowingRoutes)
+                ++ ". Requests to those paths never reach the api."
           ]
-
-    showNumberOfOtherRoutes 0 = ""
-    showNumberOfOtherRoutes numberOfOtherRoutes = " (and " ++ show numberOfOtherRoutes ++ " more)"
 
     waspServerRoutes = ServerRoutes.getWaspServerRoutes spec
 
