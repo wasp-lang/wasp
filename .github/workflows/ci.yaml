@@ -79,7 +79,6 @@ jobs:
     uses: ./.github/workflows/ci-npm-package-build.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
-      waspc-version: ${{ needs.waspc-build.outputs.waspc_version }}
       override-npm-package-version: ${{ inputs.override-npm-package-version }}
 
   npm-package-publish: # zizmor: ignore[excessive-permissions]

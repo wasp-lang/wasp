@@ -3,11 +3,6 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
-      waspc-version:
-        description: "The Wasp version built by the build workflow."
-        required: true
-        type: string
-
       override-npm-package-version:
         description: >
           If set, overrides the version of npm packages to publish.
@@ -27,7 +22,6 @@ jobs:
 
     env:
       WASPC_DOWNLOAD_DIR_PATH: ${{ github.workspace }}/download
-      BUILD_METADATA_DIR_PATH: ${{ github.workspace }}/build-metadata
       PACKAGES_INPUT_DIR_PATH: ${{ github.workspace }}/input
       PACKAGES_INPUT_DATA_FILE_PATH: ${{ github.workspace }}/input/data.json
       PACKAGES_OUTPUT_DIR_PATH: ${{ github.workspace }}/output
@@ -49,12 +43,6 @@ jobs:
           path: ${{ env.WASPC_DOWNLOAD_DIR_PATH }}
           pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
 
-      - uses: actions/download-artifact@v8
-        with:
-          path: ${{ env.BUILD_METADATA_DIR_PATH }}
-          pattern: ${{ steps.compute-download-artifact-names.outputs.metadata-artifact-name }}
-          merge-multiple: true
-
       - name: Copy artifacts to input folder
         env:
           ARTIFACT_NAME: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
@@ -67,24 +55,26 @@ jobs:
 
       - name: Create build metadata file
         env:
-          WASPC_VERSION: ${{ inputs.waspc-version }}
+          NPM_TARGETS_JSON: ${{ steps.compute-download-artifact-names.outputs.npm-target }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
-            # Each build job already wrote its tarball's entry, so we only
-            # need to collect them.
+            # We'll list one tarball per build that has an npm target here.
             |
             {
               version: ($overrideVersion // $waspcVersion) | ltrimstr("v"),
-              tarballs: [inputs]
+              tarballs:
+                $npmTargets
+                | to_entries
+                | map({ fileName: "wasp-\(.key).tar.gz", target: .value })
             }
         run: |
           jq \
             --null-input \
-            --arg waspcVersion "$WASPC_VERSION" \
+            --arg waspcVersion "$(./waspc/run get-waspc-version)" \
+            --argjson npmTargets "$NPM_TARGETS_JSON" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
             "$JQ_PROGRAM" \
-            "$BUILD_METADATA_DIR_PATH"/*.json \
             > "$PACKAGES_INPUT_DATA_FILE_PATH"
 
           cat "$PACKAGES_INPUT_DATA_FILE_PATH" # For debugging purposes

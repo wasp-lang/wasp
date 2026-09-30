@@ -5,9 +5,6 @@ name: "Build - Wasp CLI binaries"
 on:
   workflow_call:
     outputs:
-      waspc_version:
-        value: ${{ jobs.build.outputs.waspc_version }}
-        description: "The Wasp version built in this workflow."
       data_files_list:
         value: ${{ jobs.build.outputs.data_files_list }}
         description: "List of data files with per-file SHA-256 hashes."
@@ -18,7 +15,6 @@ env:
 jobs:
   build:
     outputs:
-      waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
       data_files_list: ${{ steps.data-files.outputs.list }}
 
     strategy:
@@ -148,32 +144,3 @@ jobs:
           path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           if-no-files-found: error
-
-      # Job outputs can't be declared dynamically, so instead of one output per
-      # build, each build uploads its metadata as an artifact, which the npm
-      # packaging job collects.
-      - name: Write build metadata
-        env:
-          BUILD_NAME: ${{ matrix.env.name }}
-          TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
-          NPM_TARGET: ${{ steps.compute-artifact-names.outputs.npm-target }}
-        run: |
-          mkdir -p build-metadata
-          # The schema for this object is `TarballDataSchema` in
-          # `scripts/make-npm-packages/src/schema/input-data.ts`.
-          jq \
-            --null-input \
-            --arg fileName "$TARBALL_NAME" \
-            --argjson target "$NPM_TARGET" \
-            '{ fileName: $fileName, target: $target }' \
-            > "build-metadata/${BUILD_NAME}.json"
-
-      - uses: actions/upload-artifact@v7
-        with:
-          path: ./build-metadata/${{ matrix.env.name }}.json
-          name: ${{ steps.compute-artifact-names.outputs.metadata-artifact-name }}
-          if-no-files-found: error
-
-      - name: Set job outputs
-        id: set-outputs
-        run: echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
