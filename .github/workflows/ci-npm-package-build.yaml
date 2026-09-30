@@ -3,8 +3,8 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
-      build-outputs-json:
-        description: "The returned outputs from the build workflow, as a JSON string"
+      waspc-version:
+        description: "The Wasp version built by the build workflow."
         required: true
         type: string
 
@@ -27,6 +27,7 @@ jobs:
 
     env:
       WASPC_DOWNLOAD_DIR_PATH: ${{ github.workspace }}/download
+      BUILD_METADATA_DIR_PATH: ${{ github.workspace }}/build-metadata
       PACKAGES_INPUT_DIR_PATH: ${{ github.workspace }}/input
       PACKAGES_INPUT_DATA_FILE_PATH: ${{ github.workspace }}/input/data.json
       PACKAGES_OUTPUT_DIR_PATH: ${{ github.workspace }}/output
@@ -48,6 +49,12 @@ jobs:
           path: ${{ env.WASPC_DOWNLOAD_DIR_PATH }}
           pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
 
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ env.BUILD_METADATA_DIR_PATH }}
+          pattern: ${{ steps.compute-download-artifact-names.outputs.metadata-artifact-name }}
+          merge-multiple: true
+
       - name: Copy artifacts to input folder
         env:
           ARTIFACT_NAME: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
@@ -60,31 +67,24 @@ jobs:
 
       - name: Create build metadata file
         env:
-          INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
+          WASPC_VERSION: ${{ inputs.waspc-version }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
-            # We'll wrangle the data from the build jobs into that schema here.
+            # Each build job already wrote its tarball's entry, so we only
+            # need to collect them.
             |
             {
-              version: ($overrideVersion // $inputData.waspc_version) | ltrimstr("v"),
-              tarballs:
-                $inputData
-                | with_entries(select(.key | startswith("output_")))
-                | map(
-                    fromjson
-                    | {
-                        fileName: .["tarball-name"],
-                        target: (.["npm-target"] | fromjson)
-                      }
-                  )
+              version: ($overrideVersion // $waspcVersion) | ltrimstr("v"),
+              tarballs: [inputs]
             }
         run: |
           jq \
             --null-input \
-            --argjson inputData "$INPUT_DATA_JSON" \
+            --arg waspcVersion "$WASPC_VERSION" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
             "$JQ_PROGRAM" \
+            "$BUILD_METADATA_DIR_PATH"/*.json \
             > "$PACKAGES_INPUT_DATA_FILE_PATH"
 
           cat "$PACKAGES_INPUT_DATA_FILE_PATH" # For debugging purposes

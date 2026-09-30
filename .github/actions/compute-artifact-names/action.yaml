@@ -65,6 +65,7 @@ runs:
       run: |
         echo "artifact-name=wasp-cli-${BUILD_NAME}" >> $GITHUB_OUTPUT
         echo "tarball-name=wasp-${BUILD_NAME}.tar.gz" >> $GITHUB_OUTPUT
+        echo "metadata-artifact-name=metadata-${BUILD_NAME}" >> $GITHUB_OUTPUT
 
     - name: Set npm target
       id: set-npm-target
@@ -89,6 +90,9 @@ outputs:
   tarball-name:
     value: ${{ steps.set-artifact-names.outputs.tarball-name }}
     description: "The name of the tarball inside the artifact."
+  metadata-artifact-name:
+    value: ${{ steps.set-artifact-names.outputs.metadata-artifact-name }}
+    description: "The name of the artifact with the build metadata (a JSON file) attached to the CI build."
   npm-target:
     value: ${{ steps.set-npm-target.outputs.npm-target }}
     description: "A JSON-encoded object of {os, cpu, libc?} for this build."
