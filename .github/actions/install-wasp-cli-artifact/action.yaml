@@ -2,7 +2,7 @@ name: Install Wasp CLI from artifact
 description: |
   Downloads a pre-built Wasp CLI artifact from the current workflow run
   and installs it to PATH. The calling job must have a `needs` dependency
-  on the job that produces the artifact (e.g. waspc-build-linux), and must set up
+  on the job that produces the artifact (waspc-build), and must set up
   Node.js before calling this action.
 
 runs:
