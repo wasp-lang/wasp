@@ -132,7 +132,7 @@ $ wasp clean
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/overview.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
-- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port`, `--server-port`, `--client-url` and `--server-url` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port`, `--server-port`, `--client-url` and `--server-url` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables the production build requires to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 

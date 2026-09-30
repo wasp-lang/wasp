@@ -172,7 +172,7 @@ After starting the tunnel, you will see your tunnel URL in the terminal. Go to t
 in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure
 what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
+Now that the tunnel exposes your server to the public, tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
 
 ```bash
 wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
