@@ -135,4 +135,5 @@ jobs:
 
       - name: Set job outputs
         id: set-outputs
-        run: echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
+        run: |
+          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
