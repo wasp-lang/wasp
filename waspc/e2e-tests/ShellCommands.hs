@@ -28,7 +28,6 @@ module ShellCommands
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
-    waspCliStartDb,
     waspCliTestClient,
     waspCliClean,
     waspCliStudio,
@@ -169,9 +168,6 @@ waspCliCompile = return "$WASP_CLI_CMD compile"
 
 waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStart = return "$WASP_CLI_CMD start"
-
-waspCliStartDb :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliStartDb = return "$WASP_CLI_CMD start db"
 
 waspCliTestClient :: [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliTestClient testArgs = return $ unwords ("$WASP_CLI_CMD test client" : testArgs)

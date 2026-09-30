@@ -8,19 +8,22 @@ import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Start.ArgumentsParser (StartDbArgs)
+import qualified Wasp.Cli.Command.Start.Db as Start.Db
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 
-runCommandThatRequiresDbRunning :: Command a -> IO ()
-runCommandThatRequiresDbRunning = runCommand . makeDbCommand
+runCommandThatRequiresDbRunning :: StartDbArgs -> Command a -> IO ()
+runCommandThatRequiresDbRunning args cmd =
+  runCommand $ withProjectLock $ Start.Db.withManagedDb args $ \_ -> makeDbCommand cmd
 
 -- | This function makes sure that all the prerequisites which db commands
 --   need are set up (e.g. makes sure Prisma CLI is installed).
 --
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
-makeDbCommand cmd = withProjectLock $ do
+makeDbCommand cmd = do
   -- Ensure code is generated and npm dependencies are installed.
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require

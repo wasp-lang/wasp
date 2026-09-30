@@ -3,6 +3,7 @@ module DbMigrateTest where
 import Data.Either (isLeft)
 import Test.Hspec
 import Wasp.Cli.Command.Db.Migrate (parseMigrateArgs)
+import Wasp.Cli.Command.Start.ArgumentsParser (StartDbArgs (..), parseDatabaseOptions)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 
 spec_parseMigrateArgs :: Spec
@@ -20,3 +21,16 @@ spec_parseMigrateArgs =
     parseMigrateArgs ["--create-only", "--name", "something"]
       `shouldBe` Right (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
     isLeft (parseMigrateArgs ["--create-only", "--wtf"]) `shouldBe` True
+
+spec_parseDatabaseOptions :: Spec
+spec_parseDatabaseOptions = do
+  it "keeps migration arguments while extracting database options" $ do
+    parseDatabaseOptions ["--name", "new model", "--db-image", "postgis:18", "--create-only"]
+      `shouldBe` Right (StartDbArgs (Just "postgis:18") Nothing, ["--name", "new model", "--create-only"])
+  it "tracks only explicitly supplied database options" $ do
+    parseDatabaseOptions ["--force"]
+      `shouldBe` Right (StartDbArgs Nothing Nothing, ["--force"])
+    parseDatabaseOptions ["--db-volume-mount-path=/var/lib/postgresql/data", "--force"]
+      `shouldBe` Right (StartDbArgs Nothing (Just "/var/lib/postgresql/data"), ["--force"])
+  it "rejects a missing database option value" $ do
+    isLeft (parseDatabaseOptions ["--db-image", "--force"]) `shouldBe` True
