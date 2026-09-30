@@ -49,11 +49,6 @@ During compilation, Wasp generates type declarations in
 @.wasp/out/types/app/sdk/register.ts@ (part of the user project) that
 extend @Register@ via module augmentation and declaration merging.
 
-Declaring @Register@ in the module being augmented lets TypeScript's
-incremental builds pick up changes to registered types. The lookup
-helpers in @sdk/wasp/types/register.ts@ import @Register@ from that module.
-See https://github.com/microsoft/TypeScript/issues/64386.
-
 On the SDK side, all user project dependent types are defined as
 conditional types. If a user-defined type for something exists in
 @Register@, we use it; otherwise, we fallback to some sensible
