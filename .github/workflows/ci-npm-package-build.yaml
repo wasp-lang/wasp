@@ -3,6 +3,11 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
+      waspc-version:
+        description: "The Wasp version built by the build workflow."
+        required: true
+        type: string
+
       override-npm-package-version:
         description: >
           If set, overrides the version of npm packages to publish.
@@ -55,6 +60,7 @@ jobs:
 
       - name: Create build metadata file
         env:
+          WASPC_VERSION: ${{ inputs.waspc-version }}
           NPM_TARGETS_JSON: ${{ steps.compute-download-artifact-names.outputs.npm-target }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
           JQ_PROGRAM:
@@ -71,7 +77,7 @@ jobs:
         run: |
           jq \
             --null-input \
-            --arg waspcVersion "$(./waspc/run get-waspc-version)" \
+            --arg waspcVersion "$WASPC_VERSION" \
             --argjson npmTargets "$NPM_TARGETS_JSON" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
             "$JQ_PROGRAM" \

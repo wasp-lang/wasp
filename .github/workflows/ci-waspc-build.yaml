@@ -5,6 +5,9 @@ name: "Build - Wasp CLI binaries"
 on:
   workflow_call:
     outputs:
+      waspc_version:
+        value: ${{ jobs.build.outputs.waspc_version }}
+        description: "The Wasp version built in this workflow."
       data_files_list:
         value: ${{ jobs.build.outputs.data_files_list }}
         description: "List of data files with per-file SHA-256 hashes."
@@ -15,6 +18,7 @@ env:
 jobs:
   build:
     outputs:
+      waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
       data_files_list: ${{ steps.data-files.outputs.list }}
 
     strategy:
@@ -144,3 +148,7 @@ jobs:
           path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           if-no-files-found: error
+
+      - name: Set job outputs
+        id: set-outputs
+        run: echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
