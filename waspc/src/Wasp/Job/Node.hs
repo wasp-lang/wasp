@@ -1,6 +1,7 @@
 module Wasp.Job.Node
   ( runChecked,
     runReturningExitCode,
+    spawn,
   )
 where
 
@@ -23,6 +24,9 @@ runChecked inputMode = runCommandUsing $ JobProcess.runChecked inputMode
 -- | Runs the command and returns the child process's exit status for explicit handling.
 runReturningExitCode :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ExitCode
 runReturningExitCode inputMode = runCommandUsing $ JobProcess.runReturningExitCode inputMode
+
+spawn :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job JobProcess.Subprocess
+spawn = runCommandUsing JobProcess.spawn
 
 runCommandUsing :: (P.CreateProcess -> Job.Job a) -> [(String, String)] -> Path' Abs (Dir dir) -> String -> [String] -> Job.Job a
 runCommandUsing runProcess extraEnvVars workingDir executable arguments = do
