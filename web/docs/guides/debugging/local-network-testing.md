@@ -5,7 +5,7 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26" }} />
 
 This guide shows you how to test your Wasp application on other devices (phones, tablets) connected to the same local network during development.
 
@@ -38,30 +38,22 @@ Look for the network URLs in Wasp's terminal output:
 
 If you have multiple network interfaces, you'll see multiple Network URLs. Note one of these IPs (you may need to try a few to find the one that works).
 
-## Step 3: Configure Environment Variables
+## Step 3: Tell Wasp the URLs Other Devices Will Use
 
-The app won't be fully functional until you configure the environment variables. Edit your environment files:
+By default, Wasp tells the client and the server that they live on `localhost`, which other devices can't reach. Stop the app and start it again with the URLs the other devices will use:
 
-### .env.server
-
-```bash title=".env.server"
-WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
+```bash
+wasp start \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
 ```
 
-### .env.client
+Replace `192.168.1.39` with your actual IP address from Step 2. The URLs don't change the ports Wasp runs on, so we pin the ports to match them.
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
-```
+:::note Why these URLs?
 
-Replace `192.168.1.39` with your actual IP address from Step 2.
-
-:::note Why these variables?
-
-- **WASP_WEB_CLIENT_URL**: Ensures CORS works correctly
-- **WASP_SERVER_URL**: Makes OAuth redirects work properly
-- **REACT_APP_API_URL**: Tells the client where to find the server on the local network
+- **Client URL**: Ensures CORS works correctly (Wasp passes it to the server as `WASP_WEB_CLIENT_URL`)
+- **Server URL**: Makes OAuth redirects work properly (Wasp passes it to the server as `WASP_SERVER_URL`), and tells the client where to find the server on the local network (Wasp passes it to the client as `REACT_APP_API_URL`)
   :::
 
 ## Step 4: Allow the Host in Vite Config
@@ -85,13 +77,7 @@ export default defineConfig({
 
 Replace `192.168.1.39.nip.io` with the hostname matching your IP from Step 2.
 
-## Step 5: Restart and Test
-
-After saving the environment files, restart your app:
-
-```bash
-wasp start
-```
+## Step 5: Test
 
 On your phone or tablet, open the URL with the `.nip.io` suffix:
 
@@ -127,12 +113,12 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 
 ### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
+1. Verify the server URL you passed to `wasp start` is correct
 2. Make sure the server is accessible on port 3001
 3. Check browser console for CORS errors
 
 ### OAuth not working
 
 1. Update redirect URIs in your OAuth provider's settings
-2. Make sure `WASP_SERVER_URL` uses the nip.io hostname
-3. Restart the server after changing environment variables
+2. Make sure the server URL uses the nip.io hostname
+3. Restart the app after changing URLs or environment variables

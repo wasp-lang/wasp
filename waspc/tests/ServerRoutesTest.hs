@@ -117,7 +117,6 @@ spec_ServerRoutes = do
         { AS.decls = AS.Decl.makeDecl "TestApp" app : decls,
           AS.prismaSchema = Util.getPrismaSchema "",
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
-          AS.externalCodeFiles = [],
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",

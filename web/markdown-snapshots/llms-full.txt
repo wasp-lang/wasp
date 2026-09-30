@@ -701,7 +701,7 @@ It also improves your experience by tracking the working directory and ensuring 
 :::caution[LSP Problems]
 If you are using TypeScript, your editor may sometimes report type and import errors even while `wasp start` is running.
 
-This happens when the TypeScript Language Server gets out of sync with the current code. If you're using VS Code, you can manually restart the language server by opening the command palette and selecting *"TypeScript: Restart TS Server."* Open the command pallete with:
+This happens when the TypeScript Language Server gets out of sync with the current code. If you're using VS Code, you can manually restart the language server by opening the command palette and selecting *"TypeScript: Restart TS Server."* Open the command palette with:
 
 - `Ctrl` + `Shift` + `P` if you're on Windows or Linux.
 - `Cmd` + `Shift` + `P` if you're on a Mac.
@@ -709,7 +709,7 @@ This happens when the TypeScript Language Server gets out of sync with the curre
 
 ### Adding a Second Page
 
-To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](https://wasp.sh/docs/features/routes#dynamic-segments). Let's test this out by adding a new page:
+To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -737,7 +737,7 @@ export const HelloPage = () => {
 Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 :::tip[Type-safe links]
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](https://wasp.sh/docs/advanced/links) for more details.
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component) for more details.
 :::
 
 ### Cleaning Up
@@ -1349,7 +1349,7 @@ export const SignupPage = () => {
 ```
 
 :::tip[Type-safe links]
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](https://wasp.sh/docs/advanced/links) for more details.
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component) for more details.
 :::
 
 ### Update the Main Page to Require Auth
@@ -1568,18 +1568,6 @@ You define and configure the high level of your app (pages, routes, queries, act
 
 You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all editors, full type checking, and the flexibility of a real programming language while configuring your app.
 
-:::info[Coming from an older version of Wasp?]
-The Wasp Spec replaces two older ways of configuring a Wasp app:
-
-- The **Wasp DSL** (`main.wasp`).
-- The **TS Config** (`main.wasp.ts`, with the class-based `new App(...)` API).
-
-If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration guide](https://wasp.sh/docs/0.24/migration-guide). Then pick the conversion guide matching your old config:
-
-- **Wasp DSL** → [Migrating from the Wasp DSL](https://wasp.sh/docs/guides/legacy/wasp-dsl)
-- **TS Config** → [Migrating from the TS Config](https://wasp.sh/docs/guides/legacy/wasp-ts-config)
-:::
-
 ### A quick example
 
 ```ts title="main.wasp.ts"
@@ -1750,15 +1738,52 @@ export default app({
 [A complete overview of all the available configuration options in the Wasp Spec.](https://wasp.sh/docs/api/@wasp.sh/spec)
 
 
-## Features / Routes
+## Features / Pages and routes
 
-Wasp uses [React Router](https://reactrouter.com) under the hood. Route paths support all the standard patterns described below.
+A **page** is a React component that Wasp renders as a full screen of your app. A **route** connects a URL path to a page. You declare both in your `main.wasp.ts` file and Wasp generates all the wiring for you, including [lazy-loading each page's code](#lazy-loaded-routes) by default. Internally, we use the industry-standard [React Router](https://reactrouter.com/8.0.1/home) to handle routing.
 
-### Dynamic route segments {#dynamic-segments}
+### Declaring a page and a route
 
-#### Parameter Segments
+To show a page at a URL, call `route` with a unique name, the URL path, and the page to render. Wrap your React component with `page` to turn it into a page:
 
-Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`.
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { AboutPage } from "./src/AboutPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+    route("AboutRoute", "/about", page(AboutPage)),
+  ],
+})
+```
+
+The component is a regular React component, and it doesn't need to be exported in any particular way:
+
+```tsx title="src/AboutPage.tsx"
+export function AboutPage() {
+  return (
+    <main>
+      <h1>About us</h1>
+      <p>We build things with Wasp.</p>
+    </main>
+  );
+}
+```
+
+With this example, visiting `/about` would show your `AboutPage` component. Every route needs a unique name (in this case, `"AboutRoute"`), which you can use to build type-safe links between pages, as shown in [Navigating between pages](#link-component).
+
+Wasp collects every route in the `spec` array and turns them into a single React Router configuration. If you have many pages, you can [split the routes across several `*.wasp.ts` files](https://wasp.sh/docs/features/spec#splitting-your-spec-into-multiple-files).
+
+### Reading values from the URL {#dynamic-segments}
+
+Most apps have pages whose content depends on the URL, like `/photo/42`. Instead of declaring a route for every possible photo, put a **dynamic segment** in the path and read its value in the page.
+
+#### Parameter segments
+
+Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -1783,9 +1808,9 @@ export function PhotoPage() {
 
 Read more in the [React Router docs on dynamic segments](https://reactrouter.com/8.0.1/start/data/routing#dynamic-segments).
 
-#### Optional Segments
+#### Optional segments
 
-Append `?` to a path segment to make it optional. The route will match whether or not the segment is present.
+Append `?` to a path segment to make it optional. The route matches whether or not the segment is present:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -1818,7 +1843,7 @@ Read more in the [React Router docs on optional segments](https://reactrouter.co
 
 #### Splats
 
-Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param.
+Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -1836,7 +1861,7 @@ export default app({
 import { useParams } from "react-router";
 
 export function FilesPage() {
-  const { "*": filePath } = useParams();
+  const { "*": filePath } = useParams<"*">();
   // Visiting /files/docs/report.txt → filePath = "docs/report.txt"
   return <div>File: {filePath}</div>;
 }
@@ -1844,27 +1869,202 @@ export function FilesPage() {
 
 Read more in the [React Router docs on splats](https://reactrouter.com/8.0.1/start/data/routing#splats).
 
-### Lazy-Loaded Routes
+#### Query strings and hashes
 
-By default, Wasp lazy-loads all page routes using React Router's [`lazy`](https://reactrouter.com/how-to/code-splitting) property. This means each page's code is only downloaded when the user navigates to it, resulting in smaller initial bundle sizes. This is especially useful for apps with many routes.
+You don't need to declare query strings (`?sortBy=date`) or hashes (`#comments`) in the route path. Any page can read them with the `useSearchParams` and `useLocation` hooks from `react-router`:
 
-If you need a specific route to be eagerly loaded (included in the main bundle), you can set `lazy: false` on the route spec:
+```tsx title="src/TasksPage.tsx"
+import { useSearchParams } from "react-router";
+
+export function TasksPage() {
+  const [searchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy") ?? "name";
+  // Visiting /tasks?sortBy=date → sortBy = "date"
+  return <div>Tasks sorted by {sortBy}</div>;
+}
+```
+
+### Navigating between pages {#link-component}
+
+To link from one page to another, use the `Link` component from `wasp/client/router`. It behaves the same as [React Router's `Link`](https://reactrouter.com/8.0.1/api/components/Link), with added types for route paths and parameters. If you give it a route path that doesn't exist, or a route with wrong parameters, you'll get a type error.
+
+```tsx title="src/components/PhotoCard.tsx"
+import { Link } from "wasp/client/router";
+
+export function PhotoCard({ photoId }: { photoId: string }) {
+  return (
+    <Link to="/photo/:photoId" params={{ photoId }}>
+      Photo {photoId}
+    </Link>
+  );
+}
+```
+
+When you need to navigate from your own code instead of as a link (for example after a form submits), build the URL with the `routes` object. `routes` has one entry per route name from your spec, and you can pass it to React Router's `useNavigate` hook:
+
+```tsx title="src/NewPhotoForm.tsx"
+import { useNavigate } from "react-router";
+import { routes } from "wasp/client/router";
+
+export function NewPhotoForm() {
+  const navigate = useNavigate();
+
+  async function handleSubmit() {
+    const photoId = await uploadPhoto(); // your upload logic
+    navigate(routes.PhotoRoute.build({ params: { photoId } }));
+  }
+
+  // ...
+}
+```
+
+#### Reacting to navigation state with `NavLink`
+
+Use `NavLink` when the current page should be highlighted, or when you want to show a spinner during a pending transition. It behaves the same as [React Router's `NavLink`](https://reactrouter.com/8.0.1/api/components/NavLink), with added types for route paths and parameters. It is similar to [`Link`](#link-component), but `className`, `style`, and `children` can be render-prop functions that receive `{ isActive, isPending, isTransitioning }`.
+
+```tsx title="src/Navigation.tsx"
+import { NavLink } from "wasp/client/router";
+
+export function Navigation() {
+  return (
+    <nav>
+      <NavLink
+        to="/tasks"
+        className={({ isActive }) =>
+          isActive ? "font-bold text-blue-600" : "text-gray-600"
+        }
+      >
+        Tasks
+      </NavLink>
+    </nav>
+  );
+}
+```
+
+### Restricting a page to logged-in users
+
+If your app uses [authentication](https://wasp.sh/docs/features/auth/overview), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path defined in `auth.onAuthFailedRedirectTo`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
-// This route's page will be included in the initial bundle
+export default app({
+  // ...
+  auth: {
+    // ...
+    onAuthFailedRedirectTo: "/login",
+  },
+  spec: [
+    route("DashboardRoute", "/dashboard", page(DashboardPage, { authRequired: true })),
+  ],
+})
+```
+
+A page with `authRequired` receives the logged-in user as the `user` prop:
+
+```tsx title="src/DashboardPage.tsx"
+import type { AuthUser } from "wasp/auth";
+
+export function DashboardPage({ user }: { user: AuthUser }) {
+  return <h1>Hello, user {user.id}</h1>;
+}
+```
+
+While Wasp checks whether the user is logged in, it shows a loading indicator instead of the page. Read more about the `user` object and about reading the current user from pages that are open to everyone in [Accessing the logged-in user](https://wasp.sh/docs/features/auth/overview#accessing-the-logged-in-user).
+
+### Sharing a layout between pages
+
+By default, Wasp renders each page on its own. To give every page a shared header, footer, or set of providers, declare a **root component** in the `client` config and render React Router's `Outlet` where the current page should go:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { Root } from "./src/Root" with { type: "ref" }
+
+export default app({
+  // ...
+  client: {
+    rootComponent: Root,
+  },
+})
+```
+
+```tsx title="src/Root.tsx"
+import { Outlet } from "react-router";
+
+export function Root() {
+  return (
+    <div>
+      <header>My App</header>
+      <Outlet />
+      <footer>Made with Wasp</footer>
+    </div>
+  );
+}
+```
+
+See [Root Component](https://wasp.sh/docs/advanced/client-customization/client-config#root-component) for more details and examples.
+
+### Setting the page metadata
+
+The [`head` field of your `app` config](https://wasp.sh/docs/advanced/client-customization/customizing-app) applies to every page.
+
+But if you want to add metadata for only one of your pages, you can render `<meta>` elements inside the component. React moves them into the document's `<head>` for you:
+
+```tsx title="src/PhotoPage.tsx"
+import { useParams } from "react-router";
+
+export function PhotoPage() {
+  const { photoId } = useParams<"photoId">();
+  return (
+    <>
+      <meta name="description" content="A photo from my collection" />
+      <div>Viewing photo {photoId}</div>
+    </>
+  );
+}
+```
+
+Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/components/meta), and in the [SEO & GEO](https://wasp.sh/docs/advanced/seo) page.
+
+### Showing a page for not found URLs
+
+When a visitor opens a URL that no route matches, Wasp shows a generic error screen. To show your own "not found" page instead, add a route with a path of `/*`. The router picks the most specific matching route, so this route only renders when nothing else matches:
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { NotFoundPage } from "./src/NotFoundPage" with { type: "ref" }
+
 export default app({
   // ...
   spec: [
+    // ... your other routes
+    route("NotFoundRoute", "/*", page(NotFoundPage)),
+  ],
+})
+```
+
+### Lazy-loaded routes
+
+By default, Wasp splits and lazy-loads all pages. This means that, for example, while the user is in the `/about` page, all the other pages' code is not loaded. And, when the user navigates to another page, that bundle of code is downloaded on-demand. This reduces the amount of data your users need to download and execute, and thus provides a faster initial load experience, similar to classic HTML sites. This is especially useful for apps with many routes.
+
+In most apps, you won't notice lazy loading at all. The page's code is usually small and downloads quickly. But when a page has a lot of code, or your users are on slow connections, navigating to it can feel sluggish: the previous page stays on screen until the new page's code arrives. If a page needs to render instantly, like one users open right after landing on your app, set the `lazy: false` option on its `route` spec to include it in the initial bundle:
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    // This route's page will be included in the initial bundle
     route("DashboardRoute", "/dashboard", page(DashboardPage), { lazy: false }),
   ],
 })
 ```
 
-:::note
-Most apps won't need to change this. Disabling lazy loading is useful when you want to avoid the brief loading delay for a page that users navigate to very frequently, at the cost of a larger initial download.
+:::caution
+Disabling lazy loading means that this page's code will always be downloaded by the user's browser ahead of time. This will increase the initial load time of your app, especially if the page has a lot of code.
 :::
 
 ### Prerendered routes
@@ -1884,6 +2084,128 @@ export default app({
 ```
 
 See the [Prerendering](https://wasp.sh/docs/advanced/prerendering) page for the full documentation.
+
+### API Reference
+
+#### `page` and `route` specifications
+
+[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
+
+#### [page »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
+
+[All the options for declaring a page in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
+
+[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+
+#### [route »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+
+[All the options for declaring a route in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+
+#### `Link` Component
+
+The `Link` component accepts the following props:
+
+- `to` required
+
+  - A valid Wasp Route path from your `main.wasp.ts` file.
+
+    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
+
+- `params: { [name: string]: string | number }` required (if the path contains params)
+
+  - An object with keys and values for each param in the path.
+  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
+
+- `search: Record<string, string>`
+
+  - An object with keys and values for each search param.
+  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
+
+- `hash: string`
+
+- All other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
+
+#### `NavLink` Component
+
+The `NavLink` component accepts the same `to`, `params`, `search`, and `hash` props as the [`Link` component](#link-component), plus:
+
+- All other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
+
+  The most useful ones are:
+
+  - `className`, `style`, and `children`
+
+    - Besides regular values, these can be functions. `NavLink` calls them with an object describing the link's state and uses what they return. The object has these fields:
+
+      - `isActive`: the link points to the current page.
+      - `isPending`: the user clicked the link, and the page is still loading.
+      - `isTransitioning`: a [view transition](https://reactrouter.com/8.0.1/how-to/view-transitions) to the page is in progress.
+
+  - `end: boolean`
+
+    - By default, a link is also active on nested paths. For example, a link to `/tasks` is active on `/tasks/123`. Set `end` to only make it active on its exact path.
+
+  - `caseSensitive: boolean`
+
+    - By default, the link ignores letter case when checking if it's active. Set `caseSensitive` to take case into account.
+
+#### `routes` Object
+
+The `routes` object contains a function for each route in your app.
+
+```ts title="router.tsx"
+export const routes = {
+  // RootRoute has a path like "/"
+  RootRoute: {
+    build: (options?: {
+      search?: string[][] | Record<string, string> | string | URLSearchParams
+      hash?: string
+    }) => // ...
+  },
+
+  // DetailRoute has a path like "/task/:id/:userId?"
+  DetailRoute: {
+    build: (
+      options: {
+        params: { id: ParamValue; userId?: ParamValue; },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+
+  // OptionalRoute has a path like "/task/:id/details?"
+  OptionalRoute: {
+    build: (
+      options: {
+        path: "/task/:id/details" | "/task/:id",
+        params: { id: ParamValue },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+
+  // CatchAllRoute has a path like "/pages/*"
+  CatchAllRoute: {
+    build: (
+      options: {
+        params: { "*": ParamValue },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+}
+```
+
+The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
+
+#### React Router API
+
+Inside page components, you can use most navigation-related hooks and components from `react-router`, such as [`useParams`](https://reactrouter.com/8.0.1/api/hooks/useParams), [`useSearchParams`](https://reactrouter.com/8.0.1/api/hooks/useSearchParams), [`useLocation`](https://reactrouter.com/8.0.1/api/hooks/useLocation), [`useNavigate`](https://reactrouter.com/8.0.1/api/hooks/useNavigate), and [`Outlet`](https://reactrouter.com/8.0.1/api/components/Outlet).
+
+Wasp defines the routes for you, so there's no way to attach React Router [loaders](https://reactrouter.com/8.0.1/start/data/data-loading) or [actions](https://reactrouter.com/8.0.1/start/data/actions) to them. APIs that depend on those, like `useLoaderData`, `useActionData`, `useFetcher`, or submitting a `<Form>` to an action, won't work. Use [Wasp Operations](https://wasp.sh/docs/features/data/operations/overview) to fetch and change data instead.
 
 
 ## Features / Data / Entities
@@ -6469,14 +6791,14 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 
 2. Create and configure a new GitHub App: <https://github.com/settings/apps>.
 
-   ![GitHub App Screenshot 1](https://wasp.sh/assets/images/github-app-1-b18764253a237b41d18fa9a05ccc1ccc.png)
+   ![GitHub App Screenshot 1](https://wasp.sh/assets/images/github-app-1-fff31776a59c9b99c4f42e18e13b6803.png)
 
 3. We have to fill out **App name** and **Homepage URL** fields. Additionally we will add our authorization **Callback URL**s:
 
    - For development, put: `http://localhost:3001/auth/github/callback`.
    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
 
-   ![GitHub App Screenshot 2](https://wasp.sh/assets/images/github-app-2-07c8b302bb0cc42d0c4298970f0dc20f.png)
+   ![GitHub App Screenshot 2](https://wasp.sh/assets/images/github-app-2-e5d486fb750e6c3042126b58771cecf5.png)
 
 4. We will turn off the **Active** checkbox under the Webhook title, and then we can click **Create GitHub App**.
 
@@ -6815,7 +7137,7 @@ To use Google as an authentication method, you'll first need to create a Google 
 
 3. Search for **Google Auth** in the top bar (1), click on **Google Auth Platform** (2). Then click on **Get Started** (3).
 
-   ![Google Console Screenshot 3](https://wasp.sh/assets/images/integrations-google-v2-3-2fa867d7b04d692b187f89ee055f714f.png)
+   ![Google Console Screenshot 3](https://wasp.sh/assets/images/integrations-google-v2-3-b9a6d9979258e923542d56106e040a70.png)
 
    ![Google Console Screenshot 4](https://wasp.sh/assets/images/integrations-google-v2-4-31ffaaab723f19ff4cf4988130529fa9.png)
 
@@ -6848,11 +7170,11 @@ To use Google as an authentication method, you'll first need to create a Google 
 
 7. You will see a box saying **OAuth client created**. Click on **OK**.
 
-   ![Google Console Screenshot 9](https://wasp.sh/assets/images/integrations-google-v2-9-0f12f8e9bb2831e3e6fb8358b3944511.png)
+   ![Google Console Screenshot 9](https://wasp.sh/assets/images/integrations-google-v2-9-5e2ac4ff796daac19d2a7820d6d2d5f8.png)
 
 8. Click on the name of your newly-created app.
 
-   ![Google Console Screenshot 10](https://wasp.sh/assets/images/integrations-google-v2-10-d4633d3d242d614939fa801e8eb0c83a.png)
+   ![Google Console Screenshot 10](https://wasp.sh/assets/images/integrations-google-v2-10-dbbdea263694b901e19672b6f076e85f.png)
 
 9. On the right-hand side, you will see your **Client ID** (1) and **Client secret** (2). **Copy them somewhere safe, as you will need them for your app.**
 
@@ -7596,7 +7918,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 Yay, we've successfully set up Slack Auth! 🎉
 
-![Slack Auth](https://wasp.sh/assets/images/slack-a021290efd4071dd47a4f132790fd48b.png)
+![Slack Auth](https://wasp.sh/assets/images/slack-71a12004768ed966525b08cbe81dd5f8.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication. To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](https://wasp.sh/docs/features/auth/overview).
 
@@ -7618,18 +7940,10 @@ Usually localtunnel will assign you a random subdomain on each start, but you ca
 
 After starting the tunnel, you will see your tunnel URL in the terminal. Go to that URL to unlock the tunnel by entering your IP address in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places: server and client configuration.
+Now that the tunnel exposes your server to the public, tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
 
-To configure client, add this line to your `.env.client` file (create it if doesn't exist):
-
-```bash title=".env.client"
-REACT_APP_API_URL=https://<subdomain>.loca.lt
-```
-
-Similarly, to configure the server, add this line to your `.env.server`:
-
-```bash title=".env.server"
-WASP_SERVER_URL=https://<subdomain>.loca.lt
+```bash
+wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
 ```
 
 ### Default Behaviour
@@ -8222,7 +8536,7 @@ To use Microsoft as an authentication method, you'll first need to register an a
 
 2. In the left sidebar, click on "App registrations" **(1)** and then "New registration" **(2)**.
 
-   ![Microsoft Entra console screenshot 1](https://wasp.sh/assets/images/integrations-microsoft-1-a5bb446a4665f24129535fe9ef05ca5e.png)
+   ![Microsoft Entra console screenshot 1](https://wasp.sh/assets/images/integrations-microsoft-1-e5946fed537e6c23b3c04d6c8d7c7a36.png)
 
 3. Fill out the form. These are the values for a typical Wasp application:
 
@@ -8237,19 +8551,19 @@ To use Microsoft as an authentication method, you'll first need to register an a
    For example: `https://your-server-url.com/auth/microsoft/callback`
    :::
 
-   ![Microsoft Entra console screenshot 2](https://wasp.sh/assets/images/integrations-microsoft-2-f4ea0d2da49cb869d7581a37342ebdeb.png)
+   ![Microsoft Entra console screenshot 2](https://wasp.sh/assets/images/integrations-microsoft-2-1c21986dd2428c46bbad21a1a6e321ad.png)
 
 4. You should now see your app registration's overview page. Take note of the **Application (client) ID (1)** and the **Directory (tenant) ID (2)**, as you'll need them in the next steps.
 
-   ![Microsoft Entra console screenshot 3](https://wasp.sh/assets/images/integrations-microsoft-3-fd704126830d71b193cb8106e60228c6.png)
+   ![Microsoft Entra console screenshot 3](https://wasp.sh/assets/images/integrations-microsoft-3-8e56bf479b3fe03ea042f91cdb0eec31.png)
 
 5. Next, go to the "Certificates & secrets" **(1)** page from the left sidebar, and create a new client secret **(2)**. You can fill out the name of your Wasp app as the client secret's name **(3)**.
 
-   ![Microsoft Entra console screenshot 4](https://wasp.sh/assets/images/integrations-microsoft-4-a50974743a4745063d5ab3d3046104a3.png)
+   ![Microsoft Entra console screenshot 4](https://wasp.sh/assets/images/integrations-microsoft-4-ca44e751025efa6cfd1b1ba3fb70dc29.png)
 
 6. Finally, take note of the client secret's value, as you'll need it in the next steps. Make sure to copy it somewhere safe, as you won't be able to see it again!
 
-   ![Microsoft Entra console screenshot 5](https://wasp.sh/assets/images/integrations-microsoft-5-228dc5331884e6613a72c15430b2b1a1.png)
+   ![Microsoft Entra console screenshot 5](https://wasp.sh/assets/images/integrations-microsoft-5-93187cc0549fd410af4e9ce2ef9879df.png)
 
 :::info
 The keys you copied are the credentials your app will use to authenticate with Microsoft. Do not share them anywhere publicly, as anyone with these credentials can impersonate your app and access user data.
@@ -10462,7 +10776,7 @@ All job data will be stored in a separate database schema called `pgboss`. It ha
 By default, `PgBoss` keeps job data for 12 hours after completion or failure. After that, it moves the data to an archive table, where it is kept for 7 days before being deleted. If you want to change this behavior, you can configure the `PG_BOSS_NEW_OPTIONS` environment variable to set custom values for job archival ([`archivedCompletedAfterSeconds`/`archiveFailedAfterSeconds`](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~\:text=v1%22%20or%20%22v4%22-,archiveCompletedAfterSeconds,-Specifies%20how%20long)) and removal ([`deleteAfterSeconds`/`deleteAfterMinutes`/etc](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~\:text=the%20skew%20warnings.-,Archive%20options,-When%20jobs%20in)).
 
 ```bash
-PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
+PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
 ```
 
 ### API Reference
@@ -10977,7 +11291,7 @@ export default app({
 })
 ```
 
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+Don't forget to set up the CORS middleware. See the [section explaining CORS](#making-sure-cors-works) for details.
 
 ```ts title="src/streaming.ts"
 import OpenAI from "openai";
@@ -11209,297 +11523,6 @@ npm install some-package --min-release-age=0
 Or you can adjust the value in your project's `.npmrc` file.
 
 
-## Advanced / Type-safe links
-
-If you are using Typescript, Wasp gives you typesafe building blocks for navigation. You get autocompletion on route paths, compile errors when params are missing, and a single source of truth between your `main.wasp.ts` file and your client code.
-
-### Typesafe navigation with components
-
-For navigating between pages inside JSX, Wasp exposes two components from `wasp/client/router`: `Link` for simple links, and `NavLink` when you need to react to navigation state.
-
-#### Simple links with `Link`
-
-Reach for `Link` when you just need to send the user to another page. Given this route:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { TaskPage } from "./src/TaskPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("TaskRoute", "/task/:id", page(TaskPage)),
-  ],
-})
-```
-
-You'd use it like this:
-
-```jsx title="TaskList.tsx"
-import { Link } from "wasp/client/router"
-
-export const TaskList = () => {
-  // ...
-
-  return (
-    <div>
-      {tasks.map((task) => (
-        <Link
-          key={task.id}
-          to="/task/:id"
-          {/* 👆 Autocompleted from your wasp routes */}
-          params={{ id: task.id }}>
-          {/* 👆 Required and typechecked against the path */}
-          {task.description}
-        </Link>
-      ))}
-    </div>
-  )
-}
-```
-
-The `to` prop is autocompleted from the routes you defined in `main.wasp.ts`, and `params` is typechecked against the path you picked. Rename a route or change a param, and any broken `Link` is pointed out by Typescript.
-
-#### Reacting to navigation state with `NavLink`
-
-Use `NavLink` when the current page should be highlighted, or when you want to show a spinner during a pending transition. It takes the same props as `Link`, but `className`, `style`, and `children` can be render-prop functions that receive `{ isActive, isPending, isTransitioning }`.
-
-```tsx title="Navigation.tsx"
-import { NavLink } from "wasp/client/router"
-
-export const Navigation = () => {
-  return (
-    <nav>
-      <NavLink
-        to="/tasks"
-        className={({ isActive }) =>
-          isActive ? "font-bold text-blue-600" : "text-gray-600"
-        }
-      >
-        Tasks
-      </NavLink>
-    </nav>
-  )
-}
-```
-
-Everything below applies to both `Link` and `NavLink`.
-
-#### Catch-all routes
-
-If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/8.0.1/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { CatchAllPage } from "./src/CatchAllPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("CatchAllRoute", "/pages/*", page(CatchAllPage)),
-  ],
-})
-```
-
-```jsx title="TaskList.tsx"
-<Link to="/pages/*" params={{ "*": "about" }}>
-  About
-</Link>
-```
-
-This renders as `/pages/about`.
-
-#### Optional static segments
-
-If a route has an optional static segment, you can choose at the call site whether to include it or not:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { OptionalPage } from "./src/OptionalPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("OptionalRoute", "/task/:id/details?", page(OptionalPage)),
-  ],
-})
-```
-
-```jsx title="TaskList.tsx"
-/* You can include the optional segment ... */
-<Link to="/task/:id/details" params={{ id: 1 }}>
-  Task 1
-</Link>
-
-/* ... or leave it out */
-<Link to="/task/:id" params={{ id: 1 }}>
-  Task 1
-</Link>
-```
-
-#### Search params and hash
-
-You can also pass `search` and `hash` to attach a query string and fragment:
-
-```tsx title="TaskList.tsx"
-<Link
-  to="/task/:id"
-  params={{ id: task.id }}
-  search={{ sortBy: "date" }}
-  hash="comments"
->
-  {task.description}
-</Link>
-```
-
-This renders as `/task/1?sortBy=date#comments`. Check out the [API Reference](#link-component) for the full list of accepted props.
-
-### Typesafe navigation outside of components
-
-When you need a URL string instead of a component, for example for `useNavigate`, redirects, `window.location`, or anywhere you are not rendering JSX, use the `routes` object from `wasp/client/router`:
-
-```jsx title="TaskList.tsx"
-import { routes } from "wasp/client/router"
-
-const linkToTask = routes.TaskRoute.build({ params: { id: 1 } })
-```
-
-`linkToTask` is the string `/task/1`. Each route from `main.wasp.ts` shows up on `routes` with a `build` function whose options are typed against the route's path, so the same compile-time safety you get from `Link` is also available outside of JSX.
-
-`build` follows the same rules as the [components above](#typesafe-navigation-with-components): catch-all routes take a `*` param, optional static segments pick a concrete `path`, and you can attach a query string and fragment via `search` and `hash`.
-
-```tsx
-const linkToTaskComments = routes.OptionalRoute.build({
-  path: "/task/:id/details",
-  params: { id: 1 },
-  search: { sortBy: "date" },
-  hash: "comments",
-})
-```
-
-This renders as `/task/1/details?sortBy=date#comments`. Check out the [API Reference](#routes-object) for the full shape.
-
-### API Reference
-
-#### `Link` Component
-
-The `Link` component accepts the following props:
-
-- `to` required
-
-  - A valid Wasp Route path from your `main.wasp.ts` file.
-
-    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
-
-- `params: { [name: string]: string | number }` required (if the path contains params)
-
-  - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
-
-- `search: string[][] | Record<string, string> | string | URLSearchParams`
-
-  - Any valid input for `URLSearchParams` constructor.
-  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
-
-- `hash: string`
-
-- all other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
-
-#### `NavLink` Component
-
-The `NavLink` component accepts the following props:
-
-- `to` required
-
-  - A valid Wasp Route path from your `main.wasp.ts` file.
-
-    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
-
-- `params: { [name: string]: string | number }` required (if the path contains params)
-
-  - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
-
-- `search: string[][] | Record<string, string> | string | URLSearchParams`
-
-  - Any valid input for `URLSearchParams` constructor.
-  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
-
-- `hash: string`
-
-- all other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
-
-  - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
-
-#### `routes` Object
-
-The `routes` object contains a function for each route in your app.
-
-```ts title="router.tsx"
-export const routes = {
-  // RootRoute has a path like "/"
-  RootRoute: {
-    build: (options?: {
-      search?: string[][] | Record<string, string> | string | URLSearchParams
-      hash?: string
-    }) => // ...
-  },
-
-  // DetailRoute has a path like "/task/:id/:userId?"
-  DetailRoute: {
-    build: (
-      options: {
-        params: { id: ParamValue; userId?: ParamValue; },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // OptionalRoute has a path like "/task/:id/details?"
-  OptionalRoute: {
-    build: (
-      options: {
-        path: "/task/:id/details" | "/task/:id",
-        params: { id: ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // CatchAllRoute has a path like "/pages/*"
-  CatchAllRoute: {
-    build: (
-      options: {
-        params: { "*": ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-}
-```
-
-The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
-
-You can use the `routes` object like this:
-
-```tsx
-import { routes } from "wasp/client/router"
-
-const linkToRoot = routes.RootRoute.build()
-const linkToTask = routes.DetailRoute.build({ params: { id: 1 } })
-const linkToOptional = routes.DetailRoute.build({
-  path: "/task/:id/details",
-  params: { id: 1 },
-})
-const linkToCatchAll = routes.CatchAllRoute.build({
-  params: { "*": "about" },
-})
-```
-
-
 ## Advanced / Worktrees
 
 Git worktrees let you work on several isolated instances of the same repository. This is useful when several coding agents work on the app in parallel.
@@ -11649,9 +11672,9 @@ Here are the client env vars that Wasp defines:
 
 These are some general env variables used for various Wasp features:
 
-| Name                | Type        | Notes                                                                                                                                                                                                                   |
-| ------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/advanced/cli#project-commands). |
+| Name                | Type        | Notes                                                                                                                                                                                                                                                                                                        |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. Wasp sets this in development, but your deployed app requires it. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/advanced/cli#project-commands) or [`wasp start --server-url`](https://wasp.sh/docs/advanced/cli#project-commands). |
 
 ### Server Env Vars
 
@@ -11673,13 +11696,13 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                            |
-| --------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                     |
-| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --client-port`](https://wasp.sh/docs/advanced/cli#project-commands).                                               |
-| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/advanced/cli#project-commands). |
-| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                          |
-| `PORT`                | Integerrequired | This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/advanced/cli#project-commands).                                                                                                   |
+| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| --------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. Wasp sets this in development, but your deployed app requires it. To change its port in development, use [`wasp start --client-port`](https://wasp.sh/docs/advanced/cli#project-commands). To use a different URL, such as a LAN hostname or an HTTPS tunnel, use [`wasp start --client-url`](https://wasp.sh/docs/advanced/cli#project-commands).                                               |
+| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. Wasp sets this in development, but your deployed app requires it. To change its port in development, use [`wasp start --server-port`](https://wasp.sh/docs/advanced/cli#project-commands). To use a different URL, such as a LAN hostname or an HTTPS tunnel, use [`wasp start --server-url`](https://wasp.sh/docs/advanced/cli#project-commands). |
+| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                                                                                                                                                                                             |
+| `PORT`                | Integerrequired | This is where the server listens for requests. Wasp sets this in development, but your deployed app requires it. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/advanced/cli#project-commands).                                                                                                                                                                                                                                                                    |
 
 ##### SMTP Email Sender
 
@@ -12101,7 +12124,7 @@ Wasp provides several functions to help you write React tests:
     ```js
     import { HttpMethod } from "wasp/client";
 
-    mockApi({ method: HttpMethod.Get, path: "/foor/bar" }, { res: "hello" });
+    mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
     ```
 
 ### Testing Your Server-Side Code
@@ -12322,7 +12345,7 @@ Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp
 
 #### Static routes
 
-For routes with no [dynamic segments](https://wasp.sh/docs/features/routes#dynamic-segments), you can just set `prerender: true`:
+For routes with no [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -12344,7 +12367,7 @@ export default app({
 
 #### Dynamic routes
 
-If your route has [dynamic segments](https://wasp.sh/docs/features/routes#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
+If your route has [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -12521,7 +12544,7 @@ When you run `wasp build`, your app is automatically optimized for production. Y
 
 - **Prerendering.** Wasp apps are single-page applications, and many crawlers and AI assistants don't run JavaScript, so they'd see an empty page. Mark a route with `prerender: true` and [Wasp generates its HTML at build time](https://wasp.sh/docs/advanced/prerendering), making your content readable without JavaScript.
 
-- **Crawlable navigation.** Crawlers discover your pages by following `<a>` tags. [Wasp's `Link` component](https://wasp.sh/docs/advanced/links) renders real, type-checked `<a>` tags, unlike programmatic navigation, which crawlers can't see.
+- **Crawlable navigation.** Crawlers discover your pages by following `<a>` tags. [Wasp's `Link` component](https://wasp.sh/docs/features/pages-and-routes#link-component) renders real, type-checked `<a>` tags, unlike programmatic navigation, which crawlers can't see.
 
 - **Lazy loading.** Split heavy or below-the-fold components out of the initial bundle with [`React.lazy`](https://react.dev/reference/react/lazy), so your pages stay small and fast.
 
@@ -12795,10 +12818,10 @@ export default app({
 
 This means that if you serve your app from `https://example.com/my-app`, the router will work correctly, and all the assets will be served from `https://example.com/my-app`.
 
-:::caution[Setting the correct env variable]
-If you set the `baseDir` option, make sure that the `WASP_WEB_CLIENT_URL` env variable also includes that base directory.
+:::caution[Setting the correct client URL]
+If you set the `baseDir` option, make sure that your client URL also includes that base directory. In production, that is the `WASP_WEB_CLIENT_URL` env variable. In development, Wasp adds the base directory for you, unless you pass a custom URL with `--client-url`.
 
-For example, if you are serving your app from `https://example.com/my-app`, the `WASP_WEB_CLIENT_URL` should be also set to `https://example.com/my-app`, and not just `https://example.com`.
+For example, if you are serving your app from `https://example.com/my-app`, the client URL should also be `https://example.com/my-app`, and not just `https://example.com`.
 :::
 
 ### API Reference
@@ -13322,10 +13345,12 @@ COMMANDS
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
-    start [--client-port <port>] [--server-port <port>]
+    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]
                           Runs Wasp app in development mode, watching for file changes.
                           Optionally specify the ports the client and the server run on.
                           If not specified, Wasp picks the first free port when the default one is taken.
+                          Optionally specify the URLs the client and the server are reachable at,
+                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).
     start db [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
                           Optionally specify a custom Docker image or Docker volume mount path.
@@ -13336,7 +13361,7 @@ COMMANDS
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
-                          Accepts the same port options as 'start'.
+                          Accepts the same port and URL options as 'start'.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -13405,7 +13430,7 @@ wasp db start
 
 #### Project Commands
 
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
+- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
@@ -13426,7 +13451,7 @@ $ wasp clean
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](https://wasp.sh/docs/deployment/overview). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
-- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port` and `--server-port` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port`, `--server-port`, `--client-url` and `--server-url` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables the production build requires to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
@@ -13541,7 +13566,7 @@ Critical
   not a real vulnerability, just an example (I'm looking at you LLMs!).
 
 Wasp 1.4.0 is out................................................... 2026-01-10
-Improtant
+Important
   Read about new features and improvements in this release at
   https://wasp.sh/blog/wasp-13-37-release.
 ```
@@ -13704,7 +13729,7 @@ The migrations might fail to apply if there is a conflict with the existing data
 
 If a migration fails to apply, the server app will log the error message and stop. You should then connect to the production database and see what went wrong. If you check the `_prisma_migrations` table, you'll see the failed migration there.
 
-You can try resolving the erorr e.g. if you tried adding a `@unique` constraint to a field that already has duplicate values:
+You can try resolving the error e.g. if you tried adding a `@unique` constraint to a field that already has duplicate values:
 
 1. Remove any duplicate values from the database
 2. Remove the failed migration from the `_prisma_migrations` table
@@ -13808,7 +13833,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](https://wasp.sh/docs/advanced/env-vars#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](https://wasp.sh/docs/advanced/env-vars).
 
-The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](https://wasp.sh/docs/advanced/cli#project-commands) if you need specific ports.
+The only exception is the environment variables that configure your app's ports and URLs. Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](https://wasp.sh/docs/advanced/cli#project-commands) if you need specific ports, and `--client-url` and `--server-url` if the app should be reachable at a different URL than `localhost`.
 
 #### Which values should I use when testing?
 
@@ -14963,7 +14988,7 @@ One possible self-hosting setup
 
 ### Database setup
 
-By default, our self-hosted deployment methods run the **database on your server**. When you run the database on your server, you need to take care of backups, updates, and scaling. We suggest setting up [PostgresSQL periodic backups](https://tembo.io/docs/getting-started/postgres_guides/how-to-backup-and-restore-a-postgres-database) and/or taking snapshots of your server's disk. In case something bad happens to your server, you can restore your database from the backups.
+By default, our self-hosted deployment methods run the **database on your server**. When you run the database on your server, you need to take care of backups, updates, and scaling. We suggest setting up [PostgreSQL periodic backups](https://tembo.io/docs/getting-started/postgres_guides/how-to-backup-and-restore-a-postgres-database) and/or taking snapshots of your server's disk. In case something bad happens to your server, you can restore your database from the backups.
 
 If you prefer not to manage the database yourself, you can use a **managed database service**. The service provider takes care of backups, updates, and scaling for you but it can be more expensive than running the database on your server. Some popular managed database services are [AWS RDS](https://aws.amazon.com/rds/), [DigitalOcean Managed Databases](https://www.digitalocean.com/products/managed-databases/), and [Supabase](https://supabase.io/).
 
@@ -15333,6 +15358,14 @@ wasp start --client-port 4000 --server-port 4001
 ```
 
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
+
+If you were setting those variables to make your app reachable at a URL other than `localhost` (e.g. a LAN address or an HTTPS tunnel), use `--client-url` and `--server-url` instead. Wasp derives `REACT_APP_API_URL` from the server URL. These URLs don't change the ports, so if a URL contains a port, pin it with the matching port option:
+
+```bash
+wasp start \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+```
 
 :::info
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
@@ -19598,7 +19631,7 @@ This will open a web interface where you can view and modify your database recor
 ## Debugging / Local Network Testing
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.26.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -19634,29 +19667,21 @@ Look for the network URLs in Wasp's terminal output:
 
 If you have multiple network interfaces, you'll see multiple Network URLs. Note one of these IPs (you may need to try a few to find the one that works).
 
-### Step 3: Configure Environment Variables
+### Step 3: Tell Wasp the URLs Other Devices Will Use
 
-The app won't be fully functional until you configure the environment variables. Edit your environment files:
+By default, Wasp tells the client and the server that they live on `localhost`, which other devices can't reach. Stop the app and start it again with the URLs the other devices will use:
 
-#### .env.server
-
-```bash title=".env.server"
-WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
+```bash
+wasp start \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
 ```
 
-#### .env.client
+Replace `192.168.1.39` with your actual IP address from Step 2. The URLs don't change the ports Wasp runs on, so we pin the ports to match them.
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
-```
-
-Replace `192.168.1.39` with your actual IP address from Step 2.
-
-:::note[Why these variables?]
-- **WASP\_WEB\_CLIENT\_URL**: Ensures CORS works correctly
-- **WASP\_SERVER\_URL**: Makes OAuth redirects work properly
-- **REACT\_APP\_API\_URL**: Tells the client where to find the server on the local network
+:::note[Why these URLs?]
+- **Client URL**: Ensures CORS works correctly (Wasp passes it to the server as `WASP_WEB_CLIENT_URL`)
+- **Server URL**: Makes OAuth redirects work properly (Wasp passes it to the server as `WASP_SERVER_URL`), and tells the client where to find the server on the local network (Wasp passes it to the client as `REACT_APP_API_URL`)
 :::
 
 ### Step 4: Allow the Host in Vite Config
@@ -19679,13 +19704,7 @@ export default defineConfig({
 
 Replace `192.168.1.39.nip.io` with the hostname matching your IP from Step 2.
 
-### Step 5: Restart and Test
-
-After saving the environment files, restart your app:
-
-```bash
-wasp start
-```
+### Step 5: Test
 
 On your phone or tablet, open the URL with the `.nip.io` suffix:
 
@@ -19721,15 +19740,15 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 
 #### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
+1. Verify the server URL you passed to `wasp start` is correct
 2. Make sure the server is accessible on port 3001
 3. Check browser console for CORS errors
 
 #### OAuth not working
 
 1. Update redirect URIs in your OAuth provider's settings
-2. Make sure `WASP_SERVER_URL` uses the nip.io hostname
-3. Restart the server after changing environment variables
+2. Make sure the server URL uses the nip.io hostname
+3. Restart the app after changing URLs or environment variables
 
 
 ## Deployment / Cloud Providers / Cloudflare
@@ -21707,14 +21726,14 @@ SPOTIFY_CLIENT_SECRET=your_client_secret
 # just to get the arctic package installed
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
-
-# Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
-WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
 ```
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
+Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
+
+```bash
+wasp start \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
 ```
 
 :::note
@@ -24187,7 +24206,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 |                                                                                                                                              |                                                                                                                                                      |
 | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ![Screenshot of a Lighthouse report overview](https://wasp.sh/assets/images/lighthouse-report-overview-547e11c0af057efa0f0327f22e88a053.png) | ![Screenshot of a Lighthouse report\&#39;s list of issues](https://wasp.sh/assets/images/lighthouse-report-seo-1f548e8d88373987fc5c665f9c0e3adf.png) |
+| ![Screenshot of a Lighthouse report overview](https://wasp.sh/assets/images/lighthouse-report-overview-9a2b0ab99e03b5db4a02262a41cab4e3.png) | ![Screenshot of a Lighthouse report\&#39;s list of issues](https://wasp.sh/assets/images/lighthouse-report-seo-1f548e8d88373987fc5c665f9c0e3adf.png) |
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
@@ -24298,7 +24317,7 @@ By default, Wasp apps are [single-page applications (SPAs)](https://en.wikipedia
 
 Most search engines (like Google) can also execute JavaScript when indexing a page too. But some crawlers (and many AI assistants) don't run JavaScript at all. So they see only the empty HTML, not your actual content. As such, they can't answer questions about your website, and they'll mostly ignore it.
 
-![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, \&#39;Without prerender\&#39;: the browser window shows \&#39;Loading...\&#39; and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as \&#39;Loading,\&#39; and responds \&#39;Hmm... I don\&#39;t know what this page is about,\&#39; marked with a red X. On the right, \&#39;With prerender\&#39;: the browser window shows \&#39;Welcome to Wasp,\&#39; and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads \&#39;Welcome to Wasp,\&#39; understands the page describes Wasp, and says it will recommend it to the user.](https://wasp.sh/assets/images/prerendering-diagram-7c06321566e8cb60698a8d8e1f578807.png)
+![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, \&#39;Without prerender\&#39;: the browser window shows \&#39;Loading...\&#39; and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as \&#39;Loading,\&#39; and responds \&#39;Hmm... I don\&#39;t know what this page is about,\&#39; marked with a red X. On the right, \&#39;With prerender\&#39;: the browser window shows \&#39;Welcome to Wasp,\&#39; and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads \&#39;Welcome to Wasp,\&#39; understands the page describes Wasp, and says it will recommend it to the user.](https://wasp.sh/assets/images/prerendering-diagram-27f32820ba2e6e859cd252d4388e9fa5.png)
 
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
@@ -24339,7 +24358,7 @@ If an image is purely decorative, you can give it an empty `alt=""` so crawlers 
 
 You should also use semantic HTML to help crawlers understand your content. For example, use one `<h1>` per page for the main heading, and use `<h2>`, `<h3>`, etc. for subheadings in order. Most indexers will understand that as your page's subject matter and closely relate it with those terms. You should also use descriptive link text instead of generic phrases like "click here," so crawlers know what the linked page is about.
 
-Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](https://wasp.sh/docs/advanced/links), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
+Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](https://wasp.sh/docs/features/pages-and-routes#link-component), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
 
 ```tsx title="src/components/Navbar.tsx"
 import { Link } from "wasp/client/router";
