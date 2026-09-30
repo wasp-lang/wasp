@@ -80,9 +80,7 @@ genLogout =
   return $
     mkTmplFdWithData
       (authDirInSdkTemplatesDir </> [relfile|logout.ts|])
-      tmplData
-  where
-    tmplData = object ["logoutPath" .= ServerRoute.getRoutePath AuthRoutes.logoutRoute]
+      (object ["logoutPath" .= ServerRoute.getRoutePath AuthRoutes.logoutRoute])
 
 genUserTs :: AS.Auth.Auth -> Generator FileDraft
 genUserTs auth =
