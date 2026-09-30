@@ -39,7 +39,7 @@ runProcessAsJob = runProcessAsJobWithStdin CP.Inherited
 --   Returns exit code of the process once it finishes, and also sends it to the channel.
 --   Makes sure to terminate the process (or process group on *nix) if exception occurs.
 runProcessAsJobWithStdin :: forall stdin. (CP.InputSource stdin) => stdin -> P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJobWithStdin _ process jobType chan =
+runProcessAsJobWithStdin _stdin process jobType chan =
   bracket
     (CP.streamingProcess process)
     (\(_, _, _, sph) -> terminateStreamingProcess sph)
