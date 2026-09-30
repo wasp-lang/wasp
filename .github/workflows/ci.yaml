@@ -90,7 +90,7 @@ jobs:
       waspc_version: ${{ needs.waspc-build-linux.outputs.waspc_version }}
       data_files_list: ${{ needs.waspc-build-linux.outputs.data_files_list }}
     steps:
-      - run: echo "All Wasp CLI binaries built."
+      - run: exit 0
 
   npm-package-build: # zizmor: ignore[excessive-permissions]
     needs: waspc-build-all
