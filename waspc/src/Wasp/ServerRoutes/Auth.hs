@@ -115,24 +115,38 @@ makeAuthProviderRoute providerId httpMethod routeInAuthProviderRouter =
   makeWaspRoute (AuthProviderRoute providerId) httpMethod [authRouteInRootRouter, providerId, routeInAuthProviderRouter]
 
 getAuthRoutes :: AppSpec -> [ServerRoute]
-getAuthRoutes spec = maybe [] getRoutesOfAuth (AS.getApp (AS.decls spec) >>= AS.App.auth . snd)
+getAuthRoutes spec = maybe [] getRoutesOfAuth maybeAuth
   where
     getRoutesOfAuth auth =
       concat
         [ [meRoute, logoutRoute],
           [exchangeCodeRoute | AS.Auth.isExternalAuthEnabled auth],
-          concat
-            [ [oAuthLoginRoute provider, oAuthCallbackRoute provider]
-            | provider <- AuthProviders.getEnabledOAuthProviders auth
-            ],
-          concat [[usernameLoginRoute, usernameSignupRoute] | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-          concat [emailRoutes | AS.Auth.isEmailAuthEnabled auth]
+          oAuthRoutes auth,
+          usernameRoutes auth,
+          emailRoutes auth
         ]
 
-    emailRoutes =
-      [ emailLoginRoute,
-        emailSignupRoute,
-        emailRequestPasswordResetRoute,
-        emailResetPasswordRoute,
-        emailVerifyEmailRoute
-      ]
+    oAuthRoutes auth =
+      concat
+        [ [oAuthLoginRoute provider, oAuthCallbackRoute provider]
+        | provider <- AuthProviders.getEnabledOAuthProviders auth
+        ]
+
+    usernameRoutes auth =
+      concat
+        [ [usernameLoginRoute, usernameSignupRoute]
+        | AS.Auth.isUsernameAndPasswordAuthEnabled auth
+        ]
+
+    emailRoutes auth =
+      concat
+        [ [ emailLoginRoute,
+            emailSignupRoute,
+            emailRequestPasswordResetRoute,
+            emailResetPasswordRoute,
+            emailVerifyEmailRoute
+          ]
+        | AS.Auth.isEmailAuthEnabled auth
+        ]
+
+    maybeAuth = AS.getApp (AS.decls spec) >>= AS.App.auth . snd
