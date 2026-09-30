@@ -6,6 +6,7 @@ where
 
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (isPrefixOf)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -51,5 +52,7 @@ parseMigrateArgs migrateArgs = do
     go :: [String] -> MigrateArgs -> Either String MigrateArgs
     go [] mArgs = Right mArgs
     go ("--create-only" : rest) mArgs = go rest $ mArgs {_isCreateOnlyMigration = True}
-    go ("--name" : name : rest) mArgs = go rest $ mArgs {_migrationName = Just name}
+    go ("--name" : name : rest) mArgs
+      | "--" `isPrefixOf` name = Left "Missing value for --name"
+      | otherwise = go rest $ mArgs {_migrationName = Just name}
     go unknown _ = Left $ "Unknown migrate arg(s): " ++ unwords unknown

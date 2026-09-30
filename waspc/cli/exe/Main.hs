@@ -33,6 +33,7 @@ import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
+import Wasp.Cli.Command.Start.ArgumentsParser (StartDbArgs, parseDatabaseOptions)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -54,7 +55,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
-        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["install"] -> Command.Call.Install
@@ -84,7 +84,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.Start startArgs -> runCommand $ start startArgs
-    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compileCommand
@@ -151,13 +150,10 @@ printUsage =
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start [--client-port <port>] [--server-port <port>]",
+        cmd   "    start [--client-port <port>] [--server-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
-        cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                          Starts managed development database for you.",
-              "                          Optionally specify a custom Docker image or Docker volume mount path.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -203,16 +199,23 @@ printVersion = do
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
-dbCli args = case args of
-  -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
-  -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
-  _unknownDbCommand -> printDbUsage >> exitFailure
+dbCli ("start" : args) = runCommand $ Command.Start.Db.start args
+dbCli (command : args) =
+  case parseDatabaseOptions args of
+    Left err -> hPutStrLn stderr err >> exitFailure
+    Right (dbArgs, commandArgs) -> runDbCommand command dbArgs commandArgs
+dbCli [] = printDbUsage >> exitFailure
+
+runDbCommand :: String -> StartDbArgs -> [String] -> IO ()
+runDbCommand "reset" dbArgs args = runCommandThatRequiresDbRunning dbArgs $ Command.Db.Reset.reset args
+runDbCommand "migrate-dev" dbArgs args =
+  case Command.Db.Migrate.parseMigrateArgs args of
+    Left err -> hPutStrLn stderr err >> exitFailure
+    Right _ -> runCommandThatRequiresDbRunning dbArgs $ Command.Db.Migrate.migrateDev args
+runDbCommand "seed" dbArgs [] = runCommandThatRequiresDbRunning dbArgs $ Command.Db.Seed.seed Nothing
+runDbCommand "seed" dbArgs [seedName] = runCommandThatRequiresDbRunning dbArgs $ Command.Db.Seed.seed $ Just seedName
+runDbCommand "studio" dbArgs [] = runCommandThatRequiresDbRunning dbArgs Command.Db.Studio.studio
+runDbCommand _ _ _ = printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()
@@ -225,8 +228,7 @@ printDbUsage =
         title "COMMANDS",
         cmd $ intercalate "\n" [
               "  start [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                               Alias for `wasp start db`.",
-              "                               Starts managed development database for you.",
+              "                               Runs a development database and streams its logs until Ctrl+C.",
               "                               Optionally specify a custom Docker image or Docker volume mount path."
         ],
         cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
@@ -240,9 +242,17 @@ printDbUsage =
               "                                   supplied migration name or asking for one.",
               "    OPTIONS:",
               "      --name [migration-name]",
-              "      --create-only"
+              "      --create-only",
+              "      --db-image <image>",
+              "      --db-volume-mount-path <path>"
         ],
         cmd   "  studio                       GUI for inspecting your database.",
+              "",
+        title "DATABASE OPTIONS",
+              "  --db-image <image>           Docker image when starting managed PostgreSQL.",
+              "  --db-volume-mount-path <path>",
+              "                               Data path inside a new PostgreSQL container.",
+              "  These options also work with reset, seed, migrate-dev, and studio.",
               "",
         title "EXAMPLES",
               "  wasp db migrate-dev",

@@ -1,6 +1,7 @@
 module Wasp.Project.Db
   ( makeDevDatabaseUrl,
     databaseUrlEnvVarName,
+    hasExternalDatabaseUrl,
     validDbUrlInPrismaSchema,
     validDbUrlExprForPrismaSchema,
     getDbSystemFromPrismaSchema,
@@ -9,7 +10,9 @@ module Wasp.Project.Db
   )
 where
 
+import Data.Maybe (isJust)
 import StrongPath (Abs, Dir, Path')
+import System.Environment (lookupEnv)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
@@ -38,6 +41,11 @@ makeDevDatabaseUrl waspProjectDir dbSystem decls =
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
+
+hasExternalDatabaseUrl :: AS.AppSpec -> IO Bool
+hasExternalDatabaseUrl appSpec = do
+  envUrl <- lookupEnv databaseUrlEnvVarName
+  return $ isJust envUrl || any ((== databaseUrlEnvVarName) . fst) (AS.devEnvVarsServer appSpec)
 
 -- | Datasource block in Prisma schema should have a `url` key with a value of `env("DATABASE_URL")`.
 -- This is validatd in Wasp.Psl.Valid where we check if the `url` key has the correct value.
