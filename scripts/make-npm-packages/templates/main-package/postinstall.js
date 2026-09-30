@@ -17,6 +17,7 @@ async function sendAnalytics() {
     distinct_id: generateDistinctId(),
     properties: {
       os: getOS(),
+      arch: getArch(),
       context:
         (process.env.WASP_TELEMETRY_CONTEXT ?? "") + (isCI() ? " CI" : ""),
     },
@@ -44,6 +45,19 @@ function getOS() {
       return "osx";
     case "win32":
       return "windows";
+    default:
+      return "Unknown";
+  }
+}
+
+function getArch() {
+  // Keep the names in sync with the ones the Wasp CLI reports (`System.Info.arch`) in:
+  // - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/Command/Telemetry/Project.hs
+  switch (process.arch) {
+    case "x64":
+      return "x86_64";
+    case "arm64":
+      return "aarch64";
     default:
       return "Unknown";
   }

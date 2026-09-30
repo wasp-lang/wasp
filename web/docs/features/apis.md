@@ -223,7 +223,7 @@ export default app({
 ```
 
 <small>
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+Don't forget to set up the CORS middleware. See the [section explaining CORS](#making-sure-cors-works) for details.
 </small>
 
 ```ts title="src/streaming.ts" auto-js

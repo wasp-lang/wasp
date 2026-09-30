@@ -95,7 +95,7 @@ Wasp provides several functions to help you write React tests:
     ```js
     import { HttpMethod } from "wasp/client";
 
-    mockApi({ method: HttpMethod.Get, path: "/foor/bar" }, { res: "hello" });
+    mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
     ```
 
 ## Testing Your Server-Side Code

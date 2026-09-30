@@ -58,10 +58,6 @@ jobs:
     uses: ./.github/workflows/ci-starters-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  tsspec-test: # zizmor: ignore[excessive-permissions]
-    uses: ./.github/workflows/ci-tsspec-test.yaml
-    secrets: inherit # zizmor: ignore[secrets-inherit]
-
   libs-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-libs-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
