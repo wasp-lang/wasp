@@ -13,7 +13,7 @@ runs:
   using: composite
 
   steps:
-    - name: Install Mise and cache dependencies in containers
+    - name: Install Mise and cache pre-dependencies
       if: ${{ runner.os == 'Linux' }}
       shell: sh
       # Bare container images lack some tools that the steps below need. They
