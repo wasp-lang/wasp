@@ -14,6 +14,8 @@ export function getRedirects({
   // Order matters: Cloudflare applies the first matching rule, so list more
   // specific rules before more general ones. Cloudflare also recommends listing
   // static rules before rules with splats or placeholders, for performance.
+  // TODO: Also redirect the `.md` versions of these pages.
+  // https://github.com/wasp-lang/wasp/issues/4842
   const redirects: RedirectRule[] = [
     ...legacyDocsRedirects,
     ...docsReorganizationRedirects,
@@ -61,8 +63,9 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/advanced/apis",                                      "/docs/features/apis"),
   permanent("/docs/advanced/email",                                     "/docs/features/email"),
   permanent("/docs/advanced/jobs",                                      "/docs/features/jobs"),
+  permanent("/docs/advanced/links",                                     "/docs/features/pages-and-routes#link-component"),
   permanent("/docs/advanced/middleware-config",                         "/docs/advanced/server-customization/middleware"),
-  permanent("/docs/advanced/routing",                                   "/docs/features/routes"),
+  permanent("/docs/advanced/routing",                                   "/docs/features/pages-and-routes"),
   permanent("/docs/advanced/web-sockets",                               "/docs/features/websockets"),
   permanent("/docs/auth/advanced/custom-auth-actions",                  "/docs/features/auth/advanced/custom-auth-actions"),
   permanent("/docs/auth/auth-hooks",                                    "/docs/features/auth/hooks"),
@@ -96,6 +99,7 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/deployment/deployment-methods/wasp-deploy/overview", "/docs/deployment/methods/wasp-deploy/overview"),
   permanent("/docs/deployment/deployment-methods/wasp-deploy/railway",  "/docs/deployment/methods/wasp-deploy/railway"),
   permanent("/docs/deployment/intro",                                   "/docs/deployment/overview"),
+  permanent("/docs/features/routes",                                    "/docs/features/pages-and-routes"),
   permanent("/docs/general/cli",                                        "/docs/advanced/cli"),
   permanent("/docs/general/spec",                                       "/docs/features/spec"),
   permanent("/docs/project/client-config",                              "/docs/advanced/client-customization/client-config"),
