@@ -11,10 +11,11 @@ import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Process as JobProcess
+import Wasp.Process (InputMode (NoInput))
 
 buildServer :: BuildStartConfig -> Job.Job ()
 buildServer config =
-  JobProcess.runChecked (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  JobProcess.runChecked NoInput (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
@@ -22,7 +23,7 @@ buildServer config =
 
 startServer :: BuildStartConfig -> Job.Job ()
 startServer config =
-  JobProcess.runChecked $
+  JobProcess.runChecked NoInput $
     proc
       "docker"
       ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]

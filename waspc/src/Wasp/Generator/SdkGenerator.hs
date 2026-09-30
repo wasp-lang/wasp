@@ -78,6 +78,7 @@ import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Output
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Process (InputMode (NoInput))
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
@@ -88,7 +89,7 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Output.runAndPrintPrefixedOutput Kind.Wasp $
-      Node.runChecked [] sdkRootDir "npm" ["run", "build"]
+      Node.runChecked NoInput [] sdkRootDir "npm" ["run", "build"]
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
