@@ -31,7 +31,7 @@ showRunConfigUrls (clientRunConfig, serverRunConfig) =
     ]
   where
     showUrls name appComponentUrl =
-      concat $
+      concat
         [ " ℹ ",
           name,
           ":",

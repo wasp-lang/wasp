@@ -1,23 +1,23 @@
 module Wasp.Cli.Util.HttpUrlArgument
-  ( httpUrlOption,
+  ( httpUrlParser,
     parseHttpUrl,
   )
 where
 
+import Data.Either (isRight)
 import Data.Maybe (isJust)
 import Network.URI (URI (..), URIAuth (..), parseAbsoluteURI)
 import qualified Options.Applicative as Opt
-import Text.Read (readMaybe)
+import Wasp.Cli.Util.PortArgument (parsePort)
 
-httpUrlOption :: String -> String -> Opt.Parser (Maybe URI)
-httpUrlOption optionName helpText =
-  Opt.optional $
-    Opt.option
-      (Opt.str >>= either Opt.readerError return . parseHttpUrl)
-      ( Opt.long optionName
-          <> Opt.metavar "URL"
-          <> Opt.help helpText
-      )
+httpUrlParser :: String -> String -> Opt.Parser URI
+httpUrlParser optionName helpText =
+  Opt.option
+    (Opt.eitherReader parseHttpUrl)
+    ( Opt.long optionName
+        <> Opt.metavar "URL"
+        <> Opt.help helpText
+    )
 
 -- | Parses an absolute http(s) URL with a host, and without a query or a
 -- fragment.
@@ -36,10 +36,7 @@ parseHttpUrl input = case parseAbsoluteURI input of
     nonEmpty s = Just s
 
     -- `network-uri` follows the URI RFC (3986), which allows a port with any
-    -- number of digits. The URL standard that browsers (and the generated apps'
-    -- `zod` validation) is more restrictive and rejects ports outside of [1, 65535].
+    -- number of digits, so we check it with the same rules as the port options.
     hasValidPort uri = case uriPort <$> uriAuthority uri of
-      Just (':' : digits) -> maybe False isValidPortNumber (readMaybe digits)
+      Just (':' : digits) -> isRight $ parsePort digits
       _ -> True
-    isValidPortNumber :: Integer -> Bool
-    isValidPortNumber portNumber = portNumber >= 1 && portNumber <= 65535

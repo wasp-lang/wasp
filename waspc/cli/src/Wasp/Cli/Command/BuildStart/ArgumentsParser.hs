@@ -10,8 +10,8 @@ import Network.URI (URI)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
-import Wasp.Cli.Util.HttpUrlArgument (httpUrlOption)
-import Wasp.Cli.Util.PortArgument (portOption)
+import Wasp.Cli.Util.HttpUrlArgument (httpUrlParser)
+import Wasp.Cli.Util.PortArgument (portParser)
 
 data BuildStartArgs = BuildStartArgs
   { clientPort :: PortNumber,
@@ -34,12 +34,14 @@ buildStartArgsParser =
   where
     portParserForComponent name defaultPort =
       fromMaybe defaultPort
-        <$> portOption
-          (name ++ "-port")
-          ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
+        <$> Opt.optional
+          ( portParser
+              (name ++ "-port")
+              ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
+          )
 
     urlParserForComponent name =
-      httpUrlOption (name ++ "-url") ("URL at which the " ++ name ++ " is reachable")
+      Opt.optional $ httpUrlParser (name ++ "-url") ("URL at which the " ++ name ++ " is reachable")
 
     environmentVariableParsersForComponent shortOptionName name =
       liftA2
