@@ -551,9 +551,9 @@ spec_AppSpecValid = do
       it "returns a warning for a POST api whose path pattern starts where an operation's route does, since we do not interpret patterns" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name/extra")])
           `shouldWarnMentioning` ["myApi", "/operations/:name/extra", "/operations/get-tasks"]
-      it "returns a single warning for an api that matches several of Wasp's routes" $ do
+      it "returns a single warning listing every one of Wasp's routes an api matches" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicQueryDecl "getTask", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name")])
-          `shouldWarnMentioning` ["myApi", "/operations/get-tasks", "and 1 more"]
+          `shouldWarnMentioning` ["myApi", "/operations/get-tasks", "/operations/get-task"]
       it "returns a warning for an api whose path escapes a character, since we do not unescape paths" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.GET, "/u\\p")])
           `shouldWarnMentioning` ["myApi", "/up"]
