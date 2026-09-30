@@ -25,7 +25,7 @@ waspStartTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
-                runWaspStartAndStopIt (AppPorts 31000 31001)
+                runWaspStartAndStopIt "INT" (AppPorts 31000 31001)
                   ++ [ return $ assertDirectoryExists ".wasp",
                        return $ assertDirectoryExists "node_modules"
                      ]
@@ -37,7 +37,40 @@ waspStartTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
                 waspCliCompile
-                  : runWaspStartAndStopIt (AppPorts 31010 31011)
+                  : runWaspStartAndStopIt "INT" (AppPorts 31010 31011)
+            ]
+        ),
+      TestCase
+        "stop-on-sigterm"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $ runWaspStartAndStopIt "TERM" (AppPorts 31030 31031)
+            ]
+        ),
+      TestCase
+        "stop-on-sighup"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $ runWaspStartAndStopIt "HUP" (AppPorts 31040 31041)
+            ]
+        ),
+      TestCase
+        -- Closing the terminal sends SIGHUP to all the processes in it, not
+        -- just to Wasp, so each of them reacts to it on its own.
+        "stop-on-terminal-hangup"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ startWaspInBackgroundInOwnProcessGroup terminalHangupTestPorts,
+                  return $ waitUntilAppIsListening terminalHangupTestPorts,
+                  return "kill -HUP -- \"-$WASP_START_PID\"",
+                  return $ waitUntilWaspExits "Wasp didn't stop after SIGHUP.",
+                  return $
+                    waitUntil
+                      30
+                      "! ps -A -o pgid= | grep -qw \"$WASP_START_PID\""
+                      "Some of the processes Wasp started kept running after SIGHUP."
+                ]
             ]
         ),
       TestCase
@@ -66,6 +99,9 @@ waspStartTest =
     crashTestPorts :: AppPorts
     crashTestPorts = AppPorts 31020 31021
 
+    terminalHangupTestPorts :: AppPorts
+    terminalHangupTestPorts = AppPorts 31050 31051
+
     -- Kills the Vite dev server of this test case's project.
     crashWebApp :: ShellCommand
     crashWebApp = "pkill -KILL -f \"$PWD/node_modules/.bin/vite\""
@@ -77,42 +113,56 @@ data AppPorts = AppPorts
   }
 
 -- | Runs `wasp start` in the background until the app is up, and then stops
--- it with SIGINT. Checks that Wasp stops all the processes it started, by
--- checking that nothing keeps listening on the app's ports afterwards.
+-- it with the given signal (e.g. @INT@). Checks that Wasp stops all the
+-- processes it started, by checking that nothing keeps listening on the app's
+-- ports afterwards.
 --
--- We send SIGINT only to Wasp, and not to its whole process group like Ctrl+C
--- in a terminal would, so that it's Wasp's job to stop the processes it
+-- We send the signal only to Wasp, and not to its whole process group like
+-- Ctrl+C in a terminal would, so that it's Wasp's job to stop the processes it
 -- started.
-runWaspStartAndStopIt :: AppPorts -> [ShellCommandBuilder WaspProjectContext ShellCommand]
-runWaspStartAndStopIt ports =
+runWaspStartAndStopIt :: String -> AppPorts -> [ShellCommandBuilder WaspProjectContext ShellCommand]
+runWaspStartAndStopIt signal ports =
   [ startWaspInBackground ports,
     return $ waitUntilAppIsListening ports,
-    return stopWaspWithSigint,
+    return stopWaspWithSignal,
     return $ waitUntilAppStopsListening ports
   ]
   where
     -- `$WASP_START_PID` might not be Wasp's own PID (e.g. when `$WASP_CLI_CMD`
     -- is a wrapper script), so we read it from the project lock file instead.
-    stopWaspWithSigint :: ShellCommand
-    stopWaspWithSigint =
-      "kill -INT \"$(cat .wasp/.projectlock)\""
-        ~&& waitUntilWaspExits "Wasp didn't stop after SIGINT."
+    stopWaspWithSignal :: ShellCommand
+    stopWaspWithSignal =
+      ("kill -" ++ signal ++ " \"$(cat .wasp/.projectlock)\"")
+        ~&& waitUntilWaspExits ("Wasp didn't stop after SIG" ++ signal ++ ".")
 
 -- | Stores the PID of the background process in `$WASP_START_PID`.
 startWaspInBackground :: AppPorts -> ShellCommandBuilder WaspProjectContext ShellCommand
 startWaspInBackground ports = do
-  startCommand <- waspCliStart
-  let startWithPortsCommand =
-        unwords
-          [ startCommand,
-            "--client-port",
-            show ports.clientPort,
-            "--server-port",
-            show ports.serverPort
-          ]
+  startCommand <- waspCliStartWithPorts ports
   return $
-    ("{ " ++ startWithPortsCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
+    ("{ " ++ startCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
       ~&& "WASP_START_PID=$!"
+
+-- | Like 'startWaspInBackground', but in a new process group, like a terminal
+-- would do. The process group's ID is the same as `$WASP_START_PID`.
+startWaspInBackgroundInOwnProcessGroup :: AppPorts -> ShellCommandBuilder WaspProjectContext ShellCommand
+startWaspInBackgroundInOwnProcessGroup ports = do
+  startCommand <- waspCliStartWithPorts ports
+  return $
+    ("{ perl -e 'setpgrp(0, 0); exec @ARGV' " ++ startCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
+      ~&& "WASP_START_PID=$!"
+
+waspCliStartWithPorts :: AppPorts -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStartWithPorts ports = do
+  startCommand <- waspCliStart
+  return $
+    unwords
+      [ startCommand,
+        "--client-port",
+        show ports.clientPort,
+        "--server-port",
+        show ports.serverPort
+      ]
 
 waspStartLogFile :: FilePath
 waspStartLogFile = "wasp-start.log"
