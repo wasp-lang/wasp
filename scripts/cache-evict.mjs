@@ -60,7 +60,7 @@ function listRemoteRefs(/** @type {string} */ githubRepository) {
 
 function deleteGitHubCache(/** @type {GitHubCache} */ { id, key, ref }) {
   try {
-    console.group(`Deleting cache "${key}" for ref "${ref} (${id})"`);
+    console.group(`Deleting cache "${key}" for ref "${ref}" (${id})`);
     runCmd("gh", ["cache", "delete", String(id)], { collectStdout: false });
     console.log(`Done`);
   } catch (e) {
