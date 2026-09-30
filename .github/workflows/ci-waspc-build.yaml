@@ -4,6 +4,14 @@ name: "Build - Wasp CLI binaries"
 # We can call it manually (workflow_dispatch) or from other workflows (workflow_call).
 on:
   workflow_call:
+    inputs:
+      exclude-os:
+        description: >
+          OS to skip building for (`linux` or `macos`). If empty, all builds run.
+        required: false
+        type: string
+        default: ""
+
     outputs:
       waspc_version:
         value: ${{ jobs.build.outputs.waspc_version }}
@@ -36,7 +44,8 @@ jobs:
         # containers, the runner is only used to host the container, and all the
         # steps are run inside the container and not the host (like a Dockerfile).
         env:
-          - name: linux-x86_64
+          - os: linux
+            arch: x86_64
             runner: ubuntu-latest
             # We use an old Ubuntu version so we can link to a low `glibc` version.
             # `glibc` is backwards-compatible but not forwards-compatible, so it
@@ -52,7 +61,8 @@ jobs:
               apt-get update -y
               apt-get install -y curl
 
-          - name: linux-x86_64-static
+          - os: linux
+            arch: x86_64
             runner: ubuntu-latest
             # We pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
@@ -60,7 +70,8 @@ jobs:
             container: alpine:3.23
             static: true
 
-          - name: linux-aarch64
+          - os: linux
+            arch: aarch64
             runner: ubuntu-24.04-arm
             # We use an old Ubuntu version so we can link to a low `glibc` version.
             # `glibc` is backwards-compatible but not forwards-compatible, so it
@@ -76,15 +87,21 @@ jobs:
               apt-get update -y
               apt-get install -y curl
 
-          - name: macos-x86_64
+          - os: macos
+            arch: x86_64
             runner: macos-15-intel
             # macOS's syscalls are private and change between versions, so we
             # can't statically link the binary.
             static: false
 
-          - name: macos-aarch64
+          - os: macos
+            arch: aarch64
             runner: macos-15 # By default an Apple Silicon-based runner.
             static: false # Check the comment above for why we can't statically link on macOS
+
+        exclude:
+          - env:
+              os: ${{ inputs.exclude-os }}
 
     runs-on: ${{ matrix.env.runner }}
     container:
@@ -92,7 +109,10 @@ jobs:
       # marks everything as unpinned, but they _are_ pinned.
       # zizmor: ignore[unpinned-images]
       ${{ matrix.env.container }}
-    name: Build Wasp (${{ matrix.env.name }})
+    name: Build Wasp (${{ matrix.env.os }}-${{ matrix.env.arch }}${{ matrix.env.static && '-static' || '' }})
+
+    env:
+      BUILD_NAME: ${{ matrix.env.os }}-${{ matrix.env.arch }}${{ matrix.env.static && '-static' || '' }}
 
     steps:
       - name: Install dependencies
@@ -110,7 +130,7 @@ jobs:
         uses: ./.github/actions/compute-artifact-names
         id: compute-artifact-names
         with:
-          build-name: ${{ matrix.env.name }}
+          build-name: ${{ env.BUILD_NAME }}
 
       - name: Build and package
         working-directory: waspc
@@ -154,7 +174,6 @@ jobs:
       # packaging job collects.
       - name: Write build metadata
         env:
-          BUILD_NAME: ${{ matrix.env.name }}
           TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
           NPM_TARGET: ${{ steps.compute-artifact-names.outputs.npm-target }}
         run: |
@@ -170,7 +189,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          path: ./build-metadata/${{ matrix.env.name }}.json
+          path: ./build-metadata/${{ env.BUILD_NAME }}.json
           name: ${{ steps.compute-artifact-names.outputs.metadata-artifact-name }}
           if-no-files-found: error
 
