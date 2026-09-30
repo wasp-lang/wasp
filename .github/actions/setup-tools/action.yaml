@@ -35,9 +35,9 @@ runs:
         echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
 
     - name: Install Mise
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@v5
       with:
-        version: 2026.8.9
+        version: 2026.9.15
         bootstrap: true
         bootstrap_args: --update --yes
 
