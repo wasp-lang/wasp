@@ -76,8 +76,7 @@ const config: Config = {
       logo: {
         alt: "Wasp logo",
         src: "img/wasp-logo.svg",
-        href: "https://wasp.sh/",
-        target: "_self",
+        href: "/",
       },
       items: [
         {
