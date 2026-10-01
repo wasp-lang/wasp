@@ -78,7 +78,7 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` (Nothing :: Maybe ExtImport.ExtImport)
   describe "Decl" $ do
-    it "parses a declaration, taking its name from declName" $ do
+    it "parses a declaration from the JSON envelope" $ do
       (fromDecl =<< decodeJson pageDeclJson)
         `shouldBe` Just
           ( Page.Page
@@ -87,15 +87,15 @@ spec_AppSpecFromJSON = do
                 authRequired = Nothing
               }
           )
-    it "serializes a declaration, keeping its name only in declName" $ do
+    it "serializes a declaration into the JSON envelope" $ do
       (Aeson.toJSON <$> (decodeJson pageDeclJson :: Maybe Decl))
         `shouldBe` Just
           ( Aeson.object
               [ "declType" .= ("Page" :: String),
-                "declName" .= ("MainPage" :: String),
                 "declValue"
                   .= Aeson.object
-                    [ "component" .= (fromJust (decodeJson extNamedImportJson) :: ExtImport.ExtImport),
+                    [ "name" .= ("MainPage" :: String),
+                      "component" .= (fromJust (decodeJson extNamedImportJson) :: ExtImport.ExtImport),
                       "authRequired" .= Aeson.Null
                     ]
               ]
@@ -451,8 +451,8 @@ spec_AppSpecFromJSON = do
       [trimming|
         {
           "declType": "Page",
-          "declName": "MainPage",
           "declValue": {
+            "name": "MainPage",
             "component": ${extNamedImportJson}
           }
         }

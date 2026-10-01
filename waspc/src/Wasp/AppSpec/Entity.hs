@@ -41,7 +41,8 @@ instance FromJSON Entity where
 instance ToJSON Entity where
   toJSON entity =
     object
-      [ "fields" .= map fieldToJSON (getFields entity)
+      [ "name" .= getName entity,
+        "fields" .= map fieldToJSON (getFields entity)
       ]
     where
       fieldToJSON field =

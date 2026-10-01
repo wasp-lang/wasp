@@ -211,7 +211,11 @@ async function getAppInfoFromShowSpec({
     (decl: unknown) => isRecord(decl) && decl.declType === "App",
   );
 
-  if (!isRecord(appDecl) || typeof appDecl.declName !== "string") {
+  if (
+    !isRecord(appDecl) ||
+    !isRecord(appDecl.declValue) ||
+    typeof appDecl.declValue.name !== "string"
+  ) {
     logger.error("Failed to get app name");
     process.exit(1);
   }
@@ -222,7 +226,7 @@ async function getAppInfoFromShowSpec({
   }
 
   return {
-    appName: appDecl.declName as AppName,
+    appName: appDecl.declValue.name as AppName,
     dbType: spec.dbSystem === "PostgreSQL" ? DbType.Postgres : DbType.Sqlite,
   };
 }

@@ -7,14 +7,10 @@ module Wasp.AppSpec.Core.Decl
     makeDecl,
     fromDecl,
     getDeclName,
-    parseDeclValue,
   )
 where
 
-import Data.Aeson (FromJSON (parseJSON), Object, ToJSON (toJSON), Value (Object), object, (.=))
-import qualified Data.Aeson.Key as Key
-import qualified Data.Aeson.KeyMap as KeyMap
-import Data.Aeson.Types (Parser)
+import Data.Aeson (ToJSON (toJSON), object, (.=))
 import Data.Maybe (mapMaybe)
 import Data.Typeable (cast)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declName, declTypeName))
@@ -27,30 +23,16 @@ data Decl where
   Decl :: (IsDecl a) => a -> Decl
 
 -- | Serializes a declaration into the same JSON envelope that the TS spec
--- produces and 'Wasp.AppSpec.Core.Decl.JSON' parses: {declType, declName, declValue}.
--- The name is carried by @declName@, so we leave it out of @declValue@.
+-- produces and 'Wasp.AppSpec.Core.Decl.JSON' parses: {declType, declValue}.
 instance ToJSON Decl where
   toJSON (Decl (value :: a)) =
     object
       [ "declType" .= declTypeName @a,
-        "declName" .= declName value,
-        "declValue" .= case toJSON value of
-          Object declValue -> Object $ KeyMap.delete declValueNameKey declValue
-          declValue -> declValue
+        "declValue" .= value
       ]
 
 instance Inspectable Decl where
   inspect (Decl value) = inspect value
-
--- | Parses the @declValue@ of the JSON envelope into a declaration.
--- The envelope carries the name in @declName@, outside of @declValue@, so we
--- inject it into @declValue@ for the declaration to pick it up.
-parseDeclValue :: (FromJSON a) => String -> Object -> Parser a
-parseDeclValue name declValue =
-  parseJSON $ Object $ KeyMap.insert declValueNameKey (toJSON name) declValue
-
-declValueNameKey :: Key.Key
-declValueNameKey = "name"
 
 -- | Extracts all declarations of a certain type from a @[Decl]@s
 takeDecls :: (IsDecl a) => [Decl] -> [a]

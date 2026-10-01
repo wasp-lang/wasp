@@ -11,7 +11,7 @@ where
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
 import Data.Functor ((<&>))
 import Language.Haskell.TH
-import Wasp.AppSpec.Core.Decl (Decl, makeDecl, parseDeclValue)
+import Wasp.AppSpec.Core.Decl (Decl, makeDecl)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
 
 generateFromJsonInstanceForDecl :: Q [Dec]
@@ -29,8 +29,6 @@ generateFromJsonInstanceForDecl = do
     instance FromJSON Decl where
       parseJSON = withObject "Decl" $ \o -> do
         declType <- o .: "declType"
-        declName <- o .: "declName"
-        declValue <- o .: "declValue"
         -- Generates:
         --   case declType of
         --     <caseMatches[0]>
@@ -45,14 +43,14 @@ generateFromJsonInstanceForDecl = do
     |]
   where
     -- Generates following (for e.g. `Page` type):
-    --   t | t == declTypeName @Page -> makeDecl @Page <$> parseDeclValue declName declValue
+    --   t | t == declTypeName @Page -> makeDecl @Page <$> o .: "declValue"
     getCaseMatchForDeclType :: Type -> Q Match
     getCaseMatchForDeclType typ = do
       casePredicate <- [|t == $(pure $ AppTypeE (VarE 'declTypeName) typ)|]
       matchBody <-
         [e|
           $(pure $ AppTypeE (VarE 'makeDecl) typ)
-            <$> parseDeclValue declName declValue
+            <$> (o .: "declValue")
           |]
       pure $
         Match
