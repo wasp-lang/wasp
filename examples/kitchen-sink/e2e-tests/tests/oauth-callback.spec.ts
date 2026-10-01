@@ -12,7 +12,7 @@ test.describe("OAuth callback errors", () => {
     await page.goto(`${googleCallbackUrl}?error=access_denied&state=${state}`);
 
     await expect(page.locator("body")).toContainText(
-      "Login with Google was cancelled.",
+      "Login with Google was cancelled or denied.",
     );
   });
 
@@ -23,6 +23,31 @@ test.describe("OAuth callback errors", () => {
 
     await expect(page.locator("body")).toContainText(
       "Your login attempt with Google expired. Please try again.",
+    );
+  });
+
+  test("a callback without the PKCE code verifier shows an expired message", async ({
+    page,
+  }) => {
+    const state = await startGoogleLogin(page);
+    await page.context().clearCookies({ name: "google_codeVerifier" });
+
+    await page.goto(`${googleCallbackUrl}?code=some-code&state=${state}`);
+
+    await expect(page.locator("body")).toContainText(
+      "Your login attempt with Google expired. Please try again.",
+    );
+  });
+
+  test("a callback without a code shows a generic message", async ({
+    page,
+  }) => {
+    const state = await startGoogleLogin(page);
+
+    await page.goto(`${googleCallbackUrl}?state=${state}`);
+
+    await expect(page.locator("body")).toContainText(
+      "Unable to log in with Google. Please try again later.",
     );
   });
 

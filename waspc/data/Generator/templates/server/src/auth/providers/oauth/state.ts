@@ -130,19 +130,29 @@ function getCode(
 ): { code: string } {
   const { code, error, error_description } = req.query;
 
-  // Providers redirect back with `error=access_denied` when the user cancels
-  // on their consent screen.
+  // The provider's error is meant for developers, so we only log it (the
+  // handler logs `data`) and never show it to the user.
+  const providerErrorDetails = {
+    providerError: error,
+    providerErrorDescription: error_description,
+  };
+
+  // Providers send `access_denied` when the user cancels on the consent screen,
+  // but some (e.g. Keycloak, Auth0) also send it when their own policy denies
+  // the login.
   if (error === 'access_denied') {
-    throw new HttpError(400, `Login with ${provider.displayName} was cancelled.`);
+    throw new HttpError(
+      400,
+      `Login with ${provider.displayName} was cancelled or denied.`,
+      providerErrorDetails
+    );
   }
 
   if (error !== undefined || typeof code !== 'string' || code === '') {
-    // The provider's error is meant for developers, not users, so we only
-    // log it (the handler logs `data`) and show a generic message.
     throw new HttpError(
       400,
       `Unable to log in with ${provider.displayName}. Please try again later.`,
-      { providerError: error, providerErrorDescription: error_description }
+      providerErrorDetails
     );
   }
 
