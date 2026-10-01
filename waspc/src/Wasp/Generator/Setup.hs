@@ -10,7 +10,7 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
 import Data.Either (fromLeft)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
@@ -49,37 +49,38 @@ installDependencies spec generatedAppDir sendMessage = do
 
 setUpDatabase :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 setUpDatabase spec dstDir sendMessage = do
-  liftIO $ sendMessage $ Msg.Start "Setting up database..."
-  (dbGeneratorWarnings, dbGeneratorErrors) <- liftIO $ DbGenerator.postWriteDbGeneratorActions spec dstDir
+  (dbGeneratorWarnings, dbGeneratorErrors) <- liftIO $ do
+    sendMessage $ Msg.Start "Setting up database..."
+    DbGenerator.postWriteDbGeneratorActions spec dstDir
   tell dbGeneratorWarnings
   unless (null dbGeneratorErrors) $ throwError dbGeneratorErrors
   liftIO $ sendMessage $ Msg.Success "Database successfully set up."
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 buildSdk generatedAppDir sendMessage = do
-  liftIO $ sendMessage $ Msg.Start "Building SDK..."
-  result <- liftIO $ SdkGenerator.buildSdk generatedAppDir
+  result <- liftIO $ do
+    sendMessage $ Msg.Start "Building SDK..."
+    SdkGenerator.buildSdk generatedAppDir
   case result of
     Left errorMessage -> throwError [GenericGeneratorError errorMessage]
     Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
 
 typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage = do
-  liftIO $ sendMessage $ Msg.Start "Type-checking user code..."
-  chan <- liftIO newChan
-  (_, exitCode) <-
-    liftIO $
-      concurrently
-        (readJobMessagesAndPrintThemPrefixed chan)
-        (runNodeCommandAsJob (AS.waspProjectDir spec) "node" args J.Wasp chan)
+  (_, exitCode) <- liftIO $ do
+    sendMessage $ Msg.Start "Type-checking user code..."
+    chan <- newChan
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (runNodeCommandAsJob (AS.waspProjectDir spec) tscExecutable args J.Wasp chan)
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where
+    tscExecutable = SP.fromAbsFile $ AS.waspProjectDir spec </> [relfile|node_modules/.bin/tsc|]
     args =
-      [ "node_modules/typescript/bin/tsc",
-        "--project",
+      [ "--project",
         SP.fromRelFile $ AS.srcTsConfigPath spec,
         "--noEmit"
       ]

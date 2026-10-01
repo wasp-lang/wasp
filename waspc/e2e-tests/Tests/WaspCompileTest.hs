@@ -51,23 +51,23 @@ waspCompileTest =
             ]
         ),
       TestCase
-        "fail-on-missing-side-effect-import-in-client-code"
+        "fail-on-client-code-type-error"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToFile "src/MainPage.tsx" missingSideEffectImport,
-                  assertCommandOutputContains (return waspCliCompileFails) missingSideEffectImportError
+                  assertCommandOutputContains (return waspCliCompileFails) userCodeTypeCheckFailure
                 ]
             ]
         ),
       TestCase
-        "fail-on-missing-side-effect-import-in-server-code"
+        "fail-on-server-code-type-error"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ replaceMainWaspTsFile mainWaspTsWithServerSetup,
                   writeServerSetupTs,
-                  assertCommandOutputContains (return waspCliCompileFails) missingSideEffectImportError
+                  assertCommandOutputContains (return waspCliCompileFails) userCodeTypeCheckFailure
                 ]
             ]
         ),
@@ -77,7 +77,7 @@ waspCompileTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ writeTypeCheckTs "export const count: number = 'wrong'\n",
-                  assertCommandOutputContains (return waspCliCompileFails) "TS2322",
+                  assertCommandOutputContains (return waspCliCompileFails) userCodeTypeCheckFailure,
                   writeTypeCheckTs "export const count: number = 1\n",
                   waspCliCompile
                 ]
@@ -94,8 +94,8 @@ waspCompileTest =
     missingSideEffectImport :: T.Text
     missingSideEffectImport = "import './missing-side-effect-import'"
 
-    missingSideEffectImportError :: String
-    missingSideEffectImportError = "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'"
+    userCodeTypeCheckFailure :: String
+    userCodeTypeCheckFailure = "User code type-check failed with exit code:"
 
     mainWaspTsWithServerSetup :: T.Text
     mainWaspTsWithServerSetup =
