@@ -1,7 +1,3 @@
----
-sidebar_label: 1. Creating a new project
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
 

@@ -1,7 +1,3 @@
----
-sidebar_label: Testing locally
----
-
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 
 # Testing locally

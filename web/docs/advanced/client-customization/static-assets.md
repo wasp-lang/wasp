@@ -1,7 +1,3 @@
----
-sidebar_label: Static assets
----
-
 import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
 
 # Static assets

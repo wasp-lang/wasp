@@ -1,7 +1,3 @@
----
-sidebar_label: Create your own UI
----
-
 import { Required } from '@site/src/components/Tag'
 
 # Create your own UI

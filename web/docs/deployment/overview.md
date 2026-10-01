@@ -1,7 +1,3 @@
----
-sidebar_label: Overview
----
-
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 # Overview

@@ -1,5 +1,4 @@
 ---
-sidebar_label: Quick start
 slug: /quick-start
 ---
 

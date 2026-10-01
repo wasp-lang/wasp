@@ -1,7 +1,3 @@
----
-sidebar_label: Custom Vite config
----
-
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { Optional } from '@site/src/components/Tag'
 

@@ -1,7 +1,3 @@
----
-sidebar_label: Railway
----
-
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CustomPostgresOption from './_railway-custom-postgres-option.md'

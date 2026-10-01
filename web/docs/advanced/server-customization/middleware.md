@@ -1,7 +1,3 @@
----
-sidebar_label: Middleware
----
-
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { CardLink } from '@site/src/components/CardLink';
 

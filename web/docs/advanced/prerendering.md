@@ -1,7 +1,3 @@
----
-sidebar_label: Prerendering
----
-
 import { CardLink } from '@site/src/components/CardLink'
 
 # Prerendering

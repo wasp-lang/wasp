@@ -1,7 +1,3 @@
----
-sidebar_label: Create your own UI
----
-
 # Create your own UI
 
 [Auth UI](../ui.md) is a common name for all high-level auth forms that come with Wasp.

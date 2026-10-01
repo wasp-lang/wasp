@@ -1,7 +1,3 @@
----
-sidebar_label: Entities
----
-
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
 # Entities

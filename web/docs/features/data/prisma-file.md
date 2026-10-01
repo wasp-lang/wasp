@@ -1,7 +1,3 @@
----
-sidebar_label: Prisma schema file
----
-
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 # Prisma schema file

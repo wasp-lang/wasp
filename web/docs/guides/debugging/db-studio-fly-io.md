@@ -1,5 +1,4 @@
 ---
-sidebar_label: Database Studio with Fly.io
 comments: true
 ---
 

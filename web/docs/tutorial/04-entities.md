@@ -1,7 +1,3 @@
----
-sidebar_label: 4. Database entities
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
 

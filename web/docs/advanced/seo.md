@@ -1,7 +1,3 @@
----
-sidebar_label: SEO & GEO
----
-
 import { CardLink } from "@site/src/components/CardLink"
 
 # SEO & GEO

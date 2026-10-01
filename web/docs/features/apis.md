@@ -1,7 +1,3 @@
----
-sidebar_label: API routes
----
-
 import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'

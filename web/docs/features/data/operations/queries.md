@@ -1,7 +1,3 @@
----
-sidebar_label: Queries
----
-
 import { CardLink } from '@site/src/components/CardLink';
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';

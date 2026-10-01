@@ -1,7 +1,3 @@
----
-sidebar_label: Overview
----
-
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
 
 # Overview

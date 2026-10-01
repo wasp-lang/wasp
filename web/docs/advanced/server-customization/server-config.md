@@ -1,7 +1,3 @@
----
-sidebar_label: Server config
----
-
 import { CardLink } from "@site/src/components/CardLink";
 import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 

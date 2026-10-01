@@ -1,7 +1,3 @@
----
-sidebar_label: Self-hosted
----
-
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { CardLink } from '@site/src/components/CardLink'
 

@@ -1,7 +1,3 @@
----
-sidebar_label: Overview
----
-
 import { CardLink } from '@site/src/components/CardLink';
 import MultipleIdentitiesWarning from '../_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';

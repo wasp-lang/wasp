@@ -1,7 +1,3 @@
----
-sidebar_label: 2. Project structure
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # 2. Project structure

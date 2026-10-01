@@ -1,5 +1,4 @@
 ---
-sidebar_label: WebSocket Namespaces
 comments: true
 ---
 

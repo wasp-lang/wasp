@@ -1,7 +1,3 @@
----
-sidebar_label: Testing
----
-
 # Testing
 
 :::info

@@ -1,5 +1,4 @@
 ---
-sidebar_label: Swagger UI
 comments: true
 ---
 

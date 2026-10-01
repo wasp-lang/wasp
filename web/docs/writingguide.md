@@ -1,7 +1,3 @@
----
-sidebar_label: Wasp docs writing guide
----
-
 # Wasp docs writing guide
 
 Our docs are the first touch point for new Wasp users.

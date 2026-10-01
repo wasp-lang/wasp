@@ -1,7 +1,3 @@
----
-sidebar_label: GitHub
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';

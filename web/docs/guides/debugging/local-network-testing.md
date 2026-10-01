@@ -1,5 +1,4 @@
 ---
-sidebar_label: Local Network Testing
 comments: true
 ---
 

@@ -1,7 +1,3 @@
----
-sidebar_label: Client configuration
----
-
 import BaseDirEnvNote from './_baseDirEnvNote.md'
 
 import { CardLink } from '@site/src/components/CardLink'

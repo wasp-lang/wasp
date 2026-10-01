@@ -1,7 +1,3 @@
----
-sidebar_label: Overview
----
-
 import { CardLink } from '@site/src/components/CardLink';
 
 # Overview

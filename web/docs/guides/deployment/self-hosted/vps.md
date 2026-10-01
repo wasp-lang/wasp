@@ -1,5 +1,4 @@
 ---
-sidebar_label: Simple VPS
 comments: true
 ---
 

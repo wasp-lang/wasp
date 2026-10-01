@@ -1,7 +1,3 @@
----
-sidebar_label: Fly.io
----
-
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CiCdMention from './_ci-cd-mention.md'

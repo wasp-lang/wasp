@@ -1,7 +1,3 @@
----
-sidebar_label: Contact
----
-
 # Contact
 
 <!-- TODO: update the email once we setup @wasp.sh-->

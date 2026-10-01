@@ -1,5 +1,4 @@
 ---
-sidebar_label: Tailwind CSS
 comments: true
 ---
 

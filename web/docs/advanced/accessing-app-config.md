@@ -1,7 +1,3 @@
----
-sidebar_label: Accessing the configuration
----
-
 # Accessing the configuration
 
 Whenever you start a Wasp app, you are starting two processes.

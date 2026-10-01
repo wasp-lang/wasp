@@ -1,7 +1,3 @@
----
-sidebar_label: Database
----
-
 import { CardLink } from '@site/src/components/CardLink'
 
 # Database

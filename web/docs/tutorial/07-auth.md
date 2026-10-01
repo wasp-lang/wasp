@@ -1,7 +1,3 @@
----
-sidebar_label: 7. Adding authentication
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';

@@ -1,7 +1,3 @@
----
-sidebar_label: Overview
----
-
 import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { CardLink } from "@site/src/components/CardLink";
 import { LinkGrid } from "@site/src/components/LinkGrid";

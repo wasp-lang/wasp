@@ -1,7 +1,3 @@
----
-sidebar_label: Pages and routes
----
-
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 

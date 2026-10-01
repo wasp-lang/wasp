@@ -1,7 +1,3 @@
----
-sidebar_label: Automatic CRUD
----
-
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'

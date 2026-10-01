@@ -1,7 +1,3 @@
----
-sidebar_label: Cloud providers
----
-
 import BuildingTheWebClient from './_building-the-web-client.md'
 import { CardLink } from '@site/src/components/CardLink'
 

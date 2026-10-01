@@ -1,7 +1,3 @@
----
-sidebar_label: 6. Modifying data
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import Collapse from '@site/src/components/Collapse';

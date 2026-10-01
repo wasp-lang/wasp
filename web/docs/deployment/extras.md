@@ -1,7 +1,3 @@
----
-sidebar_label: Extras
----
-
 # Extras
 
 In this section, we will cover some additional topics that are important for deploying Wasp apps in production.

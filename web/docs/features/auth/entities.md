@@ -1,7 +1,3 @@
----
-sidebar_label: Accessing user data
----
-
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from './_multiple-identities-warning.md';

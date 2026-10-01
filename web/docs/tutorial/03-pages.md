@@ -1,7 +1,3 @@
----
-sidebar_label: 3. Pages and routes
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'

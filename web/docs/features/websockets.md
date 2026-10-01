@@ -1,7 +1,3 @@
----
-sidebar_label: WebSockets
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';

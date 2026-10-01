@@ -1,5 +1,4 @@
 ---
-sidebar_label: File Uploads
 comments: true
 ---
 

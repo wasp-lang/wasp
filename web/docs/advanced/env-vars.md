@@ -1,7 +1,3 @@
----
-sidebar_label: Environment variables
----
-
 import ClientEnvVarsNote from './_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'

@@ -1,7 +1,3 @@
----
-sidebar_label: Overview
----
-
 import { Required } from '@site/src/components/Tag';
 
 # Overview

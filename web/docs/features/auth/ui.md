@@ -1,7 +1,3 @@
----
-sidebar_label: Auth UI
----
-
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
 
 # Auth UI

@@ -1,7 +1,3 @@
----
-sidebar_label: Customizing the app
----
-
 import { CardLink } from '@site/src/components/CardLink';
 
 # Customizing the app

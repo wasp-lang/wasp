@@ -1,7 +1,3 @@
----
-sidebar_label: Continuous deployment
----
-
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
 
 # Continuous deployment
