@@ -64,7 +64,7 @@ waspStartTest =
               inTestWaspProjectDir
                 [ startWaspInBackgroundInOwnProcessGroup terminalHangupTestPorts,
                   return $ waitUntilAppIsListening terminalHangupTestPorts,
-                  return "kill -HUP -- \"-$WASP_START_PID\"",
+                  return "kill -HUP \"-$WASP_START_PID\"",
                   return $ waitUntilWaspExits "Wasp didn't stop after SIGHUP.",
                   return $
                     waitUntil
