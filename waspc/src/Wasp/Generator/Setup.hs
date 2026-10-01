@@ -89,4 +89,5 @@ typeCheckUserCode spec sendMessage = do
         ]
         J.Wasp
 
+    -- A bare tsc depends on PATH and may be missing or resolve to a global compiler.
     tscExecutable = SP.fromAbsFile $ AS.waspProjectDir spec </> [relfile|node_modules/.bin/tsc|]
