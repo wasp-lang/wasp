@@ -8,7 +8,7 @@ import { getSignupRoute } from "../email/signup.js";
 import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
-import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth/email";
+import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth";
 import { defineHandler } from "wasp/server/utils";
 import { env } from "wasp/server";
 

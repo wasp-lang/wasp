@@ -35,9 +35,6 @@ genVitePlugins spec =
     [ genViteIndex,
       genWaspPlugin spec,
       genWaspConfigPlugin spec,
-      genEnvFilePlugin,
-      genDetectServerImportsPlugin,
-      genValidateEnvPlugin,
       genVirtualUserModulesPlugin spec
     ]
     <++> genVirtualWaspModulesPlugin spec
@@ -54,6 +51,9 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
+          "clientEnvFileName" .= SP.fromRelFile dotEnvClient,
+          "clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath,
+          "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir,
           "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
@@ -61,6 +61,8 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         ]
     prerenderPaths =
       concatMap (AS.Route.prerender . snd) (AS.getRoutes spec)
+    clientEnvSchemaValidationModulePath = SP.fromRelFileP . fromJust . SP.relFileToPosix $ clientEnvSchemaValidationModuleDir
+    clientEnvSchemaValidationModuleDir = generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
@@ -113,24 +115,3 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         "@tanstack/react-query",
         "react-router"
       ]
-
-genEnvFilePlugin :: Generator FileDraft
-genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|envFile.ts|]
-    tmplData = object ["clientEnvFileName" .= SP.fromRelFile dotEnvClient]
-
-genDetectServerImportsPlugin :: Generator FileDraft
-genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|detectServerImports.ts|]
-    tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]
-
-genValidateEnvPlugin :: Generator FileDraft
-genValidateEnvPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
-    tmplData = object ["clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath]
-
-    clientEnvSchemaValidationModulePath = SP.fromRelFileP . fromJust . SP.relFileToPosix $ clientEnvSchemaValidationModuleDir
-    clientEnvSchemaValidationModuleDir = generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]

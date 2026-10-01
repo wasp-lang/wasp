@@ -249,7 +249,7 @@
             "file",
             "sdk/wasp/auth/useAuth.ts"
         ],
-        "4e213e2a16ce3aeae0bc2ba2f43de3c925dd493869a6b669c20a0d9693b7e71d"
+        "0aab4be2052ee833ba4f531ba104f26c3d0051af3635fc3cd70f6bcc3297500d"
     ],
     [
         [
@@ -445,14 +445,14 @@
             "file",
             "sdk/wasp/client/operations/queries/core.ts"
         ],
-        "8613e556f0107e26f9c72f94c35a9e7707ef582fc2fb80784bdfb4ddae5ab232"
+        "d91c595ae46e4afc10603cd84ef442b88d295051288a4d03a0978b2dac601b19"
     ],
     [
         [
             "file",
             "sdk/wasp/client/operations/queries/index.ts"
         ],
-        "1743ca2538b0aac1ed310529bcd9ced500b11a4df224dde9d47dab7399ee986a"
+        "531e2d5259876c3c3561233b9d0bc7db00b411e5617887a0f2965dcd18023f84"
     ],
     [
         [
@@ -506,27 +506,6 @@
     [
         [
             "file",
-            "sdk/wasp/client/vite/plugins/detectServerImports.ts"
-        ],
-        "8df579dfa2f3dfbaff9933e1b571bd19edb59d494765c12418a39479417ca7c2"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/envFile.ts"
-        ],
-        "a0730901f568dcedde47321a96c9d4e0b5dec48fd06621ba0b00c31caecc26d5"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/validateEnv.ts"
-        ],
-        "0b1c330f1b3dd43c99cf2315e47fc8a822c41599651e3b34382157ce3a0ba1b2"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
         ],
         "615f5019d93bf6be2ecec4f8d47f906ab1de408ce5e6764df3511fe83a4fbcd4"
@@ -543,7 +522,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "85ed14da2dfb754bb25608f6dee35ed0bd8b2de9e4f966a6aa70f25a540e4a0e"
+        "2359eb5ac1031c29b04ac34fa4f0005accb79f28053240940978ee3d6de16bdb"
     ],
     [
         [
@@ -627,7 +606,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "45273798013d28b9d3f88e0825acb5f6b3863ba7c58ab81f9b9fa8b0b44fc9bd"
+        "b0e94f6b3ec6a8f04e796a5b093b2b6c48ccd33d6dfa83fac98493529941035c"
     ],
     [
         [
@@ -884,13 +863,6 @@
     [
         [
             "file",
-            "sdk/wasp/server/jobs/core/job.ts"
-        ],
-        "c47e102b84bfc6dfbb5dfc974affb4f3cf252760845640b2795d897a4d54cabc"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/server/jobs/core/pgBoss/index.ts"
         ],
         "1755f90efa9a3e2f6b4ed892a77aa60f68e51a57b424342c61e3c3d1f1de2f75"
@@ -907,7 +879,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "0e08e9774654e748c713a50d339828780f6811f4d754ce487c4d56d227ddd03c"
+        "f7e06b06bdebd6b7665bb444f507388b7290bde6fcbff06f0559e9ca5a22b97f"
     ],
     [
         [
@@ -1243,7 +1215,7 @@
             "file",
             "server/src/auth/providers/config/email.ts"
         ],
-        "bb6de4231ccbc664f6f1bbb28ba5e2123b0092cc3f6457f30006658653d6f6cd"
+        "2b4559a1bfe631d9da6ca302b0b3ef00b9ac8cc508f859e15480d09a274cbedb"
     ],
     [
         [
@@ -1285,7 +1257,7 @@
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "3646670b948ccae196e59adf96c46ef4f83781d16b3e87616b3635af8a0553af"
+        "628450d70fbcfaa4da67105588a3b49d74ddc9c71cd3d30ff2144ebeee33dd96"
     ],
     [
         [
@@ -1299,7 +1271,7 @@
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "398fbf1958fc0d272b80c977996fd598adc6266d08ac322faf4ce93d9ac306d7"
+        "e85d803697f4d48ddfb030febbbd321fc8579fae9d79ac24c9f3996726c62422"
     ],
     [
         [
