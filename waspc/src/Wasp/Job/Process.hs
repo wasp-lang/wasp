@@ -20,11 +20,14 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
-#if !defined(mingw32_HOST_OS)
-import qualified System.Posix.Signals as Signals
-#endif
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
+#if !defined(mingw32_HOST_OS)
+import Data.Maybe (mapMaybe)
+import System.IO.Error (tryIOError)
+import qualified System.Posix.Signals as Signals
+import Text.Read (readMaybe)
+#endif
 import qualified Wasp.Job as J
 import qualified Wasp.Node.Version as NodeVersion
 
@@ -91,18 +94,49 @@ runProcessAsJobWithStdin _stdin process jobType chan =
       interruptProcess $ CP.streamingProcessHandleRaw streamingProcessHandle
       return $ ExitFailure 1
 
--- | On *nix, sends SIGINT (same as Ctrl+C) to the given process only, and relies on it to stop any
--- processes it started itself (e.g. npm forwards the signal to the script it runs, and nodemon
--- stops its whole process tree).
--- We don't signal the whole process group: the processes we start share it with Wasp, so that
--- would also interrupt Wasp itself, its other jobs, and whatever process started Wasp.
+-- | On *nix, sends SIGINT (same as Ctrl+C) to the given process and all its descendants.
+-- We don't rely on the process to stop its descendants: e.g. npm runs scripts with `sh -c`, and
+-- some shells (like dash on Ubuntu) stay around as the parent of the script's command and don't
+-- forward the signal to it.
+-- We don't signal the whole process group either: the processes we start share it with Wasp, so
+-- that would also interrupt Wasp itself, its other jobs, and whatever process started Wasp.
 -- Windows has no signals, so there we terminate the process instead.
 interruptProcess :: P.ProcessHandle -> IO ()
 #if defined(mingw32_HOST_OS)
 interruptProcess = P.terminateProcess
 #else
 interruptProcess processHandle =
-  P.getPid processHandle >>= mapM_ (Signals.signalProcess Signals.sigINT)
+  P.getPid processHandle >>= mapM_ interruptProcessTree
+
+interruptProcessTree :: P.Pid -> IO ()
+interruptProcessTree rootPid = do
+  descendantPids <- getDescendantPids rootPid
+  -- Some of the processes might have exited in the meantime, so we ignore errors.
+  mapM_ (tryIOError . Signals.signalProcess Signals.sigINT) (rootPid : descendantPids)
+
+-- | Lists the descendants of the given process with `ps`, or returns none if `ps` fails.
+getDescendantPids :: P.Pid -> IO [P.Pid]
+getDescendantPids rootPid =
+  maybe [] (descendantsOf rootPid) <$> listPidsWithParents
+  where
+    -- BusyBox's `ps` doesn't support `-A`, but lists all processes without it.
+    listPidsWithParents =
+      runPs ["-A", "-o", "pid=", "-o", "ppid="]
+        >>= maybe (runPs ["-o", "pid=", "-o", "ppid="]) (return . Just)
+
+    runPs args =
+      tryIOError (P.readProcessWithExitCode "ps" args "") >>= \case
+        Right (ExitSuccess, psOutput, _) -> return $ Just $ mapMaybe parsePsLine $ lines psOutput
+        _ -> return Nothing
+
+    parsePsLine line = case mapM readMaybe (words line) of
+      Just [pid, parentPid] -> Just (fromInteger pid, fromInteger parentPid)
+      _ -> Nothing
+
+    descendantsOf pid pidsWithParents =
+      concatMap
+        (\childPid -> childPid : descendantsOf childPid pidsWithParents)
+        [childPid | (childPid, parentPid) <- pidsWithParents, parentPid == pid]
 #endif
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
