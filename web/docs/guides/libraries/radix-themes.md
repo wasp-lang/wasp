@@ -1,4 +1,5 @@
 ---
+sidebar_label: Radix Themes
 comments: true
 ---
 

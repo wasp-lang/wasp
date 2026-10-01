@@ -1,8 +1,10 @@
 ---
-title: Overview
+sidebar_label: Overview
 ---
 
 import { Required } from '@site/src/components/Tag';
+
+# Overview
 
 While Entities enable you to define your app's data model and relationships, Operations are all about working with this data.
 

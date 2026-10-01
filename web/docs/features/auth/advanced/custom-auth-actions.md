@@ -1,3 +1,7 @@
+---
+sidebar_label: Custom sign-up actions
+---
+
 # Custom sign-up actions
 
 If you need to deeply hook into the sign-up process, you can create your own sign-up action and customize the code to, for example, add extra validation, store more data, or otherwise call custom code at registration time.

@@ -1,9 +1,11 @@
 ---
-title: Local Network Testing
+sidebar_label: Local Network Testing
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
+# Local Network Testing
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.26" }} />
 

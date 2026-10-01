@@ -1,8 +1,10 @@
 ---
-title: Create your own UI
+sidebar_label: Create your own UI
 ---
 
 import { Required } from '@site/src/components/Tag'
+
+# Create your own UI
 
 When using the email auth provider, users log in with their email address and a password. On signup, Wasp validates the data and sends a verification email. The user account is not active until the user clicks the link in the verification email. Also, the user can reset their password through a similar flow.
 

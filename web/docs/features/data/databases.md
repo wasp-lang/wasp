@@ -1,8 +1,10 @@
 ---
-title: Databases
+sidebar_label: Databases
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
+
+# Databases
 
 [Entities](./entities.md), [Operations](./operations/overview) and [Automatic CRUD](./crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 

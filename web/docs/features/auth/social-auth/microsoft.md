@@ -1,5 +1,5 @@
 ---
-title: Microsoft
+sidebar_label: Microsoft
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -13,6 +13,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import MicrosoftData from '../entities/_microsoft-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# Microsoft
 
 Wasp supports Microsoft Authentication out of the box.
 

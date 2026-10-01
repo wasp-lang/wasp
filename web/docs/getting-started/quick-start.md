@@ -1,9 +1,11 @@
 ---
-title: Quick start
+sidebar_label: Quick start
 slug: /quick-start
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Quick start
 
 ## Installation
 

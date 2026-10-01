@@ -1,4 +1,5 @@
 ---
+sidebar_label: Fly.io
 comments: true
 ---
 

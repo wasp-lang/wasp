@@ -1,5 +1,5 @@
 ---
-title: Overview
+sidebar_label: Overview
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
@@ -8,6 +8,8 @@ import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
 import UsernameData from '../entities/_username-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
+
+# Overview
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client side.
 

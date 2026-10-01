@@ -1,8 +1,10 @@
 ---
-title: Entities
+sidebar_label: Entities
 ---
 
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
+
+# Entities
 
 Entities are the foundation of your app's data model. In short, an Entity defines a model in your database.
 

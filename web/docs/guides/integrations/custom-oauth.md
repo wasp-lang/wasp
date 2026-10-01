@@ -1,4 +1,5 @@
 ---
+sidebar_label: Custom OAuth Provider
 comments: true
 ---
 

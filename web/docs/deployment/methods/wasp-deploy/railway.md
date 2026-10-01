@@ -1,5 +1,5 @@
 ---
-title: Railway
+sidebar_label: Railway
 ---
 
 import { Required } from '@site/src/components/Tag';
@@ -7,6 +7,8 @@ import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CustomPostgresOption from './_railway-custom-postgres-option.md'
 import CiCdMention from './_ci-cd-mention.md'
 import CustomServerUrlOption from './_custom-server-url-option.md'
+
+# Railway
 
 [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) is a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
 

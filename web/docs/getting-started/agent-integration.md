@@ -1,6 +1,8 @@
 ---
-title: Agent integration
+sidebar_label: Agent integration
 ---
+
+# Agent integration
 
 Wasp provides an official plugin for coding agents that transforms them into Wasp framework experts.
 

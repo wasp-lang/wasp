@@ -1,8 +1,10 @@
 ---
-title: Static assets
+sidebar_label: Static assets
 ---
 
 import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
+
+# Static assets
 
 ## Importing an Asset as URL
 

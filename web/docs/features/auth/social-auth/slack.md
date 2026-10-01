@@ -1,5 +1,5 @@
 ---
-title: Slack
+sidebar_label: Slack
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -14,6 +14,8 @@ import SlackData from '../entities/_slack-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
 import Collapse from '@site/src/components/Collapse';
+
+# Slack
 
 Wasp supports Slack Authentication out of the box.
 

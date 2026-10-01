@@ -1,6 +1,8 @@
 ---
-title: Telemetry
+sidebar_label: Telemetry
 ---
+
+# Telemetry
 
 ## Overview
 

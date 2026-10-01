@@ -1,8 +1,10 @@
 ---
-title: 2. Project structure
+sidebar_label: 2. Project structure
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# 2. Project structure
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

@@ -1,9 +1,11 @@
 ---
-title: Database Studio with Fly.io
+sidebar_label: Database Studio with Fly.io
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
+# Database Studio with Fly.io
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Fly CLI": "0.4.11" }} />
 

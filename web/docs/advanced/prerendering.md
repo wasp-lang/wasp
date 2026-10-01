@@ -1,8 +1,10 @@
 ---
-title: Prerendering
+sidebar_label: Prerendering
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
+
+# Prerendering
 
 By default, Wasp apps are single-page applications: the browser downloads JavaScript, and React renders the page on the client. This means search engines, AI crawlers, and users on slow connections see a blank page until JavaScript loads and executes.
 

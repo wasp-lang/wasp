@@ -1,6 +1,8 @@
 ---
-title: Starter templates
+sidebar_label: Starter templates
 ---
+
+# Starter templates
 
 We created a few starter templates to help you get started with Wasp. Check out the list [below](#available-templates).
 

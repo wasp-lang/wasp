@@ -1,5 +1,5 @@
 ---
-title: Accessing user data
+sidebar_label: Accessing user data
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
@@ -11,6 +11,8 @@ import GoogleData from './entities/_google-data.md';
 import GithubData from './entities/_github-data.md';
 import KeycloakData from './entities/_keycloak-data.md';
 import DiscordData from './entities/_discord-data.md';
+
+# Accessing user data
 
 First, we'll check out the most practical info: **how to access the user's data in your app**.
 

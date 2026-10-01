@@ -1,10 +1,12 @@
 ---
-title: Environment variables
+sidebar_label: Environment variables
 ---
 
 import ClientEnvVarsNote from './_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
+
+# Environment variables
 
 **Environment variables** are used to configure projects based on the context in which they run. This allows them to exhibit different behaviors in different environments, such as development, staging, or production.
 

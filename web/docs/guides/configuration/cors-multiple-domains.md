@@ -1,5 +1,5 @@
 ---
-title: Multiple Domains CORS
+sidebar_label: Multiple Domains CORS
 comments: true
 ---
 

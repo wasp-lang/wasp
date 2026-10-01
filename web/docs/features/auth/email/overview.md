@@ -1,5 +1,5 @@
 ---
-title: Overview
+sidebar_label: Overview
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
@@ -8,6 +8,8 @@ import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
 import EmailData from '../entities/_email-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
+
+# Overview
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 

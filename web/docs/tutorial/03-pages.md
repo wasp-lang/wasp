@@ -1,5 +1,5 @@
 ---
-title: 3. Pages and routes
+sidebar_label: 3. Pages and routes
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -7,6 +7,8 @@ import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'
 import TypescriptServerNote from '../_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
+
+# 3. Pages and routes
 
 In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 

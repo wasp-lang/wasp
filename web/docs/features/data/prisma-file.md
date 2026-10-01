@@ -1,8 +1,10 @@
 ---
-title: Prisma schema file
+sidebar_label: Prisma schema file
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+
+# Prisma schema file
 
 Wasp uses [Prisma](https://www.prisma.io/) to interact with the database. Prisma is a "Next-generation Node.js and TypeScript ORM" that provides a type-safe API for working with your database.
 

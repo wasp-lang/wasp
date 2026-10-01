@@ -1,5 +1,5 @@
 ---
-title: Keycloak
+sidebar_label: Keycloak
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -13,6 +13,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import KeycloakData from '../entities/_keycloak-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# Keycloak
 
 Wasp supports Keycloak Authentication out of the box.
 

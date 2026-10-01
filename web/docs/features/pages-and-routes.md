@@ -1,9 +1,11 @@
 ---
-title: Pages and routes
+sidebar_label: Pages and routes
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
+
+# Pages and routes
 
 A **page** is a React component that Wasp renders as a full screen of your app. A **route** connects a URL path to a page. You declare both in your `main.wasp.ts` file and Wasp generates all the wiring for you, including [lazy-loading each page's code](#lazy-loaded-routes) by default. Internally, we use the industry-standard [React Router](https://reactrouter.com/8.0.1/home) to handle routing.
 

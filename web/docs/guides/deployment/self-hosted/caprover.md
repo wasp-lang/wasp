@@ -1,4 +1,5 @@
 ---
+sidebar_label: Caprover
 comments: true
 ---
 
