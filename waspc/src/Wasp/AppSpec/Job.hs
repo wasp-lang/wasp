@@ -36,7 +36,7 @@ data Job = Job
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Job where
-  declName job = job.name
+  declName = name
 
 instance Inspectable Job where
   inspect job =

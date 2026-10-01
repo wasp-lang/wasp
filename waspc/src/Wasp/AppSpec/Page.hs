@@ -22,7 +22,7 @@ data Page = Page
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Page where
-  declName page = page.name
+  declName = name
 
 instance Inspectable Page where
   inspect page =

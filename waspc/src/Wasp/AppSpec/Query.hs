@@ -13,8 +13,8 @@ import Data.List (intercalate)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
-import Wasp.AppSpec.Entity
-import Wasp.AppSpec.ExtImport
+import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Query = Query
@@ -26,7 +26,7 @@ data Query = Query
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Query where
-  declName query = query.name
+  declName = name
 
 instance Inspectable Query where
   inspect query =

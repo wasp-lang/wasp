@@ -31,7 +31,7 @@ data Route = Route
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Route where
-  declName route = route.name
+  declName = name
 
 instance Inspectable Route where
   inspect route =

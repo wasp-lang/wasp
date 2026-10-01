@@ -39,7 +39,7 @@ data App = App
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl App where
-  declName app = app.name
+  declName = name
 
 getDeploymentMode :: App -> Deployment.DeploymentMode
 getDeploymentMode app =

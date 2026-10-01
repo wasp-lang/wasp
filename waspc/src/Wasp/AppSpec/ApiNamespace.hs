@@ -22,7 +22,7 @@ data ApiNamespace = ApiNamespace
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl ApiNamespace where
-  declName apiNamespace = apiNamespace.name
+  declName = name
 
 instance Inspectable ApiNamespace where
   inspect apiNamespace =

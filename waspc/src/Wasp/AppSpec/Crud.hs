@@ -31,7 +31,7 @@ data Crud = Crud
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Crud where
-  declName crud = crud.name
+  declName = name
 
 instance Inspectable Crud where
   inspect crud =

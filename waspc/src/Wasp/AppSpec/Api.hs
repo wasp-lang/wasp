@@ -31,7 +31,7 @@ data Api = Api
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Api where
-  declName api = api.name
+  declName = name
 
 instance Inspectable Api where
   inspect api =

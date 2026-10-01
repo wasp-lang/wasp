@@ -13,8 +13,8 @@ import Data.List (intercalate)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
-import Wasp.AppSpec.Entity
-import Wasp.AppSpec.ExtImport
+import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Action = Action
@@ -26,7 +26,7 @@ data Action = Action
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Action where
-  declName action = action.name
+  declName = name
 
 instance Inspectable Action where
   inspect action =
