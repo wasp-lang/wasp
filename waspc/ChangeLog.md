@@ -37,7 +37,7 @@
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
-- Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4693](https://github.com/wasp-lang/wasp/issues/4693))
+- Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4941](https://github.com/wasp-lang/wasp/pull/4941))
 
 ### 🔧 Small improvements
 
