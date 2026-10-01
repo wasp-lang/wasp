@@ -1,8 +1,24 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliCompile)
+import Control.Monad.Reader (ask)
+import qualified Data.Text as T
+import NeatInterpolation (trimming)
+import ShellCommands
+  ( ShellCommand,
+    ShellCommandBuilder,
+    WaspProjectContext (..),
+    appendToFile,
+    assertCommandOutputContains,
+    createTestWaspProject,
+    inTestWaspProjectDir,
+    replaceMainWaspTsFile,
+    waspCliCompile,
+    writeToFile,
+  )
+import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Version (waspVersion)
 
 waspCompileTest :: Test
 waspCompileTest =
@@ -33,6 +49,39 @@ waspCompileTest =
                   return $ assertDirectoryExists "node_modules"
                 ]
             ]
+        ),
+      TestCase
+        "fail-on-missing-side-effect-import-in-client-code"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToFile "src/MainPage.tsx" missingSideEffectImport,
+                  assertCommandOutputContains (return waspCliCompileFails) missingSideEffectImportError
+                ]
+            ]
+        ),
+      TestCase
+        "fail-on-missing-side-effect-import-in-server-code"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ replaceMainWaspTsFile mainWaspTsWithServerSetup,
+                  writeServerSetupTs,
+                  assertCommandOutputContains (return waspCliCompileFails) missingSideEffectImportError
+                ]
+            ]
+        ),
+      TestCase
+        "fail-on-unreferenced-user-error-and-recover"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ writeTypeCheckTs "export const count: number = 'wrong'\n",
+                  assertCommandOutputContains (return waspCliCompileFails) "TS2322",
+                  writeTypeCheckTs "export const count: number = 1\n",
+                  waspCliCompile
+                ]
+            ]
         )
     ]
   where
@@ -41,3 +90,44 @@ waspCompileTest =
 
     assertDirectoryExists :: FilePath -> ShellCommand
     assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"
+
+    missingSideEffectImport :: T.Text
+    missingSideEffectImport = "import './missing-side-effect-import'"
+
+    missingSideEffectImportError :: String
+    missingSideEffectImportError = "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'"
+
+    mainWaspTsWithServerSetup :: T.Text
+    mainWaspTsWithServerSetup =
+      [trimming|
+        import { app, page, route } from "@wasp.sh/spec"
+        import { MainPage } from "./src/MainPage" with { type: "ref" }
+        import { serverSetup } from "./src/serverSetup" with { type: "ref" }
+
+        export default app({
+          name: "typeCheckTest",
+          title: "Type check test",
+          wasp: { version: "$textWaspVersion" },
+          server: { setupFn: serverSetup },
+          spec: [route("RootRoute", "/", page(MainPage))]
+        })
+      |]
+
+    textWaspVersion :: T.Text
+    textWaspVersion = T.pack . show $ waspVersion
+
+    writeServerSetupTs :: ShellCommandBuilder WaspProjectContext ShellCommand
+    writeServerSetupTs = do
+      context <- ask
+      writeToFile
+        (context.waspProjectDir </> [relfile|src/serverSetup.ts|])
+        [trimming|
+          $missingSideEffectImport
+
+          export const serverSetup = () => {}
+        |]
+
+    writeTypeCheckTs :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+    writeTypeCheckTs contents = do
+      context <- ask
+      writeToFile (context.waspProjectDir </> [relfile|src/typeCheck.ts|]) contents
