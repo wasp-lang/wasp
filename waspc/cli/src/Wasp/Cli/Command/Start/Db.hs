@@ -46,14 +46,14 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 
   throwIfCustomDbAlreadyInUse appSpec
 
-  let app = ASV.getApp appSpec
+  let appName = AS.App.name $ ASV.getApp appSpec
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL ->
       startPostgresDevDb
         waspProjectDir
-        app.name
+        appName
         (dbImage args)
         (dbVolumeMountPath args)
   where

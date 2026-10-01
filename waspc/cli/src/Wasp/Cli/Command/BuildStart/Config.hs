@@ -64,7 +64,8 @@ makeBuildStartConfig appSpec args projectDir' = do
         clientRunConfig = clientRunConfig'
       }
   where
-    appUniqueId' = makeAppUniqueId projectDir' (ASV.getApp appSpec).name
+    appUniqueId' = makeAppUniqueId projectDir' appName
+    appName = AS.App.name $ ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 

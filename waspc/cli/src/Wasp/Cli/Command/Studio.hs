@@ -43,6 +43,7 @@ studio = do
 
   appSpec <- analyze waspDir
   let app = ASV.getApp appSpec
+  let appName = AS.App.name app
 
   let appInfoJson =
         object
@@ -119,7 +120,7 @@ studio = do
                 (AS.getEntities appSpec),
             "app"
               .= object
-                [ "name" .= (app.name :: String),
+                [ "name" .= (appName :: String),
                   "auth" .= getAuthInfo appSpec app,
                   "db" .= getDbInfo appSpec
                 ]
