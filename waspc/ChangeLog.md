@@ -30,7 +30,7 @@
 
 ### 🐞 Bug fixes
 
-- `wasp db` commands now compile and take the project lock only when the generated app is out of date, so they work next to a running `wasp start` and are faster otherwise.
+- `wasp db` commands now compile and take the project lock only when the generated app is out of date, so they work next to a running `wasp start` and are faster otherwise. ([#4943](https://github.com/wasp-lang/wasp/pull/4943))
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
