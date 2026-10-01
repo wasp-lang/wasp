@@ -54,7 +54,9 @@ instance Inspectable Entity where
   inspect entity =
     [ InspectionEntry
         "Entities"
-        [("Fields", intercalate ", " $ Psl.Model._name <$> getFields entity)]
+        [ ("Name", getName entity),
+          ("Fields", intercalate ", " $ Psl.Model._name <$> getFields entity)
+        ]
     ]
 
 -- | Constructs entity declarations from parsed Prisma models.

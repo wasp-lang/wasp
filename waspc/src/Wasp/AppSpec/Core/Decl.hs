@@ -18,7 +18,7 @@ import Data.Aeson.Types (Parser)
 import Data.Maybe (mapMaybe)
 import Data.Typeable (cast)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declName, declTypeName))
-import Wasp.Inspectable (Inspectable (..), modifyDatapointList)
+import Wasp.Inspectable (Inspectable (..))
 
 -- | A container for any (IsDecl a) type, allowing you to have a heterogenous list of
 --   Wasp declarations as [Decl].
@@ -40,8 +40,7 @@ instance ToJSON Decl where
       ]
 
 instance Inspectable Decl where
-  inspect (Decl value) =
-    modifyDatapointList (("Name", declName value) :) <$> inspect value
+  inspect (Decl value) = inspect value
 
 -- | Parses the @declValue@ of the JSON envelope into a declaration.
 -- The envelope carries the name in @declName@, outside of @declValue@, so we

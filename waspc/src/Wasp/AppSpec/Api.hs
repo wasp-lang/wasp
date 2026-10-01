@@ -36,7 +36,8 @@ instance IsDecl Api where
 instance Inspectable Api where
   inspect api =
     [ InspectionEntry "API" $
-        [ ("Method", show (method api)),
+        [ ("Name", name api),
+          ("Method", show (method api)),
           ("Route", path api),
           ("Import", showExtImportFromProjectDir $ fn api)
         ]

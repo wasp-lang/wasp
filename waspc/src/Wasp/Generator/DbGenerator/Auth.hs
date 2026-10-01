@@ -10,7 +10,6 @@ module Wasp.Generator.DbGenerator.Auth
   )
 where
 
-import Data.List (find)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
@@ -87,7 +86,7 @@ injectAuth entities userEntity = do
   authEntity <- makeAuthEntity userEntityIdField userEntity
   authIdentityEntity <- makeAuthIdentityEntity
   sessionEntity <- makeSessionEntity
-  let entitiesWithAuth = injectAuthIntoUserEntity (AS.Entity.getName userEntity) entities
+  let entitiesWithAuth = injectAuthIntoUserEntity userEntity entities
   return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
@@ -173,12 +172,12 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnSessionEntityNameText = T.pack authFieldOnSessionEntityName
 
-injectAuthIntoUserEntity :: String -> [AS.Entity.Entity] -> [AS.Entity.Entity]
-injectAuthIntoUserEntity userEntityName entities =
-  let userEntity = fromJust $ find ((== userEntityName) . AS.Entity.getName) entities
-      userEntityWithAuthInjected = injectRelationToAuth userEntity
-   in userEntityWithAuthInjected : filter ((/= userEntityName) . AS.Entity.getName) entities
+injectAuthIntoUserEntity :: AS.Entity.Entity -> [AS.Entity.Entity] -> [AS.Entity.Entity]
+injectAuthIntoUserEntity userEntity entities =
+  injectRelationToAuth userEntity : filter ((/= userEntityName) . AS.Entity.getName) entities
   where
+    userEntityName = AS.Entity.getName userEntity
+
     injectRelationToAuth :: AS.Entity.Entity -> AS.Entity.Entity
     injectRelationToAuth entity = AS.Entity.makeEntity $ Psl.Model.Model userEntityName newPslBody
       where

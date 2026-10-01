@@ -18,6 +18,7 @@ import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
@@ -36,6 +37,7 @@ import Wasp.AppSpec.Identifier (isValidWaspIdentifier)
 import qualified Wasp.AppSpec.Job as AS.Job
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
+import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -285,8 +287,8 @@ validateOperationEntitiesAreUnique spec =
         entityNames = maybe [] (map AS.refName) (AS.Operation.getEntities operation)
 
     describeOperation :: AS.Operation.Operation -> String
-    describeOperation operation@(AS.Operation.QueryOp _) = "query '" ++ AS.Operation.getName operation ++ "'"
-    describeOperation operation@(AS.Operation.ActionOp _) = "action '" ++ AS.Operation.getName operation ++ "'"
+    describeOperation (AS.Operation.QueryOp query) = "query '" ++ query.name ++ "'"
+    describeOperation (AS.Operation.ActionOp action) = "action '" ++ action.name ++ "'"
 
 {- ORMOLU_DISABLE -}
 -- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"

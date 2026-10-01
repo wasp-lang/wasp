@@ -41,7 +41,8 @@ instance IsDecl Job where
 instance Inspectable Job where
   inspect job =
     [ InspectionEntry "Jobs" $
-        [ ("Executor", show $ executor job),
+        [ ("Name", name job),
+          ("Executor", show $ executor job),
           ("Schedule", maybe "" (show . cron) (schedule job)),
           ("Import", showExtImportFromProjectDir job.perform.fn)
         ]

@@ -5,7 +5,6 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.List (find)
 import Data.Maybe (fromMaybe)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -52,19 +51,6 @@ createRouteTemplateData spec route =
   where
     isAuthRequired = fromMaybe False $ AS.Page.authRequired targetPage
 
-    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
-    targetPage = findTargetPage spec targetPageName (AS.Route.path route)
+    targetPage = AS.resolveRef spec (AS.Route.to route)
     jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component targetPage
-    aliasedImport = applyJsImportAlias (Just targetPageName) jsImport
-
-findTargetPage :: AppSpec -> String -> String -> AS.Page.Page
-findTargetPage spec targetPageName routePath =
-  fromMaybe
-    ( error $
-        "Can't find page with name '"
-          ++ targetPageName
-          ++ "', pointed to by route '"
-          ++ routePath
-          ++ "'"
-    )
-    (find ((==) targetPageName . AS.Page.name) (AS.getPages spec))
+    aliasedImport = applyJsImportAlias (Just $ AS.Page.name targetPage) jsImport
