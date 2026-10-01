@@ -10,10 +10,11 @@
     "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
     "bundle-and-start": "npm run bundle && npm run start",
     "watch": "nodemon --exec 'npm run bundle-and-start || exit 1'",
-    "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
+    "db-seed": "npm run bundle && exec node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}"
   },
+  "comment-db-seed": "The shell running db-seed doesn't forward the signals npm sends it to stop the seed, so we exec node to replace the shell with it",
   "nodemonConfig": {
     "delay": "1000"
   },

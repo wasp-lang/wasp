@@ -6,6 +6,7 @@ import ShellCommands
     WaspProjectContext,
     createTestWaspProject,
     inTestWaspProjectDir,
+    waitUntil,
     waspCliCompile,
     waspCliStart,
     (~&&),
@@ -186,15 +187,3 @@ waitUntilAppStopsListening ports =
 
 isPortListening :: Int -> ShellCommand
 isPortListening port = "curl -s -o /dev/null http://localhost:" ++ show port
-
--- | Polls every second until the condition succeeds, failing with the error
--- message if it doesn't within the given number of seconds.
-waitUntil :: Int -> ShellCommand -> String -> ShellCommand
-waitUntil timeoutSeconds condition errorMessage =
-  "( i=0; until "
-    ++ condition
-    ++ "; do i=$((i+1)); [ \"$i\" -lt "
-    ++ show timeoutSeconds
-    ++ " ] || { echo "
-    ++ show errorMessage
-    ++ " >&2; exit 1; }; sleep 1; done )"
