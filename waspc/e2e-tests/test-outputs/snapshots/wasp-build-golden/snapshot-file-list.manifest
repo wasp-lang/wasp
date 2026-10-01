@@ -12,7 +12,6 @@ wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/FullPageWrapper.tsx
-wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.module.css
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Message.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/WaspApp.tsx
@@ -80,7 +79,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Loader.module.css
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Message.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Message.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/Message.jsx
@@ -431,6 +429,7 @@ wasp-app/.wasp/out/tsconfig.src.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
 wasp-app/.wasp/out/web-app/build/200.html
+wasp-app/.wasp/out/web-app/build/assets/200.css
 wasp-app/.wasp/out/web-app/build/assets/200.js
 wasp-app/.wasp/out/web-app/build/assets/MainPage.css
 wasp-app/.wasp/out/web-app/build/assets/MainPage.js

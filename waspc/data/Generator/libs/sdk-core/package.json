@@ -15,6 +15,14 @@
     "./browser": {
       "types": "./dist/browser.d.ts",
       "default": "./dist/browser.js"
+    },
+    "./node/vite": {
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    },
+    "./browser/test": {
+      "types": "./dist/test.d.ts",
+      "default": "./dist/test.js"
     }
   },
   "files": [
@@ -27,10 +35,58 @@
     "test:type-exports": "attw -P --profile esm-only",
     "test:types": "tsc --noEmit"
   },
+  "peerDependencies": {
+    "@tanstack/react-query": "~4.42.0",
+    "@testing-library/react": "^16.3.1",
+    "@types/express": "^5.0.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@wasp.sh/lib-auth": "^0.26.0",
+    "arctic": "^1.2.1",
+    "ky": "^2.0.0",
+    "react": "^19.2.1",
+    "react-hook-form": "^7.45.4",
+    "react-router": "^8.0.1",
+    "superjson": "^2.2.1",
+    "vite": "^8.1.0",
+    "zod": "^4.3.6"
+  },
+  "peerDependenciesMeta": {
+    "@testing-library/react": {
+      "optional": true
+    },
+    "@vitejs/plugin-react": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "dotenv-expand": "^12.0.3",
+    "mitt": "3.0.1"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
+    "@tanstack/react-query": "~4.42.0",
+    "@testing-library/react": "^16.3.1",
+    "@tsdown/css": "^0.21.10",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.17.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@wasp.sh/lib-auth": "file:../auth",
+    "arctic": "^1.2.1",
+    "ky": "^2.0.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-hook-form": "^7.45.4",
+    "react-router": "^8.0.1",
+    "superjson": "^2.2.1",
     "tsdown": "^0.21.5",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.1.0",
+    "zod": "^4.3.6"
   }
 }

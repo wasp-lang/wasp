@@ -53,7 +53,6 @@ genAppComponents =
     map
       genFileCopy
       [ [relfile|client/app/components/Loader.tsx|],
-        [relfile|client/app/components/Loader.module.css|],
         [relfile|client/app/components/FullPageWrapper.tsx|],
         [relfile|client/app/components/DefaultRootErrorBoundary.tsx|],
         [relfile|client/app/components/Message.tsx|]

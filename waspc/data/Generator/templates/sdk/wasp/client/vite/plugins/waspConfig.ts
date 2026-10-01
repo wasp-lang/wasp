@@ -65,6 +65,9 @@ export function waspConfig(): PluginOption {
         build: {
           outDir: forcedOptions["build.outDir"],
         },
+        ssr: {
+          noExternal: ["@wasp.sh/lib-sdk-core"],
+        },
         resolve: {
           dedupe: singleInstanceDependencies,
           alias: [
