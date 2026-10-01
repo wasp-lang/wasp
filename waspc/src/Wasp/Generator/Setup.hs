@@ -72,15 +72,21 @@ typeCheckUserCode spec sendMessage = do
     chan <- newChan
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob (AS.waspProjectDir spec) tscExecutable args J.Wasp chan)
+      (runTypeCheck chan)
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where
+    runTypeCheck :: J.Job
+    runTypeCheck =
+      runNodeCommandAsJob
+        (AS.waspProjectDir spec)
+        tscExecutable
+        [ "--project",
+          SP.fromRelFile $ AS.srcTsConfigPath spec,
+          "--noEmit"
+        ]
+        J.Wasp
+
     tscExecutable = SP.fromAbsFile $ AS.waspProjectDir spec </> [relfile|node_modules/.bin/tsc|]
-    args =
-      [ "--project",
-        SP.fromRelFile $ AS.srcTsConfigPath spec,
-        "--noEmit"
-      ]
