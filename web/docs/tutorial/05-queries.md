@@ -1,10 +1,8 @@
----
-title: 5. Querying the database
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+
+# 5. Querying the database
 
 We want to know which tasks we need to do, so let's list them!
 

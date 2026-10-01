@@ -1,8 +1,6 @@
----
-title: Overview
----
-
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+
+# Overview
 
 After developing your app locally on your machine, the next step is to deploy it to the web so that others can access it.
 

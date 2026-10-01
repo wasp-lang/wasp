@@ -1,6 +1,4 @@
----
-title: Dependencies
----
+# Dependencies
 
 In a Wasp project, dependencies are defined in a standard way for JavaScript projects: using the [package.json](https://docs.npmjs.com/cli/configuring-npm/package-json) file, located at the root of your project. You can list your dependencies under the `dependencies` or `devDependencies` fields.
 
