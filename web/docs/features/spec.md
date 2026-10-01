@@ -1,9 +1,10 @@
 ---
-title: Wasp Spec
 sidebar_label: Wasp Spec (main.wasp.ts)
 ---
 
 import { CardLink } from "@site/src/components/CardLink";
+
+# Wasp Spec
 
 You define and configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp.ts` file in the root of your project. We call this file the **Wasp Spec**.
 

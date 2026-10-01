@@ -1,7 +1,8 @@
 ---
-title: Git worktree setup
 sidebar_label: Worktrees
 ---
+
+# Git worktree setup
 
 Git worktrees let you work on several isolated instances of the same repository. This is useful when several coding agents work on the app in parallel.
 

@@ -1,9 +1,7 @@
----
-title: Server config
----
-
 import { CardLink } from "@site/src/components/CardLink";
 import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
+
+# Server config
 
 You can configure the behavior of the server via the `server` field of `app` spec:
 

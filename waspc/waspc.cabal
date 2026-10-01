@@ -141,6 +141,7 @@ library
     mustache ^>=2.4.2,
     neat-interpolation ^>=0.5.1,
     network ^>=3.1.4,
+    network-uri ^>=2.6.4,
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
@@ -432,6 +433,7 @@ library cli-lib
     mtl,
     neat-interpolation,
     network,
+    network-uri,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -525,6 +527,7 @@ library cli-lib
     Wasp.Cli.Terminal
     Wasp.Cli.TerminationSignals
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.PortArgument
@@ -561,6 +564,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    network-uri,
     parsec,
     strong-path,
     tasty ^>=1.5.3,
@@ -571,6 +575,7 @@ test-suite waspc-tests
     waspc,
 
   other-modules:
+    AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -645,6 +650,7 @@ test-suite wasp-cli-tests
     cli-lib,
     hspec,
     network,
+    network-uri,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -659,6 +665,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Util.HttpUrlArgumentTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe

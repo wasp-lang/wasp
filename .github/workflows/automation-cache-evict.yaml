@@ -6,9 +6,15 @@ name: "Automation - Evict caches"
 # can remove it. If we remove these caches, we can save space and be more sure
 # that the remaining caches are actually useful, and not at danger of being
 # evicted.
+#
+# We also run it daily to catch the PRs where the `closed` run couldn't delete
+# anything (e.g. fork PRs, which can save caches in their own PR scope but
+# only get a read-only token to delete them).
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"
   pull_request:
     types:
       - closed

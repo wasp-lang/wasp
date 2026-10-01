@@ -1,11 +1,9 @@
----
-title: Jobs
----
-
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
+
+# Jobs
 
 In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth.
 

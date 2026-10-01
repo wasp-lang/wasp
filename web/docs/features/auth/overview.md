@@ -1,12 +1,10 @@
----
-title: Overview
----
-
 import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { CardLink } from "@site/src/components/CardLink";
 import { LinkGrid } from "@site/src/components/LinkGrid";
 import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './_read-more-about-auth-entities.md';
+
+# Overview
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 

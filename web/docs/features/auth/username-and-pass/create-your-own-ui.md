@@ -1,8 +1,6 @@
----
-title: Create your own UI
----
-
 import { Required } from '@site/src/components/Tag'
+
+# Create your own UI
 
 The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 
