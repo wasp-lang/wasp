@@ -269,8 +269,8 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (getApp spec)
+    maybeWebSocket = AS.App.webSocket $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
@@ -298,7 +298,7 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "appName" .= ((getApp spec).name :: String)
         ]
 
 operationsRouteInRootRouter :: String
@@ -337,7 +337,7 @@ genMiddleware spec =
 
     globalMiddlewareConfigFnTmplData :: Aeson.Value
     globalMiddlewareConfigFnTmplData =
-      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+      let maybeGlobalMiddlewareConfigFn = AS.App.server (getApp spec) >>= AS.App.Server.middlewareConfigFn
           globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
           maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
        in object

@@ -119,7 +119,7 @@ genSdkTypeAugmentation spec =
         ]
     authMethods = AS.Auth.methods <$> maybeAuth
     maybeAuth = AS.App.auth app
-    app = snd $ getApp spec
+    app = getApp spec
     cruds = getCruds spec
     operations = getOperations spec
 
@@ -130,10 +130,10 @@ genSdkTypeAugmentation spec =
           "operationName" .= AS.Operation.getName operation
         ]
 
-    mkCrudData :: (String, AS.Crud.Crud) -> Aeson.Types.Value
-    mkCrudData (name, crud) =
+    mkCrudData :: AS.Crud.Crud -> Aeson.Types.Value
+    mkCrudData crud =
       object
-        [ "name" .= name,
+        [ "name" .= crud.name,
           "overrides" .= object (map operationToOverrideImport (AS.Crud.toOperationList crud.operations))
         ]
 

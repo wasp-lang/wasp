@@ -17,19 +17,21 @@ import Data.Data (Data)
 import Data.List (intercalate)
 import Data.Maybe (catMaybes, isJust)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Crud = Crud
-  { entity :: Ref Entity,
+  { name :: String,
+    entity :: Ref Entity,
     operations :: CrudOperations
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
-instance IsDecl Crud
+instance IsDecl Crud where
+  declName crud = crud.name
 
 instance Inspectable Crud where
   inspect crud =

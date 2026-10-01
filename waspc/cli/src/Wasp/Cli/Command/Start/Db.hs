@@ -14,6 +14,7 @@ import System.Environment (lookupEnv)
 import System.Exit (exitFailure)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
@@ -45,14 +46,14 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 
   throwIfCustomDbAlreadyInUse appSpec
 
-  let (appName, _) = ASV.getApp appSpec
+  let app = ASV.getApp appSpec
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL ->
       startPostgresDevDb
         waspProjectDir
-        appName
+        app.name
         (dbImage args)
         (dbVolumeMountPath args)
   where

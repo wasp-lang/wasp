@@ -97,7 +97,7 @@ genQueryTypesFile spec =
     operations
     isAuthEnabledGlobally
   where
-    operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
+    operations = map AS.Operation.QueryOp $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
@@ -107,21 +107,21 @@ genActionTypesFile spec =
     operations
     isAuthEnabledGlobally
   where
-    operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
+    operations = map AS.Operation.ActionOp $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
-getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData isAuthEnabledGlobally operation
+getQueryData :: Bool -> AS.Query.Query -> Aeson.Value
+getQueryData isAuthEnabledGlobally query = getOperationTmplData isAuthEnabledGlobally operation
   where
-    operation = AS.Operation.QueryOp queryName query
+    operation = AS.Operation.QueryOp query
 
-getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
-getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData isAuthEnabledGlobally operation
+getActionData :: Bool -> AS.Action.Action -> Aeson.Value
+getActionData isAuthEnabledGlobally action = getOperationTmplData isAuthEnabledGlobally operation
   where
-    operation = AS.Operation.ActionOp actionName action
+    operation = AS.Operation.ActionOp action
 
 genOperationTypesFile ::
   Path' (Rel SdkTemplatesDir) File' ->

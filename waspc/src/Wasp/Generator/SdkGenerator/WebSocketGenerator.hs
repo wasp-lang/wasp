@@ -11,6 +11,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
@@ -39,7 +40,7 @@ genServerWebSocketIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+          "allEntities" .= map (makeJsonWithEntityData . AS.Entity.getName) (AS.getEntities spec)
         ]
 
 genClientWebSocketProvider :: AppSpec -> Generator FileDraft
@@ -48,7 +49,7 @@ genClientWebSocketProvider spec =
   where
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    maybeWebSocket = AS.App.webSocket $ getApp spec
 
 depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec =

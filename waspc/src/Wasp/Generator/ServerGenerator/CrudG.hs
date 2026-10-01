@@ -41,56 +41,56 @@ genCrud spec =
     cruds = AS.getCruds spec
     areThereAnyCruds = not . null $ cruds
 
-genCrudIndexRoute :: [(String, AS.Crud.Crud)] -> Generator FileDraft
+genCrudIndexRoute :: [AS.Crud.Crud] -> Generator FileDraft
 genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
   where
     tmplPath = [relfile|src/routes/crud/index.ts|]
     tmplData = object ["crudRouters" .= map getCrudRouterData cruds]
 
-    getCrudRouterData :: (String, AS.Crud.Crud) -> Data.Aeson.Value
-    getCrudRouterData (name, _) =
+    getCrudRouterData :: AS.Crud.Crud -> Data.Aeson.Value
+    getCrudRouterData crud =
       object
         [ "importStatement" .= importStatement,
           "importIdentifier" .= importIdentifier,
-          "route" .= Routes.getCrudOperationRouterRoute name
+          "route" .= Routes.getCrudOperationRouterRoute crud.name
         ]
       where
         (importStatement, importIdentifier) =
           JI.getJsImportStmtAndIdentifier
             JI.JsImport
               { JI._kind = JI.ValueImport,
-                JI._name = JI.JsImportField name,
-                JI._path = RelativeImportPath (fromJust . SP.relFileToPosix $ getCrudFilePath name "js"),
+                JI._name = JI.JsImportField crud.name,
+                JI._path = RelativeImportPath (fromJust . SP.relFileToPosix $ getCrudFilePath crud.name "js"),
                 JI._importAlias = Nothing
               }
 
-genCrudRoutes :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudRoutes :: AppSpec -> [AS.Crud.Crud] -> Generator [FileDraft]
 genCrudRoutes spec cruds = return $ map genCrudRoute cruds
   where
-    genCrudRoute :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudRoute (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
+    genCrudRoute :: AS.Crud.Crud -> FileDraft
+    genCrudRoute crud = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
       where
         tmplPath = [relfile|src/routes/crud/_crud.ts|]
-        destPath = C.serverSrcDirInServerRootDir </> [reldir|routes/crud|] </> getCrudFilePath name "ts"
+        destPath = C.serverSrcDirInServerRootDir </> [reldir|routes/crud|] </> getCrudFilePath crud.name "ts"
         tmplData =
           object
-            [ "crud" .= getCrudOperationJson name crud idField,
+            [ "crud" .= getCrudOperationJson crud idField,
               "isAuthEnabled" .= isAuthEnabled spec
             ]
         -- Analyzer ensures that the entity field exists, so fromJust is safe here.
         idField = getIdFieldFromCrudEntity spec crud
 
-genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudOperations :: AppSpec -> [AS.Crud.Crud] -> Generator [FileDraft]
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
-    genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
+    genCrudOperation :: AS.Crud.Crud -> FileDraft
+    genCrudOperation crud = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
       where
         tmplPath = [relfile|src/crud/_operations.ts|]
-        destPath = C.serverSrcDirInServerRootDir </> [reldir|crud|] </> getCrudFilePath name "ts"
+        destPath = C.serverSrcDirInServerRootDir </> [reldir|crud|] </> getCrudFilePath crud.name "ts"
         tmplData =
           object
-            [ "crud" .= getCrudOperationJson name crud idField,
+            [ "crud" .= getCrudOperationJson crud idField,
               "isAuthEnabled" .= isAuthEnabled spec,
               "userEntityUpper" .= maybeUserEntity,
               "overrides" .= object overrides,
@@ -99,7 +99,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
             ]
         idField = getIdFieldFromCrudEntity spec crud
         maybeUserEntity = AS.refName . AS.Auth.userEntity <$> maybeAuth
-        maybeAuth = AS.App.auth $ snd $ getApp spec
+        maybeAuth = AS.App.auth $ getApp spec
 
         queryTsType :: String
         queryTsType = if isAuthEnabled spec then "AuthenticatedQueryDefinition" else "UnauthenticatedQueryDefinition"

@@ -19,6 +19,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -179,8 +180,8 @@ genEntitiesAndServerTypesDirs spec =
               "isAuthEnabled" .= isJust maybeUserEntityName
             ]
         )
-    allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
-    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
+    allEntities = map (makeJsonWithEntityData . AS.Entity.getName) $ AS.getEntities spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec = do
@@ -349,7 +350,7 @@ genServerDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    app = snd $ getApp spec
+    app = getApp spec
 
 -- | Declares only those virtual user modules that are used by the SDK.
 genVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft

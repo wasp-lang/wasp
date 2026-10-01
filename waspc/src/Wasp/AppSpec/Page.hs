@@ -10,17 +10,19 @@ where
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Page = Page
-  { component :: ExtImport,
+  { name :: String,
+    component :: ExtImport,
     authRequired :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
-instance IsDecl Page
+instance IsDecl Page where
+  declName page = page.name
 
 instance Inspectable Page where
   inspect page =

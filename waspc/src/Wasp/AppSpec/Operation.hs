@@ -17,22 +17,22 @@ import qualified Wasp.AppSpec.Query as Query
 
 -- | Common "interface" for queries and actions.
 data Operation
-  = QueryOp String Query
-  | ActionOp String Action
+  = QueryOp Query
+  | ActionOp Action
   deriving (Show)
 
 getName :: Operation -> String
-getName (QueryOp name _) = name
-getName (ActionOp name _) = name
+getName (QueryOp query) = Query.name query
+getName (ActionOp action) = Action.name action
 
 getFn :: Operation -> ExtImport
-getFn (QueryOp _ query) = Query.fn query
-getFn (ActionOp _ action) = Action.fn action
+getFn (QueryOp query) = Query.fn query
+getFn (ActionOp action) = Action.fn action
 
 getEntities :: Operation -> Maybe [Ref Entity]
-getEntities (QueryOp _ query) = Query.entities query
-getEntities (ActionOp _ action) = Action.entities action
+getEntities (QueryOp query) = Query.entities query
+getEntities (ActionOp action) = Action.entities action
 
 getAuth :: Operation -> Maybe Bool
-getAuth (QueryOp _ query) = Query.auth query
-getAuth (ActionOp _ action) = Action.auth action
+getAuth (QueryOp query) = Query.auth query
+getAuth (ActionOp action) = Action.auth action

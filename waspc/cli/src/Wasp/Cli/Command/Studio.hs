@@ -18,6 +18,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.Job as AS.Job
 import Wasp.AppSpec.Operation (Operation (..))
 import qualified Wasp.AppSpec.Operation as Operation
@@ -41,15 +42,15 @@ studio = do
   WaspSpecAvailable <- require
 
   appSpec <- analyze waspDir
-  let (appName, app) = ASV.getApp appSpec
+  let app = ASV.getApp appSpec
 
   let appInfoJson =
         object
           [ "pages"
               .= map
-                ( \(name, page) ->
+                ( \page ->
                     object
-                      [ "name" .= name,
+                      [ "name" .= page.name,
                         "authRequired" .= AS.Page.authRequired page
                         -- "operations" .= [] -- TODO: Add operations that page uses. Not easy.
                       ]
@@ -57,22 +58,22 @@ studio = do
                 (AS.getPages appSpec),
             "routes"
               .= map
-                ( \(name, route) ->
+                ( \route ->
                     object
-                      [ "name" .= name,
+                      [ "name" .= route.name,
                         "path" .= AS.Route.path route,
                         "toPage"
                           .= object
-                            [ "name" .= fst (AS.resolveRef appSpec $ AS.Route.to route)
+                            [ "name" .= (AS.resolveRef appSpec $ AS.Route.to route).name
                             ]
                       ]
                 )
                 (AS.getRoutes appSpec),
             "apis"
               .= map
-                ( \(name, api) ->
+                ( \api ->
                     object
-                      [ "name" .= name,
+                      [ "name" .= api.name,
                         "httpRoute"
                           .= let (method, path) = AS.Api.httpRoute api
                               in object
@@ -86,9 +87,9 @@ studio = do
                 (AS.getApis appSpec),
             "jobs"
               .= map
-                ( \(name, job) ->
+                ( \job ->
                     object
-                      [ "name" .= name,
+                      [ "name" .= job.name,
                         "schedule" .= (AS.Job.cron <$> AS.Job.schedule job),
                         "entities" .= getLinkedEntitiesData appSpec (AS.Job.entities job)
                       ]
@@ -99,8 +100,8 @@ studio = do
                 ( \operation ->
                     object
                       [ "type" .= case operation of
-                          _op@(QueryOp _ _) -> "query" :: String
-                          _op@(ActionOp _ _) -> "action",
+                          _op@(QueryOp _) -> "query" :: String
+                          _op@(ActionOp _) -> "action",
                         "name" .= Operation.getName operation,
                         "entities"
                           .= getLinkedEntitiesData appSpec (Operation.getEntities operation),
@@ -110,15 +111,15 @@ studio = do
                 (AS.getOperations appSpec),
             "entities"
               .= map
-                ( \(name, _entity) ->
+                ( \entity ->
                     object
-                      [ "name" .= name
+                      [ "name" .= AS.Entity.getName entity
                       ]
                 )
                 (AS.getEntities appSpec),
             "app"
               .= object
-                [ "name" .= (appName :: String),
+                [ "name" .= (app.name :: String),
                   "auth" .= getAuthInfo appSpec app,
                   "db" .= getDbInfo appSpec
                 ]
@@ -151,8 +152,8 @@ studio = do
   where
     getLinkedEntitiesData spec entityRefs =
       map
-        ( \(entityName, _entity) ->
-            object ["name" .= entityName]
+        ( \entity ->
+            object ["name" .= AS.Entity.getName entity]
         )
         $ resolveEntities spec entityRefs
 
@@ -170,7 +171,7 @@ studio = do
         object
           [ "userEntity"
               .= object
-                [ "name" .= fst (AS.resolveRef spec $ AS.App.Auth.userEntity auth)
+                [ "name" .= AS.Entity.getName (AS.resolveRef spec $ AS.App.Auth.userEntity auth)
                 ],
             "methods"
               .= let methods = AS.App.Auth.methods auth

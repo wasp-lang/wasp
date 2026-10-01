@@ -63,7 +63,7 @@ genAuth spec = case maybeAuth of
       <++> genOAuthAuth auth
       <++> genEmailAuth spec auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
     genFileCopy = return . C.mkSrcTmplFd
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -134,7 +134,7 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
 depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
     authDeps =
       Npm.Dependency.fromList
         [ ("lucia", "^3.0.1"),
