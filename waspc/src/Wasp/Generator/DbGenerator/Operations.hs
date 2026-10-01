@@ -28,6 +28,7 @@ import Wasp.Generator.DbGenerator.Common
     MigrateArgs,
     RefreshOnLastDbConcurrenceChecksumFile (..),
     ResetArgs,
+    dbMigrationsDirFileDraft,
     dbMigrationsDirInDbRootDir,
     dbRootDirInGeneratedAppDir,
     dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir,
@@ -73,6 +74,13 @@ finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs onLastDb
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile generatedAppDirAbs [Right $ SP.castDir dbMigrationsDirInGeneratedAppDir]
   res <- copyMigrationsBackToSourceIfTheyExist generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs
+  case res of
+    Right () ->
+      whenM (IOUtil.doesDirectoryExist dbMigrationsDirInWaspProjectDirAbs) $
+        Generator.WriteFileDrafts.recordFileDraftChecksum
+          generatedAppDirAbs
+          (dbMigrationsDirFileDraft dbMigrationsDirInWaspProjectDirAbs)
+    Left _ -> return ()
   applyOnLastDbConcurrenceChecksumFileRefreshAction
   return res
   where

@@ -1,12 +1,14 @@
 module Wasp.Generator
-  ( writeWebAppCode,
+  ( generateWebAppCode,
+    writeWebAppCode,
+    isGeneratedAppUpToDate,
     Wasp.Generator.Start.start,
     Wasp.Generator.Test.testWebApp,
     GeneratedAppDir,
   )
 where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, when)
 import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
@@ -14,7 +16,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.DbGenerator (genDb)
+import Wasp.Generator.DbGenerator (genDb, isPrismaClientUpToDate)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad
@@ -24,6 +26,7 @@ import Wasp.Generator.Monad
     logGeneratorWarning,
     runGenerator,
   )
+import Wasp.Generator.NpmInstall (isNpmInstallNeeded)
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
@@ -33,32 +36,51 @@ import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
-import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
+import Wasp.Generator.WriteFileDrafts (areFileDraftsSynchronizedWithDisk, synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
 
--- | Generates web app code from given Wasp and writes it to given destination directory.
+-- | Validates the app spec and generates the web app code in memory.
+generateWebAppCode :: AppSpec -> ([GeneratorWarning], Either [GeneratorError] [FileDraft])
+generateWebAppCode spec =
+  case validateExternalConfigsWithAppSpec spec of
+    validationErrors@(_ : _) -> ([], Left validationErrors)
+    [] ->
+      case runGenerator $ genApp spec of
+        (generatorWarnings, Left generatorErrors) -> (generatorWarnings, Left $ toList generatorErrors)
+        (generatorWarnings, Right fileDrafts) -> (generatorWarnings, Right fileDrafts)
+
+-- | Writes generated web app code to the destination directory and sets it up.
 --   If dstDir does not exist yet, it will be created.
---   If there are any errors returned, that means that generator failed but new code was possibly still written.
---   If no errors were returned, this means generator was successful and generated a new version of the project
---     (regardless of the warnings returned).
+--   If there are any errors returned, setup failed but new code was possibly still written.
+--   If no errors were returned, the generated project was successfully set up.
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
-writeWebAppCode spec dstDir sendMessage = do
-  case validateExternalConfigsWithAppSpec spec of
-    validationErrors@(_ : _) -> return ([], validationErrors)
-    [] -> do
-      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
+writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode spec dstDir fileDrafts sendMessage = do
+  synchronizeFileDraftsWithDisk dstDir fileDrafts
+  WaspInfo.persist dstDir (AS.buildType spec) False
+  (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
+  when (null setupGeneratorErrors) $ WaspInfo.persist dstDir (AS.buildType spec) True
+  return (setupGeneratorWarnings, setupGeneratorErrors)
 
-      case generatorResult of
-        Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
-        Right fileDrafts -> do
-          synchronizeFileDraftsWithDisk dstDir fileDrafts
-          WaspInfo.persist dstDir $ AS.buildType spec
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
-          return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
+-- | Returns 'True' if writing and setting up the generated app would change
+-- nothing on disk.
+isGeneratedAppUpToDate :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO Bool
+isGeneratedAppUpToDate spec dstDir fileDrafts = do
+  buildIsComplete <- AS.buildType spec `WaspInfo.isCompleteBuildAt` dstDir
+  if not buildIsComplete
+    then return False
+    else do
+      fileDraftsAreSynchronized <- areFileDraftsSynchronizedWithDisk dstDir fileDrafts
+      if not fileDraftsAreSynchronized
+        then return False
+        else do
+          npmInstallIsNeeded <- isNpmInstallNeeded spec dstDir
+          if npmInstallIsNeeded
+            then return False
+            else isPrismaClientUpToDate spec dstDir
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec = do

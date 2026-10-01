@@ -1,5 +1,6 @@
 module Wasp.Generator.NpmInstall
   ( installNpmDependenciesWithInstallRecord,
+    isNpmInstallNeeded,
     installProjectNpmDependencies,
   )
 where
@@ -38,15 +39,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
   let allNpmDeps = getAllNpmDeps spec
 
-  shouldInstallNpmDeps <-
-    liftIO $
-      or
-        <$> sequence
-          [ -- Users might by accident delete node_modules dir, so we check if it exists
-            -- before assuming that we don't need to install npm deps.
-            not <$> doesNodeModulesDirExist waspProjectDirPath,
-            areThereNpmDepsToInstall allNpmDeps dstDir
-          ]
+  shouldInstallNpmDeps <- liftIO $ isNpmInstallNeeded spec dstDir
 
   when shouldInstallNpmDeps $ do
     -- In case anything fails during installation that would leave node modules in
@@ -62,6 +55,16 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
       either (\e -> throwError $ GenericGeneratorError $ "npm install failed: " ++ e) pure
 
     waspProjectDirPath = waspProjectDir spec
+
+isNpmInstallNeeded :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
+isNpmInstallNeeded spec dstDir =
+  or
+    <$> sequence
+      [ -- Users might by accident delete node_modules dir, so we check if it exists
+        -- before assuming that we don't need to install npm deps.
+        not <$> doesNodeModulesDirExist (waspProjectDir spec),
+        areThereNpmDepsToInstall (getAllNpmDeps spec) dstDir
+      ]
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::

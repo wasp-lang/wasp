@@ -5,6 +5,7 @@ module Wasp.Cli.Command.Compile
     compileCommand,
     compile,
     compileWithOptions,
+    compileIfNeeded,
     compileIOWithOptions,
     defaultCompileOptions,
     printCompilationResult,
@@ -18,7 +19,6 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Either (fromLeft)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -66,7 +66,52 @@ compile = do
 -- along with the AppSpec it compiled.
 compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
+  (warnings, compilation) <- prepareCompilationOrThrow options
+  performCompilationAndReport options warnings compilation
+  return (warnings, compilation.appSpec)
+
+-- | Compiles the project only if the generated app is out of date. Preparation
+-- runs unlocked, while writing and setup hold the project lock. For this
+-- process to overwrite a newer generation, another process would have to
+-- finish a full compile after our preparation and before our non-blocking lock
+-- attempt. If that process is still writing, the missing checksum file makes
+-- our freshness check report stale and the lock attempt fails normally.
+compileIfNeeded :: CompileOptions -> Command ()
+compileIfNeeded options = do
   ValidNodeAndNpm <- require
+  InWaspProject waspProjectDir <- require
+  WaspSpecAvailable <- require
+
+  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
+
+  (warnings, compilation) <- prepareCompilationOrThrow options
+  isUpToDate <- liftIO $ Wasp.Project.isGeneratedAppUpToDate compilation outDir
+  if isUpToDate
+    then do
+      liftIO $ printWarningsIfAny warnings
+      cliSendMessageC $ Msg.Success "Your wasp project is already compiled and up to date."
+    else do
+      cliSendMessageC $ Msg.Info "The generated app is out of date."
+      withProjectLock $ performCompilationAndReport options warnings compilation
+
+-- | Runs the in-memory phase of compilation, reporting and throwing on errors.
+prepareCompilationOrThrow :: CompileOptions -> Command ([CompileWarning], Wasp.Project.Compilation)
+prepareCompilationOrThrow options = do
+  ValidNodeAndNpm <- require
+  InWaspProject waspProjectDir <- require
+  (warnings, compilationOrErrors) <- liftIO $ Wasp.Project.prepareCompilation waspProjectDir options
+  case compilationOrErrors of
+    Right compilation -> return (warnings, compilation)
+    Left errors -> do
+      liftIO $ printCompilationResult (warnings, errors)
+      throwError $
+        CommandError "Compilation of wasp project failed" $
+          show (length errors) ++ " errors found"
+
+-- | Writes and sets up a prepared compilation. The caller must hold the project
+-- lock.
+performCompilationAndReport :: CompileOptions -> [CompileWarning] -> Wasp.Project.Compilation -> Command ()
+performCompilationAndReport options prepareWarnings compilation = do
   InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -86,15 +131,14 @@ compileWithOptions options = do
         "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (warnings, appSpecOrErrors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  (performWarnings, errors) <- liftIO $ Wasp.Project.performCompilation compilation outDir options
+  let warnings = prepareWarnings <> performWarnings
 
-  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
-  case appSpecOrErrors of
-    Right appSpec -> return (warnings, appSpec)
-    Left errors ->
-      throwError $
-        CommandError "Compilation of wasp project failed" $
-          show (length errors) ++ " errors found"
+  liftIO $ printCompilationResult (warnings, errors)
+  unless (null errors) $
+    throwError $
+      CommandError "Compilation of wasp project failed" $
+        show (length errors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,

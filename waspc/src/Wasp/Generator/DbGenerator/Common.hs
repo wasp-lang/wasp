@@ -1,5 +1,6 @@
 module Wasp.Generator.DbGenerator.Common
-  ( dbMigrationsDirInDbRootDir,
+  ( dbMigrationsDirFileDraft,
+    dbMigrationsDirInDbRootDir,
     dbSchemaFileFromGeneratedAppComponentDir,
     dbRootDirInGeneratedAppDir,
     dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir,
@@ -20,8 +21,10 @@ module Wasp.Generator.DbGenerator.Common
   )
 where
 
-import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import Wasp.Generator.Common (DbRootDir, GeneratedAppComponentDir, GeneratedAppDir)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft)
+import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
@@ -73,6 +76,10 @@ dbSchemaFileInNodeModulesDir = waspProjectDirFromGeneratedAppDir </> [relfile|no
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]
+
+dbMigrationsDirFileDraft :: Path' Abs (Dir DbMigrationsDir) -> FileDraft
+dbMigrationsDirFileDraft =
+  createCopyDirFileDraft RemoveExistingDstDir (dbRootDirInGeneratedAppDir </> dbMigrationsDirInDbRootDir)
 
 dbSchemaChecksumOnLastDbConcurrenceFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumOnLastDbConcurrenceFile)
 dbSchemaChecksumOnLastDbConcurrenceFileInDbRootDir = [relfile|schema.prisma.wasp-last-db-concurrence-checksum|]

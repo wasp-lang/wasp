@@ -3,6 +3,7 @@
 module Wasp.Generator.WaspInfo
   ( persist,
     isCompatibleWithExistingBuildAt,
+    isCompleteBuildAt,
     WaspInfo (..),
     safeRead,
     ReadResult,
@@ -25,7 +26,8 @@ import Wasp.Util.IO (doesFileExist)
 data WaspInfo = WaspInfo
   { waspVersion :: String,
     generatedAt :: UTCTime,
-    buildType :: BuildType
+    buildType :: BuildType,
+    isSetupComplete :: Bool
   }
   deriving (Eq, Show, Generic)
 
@@ -34,12 +36,13 @@ instance FromJSON WaspInfo
 instance ToJSON WaspInfo
 
 instance Inspectable WaspInfo where
-  inspect WaspInfo {waspVersion, generatedAt, buildType} =
+  inspect WaspInfo {waspVersion, generatedAt, buildType, isSetupComplete} =
     [ InspectionEntry
         "Build"
         [ ("Wasp version", waspVersion),
           ("Generated at", show generatedAt),
-          ("Build type", show buildType)
+          ("Build type", show buildType),
+          ("Setup complete", show isSetupComplete)
         ]
     ]
 
@@ -48,18 +51,30 @@ data WaspInfoFile
 waspInfoInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File WaspInfoFile)
 waspInfoInGeneratedAppDir = [relfile|.waspinfo|]
 
-persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> IO ()
-persist generatedAppDir currentBuildType = do
+persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> Bool -> IO ()
+persist generatedAppDir currentBuildType setupComplete = do
   encodeFile (toFilePath waspInfoFile) . generateWaspInfo =<< getCurrentTime
   where
     generateWaspInfo currentTime =
       WaspInfo
         { waspVersion = currentVersion,
           generatedAt = currentTime,
-          buildType = currentBuildType
+          buildType = currentBuildType,
+          isSetupComplete = setupComplete
         }
 
     waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir
+    currentVersion = showVersion Paths_waspc.version
+
+isCompleteBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
+currentBuildType `isCompleteBuildAt` outDir =
+  either (const False) isComplete <$> safeRead outDir
+  where
+    isComplete waspInfo =
+      isSetupComplete waspInfo
+        && waspVersion waspInfo == currentVersion
+        && buildType waspInfo == currentBuildType
+
     currentVersion = showVersion Paths_waspc.version
 
 isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool

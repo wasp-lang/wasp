@@ -27,6 +27,7 @@
 
 ### 🐞 Bug fixes
 
+- `wasp db` commands now compile and take the project lock only when the generated app is out of date, so they work next to a running `wasp start` and are faster otherwise.
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 
 ### 🔧 Small improvements

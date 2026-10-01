@@ -1,12 +1,16 @@
 module Tests.WaspProjectLockTest (waspProjectLockTest) where
 
+import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext,
+    appendToPrismaFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliClean,
+    waspCliCompile,
     waspCliInstall,
     (~&&),
   )
@@ -38,6 +42,25 @@ waspProjectLockTest =
                   return releaseLockAndAwaitWaspInstall,
                   -- The lock died with its holder, so the next command just works.
                   waspCliClean
+                ]
+            ]
+        ),
+      TestCase
+        "db-commands-only-lock-when-the-generated-app-is-stale"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile taskPrismaModel,
+                  waspCliCompile,
+                  return addBlockingNpmPreinstallHook,
+                  startWaspInstallInBackground,
+                  return waitForLockToBeHeld,
+                  assertDbMigrateSucceedsWithoutCompiling "first",
+                  assertDbMigrateSucceedsWithoutCompiling "second",
+                  appendToPrismaFile projectPrismaModel,
+                  assertDbMigrateFailsMentioningLockHolder,
+                  return releaseLockAndAwaitWaspInstall,
+                  assertDbMigrateSucceedsAfterCompiling "third"
                 ]
             ]
         ),
@@ -92,6 +115,25 @@ waspProjectLockTest =
         ("! " ++ cleanCommand ++ " > .wasp-e2e-clean.log 2>&1")
           ~&& "grep -qF \"Another Wasp command (PID $(cat .wasp/.projectlock)) is already running for this project.\" .wasp-e2e-clean.log"
 
+    assertDbMigrateSucceedsWithoutCompiling :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+    assertDbMigrateSucceedsWithoutCompiling migrationName =
+      return $
+        ("$WASP_CLI_CMD db migrate-dev --name " ++ migrationName ++ " > .wasp-e2e-migrate-" ++ migrationName ++ ".log 2>&1")
+          ~&& ("grep -qF \"Your wasp project is already compiled and up to date.\" .wasp-e2e-migrate-" ++ migrationName ++ ".log")
+          ~&& ("! grep -qF \"Compiling wasp project\" .wasp-e2e-migrate-" ++ migrationName ++ ".log")
+
+    assertDbMigrateFailsMentioningLockHolder :: ShellCommandBuilder WaspProjectContext ShellCommand
+    assertDbMigrateFailsMentioningLockHolder =
+      return $
+        "! $WASP_CLI_CMD db migrate-dev --name stale > .wasp-e2e-migrate-stale.log 2>&1"
+          ~&& "grep -qF \"Another Wasp command (PID $(cat .wasp/.projectlock)) is already running for this project.\" .wasp-e2e-migrate-stale.log"
+
+    assertDbMigrateSucceedsAfterCompiling :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+    assertDbMigrateSucceedsAfterCompiling migrationName =
+      return $
+        ("$WASP_CLI_CMD db migrate-dev --name " ++ migrationName ++ " > .wasp-e2e-migrate-" ++ migrationName ++ ".log 2>&1")
+          ~&& ("grep -qF \"Compiling wasp project\" .wasp-e2e-migrate-" ++ migrationName ++ ".log")
+
     releaseLockAndAwaitWaspInstall :: ShellCommand
     releaseLockAndAwaitWaspInstall =
       "touch " ++ releaseLockSignalFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
@@ -103,3 +145,19 @@ waspProjectLockTest =
     -- lets `wasp install` (and with it the lock) finish.
     releaseLockSignalFile :: FilePath
     releaseLockSignalFile = ".wasp-e2e-release-lock"
+
+    taskPrismaModel :: T.Text
+    taskPrismaModel =
+      [trimming|
+        model Task {
+          id Int @id @default(autoincrement())
+        }
+      |]
+
+    projectPrismaModel :: T.Text
+    projectPrismaModel =
+      [trimming|
+        model Project {
+          id Int @id @default(autoincrement())
+        }
+      |]
