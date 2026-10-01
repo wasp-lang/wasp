@@ -1,6 +1,4 @@
----
-title: CLI reference
----
+# CLI reference
 
 This guide provides an overview of the Wasp CLI commands, arguments, and options.
 

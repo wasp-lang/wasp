@@ -1,10 +1,8 @@
----
-title: API routes
----
-
 import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
+
+# API routes
 
 In Wasp, the default client-server interaction mechanism is through [Operations](./data/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`. Best of all, they should look and feel very familiar.
 

@@ -1,9 +1,10 @@
 ---
-title: What's Wasp?
 slug: /
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+
+# What's Wasp?
 
 :::note
 If you are looking for the installation instructions, check out the [Quick Start](./quick-start.md) section.

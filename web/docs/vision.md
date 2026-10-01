@@ -1,6 +1,4 @@
----
-title: Vision
----
+# Vision
 
 With Wasp, we want to make developing web apps easy and enjoyable, for novices and experts in web development alike.
 

@@ -1,6 +1,4 @@
----
-title: Telemetry
----
+# Telemetry
 
 ## Overview
 

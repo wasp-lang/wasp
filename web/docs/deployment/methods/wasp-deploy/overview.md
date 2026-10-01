@@ -1,8 +1,6 @@
----
-title: Overview
----
-
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
+
+# Overview
 
 Wasp CLI can deploy your full-stack application with a single command.
 The command automates the manual deployment process and is the recommended way of deploying Wasp apps.

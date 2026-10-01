@@ -1,8 +1,6 @@
----
-title: Testing locally
----
-
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
+
+# Testing locally
 
 `wasp build start` lets you test your production build locally before deployment, ensuring everything works correctly before going live.
 

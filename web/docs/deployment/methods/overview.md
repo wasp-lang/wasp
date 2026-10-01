@@ -1,8 +1,6 @@
----
-title: Overview
----
-
 import { CardLink } from '@site/src/components/CardLink';
+
+# Overview
 
 Wasp apps are full-stack apps that consist of:
 
