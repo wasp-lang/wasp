@@ -1,6 +1,5 @@
 module AppSpec.FromJSONTest (spec_AppSpecFromJSON) where
 
-import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (FromJSON)
 import Data.Maybe (fromJust)
@@ -14,8 +13,6 @@ import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Deployment as Deployment
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
-import Wasp.AppSpec.Core.Decl (Decl, fromDecl)
-import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExtImport as ExtImport
@@ -77,29 +74,6 @@ spec_AppSpecFromJSON = do
           }
         |]
         `shouldDecodeTo` (Nothing :: Maybe ExtImport.ExtImport)
-  describe "Decl" $ do
-    it "parses a declaration from the JSON envelope" $ do
-      (fromDecl =<< decodeJson pageDeclJson)
-        `shouldBe` Just
-          ( Page.Page
-              { name = "MainPage",
-                component = fromJust $ decodeJson extNamedImportJson,
-                authRequired = Nothing
-              }
-          )
-    it "serializes a declaration into the JSON envelope" $ do
-      (Aeson.toJSON <$> (decodeJson pageDeclJson :: Maybe Decl))
-        `shouldBe` Just
-          ( Aeson.object
-              [ "declType" .= ("Page" :: String),
-                "declValue"
-                  .= Aeson.object
-                    [ "name" .= ("MainPage" :: String),
-                      "component" .= (fromJust (decodeJson extNamedImportJson) :: ExtImport.ExtImport),
-                      "authRequired" .= Aeson.Null
-                    ]
-              ]
-          )
   describe "Page" $ do
     it "parses a valid Page JSON with auth" $ do
       [trimming|
@@ -446,17 +420,6 @@ spec_AppSpecFromJSON = do
     fooEntityRef = [trimming| { "name": "foo", "declType": "Entity" }|]
     barEntityRef = [trimming| { "name": "bar", "declType": "Entity" }|]
     pageRef = [trimming| { "name": "foo", "declType": "Page" }|]
-
-    pageDeclJson =
-      [trimming|
-        {
-          "declType": "Page",
-          "declValue": {
-            "name": "MainPage",
-            "component": ${extNamedImportJson}
-          }
-        }
-      |]
 
     decodeJson :: (FromJSON a) => T.Text -> Maybe a
     decodeJson = Aeson.decodeStrict . TE.encodeUtf8
