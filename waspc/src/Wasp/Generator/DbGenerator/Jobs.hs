@@ -13,6 +13,7 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
+import qualified Data.Conduit.Process as CP
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
@@ -23,7 +24,7 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnvAndStdin)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job
@@ -116,7 +117,8 @@ reset generatedAppDir resetArgs =
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
-  runPrismaCommandAsJobWithExtraEnv
+  runPrismaCommandAsJobWithExtraEnvAndStdin
+    CP.Inherited
     serverDir
     ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
     generatedAppDir
@@ -128,12 +130,18 @@ seed serverRunConfig generatedAppDir seedName =
 -- `prisma db execute --stdin --schema <path to db schema>`.
 --  Runs the command in the generated server code directory so it has access to the database URL.
 --
--- Since nothing is passed to stdin, `prisma db execute` just runs an empty
+-- We give it an explicit empty stdin, so `prisma db execute` just runs an empty
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job
 dbExecuteTest generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+  runPrismaCommandAsJobWithExtraEnvAndStdin
+    CP.ClosedStream
+    serverDir
+    []
+    generatedAppDir
+    ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
+    serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
@@ -162,7 +170,7 @@ generatePrismaClient generatedAppDir =
 
 runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job
 runPrismaCommandAsJobFromWaspServerDir generatedAppDir cmdArgs =
-  runPrismaCommandAsJobWithExtraEnv serverDir [] generatedAppDir cmdArgs
+  runPrismaCommandAsJobWithExtraEnvAndStdin CP.Inherited serverDir [] generatedAppDir cmdArgs
   where
     -- We must run our Prisma commands from the server dir for Prisma
     -- to pick up our .env file there like before.  In the future, we might want
@@ -170,14 +178,16 @@ runPrismaCommandAsJobFromWaspServerDir generatedAppDir cmdArgs =
     -- this. Text copied from: https://github.com/wasp-lang/wasp/pull/1662
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
-runPrismaCommandAsJobWithExtraEnv ::
+runPrismaCommandAsJobWithExtraEnvAndStdin ::
+  (CP.InputSource stdin) =>
+  stdin ->
   Path' Abs (Dir a) ->
   [(String, String)] ->
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+runPrismaCommandAsJobWithExtraEnvAndStdin stdin fromDir extraEnvVars generatedAppDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

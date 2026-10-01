@@ -40,12 +40,12 @@ concurrency:
 
 jobs:
   deploy-test: # zizmor: ignore[excessive-permissions]
-    needs: waspc-build
+    needs: waspc-build-linux
     uses: ./.github/workflows/ci-deploy-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
   examples-test: # zizmor: ignore[excessive-permissions]
-    needs: waspc-build
+    needs: waspc-build-linux
     uses: ./.github/workflows/ci-examples-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
@@ -54,7 +54,7 @@ jobs:
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
   starters-test: # zizmor: ignore[excessive-permissions]
-    needs: waspc-build
+    needs: waspc-build-linux
     uses: ./.github/workflows/ci-starters-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
@@ -66,16 +66,38 @@ jobs:
     uses: ./.github/workflows/ci-packages-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  waspc-build: # zizmor: ignore[excessive-permissions]
+  # We build Linux and macOS separately so the jobs that only need the Linux
+  # binary don't have to wait for the slower macOS builds.
+  waspc-build-linux: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-waspc-build.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
+    with:
+      exclude-os: macos
+
+  waspc-build-macos: # zizmor: ignore[excessive-permissions]
+    uses: ./.github/workflows/ci-waspc-build.yaml
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    with:
+      exclude-os: linux
+
+  # Merges the outputs of all the build workflows, for the jobs that need every
+  # binary.
+  waspc-build-all:
+    needs: [waspc-build-linux, waspc-build-macos]
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      waspc_version: ${{ needs.waspc-build-linux.outputs.waspc_version }}
+      data_files_list: ${{ needs.waspc-build-linux.outputs.data_files_list }}
+    steps:
+      - run: exit 0
 
   npm-package-build: # zizmor: ignore[excessive-permissions]
-    needs: waspc-build
+    needs: waspc-build-all
     uses: ./.github/workflows/ci-npm-package-build.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
-      build-outputs-json: ${{ toJson(needs.waspc-build.outputs) }}
+      waspc-version: ${{ needs.waspc-build-all.outputs.waspc_version }}
       override-npm-package-version: ${{ inputs.override-npm-package-version }}
 
   npm-package-publish: # zizmor: ignore[excessive-permissions]
@@ -83,11 +105,11 @@ jobs:
     uses: ./.github/workflows/ci-npm-package-publish.yaml
 
   npm-package-test: # zizmor: ignore[excessive-permissions]
-    needs: [npm-package-publish, waspc-build]
+    needs: [npm-package-publish, waspc-build-all]
     uses: ./.github/workflows/ci-npm-package-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
-      data-files-list: ${{ needs.waspc-build.outputs.data_files_list }}
+      data-files-list: ${{ needs.waspc-build-all.outputs.data_files_list }}
 
   waspc-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-waspc-test.yaml
