@@ -15,7 +15,7 @@ import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   {= crud.entityUpper =},
 } from "wasp/entities";
-import type { FromRegisterPath } from '../../types/register'
+import type { FromRegisterPath } from '@wasp.sh/lib-sdk-core'
 
 type _WaspEntityTagged = _{= crud.entityUpper =}
 type _WaspEntity = {= crud.entityUpper =}

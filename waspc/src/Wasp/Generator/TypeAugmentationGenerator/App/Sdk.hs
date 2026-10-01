@@ -38,8 +38,8 @@ is not an option, because it forces the user's project to compile
 with the SDK's TypeScript config.
 (Old issue about the problem: https://github.com/wasp-lang/wasp/issues/2247)
 
-Instead, the SDK defines an extension point (empty @Register@ interface,
-declared in @sdk/wasp/types/register.ts@) that the user project extends.
+Instead, the @@wasp.sh/lib-sdk-core@ package defines an extension point
+(empty @Register@ interface) that the user project extends.
 The SDK never imports from the user project, it only references the
 extension point, which resolves to the user's types when TypeScript
 compiles the user project.

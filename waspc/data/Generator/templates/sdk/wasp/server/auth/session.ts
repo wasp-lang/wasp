@@ -6,7 +6,7 @@ import type { AuthUserData } from '../../auth/user.js';
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
-import { createInvalidCredentialsError } from "./utils.js";
+import { createInvalidCredentialsError } from "@wasp.sh/lib-sdk-core/node";
 
 import { prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";

@@ -41,7 +41,6 @@ genServerAuth spec =
           genUtils auth
         ]
         <++> genAuthEmail auth
-        <++> genAuthUsername auth
         <++> genOAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -150,12 +149,6 @@ genEmailUtils auth =
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
-    else return []
 
 serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]

@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -15,7 +15,6 @@ import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as WS
@@ -29,7 +28,6 @@ genClientApp spec =
       genWaspAppComponent spec
     ]
     <++> genLayout spec
-    <++> genAppComponents
     <++> genRouter spec
     <++> genAuthPages spec
 
@@ -46,17 +44,6 @@ genWaspAppComponent spec =
     C.mkTmplFdWithData
       [relfile|client/app/components/WaspApp.tsx|]
       (object ["areWebSocketsUsed" .= WS.areWebSocketsUsed spec])
-
-genAppComponents :: Generator [FileDraft]
-genAppComponents =
-  return $
-    map
-      genFileCopy
-      [ [relfile|client/app/components/Loader.tsx|],
-        [relfile|client/app/components/FullPageWrapper.tsx|],
-        [relfile|client/app/components/DefaultRootErrorBoundary.tsx|],
-        [relfile|client/app/components/Message.tsx|]
-      ]
 
 genRouter :: AppSpec -> Generator [FileDraft]
 genRouter spec =
@@ -115,6 +102,3 @@ genLayout spec =
                 "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
               ]
           )
-
-genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
-genFileCopy = C.mkTmplFd

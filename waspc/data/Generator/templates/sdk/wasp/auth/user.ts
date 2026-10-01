@@ -8,9 +8,9 @@ import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
-} from './providerData.js'
-import type { Expand } from '../universal/types.js'
-import { isNotNull } from '../universal/predicates.js'
+  isNotNull,
+  type Expand,
+} from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {

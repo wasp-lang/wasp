@@ -2,13 +2,8 @@
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import { config } from '../../../../client/index.js'
-import { clsx } from '../util'
-
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
-{=# enabledProviders.isEmailAuthEnabled =}
-import { emailFieldRules, emailInputProps } from '../emailField'
-{=/ enabledProviders.isEmailAuthEnabled =}
 import {
+  clsx,
   Form,
   FormInput,
   FormItemGroup,
@@ -16,16 +11,19 @@ import {
   FormError,
   FormTextarea,
   SubmitButton,
-} from '../Form'
-import type {
-  AdditionalSignupFields,
-  AdditionalSignupField,
-  AdditionalSignupFieldRenderFn,
-  FormState,
-} from '../../types'
+  type AdditionalSignupFields,
+  type AdditionalSignupField,
+  type AdditionalSignupFieldRenderFn,
+  type FormState,
+} from '@wasp.sh/lib-sdk-core/browser'
+
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+{=# enabledProviders.isEmailAuthEnabled =}
+import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
+{=/ enabledProviders.isEmailAuthEnabled =}
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '../social/SocialIcons'
-import { SocialButton } from '../social/SocialButton'
+import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
+import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
@@ -65,9 +63,7 @@ const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 // know the exact shape of the form values. We are assuming that the form values
 // will be a flat object with string values.
 =}
-// PRIVATE API
 import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
-export { type LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
 
 
 // PRIVATE API
