@@ -9,6 +9,8 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
+  # All Playwright configs only use Chromium, and CI runs headless.
+  WASP_PLAYWRIGHT_INSTALL_FLAGS: "--with-deps --only-shell chromium"
   # - We use run_id because it's shorter than commit SHA since
   # the max length for project name in Railway is 25 characters.
   # - We append run_attempt to avoid name collisions on job retries,
@@ -177,7 +179,7 @@ jobs:
             echo "Timed out waiting for $url"
             return 1
           }
-          wait_for_url "https://${SERVER_HOSTNAME}"
+          wait_for_url "https://${SERVER_HOSTNAME}/up"
           wait_for_url "https://${CLIENT_HOSTNAME}"
 
       - name: Run E2E tests against deployed app

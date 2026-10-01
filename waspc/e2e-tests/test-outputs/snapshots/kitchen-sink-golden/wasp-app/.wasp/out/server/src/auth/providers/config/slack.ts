@@ -3,9 +3,9 @@ import { slack } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { slackUserSignupFields } from '../../../../../../../src/features/auth/providers/slack'
+import { slackUserSignupFields } from "../../../../../../../src/features/auth/providers/slack"
 const _waspUserSignupFields = slackUserSignupFields
-import { slackConfig } from '../../../../../../../src/features/auth/providers/slack'
+import { slackConfig } from "../../../../../../../src/features/auth/providers/slack"
 const _waspUserDefinedConfigFn = slackConfig
 
 const _waspConfig: ProviderConfig = {
@@ -13,7 +13,7 @@ const _waspConfig: ProviderConfig = {
     displayName: slack.displayName,
     createRouter(provider) {
         const config = mergeDefaultAndUserConfig({
-            scopes: ['openid'],
+            scopes: ["openid"],
         }, _waspUserDefinedConfigFn);
 
         async function getSlackProfile(accessToken: string): Promise<{

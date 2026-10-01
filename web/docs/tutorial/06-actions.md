@@ -1,11 +1,9 @@
----
-title: 6. Modifying Data
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import Collapse from '@site/src/components/Collapse';
 import { TutorialAction } from './TutorialAction';
+
+# 6. Modifying data
 
 In the previous section, you learned about using Queries to fetch data.
 Let's now learn about Actions so you can add and update tasks in the database.

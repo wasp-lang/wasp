@@ -11,7 +11,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
+Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../features/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
 
 :::tip Upgrading from Wasp 0.23 to 0.24?
 The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](/docs/0.24/migration-guide#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](/docs/0.24/migration-guide) for the remaining shared steps.
@@ -53,13 +53,13 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
 </Tabs>
 
-Import objects still work through the `ref(...)` helper, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
+Import objects still work through the `ref(...)` helper, so you can migrate gradually. See the [Wasp Spec documentation](../../features/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
 
 ### Multiple files
 
 The TS Config required your entire configuration to live in a single `main.wasp.ts`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import specifications between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `cards.wasp.ts` next to the feature it configures).
 
-See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
+See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-into-multiple-files) for details.
 
 ## Changes
 
@@ -399,4 +399,4 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
 :::
 
-See the full [Wasp Spec reference](../../general/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
+See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

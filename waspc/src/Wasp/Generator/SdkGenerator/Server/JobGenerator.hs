@@ -33,6 +33,7 @@ import Wasp.Generator.SdkGenerator.Common
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genJobsApi :: AppSpec -> Generator [FileDraft]
 genJobsApi spec =
@@ -86,7 +87,7 @@ genJob (jobName, job) =
         ( \schedule ->
             object
               [ "isDefined" .= True,
-                "cron" .= J.cron schedule,
+                "cron" .= makeJsStringLiteral (J.cron schedule),
                 "args" .= getJobScheduleArgs (J.args schedule),
                 "options" .= getJobSchduleOptions (J.scheduleExecutorOptionsJson job)
               ]

@@ -17,6 +17,8 @@ const SectionContainer = ({
       "mx-auto lg:container",
       "px-6 md:px-12 lg:px-16",
       "py-10 md:py-12 lg:py-16",
+      // Offsets the sticky nav when jumping to a section via its #id anchor.
+      "scroll-mt-24",
       className,
     )}
     id={id}

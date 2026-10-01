@@ -5,6 +5,8 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
+  # All Playwright configs only use Chromium, and CI runs headless.
+  WASP_PLAYWRIGHT_INSTALL_FLAGS: "--with-deps --only-shell chromium"
 
 jobs:
   test-example-apps:

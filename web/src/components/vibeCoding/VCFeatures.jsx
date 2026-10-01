@@ -46,35 +46,35 @@ const features = [
     title: "Full-stack Auth",
     description:
       "Google, Slack, email login, etc. Just say which ones you want. Wasp sets it all up and even handles the UI for you.",
-    url: "/docs/auth/overview",
+    url: "/docs/features/auth/overview",
   },
   {
     Icon: Grid,
     title: "Automatic CRUD",
     description:
       "Describe your data and Wasp creates all the basic create, read, update, delete operations automatically.",
-    url: "/docs/data-model/crud",
+    url: "/docs/features/data/crud",
   },
   {
     Icon: Link2,
     title: "Typesafe Operations",
     description:
       "Your frontend and backend safely talk to each other automatically. No need to wire API endpoints and full-stack type safety by hand.",
-    url: "/docs/data-model/operations/overview",
+    url: "/docs/features/data/operations/overview",
   },
   {
     Icon: FileText,
     title: "Wasp Spec",
     description:
       "Your app config is written in TypeScript, a safe choice your AI already speaks fluently.",
-    url: "/docs/general/spec",
+    url: "/docs/features/spec",
   },
   {
     Icon: Settings,
     title: "Background Jobs",
     description:
       "Need something to run on a schedule? Just describe when and what. Wasp handles the rest without relying on expensive third-party services.",
-    url: "/docs/advanced/jobs",
+    url: "/docs/features/jobs",
   },
   {
     Icon: BookOpen,
@@ -88,7 +88,7 @@ const features = [
     title: "One-command Deploy",
     description:
       "When you're ready to go live, one command gets your app deployed to your favorite platform. No DevOps degree needed.",
-    url: "/docs/deployment/intro",
+    url: "/docs/deployment/overview",
   },
   {
     Icon: Eye,

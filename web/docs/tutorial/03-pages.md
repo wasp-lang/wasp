@@ -1,12 +1,10 @@
----
-title: 3. Pages & Routes
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import WaspStartNote from '../\_WaspStartNote.md'
-import TypescriptServerNote from '../\_TypescriptServerNote.md'
+import WaspStartNote from '../_WaspStartNote.md'
+import TypescriptServerNote from '../_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
+
+# 3. Pages and routes
 
 In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
@@ -71,7 +69,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
+To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../features/pages-and-routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -100,7 +98,7 @@ Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](../advanced/links) for more details.
+  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 

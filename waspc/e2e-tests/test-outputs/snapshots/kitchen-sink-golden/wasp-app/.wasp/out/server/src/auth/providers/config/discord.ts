@@ -4,9 +4,9 @@ import { discord } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { discordUserSignupFields } from '../../../../../../../src/features/auth/providers/discord'
+import { discordUserSignupFields } from "../../../../../../../src/features/auth/providers/discord"
 const _waspUserSignupFields = discordUserSignupFields
-import { discordConfig } from '../../../../../../../src/features/auth/providers/discord'
+import { discordConfig } from "../../../../../../../src/features/auth/providers/discord"
 const _waspUserDefinedConfigFn = discordConfig
 
 const _waspConfig: ProviderConfig = {
@@ -14,7 +14,7 @@ const _waspConfig: ProviderConfig = {
     displayName: discord.displayName,
     createRouter(provider) {
         const config = mergeDefaultAndUserConfig({
-            scopes: ['identify'],
+            scopes: ["identify"],
         }, _waspUserDefinedConfigFn);
 
         async function getDiscordProfile(accessToken: string): Promise<{

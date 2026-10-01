@@ -1,9 +1,7 @@
----
-title: 1. Creating a New Project
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
+
+# 1. Creating a new project
 
 :::info
 You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](../quick-start) guide!

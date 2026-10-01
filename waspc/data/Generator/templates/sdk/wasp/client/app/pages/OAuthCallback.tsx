@@ -14,7 +14,7 @@ export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
 
   if (user !== undefined && user !== null) {
-    return <Navigate to="{= onAuthSucceededRedirectTo =}" replace />;
+    return <Navigate to={{=& onAuthSucceededRedirectTo =}} replace />;
   }
 
 

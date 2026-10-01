@@ -39,7 +39,7 @@ findWaspFile projectDir =
     dslNoLongerSupportedMessage =
       "Defining your app with the Wasp DSL (`main.wasp`) is no longer supported. "
         ++ "Please define your app in TypeScript using Wasp Spec (`main.wasp.ts`). "
-        ++ "See https://wasp.sh/docs/general/spec for more details."
+        ++ "See https://wasp.sh/docs/features/spec for more details."
 
 hasWaspLangFile :: Path' Abs (Dir WaspProjectDir) -> IO Bool
 hasWaspLangFile projectDir = do

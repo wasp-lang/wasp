@@ -9,7 +9,7 @@ import { Outlet } from "react-router"
 const routesMapping = {
   RootRoute: {
     lazy: async () => {
-      const Component = await import('./src/MainPage').then(m => m.MainPage);
+      const Component = await import("./src/MainPage").then(m => m.MainPage);
 
       return {
         Component:

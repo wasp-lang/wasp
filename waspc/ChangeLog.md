@@ -8,15 +8,17 @@
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Wasp Deploy for Railway now requires Railway CLI 5.28.0 or newer. ([#4712](https://github.com/wasp-lang/wasp/pull/4712))
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
-- Wasp now manages your app's URLs in development, so setting `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL`, or `REACT_APP_API_URL` yourself is now an error. ([#4692](https://github.com/wasp-lang/wasp/pull/4692))
+- Wasp now manages your app's URLs in development, so setting `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL`, or `REACT_APP_API_URL` yourself is now an error. Use the new `--client-url` and `--server-url` options instead (see below). ([#4692](https://github.com/wasp-lang/wasp/pull/4692))
 - Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
+- The Wasp server's liveness check moved from `GET /` to `GET /up`. The root path is free for custom `api`s, while `/up` is now reserved by Wasp. Point health checks that probed `/` at `/up`. ([#4856](https://github.com/wasp-lang/wasp/pull/4856))
 
 ### 🎉 New Features
 
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
+- `wasp start` and `wasp build start` now accept `--client-url <url>` and `--server-url <url>` to make your app reachable at a URL other than `localhost`, such as a LAN hostname or an HTTPS tunnel. ([#4915](https://github.com/wasp-lang/wasp/pull/4915))
 - You can now run dev databases for multiple Wasp projects in parallel: `wasp start db` looks for a first port instead of failing when the default one is taken, and `wasp start` automatically finds the port the database ended up on. ([#4571](https://github.com/wasp-lang/wasp/pull/4571))
 - Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Added `--db-volume-mount-path` to `wasp deploy railway launch` and `wasp deploy railway setup` for custom database images that store data elsewhere. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
@@ -24,11 +26,18 @@
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
+- Custom `api`s can now use the `PATCH` and `HEAD` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860), [#4867](https://github.com/wasp-lang/wasp/pull/4867))
 
 ### 🐞 Bug fixes
 
 - `wasp db` commands now compile and take the project lock only when the generated app is out of date, so they work next to a running `wasp start` and are faster otherwise.
+- Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
+
+- Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
+- Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
+- Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
+- Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4941](https://github.com/wasp-lang/wasp/pull/4941))
 
 ### 🔧 Small improvements
 
@@ -45,6 +54,7 @@
 - Improved the wording of some CLI messages. ([#4717](https://github.com/wasp-lang/wasp/pull/4717))
 - Email validation now accepts internationalized addresses such as `jürgen@münchen.de`, accepts addresses typed in uppercase, and no longer accepts a string that merely contains an address somewhere inside it. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
+- Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
 
 ## 0.25.0
 

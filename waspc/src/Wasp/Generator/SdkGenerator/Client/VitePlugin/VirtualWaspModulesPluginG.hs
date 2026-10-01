@@ -17,6 +17,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.Vi
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genVirtualWaspModulesPlugin :: AppSpec -> Generator [FileDraft]
 genVirtualWaspModulesPlugin spec =
@@ -65,7 +66,7 @@ genVirtualClientEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
-          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
+          "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec))
         ]
 
 genVirtualSsrEntryTsx :: AppSpec -> Generator FileDraft
@@ -78,7 +79,7 @@ genVirtualSsrEntryTsx spec =
       object
         [ "routeObjects" .= routeObjectsImportJson,
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
+          "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec))
         ]
 
 routeObjectsImportJson :: Value

@@ -4,7 +4,7 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Railway
@@ -13,7 +13,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ## Manual Deployment <Server /> <Client /> <Database />
 

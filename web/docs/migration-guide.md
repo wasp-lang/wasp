@@ -1,10 +1,10 @@
 ---
-title: From 0.25 to 0.26
+sidebar_label: From 0.25 to 0.26
 ---
 
-# Migration from 0.25 to 0.26
+import InstallInstructions from './_install-instructions.md'
 
-import InstallInstructions from './\_install-instructions.md'
+# Migration from 0.25 to 0.26
 
 <InstallInstructions version="0.26" />
 
@@ -162,6 +162,14 @@ wasp start --client-port 4000 --server-port 4001
 
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
 
+If you were setting those variables to make your app reachable at a URL other than `localhost` (e.g. a LAN address or an HTTPS tunnel), use `--client-url` and `--server-url` instead. Wasp derives `REACT_APP_API_URL` from the server URL. These URLs don't change the ports, so if a URL contains a port, pin it with the matching port option:
+
+```bash
+wasp start \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+```
+
 :::info
 
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
@@ -181,7 +189,7 @@ PORT=3001
 
 ### 5. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](./deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
+If you are using a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
 you'll have to add a one new additional line to it:
 
 <Tabs sideBySide>
@@ -216,6 +224,45 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 7. Enjoy your updated Wasp app
+### 7. Point liveness checks at `/up`
+
+Wasp now serves a liveness check at `GET /up` in both development and production.
+
+Wasp used `/` for the liveness check before, but it behaved differently per environment:
+- Development: `GET /` showed Wasp's wrong-port page.
+- Production: `GET /` answered `200 OK`.
+
+We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it.
+In production, `GET /` is no longer set by Wasp.
+
+This breaks the Caddy setup from the [VPS deployment guide](./guides/deployment/self-hosted/vps.md), which probed `/`. Change its health check to `/up`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```caddyfile title="Caddyfile"
+    api.myapp.com {
+        reverse_proxy localhost:3001 {
+            health_uri /
+            lb_try_duration 15s
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```caddyfile title="Caddyfile"
+    api.myapp.com {
+        reverse_proxy localhost:3001 {
+            // highlight-next-line
+            health_uri /up
+            lb_try_duration 15s
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
+
+### 8. Enjoy your updated Wasp app
 
 That's it!

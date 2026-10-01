@@ -38,7 +38,6 @@ import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
-import qualified Wasp.AppSpec.ExternalFiles as ExternalFiles
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -71,8 +70,6 @@ data AppSpec = AppSpec
     packageJson :: PackageJson,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
-    -- | List of external code files (they are referenced/used in the declarations).
-    externalCodeFiles :: [ExternalFiles.CodeFile],
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Env variables to be provided to the server only during the development.
     devEnvVarsServer :: [EnvVar],

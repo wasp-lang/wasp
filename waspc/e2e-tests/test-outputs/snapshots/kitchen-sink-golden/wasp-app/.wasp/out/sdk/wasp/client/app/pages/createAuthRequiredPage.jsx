@@ -16,7 +16,7 @@ export const createAuthRequiredPage = (Page) => {
         if (user) {
           return <Page {...props} user={user} />
         } else {
-          return <Navigate to="/login" replace />
+          return <Navigate to={"/login"} replace />
         }
       case 'loading':
         return (

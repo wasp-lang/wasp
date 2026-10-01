@@ -1,6 +1,4 @@
----
-title: CI/CD Overview
----
+# CI & CD
 
 Setting up a CI/CD pipeline is an optional but highly recommended part of deploying applications.
 
@@ -61,7 +59,7 @@ We'll show you how to run end-to-end tests in CI using the [Github Actions](http
 
 Unit tests test pieces of your code logic in isolation. They are much simpler and faster than e2e tests, but they don't simulate the real user interaction with your app.
 
-You can use Wasp's built in [client tests](../project/testing.md) support to test the client side code of your app. You are free to use any testing framework for the server side code.
+You can use Wasp's built in [client tests](../advanced/testing.md) support to test the client side code of your app. You are free to use any testing framework for the server side code.
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 
@@ -135,6 +133,6 @@ Wasp's client app is a single page application (SPA) which you build into static
 2. Build the client app with `npx vite build`.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 
-<!-- TOOD: update links below -->
+<!-- TODO: update links below -->
 
 Check out our instructions for deploying the client app to [Netlify](../guides/deployment/cloud-providers/netlify.md) or [Cloudflare](../guides/deployment/cloud-providers/cloudflare.md) where you can check out the example deployment using Github Actions.

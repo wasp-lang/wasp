@@ -39,12 +39,12 @@ with the SDK's TypeScript config.
 (Old issue about the problem: https://github.com/wasp-lang/wasp/issues/2247)
 
 Instead, the SDK defines an extension point (empty @Register@ interface,
-declared in @sdk/wasp/types/register.ts@) that the user project extends.
+declared in @sdk/wasp/types/index.ts@, the public @wasp/types@ module)
+that the user project extends.
 The SDK never imports from the user project, it only references the
 extension point, which resolves to the user's types when TypeScript
 compiles the user project.
 
-@Register@ is publicly exported through the @wasp/types@ module.
 During compilation, Wasp generates type declarations in
 @.wasp/out/types/app/sdk/register.ts@ (part of the user project) that
 extend @Register@ via module augmentation and declaration merging.

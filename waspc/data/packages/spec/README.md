@@ -6,7 +6,7 @@ If you are creating a Wasp app, you don't need to install this package yourself.
 
 - Learn more about Wasp: https://wasp.sh/
 - Read the docs: https://wasp.sh/docs
-- Read about the Wasp spec: https://wasp.sh/docs/general/spec
+- Read about the Wasp spec: https://wasp.sh/docs/features/spec
 - Browse the API reference: https://wasp.sh/docs/api/@wasp.sh/spec
 - Join our community: https://discord.gg/rzdnErX
 

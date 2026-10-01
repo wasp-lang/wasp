@@ -22,19 +22,19 @@ import type {
   GetAnyAuth,
   GetAnyToNumberSpecified,
 } from './types'
-import { getTasks as getTasks_ext } from 'virtual:wasp/user/features/operations/queries'
-import { getNumTasks as getNumTasks_ext } from 'virtual:wasp/user/features/operations/queries'
-import { getTask as getTask_ext } from 'virtual:wasp/user/features/operations/queries'
-import getOldestTask_ext from 'virtual:wasp/user/features/operations/getOldestTask'
-import { getSerializedObjects as getSerializedObjects_ext } from 'virtual:wasp/user/features/operations/queries'
-import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from 'virtual:wasp/user/features/jobs/uppercaseText'
-import { getDate as getDate_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnythingNoAuth as getAnythingNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnythingAuth as getAnythingAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getTrueVoid as getTrueVoid_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnyNoAuth as getAnyNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnyAuth as getAnyAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { getTasks as getTasks_ext } from "virtual:wasp/user/features/operations/queries"
+import { getNumTasks as getNumTasks_ext } from "virtual:wasp/user/features/operations/queries"
+import { getTask as getTask_ext } from "virtual:wasp/user/features/operations/queries"
+import getOldestTask_ext from "virtual:wasp/user/features/operations/getOldestTask"
+import { getSerializedObjects as getSerializedObjects_ext } from "virtual:wasp/user/features/operations/queries"
+import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from "virtual:wasp/user/features/jobs/uppercaseText"
+import { getDate as getDate_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { getAnythingNoAuth as getAnythingNoAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { getAnythingAuth as getAnythingAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { getTrueVoid as getTrueVoid_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { getAnyNoAuth as getAnyNoAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { getAnyAuth as getAnyAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
 
 // PRIVATE API
 export type RegisteredGetTasks = FromRegisterPath<['operations', 'getTasks'], GetTasks>

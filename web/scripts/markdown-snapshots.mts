@@ -51,7 +51,7 @@ const SNAPSHOT_REL_PATHS = [
   // Renders markdown with some additional transformations.
   "llms-full.txt",
   // A docs page. Renders markdown normally.
-  "docs/auth/overview.md",
+  "docs/features/auth/overview.md",
   // A docs guide page. Renders markdown normally.
   "docs/guides/legacy/installer.md",
   // An API docs index page.
