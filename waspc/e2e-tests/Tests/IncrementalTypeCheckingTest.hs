@@ -37,7 +37,9 @@ incrementalTypeCheckingTest =
                   writeQuery "[]",
                   -- Editing a file makes TypeScript report the initial error.
                   appendToFile "src/MainPage.tsx" "",
-                  waspCliCompile,
+                  assertCommandOutputContains
+                    (("! " ++) <$> waspCliCompile)
+                    "User code type-check failed with exit code:",
                   assertCommandOutputContains
                     (("! " ++) <$> typeCheckApp)
                     "Property 'id' does not exist on type 'never'.",
