@@ -1,7 +1,3 @@
----
-title: Discord
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
@@ -13,6 +9,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import DiscordData from '../entities/_discord-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# Discord
 
 Wasp supports Discord Authentication out of the box.
 

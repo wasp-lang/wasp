@@ -1,5 +1,5 @@
 ---
-title: Email
+sidebar_label: Email
 ---
 
 import { CardLink } from '@site/src/components/CardLink'

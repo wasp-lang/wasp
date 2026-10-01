@@ -1,11 +1,9 @@
----
-title: WebSockets
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { Required } from '@site/src/components/Tag';
+
+# WebSockets
 
 Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](https://socket.io/) on the client and server.
 

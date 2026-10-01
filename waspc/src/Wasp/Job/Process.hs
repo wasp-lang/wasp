@@ -5,6 +5,7 @@ module Wasp.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
     runNodeCommandAsJobWithExtraEnv,
+    runNodeCommandAsJobWithExtraEnvAndStdin,
   )
 where
 
@@ -31,17 +32,23 @@ import qualified Wasp.Node.Version as NodeVersion
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
+-- | Same as 'runProcessAsJobWithStdin', with stdin inherited.
+runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
+runProcessAsJob = runProcessAsJobWithStdin CP.Inherited
+
+-- | Runs a given process while streaming its stderr and stdout to provided channel.
+--   The type of the first argument decides the process' stdin, e.g. 'CP.Inherited' for Wasp's own,
+--   or 'CP.ClosedStream' for one that is already at end-of-input.
 --   Returns exit code of the process once it finishes, and also sends it to the channel.
 --   Makes sure to stop the process if exception occurs.
-runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob process jobType chan =
+runProcessAsJobWithStdin :: forall stdin. (CP.InputSource stdin) => stdin -> P.CreateProcess -> J.JobType -> J.Job
+runProcessAsJobWithStdin _stdin process jobType chan =
   bracket
     (CP.streamingProcess process)
     (\(_, _, _, sph) -> terminateStreamingProcess sph)
     runStreamingProcessAsJob
   where
-    runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
+    runStreamingProcessAsJob (_ :: stdin, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
             runConduit $
               stdoutStream
@@ -102,13 +109,16 @@ runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
+runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndStdin CP.Inherited
+
+runNodeCommandAsJobWithExtraEnvAndStdin :: (CP.InputSource stdin) => stdin -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir command args jobType chan =
   NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     NodeVersion.VersionCheckSuccess -> do
       envVars <- getAllEnvVars
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-      runProcessAsJob nodeCommandProcess jobType chan
+      runProcessAsJobWithStdin stdin nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
     -- vars in 'extraEnvVars' should override the inherited env vars, we

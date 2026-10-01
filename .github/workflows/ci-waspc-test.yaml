@@ -41,6 +41,7 @@ jobs:
           - # No extra tool here, so we use our default Node.js version, which
             # comes from mise and is equal to our lowest supported one.
             os: ubuntu-22.04
+            extra-tools: ""
 
     steps:
       - # For waspc parser tests, we need to make sure git doesn't convert line
@@ -83,4 +84,4 @@ jobs:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
-          mise x "${EXTRA_TOOLS[@]}" -- bash ./run test:waspc:e2e
+          mise x ${EXTRA_TOOLS:+"$EXTRA_TOOLS"} -- bash ./run test:waspc:e2e

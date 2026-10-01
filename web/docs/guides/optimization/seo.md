@@ -1,5 +1,5 @@
 ---
-title: SEO & GEO
+sidebar_label: SEO & GEO
 comments: true
 ---
 
