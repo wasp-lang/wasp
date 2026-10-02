@@ -36,13 +36,13 @@ instance IsDecl Api where
 instance Inspectable Api where
   inspect api =
     [ InspectionEntry "API" $
-        [ ("Name", name api),
+        [ ("Name", api.name),
           ("Method", show (method api)),
           ("Route", path api),
-          ("Import", showExtImportFromProjectDir $ fn api)
+          ("Import", showExtImportFromProjectDir api.fn)
         ]
-          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities api]]
-          ++ [("Auth", "Enabled") | auth api == Just True]
+          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [api.entities]]
+          ++ [("Auth", "Enabled") | api.auth == Just True]
     ]
 
 method :: Api -> HttpMethod

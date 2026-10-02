@@ -53,4 +53,4 @@ createRouteTemplateData spec route =
 
     targetPage = AS.resolveRef spec (AS.Route.to route)
     jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component targetPage
-    aliasedImport = applyJsImportAlias (Just $ AS.Page.name targetPage) jsImport
+    aliasedImport = applyJsImportAlias (Just targetPage.name) jsImport

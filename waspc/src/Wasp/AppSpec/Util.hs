@@ -15,7 +15,9 @@ isPgBossJobExecutorUsed :: AppSpec -> Bool
 isPgBossJobExecutorUsed spec = any ((== Job.PgBoss) . Job.executor) (AS.getJobs spec)
 
 getRoutePathFromRef :: AS.AppSpec -> AS.Ref.Ref AS.Route.Route -> String
-getRoutePathFromRef spec ref = AS.Route.path $ AS.resolveRef spec ref
+getRoutePathFromRef spec ref = route.path
+  where
+    route = AS.resolveRef spec ref
 
 hasEntities :: AppSpec -> Bool
 hasEntities spec = not . null $ AS.getEntities spec

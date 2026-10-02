@@ -229,8 +229,8 @@ async function getAppInfoFromShowSpec({
 }
 
 /**
- * Newer Wasp versions put the name inside `declValue`, while older ones
- * (0.26.0) put it in the decl envelope as `declName`.
+ * Newer Wasp versions (0.26 and later) put the name inside `declValue`, while
+ * older ones (0.25 and earlier) put it in the decl envelope as `declName`.
  */
 function getAppName(appDecl: unknown): string | undefined {
   if (!isRecord(appDecl)) {

@@ -344,7 +344,7 @@ validateDeclarationNames spec =
               ]
 
     capitalizedJobsErrorMessage =
-      let capitalizedJobNames = filter isCapitalized $ map AS.Job.name $ AS.getJobs spec
+      let capitalizedJobNames = filter isCapitalized $ map (.name) $ AS.getJobs spec
        in case capitalizedJobNames of
             [] -> []
             _ ->
@@ -465,7 +465,7 @@ validatePrerenderRoutes spec =
       concatMap (validatePrerenderPath route) (prerenderPaths route)
         ++ [ GenericValidationError $
                "Route '"
-                 ++ Route.name route
+                 ++ route.name
                  ++ "' has prerendering enabled but its page has authRequired set to true."
                  ++ " Prerendered routes cannot require authentication."
            | pageRequiresAuth (getPage route)
@@ -475,7 +475,7 @@ validatePrerenderRoutes spec =
       | pathHasDynamicSegments path =
           [ GenericValidationError $
               "Route '"
-                ++ Route.name route
+                ++ route.name
                 ++ "' lists prerender path ("
                 ++ path
                 ++ ") which contains dynamic segments. Prerender paths must be fully static."
@@ -483,7 +483,7 @@ validatePrerenderRoutes spec =
       | not (doesConcretePathMatchRoutePattern (Route.path route) path) =
           [ GenericValidationError $
               "Route '"
-                ++ Route.name route
+                ++ route.name
                 ++ "' lists prerender path ("
                 ++ path
                 ++ ") which does not match the route's path pattern ("

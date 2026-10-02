@@ -37,17 +37,17 @@ instance Inspectable Route where
   inspect route =
     InspectionEntry
       "Routes"
-      ( [ ("Name", name route),
-          ("Path", path route),
-          ("Destination", refName (to route)),
-          ("Loading", if lazy route == Just False then "Eager" else "Lazy")
+      ( [ ("Name", route.name),
+          ("Path", route.path),
+          ("Destination", refName route.to),
+          ("Loading", if route.lazy == Just False then "Eager" else "Lazy")
         ]
-          ++ [("Prerender", "Enabled") | not $ null $ prerender route]
+          ++ [("Prerender", "Enabled") | not $ null route.prerender]
       )
       : [ InspectionEntry
             "Prerendered routes"
-            [ ("Name", name route),
+            [ ("Name", route.name),
               ("Route", prerenderPath)
             ]
-        | prerenderPath <- prerender route
+        | prerenderPath <- route.prerender
         ]

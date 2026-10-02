@@ -22,8 +22,8 @@ data Operation
   deriving (Show)
 
 getName :: Operation -> String
-getName (QueryOp query) = Query.name query
-getName (ActionOp action) = Action.name action
+getName (QueryOp query) = query.name
+getName (ActionOp action) = action.name
 
 getFn :: Operation -> ExtImport
 getFn (QueryOp query) = Query.fn query

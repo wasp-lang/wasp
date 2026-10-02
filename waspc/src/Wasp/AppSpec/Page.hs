@@ -27,7 +27,7 @@ instance IsDecl Page where
 instance Inspectable Page where
   inspect page =
     [ InspectionEntry "Pages" $
-        ("Name", name page)
-          : ("Import", showExtImportFromProjectDir $ component page)
-          : [("Requires auth", "Yes") | authRequired page == Just True]
+        ("Name", page.name)
+          : ("Import", showExtImportFromProjectDir page.component)
+          : [("Requires auth", "Yes") | page.authRequired == Just True]
     ]

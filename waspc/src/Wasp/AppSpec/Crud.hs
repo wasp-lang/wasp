@@ -36,9 +36,9 @@ instance IsDecl Crud where
 instance Inspectable Crud where
   inspect crud =
     [ InspectionEntry "CRUDs" $
-        ("Name", name crud)
-          : ("Entity", refName (entity crud))
-          : showEnabledOperations (operations crud)
+        ("Name", crud.name)
+          : ("Entity", refName crud.entity)
+          : showEnabledOperations crud.operations
     ]
     where
       showEnabledOperations ops =

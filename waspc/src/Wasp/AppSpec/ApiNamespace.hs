@@ -28,8 +28,8 @@ instance Inspectable ApiNamespace where
   inspect apiNamespace =
     [ InspectionEntry
         "API namespaces"
-        [ ("Name", name apiNamespace),
-          ("Path", path apiNamespace),
-          ("Import", showExtImportFromProjectDir $ middlewareConfigFn apiNamespace)
+        [ ("Name", apiNamespace.name),
+          ("Path", apiNamespace.path),
+          ("Import", showExtImportFromProjectDir apiNamespace.middlewareConfigFn)
         ]
     ]

@@ -48,9 +48,9 @@ getDeploymentMode app =
 instance Inspectable App where
   inspect app =
     [ InspectionEntry "App" $
-        ("Name", name app)
-          : ("Title", title app)
-          : inspectAuth' (auth app)
+        ("Name", app.name)
+          : ("Title", app.title)
+          : inspectAuth' app.auth
     ]
     where
       inspectAuth' Nothing = []

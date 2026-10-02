@@ -41,12 +41,12 @@ instance IsDecl Job where
 instance Inspectable Job where
   inspect job =
     [ InspectionEntry "Jobs" $
-        [ ("Name", name job),
-          ("Executor", show $ executor job),
-          ("Schedule", maybe "" (show . cron) (schedule job)),
+        [ ("Name", job.name),
+          ("Executor", show job.executor),
+          ("Schedule", maybe "" (show . cron) job.schedule),
           ("Import", showExtImportFromProjectDir job.perform.fn)
         ]
-          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities job]]
+          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [job.entities]]
     ]
 
 data JobExecutor = PgBoss
