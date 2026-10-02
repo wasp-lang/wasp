@@ -2,9 +2,11 @@
 
 module Wasp.Generator.WriteFileDrafts
   ( synchronizeFileDraftsWithDisk,
+    areFileDraftsSynchronizedWithDisk,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
     assertDstPathsAreUnique, -- Exported for testing.
     removeFromChecksumFile,
+    recordFileDraftChecksum,
   )
 where
 
@@ -50,7 +52,7 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
     -- while state on the disk might not be as it says anymore.
     Just _ -> removeFile $ SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot
 
-  fileDraftsWithChecksums <- mapM (\fd -> (fd,) <$> getChecksum fd) fileDrafts
+  fileDraftsWithChecksums <- getFileDraftsWithChecksums fileDrafts
 
   let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete maybePathsToChecksums fileDraftsWithChecksums
   mapM_ (write dstDir) fileDraftsToWrite
@@ -58,6 +60,21 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 
   let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
   writeChecksumFile dstDir relativePathsToChecksums
+
+-- | Returns 'True' if synchronizing the file drafts would neither write nor
+-- delete anything.
+areFileDraftsSynchronizedWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO Bool
+areFileDraftsSynchronizedWithDisk dstDir fileDrafts = do
+  return $! assertDstPathsAreUnique fileDrafts
+  readChecksumFile dstDir >>= \case
+    Nothing -> return False
+    Just pathsToChecksums -> do
+      fileDraftsWithChecksums <- getFileDraftsWithChecksums fileDrafts
+      let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete (Just pathsToChecksums) fileDraftsWithChecksums
+      return $ null fileDraftsToWrite && null filesToDelete
+
+getFileDraftsWithChecksums :: [FileDraft] -> IO [(FileDraft, Checksum)]
+getFileDraftsWithChecksums = mapM (\fd -> (fd,) <$> getChecksum fd)
 
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo GeneratedAppDir, Checksum)]
 
@@ -154,12 +171,28 @@ writeChecksumFile dstDir relativePathsToChecksums = do
     fromSpToTypeAndPath (Right dirSP) = (dirFsEntityLabel, SP.fromRelDir dirSP)
 
 removeFromChecksumFile :: Path' Abs (Dir GeneratedAppDir) -> [FileOrDirPathRelativeTo GeneratedAppDir] -> IO ()
-removeFromChecksumFile dstDir pathsToRemove = do
-  maybePathsToChecksums <- readChecksumFile dstDir
-  case maybePathsToChecksums of
+removeFromChecksumFile dstDir pathsToRemove =
+  modifyChecksumFileIfExists dstDir $
+    return . filter ((`notElem` pathsToRemove) . fst)
+
+-- | Records the current checksum for a file draft if the checksum file exists.
+recordFileDraftChecksum :: Path' Abs (Dir GeneratedAppDir) -> FileDraft -> IO ()
+recordFileDraftChecksum dstDir fileDraft =
+  modifyChecksumFileIfExists dstDir $ \pathsToChecksums -> do
+    checksum <- getChecksum fileDraft
+    let dstPath = getDstPath fileDraft
+    return $ (dstPath, checksum) : filter ((/= dstPath) . fst) pathsToChecksums
+
+-- | Reads the checksum file, transforms its entries and writes them back.
+-- Does nothing if the checksum file is missing or not parsable.
+modifyChecksumFileIfExists ::
+  Path' Abs (Dir GeneratedAppDir) ->
+  (RelPathsToChecksums -> IO RelPathsToChecksums) ->
+  IO ()
+modifyChecksumFileIfExists dstDir modify =
+  readChecksumFile dstDir >>= \case
     Nothing -> return ()
-    Just pathsToChecksums -> do
-      writeChecksumFile dstDir $ filter ((`notElem` pathsToRemove) . fst) pathsToChecksums
+    Just pathsToChecksums -> modify pathsToChecksums >>= writeChecksumFile dstDir
 
 fileFsEntityLabel :: String
 fileFsEntityLabel = "file"

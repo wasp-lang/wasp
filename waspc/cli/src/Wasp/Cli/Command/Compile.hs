@@ -5,6 +5,7 @@ module Wasp.Cli.Command.Compile
     compileCommand,
     compile,
     compileWithOptions,
+    compileIfNeeded,
     compileIOWithOptions,
     defaultCompileOptions,
     printCompilationResult,
@@ -15,10 +16,9 @@ module Wasp.Cli.Command.Compile
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (unless, void, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Either (fromLeft)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -66,11 +66,57 @@ compile = do
 -- along with the AppSpec it compiled.
 compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
+  (prepareWarnings, preparedCompilation) <- prepareCompilationOrThrow options
+  outDir <- getGeneratedAppDir
+  warnings <- applyPreparedCompilationAndReport options outDir prepareWarnings preparedCompilation
+  return (warnings, preparedCompilation.appSpec)
+
+-- | Compiles the project only if the generated app is out of date. Preparation
+-- runs unlocked, and the project lock is taken only to write and set up the
+-- generated app. A compile in progress in another process always looks stale
+-- (the checksum file is missing while it writes files, and `.waspinfo` marks
+-- setup as incomplete until setup finishes), so we try to take the lock and
+-- fail as usual instead of skipping.
+compileIfNeeded :: CompileOptions -> Command ()
+compileIfNeeded options = do
+  WaspSpecAvailable <- require
+  (warnings, preparedCompilation) <- prepareCompilationOrThrow options
+  outDir <- getGeneratedAppDir
+  isUpToDate <- liftIO $ Wasp.Project.isGeneratedAppUpToDate preparedCompilation outDir
+  if isUpToDate
+    then do
+      liftIO $ printWarningsIfAny warnings
+      cliSendMessageC $ Msg.Success "Your wasp project is already compiled and up to date."
+    else do
+      cliSendMessageC $ Msg.Info "The generated app is out of date."
+      void $ withProjectLock $ applyPreparedCompilationAndReport options outDir warnings preparedCompilation
+
+getGeneratedAppDir :: Command (Path' Abs (Dir Wasp.Generator.GeneratedAppDir))
+getGeneratedAppDir = do
+  InWaspProject waspProjectDir <- require
+  return $ waspProjectDir </> generatedAppDirInWaspProjectDir
+
+-- | Runs the in-memory phase of compilation, reporting and throwing on errors.
+prepareCompilationOrThrow :: CompileOptions -> Command ([CompileWarning], Wasp.Project.PreparedCompilation)
+prepareCompilationOrThrow options = do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
+  (warnings, preparedCompilationOrErrors) <- liftIO $ Wasp.Project.prepareCompilation waspProjectDir options
+  case preparedCompilationOrErrors of
+    Right preparedCompilation -> return (warnings, preparedCompilation)
+    Left errors -> do
+      liftIO $ printCompilationResult (warnings, errors)
+      throwCompilationFailed errors
 
-  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-
+-- | Writes and sets up a prepared compilation, reports the result, and returns
+-- all warnings from both phases. The caller must hold the project lock.
+applyPreparedCompilationAndReport ::
+  CompileOptions ->
+  Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
+  [CompileWarning] ->
+  Wasp.Project.PreparedCompilation ->
+  Command [CompileWarning]
+applyPreparedCompilationAndReport options outDir prepareWarnings preparedCompilation = do
   generatedAppIsCompatible <-
     liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
@@ -86,15 +132,18 @@ compileWithOptions options = do
         "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (warnings, appSpecOrErrors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  (applyWarnings, errors) <- liftIO $ Wasp.Project.applyPreparedCompilation preparedCompilation outDir options
+  let warnings = prepareWarnings <> applyWarnings
 
-  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
-  case appSpecOrErrors of
-    Right appSpec -> return (warnings, appSpec)
-    Left errors ->
-      throwError $
-        CommandError "Compilation of wasp project failed" $
-          show (length errors) ++ " errors found"
+  liftIO $ printCompilationResult (warnings, errors)
+  unless (null errors) $ throwCompilationFailed errors
+  return warnings
+
+throwCompilationFailed :: [CompileError] -> Command a
+throwCompilationFailed errors =
+  throwError $
+    CommandError "Compilation of wasp project failed" $
+      show (length errors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,

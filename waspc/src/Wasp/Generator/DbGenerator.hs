@@ -1,6 +1,7 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
     postWriteDbGeneratorActions,
+    isPrismaClientUpToDate,
     warnIfDbNeedsMigration,
     getEntitiesForPrismaSchema,
   )
@@ -26,8 +27,7 @@ import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
     DbSchemaChecksumOnLastDbConcurrenceFile,
     PrismaDbSchema,
-    dbMigrationsDirInDbRootDir,
-    dbRootDirInGeneratedAppDir,
+    dbMigrationsDirFileDraft,
     dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir,
     dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir,
     dbSchemaFileInDbTemplatesDir,
@@ -36,8 +36,7 @@ import Wasp.Generator.DbGenerator.Common
     dbTemplatesDirInTemplatesDir,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
-import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
+import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad
   ( Generator,
     GeneratorError (..),
@@ -134,9 +133,7 @@ getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.inj
       find ((== userEntityName) . fst) userDefinedEntities
 
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
-genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir <$> AS.migrationsDir spec
-  where
-    genProjectMigrationsDir = Wasp.Generator.DbGenerator.Common.dbRootDirInGeneratedAppDir </> Wasp.Generator.DbGenerator.Common.dbMigrationsDirInDbRootDir
+genMigrationsDir spec = return $ dbMigrationsDirFileDraft <$> AS.migrationsDir spec
 
 -- | This function operates on generated app, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO ([GeneratorWarning], [GeneratorError])
@@ -243,10 +240,19 @@ warnProjectDiffersFromDb generatedAppDir = do
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
 generatePrismaClient spec generatedAppDir = do
-  isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
-  if not isGeneratedPrismaClientValid
+  prismaClientIsUpToDate <- isPrismaClientUpToDate spec generatedAppDir
+  if not prismaClientIsUpToDate
     then generatePrismaClientIfEntitiesExist
     else return Nothing
+  where
+    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
+    generatePrismaClientIfEntitiesExist =
+      either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
+
+isPrismaClientUpToDate :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
+isPrismaClientUpToDate spec generatedAppDir
+  | not $ hasEntities spec = return True
+  | otherwise = and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
   where
     isCurrentSchemaUpToDate :: IO Bool
     isCurrentSchemaUpToDate =
@@ -262,14 +268,6 @@ generatePrismaClient spec generatedAppDir = do
       checksumFileExistsAndMatchesSchema
         generatedAppDir
         Wasp.Generator.DbGenerator.Common.dbSchemaFileInNodeModulesDir
-
-    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
-    generatePrismaClientIfEntitiesExist
-      | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
-      | otherwise = return Nothing
-
-    entitiesExist = hasEntities spec
 
 checksumFileExistsAndMatchesSchema ::
   Path' Abs (Dir GeneratedAppDir) ->

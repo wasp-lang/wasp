@@ -8,20 +8,24 @@ where
 import Control.Arrow (left)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
+import Control.Exception (bracket)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
     File,
+    File',
     Path',
     Rel,
     fromAbsDir,
     fromAbsFile,
     fromRelFile,
-    relfile,
+    parseAbsFile,
     (</>),
   )
+import System.Directory (createDirectoryIfMissing)
 import System.Exit (ExitCode (..))
+import System.IO (hClose, openTempFile)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
@@ -71,56 +75,69 @@ runWaspSpecAnalyzer ::
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
-runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
-  chan <- newChan
-  (_, runExitCode) <- do
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      -- We invoke the script directly via `node` instead of `npx` because
-      -- `npx` requires the bin file to be executable, and `cabal install`
-      -- strips executable permissions from data files.
-      ( runNodeCommandAsJobWithExtraEnv
-          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
-            -- Not related to `node` itself, so we have to set it manually.
-            -- It enables users to write environment specific code in the TS config.
-            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
-            --       also provide the `NODE_ENV` values for the "configuration runtime".
-            --       Maybe consider using a different key, e.g. `WASP_MODE`?
-            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
-          ]
-          compileOptions.waspProjectDir
-          "node"
-          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
-            "analyze",
-            fromAbsFile waspFilePath,
-            fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-            fromAbsDir compileOptions.waspProjectDir,
-            fromAbsFile absSpecResultFile,
-            -- When the user is coding main.wasp.ts, TypeScript must know about
-            -- all the available entities to warn the user if they use an
-            -- entity that doesn't exist.
-            encodeToString allowedEntityNames
-          ]
-          J.Wasp
-          chan
-      )
-  case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
-    ExitSuccess -> readSpecResultFile
+runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath =
+  withUniqueSpecResultFile $ \absSpecResultFile -> do
+    chan <- newChan
+    (_, runExitCode) <- do
+      concurrently
+        (readJobMessagesAndPrintThemPrefixed chan)
+        -- We invoke the script directly via `node` instead of `npx` because
+        -- `npx` requires the bin file to be executable, and `cabal install`
+        -- strips executable permissions from data files.
+        ( runNodeCommandAsJobWithExtraEnv
+            [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+              -- Not related to `node` itself, so we have to set it manually.
+              -- It enables users to write environment specific code in the TS config.
+              -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+              --       also provide the `NODE_ENV` values for the "configuration runtime".
+              --       Maybe consider using a different key, e.g. `WASP_MODE`?
+              ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+            ]
+            compileOptions.waspProjectDir
+            "node"
+            [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+              "analyze",
+              fromAbsFile waspFilePath,
+              fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+              fromAbsDir compileOptions.waspProjectDir,
+              fromAbsFile absSpecResultFile,
+              -- When the user is coding main.wasp.ts, TypeScript must know about
+              -- all the available entities to warn the user if they use an
+              -- entity that doesn't exist.
+              encodeToString allowedEntityNames
+            ]
+            J.Wasp
+            chan
+        )
+    case runExitCode of
+      ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
+      ExitSuccess -> readSpecResultFile absSpecResultFile
   where
-    absSpecResultFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec-result.json|]
+    -- Each run gets its own result file, so Wasp commands analyzing the project
+    -- concurrently (e.g. `wasp db` next to `wasp start`) don't read each other's
+    -- partially written results.
+    withUniqueSpecResultFile :: (Path' Abs File' -> IO a) -> IO a
+    withUniqueSpecResultFile = bracket createUniqueSpecResultFile IOUtil.deleteFileIfExists
+
+    createUniqueSpecResultFile :: IO (Path' Abs File')
+    createUniqueSpecResultFile = do
+      createDirectoryIfMissing True dotWaspDir
+      (specResultFilePath, specResultFileHandle) <- openTempFile dotWaspDir "spec-result.json"
+      hClose specResultFileHandle
+      parseAbsFile specResultFilePath
+
+    dotWaspDir = fromAbsDir $ compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir
+
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String
     nodeEnvForBuildType BuildType.Development = "development"
     nodeEnvForBuildType BuildType.Production = "production"
 
-    readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
-    readSpecResultFile = do
-      contents <- IOUtil.readFileBytes absSpecResultFile
-      return $
-        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
-          Aeson.eitherDecode contents
+    readSpecResultFile :: Path' Abs File' -> IO (Either [CompileError] SpecAnalysisResult)
+    readSpecResultFile absSpecResultFile =
+      left (\err -> ["Error while reading the spec result from JSON: " ++ err])
+        <$> Aeson.eitherDecodeFileStrict (fromAbsFile absSpecResultFile)
 
 -- | The result handed back by the spec analyzer subprocess. Mirrors the
 -- @SpecResult@ type in @waspc.sh/spec; keep them in sync.

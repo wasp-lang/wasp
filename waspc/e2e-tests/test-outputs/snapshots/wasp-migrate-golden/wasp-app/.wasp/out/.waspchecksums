@@ -15,6 +15,13 @@
     ],
     [
         [
+            "dir",
+            "db/migrations/"
+        ],
+        "7966bb623de7524ed2d2846b74fcc49baf3621aee751c9f03984c81f63da45f5"
+    ],
+    [
+        [
             "file",
             "db/schema.prisma"
         ],
