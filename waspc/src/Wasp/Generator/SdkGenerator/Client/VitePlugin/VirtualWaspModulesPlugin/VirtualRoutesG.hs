@@ -49,8 +49,8 @@ createRouteTemplateData spec route =
       "import" .= GJI.jsImportToImportJson (Just aliasedImport)
     ]
   where
-    isAuthRequired = fromMaybe False $ AS.Page.authRequired targetPage
+    isAuthRequired = fromMaybe False targetPage.authRequired
 
-    targetPage = AS.resolveRef spec (AS.Route.to route)
-    jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component targetPage
+    targetPage = AS.resolveRef spec route.to
+    jsImport = GJI.extImportToRelativeSrcImportFromViteExecution targetPage.component
     aliasedImport = applyJsImportAlias (Just targetPage.name) jsImport

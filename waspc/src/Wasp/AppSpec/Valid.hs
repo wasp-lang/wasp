@@ -144,7 +144,7 @@ validateUserEntity spec =
             then []
             else [userEntityIdFieldMissingDefaultAttrError]
       where
-        userEntity = AS.resolveRef spec (Auth.userEntity auth)
+        userEntity = AS.resolveRef spec auth.userEntity
         userEntityName = Entity.getName userEntity
 
         userEntityMissingIdFieldError = GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
@@ -265,7 +265,7 @@ validateCrudOperations spec =
       where
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
-        entity = AS.resolveRef spec (AS.Crud.entity crud)
+        entity = AS.resolveRef spec crud.entity
         entityName = Entity.getName entity
 
 validateOperationEntitiesAreUnique :: AppSpec -> [ValidationError]
@@ -344,7 +344,7 @@ validateDeclarationNames spec =
               ]
 
     capitalizedJobsErrorMessage =
-      let capitalizedJobNames = filter isCapitalized $ map (.name) $ AS.getJobs spec
+      let capitalizedJobNames = filter isCapitalized $ map AS.Job.name $ AS.getJobs spec
        in case capitalizedJobNames of
             [] -> []
             _ ->
@@ -496,7 +496,7 @@ validatePrerenderRoutes spec =
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
     pageRequiresAuth page = Page.authRequired page == Just True
 
-    getPage route = AS.resolveRef spec (Route.to route)
+    getPage route = AS.resolveRef spec route.to
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
@@ -525,7 +525,7 @@ isPostgresUsed = (AS.Db.PostgreSQL ==) . getValidDbSystem
 doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
 doesUserEntityContainField spec fieldName = do
   auth <- App.auth (getApp spec)
-  let userEntity = AS.resolveRef spec (Auth.userEntity auth)
+  let userEntity = AS.resolveRef spec auth.userEntity
   let userEntityFields = Entity.getFields userEntity
   Just $ isJust $ findFieldByName fieldName userEntityFields
 
@@ -537,7 +537,7 @@ findFieldByName name = find ((== name) . Psl.Model._name)
 getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Model.Field
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
-    crudEntity = AS.resolveRef spec (AS.Crud.entity crud)
+    crudEntity = AS.resolveRef spec crud.entity
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- Example: If user specified their node version range to be [22.12, 24), then this function will return 22.12.

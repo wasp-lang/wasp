@@ -298,8 +298,9 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= ((getApp spec).name :: String)
+          "appName" .= (app.name :: String)
         ]
+    app = getApp spec
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"

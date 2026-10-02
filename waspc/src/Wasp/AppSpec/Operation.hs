@@ -26,13 +26,13 @@ getName (QueryOp query) = query.name
 getName (ActionOp action) = action.name
 
 getFn :: Operation -> ExtImport
-getFn (QueryOp query) = Query.fn query
-getFn (ActionOp action) = Action.fn action
+getFn (QueryOp query) = query.fn
+getFn (ActionOp action) = action.fn
 
 getEntities :: Operation -> Maybe [Ref Entity]
-getEntities (QueryOp query) = Query.entities query
-getEntities (ActionOp action) = Action.entities action
+getEntities (QueryOp query) = query.entities
+getEntities (ActionOp action) = action.entities
 
 getAuth :: Operation -> Maybe Bool
-getAuth (QueryOp query) = Query.auth query
-getAuth (ActionOp action) = Action.auth action
+getAuth (QueryOp query) = query.auth
+getAuth (ActionOp action) = action.auth

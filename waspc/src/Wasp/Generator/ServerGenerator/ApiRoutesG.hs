@@ -73,7 +73,7 @@ genApiRoutes spec =
           "apiName" .= api.name
         ]
       where
-        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier ("_wasp" ++ api.name ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
+        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier ("_wasp" ++ api.name ++ "fn") relPathFromApisRoutesToServerSrcDir api.fn
 
         middlewareConfigFnTmplData :: Aeson.Value
         middlewareConfigFnTmplData =

@@ -64,7 +64,7 @@ studio = do
                         "path" .= AS.Route.path route,
                         "toPage"
                           .= object
-                            [ "name" .= (AS.resolveRef appSpec $ AS.Route.to route).name
+                            [ "name" .= AS.Page.name (AS.resolveRef appSpec route.to)
                             ]
                       ]
                 )
@@ -171,7 +171,7 @@ studio = do
         object
           [ "userEntity"
               .= object
-                [ "name" .= AS.Entity.getName (AS.resolveRef spec $ AS.App.Auth.userEntity auth)
+                [ "name" .= AS.Entity.getName (AS.resolveRef spec auth.userEntity)
                 ],
             "methods"
               .= let methods = AS.App.Auth.methods auth
