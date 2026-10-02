@@ -39,16 +39,16 @@ genOperationsRoutes spec =
       [genOperationsRouter spec]
     ]
 
-genActionRoute :: (String, AS.Action.Action) -> Generator FileDraft
-genActionRoute (actionName, action) = genOperationRoute op tmplFile
+genActionRoute :: AS.Action.Action -> Generator FileDraft
+genActionRoute action = genOperationRoute op tmplFile
   where
-    op = AS.Operation.ActionOp actionName action
+    op = AS.Operation.ActionOp action
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_action.js|]
 
-genQueryRoute :: (String, AS.Query.Query) -> Generator FileDraft
-genQueryRoute (queryName, query) = genOperationRoute op tmplFile
+genQueryRoute :: AS.Query.Query -> Generator FileDraft
+genQueryRoute query = genOperationRoute op tmplFile
   where
-    op = AS.Operation.QueryOp queryName query
+    op = AS.Operation.QueryOp query
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_query.js|]
 
 genOperationRoute :: AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> Generator FileDraft
@@ -104,8 +104,8 @@ genOperationsRouter spec
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]
     dstFile = operationsRoutesDirInServerRootDir </> [relfile|index.js|]
     operations =
-      map (uncurry AS.Operation.ActionOp) (AS.getActions spec)
-        ++ map (uncurry AS.Operation.QueryOp) (AS.getQueries spec)
+      map AS.Operation.ActionOp (AS.getActions spec)
+        ++ map AS.Operation.QueryOp (AS.getQueries spec)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,

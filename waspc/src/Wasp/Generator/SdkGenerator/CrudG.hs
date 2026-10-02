@@ -26,19 +26,19 @@ genCrud spec =
     cruds = getCruds spec
     areThereAnyCruds = not $ null cruds
 
-genCrudServerOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudServerOperations :: AppSpec -> [AS.Crud.Crud] -> Generator [FileDraft]
 genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
   where
-    genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) =
+    genCrudOperation :: AS.Crud.Crud -> FileDraft
+    genCrudOperation crud =
       mkTmplFdWithDstAndData
         [relfile|server/crud/_operationTypes.ts|]
-        ([reldir|server/crud|] </> getCrudFilePath name "ts")
+        ([reldir|server/crud|] </> getCrudFilePath crud.name "ts")
         (Just tmplData)
       where
         tmplData =
           object
-            [ "crud" .= getCrudOperationJson name crud idField,
+            [ "crud" .= getCrudOperationJson crud idField,
               "isAuthEnabled" .= isAuthEnabled spec,
               "queryType" .= queryTsType,
               "actionType" .= actionTsType

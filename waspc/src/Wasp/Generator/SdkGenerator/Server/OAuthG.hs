@@ -104,7 +104,7 @@ depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
   [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
-    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
+    maybeAuth = AS.App.auth $ AS.Valid.getApp spec
 
 serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]

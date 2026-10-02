@@ -46,7 +46,7 @@ genJobsApi spec =
         <++> mapM genJob jobs
         <++> genJobExecutors spec
 
-genIndexTs :: [(String, Job)] -> Generator FileDraft
+genIndexTs :: [Job] -> Generator FileDraft
 genIndexTs jobs =
   return $
     mkTmplFdWithData
@@ -54,24 +54,24 @@ genIndexTs jobs =
       tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
-    getJobTmplData (jobName, _) =
+    getJobTmplData job =
       object
-        [ "typeName" .= toUpperFirst jobName,
-          "jobName" .= jobName
+        [ "typeName" .= toUpperFirst job.name,
+          "jobName" .= job.name
         ]
 
-genJob :: (String, Job) -> Generator FileDraft
-genJob (jobName, job) =
+genJob :: Job -> Generator FileDraft
+genJob job =
   return $
     mkTmplFdWithDstAndData
       (serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|])
-      (castRel serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts")))
+      (castRel serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (job.name ++ ".ts")))
       (Just tmplData)
   where
     tmplData =
       object
-        [ "jobName" .= jobName,
-          "typeName" .= toUpperFirst jobName,
+        [ "jobName" .= job.name,
+          "typeName" .= toUpperFirst job.name,
           "jobExecutorImportPath" .= getJobExecutorSdkInternalImportPath (J.executor job),
           "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job),
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.

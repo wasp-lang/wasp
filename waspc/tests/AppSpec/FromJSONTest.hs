@@ -78,31 +78,36 @@ spec_AppSpecFromJSON = do
     it "parses a valid Page JSON with auth" $ do
       [trimming|
           {
+            "name": "foo",
             "component":  ${extNamedImportJson},
             "authRequired": true
           }
         |]
         `shouldDecodeTo` Just
           ( Page.Page
-              { component = fromJust $ decodeJson extNamedImportJson,
+              { name = "foo",
+                component = fromJust $ decodeJson extNamedImportJson,
                 authRequired = Just True
               }
           )
     it "parses a valid Page JSON without auth" $ do
       [trimming|
           {
+            "name": "foo",
             "component":  ${extNamedImportJson}
           }
         |]
         `shouldDecodeTo` Just
           ( Page.Page
-              { component = fromJust $ decodeJson extNamedImportJson,
+              { name = "foo",
+                component = fromJust $ decodeJson extNamedImportJson,
                 authRequired = Nothing
               }
           )
     it "fails to parse a Page JSON without a component" $ do
       [trimming|
           {
+            "name": "foo",
             "authRequired": true
           }
         |]
@@ -111,6 +116,7 @@ spec_AppSpecFromJSON = do
     it "parses a valid Route JSON without lazy" $ do
       [trimming|
           {
+            "name": "foo",
             "path": "/foo",
             "to": ${pageRef},
             "prerender": []
@@ -118,7 +124,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Route.Route
-              { Route.path = "/foo",
+              { Route.name = "foo",
+                Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Nothing,
                 Route.prerender = []
@@ -127,6 +134,7 @@ spec_AppSpecFromJSON = do
     it "parses a valid Route JSON with lazy: false" $ do
       [trimming|
           {
+            "name": "foo",
             "path": "/foo",
             "to": ${pageRef},
             "lazy": false,
@@ -135,7 +143,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Route.Route
-              { Route.path = "/foo",
+              { Route.name = "foo",
+                Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Just False,
                 Route.prerender = []
@@ -144,6 +153,7 @@ spec_AppSpecFromJSON = do
     it "parses a valid Route JSON with lazy: true" $ do
       [trimming|
           {
+            "name": "foo",
             "path": "/foo",
             "to": ${pageRef},
             "lazy": true,
@@ -152,7 +162,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Route.Route
-              { Route.path = "/foo",
+              { Route.name = "foo",
+                Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Just True,
                 Route.prerender = []
@@ -161,6 +172,7 @@ spec_AppSpecFromJSON = do
     it "parses a valid Route JSON with a prerender path list" $ do
       [trimming|
           {
+            "name": "foo",
             "path": "/foo",
             "to": ${pageRef},
             "prerender": ["/foo", "/bar"]
@@ -168,7 +180,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Route.Route
-              { Route.path = "/foo",
+              { Route.name = "foo",
+                Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Nothing,
                 Route.prerender = ["/foo", "/bar"]
@@ -192,6 +205,7 @@ spec_AppSpecFromJSON = do
     it "parses a valid Query JSON with auth and entities" $ do
       [trimming|
           {
+            "name": "foo",
             "fn": ${extNamedImportJson},
             "entities": [${fooEntityRef}, ${barEntityRef}],
             "auth": true
@@ -199,7 +213,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Query.Query
-              { fn = fromJust $ decodeJson extNamedImportJson,
+              { name = "foo",
+                fn = fromJust $ decodeJson extNamedImportJson,
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef],
                 auth = Just True
               }
@@ -207,12 +222,14 @@ spec_AppSpecFromJSON = do
     it "parses a valid Query JSON without auth and entities" $ do
       [trimming|
         {
+          "name": "foo",
           "fn": ${extNamedImportJson}
         }
       |]
         `shouldDecodeTo` Just
           ( Query.Query
-              { fn = fromJust $ decodeJson extNamedImportJson,
+              { name = "foo",
+                fn = fromJust $ decodeJson extNamedImportJson,
                 entities = Nothing,
                 auth = Nothing
               }
@@ -221,6 +238,7 @@ spec_AppSpecFromJSON = do
     it "parses a valid Action JSON with auth and entities" $ do
       [trimming|
           {
+            "name": "foo",
             "fn": ${extNamedImportJson},
             "entities": [${fooEntityRef}, ${barEntityRef}],
             "auth": true
@@ -228,7 +246,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Action.Action
-              { fn = fromJust $ decodeJson extNamedImportJson,
+              { name = "foo",
+                fn = fromJust $ decodeJson extNamedImportJson,
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef],
                 auth = Just True
               }
@@ -236,12 +255,14 @@ spec_AppSpecFromJSON = do
     it "parses a valid Action JSON without auth and entities" $ do
       [trimming|
         {
+          "name": "foo",
           "fn": ${extNamedImportJson}
         }
       |]
         `shouldDecodeTo` Just
           ( Action.Action
-              { fn = fromJust $ decodeJson extNamedImportJson,
+              { name = "foo",
+                fn = fromJust $ decodeJson extNamedImportJson,
                 entities = Nothing,
                 auth = Nothing
               }
@@ -284,6 +305,7 @@ spec_AppSpecFromJSON = do
     it "parses the simplest possible job JSON" $ do
       [trimming|
           {
+            "name": "foo",
             "executor": "PgBoss",
             "perform": {
               "fn": ${extNamedImportJson}
@@ -292,7 +314,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Job.Job
-              { executor = Job.PgBoss,
+              { name = "foo",
+                executor = Job.PgBoss,
                 perform =
                   Job.Perform
                     { fn = fromJust $ decodeJson extNamedImportJson,
@@ -305,6 +328,7 @@ spec_AppSpecFromJSON = do
     it "parses a more complex job JSON" $ do
       [trimming|
           {
+            "name": "foo",
             "executor": "PgBoss",
             "perform": {
               "fn": ${extNamedImportJson}
@@ -321,7 +345,8 @@ spec_AppSpecFromJSON = do
         |]
         `shouldDecodeTo` Just
           ( Job.Job
-              { executor = Job.PgBoss,
+              { name = "foo",
+                executor = Job.PgBoss,
                 perform =
                   Job.Perform
                     { fn = fromJust $ decodeJson extNamedImportJson,

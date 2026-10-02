@@ -5,9 +5,9 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
   "status": "ok",
   "value": [
     {
-      "declName": "demo",
       "declType": "App",
       "declValue": {
+        "name": "demo",
         "title": "Split Demo",
         "wasp": {
           "version": "^0.16.0",
@@ -15,7 +15,6 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
       },
     },
     {
-      "declName": "MainPage",
       "declType": "Page",
       "declValue": {
         "component": {
@@ -23,10 +22,10 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
           "name": "MainPage",
           "path": "@src/MainPage",
         },
+        "name": "MainPage",
       },
     },
     {
-      "declName": "archive",
       "declType": "Action",
       "declValue": {
         "entities": [],
@@ -36,10 +35,10 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
           "name": "archive",
           "path": "@src/adminOperations",
         },
+        "name": "archive",
       },
     },
     {
-      "declName": "FaqPage",
       "declType": "Page",
       "declValue": {
         "component": {
@@ -47,6 +46,7 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
           "name": "FaqPage",
           "path": "@src/features/faq/FaqPage",
         },
+        "name": "FaqPage",
       },
     },
   ],

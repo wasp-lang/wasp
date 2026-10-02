@@ -211,7 +211,8 @@ async function getAppInfoFromShowSpec({
     (decl: unknown) => isRecord(decl) && decl.declType === "App",
   );
 
-  if (!isRecord(appDecl) || typeof appDecl.declName !== "string") {
+  const appName = getAppName(appDecl);
+  if (appName === undefined) {
     logger.error("Failed to get app name");
     process.exit(1);
   }
@@ -222,9 +223,29 @@ async function getAppInfoFromShowSpec({
   }
 
   return {
-    appName: appDecl.declName as AppName,
+    appName: appName as AppName,
     dbType: spec.dbSystem === "PostgreSQL" ? DbType.Postgres : DbType.Sqlite,
   };
+}
+
+/**
+ * Newer Wasp versions (0.26 and later) put the name inside `declValue`, while
+ * older ones (0.25 and earlier) put it in the decl envelope as `declName`.
+ */
+function getAppName(appDecl: unknown): string | undefined {
+  if (!isRecord(appDecl)) {
+    return undefined;
+  }
+  if (
+    isRecord(appDecl.declValue) &&
+    typeof appDecl.declValue.name === "string"
+  ) {
+    return appDecl.declValue.name;
+  }
+  if (typeof appDecl.declName === "string") {
+    return appDecl.declName;
+  }
+  return undefined;
 }
 
 async function getAppInfoFromInfo({

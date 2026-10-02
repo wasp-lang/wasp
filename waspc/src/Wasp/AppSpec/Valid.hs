@@ -18,6 +18,7 @@ import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
@@ -29,12 +30,14 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (declName))
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.Identifier (isValidWaspIdentifier)
+import qualified Wasp.AppSpec.Job as AS.Job
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
+import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -88,7 +91,7 @@ validateExactlyOneAppExists spec =
           "You have more than one 'app' declaration in your Wasp app. You have " ++ show (length apps) ++ "."
 
 validateWasp :: AppSpec -> [ValidationError]
-validateWasp = validateWaspVersion . Wasp.version . App.wasp . snd . getApp
+validateWasp = validateWaspVersion . Wasp.version . App.wasp . getApp
 
 validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
@@ -131,7 +134,7 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
 
 validateUserEntity :: AppSpec -> [ValidationError]
 validateUserEntity spec =
-  case App.auth (snd $ getApp spec) of
+  case App.auth (getApp spec) of
     Nothing -> []
     Just auth ->
       case Entity.getIdField userEntity of
@@ -141,7 +144,8 @@ validateUserEntity spec =
             then []
             else [userEntityIdFieldMissingDefaultAttrError]
       where
-        (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+        userEntity = AS.resolveRef spec auth.userEntity
+        userEntityName = Entity.getName userEntity
 
         userEntityMissingIdFieldError = GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute)"
         userEntityIdFieldMissingDefaultAttrError = GenericValidationError $ "Entity '" ++ userEntityName ++ "' (referenced by app.auth.userEntity) must have an ID field (specified with the '@id' attribute) with a default value"
@@ -153,11 +157,11 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   | anyPageRequiresAuth && not (isAuthEnabled spec)
   ]
   where
-    anyPageRequiresAuth = any ((== Just True) . Page.authRequired . snd) (AS.getPages spec)
+    anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (AS.getPages spec)
 
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
-  case App.auth (snd $ getApp spec) of
+  case App.auth (getApp spec) of
     Nothing -> []
     Just auth ->
       [ GenericValidationError
@@ -182,7 +186,7 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
       then [GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
       else []
   where
-    app = snd $ getApp spec
+    app = getApp spec
 
 validateDummyEmailSenderIsNotUsedInProduction :: AppSpec -> [ValidationError]
 validateDummyEmailSenderIsNotUsedInProduction spec =
@@ -191,7 +195,7 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
     else []
   where
     isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
-    app = snd $ getApp spec
+    app = getApp spec
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
@@ -199,7 +203,7 @@ validateApiRoutesAreUnique spec =
     then []
     else [GenericValidationError $ "`api` routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
   where
-    apiRoutes = AS.Api.httpRoute . snd <$> AS.getApis spec
+    apiRoutes = AS.Api.httpRoute <$> AS.getApis spec
     groupsOfConflictingRoutes = filter ((> 1) . length) (groupBy routesHaveConflictingDefinitions $ sortBy routeComparator apiRoutes)
 
     routeComparator :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Ordering
@@ -219,7 +223,7 @@ validateApiNamespacePathsAreUnique spec =
     then []
     else [GenericValidationError $ "`apiNamespace` paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
   where
-    namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
+    namespacePaths = AS.ApiNamespace.path <$> AS.getApiNamespaces spec
     duplicatePaths = findDuplicateElems namespacePaths
 
 validateCrudOperations :: AppSpec -> [ValidationError]
@@ -231,23 +235,23 @@ validateCrudOperations spec =
   where
     cruds = AS.getCruds spec
 
-    checkIfAtLeastOneOperationIsUsedForCrud :: (String, AS.Crud.Crud) -> [ValidationError]
-    checkIfAtLeastOneOperationIsUsedForCrud (crudName, crud) =
+    checkIfAtLeastOneOperationIsUsedForCrud :: AS.Crud.Crud -> [ValidationError]
+    checkIfAtLeastOneOperationIsUsedForCrud crud =
       if not . null $ crudOperations
         then []
-        else [GenericValidationError $ "CRUD \"" ++ crudName ++ "\" must have at least one operation defined."]
+        else [GenericValidationError $ "CRUD \"" ++ crud.name ++ "\" must have at least one operation defined."]
       where
         crudOperations = AS.Crud.toOperationList crud.operations
 
-    checkIfSimpleIdFieldIsDefinedForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
-    checkIfSimpleIdFieldIsDefinedForEntity (crudName, crud) = case (maybeIdField, maybeIdBlockAttribute) of
+    checkIfSimpleIdFieldIsDefinedForEntity :: AS.Crud.Crud -> [ValidationError]
+    checkIfSimpleIdFieldIsDefinedForEntity crud = case (maybeIdField, maybeIdBlockAttribute) of
       (Just _, Nothing) -> []
       (Nothing, Just _) ->
         [ GenericValidationError $
             "Entity '"
               ++ entityName
               ++ "' (referenced by CRUD declaration '"
-              ++ crudName
+              ++ crud.name
               ++ "') must have an ID field (specified with the '@id' attribute) and not a composite ID (specified with the '@@id' attribute)."
         ]
       _missingIdFieldWithoutBlockIdAttributeDefined ->
@@ -255,13 +259,14 @@ validateCrudOperations spec =
             "Entity '"
               ++ entityName
               ++ "' (referenced by CRUD declaration '"
-              ++ crudName
+              ++ crud.name
               ++ "') must have an ID field (specified with the '@id' attribute)."
         ]
       where
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
-        (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+        entity = AS.resolveRef spec crud.entity
+        entityName = Entity.getName entity
 
 validateOperationEntitiesAreUnique :: AppSpec -> [ValidationError]
 validateOperationEntitiesAreUnique spec =
@@ -282,8 +287,8 @@ validateOperationEntitiesAreUnique spec =
         entityNames = maybe [] (map AS.refName) (AS.Operation.getEntities operation)
 
     describeOperation :: AS.Operation.Operation -> String
-    describeOperation (AS.Operation.QueryOp name _) = "query '" ++ name ++ "'"
-    describeOperation (AS.Operation.ActionOp name _) = "action '" ++ name ++ "'"
+    describeOperation (AS.Operation.QueryOp query) = "query '" ++ query.name ++ "'"
+    describeOperation (AS.Operation.ActionOp action) = "action '" ++ action.name ++ "'"
 
 {- ORMOLU_DISABLE -}
 -- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"
@@ -303,7 +308,7 @@ validateUniqueDeclarationNames spec =
       checkIfDeclarationsAreUnique "job" (AS.getJobs spec)
     ]
   where
-    checkIfDeclarationsAreUnique :: (IsDecl a) => String -> [(String, a)] -> [ValidationError]
+    checkIfDeclarationsAreUnique :: (IsDecl a) => String -> [a] -> [ValidationError]
     checkIfDeclarationsAreUnique declTypeName decls = case duplicateDeclNames of
       [] -> []
       (firstDuplicateDeclName : _) ->
@@ -316,7 +321,7 @@ validateUniqueDeclarationNames spec =
         ]
       where
         duplicateDeclNames :: [String]
-        duplicateDeclNames = findDuplicateElems $ map fst decls
+        duplicateDeclNames = findDuplicateElems $ map declName decls
 
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =
@@ -339,7 +344,7 @@ validateDeclarationNames spec =
               ]
 
     capitalizedJobsErrorMessage =
-      let capitalizedJobNames = filter isCapitalized $ map fst $ AS.getJobs spec
+      let capitalizedJobNames = filter isCapitalized $ map AS.Job.name $ AS.getJobs spec
        in case capitalizedJobNames of
             [] -> []
             _ ->
@@ -350,7 +355,7 @@ validateDeclarationNames spec =
               ]
 
     nonCapitalizedEntitesErrorMessage =
-      let nonCapitalizedEntitieNames = filter (not . isCapitalized) $ map fst $ AS.getEntities spec
+      let nonCapitalizedEntitieNames = filter (not . isCapitalized) $ map Entity.getName $ AS.getEntities spec
        in case nonCapitalizedEntitieNames of
             [] -> []
             _ ->
@@ -394,7 +399,7 @@ validateWebAppBaseDir spec = case maybeBaseDir of
         [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
   _anyOtherCase -> []
   where
-    maybeBaseDir = Client.baseDir =<< AS.App.client (snd $ getApp spec)
+    maybeBaseDir = Client.baseDir =<< AS.App.client (getApp spec)
 
     startsWithSlash :: String -> Bool
     startsWithSlash ('/' : _) = True
@@ -454,23 +459,23 @@ validatePrerenderRoutes spec =
   concatMap validatePrerenderRoute prerenderRoutes
   where
     -- Routes that prerender at least one path.
-    prerenderRoutes = filter (not . null . prerenderPaths . snd) (AS.getRoutes spec)
+    prerenderRoutes = filter (not . null . prerenderPaths) (AS.getRoutes spec)
 
-    validatePrerenderRoute (routeName, route) =
-      concatMap (validatePrerenderPath routeName route) (prerenderPaths route)
+    validatePrerenderRoute route =
+      concatMap (validatePrerenderPath route) (prerenderPaths route)
         ++ [ GenericValidationError $
                "Route '"
-                 ++ routeName
+                 ++ route.name
                  ++ "' has prerendering enabled but its page has authRequired set to true."
                  ++ " Prerendered routes cannot require authentication."
            | pageRequiresAuth (getPage route)
            ]
 
-    validatePrerenderPath routeName route path
+    validatePrerenderPath route path
       | pathHasDynamicSegments path =
           [ GenericValidationError $
               "Route '"
-                ++ routeName
+                ++ route.name
                 ++ "' lists prerender path ("
                 ++ path
                 ++ ") which contains dynamic segments. Prerender paths must be fully static."
@@ -478,7 +483,7 @@ validatePrerenderRoutes spec =
       | not (doesConcretePathMatchRoutePattern (Route.path route) path) =
           [ GenericValidationError $
               "Route '"
-                ++ routeName
+                ++ route.name
                 ++ "' lists prerender path ("
                 ++ path
                 ++ ") which does not match the route's path pattern ("
@@ -491,12 +496,12 @@ validatePrerenderRoutes spec =
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
     pageRequiresAuth page = Page.authRequired page == Just True
 
-    getPage route = snd $ AS.resolveRef spec (Route.to route)
+    getPage route = AS.resolveRef spec route.to
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
-getApp :: AppSpec -> (String, App)
+getApp :: AppSpec -> App
 getApp spec = case takeDecls @App (AS.decls spec) of
   [app] -> app
   apps ->
@@ -506,7 +511,7 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
-isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+isAuthEnabled spec = isJust (App.auth $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema
@@ -519,8 +524,8 @@ isPostgresUsed = (AS.Db.PostgreSQL ==) . getValidDbSystem
 -- If there is no user entity, it returns Nothing.
 doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
 doesUserEntityContainField spec fieldName = do
-  auth <- App.auth (snd $ getApp spec)
-  let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+  auth <- App.auth (getApp spec)
+  let userEntity = AS.resolveRef spec auth.userEntity
   let userEntityFields = Entity.getFields userEntity
   Just $ isJust $ findFieldByName fieldName userEntityFields
 
@@ -532,7 +537,7 @@ findFieldByName name = find ((== name) . Psl.Model._name)
 getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> Psl.Model.Field
 getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
-    crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
+    crudEntity = AS.resolveRef spec crud.entity
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- Example: If user specified their node version range to be [22.12, 24), then this function will return 22.12.
