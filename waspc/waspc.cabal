@@ -447,6 +447,8 @@ library cli-lib
     waspc,
     zlib ^>=0.7.1,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     Paths_waspc
 
@@ -523,6 +525,7 @@ library cli-lib
     Wasp.Cli.ProjectLock
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
+    Wasp.Cli.TerminationSignals
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser

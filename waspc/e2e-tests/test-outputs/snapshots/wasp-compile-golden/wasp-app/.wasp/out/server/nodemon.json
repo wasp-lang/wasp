@@ -8,5 +8,7 @@
     ".env"
   ],
   "comment-filip": "We now have to watch ../../../src/ because we're importing client files directly",
-  "ext": "ts,mts,js,mjs,json"
+  "ext": "ts,mts,js,mjs,json",
+  "signal": "SIGTERM",
+  "comment-signal": "With the default signal (SIGUSR2), nodemon restarts on SIGHUP instead of exiting, so it would keep running after its terminal is closed"
 }
