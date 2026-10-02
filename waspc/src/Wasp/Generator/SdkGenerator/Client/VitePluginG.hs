@@ -74,7 +74,9 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec)),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
+          "dependenciesIncludedInOptimization" .= makeJsArrayFromHaskellList dependenciesIncludedInOptimization,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
+          "singleInstanceDependencies" .= makeJsArrayFromHaskellList singleInstanceDependencies,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
@@ -96,6 +98,24 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         -- they aren't updated even though the lib changes.
         -- Read more about libs versioning in `waspc/libs/README.md`.
         map WaspLib.packageName waspLibs
+
+    -- Wasp libraries are excluded from optimization by default, but some of their dependencies
+    -- must still be included.
+    dependenciesIncludedInOptimization =
+      singleInstanceDependencies
+        ++ [ -- @wasp.sh/lib-sdk-core and generated app code must use the same React JSX runtime.
+             "@wasp.sh/lib-sdk-core/browser > react/jsx-runtime"
+           ]
+
+    -- These packages rely on a single instance per page. Not deduping them causes runtime errors,
+    -- such as React hook rule violations, React Query QueryClient errors, and React Router
+    -- invariant errors.
+    singleInstanceDependencies =
+      [ "react",
+        "react-dom",
+        "@tanstack/react-query",
+        "react-router"
+      ]
 
 genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
