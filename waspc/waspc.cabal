@@ -695,13 +695,13 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
-    Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
     Tests.SnapshotTests.WaspMigrateSnapshotTest
     Tests.SnapshotTests.WaspNewSnapshotTest
+    Tests.UserCodeTypeCheckingTest
     Tests.ViteBuildTest
     Tests.ViteConfigTest
     Tests.WaspBuildStartTest

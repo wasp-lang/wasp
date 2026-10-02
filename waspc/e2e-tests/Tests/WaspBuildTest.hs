@@ -2,8 +2,6 @@ module Tests.WaspBuildTest (waspBuildTest) where
 
 import ShellCommands
   ( ShellCommand,
-    appendToFile,
-    assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
@@ -35,19 +33,6 @@ waspBuildTest =
                   waspCliBuild,
                   return $ assertDirectoryExists ".wasp",
                   return $ assertDirectoryExists "node_modules"
-                ]
-            ]
-        ),
-      TestCase
-        "fail-on-user-code-type-error"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  appendToFile "src/MainPage.tsx" "const shouldBeNumber: number = 'wrong'",
-                  assertCommandOutputContains
-                    (return waspCliBuildFails)
-                    "User code type-check failed with exit code:"
                 ]
             ]
         )
