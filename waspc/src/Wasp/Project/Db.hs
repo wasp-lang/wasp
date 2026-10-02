@@ -11,6 +11,7 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
@@ -31,10 +32,10 @@ makeDevDatabaseUrl ::
 makeDevDatabaseUrl waspProjectDir dbSystem decls =
   case AS.getApp decls of
     Nothing -> return Nothing
-    Just (appName, _) -> case dbSystem of
+    Just app -> case dbSystem of
       AS.Db.SQLite -> return $ Just DevSqlite.defaultDevDbFile
       AS.Db.PostgreSQL ->
-        fmap DevPostgres.getDevConnectionUrl <$> DevPostgres.discoverProjectsRunningDevDb waspProjectDir appName
+        fmap DevPostgres.getDevConnectionUrl <$> DevPostgres.discoverProjectsRunningDevDb waspProjectDir app.name
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"

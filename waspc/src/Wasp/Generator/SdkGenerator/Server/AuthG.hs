@@ -44,7 +44,7 @@ genServerAuth spec =
         <++> genAuthUsername auth
         <++> genOAuth auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =

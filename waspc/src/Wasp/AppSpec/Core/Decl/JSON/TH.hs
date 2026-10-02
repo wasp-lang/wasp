@@ -29,7 +29,6 @@ generateFromJsonInstanceForDecl = do
     instance FromJSON Decl where
       parseJSON = withObject "Decl" $ \o -> do
         declType <- o .: "declType"
-        declName <- o .: "declName"
         -- Generates:
         --   case declType of
         --     <caseMatches[0]>
@@ -44,14 +43,13 @@ generateFromJsonInstanceForDecl = do
     |]
   where
     -- Generates following (for e.g. `Page` type):
-    --   t | t == declTypeName @Page -> makeDecl @Page declName <$> o .: "declValue"
+    --   t | t == declTypeName @Page -> makeDecl @Page <$> o .: "declValue"
     getCaseMatchForDeclType :: Type -> Q Match
     getCaseMatchForDeclType typ = do
       casePredicate <- [|t == $(pure $ AppTypeE (VarE 'declTypeName) typ)|]
       matchBody <-
         [e|
           $(pure $ AppTypeE (VarE 'makeDecl) typ)
-            declName
             <$> (o .: "declValue")
           |]
       pure $

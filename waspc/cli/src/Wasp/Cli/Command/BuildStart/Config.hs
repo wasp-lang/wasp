@@ -14,6 +14,7 @@ import Data.Char (toLower)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -63,8 +64,8 @@ makeBuildStartConfig appSpec args projectDir' = do
         clientRunConfig = clientRunConfig'
       }
   where
-    appUniqueId' = makeAppUniqueId projectDir' appName
-    (appName, _) = ASV.getApp appSpec
+    appUniqueId' = makeAppUniqueId projectDir' app.name
+    app = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
