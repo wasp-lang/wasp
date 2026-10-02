@@ -26,7 +26,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Cli.Util.PortArgument (portOption)
+import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -66,7 +66,7 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
-    <$> portOption "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")")
+    <$> Opt.optional (portParser "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")"))
     <*> Opt.strOption
       ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
