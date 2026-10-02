@@ -14,7 +14,7 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import Wasp.Cli.ProjectLock (withProjectLockAsWatcher)
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -32,7 +32,7 @@ test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server 
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
 watchAndTest :: (WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
-watchAndTest testRunner = withProjectLock $ do
+watchAndTest testRunner = withProjectLockAsWatcher $ \projectLock -> do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
@@ -45,7 +45,7 @@ watchAndTest testRunner = withProjectLock $ do
 
   watchOrStartResult <- liftIO $ do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar
+    let watchWaspProjectSource = watch waspRoot outDir projectLock ongoingCompilationResultMVar
 
     -- Vitest must run from the root of the project because Vite won't resolve
     -- files outside of the project root (in this case, user src/ dir which the
