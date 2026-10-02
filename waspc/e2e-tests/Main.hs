@@ -8,13 +8,13 @@ import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
+import Tests.UserCodeTypeCheckingTest (userCodeTypeCheckingTest)
 import Tests.ViteBuildTest (viteBuildTest)
 import Tests.ViteConfigTest (viteConfigTest)
 import Tests.WaspBuildTest (waspBuildTest)
@@ -122,7 +122,7 @@ e2eTests = do
         waspDbResetTest,
         waspDbMigrateDevTest,
         waspSpecEntityTypesTest,
-        incrementalTypeCheckingTest
+        userCodeTypeCheckingTest
       ]
   sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
 

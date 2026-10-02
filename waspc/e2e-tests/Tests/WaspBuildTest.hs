@@ -1,6 +1,12 @@
 module Tests.WaspBuildTest (waspBuildTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild)
+import ShellCommands
+  ( ShellCommand,
+    createTestWaspProject,
+    inTestWaspProjectDir,
+    setWaspDbToPSQL,
+    waspCliBuild,
+  )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
