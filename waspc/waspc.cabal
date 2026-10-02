@@ -157,6 +157,9 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
+  if !os(windows)
+    build-depends:
+      unix ^>=2.8.8
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.AppComponentUrl
