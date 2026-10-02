@@ -10,7 +10,7 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
 import Data.Either (fromLeft)
-import StrongPath (Abs, Dir, Path', relfile, (</>))
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
@@ -82,12 +82,10 @@ typeCheckUserCode spec sendMessage = do
     runTypeCheck =
       runNodeCommandAsJob
         (AS.waspProjectDir spec)
-        tscExecutable
-        [ "--project",
+        "npx"
+        [ "tsc",
+          "--project",
           SP.fromRelFile $ AS.srcTsConfigPath spec,
           "--noEmit"
         ]
         J.Wasp
-
-    -- A bare tsc depends on PATH and may be missing or resolve to a global compiler.
-    tscExecutable = SP.fromAbsFile $ AS.waspProjectDir spec </> [relfile|node_modules/.bin/tsc|]
