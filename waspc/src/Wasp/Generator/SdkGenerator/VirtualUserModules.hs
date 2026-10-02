@@ -129,13 +129,13 @@ getVirtualUserModules spec =
         (getRegisteredOperationTypeName operation)
 
     getOperationsIndexModulePath = \case
-      AS.Operation.QueryOp _ _ -> [relfileP|./server/operations/queries/index|]
-      AS.Operation.ActionOp _ _ -> [relfileP|./server/operations/actions/index|]
+      AS.Operation.QueryOp _ -> [relfileP|./server/operations/queries/index|]
+      AS.Operation.ActionOp _ -> [relfileP|./server/operations/actions/index|]
 
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    app = snd $ getApp spec
+    app = getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
 getClientVirtualUserModules :: AppSpec -> [VirtualUserModule]
