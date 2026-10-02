@@ -8,7 +8,9 @@ module Wasp.Generator
   )
 where
 
+import Control.Arrow (left, second)
 import Control.Monad (forM_, when)
+import Control.Monad.Extra (andM)
 import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
@@ -45,10 +47,7 @@ generateWebAppCode :: AppSpec -> ([GeneratorWarning], Either [GeneratorError] [F
 generateWebAppCode spec =
   case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> ([], Left validationErrors)
-    [] ->
-      case runGenerator $ genApp spec of
-        (generatorWarnings, Left generatorErrors) -> (generatorWarnings, Left $ toList generatorErrors)
-        (generatorWarnings, Right fileDrafts) -> (generatorWarnings, Right fileDrafts)
+    [] -> second (left toList) $ runGenerator $ genApp spec
 
 -- | Writes generated web app code to the destination directory and sets it up.
 --   If dstDir does not exist yet, it will be created.
@@ -59,28 +58,26 @@ generateWebAppCode spec =
 --     from user's machine. Maybe we just overwrite and we are good?
 writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir fileDrafts sendMessage = do
+  -- We remove the previous `.waspinfo` before writing any files, so a concurrent
+  -- freshness check can't pair the new checksum file with the previous build's
+  -- completed setup.
+  WaspInfo.remove dstDir
   synchronizeFileDraftsWithDisk dstDir fileDrafts
-  WaspInfo.persist dstDir (AS.buildType spec) False
+  WaspInfo.persist dstDir (AS.buildType spec) WaspInfo.SetupPending
   (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
-  when (null setupGeneratorErrors) $ WaspInfo.persist dstDir (AS.buildType spec) True
+  when (null setupGeneratorErrors) $ WaspInfo.persist dstDir (AS.buildType spec) WaspInfo.SetupComplete
   return (setupGeneratorWarnings, setupGeneratorErrors)
 
 -- | Returns 'True' if writing and setting up the generated app would change
 -- nothing on disk.
 isGeneratedAppUpToDate :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO Bool
-isGeneratedAppUpToDate spec dstDir fileDrafts = do
-  buildIsComplete <- AS.buildType spec `WaspInfo.isCompleteBuildAt` dstDir
-  if not buildIsComplete
-    then return False
-    else do
-      fileDraftsAreSynchronized <- areFileDraftsSynchronizedWithDisk dstDir fileDrafts
-      if not fileDraftsAreSynchronized
-        then return False
-        else do
-          npmInstallIsNeeded <- isNpmInstallNeeded spec dstDir
-          if npmInstallIsNeeded
-            then return False
-            else isPrismaClientUpToDate spec dstDir
+isGeneratedAppUpToDate spec dstDir fileDrafts =
+  andM
+    [ AS.buildType spec `WaspInfo.isCompleteBuildAt` dstDir,
+      areFileDraftsSynchronizedWithDisk dstDir fileDrafts,
+      not <$> isNpmInstallNeeded spec dstDir,
+      isPrismaClientUpToDate spec dstDir
+    ]
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec = do

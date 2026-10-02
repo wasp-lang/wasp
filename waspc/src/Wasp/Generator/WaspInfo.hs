@@ -2,9 +2,11 @@
 
 module Wasp.Generator.WaspInfo
   ( persist,
+    remove,
     isCompatibleWithExistingBuildAt,
     isCompleteBuildAt,
     WaspInfo (..),
+    SetupStatus (..),
     safeRead,
     ReadResult,
     ReadError (..),
@@ -21,13 +23,13 @@ import StrongPath (Abs, Dir, File, Path', Rel, relfile, toFilePath, (</>))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Inspectable (Inspectable (inspect), InspectionEntry (InspectionEntry))
 import Wasp.Project.BuildType (BuildType)
-import Wasp.Util.IO (doesFileExist)
+import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 
 data WaspInfo = WaspInfo
   { waspVersion :: String,
     generatedAt :: UTCTime,
     buildType :: BuildType,
-    isSetupComplete :: Bool
+    setupStatus :: SetupStatus
   }
   deriving (Eq, Show, Generic)
 
@@ -36,23 +38,38 @@ instance FromJSON WaspInfo
 instance ToJSON WaspInfo
 
 instance Inspectable WaspInfo where
-  inspect WaspInfo {waspVersion, generatedAt, buildType, isSetupComplete} =
+  inspect WaspInfo {waspVersion, generatedAt, buildType, setupStatus} =
     [ InspectionEntry
         "Build"
         [ ("Wasp version", waspVersion),
           ("Generated at", show generatedAt),
           ("Build type", show buildType),
-          ("Setup complete", show isSetupComplete)
+          ("Setup", showSetupStatus setupStatus)
         ]
     ]
+    where
+      showSetupStatus SetupPending = "Pending"
+      showSetupStatus SetupComplete = "Complete"
+
+-- | Whether the setup step (npm install, Prisma client generation, etc.) has
+-- finished successfully for the generated app.
+data SetupStatus = SetupPending | SetupComplete
+  deriving (Eq, Show, Generic)
+
+instance FromJSON SetupStatus
+
+instance ToJSON SetupStatus
 
 data WaspInfoFile
 
 waspInfoInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File WaspInfoFile)
 waspInfoInGeneratedAppDir = [relfile|.waspinfo|]
 
-persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> Bool -> IO ()
-persist generatedAppDir currentBuildType setupComplete = do
+currentVersion :: String
+currentVersion = showVersion Paths_waspc.version
+
+persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> SetupStatus -> IO ()
+persist generatedAppDir currentBuildType currentSetupStatus = do
   encodeFile (toFilePath waspInfoFile) . generateWaspInfo =<< getCurrentTime
   where
     generateWaspInfo currentTime =
@@ -60,31 +77,30 @@ persist generatedAppDir currentBuildType setupComplete = do
         { waspVersion = currentVersion,
           generatedAt = currentTime,
           buildType = currentBuildType,
-          isSetupComplete = setupComplete
+          setupStatus = currentSetupStatus
         }
 
     waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir
-    currentVersion = showVersion Paths_waspc.version
+
+remove :: Path' Abs (Dir GeneratedAppDir) -> IO ()
+remove generatedAppDir = deleteFileIfExists $ generatedAppDir </> waspInfoInGeneratedAppDir
 
 isCompleteBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 currentBuildType `isCompleteBuildAt` outDir =
   either (const False) isComplete <$> safeRead outDir
   where
     isComplete waspInfo =
-      isSetupComplete waspInfo
-        && waspVersion waspInfo == currentVersion
-        && buildType waspInfo == currentBuildType
-
-    currentVersion = showVersion Paths_waspc.version
+      setupStatus waspInfo == SetupComplete
+        && isCompatibleWith currentBuildType waspInfo
 
 isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 currentBuildType `isCompatibleWithExistingBuildAt` outDir =
-  either (const False) isCompatible <$> safeRead outDir
-  where
-    isCompatible (WaspInfo {waspVersion = storedVersion, buildType = storedBuildType}) =
-      (storedVersion == currentVersion) && (storedBuildType == currentBuildType)
+  either (const False) (isCompatibleWith currentBuildType) <$> safeRead outDir
 
-    currentVersion = showVersion Paths_waspc.version
+isCompatibleWith :: BuildType -> WaspInfo -> Bool
+isCompatibleWith currentBuildType waspInfo =
+  waspVersion waspInfo == currentVersion
+    && buildType waspInfo == currentBuildType
 
 type ReadResult = Either ReadError WaspInfo
 

@@ -16,7 +16,7 @@ module Wasp.Cli.Command.Compile
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (unless, void, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
@@ -66,56 +66,57 @@ compile = do
 -- along with the AppSpec it compiled.
 compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
-  (warnings, compilation) <- prepareCompilationOrThrow options
-  performCompilationAndReport options warnings compilation
-  return (warnings, compilation.appSpec)
+  (prepareWarnings, preparedCompilation) <- prepareCompilationOrThrow options
+  outDir <- getGeneratedAppDir
+  warnings <- applyPreparedCompilationAndReport options outDir prepareWarnings preparedCompilation
+  return (warnings, preparedCompilation.appSpec)
 
 -- | Compiles the project only if the generated app is out of date. Preparation
--- runs unlocked, while writing and setup hold the project lock. For this
--- process to overwrite a newer generation, another process would have to
--- finish a full compile after our preparation and before our non-blocking lock
--- attempt. If that process is still writing, the missing checksum file makes
--- our freshness check report stale and the lock attempt fails normally.
+-- runs unlocked, and the project lock is taken only to write and set up the
+-- generated app. A compile in progress in another process always looks stale
+-- (the checksum file is missing while it writes files, and `.waspinfo` marks
+-- setup as incomplete until setup finishes), so we try to take the lock and
+-- fail as usual instead of skipping.
 compileIfNeeded :: CompileOptions -> Command ()
 compileIfNeeded options = do
-  ValidNodeAndNpm <- require
-  InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-
-  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-
-  (warnings, compilation) <- prepareCompilationOrThrow options
-  isUpToDate <- liftIO $ Wasp.Project.isGeneratedAppUpToDate compilation outDir
+  (warnings, preparedCompilation) <- prepareCompilationOrThrow options
+  outDir <- getGeneratedAppDir
+  isUpToDate <- liftIO $ Wasp.Project.isGeneratedAppUpToDate preparedCompilation outDir
   if isUpToDate
     then do
       liftIO $ printWarningsIfAny warnings
       cliSendMessageC $ Msg.Success "Your wasp project is already compiled and up to date."
     else do
       cliSendMessageC $ Msg.Info "The generated app is out of date."
-      withProjectLock $ performCompilationAndReport options warnings compilation
+      void $ withProjectLock $ applyPreparedCompilationAndReport options outDir warnings preparedCompilation
+
+getGeneratedAppDir :: Command (Path' Abs (Dir Wasp.Generator.GeneratedAppDir))
+getGeneratedAppDir = do
+  InWaspProject waspProjectDir <- require
+  return $ waspProjectDir </> generatedAppDirInWaspProjectDir
 
 -- | Runs the in-memory phase of compilation, reporting and throwing on errors.
-prepareCompilationOrThrow :: CompileOptions -> Command ([CompileWarning], Wasp.Project.Compilation)
+prepareCompilationOrThrow :: CompileOptions -> Command ([CompileWarning], Wasp.Project.PreparedCompilation)
 prepareCompilationOrThrow options = do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
-  (warnings, compilationOrErrors) <- liftIO $ Wasp.Project.prepareCompilation waspProjectDir options
-  case compilationOrErrors of
-    Right compilation -> return (warnings, compilation)
+  (warnings, preparedCompilationOrErrors) <- liftIO $ Wasp.Project.prepareCompilation waspProjectDir options
+  case preparedCompilationOrErrors of
+    Right preparedCompilation -> return (warnings, preparedCompilation)
     Left errors -> do
       liftIO $ printCompilationResult (warnings, errors)
-      throwError $
-        CommandError "Compilation of wasp project failed" $
-          show (length errors) ++ " errors found"
+      throwCompilationFailed errors
 
--- | Writes and sets up a prepared compilation. The caller must hold the project
--- lock.
-performCompilationAndReport :: CompileOptions -> [CompileWarning] -> Wasp.Project.Compilation -> Command ()
-performCompilationAndReport options prepareWarnings compilation = do
-  InWaspProject waspProjectDir <- require
-
-  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-
+-- | Writes and sets up a prepared compilation, reports the result, and returns
+-- all warnings from both phases. The caller must hold the project lock.
+applyPreparedCompilationAndReport ::
+  CompileOptions ->
+  Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
+  [CompileWarning] ->
+  Wasp.Project.PreparedCompilation ->
+  Command [CompileWarning]
+applyPreparedCompilationAndReport options outDir prepareWarnings preparedCompilation = do
   generatedAppIsCompatible <-
     liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
@@ -131,14 +132,18 @@ performCompilationAndReport options prepareWarnings compilation = do
         "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (performWarnings, errors) <- liftIO $ Wasp.Project.performCompilation compilation outDir options
-  let warnings = prepareWarnings <> performWarnings
+  (applyWarnings, errors) <- liftIO $ Wasp.Project.applyPreparedCompilation preparedCompilation outDir options
+  let warnings = prepareWarnings <> applyWarnings
 
   liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $
-    throwError $
-      CommandError "Compilation of wasp project failed" $
-        show (length errors) ++ " errors found"
+  unless (null errors) $ throwCompilationFailed errors
+  return warnings
+
+throwCompilationFailed :: [CompileError] -> Command a
+throwCompilationFailed errors =
+  throwError $
+    CommandError "Compilation of wasp project failed" $
+      show (length errors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,

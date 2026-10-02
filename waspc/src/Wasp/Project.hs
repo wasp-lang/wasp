@@ -2,9 +2,9 @@
 -- logic for operating on and processing a Wasp source project, as a whole.
 module Wasp.Project
   ( WaspProjectDir,
-    Compilation (..),
+    PreparedCompilation (..),
     prepareCompilation,
-    performCompilation,
+    applyPreparedCompilation,
     isGeneratedAppUpToDate,
     compile,
     CompileError,
@@ -30,7 +30,7 @@ import qualified Wasp.Project.Env as Project.Env
 
 -- | The result of analyzing and generating a project in memory, before
 -- anything is written to the generated app directory.
-data Compilation = Compilation
+data PreparedCompilation = PreparedCompilation
   { appSpec :: AS.AppSpec,
     fileDrafts :: [FileDraft]
   }
@@ -40,36 +40,37 @@ data Compilation = Compilation
 prepareCompilation ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  IO ([CompileWarning], Either [CompileError] Compilation)
+  IO ([CompileWarning], Either [CompileError] PreparedCompilation)
 prepareCompilation waspDir options = do
   (appSpecOrAnalyzerErrors, analyzerWarnings) <- analyzeWaspProject waspDir options
-  let (compileWarnings, compilationOrErrors) =
+  let (compileWarnings, preparedCompilationOrErrors) =
         case appSpecOrAnalyzerErrors of
           Left analyzerErrors -> (analyzerWarnings, Left analyzerErrors)
           Right appSpec ->
             let (generatorWarnings, fileDraftsOrGeneratorErrors) = Generator.generateWebAppCode appSpec
                 filteredGeneratorWarnings = generatorWarningsFilter options generatorWarnings
              in ( (show <$> filteredGeneratorWarnings) <> analyzerWarnings,
-                  left (map show) $ Compilation appSpec <$> fileDraftsOrGeneratorErrors
+                  left (map show) $ PreparedCompilation appSpec <$> fileDraftsOrGeneratorErrors
                 )
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
-  return (compileWarnings <> dotEnvWarnings, compilationOrErrors)
+  return (compileWarnings <> dotEnvWarnings, preparedCompilationOrErrors)
 
 -- | Writes a prepared compilation to disk and runs the generated app setup.
-performCompilation ::
-  Compilation ->
+applyPreparedCompilation ::
+  PreparedCompilation ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
-performCompilation Compilation {appSpec, fileDrafts} outDir options = do
+applyPreparedCompilation PreparedCompilation {appSpec, fileDrafts} outDir options = do
   (generatorWarnings, generatorErrors) <-
     Generator.writeWebAppCode appSpec outDir fileDrafts (sendMessage options)
   let filteredWarnings = generatorWarningsFilter options generatorWarnings
   return (show <$> filteredWarnings, show <$> generatorErrors)
 
--- | Returns 'True' if performing the compilation would change nothing on disk.
-isGeneratedAppUpToDate :: Compilation -> Path' Abs (Dir Generator.GeneratedAppDir) -> IO Bool
-isGeneratedAppUpToDate Compilation {appSpec, fileDrafts} outDir =
+-- | Returns 'True' if applying the prepared compilation would change nothing on
+-- disk.
+isGeneratedAppUpToDate :: PreparedCompilation -> Path' Abs (Dir Generator.GeneratedAppDir) -> IO Bool
+isGeneratedAppUpToDate PreparedCompilation {appSpec, fileDrafts} outDir =
   Generator.isGeneratedAppUpToDate appSpec outDir fileDrafts
 
 compile ::
@@ -78,14 +79,14 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 compile waspDir outDir options = do
-  (prepareWarnings, compilationOrErrors) <- prepareCompilation waspDir options
-  case compilationOrErrors of
+  (prepareWarnings, preparedCompilationOrErrors) <- prepareCompilation waspDir options
+  case preparedCompilationOrErrors of
     Left errors -> return (prepareWarnings, Left errors)
-    Right compilation -> do
-      (performWarnings, errors) <- performCompilation compilation outDir options
+    Right preparedCompilation -> do
+      (applyWarnings, errors) <- applyPreparedCompilation preparedCompilation outDir options
       return
-        ( prepareWarnings <> performWarnings,
-          if null errors then Right compilation.appSpec else Left errors
+        ( prepareWarnings <> applyWarnings,
+          if null errors then Right preparedCompilation.appSpec else Left errors
         )
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
