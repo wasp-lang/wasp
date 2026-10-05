@@ -10,10 +10,10 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Compile (compile)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
