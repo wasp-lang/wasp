@@ -7,6 +7,7 @@ export default defineConfig({
     node: "./src/node/index.ts",
   },
   platform: "neutral",
+  unbundle: true,
   css: {
     lightningcss: {
       // Keep CSS hashes stable across checkout paths for snapshot tests.
@@ -16,5 +17,6 @@ export default defineConfig({
   outDir: "dist",
   dts: { sourcemap: true },
   sourcemap: true,
-  fixedExtension: false,
+  fixedExtension: true,
+  attw: { profile: "esm-only", level: "error" },
 });

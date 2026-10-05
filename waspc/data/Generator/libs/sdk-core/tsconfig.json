@@ -9,7 +9,6 @@
     /* Modules */
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "module": "preserve",
     "verbatimModuleSyntax": true,
 
     /* Strictness */
