@@ -2,12 +2,14 @@
 
 module Wasp.Util.IO.Retry
   ( retry,
+    retryWithOnRetry,
     constPause,
     linearPause,
     expPause,
     customPause,
     MonadRetry (..),
     PauseStrategy,
+    NumFailedTries,
   )
 where
 
@@ -19,8 +21,22 @@ import Prelude hiding (readFile, writeFile)
 
 -- | Runs given action, and then if it fails, retries it, up to maxNumRetries.
 --   Uses provided pauseStrategy to calculate pause between tries.
-retry :: forall m e a. (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
-retry (PauseStrategy calcPause) maxNumRetries action = go 0
+retry :: (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
+retry pauseStrategy maxNumRetries = retryWithOnRetry pauseStrategy maxNumRetries (\_ _ -> pure ())
+
+-- | Same as 'retry', but also runs provided onRetry callback after each failed try
+--   that will be retried, right before the pause. The callback receives the number
+--   of failed tries so far (starting at 1) and the error from the latest try.
+--   It is not called after the final failed try.
+retryWithOnRetry ::
+  forall m e a.
+  (MonadRetry m) =>
+  PauseStrategy ->
+  Natural ->
+  (NumFailedTries -> e -> m ()) ->
+  m (Either e a) ->
+  m (Either e a)
+retryWithOnRetry (PauseStrategy calcPause) maxNumRetries onRetry action = go 0
   where
     maxNumTries :: Natural
     maxNumTries = maxNumRetries + 1
@@ -33,6 +49,7 @@ retry (PauseStrategy calcPause) maxNumRetries action = go 0
           let numFailedTries' = numFailedTries + 1
            in if numFailedTries' < maxNumTries
                 then do
+                  onRetry numFailedTries' e
                   rThreadDelay $ fromIntegral $ calcPause numFailedTries'
                   go numFailedTries'
                 else pure $ Left e
