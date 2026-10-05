@@ -647,6 +647,7 @@ test-suite wasp-cli-tests
     hspec,
     network,
     network-uri,
+    optparse-applicative,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -654,6 +655,7 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
+    DbMigrateTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.News.ListingTest

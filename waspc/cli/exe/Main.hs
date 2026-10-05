@@ -151,7 +151,7 @@ printUsage =
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
+        cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>] [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
@@ -226,7 +226,7 @@ printDbUsage =
         cmd $ intercalate "\n" [
               "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
-              "                               Starts managed development database for you.",
+              "                               Runs a development database and streams its logs until Ctrl+C.",
               "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                               If the port is not specified, Wasp picks the first free port when the default one is taken."
         ],
@@ -241,9 +241,19 @@ printDbUsage =
               "                                   supplied migration name or asking for one.",
               "    OPTIONS:",
               "      --name [migration-name]",
-              "      --create-only"
+              "      --create-only",
+              "      --db-port <port>",
+              "      --db-image <image>",
+              "      --db-volume-mount-path <path>"
         ],
         cmd   "  studio                       GUI for inspecting your database.",
+              "",
+        title "DATABASE OPTIONS",
+              "  --db-port <port>             Host port when starting managed PostgreSQL.",
+              "  --db-image <image>           Docker image when starting managed PostgreSQL.",
+              "  --db-volume-mount-path <path>",
+              "                               Data path inside a new PostgreSQL container.",
+              "  These options also work with reset, seed, migrate-dev, and studio.",
               "",
         title "EXAMPLES",
               "  wasp db migrate-dev",

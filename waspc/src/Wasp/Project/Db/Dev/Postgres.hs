@@ -1,7 +1,8 @@
 -- | This module captures how Wasp runs a PostgreSQL dev database.
 module Wasp.Project.Db.Dev.Postgres
   ( makeDevPostgresDbSpec,
-    runDevPostgresDb,
+    createDevPostgresDb,
+    waitForReadyDevDb,
     DevDbSpec (..),
     getDevConnectionUrl,
     discoverProjectsRunningDevDb,
@@ -9,13 +10,15 @@ module Wasp.Project.Db.Dev.Postgres
   )
 where
 
+import Control.Concurrent (threadDelay)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
-import System.Process (callCommand)
-import Text.Printf (printf)
+import System.Exit (ExitCode (..))
+import System.Process (CreateProcess (create_group), proc, readCreateProcessWithExitCode, readProcessWithExitCode)
 import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
+import qualified Wasp.Util.Network.Socket as Socket
 
 data DevDbSpec = DevDbSpec
   { dockerVolumeName :: String,
@@ -41,26 +44,72 @@ getDevConnectionUrl :: DevDbSpec -> String
 getDevConnectionUrl devDbSpec =
   makeConnectionUrl devDbSpec.user devDbSpec.password devDbSpec.port devDbSpec.dbName
 
-runDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO ()
-runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath =
-  callCommand runDbCommand
+createDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO String
+createDevPostgresDb db image mountPath = do
+  (status, output, errors) <- readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
+  case (status, words output) of
+    (ExitSuccess, [containerId]) -> return containerId
+    _ -> ioError $ userError $ "Could not create PostgreSQL container. " <> errors
   where
-    -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
-    --   only when initializing the database -> if the volume was created previously, they will be ignored.
-    --   This is how the postgres Docker image works.
-    runDbCommand =
-      unwords
-        [ "docker run",
-          printf "--name %s" devDbSpec.dockerContainerName,
-          "--rm",
-          printf "--publish %s:%s" (show devDbSpec.port) (show postgresImageInternalPort),
-          printf "-v %s:%s" devDbSpec.dockerVolumeName dbDockerVolumeMountPath,
-          printf "--env POSTGRES_PASSWORD=%s" devDbSpec.password,
-          printf "--env POSTGRES_USER=%s" devDbSpec.user,
-          printf "--env POSTGRES_DB=%s" devDbSpec.dbName,
-          dbDockerImage
-        ]
-    postgresImageInternalPort = defaultPostgresPort
+    args =
+      [ "create",
+        "--rm",
+        "--name",
+        db.dockerContainerName,
+        "--publish",
+        "127.0.0.1:" <> show db.port <> ":" <> show defaultPostgresPort,
+        "-v",
+        db.dockerVolumeName <> ":" <> mountPath,
+        "--env",
+        "POSTGRES_PASSWORD=" <> db.password,
+        "--env",
+        "POSTGRES_USER=" <> db.user,
+        "--env",
+        "POSTGRES_DB=" <> db.dbName,
+        image
+      ]
+
+waitForReadyDevDb :: DevDbSpec -> IO ()
+waitForReadyDevDb devDbSpec = waitForReady 60
+  where
+    waitForReady :: Int -> IO ()
+    waitForReady 0 = do
+      (_, output, errors) <- readProcessWithExitCode "docker" ["logs", "--tail", "30", devDbSpec.dockerContainerName] ""
+      ioError $ userError $ "PostgreSQL did not become ready. Check the logs below, then try again.\n" <> output <> errors
+    waitForReady attempts = do
+      ready <- isDevDbReady devDbSpec
+      if ready then return () else threadDelay 1000000 >> waitForReady (attempts - 1)
+
+isDevDbReady :: DevDbSpec -> IO Bool
+isDevDbReady devDbSpec = do
+  databaseReady <- isDevDbConnectionReady devDbSpec
+  if databaseReady
+    then Socket.checkIfPortIsAcceptingConnections $ Socket.makeLocalHostSocketAddress devDbSpec.port
+    else return False
+
+isDevDbConnectionReady :: DevDbSpec -> IO Bool
+isDevDbConnectionReady devDbSpec = do
+  (exitCode, output, _) <-
+    readProcessWithExitCode
+      "docker"
+      [ "exec",
+        "--env",
+        "PGPASSWORD=" <> devDbSpec.password,
+        devDbSpec.dockerContainerName,
+        "psql",
+        "-h",
+        "127.0.0.1",
+        "-U",
+        devDbSpec.user,
+        "-d",
+        devDbSpec.dbName,
+        "-t",
+        "-A",
+        "-c",
+        "SELECT 1"
+      ]
+      ""
+  return $ exitCode == ExitSuccess && output == "1\n"
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its
 -- container is running, 'Nothing' otherwise.

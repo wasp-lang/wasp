@@ -21,6 +21,7 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
+import qualified Wasp.Cli.Command.Start.Db as Start.Db
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
@@ -33,12 +34,13 @@ import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
+import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ do
+start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ Start.Db.withManagedDb args.dbArgs $ \managedDb -> do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -65,7 +67,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
+  let databaseUrlLine = maybe "" (\db -> " ℹ Database: " <> Dev.Postgres.getDevConnectionUrl db <> "\n") managedDb
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs <> databaseUrlLine
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
