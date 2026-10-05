@@ -15,7 +15,7 @@ import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WaspProcessId, WatcherStatus (..))
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.Message as Msg
-import Wasp.Util.IO.Retry (Microseconds, constPause, retryWithOnRetry)
+import Wasp.Util.IO.Retry (Microseconds, constPause, retryWithCallback)
 
 -- | Makes sure the generated app is up to date with the project's source, for
 -- commands that need it.
@@ -39,7 +39,7 @@ ensureCompile options =
 -- project, it waits for it to finish and checks again.
 waitEnsureCompile :: CompileOptions -> Command ()
 waitEnsureCompile options =
-  retryWithOnRetry (constPause oneSecond) maxNumRetries printWaiting attempt
+  retryWithCallback (constPause oneSecond) maxNumRetries printWaiting attempt
     >>= either (throwError . makeProjectBusyError) return
   where
     attempt =
