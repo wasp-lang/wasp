@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Db.Seed
   ( seed,
+    seedArgsParser,
   )
 where
 
@@ -16,22 +17,21 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
-import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import Wasp.Generator.Setup (SetupGoal (SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | Seed functions import the SDK.
-seed :: Arguments -> Command ()
-seed = withArguments seedArgsParser $ \SeedArgs {_seedName = maybeUserProvidedSeedName} -> makeDbCommand SdkReady $ \appSpec -> do
+seed :: SeedArgs -> Command ()
+seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand SdkReady $ \appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
