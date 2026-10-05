@@ -518,6 +518,7 @@ library cli-lib
     Wasp.Cli.Message
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
+    Wasp.Cli.ProjectLock.Data
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument

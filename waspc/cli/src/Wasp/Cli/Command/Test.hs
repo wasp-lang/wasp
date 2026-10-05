@@ -14,7 +14,7 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.ProjectLock (withProjectLockAsWatcher)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -32,7 +32,7 @@ test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server 
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
 watchAndTest :: (WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
-watchAndTest testRunner = withProjectLockAsWatcher $ \projectLock -> do
+watchAndTest testRunner = ProjectLock.acquireAsWatcher $ \projectLock -> do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
