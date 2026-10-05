@@ -1,4 +1,3 @@
-# PULLFROG ACTION — DO NOT EDIT EXCEPT WHERE INDICATED
 name: Pullfrog
 run-name: ${{ inputs.name || github.workflow }}
 on:
