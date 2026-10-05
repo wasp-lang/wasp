@@ -54,7 +54,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
-        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["install"] -> Command.Call.Install
@@ -84,7 +83,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.Start startArgs -> runCommand $ start startArgs
-    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compileCommand
@@ -157,10 +155,6 @@ printUsage =
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
               "                          Optionally specify the URLs the client and the server are reachable at,",
               "                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).",
-        cmd   "    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                          Starts managed development database for you.",
-              "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
-              "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -225,7 +219,6 @@ printDbUsage =
         title "COMMANDS",
         cmd $ intercalate "\n" [
               "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                               Alias for `wasp start db`.",
               "                               Runs a development database and streams its logs until Ctrl+C.",
               "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                               If the port is not specified, Wasp picks the first free port when the default one is taken."

@@ -3,7 +3,6 @@ module Wasp.Cli.Command.Call where
 data Call
   = New Arguments
   | Start Arguments
-  | StartDb Arguments
   | Clean
   | Install
   | Uninstall

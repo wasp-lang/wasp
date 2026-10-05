@@ -32,5 +32,5 @@ instance Requirable DbConnectionEstablished where
         CommandError
           "Can not connect to database"
           ( "The database needs to be running in order to execute this command."
-              ++ " You can easily start a managed dev database with `wasp start db`."
+              ++ " You can easily start a managed dev database with `wasp db start`."
           )
