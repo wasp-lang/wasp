@@ -63,7 +63,7 @@ resolvePort specifiedPort defaultPort skipPorts specifiedPortTakenMessage noFree
         )
         >>= either throwResolvingError return
 
-    throwResolvingError = throwError . CommandError "Failed to find ports"
+    throwResolvingError = throwError . CommandError "Failed to find a free port"
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
 checkIfLocalPortIsTaken port =
