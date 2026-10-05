@@ -646,6 +646,7 @@ test-suite wasp-cli-tests
     hspec,
     network,
     network-uri,
+    optparse-applicative,
     QuickCheck,
     tasty,
     tasty-hspec,

@@ -3,17 +3,21 @@ module Wasp.Cli.Command.Db
   )
 where
 
+import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, require, runCommand)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.ProjectLock (withProjectLock)
+import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 
-runCommandThatRequiresDbRunning :: Command a -> IO ()
-runCommandThatRequiresDbRunning = runCommand . makeDbCommand
+runCommandThatRequiresDbRunning :: String -> Opt.Parser a -> (a -> Command ()) -> Arguments -> IO ()
+runCommandThatRequiresDbRunning commandName parser command args =
+  runCommand $ withArguments commandName parser (makeDbCommand . command) args
 
 -- | This function makes sure that all the prerequisites which db commands
 --   need are set up (e.g. makes sure Prisma CLI is installed).
