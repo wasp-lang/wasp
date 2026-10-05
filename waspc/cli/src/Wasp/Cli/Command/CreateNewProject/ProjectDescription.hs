@@ -10,6 +10,7 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
 where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.Char (isAlpha, isAlphaNum)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
 import Data.Maybe (isNothing)
@@ -97,7 +98,7 @@ askForTemplate starterTemplates =
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName
-  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
+  | isValidProjectName projectName && isValidWaspIdentifier appName = Right $ NewProjectAppName appName
   | otherwise =
       Left . intercalate "\n" $
         [ "The project's name is not in a valid format! The project's name:",
@@ -107,6 +108,21 @@ parseWaspProjectNameIntoAppName projectName
         ]
   where
     appName = kebabToCamelCase projectName
+
+-- | Checks the raw project name against the format rules shown to the user:
+-- it must start with a letter or an underscore and contain only letters,
+-- numbers, dashes, or underscores.
+--
+-- We validate the raw project name (and not just the app name derived from it)
+-- because converting the name to an app name can repair invalid names
+-- (e.g. "-app" becomes "App"), while the project directory is still created
+-- from the raw name.
+isValidProjectName :: String -> Bool
+isValidProjectName [] = False
+isValidProjectName (c : cs) = isStartChar c && all isNameChar cs
+  where
+    isStartChar ch = isAlpha ch || ch == '_'
+    isNameChar ch = isAlphaNum ch || ch == '_' || ch == '-'
 
 findTemplateOrThrow :: [StarterTemplate] -> String -> Command StarterTemplate
 findTemplateOrThrow availableTemplates templateName = case findTemplateByString availableTemplates templateName of
