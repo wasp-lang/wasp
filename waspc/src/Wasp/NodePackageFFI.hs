@@ -11,12 +11,15 @@ module Wasp.NodePackageFFI
     tryGettingInstalledPackageVersion,
     ensurePackageIsAtInstallationPathInProject,
     getInstallablePackageScriptInProject,
+    removeDevDependencies,
   )
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.Extra (unlessM)
 import Control.Monad.IO.Class (liftIO)
+import Data.Aeson (Value (Object))
+import qualified Data.Aeson.KeyMap as KM
 import Data.Bifunctor (first)
 import Data.Maybe (fromJust)
 import StrongPath
@@ -47,6 +50,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Json (updateJsonFile)
 
 -- | These are the globally installed packages waspc runs directly from
 -- their global installation path.
@@ -127,6 +131,17 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
   -- We remove the destination directory first to ensure a clean state
   IOUtil.deleteDirectoryIfExists dstPackageDirInProject
   IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
+  -- The project references the package as a `file:` dependency, so npm treats it
+  -- like a workspace and installs its `devDependencies` into the project too.
+  -- Those are only needed to develop the package inside the Wasp repo, so we
+  -- strip them: otherwise every project gets ~150 extra packages, their
+  -- deprecation warnings, and an "added N packages" on every `wasp install`.
+  updateJsonFile removeDevDependencies (dstPackageDirInProject </> [relfile|package.json|])
+    >>= either (ioError . userError . ("Failed to strip devDependencies from installed package: " ++)) return
+
+removeDevDependencies :: Value -> Value
+removeDevDependencies (Object packageJson) = Object $ KM.delete "devDependencies" packageJson
+removeDevDependencies other = other
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =

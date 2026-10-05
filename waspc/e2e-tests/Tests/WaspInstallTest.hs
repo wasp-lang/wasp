@@ -27,6 +27,7 @@ waspInstallTest =
                   return $ assertDirectoryDoesNotExist "node_modules",
                   waspCliInstall,
                   return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
+                  return $ assertFileDoesNotContain ".wasp/spec/package.json" "devDependencies",
                   waspCliCompile
                 ]
             ]
@@ -41,3 +42,6 @@ waspInstallTest =
 
     assertSymlinkExists :: FilePath -> ShellCommand
     assertSymlinkExists path = "[ -L '" ++ path ++ "' ]"
+
+    assertFileDoesNotContain :: FilePath -> String -> ShellCommand
+    assertFileDoesNotContain path needle = "! grep -qF '" ++ needle ++ "' '" ++ path ++ "'"
