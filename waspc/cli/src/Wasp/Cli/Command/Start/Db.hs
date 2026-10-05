@@ -139,7 +139,7 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
         defaultPostgresPort
         []
         "Choose a different port with --db-port, or free up this one."
-        "Free at least one of those ports by exiting the program listening on it, or choose one yourself with --db-port."
+        "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do
