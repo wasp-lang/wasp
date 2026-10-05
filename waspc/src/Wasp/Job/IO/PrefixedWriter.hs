@@ -23,18 +23,51 @@ import qualified Wasp.Job as J
 import Wasp.Job.Common (getJobMessageContent, getJobMessageOutHandle)
 import qualified Wasp.Util.Terminal as Term
 
--- | Prints job output immediately, adding a prefix before content at the start
--- of a line. Newlines are emitted with their chunk, without a trailing prefix.
+-- |
+-- Imagine you have a job sending following two messages:
+--  1. "First"
+--  2. " line\n"
+--  3. "Second line"
+--
+-- What we want is to prefix new lines with a corresponding job prefix before we print them,
+-- e.g. "Server: ". So we want to output this as:
+--   Server: First line
+--   Server: Second line
+--
+-- This is what this function does, it properly prefixes the given message and then prints it.
+-- Prefixes include job type name, and optional indication that output is stderr, e.g.:
+-- "Server:", "Web app:", "Db(stderr):"
+--
+-- * Implementation details:
+--
+-- Print newlines as they arrive, but wait for text before printing the next prefix.
+-- Otherwise, ordinary CLI output can appear after an unused prefix:
+--   Server: First line
+--   Server: Some other output!
+--
+-- Delaying the newline as well would join that output onto the previous line.
+-- Keeping the newline and delaying only the prefix gives:
+--   Server: First line
+--   Some other output!
+--   Server: Second line
+--
+-- We also track the previous job and output stream. When another output interrupts
+-- an unfinished line, we start a new line and print the new output's prefix.
 printJobMessagePrefixed :: J.JobMessage -> PrefixedWriter ()
 printJobMessagePrefixed jobMessage =
   unless (T.null $ getJobMessageContent jobMessage) $ do
-    previous <- get
-    let content = formatJobMessage previous jobMessage
+    lastJobMessage <- get
+    let prefixedMessageContent = formatJobMessage lastJobMessage jobMessage
     put $ Just jobMessage
-    liftIO $ T.IO.hPutStr outHandle content >> hFlush outHandle
+    liftIO $ printPrefixedMessageContent prefixedMessageContent
   where
-    outHandle = getJobMessageOutHandle jobMessage
+    printPrefixedMessageContent :: T.Text -> IO ()
+    printPrefixedMessageContent content = T.IO.hPutStr outHandle content >> hFlush outHandle
+      where
+        outHandle = getJobMessageOutHandle jobMessage
 
+-- TODO: We haven't considered Windows much here, so in the future we might
+--   want to check that this works ok on Windows and tweak it a bit if not.
 formatJobMessage :: Maybe J.JobMessage -> J.JobMessage -> T.Text
 formatJobMessage previous jobMessage
   | T.null content = ""
@@ -64,6 +97,7 @@ newtype PrefixedWriter a = PrefixedWriter {_runPrefixedWriter :: StateT (Maybe J
 runPrefixedWriter :: PrefixedWriter a -> IO a
 runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) Nothing
 
+-- Job message output type.
 data Output = Output
   { _outputJobType :: !J.JobType,
     _outputIsStderr :: !Bool
