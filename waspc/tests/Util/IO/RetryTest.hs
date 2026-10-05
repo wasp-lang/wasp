@@ -38,12 +38,12 @@ spec_RetryTest = do
       it "for expPause" $ testPause (R.expPause 10) (10, 20, 40)
       it "for customPause" $ testPause (R.customPause (^ (2 :: Int))) (1, 4, 9)
 
-  describe "retryWithOnRetry" $ do
+  describe "retryWithCallback" $ do
     it "does not call onRetry when action succeeds on the first try" $ do
-      runMockRetryWithOnRetry (R.constPause 42) 2 (mockAction (NumFails 0))
+      runMockRetryWithCallback (R.constPause 42) 2 (mockAction (NumFails 0))
         `shouldBe` (Right (), [ActionCall])
     it "calls onRetry before each pause, with number of failed tries and the error" $ do
-      runMockRetryWithOnRetry (R.constPause 42) 5 (mockAction (NumFails 2))
+      runMockRetryWithCallback (R.constPause 42) 5 (mockAction (NumFails 2))
         `shouldBe` ( Right (),
                      [ ActionCall,
                        OnRetryCall 1 1,
@@ -55,9 +55,9 @@ spec_RetryTest = do
                      ]
                    )
     it "does not call onRetry after the final failed try" $ do
-      runMockRetryWithOnRetry (R.constPause 42) 0 (mockAction (NumFails 3))
+      runMockRetryWithCallback (R.constPause 42) 0 (mockAction (NumFails 3))
         `shouldBe` (Left 1, [ActionCall])
-      runMockRetryWithOnRetry (R.constPause 42) 2 (mockAction (NumFails 3))
+      runMockRetryWithCallback (R.constPause 42) 2 (mockAction (NumFails 3))
         `shouldBe` ( Left 3,
                      [ ActionCall,
                        OnRetryCall 1 1,
@@ -72,9 +72,9 @@ spec_RetryTest = do
 runMockRetry :: R.PauseStrategy -> Natural -> MockAction -> (Either TryNumber (), [Event])
 runMockRetry pause maxNumRetries action = runState (R.retry pause maxNumRetries action) []
 
-runMockRetryWithOnRetry :: R.PauseStrategy -> Natural -> MockAction -> (Either TryNumber (), [Event])
-runMockRetryWithOnRetry pause maxNumRetries action =
-  runState (R.retryWithOnRetry pause maxNumRetries onRetry action) []
+runMockRetryWithCallback :: R.PauseStrategy -> Natural -> MockAction -> (Either TryNumber (), [Event])
+runMockRetryWithCallback pause maxNumRetries action =
+  runState (R.retryWithCallback pause maxNumRetries onRetry action) []
   where
     onRetry numFailedTries e = modify (++ [OnRetryCall numFailedTries e])
 
