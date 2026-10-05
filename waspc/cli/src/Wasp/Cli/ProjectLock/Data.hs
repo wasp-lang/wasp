@@ -22,14 +22,5 @@ data ProjectLockData = ProjectLockData
   }
   deriving (Generic, FromJSON, ToJSON)
 
--- | What a process that watches the project for changes and recompiles on them
--- says about the state of the generated app right now.
-data WatcherStatus
-  = -- | It is compiling the project, so the generated app is being rewritten.
-    Compiling
-  | -- | The generated app is up to date with the project's source.
-    UpToDate
-  | -- | The last compilation failed, so the generated app is outdated until the
-    -- user fixes the errors.
-    CompilationFailed
+data WatcherStatus = Compiling | UpToDate | CompilationFailed
   deriving (Generic, FromJSON, ToJSON)
