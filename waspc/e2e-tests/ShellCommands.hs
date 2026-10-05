@@ -31,7 +31,6 @@ module ShellCommands
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
-    waspCliStartDb,
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
@@ -191,9 +190,6 @@ waspCliCompile = return "$WASP_CLI_CMD compile"
 
 waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStart = return "$WASP_CLI_CMD start"
-
-waspCliStartDb :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliStartDb = return "$WASP_CLI_CMD start db"
 
 waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliBuild = return "$WASP_CLI_CMD build"
