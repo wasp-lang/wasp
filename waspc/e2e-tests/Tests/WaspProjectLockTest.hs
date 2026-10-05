@@ -71,14 +71,19 @@ waspProjectLockTest =
                   return addBlockingNpmPreinstallHook,
                   startWaspInstallInBackground,
                   return waitForLockToBeHeld,
-                  -- `wasp install` is not a watcher.
-                  return $ assertWaspDbMigrateDevFailsWith "is already running for this project. Stop it before running this command.",
-                  return $ writeLockFileAsWatcher lockOwnerPid "Compiling",
-                  return $ assertWaspDbMigrateDevFailsWith "is compiling this project right now.",
+                  -- `wasp install` is not a watcher, so the db command waits for
+                  -- it to finish, and gives up after a while.
+                  return $ assertWaspDbMigrateDevFailsWith "is working on this project right now.",
+                  return $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
                   return $ writeLockFileAsWatcher lockOwnerPid "CompilationFailed",
                   return $ assertWaspDbMigrateDevFailsWith "is running for this project, but it failed to compile it.",
+                  -- While the watcher compiles, the db command waits for it, and
+                  -- goes on without compiling once the watcher is done.
+                  return $ writeLockFileAsWatcher lockOwnerPid "Compiling",
+                  return startWaspDbMigrateDevInBackground,
+                  return $ waitUntil $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
                   return $ writeLockFileAsWatcher lockOwnerPid "UpToDate",
-                  return $ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1",
+                  return "wait \"$WASP_E2E_DB_PID\"",
                   return "grep -qF 'Skipping compilation' .wasp-e2e-db.log",
                   return releaseLockAndAwaitWaspInstall
                 ]
@@ -111,8 +116,12 @@ waspProjectLockTest =
           ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
 
     waitForLockToBeHeld :: ShellCommand
-    waitForLockToBeHeld =
-      "( i=0; until [ -f " ++ lockAcquiredMarkerFile ++ " ]; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done )"
+    waitForLockToBeHeld = waitUntil $ "[ -f " ++ lockAcquiredMarkerFile ++ " ]"
+
+    -- Polls the given condition for up to ~120s.
+    waitUntil :: ShellCommand -> ShellCommand
+    waitUntil condition =
+      "( i=0; until " ++ condition ++ "; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done )"
 
     -- The reported PID must be exactly the one the holding process wrote into
     -- the lock file.
@@ -148,8 +157,16 @@ waspProjectLockTest =
         ++ "\\\"}\""
           ~&& "printf %s \"$WASP_E2E_LOCK_FILE_CONTENTS\" > .wasp/.projectlock"
 
+    startWaspDbMigrateDevInBackground :: ShellCommand
+    startWaspDbMigrateDevInBackground =
+      ("{ " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1 & }")
+        ~&& "WASP_E2E_DB_PID=$!"
+
     waspCliDbMigrateDev :: ShellCommand
     waspCliDbMigrateDev = "$WASP_CLI_CMD db migrate-dev --name foo"
+
+    waitingForCompilationMessage :: String
+    waitingForCompilationMessage = "'Waiting for compilation to finish'"
 
     releaseLockAndAwaitWaspInstall :: ShellCommand
     releaseLockAndAwaitWaspInstall =
