@@ -15,10 +15,10 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
+import Wasp.Cli.Compile (compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (ProjectLock, setWatcherStatus)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
+import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
