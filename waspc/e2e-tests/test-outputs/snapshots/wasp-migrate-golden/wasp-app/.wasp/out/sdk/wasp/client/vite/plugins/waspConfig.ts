@@ -36,8 +36,6 @@ const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
     "To run the client on a different port, use `wasp build start --client-port <port>`.",
 };
 
-const singleInstanceDependencies = ["react", "react-dom", "@tanstack/react-query", "react-router"];
-
 export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
@@ -48,10 +46,6 @@ export function waspConfig(): PluginOption {
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
-        optimizeDeps: {
-          exclude: ["wasp", "@wasp.sh/lib-auth", "@wasp.sh/lib-sdk-core", "@wasp.sh/lib-vite-ssr"],
-          include: ["react", "react-dom", "@tanstack/react-query", "react-router", "@wasp.sh/lib-sdk-core/browser > react/jsx-runtime"],
-        },
         server: {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
@@ -65,7 +59,6 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         resolve: {
-          dedupe: singleInstanceDependencies,
           alias: [
             {
               // Vite doesn't look for `.prisma/client` imports in the `node_modules`
