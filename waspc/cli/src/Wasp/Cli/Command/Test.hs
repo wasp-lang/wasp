@@ -10,10 +10,10 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Compile (compile)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
@@ -32,7 +32,7 @@ test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server 
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
 watchAndTest :: (WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
-watchAndTest testRunner = ProjectLock.acquireAsWatcher $ \projectLock -> do
+watchAndTest testRunner = ProjectLock.acquireWatcher $ \projectLock -> do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
