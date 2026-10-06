@@ -44,7 +44,7 @@ jq = "1.8.2"
 # The upstream repo only distributes prebuilt binaries for Linux x64, macOS
 # (all, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
-ormolu.version = "0.8.1.1"
+ormolu.version = "0.9.0.0"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
 "mise-cabal:stan" = "0.2.1.0"

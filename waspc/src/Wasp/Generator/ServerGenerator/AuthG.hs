@@ -100,14 +100,14 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
           ]
 
     makeConfigImportJson providerId =
-      jsImportToImportJson $
-        Just $
-          JI.JsImport
-            { JI._kind = JI.ValueImport,
-              JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
-              JI._name = JI.JsImportModule providerId,
-              JI._importAlias = Nothing
-            }
+      jsImportToImportJson
+        $ Just
+        $ JI.JsImport
+          { JI._kind = JI.ValueImport,
+            JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
+            JI._name = JI.JsImportModule providerId,
+            JI._importAlias = Nothing
+          }
 
 genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
 genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)

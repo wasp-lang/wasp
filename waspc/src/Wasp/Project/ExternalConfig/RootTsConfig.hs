@@ -26,10 +26,10 @@ rootTsConfigValidator :: V.Validator T.TsConfig
 rootTsConfigValidator =
   V.all
     [ V.inField ("files", T.files) $ V.eqJust [],
-      V.inField ("references", T.references) $
-        V.required $
-          V.all $
-            makeReferenceIncludedValidator <$> requiredReferences
+      V.inField ("references", T.references)
+        $ V.required
+        $ V.all
+        $ makeReferenceIncludedValidator <$> requiredReferences
     ]
   where
     requiredReferences :: [String]

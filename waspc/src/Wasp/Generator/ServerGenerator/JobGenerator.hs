@@ -57,9 +57,9 @@ genRegisterJob job =
     dstFile = jobsDirInServerRootDir </> fromJust (SP.parseRelFile $ job.name ++ ".ts")
 
     jobPerformFn =
-      SJI.extImportToImportJson relPathFromJobsDirToServerSrcDir $
-        Just $
-          (J.fn . J.perform) job
+      SJI.extImportToImportJson relPathFromJobsDirToServerSrcDir
+        $ Just
+        $ (J.fn . J.perform) job
 
     relPathFromJobsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromJobsDirToServerSrcDir = [reldirP|../|]

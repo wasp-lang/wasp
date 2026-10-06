@@ -212,31 +212,31 @@ checksum = "sha256:6e50ce5498c0cebc20fd39ab3ff5df836ed2f8a31aa093cecad8497cff126
 url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-win-x64.zip"
 
 [[tools.ormolu]]
-version = "0.8.1.1"
+version = "0.9.0.0"
 backend = "github:tweag/ormolu"
-specifiers = ["0.8.1.1"]
+specifiers = ["0.9.0.0"]
 
 [tools.ormolu."platforms.linux-x64"]
-checksum = "sha256:fde2caaf946c1d3507aebfbf848258c7fb19a0794c0b47ac549f83e556195cf2"
-url = "https://github.com/tweag/ormolu/releases/download/0.8.1.1/ormolu-x86_64-linux.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/448496428"
+checksum = "sha256:367eb4969986504cf171f71f91e24ea5d7d9d97c41701e8e6eef9b642fd0d201"
+url = "https://github.com/tweag/ormolu/releases/download/0.9.0.0/ormolu-x86_64-linux.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602990813"
 
 [tools.ormolu."platforms.linux-x64-musl"]
-checksum = "sha256:fde2caaf946c1d3507aebfbf848258c7fb19a0794c0b47ac549f83e556195cf2"
-url = "https://github.com/tweag/ormolu/releases/download/0.8.1.1/ormolu-x86_64-linux.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/448496428"
+checksum = "sha256:367eb4969986504cf171f71f91e24ea5d7d9d97c41701e8e6eef9b642fd0d201"
+url = "https://github.com/tweag/ormolu/releases/download/0.9.0.0/ormolu-x86_64-linux.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602990813"
 
 [tools.ormolu."platforms.macos-arm64"]
-checksum = "sha256:532cb006ad4774efb4368b547d95984199741b3d37c01e0056bfb2471f049e99"
-url = "https://github.com/tweag/ormolu/releases/download/0.8.1.1/ormolu-aarch64-darwin.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/448471376"
+checksum = "sha256:39efe03a0f41385bd5a1a7f874acf195fb5f6d09673be96a24f708508bb86a20"
+url = "https://github.com/tweag/ormolu/releases/download/0.9.0.0/ormolu-aarch64-darwin.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602940067"
 
 [tools.ormolu."platforms.macos-x64"]
-checksum = "sha256:1fce2c628c2b3bfe35b3c9a78428a4ec2da266a3d070d33d933ff8845e8cb206"
-url = "https://github.com/tweag/ormolu/releases/download/0.8.1.1/ormolu-x86_64-darwin.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/448485189"
+checksum = "sha256:6d098117122b10d26c0a2976beeb729b322a23825789b7f1817541dc6041ab19"
+url = "https://github.com/tweag/ormolu/releases/download/0.9.0.0/ormolu-x86_64-darwin.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602964872"
 
 [tools.ormolu."platforms.windows-x64"]
-checksum = "sha256:4a7cf83099a18b850143046ff61ba56ba30090918a1a48e7d5bb1cf3eac1a73f"
-url = "https://github.com/tweag/ormolu/releases/download/0.8.1.1/ormolu-x86_64-windows.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/448472309"
+checksum = "sha256:afcde0c0a9bace9c8ae9bd98d027620b2901947670dfc54f63fa44c221d5b19d"
+url = "https://github.com/tweag/ormolu/releases/download/0.9.0.0/ormolu-x86_64-windows.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602932359"

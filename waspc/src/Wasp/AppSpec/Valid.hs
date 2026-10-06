@@ -86,9 +86,9 @@ validateExactlyOneAppExists spec =
     [] -> Just $ GenericValidationError "You are missing an 'app' declaration in your Wasp app."
     [_] -> Nothing
     apps ->
-      Just $
-        GenericValidationError $
-          "You have more than one 'app' declaration in your Wasp app. You have " ++ show (length apps) ++ "."
+      Just
+        $ GenericValidationError
+        $ "You have more than one 'app' declaration in your Wasp app. You have " ++ show (length apps) ++ "."
 
 validateWasp :: AppSpec -> [ValidationError]
 validateWasp = validateWaspVersion . Wasp.version . App.wasp . getApp
@@ -386,10 +386,10 @@ validateDeclarationNames spec =
        in case invalidIdentifierDeclNames of
             [] -> []
             _ ->
-              [ GenericValidationError $
-                  intercalate "\n" $
-                    ("Please rename: " ++ intercalate ", " invalidIdentifierDeclNames ++ ". Each declaration name:")
-                      : map (indent 2 . ("- " ++)) waspIdentifierNameRules
+              [ GenericValidationError
+                  $ intercalate "\n"
+                  $ ("Please rename: " ++ intercalate ", " invalidIdentifierDeclNames ++ ". Each declaration name:")
+                    : map (indent 2 . ("- " ++)) waspIdentifierNameRules
               ]
 
 validateWebAppBaseDir :: AppSpec -> [ValidationError]
@@ -543,8 +543,8 @@ getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
 -- Example: If user specified their node version range to be [22.12, 24), then this function will return 22.12.
 getLowestNodeVersionUserAllows :: AppSpec -> SV.Version
 getLowestNodeVersionUserAllows spec =
-  fromMaybe (error "This should never happen: user Node version range lower bound is Inf") $
-    SVB.versionFromBound $
-      fst $
-        SVB.versionBounds $
-          AS.userNodeVersionRange spec
+  fromMaybe (error "This should never happen: user Node version range lower bound is Inf")
+    $ SVB.versionFromBound
+    $ fst
+    $ SVB.versionBounds
+    $ AS.userNodeVersionRange spec
