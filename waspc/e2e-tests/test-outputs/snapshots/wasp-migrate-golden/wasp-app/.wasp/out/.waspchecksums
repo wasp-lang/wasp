@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
         ],
-        "e5e84b8d646a00d3a492eadd456d79773a9fa7a756669e55b158c93ca764e9f2"
+        "ef2b8c619ba9ec5f79b74ab06275c99f7bdd1091cf53a41df7a0cbe4d8d49cb8"
     ],
     [
         [
@@ -95,7 +95,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "283b94f9533d28f07e92d7812473ad2973b68a40eab6c90f9518f4bfc93a5044"
+        "4c3a840544086dfbd9cdfaa29e40f7e6de938258c48e6761e9e288d897b97341"
     ],
     [
         [
@@ -354,14 +354,14 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "345f0486044e9c753b1ee75b3cd5fc1acd947e69a7f2e4262a2f01f29f242b89"
+        "5087f769527b1fb2c39e78b3ca155fd1bc006288ec6d1bbcea011e4fd2db698c"
     ],
     [
         [
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "26e6f1779c3b3c6355fd9ec8e1f0b4f452f8f54de9b0d8673cf109ef680120d9"
+        "074c8e95b661c3abc0e2834ed606ea69f2c23d3f2f43f69ed6427f205ad5bc0f"
     ],
     [
         [
@@ -382,7 +382,7 @@
             "file",
             "sdk/wasp/server/operations/actions/index.ts"
         ],
-        "5635bd049fae6f02f7d817d5bf80f6139ccdb77500e0026bb159c2b2a5986c1d"
+        "771cdb183a8311bafbe8fc929d3ff0187e9829a970a49efd51ac2ef26c8b3c9d"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "5635bd049fae6f02f7d817d5bf80f6139ccdb77500e0026bb159c2b2a5986c1d"
+        "771cdb183a8311bafbe8fc929d3ff0187e9829a970a49efd51ac2ef26c8b3c9d"
     ],
     [
         [
@@ -445,7 +445,14 @@
             "file",
             "sdk/wasp/types/index.ts"
         ],
-        "77de4b17cab8314af1ee5e56326c14375483fe5ebfe7be2d7d81b630b99c1fb0"
+        "fc608aabec2f763b3bbcca6f427b7a709a1a9baa53db793d57235d50dbda62d4"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/types/register.ts"
+        ],
+        "7af219d2d6a3c3b686925ebc406355da6e9fb72f0aec9fe09a182a0318f66b7f"
     ],
     [
         [

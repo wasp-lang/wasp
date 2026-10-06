@@ -3,7 +3,7 @@ export { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core
 
 import type { Prisma } from '@prisma/client'
 import type { Exact, Expand, ProviderName } from '@wasp.sh/lib-sdk-core'
-import type { FromRegister } from '@wasp.sh/lib-sdk-core'
+import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(

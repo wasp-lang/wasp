@@ -248,6 +248,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/types/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/types/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/types/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/types/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/types/register.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/types/register.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/types/register.js
+wasp-app/.wasp/out/sdk/wasp/dist/types/register.js.map
 wasp-app/.wasp/out/sdk/wasp/entities/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/index.ts
 wasp-app/.wasp/out/sdk/wasp/package.json
@@ -271,6 +275,7 @@ wasp-app/.wasp/out/sdk/wasp/server/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/utils.ts
 wasp-app/.wasp/out/sdk/wasp/tsconfig.json
 wasp-app/.wasp/out/sdk/wasp/types/index.ts
+wasp-app/.wasp/out/sdk/wasp/types/register.ts
 wasp-app/.wasp/out/sdk/wasp/vite-env.d.ts
 wasp-app/.wasp/out/sdk/wasp/wasp-ssr.d.ts
 wasp-app/.wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts

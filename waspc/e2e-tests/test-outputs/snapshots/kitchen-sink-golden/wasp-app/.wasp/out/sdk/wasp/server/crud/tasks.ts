@@ -8,7 +8,7 @@ import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   Task,
 } from "wasp/entities";
-import type { FromRegisterPath } from '@wasp.sh/lib-sdk-core'
+import type { FromRegisterPath } from '../../types/register'
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task
