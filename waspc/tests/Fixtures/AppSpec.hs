@@ -2,7 +2,7 @@ module Fixtures.AppSpec where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Fixtures (systemSPRoot)
+import Fixtures.Paths (systemSPRoot)
 import NeatInterpolation (trimming)
 import StrongPath (relfile)
 import qualified StrongPath as SP
