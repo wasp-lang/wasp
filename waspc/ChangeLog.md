@@ -31,7 +31,7 @@
 
 ### 🐞 Bug fixes
 
-- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4887](https://github.com/wasp-lang/wasp/pull/4887))
+- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4981](https://github.com/wasp-lang/wasp/pull/4981))
 
 - `wasp start` now manages the development server process directly instead of relying on the generated server's `nodemon`, improving restart behavior. ([#4407](https://github.com/wasp-lang/wasp/pull/4407))
 
