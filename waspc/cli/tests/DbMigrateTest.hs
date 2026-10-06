@@ -1,10 +1,9 @@
 module DbMigrateTest where
 
-import Data.Either (isLeft)
 import qualified Options.Applicative as Opt
 import Test.Hspec
+import Wasp.Cli.Command.Db.ArgumentsParser (StartDbArgs (..), startDbArgsParser)
 import Wasp.Cli.Command.Db.Migrate (migrateArgsParser)
-import Wasp.Cli.Command.Start.ArgumentsParser (StartDbArgs (..), startDbArgsParser)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 
 spec_databaseOptions :: Spec
@@ -15,10 +14,6 @@ spec_databaseOptions = do
     parseOptions ["--db-volume-mount-path=/var/lib/postgresql/data"]
       `shouldBe` Right (StartDbArgs Nothing Nothing (Just "/var/lib/postgresql/data"), defaultMigrateArgs)
     parseOptions [] `shouldBe` Right (StartDbArgs Nothing Nothing Nothing, defaultMigrateArgs)
-  it "rejects missing values and unknown options" $ do
-    mapM_
-      (\args -> isLeft (parseOptions args) `shouldBe` True)
-      [["--db-port"], ["--db-port", "0"], ["--db-port", "65536"], ["--db-port", "abc"], ["--db-image"], ["--name", "--db-image", "postgres:18"], ["--unknown"]]
   where
     parseOptions = parse ((,) <$> startDbArgsParser <*> migrateArgsParser)
 

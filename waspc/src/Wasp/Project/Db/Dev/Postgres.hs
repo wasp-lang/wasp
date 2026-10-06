@@ -46,18 +46,22 @@ getDevConnectionUrl devDbSpec =
 
 createDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO String
 createDevPostgresDb db image mountPath = do
+  -- Keep terminal Ctrl+C from stopping Docker before it returns the container ID we need for cleanup.
   (status, output, errors) <- readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
   case (status, words output) of
     (ExitSuccess, [containerId]) -> return containerId
     _ -> ioError $ userError $ "Could not create PostgreSQL container. " <> errors
   where
+    -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
+    --   only when initializing the database -> if the volume was created previously, they will be ignored.
+    --   This is how the postgres Docker image works.
     args =
       [ "create",
         "--rm",
         "--name",
         db.dockerContainerName,
         "--publish",
-        "127.0.0.1:" <> show db.port <> ":" <> show defaultPostgresPort,
+        show db.port <> ":" <> show defaultPostgresPort,
         "-v",
         db.dockerVolumeName <> ":" <> mountPath,
         "--env",

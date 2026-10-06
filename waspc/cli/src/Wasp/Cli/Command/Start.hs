@@ -16,12 +16,12 @@ import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import qualified Wasp.Cli.Command.Db.Lifecycle as DbLifecycle
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
-import qualified Wasp.Cli.Command.Start.Db as Start.Db
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
@@ -40,7 +40,7 @@ import qualified Wasp.Project.Env as Env
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ Start.Db.withManagedDb args.dbArgs $ \managedDb -> do
+start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ DbLifecycle.withManagedDb args.dbArgs $ \managedDb -> do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -67,7 +67,9 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  let databaseUrlLine = maybe "" (\db -> " ℹ Database: " <> Dev.Postgres.getDevConnectionUrl db <> "\n") managedDb
+  let databaseUrlLine = case managedDb of
+        Nothing -> ""
+        Just db -> " ℹ Database: " <> Dev.Postgres.getDevConnectionUrl db <> "\n"
   cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs <> databaseUrlLine
 
   watchOrStartResult <- liftIO $ do
