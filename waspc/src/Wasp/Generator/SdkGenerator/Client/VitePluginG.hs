@@ -14,6 +14,7 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -71,12 +72,22 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec)),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
+          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
+
+    depsExcludedFromOptimization =
+      -- Why do we exclude Wasp SDK from optimization?
+      -- - Wasp SDK is a dep that's regenerated over time and we don't want Vite to optimize it
+      --   and cache it (which would break hot module reloading).
+      -- - Accidentally, we don't need to do this because Wasp SDK is symlinked and Vite would
+      --   exclude it anyways - but we are keeping it here because we want to be explicit.
+      --   Read more: https://vite.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies
+      [sdkPackageName]
 
 genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData

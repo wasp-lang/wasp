@@ -46,6 +46,9 @@ export function waspConfig(): PluginOption {
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
+        optimizeDeps: {
+          exclude: ["wasp"]
+        },
         server: {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
