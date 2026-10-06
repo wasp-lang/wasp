@@ -19,41 +19,41 @@ spec_generatePslWithCtx = do
     it "Prisma model with leading triple slash comments is correctly generated" $ do
       let inputAst =
             Psl.Schema.Schema
-              [ commentedNode [" Documentation comment for `MyModel`"] $
-                  Psl.Schema.ModelBlock $
-                    Psl.Model.Model
-                      "MyModel"
-                      ( Psl.Model.Body
-                          [ commentedNode [" Simple comment attached to `prop1`"] $
-                              Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop1"
-                                  Psl.Model.Int
-                                  []
-                                  [ Psl.Attribute.Attribute "id" [],
-                                    Psl.Attribute.Attribute
-                                      "default"
-                                      [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
-                                  ],
-                            commentedNode [" Simple comment attached to `prop2`"] $
-                              Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop2"
-                                  Psl.Model.String
-                                  []
-                                  [Psl.Attribute.Attribute "unique" []],
-                            commentedNode
-                              [ " Multiline leading comments",
-                                " For prop3"
-                              ]
-                              $ Psl.Model.ElementField
-                              $ Psl.Model.Field
-                                "prop3"
-                                Psl.Model.String
-                                []
-                                [Psl.Attribute.Attribute "unique" []]
-                          ]
-                      )
+              [ commentedNode [" Documentation comment for `MyModel`"]
+                  $ Psl.Schema.ModelBlock
+                  $ Psl.Model.Model
+                    "MyModel"
+                    ( Psl.Model.Body
+                        [ commentedNode [" Simple comment attached to `prop1`"]
+                            $ Psl.Model.ElementField
+                            $ Psl.Model.Field
+                              "prop1"
+                              Psl.Model.Int
+                              []
+                              [ Psl.Attribute.Attribute "id" [],
+                                Psl.Attribute.Attribute
+                                  "default"
+                                  [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
+                              ],
+                          commentedNode [" Simple comment attached to `prop2`"]
+                            $ Psl.Model.ElementField
+                            $ Psl.Model.Field
+                              "prop2"
+                              Psl.Model.String
+                              []
+                              [Psl.Attribute.Attribute "unique" []],
+                          commentedNode
+                            [ " Multiline leading comments",
+                              " For prop3"
+                            ]
+                            $ Psl.Model.ElementField
+                            $ Psl.Model.Field
+                              "prop3"
+                              Psl.Model.String
+                              []
+                              [Psl.Attribute.Attribute "unique" []]
+                        ]
+                    )
               ]
 
           expectedPrismaSchema =

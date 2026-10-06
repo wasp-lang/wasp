@@ -75,11 +75,11 @@ genApp spec = do
 warnOverriddenDeps :: AppSpec -> Generator ()
 warnOverriddenDeps spec =
   forM_ overriddenDepNames $ \pkgName ->
-    logGeneratorWarning $
-      GenericGeneratorWarning $
-        "Dependency override active for \""
-          ++ pkgName
-          ++ "\". You are using an unsupported version. "
-          ++ "Wasp cannot guarantee compatibility."
+    logGeneratorWarning
+      $ GenericGeneratorWarning
+      $ "Dependency override active for \""
+        ++ pkgName
+        ++ "\". You are using an unsupported version. "
+        ++ "Wasp cannot guarantee compatibility."
   where
     overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)

@@ -26,9 +26,9 @@ showParser =
   Opt.hsubparser $ mconcat $ subcommandsMetavar : (toOptCommand <$> subcommands)
   where
     toOptCommand subcommand =
-      Opt.command subcommand.name $
-        Opt.info (runShowSubcommand subcommand <$> jsonFlagParser) $
-          Opt.progDesc subcommand.description
+      Opt.command subcommand.name
+        $ Opt.info (runShowSubcommand subcommand <$> jsonFlagParser)
+        $ Opt.progDesc subcommand.description
 
     jsonFlagParser =
       Opt.switch (Opt.long "json" <> Opt.help "Render output as JSON")

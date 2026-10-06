@@ -14,6 +14,7 @@ import System.Environment (lookupEnv)
 import System.Exit (exitFailure)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
@@ -23,8 +24,9 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Port (findFirstFreeLocalPortInRange)
+import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -45,14 +47,15 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 
   throwIfCustomDbAlreadyInUse appSpec
 
-  let (appName, _) = ASV.getApp appSpec
+  let app = ASV.getApp appSpec
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL ->
       startPostgresDevDb
         waspProjectDir
-        appName
+        app.name
+        (dbPort args)
         (dbImage args)
         (dbVolumeMountPath args)
   where
@@ -63,7 +66,8 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
-    <$> Opt.strOption
+    <$> Opt.optional (portParser "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")"))
+    <*> Opt.strOption
       ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
@@ -79,7 +83,8 @@ startDbArgsParser =
       )
 
 data StartDbArgs = StartDbArgs
-  { dbImage :: DockerImageName,
+  { dbPort :: Maybe PortNumber,
+    dbImage :: DockerImageName,
     dbVolumeMountPath :: DockerVolumeMountPath
   }
 
@@ -117,28 +122,24 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DockerImageName -> DockerVolumeMountPath -> Command ()
-startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> Command ()
+startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
-    Nothing -> startDbOnPort =<< findFreeDevDbPort
+    Nothing -> startDbOnPort =<< resolveDevDbPort
   where
-    findFreeDevDbPort :: Command PortNumber
-    findFreeDevDbPort =
-      liftIO
-        ( findFirstFreeLocalPortInRange
-            defaultPostgresPort
-            []
-            "Free at least one of those ports by exiting the program listening on it."
-        )
-        >>= either throwNoFreePortError return
-
-    throwNoFreePortError :: String -> Command a
-    throwNoFreePortError = E.throwError . CommandError "No free port"
+    resolveDevDbPort :: Command PortNumber
+    resolveDevDbPort =
+      resolvePort
+        requestedDbPort
+        defaultPostgresPort
+        []
+        "Choose a different port with --db-port, or free up this one."
+        "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do

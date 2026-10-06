@@ -3,19 +3,17 @@ module Wasp.Generator.WebAppGenerator.Start
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
+import System.Exit (ExitCode)
 import Wasp.Env (getEnvVars)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig (..))
-import qualified Wasp.Job as Job
+import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Process as JobProcess
+import Wasp.Process (InputMode (NoInput))
 import Wasp.Project.Common (WaspProjectDir)
 
-startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> Job.Job ()
-startWebApp webAppRunConfig waspProjectDir = do
+startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
+startWebApp webAppRunConfig waspProjectDir =
   -- Wasp owns the shared terminal during `wasp start`, so Vite should not
   -- interpret keystrokes as its own shortcuts.
-  subprocess <- Node.spawn (getEnvVars webAppRunConfig) waspProjectDir "npx" ["vite"]
-  exitCode <- liftIO $ JobProcess.wait subprocess
-  Job.requireExitSuccess exitCode
+  Node.run NoInput (getEnvVars webAppRunConfig) waspProjectDir "npx" ["vite"]

@@ -4,15 +4,16 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
+import System.Exit (ExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
 import Wasp.Process (InputMode (..))
 
-buildClient :: BuildStartConfig -> Job.Job ()
+buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
-  Node.runChecked
+  Node.run
     NoInput
     envVars
     projectDir
@@ -22,9 +23,9 @@ buildClient config =
     envVars = getEnvVars config.clientRunConfig
     projectDir = config.projectDir
 
-startClient :: BuildStartConfig -> Job.Job ()
+startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
-  Node.runChecked
+  Node.run
     InheritTerminal
     envVars
     projectDir

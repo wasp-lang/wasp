@@ -2,10 +2,11 @@
 
 module ProcessTest where
 
-import Control.Concurrent (newEmptyMVar, putMVar, takeMVar)
+import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
+import Control.Concurrent.STM (STM, atomically, newEmptyTMVarIO, putTMVar, readTMVar, retry)
 import Control.Exception (finally, fromException)
-import Control.Monad (when)
+import Control.Monad (void, when)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (isJust)
 import qualified Data.Text as T
@@ -97,6 +98,65 @@ spec_process = describe "Process.run" $ do
     mapM_ (assertGroup parentGroup) [Process.InheritTerminal, Process.NoInput]
 #endif
 
+spec_runUntil :: Spec
+spec_runUntil = describe "Process.runUntil" $ do
+  when (os /= "mingw32") $
+    it "forwards the output the command writes while it stops" $ do
+      output <- newIORef T.empty
+      let emit _ text = modifyIORef' output (<> text)
+      let script =
+            unlines
+              [ "console.log('ready');",
+                "process.on('SIGINT', () => { process.stdout.write('stopping'); process.exit(0); });",
+                "setInterval(() => {}, 1000);"
+              ]
+      withStopRequest $ \stopRequested requestStop ->
+        Async.withAsync (Process.runUntil stopRequested Process.NoInput (node script) emit) $ \running -> do
+          waitUntil "command ready" $ (== "ready\n") <$> readIORef output
+          requestStop
+          timeout 3000000 (Async.wait running) `shouldReturn` Just ExitSuccess
+      readIORef output `shouldReturn` "ready\nstopping"
+
+  it "forces a command that ignores graceful interruption to stop" $ do
+    ready <- newEmptyMVar
+    let script =
+          unlines
+            [ "process.on('SIGINT', () => {});",
+              "process.on('SIGTERM', () => {});",
+              "console.log('ready');",
+              "setInterval(() => {}, 1000);"
+            ]
+    withStopRequest $ \stopRequested requestStop ->
+      Async.withAsync (Process.runUntil stopRequested Process.NoInput (node script) (\_ _ -> void $ tryPutMVar ready ())) $ \running -> do
+        timeout 5000000 (takeMVar ready) `shouldReturn` Just ()
+        requestStop
+        exitCode <- timeout 3000000 $ Async.wait running
+        isJust exitCode `shouldBe` True
+
+  it "stops descendants before returning" $
+    withStopRequest $ \stopRequested requestStop ->
+      withListeningDescendantUntil stopRequested $ \running port _ -> do
+        isPortAvailable port `shouldReturn` False
+        requestStop
+        isJust <$> timeout 3000000 (Async.wait running) `shouldReturn` True
+        isPortAvailable port `shouldReturn` True
+
+  it "decodes chunk-split and incomplete UTF-8 output" $ do
+    output <- newIORef T.empty
+    let emit _ text = modifyIORef' output (<> text)
+    let euroSignCount = 40000 :: Int
+    let script =
+          "process.stdout.write(Buffer.concat([Buffer.from('\8364'.repeat("
+            <> show euroSignCount
+            <> ")), Buffer.from([0xe2])]));"
+    Process.run Process.NoInput (node script) emit `shouldReturn` ExitSuccess
+    readIORef output `shouldReturn` T.replicate euroSignCount "\8364" <> "\65533"
+
+withStopRequest :: (STM () -> IO () -> IO a) -> IO a
+withStopRequest action = do
+  stopRequest <- newEmptyTMVarIO
+  action (readTMVar stopRequest) (atomically $ putTMVar stopRequest ())
+
 node :: String -> P.CreateProcess
 node script = nodeWithArgs script []
 
@@ -104,11 +164,14 @@ nodeWithArgs :: String -> [String] -> P.CreateProcess
 nodeWithArgs script args = P.proc "node" $ ["-e", script] <> args
 
 withListeningDescendant :: (Async.Async ExitCode -> String -> IO () -> IO ()) -> IO ()
-withListeningDescendant action = do
+withListeningDescendant = withListeningDescendantUntil retry
+
+withListeningDescendantUntil :: STM () -> (Async.Async ExitCode -> String -> IO () -> IO ()) -> IO ()
+withListeningDescendantUntil stopRequested action = do
   portPath <- makeTempPath "wasp-isolated-child-port"
   rootExitPath <- makeTempPath "wasp-isolated-root-exit"
   Async.withAsync
-    (Process.run Process.NoInput (nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath]) (\_ _ -> return ()))
+    (Process.runUntil stopRequested Process.NoInput (nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath]) (\_ _ -> return ()))
     ( \running -> do
         waitUntil "descendant listening" $ doesFileExist portPath
         port <- readFile portPath

@@ -1,38 +1,31 @@
-module Wasp.Job.Node
-  ( runChecked,
-    runReturningExitCode,
-    spawn,
-  )
-where
+module Wasp.Job.Node (run, runUntil) where
 
+import Control.Concurrent.STM (STM)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode)
+import System.Exit (ExitCode (..))
 import qualified System.Process as P
-import Wasp.Job (failWithExitCode)
+import Wasp.Job (Job)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Output.Event as Event
 import qualified Wasp.Job.Process as JobProcess
-import Wasp.Process (InputMode)
+import Wasp.Process (InputMode, OutputStream (Stderr))
 import qualified Wasp.Process.Node as NodeProcess
 
--- | Runs the command to completion, failing the Job on a nonzero child exit.
-runChecked :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ()
-runChecked inputMode = runCommandUsing $ JobProcess.runChecked inputMode
+-- | Runs the command to completion after checking the user's Node and npm
+-- versions. Exits with code 1 if they don't meet Wasp's requirements.
+run :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job ExitCode
+run inputMode = runCommandUsing $ JobProcess.run inputMode
 
--- | Runs the command and returns the child process's exit status for explicit handling.
-runReturningExitCode :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ExitCode
-runReturningExitCode inputMode = runCommandUsing $ JobProcess.runReturningExitCode inputMode
+-- | Like 'run', but also stops the command once the given transaction succeeds.
+runUntil :: STM () -> InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job ExitCode
+runUntil stopRequested inputMode = runCommandUsing $ JobProcess.runUntil stopRequested inputMode
 
-spawn :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job JobProcess.Subprocess
-spawn = runCommandUsing JobProcess.spawn
-
-runCommandUsing :: (P.CreateProcess -> Job.Job a) -> [(String, String)] -> Path' Abs (Dir dir) -> String -> [String] -> Job.Job a
+runCommandUsing :: (P.CreateProcess -> Job ExitCode) -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job ExitCode
 runCommandUsing runProcess extraEnvVars workingDir executable arguments = do
   prepared <- liftIO $ NodeProcess.prepare extraEnvVars workingDir executable arguments
   case prepared of
     Left message -> do
-      Job.emitJobOutput Event.Stderr $ T.pack message
-      failWithExitCode 1
+      Job.emit Stderr $ T.pack message
+      return $ ExitFailure 1
     Right process -> runProcess process

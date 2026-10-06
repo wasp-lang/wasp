@@ -76,7 +76,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   -- strips executable permissions from data files.
   runExitCode <-
     Output.runAndPrintPrefixedOutput Kind.Wasp $
-      Node.runChecked
+      Node.run
         NoInput
         [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
           -- Not related to `node` itself, so we have to set it manually.
@@ -113,9 +113,9 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
     readSpecResultFile = do
       contents <- IOUtil.readFileBytes absSpecResultFile
-      return $
-        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
-          Aeson.eitherDecode contents
+      return
+        $ left (\err -> ["Error while reading the spec result from JSON: " ++ err])
+        $ Aeson.eitherDecode contents
 
 -- | The result handed back by the spec analyzer subprocess. Mirrors the
 -- @SpecResult@ type in @waspc.sh/spec; keep them in sync.

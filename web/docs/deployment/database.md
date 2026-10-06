@@ -1,8 +1,6 @@
----
-title: Database
----
-
 import { CardLink } from '@site/src/components/CardLink'
+
+# Database
 
 In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local dev database (started with `wasp start db` or some other way). However, when it's time to deploy your app, you'll need to set up a production database.
 
@@ -46,7 +44,7 @@ The migrations might fail to apply if there is a conflict with the existing data
 
 If a migration fails to apply, the server app will log the error message and stop. You should then connect to the production database and see what went wrong. If you check the `_prisma_migrations` table, you'll see the failed migration there.
 
-You can try resolving the erorr e.g. if you tried adding a `@unique` constraint to a field that already has duplicate values:
+You can try resolving the error e.g. if you tried adding a `@unique` constraint to a field that already has duplicate values:
 
 1. Remove any duplicate values from the database
 2. Remove the failed migration from the `_prisma_migrations` table

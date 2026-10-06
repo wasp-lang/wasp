@@ -20,6 +20,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -54,11 +55,11 @@ genWebSocketInitialization spec =
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
-              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+              "allEntities" .= map (makeJsonWithEntityData . AS.Entity.getName) (AS.getEntities spec)
             ]
       )
   where
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    maybeWebSocket = AS.App.webSocket $ getApp spec
 
 mkWebSocketFnImport :: Maybe WebSocket -> Path Posix (Rel importLocation) (Dir C.ServerSrcDir) -> Aeson.Value
 mkWebSocketFnImport maybeWebSocket relPathToServerSrcDir = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn

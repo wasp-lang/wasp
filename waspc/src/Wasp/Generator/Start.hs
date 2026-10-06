@@ -3,20 +3,22 @@ module Wasp.Generator.Start
   )
 where
 
-import Control.Concurrent (Chan, dupChan, newChan, readChan)
-import Control.Concurrent.Async (concurrently, race)
+import Control.Concurrent (Chan, newChan, readChan, writeChan)
+import Control.Concurrent.Async (race)
 import Control.Concurrent.Extra (threadDelay)
-import Control.Monad (void)
+import Control.Monad (forever)
+import Control.Monad.IO.Class (liftIO)
+import Data.Conduit (fuseUpstream)
+import qualified Data.Conduit.List as CL
+import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start (ServerProcessController, startServer)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
-import qualified Wasp.Job as J
 import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
-import qualified Wasp.Job.Output.Event as Event
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -27,29 +29,32 @@ import Wasp.Util (secondsToMicroSeconds)
 --   produced some output.
 start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> IO () -> IO (Either String ())
 start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverProcessController onJobsQuietDown = do
-  chan <- newChan
-  let runStartJobs =
-        J.runJob Kind.Server (startServer serverRunConfig outDir serverProcessController) chan
-          `race` J.runJob Kind.WebApp (startWebApp webAppRunConfig waspProjectDir) chan
-  ((serverOrWebExitCode, _), _) <-
-    runStartJobs
-      `concurrently` Output.printEventsPrefixedUntilExit chan
-      `concurrently` (dupChan chan >>= (`listenForJobsQuietDown` onJobsQuietDown))
+  jobActivity <- newChan
+  let reportingActivity job = job `fuseUpstream` CL.iterM (const $ liftIO $ writeChan jobActivity ())
 
-  case serverOrWebExitCode of
-    Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
+  serverResultOrWebAppExitCode <-
+    either absurd id
+      <$> race
+        (listenForJobsQuietDown jobActivity onJobsQuietDown)
+        ( Output.raceAndPrintPrefixedOutput
+            (Kind.Server, reportingActivity $ startServer serverRunConfig outDir serverProcessController)
+            (Kind.WebApp, reportingActivity $ startWebApp webAppRunConfig waspProjectDir)
+        )
+
+  case serverResultOrWebAppExitCode of
+    -- The server job restarts the server as needed and never ends on its own.
+    Left serverResult -> absurd serverResult
     Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 
-listenForJobsQuietDown :: Chan Event.JobEvent -> IO () -> IO ()
-listenForJobsQuietDown jobsChan onJobsQuietDown = do
-  waitForJobMsg
+listenForJobsQuietDown :: Chan () -> IO () -> IO Void
+listenForJobsQuietDown jobActivity onJobsQuietDown = forever $ do
+  waitForJobActivity
   waitForPeriodOfSilence
   onJobsQuietDown
-  listenForJobsQuietDown jobsChan onJobsQuietDown
   where
-    waitForJobMsg = void $ readChan jobsChan
+    waitForJobActivity = readChan jobActivity
     waitForPeriodOfSilence = do
-      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsToMicroSeconds 5)
-      case jobMsgOrTimeout of
+      activityOrTimeout <- readChan jobActivity `race` threadDelay (secondsToMicroSeconds 5)
+      case activityOrTimeout of
         Left _ -> waitForPeriodOfSilence
         Right _ -> return ()

@@ -1,12 +1,10 @@
----
-title: Overview
----
-
 import { CardLink } from '@site/src/components/CardLink';
 import { SocialAuthGrid } from './SocialAuthGrid';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
 import GetUserFieldsType from './_getuserfields-type.md';
+
+# Overview
 
 Social login options (e.g., _Log in with Google_) are a great (maybe even the best) solution for handling user accounts.
 A famous old developer joke tells us _"The best auth system is the one you never have to make."_

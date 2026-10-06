@@ -23,23 +23,23 @@ spec_RootTsConfig = do
               }
       validate config `shouldBe` []
 
-    it "returns an error when files is missing" $
-      assertReturnsValidationErrorMentioningField "files" $
-        validTsConfig {T.files = Nothing}
+    it "returns an error when files is missing"
+      $ assertReturnsValidationErrorMentioningField "files"
+      $ validTsConfig {T.files = Nothing}
 
-    it "returns an error when files is non-empty" $
-      assertReturnsValidationErrorMentioningField "files" $
-        validTsConfig {T.files = Just ["main.ts"]}
+    it "returns an error when files is non-empty"
+      $ assertReturnsValidationErrorMentioningField "files"
+      $ validTsConfig {T.files = Just ["main.ts"]}
 
-    it "returns an error when references is missing" $
-      assertReturnsValidationErrorMentioningField "references" $
-        validTsConfig {T.references = Nothing}
+    it "returns an error when references is missing"
+      $ assertReturnsValidationErrorMentioningField "references"
+      $ validTsConfig {T.references = Nothing}
 
-    it "returns an error when a required reference is missing" $
-      assertReturnsValidationErrorMentioningField "references" $
-        validTsConfig
-          { T.references = Just [T.TsConfigReference {T.path = "tsconfig.src.json"}]
-          }
+    it "returns an error when a required reference is missing"
+      $ assertReturnsValidationErrorMentioningField "references"
+      $ validTsConfig
+        { T.references = Just [T.TsConfigReference {T.path = "tsconfig.src.json"}]
+        }
 
 validate :: T.TsConfig -> [String]
 validate = validateTsConfig rootTsConfigValidator "tsconfig.json"

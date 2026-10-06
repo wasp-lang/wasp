@@ -25,9 +25,9 @@ spec_RetryTest = do
       describe "and maxNumRetries < 2" $ do
         it "will run it (maxNumRetries + 1) times and end with failure" $ do
           runMockRetry (R.constPause 42) 0 action
-            `shouldBe` (Left (), [ActionCall])
+            `shouldBe` (Left 1, [ActionCall])
           runMockRetry (R.constPause 42) 1 action
-            `shouldBe` (Left (), [ActionCall, ThreadDelayCall 42, ActionCall])
+            `shouldBe` (Left 2, [ActionCall, ThreadDelayCall 42, ActionCall])
     describe "determines pauses according to provided pause strategy" $ do
       let action = mockAction (NumFails 3)
       let testPause = \pauseStrategy _expectedPauses@(p1, p2, p3) ->
@@ -38,24 +38,65 @@ spec_RetryTest = do
       it "for expPause" $ testPause (R.expPause 10) (10, 20, 40)
       it "for customPause" $ testPause (R.customPause (^ (2 :: Int))) (1, 4, 9)
 
-runMockRetry :: R.PauseStrategy -> Natural -> MockAction -> (Either () (), [Event])
+  describe "retryWithCallback" $ do
+    it "does not call onRetry when action succeeds on the first try" $ do
+      runMockRetryWithCallback (R.constPause 42) 2 (mockAction (NumFails 0))
+        `shouldBe` (Right (), [ActionCall])
+    it "calls onRetry before each pause, with number of failed tries and the error" $ do
+      runMockRetryWithCallback (R.constPause 42) 5 (mockAction (NumFails 2))
+        `shouldBe` ( Right (),
+                     [ ActionCall,
+                       OnRetryCall 1 1,
+                       ThreadDelayCall 42,
+                       ActionCall,
+                       OnRetryCall 2 2,
+                       ThreadDelayCall 42,
+                       ActionCall
+                     ]
+                   )
+    it "does not call onRetry after the final failed try" $ do
+      runMockRetryWithCallback (R.constPause 42) 0 (mockAction (NumFails 3))
+        `shouldBe` (Left 1, [ActionCall])
+      runMockRetryWithCallback (R.constPause 42) 2 (mockAction (NumFails 3))
+        `shouldBe` ( Left 3,
+                     [ ActionCall,
+                       OnRetryCall 1 1,
+                       ThreadDelayCall 42,
+                       ActionCall,
+                       OnRetryCall 2 2,
+                       ThreadDelayCall 42,
+                       ActionCall
+                     ]
+                   )
+
+runMockRetry :: R.PauseStrategy -> Natural -> MockAction -> (Either TryNumber (), [Event])
 runMockRetry pause maxNumRetries action = runState (R.retry pause maxNumRetries action) []
 
-type MockAction = MockRetryMonad (Either () ())
+runMockRetryWithCallback :: R.PauseStrategy -> Natural -> MockAction -> (Either TryNumber (), [Event])
+runMockRetryWithCallback pause maxNumRetries action =
+  runState (R.retryWithCallback pause maxNumRetries onRetry action) []
+  where
+    onRetry numFailedTries e = modify (++ [OnRetryCall numFailedTries e])
+
+-- | Fails with the number of the try that failed (starting at 1).
+type MockAction = MockRetryMonad (Either TryNumber ())
+
+type TryNumber = Int
 
 mockAction :: NumFails -> MockAction
 mockAction (NumFails numFails) = do
   events <- get
+  let numPreviousTries = length (filter (== ActionCall) events)
   let result =
-        if length (filter (== ActionCall) events) >= numFails
+        if numPreviousTries >= numFails
           then Right ()
-          else Left ()
+          else Left (numPreviousTries + 1)
   modify (++ [ActionCall])
   return result
 
 newtype NumFails = NumFails Int
 
-data Event = ThreadDelayCall Int | ActionCall
+data Event = ThreadDelayCall Int | ActionCall | OnRetryCall R.NumFailedTries TryNumber
   deriving (Show, Eq)
 
 type MockRetryMonad = State [Event]

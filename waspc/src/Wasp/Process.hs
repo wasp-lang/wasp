@@ -3,13 +3,16 @@ module Wasp.Process
     OutputStream (..),
     ProcessGroupDidNotStop (..),
     run,
+    runUntil,
   )
 where
 
-import Control.Concurrent.Async (Concurrently (..), runConcurrently, withAsync)
+import Control.Concurrent (newEmptyMVar, putMVar, readMVar, threadDelay)
+import Control.Concurrent.Async (Concurrently (..), concurrently_, race, runConcurrently, withAsync)
 import qualified Control.Concurrent.Async as Async
+import Control.Concurrent.STM (STM, atomically, orElse, retry)
 import Control.Exception (Exception (displayException), IOException, bracketOnError, finally, onException, throwIO, try)
-import Control.Monad (unless, void, when)
+import Control.Monad (unless, void)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
@@ -20,6 +23,7 @@ import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
 import qualified Wasp.Process.System as System
+import Wasp.Util (secondsToMicroSeconds)
 
 data InputMode = InheritTerminal | NoInput
   deriving (Show, Eq)
@@ -34,14 +38,24 @@ instance Exception ProcessGroupDidNotStop where
 
 -- | Runs the command to completion and forwards all output before returning.
 run :: InputMode -> P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
-run inputMode process emit =
+run = runUntil retry -- 'retry' blocks forever, so the command is never asked to stop.
+
+-- | Like 'run', but also stops the command once the given transaction
+-- succeeds. Output that the command writes while stopping is still forwarded.
+runUntil :: STM () -> InputMode -> P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
+runUntil stopRequested inputMode process emit =
   bracketOnError start cleanUp $ \resources@((_, stdoutHandle, stderrHandle, processHandle), processGroup) -> do
+    stopped <- newEmptyMVar
+    let forwardAllOutput =
+          concurrently_ (forwardOutput Stdout stdoutHandle) (forwardOutput Stderr stderrHandle)
+    -- A process that left the group can keep the output pipes open, so we
+    -- only wait a bit for the remaining output after stopping the group.
+    let outputDrainDeadline = readMVar stopped >> threadDelay outputDrainTimeoutMicroseconds
     exitCode <-
       withAsync (P.waitForProcess processHandle) $ \rootExit ->
         runConcurrently $
-          Concurrently (forwardOutput Stdout stdoutHandle)
-            *> Concurrently (forwardOutput Stderr stderrHandle)
-            *> Concurrently (waitForRootAndStopGroup processHandle processGroup rootExit)
+          Concurrently (void $ race forwardAllOutput outputDrainDeadline)
+            *> Concurrently (waitForRootAndStop processHandle processGroup rootExit <* putMVar stopped ())
     closeHandles $ fst resources
     return exitCode
   where
@@ -67,24 +81,24 @@ run inputMode process emit =
       return (resources, processGroup)
 
     cleanUp (resources@(_, _, _, processHandle), processGroup) =
-      ( case inputMode of
-          NoInput -> withAsync (P.waitForProcess processHandle) $ \rootExit -> do
-            ensureGroupStopped processHandle rootExit processGroup
-          InheritTerminal -> do
-            P.getProcessExitCode processHandle >>= \case
-              Just _ -> return ()
-              Nothing -> P.terminateProcess processHandle
-      )
+      withAsync (P.waitForProcess processHandle) (stop processHandle processGroup)
         `finally` closeHandles resources
+
+    stop processHandle processGroup rootExit = case inputMode of
+      NoInput -> ensureGroupStopped processHandle rootExit processGroup
+      InheritTerminal ->
+        P.getProcessExitCode processHandle >>= \case
+          Just _ -> return ()
+          Nothing -> P.terminateProcess processHandle
 
     ensureGroupStopped processHandle rootExit processGroup = do
       stopped <- System.stopProcessGroup processHandle rootExit processGroup
       unless stopped $ throwIO ProcessGroupDidNotStop
 
-    waitForRootAndStopGroup processHandle processGroup rootExit = do
-      exitCode <- Async.wait rootExit
-      when (inputMode == NoInput) $ ensureGroupStopped processHandle rootExit processGroup
-      return exitCode
+    waitForRootAndStop processHandle processGroup rootExit = do
+      atomically $ void (Async.waitCatchSTM rootExit) `orElse` stopRequested
+      stop processHandle processGroup rootExit
+      Async.wait rootExit
 
     forwardOutput _ Nothing = return ()
     forwardOutput stream (Just handle) =
@@ -105,3 +119,6 @@ closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =
   where
     closeHandle Nothing = return ()
     closeHandle (Just handle) = void (try (hClose handle) :: IO (Either IOException ()))
+
+outputDrainTimeoutMicroseconds :: Int
+outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
