@@ -141,10 +141,9 @@ seed serverRunConfig generatedAppDir seedName =
 -- We give it an explicit empty stdin, so `prisma db execute` just runs an empty
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
-dbExecuteTest generatedAppDir = do
+dbExecuteTest generatedAppDir = J.withKind J.Db $ do
   process <- prismaCommandInServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
-  J.withKind J.Db $
-    JobProcess.run_ process {P.std_in = P.CreatePipe}
+  JobProcess.run_ process {P.std_in = P.CreatePipe}
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
