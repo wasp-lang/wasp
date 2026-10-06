@@ -17,10 +17,10 @@ import StrongPath
     Rel,
     fromAbsDir,
     fromAbsFile,
-    fromRelFile,
     relfile,
     (</>),
   )
+import System.Directory (createDirectoryIfMissing)
 import System.Exit (ExitCode (..))
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
@@ -30,7 +30,11 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
+import Wasp.NodePackageFFI
+  ( InstallablePackage (WaspSpecPackage),
+    ensurePackageInProjectMatchesWaspVersion,
+    getInstallablePackageScript,
+  )
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -72,13 +76,18 @@ runWaspSpecAnalyzer ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
 runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
+  -- The analyzer writes its result (and a temporary bundle) into `.wasp`, which
+  -- doesn't exist yet in a fresh clone.
+  createDirectoryIfMissing True $ fromAbsDir $ compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir
+  -- The analyzer runs from Wasp's own installation, so it doesn't need the
+  -- project's copy of the spec package. The user's editor does, though (for
+  -- `@wasp.sh/spec` types in `*.wasp.ts` files), so we keep it current here.
+  ensurePackageInProjectMatchesWaspVersion compileOptions.waspProjectDir WaspSpecPackage
+  analyzerScript <- getInstallablePackageScript WaspSpecPackage
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      -- We invoke the script directly via `node` instead of `npx` because
-      -- `npx` requires the bin file to be executable, and `cabal install`
-      -- strips executable permissions from data files.
       ( runNodeCommandAsJobWithExtraEnv
           [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
             -- Not related to `node` itself, so we have to set it manually.
@@ -90,7 +99,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
           ]
           compileOptions.waspProjectDir
           "node"
-          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+          [ fromAbsFile analyzerScript,
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
