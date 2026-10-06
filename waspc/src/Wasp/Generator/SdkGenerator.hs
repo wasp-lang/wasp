@@ -11,7 +11,6 @@ import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
-import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -88,13 +87,14 @@ import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
-  exitCode <-
-    Output.withPrefixed $ \prefixed ->
-      Job.runJob (prefixed Output.Wasp) $
-        JobProcess.run_ =<< Node.command [] sdkRootDir "npm" ["run", "build"]
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
+  result <-
+    Output.withPrefixed $ \printer ->
+      Job.runJob printer
+        $ Job.withKind Job.Wasp
+        $ JobProcess.run_ =<< Node.command [] sdkRootDir "npm" ["run", "build"]
+  return $ case result of
+    Right () -> Right ()
+    Left failure -> Left $ "SDK build failed with exit code: " ++ show (Job.jobFailureExitCode failure)
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 

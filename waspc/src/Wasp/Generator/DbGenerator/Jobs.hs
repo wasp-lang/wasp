@@ -32,8 +32,9 @@ migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ()
 migrateDev generatedAppDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
-  JobProcess.run_
-    =<< prismaCommandInServerDir generatedAppDir prismaArgs
+  J.withKind J.Db $
+    JobProcess.run_
+      =<< prismaCommandInServerDir generatedAppDir prismaArgs
   where
     schemaFile = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -63,17 +64,18 @@ asPrismaCliArgs migrateArgs = do
 -- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
 migrateDiff :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 migrateDiff generatedAppDir =
-  JobProcess.run_
-    =<< prismaCommandInServerDir
-      generatedAppDir
-      [ "migrate",
-        "diff",
-        "--from-schema-datamodel",
-        SP.fromAbsFile schema,
-        "--to-schema-datasource",
-        SP.fromAbsFile schema,
-        "--exit-code"
-      ]
+  J.withKind J.Db $
+    JobProcess.run_
+      =<< prismaCommandInServerDir
+        generatedAppDir
+        [ "migrate",
+          "diff",
+          "--from-schema-datamodel",
+          SP.fromAbsFile schema,
+          "--to-schema-datasource",
+          SP.fromAbsFile schema,
+          "--exit-code"
+        ]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -84,10 +86,11 @@ migrateDiff generatedAppDir =
 -- Therefore, this should be checked **after** a command that ensures connectivity.
 migrateStatus :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 migrateStatus generatedAppDir =
-  JobProcess.run_
-    =<< prismaCommandInServerDir
-      generatedAppDir
-      ["migrate", "status", "--schema", SP.fromAbsFile schema]
+  J.withKind J.Db $
+    JobProcess.run_
+      =<< prismaCommandInServerDir
+        generatedAppDir
+        ["migrate", "status", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -95,20 +98,21 @@ migrateStatus generatedAppDir =
 -- reapplies all the migrations.
 reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job ()
 reset generatedAppDir resetArgs =
-  JobProcess.run_
-    =<< prismaCommandInServerDir
-      generatedAppDir
-      ( [ "migrate",
-          "reset",
-          "--schema",
-          SP.fromAbsFile schema,
-          "--skip-generate",
-          -- NOTE(martin): We do "--skip-seed" here because I just think seeding
-          --   happening automatically on reset is too aggressive / confusing.
-          "--skip-seed"
-        ]
-          ++ (["--force" | force resetArgs])
-      )
+  J.withKind J.Db $
+    JobProcess.run_
+      =<< prismaCommandInServerDir
+        generatedAppDir
+        ( [ "migrate",
+            "reset",
+            "--schema",
+            SP.fromAbsFile schema,
+            "--skip-generate",
+            -- NOTE(martin): We do "--skip-seed" here because I just think seeding
+            --   happening automatically on reset is too aggressive / confusing.
+            "--skip-seed"
+          ]
+            ++ (["--force" | force resetArgs])
+        )
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -120,12 +124,13 @@ reset generatedAppDir resetArgs =
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ()
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
-  JobProcess.run_
-    =<< prismaCommand
-      serverDir
-      ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
-      generatedAppDir
-      ["db", "seed"]
+  J.withKind J.Db $
+    JobProcess.run_
+      =<< prismaCommand
+        serverDir
+        ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
+        generatedAppDir
+        ["db", "seed"]
   where
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
@@ -138,27 +143,30 @@ seed serverRunConfig generatedAppDir seedName =
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 dbExecuteTest generatedAppDir = do
   process <- prismaCommandInServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
-  JobProcess.run_ process {P.std_in = P.CreatePipe}
+  J.withKind J.Db $
+    JobProcess.run_ process {P.std_in = P.CreatePipe}
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 runStudio generatedAppDir =
-  JobProcess.run_ =<< prismaCommandInServerDir generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
+  J.withKind J.Db $
+    JobProcess.run_ =<< prismaCommandInServerDir generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 generatePrismaClient generatedAppDir =
-  JobProcess.run_
-    =<< prismaCommandInServerDir
-      generatedAppDir
-      [ "generate",
-        "--schema",
-        SP.fromAbsFile schema,
-        disablePrismaPromotionsFlag
-      ]
+  J.withKind J.Db $
+    JobProcess.run_
+      =<< prismaCommandInServerDir
+        generatedAppDir
+        [ "generate",
+          "--schema",
+          SP.fromAbsFile schema,
+          disablePrismaPromotionsFlag
+        ]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 

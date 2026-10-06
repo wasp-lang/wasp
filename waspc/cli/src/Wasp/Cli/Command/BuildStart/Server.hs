@@ -14,7 +14,9 @@ import qualified Wasp.Job.Process as JobProcess
 
 buildServer :: BuildStartConfig -> Job.Job ()
 buildServer config =
-  JobProcess.run_ (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  Job.withKind Job.Server
+    . Job.describeFailure (("Building the server failed with exit code: " <>) . show)
+    $ JobProcess.run_ (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
@@ -22,8 +24,10 @@ buildServer config =
 
 startServer :: BuildStartConfig -> Job.Job ()
 startServer config =
-  JobProcess.run_ $
-    proc
+  Job.withKind Job.Server
+    . Job.describeFailure (("Running the server failed with exit code: " <>) . show)
+    $ JobProcess.run_
+    $ proc
       "docker"
       ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
           <> envVarParams
