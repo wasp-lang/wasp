@@ -9,7 +9,7 @@ module Wasp.Job.Output
 where
 
 import Control.Concurrent (newChan, readChan, writeChan)
-import Control.Concurrent.Async (concurrently, race)
+import Control.Concurrent.Async (race, wait, withAsync)
 import Control.Exception (finally)
 import Control.Monad.IO.Class (liftIO)
 import Data.Conduit (ConduitT, fuseBoth, fuseUpstream, runConduit, runConduitRes, yield, (.|))
@@ -48,7 +48,9 @@ raceAndPrintPrefixedOutput (jobKindA, jobA) (jobKindB, jobB) = do
           job `fuseUpstream` (labelWith jobKind .| CL.mapM_ (liftIO . writeChan outputs . Just))
   let runJobs = race (runAndSendOutput jobKindA jobA) (runAndSendOutput jobKindB jobB)
   let printOutputs = runConduit $ sourceUntilNothing (readChan outputs) .| printPrefixed
-  fst <$> concurrently (runJobs `finally` writeChan outputs Nothing) printOutputs
+  -- Even if a job fails, we print the output it produced before failing.
+  withAsync printOutputs $ \printing ->
+    runJobs `finally` (writeChan outputs Nothing >> wait printing)
   where
     sourceUntilNothing readNext =
       liftIO readNext >>= \case

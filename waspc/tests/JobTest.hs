@@ -2,13 +2,14 @@ module JobTest where
 
 import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (ErrorCall (..), bracket_, throwIO, try)
+import Control.Exception (ErrorCall (..), bracket_, onException, throwIO, try)
 import Data.Conduit (runConduitRes, (.|))
 import qualified Data.Conduit.List as CL
 import Data.IORef (modifyIORef, newIORef, readIORef)
+import Data.List (isInfixOf)
 import System.Exit (ExitCode (..))
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
+import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn, shouldSatisfy)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Output as Output
 import Wasp.Process (OutputStream (..))
@@ -61,3 +62,14 @@ spec_fromCallback =
       outputs <- timeout (secondsToMicroSeconds 5) $ runConduitRes $ job .| CL.take 1
       outputs `shouldBe` Just [Job.Output Stdout "first"]
       timeout (secondsToMicroSeconds 5) (takeMVar stopped) `shouldReturn` Just ()
+
+    it "rethrows an exception the action throws while being cancelled" $ do
+      started <- newEmptyMVar
+      let job = Job.fromCallback $ \_ ->
+            (putMVar started () >> threadDelay (secondsToMicroSeconds 10))
+              `onException` throwIO (ErrorCall "cleanup failed")
+      result <- Async.withAsync (Output.runAndCaptureOutput job) $ \running -> do
+        takeMVar started
+        Async.cancel running
+        Async.waitCatch running
+      either show (const "finished") result `shouldSatisfy` ("cleanup failed" `isInfixOf`)
