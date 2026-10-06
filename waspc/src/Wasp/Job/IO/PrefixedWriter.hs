@@ -5,6 +5,9 @@ module Wasp.Job.IO.PrefixedWriter
   ( printJobMessagePrefixed,
     runPrefixedWriter,
     PrefixedWriter,
+    formatJobMessage,
+    PrefixedWriterState,
+    initialPrefixedWriterState,
   )
 where
 
@@ -65,21 +68,24 @@ import qualified Wasp.Util.Terminal as Term
 -- output from another job, or when message is the very first message.
 printJobMessagePrefixed :: J.JobMessage -> PrefixedWriter ()
 printJobMessagePrefixed jobMessage = do
-  (PrefixedWriterState outputsWithPendingPrefix lastJobMessage) <- get
-
-  let (outputsWithPendingPrefix', messageContent) =
-        applyPendingPrefix outputsWithPendingPrefix jobMessage
-  let trailingNewline = if "\n" `T.isSuffixOf` getJobMessageContent jobMessage then "\n" else ""
-  let prefixedMessageContent = addPrefixWhereNeeded lastJobMessage messageContent <> trailingNewline
-
-  put $ PrefixedWriterState outputsWithPendingPrefix' (Just jobMessage)
-
-  liftIO $ printPrefixedMessageContent prefixedMessageContent
+  writerState <- get
+  let (writerState', content) = formatJobMessage writerState jobMessage
+  put writerState'
+  liftIO $ printPrefixedMessageContent content
   where
     printPrefixedMessageContent :: T.Text -> IO ()
     printPrefixedMessageContent content = T.IO.hPutStr outHandle content >> hFlush outHandle
       where
         outHandle = getJobMessageOutHandle jobMessage
+
+formatJobMessage :: PrefixedWriterState -> J.JobMessage -> (PrefixedWriterState, T.Text)
+formatJobMessage (PrefixedWriterState outputsWithPendingPrefix lastJobMessage) jobMessage =
+  (PrefixedWriterState outputsWithPendingPrefix' (Just jobMessage), prefixedMessageContent)
+  where
+    (outputsWithPendingPrefix', messageContent) =
+      applyPendingPrefix outputsWithPendingPrefix jobMessage
+    trailingNewline = if "\n" `T.isSuffixOf` getJobMessageContent jobMessage then "\n" else ""
+    prefixedMessageContent = addPrefixWhereNeeded lastJobMessage messageContent <> trailingNewline
 
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
@@ -121,13 +127,14 @@ data PrefixedWriterState = PrefixedWriterState
   }
 
 runPrefixedWriter :: PrefixedWriter a -> IO a
-runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initState
-  where
-    initState =
-      PrefixedWriterState
-        { _outputsWithPendingPrefix = S.empty,
-          _lastJobMessage = Nothing
-        }
+runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initialPrefixedWriterState
+
+initialPrefixedWriterState :: PrefixedWriterState
+initialPrefixedWriterState =
+  PrefixedWriterState
+    { _outputsWithPendingPrefix = S.empty,
+      _lastJobMessage = Nothing
+    }
 
 -- Job message output type.
 data Output = Output
