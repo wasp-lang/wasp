@@ -37,7 +37,8 @@ createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
-  -- TODO consider removing if we start doing `wasp install` automatically
+  -- Other commands install the dependencies when they need them, but installing
+  -- them right away gives the editor the types for `main.wasp.ts` from the start.
   liftIO $ installDepsForNewProject (getAbsWaspProjectDir newProjectDescription)
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 
@@ -59,9 +60,9 @@ installDepsForNewProject absWaspProjectDir =
       putStrLn
         $ Term.applyStyles [Term.Yellow]
         $ "Warning: The project was created, but dependency installation failed.\n"
-          ++ "Run "
-          ++ styleCode "wasp install"
-          ++ " in the project directory to install the dependencies."
+          ++ "Wasp will install the dependencies when you run "
+          ++ styleCode "wasp start"
+          ++ " in the project directory."
 
 -- | This function assumes that the project dir was created inside the current working directory.
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()

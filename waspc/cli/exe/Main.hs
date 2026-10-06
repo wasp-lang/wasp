@@ -162,7 +162,7 @@ printUsage =
               "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
-        cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
+        cmd   "    install               Installs npm dependencies ahead of time. Optional, 'wasp start' does it too.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    compile               Compiles your Wasp project and reports any errors, without running it.",

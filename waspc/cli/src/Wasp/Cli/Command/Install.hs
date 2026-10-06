@@ -17,6 +17,8 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageI
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
+-- Nothing requires it: commands that need the dependencies install them. It's a
+-- way to set up the editor's types and install the dependencies ahead of time.
 install :: Command ()
 install = withProjectLock $ do
   ValidNodeAndNpm <- require
