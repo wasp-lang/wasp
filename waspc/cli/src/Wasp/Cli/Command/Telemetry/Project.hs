@@ -157,6 +157,7 @@ data ProjectTelemetryData = ProjectTelemetryData
     _projectHash :: ProjectHash,
     _waspVersion :: String,
     _os :: String,
+    _arch :: String,
     _isBuild :: Bool,
     _deployCmdArgs :: String,
     _context :: String
@@ -170,6 +171,7 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
       _projectHash = projectHash,
       _waspVersion = showVersion version,
       _os = System.Info.os,
+      _arch = System.Info.arch,
       _isBuild = case cmdCall of
         Command.Call.Build -> True
         _ -> False,
@@ -201,6 +203,7 @@ sendTelemetryData telemetryData = do
                   "project_hash" .= _projectHashValue (_projectHash telemetryData),
                   "wasp_version" .= _waspVersion telemetryData,
                   "os" .= _os telemetryData,
+                  "arch" .= _arch telemetryData,
                   "is_build" .= _isBuild telemetryData,
                   "deploy_cmd_args" .= _deployCmdArgs telemetryData,
                   "context" .= _context telemetryData

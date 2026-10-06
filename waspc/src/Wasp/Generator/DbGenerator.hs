@@ -47,7 +47,6 @@ import Wasp.Generator.Monad
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
-import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Pls.Db
@@ -112,26 +111,24 @@ genPrismaSchema spec = do
       -- We are not overriding any values for now in the generator blocks.
       Psl.Ast.ConfigBlock.overrideKeyValuePairs [] . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
 
-    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
-    entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Schema.generateSchemaBlock $
-        Psl.Schema.ModelBlock $
-          Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
+    entityToPslModelSchema :: AS.Entity.Entity -> String
+    entityToPslModelSchema =
+      Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ModelBlock . AS.Entity.getPslModel
 
     prismaSchemaAst = AS.prismaSchema spec
 
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.
-getEntitiesForPrismaSchema :: AppSpec -> Generator [(String, AS.Entity.Entity)]
+getEntitiesForPrismaSchema :: AppSpec -> Generator [AS.Entity.Entity]
 getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
   where
     userDefinedEntities = getEntities spec
 
-    maybeUserEntity :: Maybe (String, AS.Entity.Entity)
+    maybeUserEntity :: Maybe AS.Entity.Entity
     maybeUserEntity = do
-      auth <- AS.App.auth $ snd $ getApp spec
+      auth <- AS.App.auth $ getApp spec
       let userEntityName = AS.refName . AS.Auth.userEntity $ auth
-      find ((== userEntityName) . fst) userDefinedEntities
+      find ((== userEntityName) . AS.Entity.getName) userDefinedEntities
 
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir <$> AS.migrationsDir spec

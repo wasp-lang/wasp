@@ -41,8 +41,7 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         "features/spec",
-        // TODO: Pages docs go here: https://github.com/wasp-lang/wasp/issues/2072
-        "features/routes",
+        "features/pages-and-routes",
         {
           type: "category",
           label: "Data",
@@ -128,7 +127,6 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         "advanced/dependencies",
-        "advanced/links",
         "advanced/git-worktrees",
         "advanced/env-vars",
         "advanced/testing",
@@ -205,8 +203,8 @@ const sidebars: SidebarsConfig = {
       label: "Migration guides",
       collapsed: true,
       collapsible: true,
-      link: { type: "doc", id: "migration-guide" },
       items: [
+        { type: "doc", id: "migration-guide" },
         ...generateMigrationGuideLinks("0.11", [
           "0.12",
           "0.13",

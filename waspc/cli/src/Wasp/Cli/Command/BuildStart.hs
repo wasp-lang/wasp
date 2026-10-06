@@ -3,7 +3,6 @@ module Wasp.Cli.Command.BuildStart
   )
 where
 
-import qualified Control.Concurrent.Async as Async
 import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
 import System.Exit (ExitCode (..))
@@ -21,7 +20,6 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import qualified Wasp.Job as Job
 import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
 import qualified Wasp.Message as Msg
@@ -59,15 +57,15 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $
-    Msg.Info $
-      showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
+  cliSendMessageC
+    $ Msg.Info
+    $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
   firstExit <-
-    liftIO $ Output.withPrefixedOutput $ \events ->
-      Async.race
-        (Job.runJob Kind.WebApp (startClient config) events)
-        (Job.runJob Kind.Server (startServer config) events)
+    liftIO $
+      Output.raceAndPrintPrefixedOutput
+        (Kind.WebApp, startClient config)
+        (Kind.Server, startServer config)
   case firstExit of
     Left clientExit -> throwOnExitFailure "Serving client failed." clientExit
     Right serverExit -> throwOnExitFailure "Running server failed." serverExit

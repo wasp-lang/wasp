@@ -26,13 +26,13 @@ isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
 telemetry :: Command ()
 telemetry = do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  cliSendMessageC $
-    Msg.Info $
-      "Telemetry is currently: "
-        <> ( if telemetryDisabled
-               then "DISABLED"
-               else "ENABLED"
-           )
+  cliSendMessageC
+    $ Msg.Info
+    $ "Telemetry is currently: "
+      <> ( if telemetryDisabled
+             then "DISABLED"
+             else "ENABLED"
+         )
 
   unless telemetryDisabled $ do
     telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists

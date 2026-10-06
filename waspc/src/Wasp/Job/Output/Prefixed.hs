@@ -1,27 +1,43 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Job.Output.Prefixed
-  ( printEventPrefixed,
-    runPrefixedWriter,
-    PrefixedWriter,
+  ( JobOutput,
+    printPrefixed,
   )
 where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.State (get, put)
-import Control.Monad.State.Strict (MonadState, StateT, runStateT)
+import Data.Conduit (ConduitT, await)
 import Data.List (maximumBy)
 import Data.Ord (comparing)
 import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush)
+import qualified Wasp.Job as Job
 import Wasp.Job.Kind (JobKind)
 import qualified Wasp.Job.Kind as Kind
-import Wasp.Job.Output.Event (getEventContent, getEventOutHandle)
-import qualified Wasp.Job.Output.Event as Event
+import Wasp.Process (OutputStream (..))
 import qualified Wasp.Util.Terminal as Term
+
+-- | Output of a job, labeled with the kind of job that produced it.
+type JobOutput = (JobKind, Job.Output)
+
+-- | Prints the output of one or more jobs, prefixing each line with the job
+-- it came from. See 'printOutputPrefixed' for how it is printed.
+printPrefixed :: (MonadIO m) => ConduitT JobOutput o m ()
+printPrefixed = printAll initialState
+  where
+    printAll state =
+      await >>= \case
+        Nothing -> return ()
+        Just jobOutput -> printOutputPrefixed state jobOutput >>= printAll
+
+    initialState =
+      PrefixedWriterState
+        { _outputsWithPendingNewline = S.empty,
+          _lastOutput = Nothing
+        }
 
 -- |
 -- Imagine you have a job sending following two messages:
@@ -68,27 +84,26 @@ import qualified Wasp.Util.Terminal as Term
 -- If not, or there was no previous message, then we ensure there is prefix at the start of
 -- the message. This helps with situations where output from one job was interrupted by the
 -- output from another job, or when message is the very first message.
-printEventPrefixed :: Event.JobEvent -> PrefixedWriter ()
-printEventPrefixed event = do
-  (PrefixedWriterState outputsWithPendingNewline lastEvent) <- get
-
+printOutputPrefixed :: (MonadIO m) => PrefixedWriterState -> JobOutput -> m PrefixedWriterState
+printOutputPrefixed (PrefixedWriterState outputsWithPendingNewline lastOutput) jobOutput = do
   let (outputsWithPendingNewline', messageContent) =
-        applyPendingNewline outputsWithPendingNewline event
-  let prefixedMessageContent = addPrefixWhereNeeded lastEvent messageContent
-
-  put $ PrefixedWriterState outputsWithPendingNewline' (Just event)
+        applyPendingNewline outputsWithPendingNewline jobOutput
+  let prefixedMessageContent = addPrefixWhereNeeded messageContent
 
   liftIO $ printPrefixedMessageContent prefixedMessageContent
+
+  return $ PrefixedWriterState outputsWithPendingNewline' (Just jobOutput)
   where
     printPrefixedMessageContent :: T.Text -> IO ()
     printPrefixedMessageContent content = T.IO.hPutStr outHandle content >> hFlush outHandle
       where
-        outHandle = getEventOutHandle event
+        Job.Output stream _ = snd jobOutput
+        outHandle = Job.getOutputHandle stream
 
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
-    addPrefixWhereNeeded :: Maybe Event.JobEvent -> T.Text -> T.Text
-    addPrefixWhereNeeded lastEvent =
+    addPrefixWhereNeeded :: T.Text -> T.Text
+    addPrefixWhereNeeded =
       ensureNewlineAtStartIfInterruptingAnotherOutput
         . ensurePrefixAtStartIfNotContinuingOnSameOutput
         . addPrefixAfterSubstr "\r"
@@ -100,7 +115,7 @@ printEventPrefixed event = do
         ensurePrefixAtStartIfNotContinuingOnSameOutput :: T.Text -> T.Text
         ensurePrefixAtStartIfNotContinuingOnSameOutput text =
           let continuingOnSameOutput =
-                (getEventOutput <$> lastEvent) == Just (getEventOutput event)
+                (getOutputChannel <$> lastOutput) == Just (getOutputChannel jobOutput)
               prefixAtStart =
                 or [(delimiter <> prefix) `T.isPrefixOf` text | delimiter <- ["\r", "\n", ""]]
            in if not continuingOnSameOutput && not prefixAtStart then prefix <> text else text
@@ -108,38 +123,26 @@ printEventPrefixed event = do
         ensureNewlineAtStartIfInterruptingAnotherOutput :: T.Text -> T.Text
         ensureNewlineAtStartIfInterruptingAnotherOutput text =
           let interruptingAnotherOutput =
-                (getEventOutput <$> lastEvent) /= Just (getEventOutput event)
+                (getOutputChannel <$> lastOutput) /= Just (getOutputChannel jobOutput)
               newlineAtStart = "\n" `T.isPrefixOf` text
            in if interruptingAnotherOutput && not newlineAtStart then "\n" <> text else text
 
         prefix :: T.Text
-        prefix = makeEventPrefix event
-
-newtype PrefixedWriter a = PrefixedWriter {_runPrefixedWriter :: StateT PrefixedWriterState IO a}
-  deriving (Functor, Applicative, Monad, MonadIO, MonadState PrefixedWriterState)
+        prefix = makeOutputPrefix jobOutput
 
 data PrefixedWriterState = PrefixedWriterState
   { _outputsWithPendingNewline :: !OutputsWithPendingNewline,
-    _lastEvent :: !(Maybe Event.JobEvent)
+    _lastOutput :: !(Maybe JobOutput)
   }
 
-runPrefixedWriter :: PrefixedWriter a -> IO a
-runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initState
-  where
-    initState =
-      PrefixedWriterState
-        { _outputsWithPendingNewline = S.empty,
-          _lastEvent = Nothing
-        }
-
--- Job message output type.
-data Output = Output
+-- Where a job message is printed to: the job and its output stream.
+data OutputChannel = OutputChannel
   { _outputJobKind :: !Kind.JobKind,
     _outputIsStderr :: !Bool
   }
   deriving (Eq, Ord)
 
-type OutputsWithPendingNewline = S.Set Output
+type OutputsWithPendingNewline = S.Set OutputChannel
 
 -- | Given a set of job message outputs with pending newline and a job message,
 -- it applies any pending newline (newline from the previous messages from the same output)
@@ -147,14 +150,14 @@ type OutputsWithPendingNewline = S.Set Output
 -- and in that case adds it to the set of pending newlines (while removing used pending newline).
 -- It returns this updated content and updated set of pending newlines.
 applyPendingNewline ::
-  OutputsWithPendingNewline -> Event.JobEvent -> (OutputsWithPendingNewline, T.Text)
-applyPendingNewline outputsWithPendingNewline event = (outputsWithPendingNewline', content')
+  OutputsWithPendingNewline -> JobOutput -> (OutputsWithPendingNewline, T.Text)
+applyPendingNewline outputsWithPendingNewline jobOutput = (outputsWithPendingNewline', content')
   where
     content' = addPendingNewlineToStartIfAny $ removeTrailingNewlineIfAny content
       where
         removeTrailingNewlineIfAny = if contentEndsWithNewline then T.init else id
         addPendingNewlineToStartIfAny =
-          if getEventOutput event `S.member` outputsWithPendingNewline then ("\n" <>) else id
+          if getOutputChannel jobOutput `S.member` outputsWithPendingNewline then ("\n" <>) else id
 
     outputsWithPendingNewline' = updateOp output outputsWithPendingNewline
       where
@@ -162,18 +165,18 @@ applyPendingNewline outputsWithPendingNewline event = (outputsWithPendingNewline
 
     contentEndsWithNewline = "\n" `T.isSuffixOf` content
 
-    output = getEventOutput event
-    content = getEventContent event
+    output = getOutputChannel jobOutput
+    Job.Output _ content = snd jobOutput
 
-getEventOutput :: Event.JobEvent -> Output
-getEventOutput event =
-  Output
-    { _outputJobKind = Event._jobKind event,
-      _outputIsStderr = isStderrEvent event
+getOutputChannel :: JobOutput -> OutputChannel
+getOutputChannel jobOutput@(jobKind, _) =
+  OutputChannel
+    { _outputJobKind = jobKind,
+      _outputIsStderr = isStderrOutput jobOutput
     }
 
-makeEventPrefix :: Event.JobEvent -> T.Text
-makeEventPrefix event =
+makeOutputPrefix :: JobOutput -> T.Text
+makeOutputPrefix jobOutput =
   T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
     [ [(startDelimiter, jobStyles)],
       [unstyled namePaddingFront],
@@ -202,9 +205,9 @@ makeEventPrefix event =
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | isStderrEvent event]
+      [("!", [Term.Red, Term.Bold]) | isStderrOutput jobOutput]
 
-    (jobName, jobStyles) = getJobNameAndStyles $ Event._jobKind event
+    (jobName, jobStyles) = getJobNameAndStyles $ fst jobOutput
 
     getJobNameAndStyles = \case
       Kind.Wasp -> ("Wasp", [Term.Yellow])
@@ -216,7 +219,5 @@ makeEventPrefix event =
 
 type StyledText = (String, [Term.Style])
 
-isStderrEvent :: Event.JobEvent -> Bool
-isStderrEvent event = case Event._eventData event of
-  Event.JobOutput Event.Stderr _ -> True
-  _ -> False
+isStderrOutput :: JobOutput -> Bool
+isStderrOutput (_, Job.Output stream _) = stream == Stderr

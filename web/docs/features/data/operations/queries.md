@@ -1,12 +1,10 @@
----
-title: Queries
----
-
 import { CardLink } from '@site/src/components/CardLink';
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './_superjson-note.md';
 import ReferencingCodeFromSrcNote from '../../../_referencing-code-from-src-note.md';
+
+# Queries
 
 We'll explain what Queries are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 

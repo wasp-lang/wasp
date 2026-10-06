@@ -141,6 +141,7 @@ library
     mustache ^>=2.4.2,
     neat-interpolation ^>=0.5.1,
     network ^>=3.1.4,
+    network-uri ^>=2.6.4,
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
@@ -148,6 +149,7 @@ library
     regex-tdfa ^>=1.3.2,
     resourcet ^>=1.3.0,
     split ^>=0.2.5,
+    stm ^>=2.5.1,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
     text ^>=2.1.3,
@@ -323,7 +325,6 @@ library
     Wasp.Job.Kind
     Wasp.Job.Node
     Wasp.Job.Output
-    Wasp.Job.Output.Event
     Wasp.Job.Output.Prefixed
     Wasp.Job.Process
     Wasp.JsImport
@@ -438,6 +439,7 @@ library cli-lib
     mtl,
     neat-interpolation,
     network,
+    network-uri,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -531,6 +533,7 @@ library cli-lib
     Wasp.Cli.SignalHandling
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.PortArgument
@@ -561,6 +564,7 @@ test-suite waspc-tests
     aeson,
     async,
     base,
+    conduit,
     containers,
     deepseq,
     directory,
@@ -569,9 +573,9 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    network-uri,
     parsec,
     process,
-    resourcet,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
@@ -583,6 +587,7 @@ test-suite waspc-tests
   if !os(windows)
     build-depends: unix
   other-modules:
+    AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -590,7 +595,8 @@ test-suite waspc-tests
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
-    Fixtures
+    Fixtures.AppSpec
+    Fixtures.Paths
     Generator.AuthInjectionTest
     Generator.CommonTest
     Generator.CrudTest
@@ -661,6 +667,7 @@ test-suite wasp-cli-tests
     cli-lib,
     hspec,
     network,
+    network-uri,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -678,6 +685,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Util.HttpUrlArgumentTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
@@ -713,6 +721,7 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
+    Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest

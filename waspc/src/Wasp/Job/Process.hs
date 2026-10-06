@@ -1,19 +1,11 @@
-module Wasp.Job.Process (runChecked, runReturningExitCode) where
+module Wasp.Job.Process (run) where
 
-import Control.Monad.IO.Class (liftIO)
 import System.Exit (ExitCode)
 import qualified System.Process as P
-import Wasp.Job (Job, getJobOutputSink, requireExitSuccess)
-import qualified Wasp.Job.Output.Event as Event
+import Wasp.Job (Job, fromCallback)
 import qualified Wasp.Process as Process
 
--- | Fails the job on a nonzero child exit.
-runChecked :: Process.InputMode -> P.CreateProcess -> Job ()
-runChecked inputMode process = runReturningExitCode inputMode process >>= requireExitSuccess
-
-runReturningExitCode :: Process.InputMode -> P.CreateProcess -> Job ExitCode
-runReturningExitCode inputMode process = do
-  emit <- getJobOutputSink
-  liftIO $ Process.run inputMode process $ \stream -> emit $ case stream of
-    Process.Stdout -> Event.Stdout
-    Process.Stderr -> Event.Stderr
+-- | Runs the process to completion and streams its output.
+-- Stopping the job early stops the process.
+run :: Process.InputMode -> P.CreateProcess -> Job ExitCode
+run inputMode process = fromCallback $ Process.run inputMode process
