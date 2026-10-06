@@ -94,7 +94,10 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
         ServerJobEnded maybeExitCode -> do
           traverse_ (printServerProcessExit emit) maybeExitCode
           waitForCompile emit
-        ServerUpdateRequested command -> handleCommandAfterStop emit command
+        ServerJobStopped (Just _) command -> replaceServer emit command
+        -- The stopped job never got to run the server, so there's no
+        -- known-good bundle to restart.
+        ServerJobStopped Nothing command -> handleCommandWithoutServer emit command
 
     -- Runs the server job until it ends, or until a command requires stopping
     -- the server. Commands that don't affect the server are acknowledged
@@ -103,33 +106,35 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
       stopRequest <- newEmptyTMVarIO
       withAsync (Job.runWith emit $ job $ readTMVar stopRequest) $ \runningJob ->
         let waitForEvent = do
-              event <-
+              jobResultOrCommand <-
                 atomically $
-                  (ServerJobEnded <$> waitSTM runningJob)
-                    `orElse` (ServerUpdateRequested <$> readTQueue commands)
-              case event of
-                ServerUpdateRequested (SuccessfulCompile NoServerEffect acknowledgement) ->
+                  (Left <$> waitSTM runningJob)
+                    `orElse` (Right <$> readTQueue commands)
+              case jobResultOrCommand of
+                Left jobResult -> return $ ServerJobEnded jobResult
+                Right (SuccessfulCompile NoServerEffect acknowledgement) ->
                   acknowledge acknowledgement >> waitForEvent
-                ServerUpdateRequested _ -> do
+                Right command -> do
                   atomically $ putTMVar stopRequest ()
-                  void $ wait runningJob
-                  return event
-                ServerJobEnded _ -> return event
+                  jobResult <- wait runningJob
+                  return $ ServerJobStopped jobResult command
          in waitForEvent
 
-    handleCommandAfterStop emit = \case
+    -- The previous server was healthy until we stopped it.
+    replaceServer emit = \case
       FailedCompile acknowledgement -> acknowledge acknowledgement >> waitForCompile emit
       SuccessfulCompile RestartServer acknowledgement -> runServer emit StartOnly (Just acknowledgement)
       SuccessfulCompile _ acknowledgement -> runServer emit BundleAndStart (Just acknowledgement)
 
     -- No server is running, so any successful compile starts a freshly
     -- bundled one.
-    waitForCompile emit =
-      atomically (readTQueue commands) >>= \case
-        FailedCompile acknowledgement -> acknowledge acknowledgement >> waitForCompile emit
-        SuccessfulCompile _ acknowledgement -> runServer emit BundleAndStart (Just acknowledgement)
+    waitForCompile emit = atomically (readTQueue commands) >>= handleCommandWithoutServer emit
 
-    -- Returns the server's exit code, or nothing if bundling failed.
+    handleCommandWithoutServer emit = \case
+      FailedCompile acknowledgement -> acknowledge acknowledgement >> waitForCompile emit
+      SuccessfulCompile _ acknowledgement -> runServer emit BundleAndStart (Just acknowledgement)
+
+    -- Returns the server's exit code, or nothing if the server didn't start.
     serverJob :: ServerStart -> Maybe Acknowledgement -> STM () -> Job (Maybe ExitCode)
     serverJob serverStart maybeAcknowledgement stopRequested = do
       bundleExitCode <- case serverStart of
@@ -138,21 +143,25 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
       -- Any previous server has stopped and bundling is done, so the caller
       -- can continue while the new server starts.
       liftIO $ traverse_ acknowledge maybeAcknowledgement
+      -- A compile may have asked for a different server while we bundled.
+      stopAlreadyRequested <- liftIO $ atomically $ (True <$ stopRequested) `orElse` return False
       case bundleExitCode of
-        ExitSuccess ->
-          Just
-            <$> Node.runUntil
-              stopRequested
-              NoInput
-              (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-              serverDir
-              Common.devServerStartExecutable
-              Common.devServerStartArgs
-        ExitFailure _ -> return Nothing
+        ExitSuccess
+          | not stopAlreadyRequested ->
+              Just
+                <$> Node.runUntil
+                  stopRequested
+                  NoInput
+                  (("NODE_ENV", "development") : getEnvVars serverRunConfig)
+                  serverDir
+                  Common.devServerStartExecutable
+                  Common.devServerStartArgs
+        _ -> return Nothing
 
-data ServerEvent
+-- How a server job finished, with the server's exit code if it ran.
+data ServerJobResult
   = ServerJobEnded (Maybe ExitCode)
-  | ServerUpdateRequested ServerControllerCommand
+  | ServerJobStopped (Maybe ExitCode) ServerControllerCommand
 
 acknowledge :: Acknowledgement -> IO ()
 acknowledge acknowledgement = void $ tryPutMVar acknowledgement ()
