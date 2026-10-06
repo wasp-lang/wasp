@@ -196,6 +196,39 @@ describe("Wasp TS spec pipeline", () => {
     expect(project.hasProjectPath(".wasp/spec-bundle")).toBe(false);
   });
 
+  test("type checks against the analyzer's own @wasp.sh/spec, not the project's copy", () => {
+    using project = makeTempProject("wasp-spec-pipeline-stale-copy-");
+
+    // An outdated copy whose types would reject the spec below.
+    project.writeProjectFile(
+      "node_modules/@wasp.sh/spec/package.json",
+      JSON.stringify({
+        name: "@wasp.sh/spec",
+        type: "module",
+        exports: { ".": { types: "./index.d.ts", default: "./index.js" } },
+      }),
+    );
+    project.writeProjectFile(
+      "node_modules/@wasp.sh/spec/index.d.ts",
+      `export declare function app(config: { outdated: true }): unknown;\n`,
+    );
+
+    const result = project.analyzeSpecWithoutInstallingDependencies(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    expect(result).toEqual({ status: "ok", value: expect.any(Array) });
+  });
+
   test("gives userland libraries the analyzer's own @wasp.sh/spec", () => {
     using project = makeTempProject("wasp-spec-pipeline-userland-lib-");
 
