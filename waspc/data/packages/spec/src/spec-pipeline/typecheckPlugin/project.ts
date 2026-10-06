@@ -1,5 +1,6 @@
 import * as path from "node:path";
 import ts from "typescript";
+import { resolveWaspSpecToSelfOnHost_mutate } from "./waspSpecSelfResolution.js";
 
 export function typecheckProject({
   tsconfigPath,
@@ -80,6 +81,7 @@ function createCompilerHostWithOverriddenFiles({
   host.getCurrentDirectory = () => tsconfigDir;
 
   overlayOverriddenFilesOnHost_mutate(host, overriddenFiles);
+  resolveWaspSpecToSelfOnHost_mutate(host, compilerOptions);
 
   return host;
 }
