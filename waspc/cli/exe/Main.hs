@@ -147,7 +147,7 @@ printUsage =
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
         cmd   "    version               Prints current version of CLI.",
-        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
+        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
