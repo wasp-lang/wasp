@@ -11,7 +11,6 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
-import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
@@ -64,18 +63,16 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir = do
-  installExitCode <-
-    Job.Output.withPrefixed $ \prefixed ->
-      Job.runJob (prefixed Job.Output.Wasp) installProjectDepsJob
-  return $ case installExitCode of
-    ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
-    _success -> Right ()
+  installResult <- Job.Output.withPrefixed (`Job.runJob` installProjectDepsJob)
+  return $ case installResult of
+    Left failure -> Left $ "Project setup failed with exit code " ++ show (Job.jobFailureExitCode failure) ++ "."
+    Right () -> Right ()
   where
     installProjectDepsJob =
       installNpmDependenciesAndReport projectDir
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
-installNpmDependenciesAndReport projectDir = do
+installNpmDependenciesAndReport projectDir = Job.withKind Job.Wasp $ do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
   Job.withBackgroundOutputWorker reportInstallationProgress $
     JobProcess.run_ =<< Node.command [] projectDir "npm" ["install"]

@@ -14,11 +14,11 @@ where
 
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
+import Data.Bifunctor (first)
 import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
-import System.Exit (ExitCode (..))
 import qualified Text.Regex.TDFA as TR
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common
@@ -54,10 +54,10 @@ data DbConnectionTestResult
 -- up to the wasp project dir to ensure they remain in sync.
 migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> IO (Either String ())
 migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = do
-  dbExitCode <- Job.runJob Output.plain $ DbJobs.migrateDev generatedAppDirAbs migrateArgs
-  case dbExitCode of
-    ExitSuccess -> finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
-    ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
+  dbResult <- Job.runJob Output.plain $ DbJobs.migrateDev generatedAppDirAbs migrateArgs
+  case dbResult of
+    Right () -> finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
+    Left failure -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show (Job.jobFailureExitCode failure)
 
 finalizeMigration :: Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> RefreshOnLastDbConcurrenceChecksumFile -> IO (Either String ())
 finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs onLastDbConcurrenceChecksumFileRefreshAction = do
@@ -127,10 +127,10 @@ dbReset generatedAppDir resetArgs = do
   -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
-  exitCode <- Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ DbJobs.reset generatedAppDir resetArgs
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure c -> Left $ "Failed with exit code " <> show c
+  result <- Output.withPrefixed (`Job.runJob` DbJobs.reset generatedAppDir resetArgs)
+  return $ case result of
+    Right () -> Right ()
+    Left failure -> Left $ "Failed with exit code " <> show (Job.jobFailureExitCode failure)
 
 dbSeed ::
   ServerRunConfig ->
@@ -138,20 +138,20 @@ dbSeed ::
   String ->
   IO (Either String ())
 dbSeed serverRunConfig generatedAppDir seedName = do
-  exitCode <- Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ DbJobs.seed serverRunConfig generatedAppDir seedName
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure c -> Left $ "Failed with exit code " <> show c
+  result <- Output.withPrefixed (`Job.runJob` DbJobs.seed serverRunConfig generatedAppDir seedName)
+  return $ case result of
+    Right () -> Right ()
+    Left failure -> Left $ "Failed with exit code " <> show (Job.jobFailureExitCode failure)
 
 testDbConnection ::
   Path' Abs (Dir GeneratedAppDir) ->
   IO DbConnectionTestResult
 testDbConnection generatedAppDir = do
-  (exitCode, output) <- Output.capturing $ \sink -> Job.runJob sink $ DbJobs.dbExecuteTest generatedAppDir
+  (result, output) <- Output.capturing (`Job.runJob` DbJobs.dbExecuteTest generatedAppDir)
 
-  case exitCode of
-    ExitSuccess -> return DbConnectionSuccess
-    ExitFailure _ -> do
+  case result of
+    Right () -> return DbConnectionSuccess
+    Left _ -> do
       let databaseNotCreated = prismaErrorContainsDbNotCreatedError output
 
       return $
@@ -170,10 +170,10 @@ isDbConnectionPossible _ = False
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 generatePrismaClient generatedAppDir = do
-  exitCode <- Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ DbJobs.generatePrismaClient generatedAppDir
-  case exitCode of
-    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
-    ExitSuccess -> do
+  result <- Output.withPrefixed (`Job.runJob` DbJobs.generatePrismaClient generatedAppDir)
+  case result of
+    Left failure -> return $ Left $ "Prisma client generation failed with exit code: " ++ show (Job.jobFailureExitCode failure)
+    Right () -> do
       updateDbSchemaChecksumOnLastGenerate
       return $ Right ()
   where
@@ -187,12 +187,12 @@ generatePrismaClient generatedAppDir = do
 -- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
 doesSchemaMatchDb :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
 doesSchemaMatchDb generatedAppDirAbs = do
-  dbExitCode <- Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ DbJobs.migrateDiff generatedAppDirAbs
+  dbResult <- Output.withPrefixed (`Job.runJob` DbJobs.migrateDiff generatedAppDirAbs)
   -- Schema in sync: 0, Error: 1, Schema differs: 2
-  case dbExitCode of
-    ExitSuccess -> return $ Just True
-    ExitFailure 2 -> return $ Just False
-    ExitFailure _ -> return Nothing
+  case first Job.jobFailureExitCode dbResult of
+    Right () -> return $ Just True
+    Left 2 -> return $ Just False
+    Left _ -> return Nothing
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
 -- matches the DB. Returns Nothing on error as we do not know the current state.
@@ -201,7 +201,7 @@ doesSchemaMatchDb generatedAppDirAbs = do
 -- It is recommended to call this after some check that confirms DB connectivity, like `doesSchemaMatchDb`.
 areAllMigrationsAppliedToDb :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
 areAllMigrationsAppliedToDb generatedAppDirAbs = do
-  dbExitCode <- Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ DbJobs.migrateStatus generatedAppDirAbs
-  case dbExitCode of
-    ExitSuccess -> return $ Just True
-    ExitFailure _ -> return Nothing
+  dbResult <- Output.withPrefixed (`Job.runJob` DbJobs.migrateStatus generatedAppDirAbs)
+  case dbResult of
+    Right () -> return $ Just True
+    Left _ -> return Nothing

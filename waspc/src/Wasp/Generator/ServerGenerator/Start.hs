@@ -72,7 +72,7 @@ notifyFailedCompile controller =
 
 startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> Job.Job ()
 startServer serverRunConfig generatedAppDir =
-  runServerProcessController serverRunConfig serverDir
+  Job.withKind Job.Server . runServerProcessController serverRunConfig serverDir
   where
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 

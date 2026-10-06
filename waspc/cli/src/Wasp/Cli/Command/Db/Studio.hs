@@ -21,6 +21,6 @@ studio = do
 
   cliSendMessageC $ Msg.Start "Running studio..."
 
-  _ <- liftIO $ Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ runStudio genProjectDir
+  _ <- liftIO $ Output.withPrefixed (`Job.runJob` runStudio genProjectDir)
 
   error "This should never happen, studio should never stop."

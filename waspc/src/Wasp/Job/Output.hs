@@ -1,8 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Job.Output
-  ( JobKind (..),
-    plain,
+  ( plain,
     capturing,
     withPrefixed,
   )
@@ -16,30 +15,25 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
-import Wasp.Job (Sink, Stream (..))
+import Wasp.Job (JobKind (..), Printer, Sink, Stream (..))
 import qualified Wasp.Util.Terminal as Term
 
--- | Labels the output of a job when it is printed with 'withPrefixed'.
-data JobKind = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
-
 -- | Prints the output to Wasp's own stdout and stderr, as is.
-plain :: Sink
-plain stream output = T.IO.hPutStr handle output >> hFlush handle
-  where
-    handle = streamHandle stream
+plain :: Printer
+plain _ = printToStream
 
 -- | Collects all the output written to the sink, in the order it was written.
-capturing :: (Sink -> IO a) -> IO (a, Text)
+capturing :: (Printer -> IO a) -> IO (a, Text)
 capturing action = do
   chunksVar <- newMVar []
-  result <- action $ \_ output -> modifyMVar_ chunksVar $ return . (output :)
+  result <- action $ \_ _ output -> modifyMVar_ chunksVar $ return . (output :)
   chunks <- readMVar chunksVar
   return (result, T.concat $ reverse chunks)
 
--- | Gives a sink for each job kind, which prints the output with that kind's
--- prefix, e.g. "[Server]". Output from all of them is printed one write at a
--- time, so jobs running concurrently don't break each other's lines.
-withPrefixed :: ((JobKind -> Sink) -> IO a) -> IO a
+-- | Prints the output with the job kind's prefix, e.g. "[Server]". Output from
+-- all jobs is printed one write at a time, so jobs running concurrently don't
+-- break each other's lines.
+withPrefixed :: (Printer -> IO a) -> IO a
 withPrefixed action = do
   stateVar <- newMVar initialPrefixedState
   action $ \jobKind stream output ->
@@ -94,7 +88,7 @@ printPrefixed :: JobOutput -> Text -> PrefixedState -> IO PrefixedState
 printPrefixed jobOutput content (PrefixedState outputsWithPendingNewline lastJobOutput) = do
   let (outputsWithPendingNewline', messageContent) =
         applyPendingNewline outputsWithPendingNewline jobOutput content
-  plain (_jobOutputStream jobOutput) $ addPrefixWhereNeeded messageContent
+  printToStream (_jobOutputStream jobOutput) $ addPrefixWhereNeeded messageContent
   return $ PrefixedState outputsWithPendingNewline' (Just jobOutput)
   where
     -- TODO: We haven't considered Windows much here, so in the future we might
@@ -210,6 +204,11 @@ makePrefix jobOutput =
     unstyled = (,[])
 
 type StyledText = (String, [Term.Style])
+
+printToStream :: Sink
+printToStream stream output = T.IO.hPutStr handle output >> hFlush handle
+  where
+    handle = streamHandle stream
 
 streamHandle :: Stream -> Handle
 streamHandle Stdout = stdout

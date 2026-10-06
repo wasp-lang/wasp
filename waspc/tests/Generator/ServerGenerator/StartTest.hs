@@ -179,8 +179,8 @@ spec_ServerProcessController =
             isPortAvailable newPort `shouldReturn` True
             clearServerPid fixture
 
-ignoreOutput :: Job.Sink
-ignoreOutput _ _ = return ()
+ignoreOutput :: Job.Printer
+ignoreOutput _ _ _ = return ()
 
 serverRunConfig :: ServerRunConfig
 serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"

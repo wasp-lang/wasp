@@ -9,6 +9,7 @@ import Control.Concurrent.Extra (threadDelay)
 import Control.Monad (forever, void)
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
+import System.Exit (ExitCode (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start (ServerProcessController, startServer)
@@ -27,15 +28,17 @@ import Wasp.Util (secondsToMicroSeconds)
 start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> IO () -> IO (Either String ())
 start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverProcessController onJobsQuietDown = do
   serverOrWebExitCode <-
-    Output.withPrefixed $ \prefixed ->
+    Output.withPrefixed $ \prefixedPrinter ->
       withJobsQuietDownListener onJobsQuietDown $ \notifyJobOutput -> do
-        let sink jobKind stream output = notifyJobOutput >> prefixed jobKind stream output
-        J.runJob (sink Output.Server) (startServer serverRunConfig outDir serverProcessController)
-          `race` J.runJob (sink Output.WebApp) (startWebApp webAppRunConfig waspProjectDir)
+        let printer jobKind stream output = notifyJobOutput >> prefixedPrinter jobKind stream output
+        J.runJob printer (startServer serverRunConfig outDir serverProcessController)
+          `race` J.runJob printer (startWebApp webAppRunConfig waspProjectDir)
 
   case serverOrWebExitCode of
-    Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
-    Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
+    Left serverResult -> return $ Left $ "Server failed with exit code " ++ show (toExitCode serverResult) ++ "."
+    Right webAppResult -> return $ Left $ "Web app failed with exit code " ++ show (toExitCode webAppResult) ++ "."
+  where
+    toExitCode = either (ExitFailure . J.jobFailureExitCode) (const ExitSuccess)
 
 -- | Gives the action a function to call on every job output. Stops listening
 -- once the action returns.
