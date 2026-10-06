@@ -1,12 +1,10 @@
----
-title: Fly.io
----
-
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CiCdMention from './_ci-cd-mention.md'
 import CustomServerUrlOption from './_custom-server-url-option.md'
 import FlyDbOptions from './_fly-db-options.md'
+
+# Fly.io
 
 [Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 

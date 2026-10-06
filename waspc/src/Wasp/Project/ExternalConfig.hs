@@ -36,11 +36,11 @@ parseAndValidateExternalConfigs waspDir tsConfigPaths@TsConfigPaths {srcTsConfig
   maybeRootTsConfigOrErrors <- traverse (parseAndValidateRootTsConfig waspDir) rootTsConfig
   unitOrViteConfigErrors <- validateViteConfig waspDir
 
-  return $
-    validationToEither $
-      ExternalConfigs
-        <$> packageJsonOrErrors
-        <* srcTsConfigOrErrors
-        <* sequenceA maybeWaspTsConfigOrErrors
-        <* sequenceA maybeRootTsConfigOrErrors
-        <* unitOrViteConfigErrors
+  return
+    $ validationToEither
+    $ ExternalConfigs
+      <$> packageJsonOrErrors
+      <* srcTsConfigOrErrors
+      <* sequenceA maybeWaspTsConfigOrErrors
+      <* sequenceA maybeRootTsConfigOrErrors
+      <* unitOrViteConfigErrors

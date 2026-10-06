@@ -19,7 +19,7 @@ import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
@@ -27,23 +27,26 @@ import Wasp.AppSpec.JSON (JSON (..))
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Job = Job
-  { executor :: JobExecutor,
+  { name :: String,
+    executor :: JobExecutor,
     perform :: Perform,
     schedule :: Maybe Schedule,
     entities :: Maybe [Ref Entity]
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
-instance IsDecl Job
+instance IsDecl Job where
+  declName = name
 
 instance Inspectable Job where
   inspect job =
     [ InspectionEntry "Jobs" $
-        [ ("Executor", show $ executor job),
-          ("Schedule", maybe "" (show . cron) (schedule job)),
+        [ ("Name", job.name),
+          ("Executor", show job.executor),
+          ("Schedule", maybe "" (show . cron) job.schedule),
           ("Import", showExtImportFromProjectDir job.perform.fn)
         ]
-          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities job]]
+          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [job.entities]]
     ]
 
 data JobExecutor = PgBoss

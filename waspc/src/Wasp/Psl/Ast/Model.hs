@@ -8,6 +8,7 @@ module Wasp.Psl.Ast.Model
     FieldType (..),
     FieldTypeModifier (..),
     getName,
+    getBody,
   )
 where
 
@@ -21,7 +22,7 @@ data Model
   = Model
       Name
       Body
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 newtype Body = Body [WithCtx Element]
   deriving (Show, Eq, Data)
@@ -63,3 +64,6 @@ data FieldTypeModifier
 
 getName :: Model -> Name
 getName (Model name _) = name
+
+getBody :: Model -> Body
+getBody (Model _ body) = body

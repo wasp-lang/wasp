@@ -16,6 +16,7 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
+import qualified System.Process as P
 import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
@@ -129,12 +130,14 @@ seed serverRunConfig generatedAppDir seedName =
 -- `prisma db execute --stdin --schema <path to db schema>`.
 --  Runs the command in the generated server code directory so it has access to the database URL.
 --
--- Since nothing is passed to stdin, `prisma db execute` just runs an empty
+-- We give it an explicit empty stdin, so `prisma db execute` just runs an empty
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
-dbExecuteTest generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+dbExecuteTest generatedAppDir = do
+  process <- prismaCommand serverDir [] generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+  JobProcess.run_ process {P.std_in = P.CreatePipe}
   where
+    serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
@@ -178,7 +181,16 @@ runPrismaCommandAsJobWithExtraEnv ::
   [String] ->
   J.Job ()
 runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
-  JobProcess.run_ =<< Node.command extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
+  JobProcess.run_ =<< prismaCommand fromDir extraEnvVars generatedAppDir cmdArgs
+
+prismaCommand ::
+  Path' Abs (Dir a) ->
+  [(String, String)] ->
+  Path' Abs (Dir GeneratedAppDir) ->
+  [String] ->
+  J.Job P.CreateProcess
+prismaCommand fromDir extraEnvVars generatedAppDir cmdArgs =
+  Node.command extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

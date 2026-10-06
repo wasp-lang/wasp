@@ -16,18 +16,20 @@ spec_AppSpecEntityTest = do
       getIdField entityWithoutIdField `shouldBe` Nothing
   where
     entityWithIdField =
-      Entity.makeEntity $
-        Psl.Model.Body $
-          Psl.WithCtx.empty
-            <$> [ Psl.Model.ElementField idField,
-                  Psl.Model.ElementField someOtherField
-                ]
+      Entity.makeEntity
+        $ Psl.Model.Model "Task"
+        $ Psl.Model.Body
+        $ Psl.WithCtx.empty
+          <$> [ Psl.Model.ElementField idField,
+                Psl.Model.ElementField someOtherField
+              ]
     entityWithoutIdField =
-      Entity.makeEntity $
-        Psl.Model.Body $
-          Psl.WithCtx.empty
-            <$> [ Psl.Model.ElementField someOtherField
-                ]
+      Entity.makeEntity
+        $ Psl.Model.Model "Task"
+        $ Psl.Model.Body
+        $ Psl.WithCtx.empty
+          <$> [ Psl.Model.ElementField someOtherField
+              ]
 
     idField =
       Psl.Model.Field

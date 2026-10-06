@@ -114,9 +114,9 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
     readSpecResultFile = do
       contents <- IOUtil.readFileBytes absSpecResultFile
-      return $
-        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
-          Aeson.eitherDecode contents
+      return
+        $ left (\err -> ["Error while reading the spec result from JSON: " ++ err])
+        $ Aeson.eitherDecode contents
 
 -- | The result handed back by the spec analyzer subprocess. Mirrors the
 -- @SpecResult@ type in @waspc.sh/spec; keep them in sync.

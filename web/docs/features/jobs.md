@@ -1,11 +1,9 @@
----
-title: Jobs
----
-
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
+
+# Jobs
 
 In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth.
 
@@ -221,7 +219,7 @@ All job data will be stored in a separate database schema called `pgboss`. It ha
 By default, `PgBoss` keeps job data for 12 hours after completion or failure. After that, it moves the data to an archive table, where it is kept for 7 days before being deleted. If you want to change this behavior, you can configure the `PG_BOSS_NEW_OPTIONS` environment variable to set custom values for job archival ([`archivedCompletedAfterSeconds`/`archiveFailedAfterSeconds`](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~:text=v1%22%20or%20%22v4%22-,archiveCompletedAfterSeconds,-Specifies%20how%20long)) and removal ([`deleteAfterSeconds`/`deleteAfterMinutes`/etc](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~:text=the%20skew%20warnings.-,Archive%20options,-When%20jobs%20in)).
 
 ```bash
-PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
+PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
 ```
 
 ## API Reference

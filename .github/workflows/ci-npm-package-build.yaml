@@ -3,8 +3,8 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
-      build-outputs-json:
-        description: "The returned outputs from the build workflow, as a JSON string"
+      waspc-version:
+        description: "The Wasp version built by the build workflow."
         required: true
         type: string
 
@@ -60,29 +60,25 @@ jobs:
 
       - name: Create build metadata file
         env:
-          INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
+          WASPC_VERSION: ${{ inputs.waspc-version }}
+          NPM_TARGETS_JSON: ${{ steps.compute-download-artifact-names.outputs.npm-target }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
-            # We'll wrangle the data from the build jobs into that schema here.
+            # We'll list one tarball per build that has an npm target here.
             |
             {
-              version: ($overrideVersion // $inputData.waspc_version) | ltrimstr("v"),
+              version: ($overrideVersion // $waspcVersion) | ltrimstr("v"),
               tarballs:
-                $inputData
-                | with_entries(select(.key | startswith("output_")))
-                | map(
-                    fromjson
-                    | {
-                        fileName: .["tarball-name"],
-                        target: (.["npm-target"] | fromjson)
-                      }
-                  )
+                $npmTargets
+                | to_entries
+                | map({ fileName: "wasp-\(.key).tar.gz", target: .value })
             }
         run: |
           jq \
             --null-input \
-            --argjson inputData "$INPUT_DATA_JSON" \
+            --arg waspcVersion "$WASPC_VERSION" \
+            --argjson npmTargets "$NPM_TARGETS_JSON" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
             "$JQ_PROGRAM" \
             > "$PACKAGES_INPUT_DATA_FILE_PATH"

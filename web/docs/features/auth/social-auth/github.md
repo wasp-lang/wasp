@@ -1,7 +1,3 @@
----
-title: GitHub
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
@@ -13,6 +9,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import GithubData from '../entities/_github-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# GitHub
 
 Wasp supports GitHub Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.

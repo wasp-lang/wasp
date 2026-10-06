@@ -93,4 +93,4 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     getSeedNames seeds = AS.ExtImport.importIdentifier <$> seeds
 
 getDbSeeds :: AS.AppSpec -> Maybe [AS.ExtImport.ExtImport]
-getDbSeeds spec = AS.Db.seeds =<< AS.App.db (snd $ ASV.getApp spec)
+getDbSeeds spec = AS.Db.seeds =<< AS.App.db (ASV.getApp spec)
