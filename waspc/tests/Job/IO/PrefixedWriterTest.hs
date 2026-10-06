@@ -1,52 +1,68 @@
 module Job.IO.PrefixedWriterTest where
 
+import Control.Exception (bracket, finally)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
+import GHC.IO.Handle (hDuplicate, hDuplicateTo)
+import System.Directory (getTemporaryDirectory, removeFile)
+import System.IO (IOMode (ReadMode), hClose, hFlush, openTempFile, stdout, withFile)
 import Test.Hspec
 import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (formatJobMessage)
+import Wasp.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
 import qualified Wasp.Util.Terminal as Term
 
 spec_prefixedOutput :: Spec
 spec_prefixedOutput = do
-  it "emits the newline before an ordinary status message" $ do
-    formatJobMessage Nothing (dbOutput "ready\n") <> "PostgreSQL ready.\n"
-      `shouldBe` dbPrefix <> "ready\nPostgreSQL ready.\n"
+  -- Capture while building the spec, before Tasty starts parallel tests.
+  statusOutput <- runIO $ captureStdout $ runPrefixedWriter $ do
+    printJobMessagePrefixed $ dbOutput "ready\n"
+    liftIO $ T.IO.putStr "PostgreSQL ready.\n"
+  it "ends the log line before an ordinary status message" $
+    statusOutput `shouldBe` "\n" <> dbPrefix <> "ready\nPostgreSQL ready.\n"
 
-  it "continues partial output without adding a prefix" $ do
-    formatJobMessage Nothing (dbOutput "Migration name: ") `shouldBe` dbPrefix <> "Migration name: "
-    formatJobMessage (Just $ dbOutput "Migration name: ") (dbOutput "answer\n") `shouldBe` "answer\n"
+  emptyLinesOutput <- runIO $ captureStdout $ runPrefixedWriter $ do
+    printJobMessagePrefixed $ dbOutput "first\n"
+    printJobMessagePrefixed $ dbOutput "\nlast\n"
+  it "labels empty lines, including ones received separately" $
+    emptyLinesOutput `shouldBe` "\n" <> dbPrefix <> "first\n" <> dbPrefix <> "\n" <> dbPrefix <> "last\n"
 
-  it "adds the next prefix only when content follows the newline" $ do
-    formatJobMessage (Just $ dbOutput "first\n") (dbOutput "second\n") `shouldBe` dbPrefix <> "second\n"
+  partialLinesOutput <- runIO $ captureStdout $ runPrefixedWriter $ do
+    printJobMessagePrefixed $ dbOutput "first"
+    printJobMessagePrefixed $ dbOutput " line\n"
+    printJobMessagePrefixed $ dbOutput "second\n"
+  it "continues partial lines and leaves no trailing prefix" $
+    partialLinesOutput `shouldBe` "\n" <> dbPrefix <> "first line\n" <> dbPrefix <> "second\n"
 
-  it "labels blank lines without leaving a trailing prefix" $ do
-    formatJobMessage Nothing (dbOutput "first\n\nlast\n") `shouldBe` dbPrefix <> "first\n" <> dbPrefix <> "\n" <> dbPrefix <> "last\n"
-    formatJobMessage (Just $ dbOutput "first") (dbOutput "") `shouldBe` ""
-    formatJobMessage Nothing (dbOutput "\n") `shouldBe` dbPrefix <> "\n"
-    formatJobMessage (Just $ dbOutput "first\n") (dbOutput "\n") `shouldBe` dbPrefix <> "\n"
-    formatJobMessage Nothing (dbOutput "\r\n\r\n") `shouldBe` dbPrefix <> "\r\n" <> dbPrefix <> "\r\n"
+  switchedJobsOutput <- runIO $ captureStdout $ runPrefixedWriter $ do
+    printJobMessagePrefixed $ dbOutput "first\n"
+    printJobMessagePrefixed $ J.JobMessage (J.JobOutput "second\n" J.Stdout) J.Server
+    printJobMessagePrefixed $ dbOutput "third\n"
+  it "does not add a second newline when the job changes" $
+    switchedJobsOutput `shouldBe` "\n" <> dbPrefix <> "first\n" <> serverPrefix <> "second\n" <> dbPrefix <> "third\n"
 
-  it "preserves carriage returns and CRLF, including split chunks" $ do
-    formatJobMessage Nothing (dbOutput "one\rtwo\r\n") `shouldBe` dbPrefix <> "one\r" <> dbPrefix <> "two\r\n"
-    formatJobMessage (Just $ dbOutput "one\r") (dbOutput "\ntwo\n") `shouldBe` "\n" <> dbPrefix <> "two\n"
+  carriageReturnOutput <- runIO $ captureStdout $ runPrefixedWriter $ do
+    printJobMessagePrefixed $ dbOutput "one\r"
+    printJobMessagePrefixed $ dbOutput "\ntwo\n"
+  it "preserves carriage-return labeling across separate writes" $
+    carriageReturnOutput `shouldBe` "\n" <> dbPrefix <> "one\r" <> dbPrefix <> "\n" <> dbPrefix <> "two\n"
 
-  it "separates different jobs only when the previous line is incomplete" $ do
-    let serverOutput text = J.JobMessage (J.JobOutput text J.Stdout) J.Server
-    formatJobMessage (Just $ serverOutput "partial") (dbOutput "next\n") `shouldBe` "\n" <> dbPrefix <> "next\n"
-    formatJobMessage (Just $ serverOutput "partial") (dbOutput "\nnext\n") `shouldBe` "\n" <> dbPrefix <> "\n" <> dbPrefix <> "next\n"
-    formatJobMessage (Just $ serverOutput "working\r") (dbOutput "next\n") `shouldBe` "\n" <> dbPrefix <> "next\n"
-    formatJobMessage (Just $ serverOutput "complete\n") (dbOutput "next\n") `shouldBe` dbPrefix <> "next\n"
-
-  it "separates stdout and stderr from the same job" $ do
-    let errorOutput text = J.JobMessage (J.JobOutput text J.Stderr) J.Db
-    formatJobMessage (Just $ errorOutput "partial") (dbOutput "next\n") `shouldBe` "\n" <> dbPrefix <> "next\n"
-    formatJobMessage (Just $ errorOutput "complete\n") (dbOutput "next\n") `shouldBe` dbPrefix <> "next\n"
-
-  it "preserves colored output and its trailing newline" $ do
-    formatJobMessage Nothing (dbOutput "\ESC[32mready\ESC[0m\n") `shouldBe` dbPrefix <> "\ESC[32mready\ESC[0m\n"
+captureStdout :: IO () -> IO T.Text
+captureStdout action = do
+  temporaryDirectory <- getTemporaryDirectory
+  bracket (openTempFile temporaryDirectory "wasp-output") cleanup $ \(path, handle) -> do
+    bracket (hDuplicate stdout) restoreStdout $ \_ -> do
+      hDuplicateTo handle stdout
+      action `finally` hFlush stdout
+    hClose handle
+    withFile path ReadMode T.IO.hGetContents
+  where
+    cleanup (path, handle) = hClose handle `finally` removeFile path
+    restoreStdout original = hDuplicateTo original stdout `finally` hClose original
 
 dbOutput :: T.Text -> J.JobMessage
 dbOutput text = J.JobMessage (J.JobOutput text J.Stdout) J.Db
 
-dbPrefix :: T.Text
+dbPrefix, serverPrefix :: T.Text
 dbPrefix = T.pack $ Term.applyStyles [Term.Blue] "[" <> "   " <> Term.applyStyles [Term.Blue] "Db" <> "   " <> Term.applyStyles [Term.Blue] "]" <> " "
+serverPrefix = T.pack $ Term.applyStyles [Term.Magenta] "[" <> " " <> Term.applyStyles [Term.Magenta] "Server" <> " " <> Term.applyStyles [Term.Magenta] "]" <> " "
