@@ -19,9 +19,12 @@ spec_prefixedOutput = do
   it "adds the next prefix only when content follows the newline" $ do
     formatJobMessage (Just $ dbOutput "first\n") (dbOutput "second\n") `shouldBe` dbPrefix <> "second\n"
 
-  it "preserves blank lines without unused prefixes" $ do
-    formatJobMessage Nothing (dbOutput "first\n\nlast\n") `shouldBe` dbPrefix <> "first\n\n" <> dbPrefix <> "last\n"
+  it "labels blank lines without leaving a trailing prefix" $ do
+    formatJobMessage Nothing (dbOutput "first\n\nlast\n") `shouldBe` dbPrefix <> "first\n" <> dbPrefix <> "\n" <> dbPrefix <> "last\n"
     formatJobMessage (Just $ dbOutput "first") (dbOutput "") `shouldBe` ""
+    formatJobMessage Nothing (dbOutput "\n") `shouldBe` dbPrefix <> "\n"
+    formatJobMessage (Just $ dbOutput "first\n") (dbOutput "\n") `shouldBe` dbPrefix <> "\n"
+    formatJobMessage Nothing (dbOutput "\r\n\r\n") `shouldBe` dbPrefix <> "\r\n" <> dbPrefix <> "\r\n"
 
   it "preserves carriage returns and CRLF, including split chunks" $ do
     formatJobMessage Nothing (dbOutput "one\rtwo\r\n") `shouldBe` dbPrefix <> "one\r" <> dbPrefix <> "two\r\n"
@@ -30,6 +33,7 @@ spec_prefixedOutput = do
   it "separates different jobs only when the previous line is incomplete" $ do
     let serverOutput text = J.JobMessage (J.JobOutput text J.Stdout) J.Server
     formatJobMessage (Just $ serverOutput "partial") (dbOutput "next\n") `shouldBe` "\n" <> dbPrefix <> "next\n"
+    formatJobMessage (Just $ serverOutput "partial") (dbOutput "\nnext\n") `shouldBe` "\n" <> dbPrefix <> "\n" <> dbPrefix <> "next\n"
     formatJobMessage (Just $ serverOutput "working\r") (dbOutput "next\n") `shouldBe` "\n" <> dbPrefix <> "next\n"
     formatJobMessage (Just $ serverOutput "complete\n") (dbOutput "next\n") `shouldBe` dbPrefix <> "next\n"
 

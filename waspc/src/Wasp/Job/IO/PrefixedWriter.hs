@@ -71,22 +71,25 @@ printJobMessagePrefixed jobMessage =
 formatJobMessage :: Maybe J.JobMessage -> J.JobMessage -> T.Text
 formatJobMessage previous jobMessage
   | T.null content = ""
-  | otherwise = separator <> prefixLines needsPrefix content
+  | otherwise = separator <> prefixLines needsPrefix afterCarriageReturn content
   where
     content = getJobMessageContent jobMessage
     sameOutput = (getJobMessageOutput <$> previous) == Just (getJobMessageOutput jobMessage)
     atLineStart = maybe True (endsWithLineBreak . getJobMessageContent) previous
     previousLineComplete = maybe True (T.isSuffixOf "\n" . getJobMessageContent) previous
+    afterCarriageReturn = sameOutput && maybe False (T.isSuffixOf "\r" . getJobMessageContent) previous
     needsPrefix = atLineStart || not sameOutput
-    separator = if not sameOutput && not previousLineComplete && not (T.isPrefixOf "\n" content) then "\n" else ""
+    separator = if not sameOutput && not previousLineComplete then "\n" else ""
     prefix = makeJobMessagePrefix jobMessage
 
-    prefixLines addPrefix text =
+    prefixLines addPrefix afterCR text =
       let (line, rest) = T.break isLineBreak text
-          prefixedLine = if addPrefix && not (T.null line) then prefix <> line else line
+          continuesCRLF = afterCR && "\n" `T.isPrefixOf` text
+          needsLabel = addPrefix && not (T.null text) && not continuesCRLF
+          prefixedLine = if needsLabel then prefix <> line else line
        in prefixedLine <> case T.uncons rest of
             Nothing -> ""
-            Just (delimiter, remaining) -> T.singleton delimiter <> prefixLines True remaining
+            Just (delimiter, remaining) -> T.singleton delimiter <> prefixLines True (delimiter == '\r') remaining
 
     endsWithLineBreak text = maybe True (isLineBreak . snd) $ T.unsnoc text
     isLineBreak char = char == '\n' || char == '\r'
