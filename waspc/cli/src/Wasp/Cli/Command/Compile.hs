@@ -29,7 +29,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspSpecAvailable (ensureWaspSpecAvailable)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
@@ -48,13 +48,15 @@ compileCommand :: Command ([CompileWarning], AS.AppSpec)
 compileCommand = withProjectLock compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
+-- Installs the project's dependencies first if they are missing or stale, so
+-- the caller must hold the project lock.
 compile :: Command ([CompileWarning], AS.AppSpec)
 compile = do
   -- TODO: Consider a way to remove the redundancy of finding the project root
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  ensureWaspSpecAvailable waspProjectDir
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.

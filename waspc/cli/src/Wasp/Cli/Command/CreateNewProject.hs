@@ -20,7 +20,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
-import Wasp.Cli.Command.Install (installIO)
+import Wasp.Cli.Command.Install (LockfileHandling (UpdateLockfile), installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
@@ -53,7 +53,7 @@ createProjectOnDisk
 
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
 installDepsForNewProject absWaspProjectDir =
-  installIO absWaspProjectDir >>= \case
+  installIO UpdateLockfile absWaspProjectDir >>= \case
     Right () -> return ()
     Left _err ->
       putStrLn

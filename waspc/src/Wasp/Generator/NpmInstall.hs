@@ -1,6 +1,7 @@
 module Wasp.Generator.NpmInstall
   ( installNpmDependenciesWithInstallRecord,
     installProjectNpmDependencies,
+    installProjectNpmDependenciesWithoutSavingLockfile,
   )
 where
 
@@ -66,7 +67,24 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
   Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir = do
+installProjectNpmDependencies = runProjectNpmInstall []
+
+-- | Like 'installProjectNpmDependencies', but runs `npm install --no-save`, so
+-- `package-lock.json` stays untouched.
+--
+-- Meant for installing before Wasp generates the npm workspaces in `.wasp/out`
+-- (e.g., in a fresh clone or after `wasp clean`). A lockfile-writing install at
+-- that point prunes the workspaces' entries from the lockfile
+-- (https://github.com/wasp-lang/wasp/issues/4482) and, on npm < 11.15, leaves
+-- stale stub entries behind. The post-generation install then brings the
+-- lockfile back in sync.
+installProjectNpmDependenciesWithoutSavingLockfile ::
+  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependenciesWithoutSavingLockfile = runProjectNpmInstall ["--no-save"]
+
+runProjectNpmInstall ::
+  [String] -> Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+runProjectNpmInstall extraNpmInstallArgs messagesChan projectDir = do
   (_, installExitCode) <- handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
@@ -74,7 +92,7 @@ installProjectNpmDependencies messagesChan projectDir = do
   where
     installProjectDepsJob =
       installNpmDependenciesAndReport
-        (runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp)
+        (runNodeCommandAsJob projectDir "npm" ("install" : extraNpmInstallArgs) J.Wasp)
         messagesChan
         J.Wasp
     handleProjectInstallMessages :: Chan J.JobMessage -> IO ()

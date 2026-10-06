@@ -19,7 +19,7 @@ import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspSpecAvailable (ensureWaspSpecAvailable)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
@@ -52,8 +52,8 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = withProjectLock $ do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
+  ensureWaspSpecAvailable waspProjectDir
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
