@@ -87,5 +87,10 @@
     "typescript": "^6.0.3",
     "vite": "^8.1.0",
     "zod": "^4.3.6"
-  }
+  },
+  "sideEffects": [
+    "**/*.css",
+    "./dist/browser.mjs",
+    "./dist/browser/auth/session.mjs"
+  ]
 }

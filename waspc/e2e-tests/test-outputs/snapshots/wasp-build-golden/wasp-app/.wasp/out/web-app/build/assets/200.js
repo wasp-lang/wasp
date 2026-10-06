@@ -1,11 +1,10 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
-import { StrictMode, forwardRef, startTransition, use, useSyncExternalStore } from "react";
+import { StrictMode, startTransition, use, useSyncExternalStore } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import "@wasp.sh/lib-auth";
 import mitt from "mitt";
 import ky from "ky";
 import * as z from "zod";
@@ -74,18 +73,7 @@ function emptySubscribe() {
 	return emptyUnsubscribe;
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/resources-BaMGi48Q.js
-var defaultQueryClientConfig = {};
-var resolveQueryClientInitialized;
-var queryClientInitialized = new Promise((resolve) => {
-	resolveQueryClientInitialized = resolve;
-});
-function initializeQueryClient() {
-	const queryClient = new QueryClient(defaultQueryClientConfig);
-	resolveQueryClientInitialized(queryClient);
-}
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser.js
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
 	display: "flex",
 	minHeight: "80vh",
@@ -99,100 +87,18 @@ function FullPageWrapper({ children, className }) {
 		children
 	});
 }
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	console.error(error);
 	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
 }
-var commonMessageStyles = {
-	borderRadius: ".5rem",
-	padding: "1rem"
-};
-({ ...commonMessageStyles });
-({ ...commonMessageStyles });
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-var Form_module_default = {
-	"form": "VbuAUq_form",
-	"formError": "VbuAUq_formError",
-	"formInput": "VbuAUq_formInput",
-	"formItemGroup": "VbuAUq_formItemGroup",
-	"formLabel": "VbuAUq_formLabel",
-	"formTextarea": "VbuAUq_formTextarea",
-	"submitButton": "VbuAUq_submitButton"
-};
-var clsx = (...classes) => {
-	return classes.filter(Boolean).join(" ");
-};
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("form", {
-	className: clsx(Form_module_default.form, className),
-	...props,
-	ref,
-	children
-}));
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("div", {
-	className: clsx(Form_module_default.formItemGroup, className),
-	...props,
-	ref,
-	children
-}));
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("label", {
-	className: clsx(Form_module_default.formLabel, className),
-	...props,
-	ref,
-	children
-}));
-forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx("input", {
-	className: clsx(Form_module_default.formInput, className),
-	...props,
-	ref
-}));
-forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx("textarea", {
-	className: clsx(Form_module_default.formTextarea, className),
-	...props,
-	ref
-}));
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("div", {
-	className: clsx(Form_module_default.formError, className),
-	...props,
-	ref,
-	children
-}));
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("button", {
-	className: clsx(Form_module_default.submitButton, className),
-	...props,
-	ref,
-	children
-}));
-var Message_module_default = {
-	"message": "vbkyMW_message",
-	"messageError": "vbkyMW_messageError",
-	"messageSuccess": "vbkyMW_messageSuccess"
-};
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("div", {
-	className: clsx(Message_module_default.message, className),
-	...props,
-	ref,
-	children
-}));
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("div", {
-	className: clsx(Message_module_default.messageError, className),
-	...props,
-	ref,
-	children
-}));
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("div", {
-	className: clsx(Message_module_default.messageSuccess, className),
-	...props,
-	ref,
-	children
-}));
-var SocialButton_module_default = { "socialButton": "Liyq9q_socialButton" };
-forwardRef(({ children, className, ...props }, ref) => /* @__PURE__ */ jsx("a", {
-	className: clsx(SocialButton_module_default.socialButton, className),
-	...props,
-	ref,
-	children
-}));
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -243,6 +149,19 @@ function createLocalStorageDataStore(prefix) {
 		}
 	};
 }
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
+var defaultQueryClientConfig = {};
+var resolveQueryClientInitialized;
+var queryClientInitialized = new Promise((resolve) => {
+	resolveQueryClientInitialized = resolve;
+});
+function initializeQueryClient() {
+	const queryClient = new QueryClient(defaultQueryClientConfig);
+	resolveQueryClientInitialized(queryClient);
+}
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
 	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
@@ -255,11 +174,8 @@ if (typeof window !== "undefined") window.addEventListener("storage", (event) =>
 	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
 	else apiEventsEmitter.emit("sessionId.clear");
 });
-z.object({ sessionId: z.string() });
-z.object({
-	success: z.boolean(),
-	reason: z.string().optional()
-});
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/ansiColors.mjs
 /**
 * Wraps each line of text with ANSI color codes.
 * Only works in Node.js (server-side), not in the browser.
@@ -293,6 +209,8 @@ var ansiColorCodes = {
 	yellow: "\x1B[33m"
 };
 var ansiResetCode = "\x1B[0m";
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/env/validation.mjs
 function ensureEnvSchema(data, schema) {
 	const result = getValidatedEnvOrError(data, schema);
 	if (result.success) return result.data;
@@ -316,6 +234,8 @@ function formatZodEnvError(error) {
 		"════════════════════════════════"
 	].join("\n");
 }
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
 	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
@@ -338,6 +258,8 @@ function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
 	return paramString.slice(1);
 }
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/url.mjs
 function stripTrailingSlash(url) {
 	return url?.replace(/\/$/, "");
 }
