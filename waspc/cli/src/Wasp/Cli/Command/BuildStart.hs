@@ -49,12 +49,12 @@ buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
   liftIO (Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.WebApp) $ buildClient config)
-    >>= throwOnExitFailure "Building client failed."
+    >>= throwOnExitFailure "Building client failed." "Building the client"
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
   liftIO (Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Server) $ buildServer config)
-    >>= throwOnExitFailure "Building server failed."
+    >>= throwOnExitFailure "Building server failed." "Building the server"
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
@@ -68,13 +68,15 @@ buildAndStartServerAndClient config = do
         (Job.runJob (prefixed Output.WebApp) (startClient config))
         (Job.runJob (prefixed Output.Server) (startServer config))
   case firstExit of
-    Left clientExit -> throwOnExitFailure "Serving client failed." clientExit
-    Right serverExit -> throwOnExitFailure "Running server failed." serverExit
+    Left clientExit -> throwOnExitFailure startErrorTitle "Serving the client" clientExit
+    Right serverExit -> throwOnExitFailure startErrorTitle "Running the server" serverExit
   where
-    throwOnExitFailure :: String -> ExitCode -> Command ()
-    throwOnExitFailure _ ExitSuccess = return ()
-    throwOnExitFailure errorTitle (ExitFailure code) =
+    startErrorTitle = "Starting Wasp app failed."
+
+    throwOnExitFailure :: String -> String -> ExitCode -> Command ()
+    throwOnExitFailure _ _ ExitSuccess = return ()
+    throwOnExitFailure errorTitle failedStep (ExitFailure code) =
       throwError $
         CommandError
           errorTitle
-          ("Process exited with code " <> show code <> ".")
+          (failedStep <> " failed with exit code: " <> show code)
