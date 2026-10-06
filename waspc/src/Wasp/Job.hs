@@ -8,13 +8,14 @@ module Wasp.Job
   )
 where
 
-import Control.Concurrent.Async (asyncWithUnmask, cancel, waitCatchSTM)
+import Control.Concurrent.Async (AsyncCancelled, asyncWithUnmask, cancel, poll, waitCatch, waitCatchSTM)
 import Control.Concurrent.STM (atomically, newTQueueIO, orElse, readTQueue, writeTQueue)
-import Control.Exception (throwIO)
+import Control.Exception (fromException, throwIO)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (ResourceT)
 import Data.Conduit (ConduitT, bracketP, fuseUpstream, runConduitRes, yield)
 import qualified Data.Conduit.List as CL
+import Data.Maybe (isJust)
 import Data.Text (Text)
 import System.IO (Handle, stderr, stdout)
 import Wasp.Process (OutputStream (..))
@@ -51,9 +52,23 @@ fromCallback action = do
   let emitToQueue stream text = atomically $ writeTQueue queue $ Output stream text
   bracketP
     (asyncWithUnmask $ \unmask -> unmask $ action emitToQueue)
-    cancel
+    cancelAndRethrowCleanupFailure
     (streamUntilDone queue)
   where
+    -- 'cancel' discards the action's exception, but one thrown while the
+    -- action cleans up (e.g. failing to stop a process) should be reported.
+    -- If the action already finished, 'streamUntilDone' handled its result.
+    cancelAndRethrowCleanupFailure worker =
+      poll worker >>= \case
+        Just _ -> return ()
+        Nothing -> do
+          cancel worker
+          waitCatch worker >>= \case
+            Left exception | not (isCancellation exception) -> throwIO exception
+            _ -> return ()
+
+    isCancellation exception = isJust (fromException exception :: Maybe AsyncCancelled)
+
     streamUntilDone queue worker = do
       -- Output is queued before the worker finishes, so reading the queue
       -- first guarantees nothing is left in it once we see the result.
