@@ -50,11 +50,6 @@ export {
   type QueryFunction,
   type QueryMetadata,
 } from "./operations/rpc.js";
-export {
-  type FromRegister,
-  type FromRegisterPath,
-  type Register,
-} from "./register.js";
 export { interpolatePath } from "./router/interpolatePath.js";
 export {
   type ExpandRouteOnOptionalStaticSegments,
