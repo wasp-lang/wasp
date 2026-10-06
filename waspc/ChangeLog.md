@@ -33,7 +33,7 @@
 
 - `wasp start` now manages the development server process directly instead of relying on the generated server's `nodemon`, improving restart behavior. ([#4407](https://github.com/wasp-lang/wasp/pull/4407))
 
-- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4887](https://github.com/wasp-lang/wasp/pull/4887))
+- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4975](https://github.com/wasp-lang/wasp/pull/4975))
 
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
