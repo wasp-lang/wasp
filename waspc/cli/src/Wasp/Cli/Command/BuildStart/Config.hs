@@ -13,10 +13,10 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import StrongPath ((</>))
 import qualified StrongPath as SP
-import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
+import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
@@ -49,10 +49,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  let clientUrl = (makeDefaultDevClientUrl appSpec) {AppComponentUrl.port = args.clientPort}
-      serverUrl = defaultDevServerUrl {AppComponentUrl.port = args.serverPort}
-
-      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs (clientUrl, serverUrl)
+  let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
+      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
 
   clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
   serverRunConfig' <- baseServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
@@ -66,8 +64,8 @@ makeBuildStartConfig appSpec args projectDir' = do
         clientRunConfig = clientRunConfig'
       }
   where
-    appUniqueId' = makeAppUniqueId projectDir' appName
-    (appName, _) = ASV.getApp appSpec
+    appUniqueId' = makeAppUniqueId projectDir' app.name
+    app = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 

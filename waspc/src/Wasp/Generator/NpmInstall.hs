@@ -18,11 +18,9 @@ import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
-import qualified Wasp.Job.Output.Event as Event
-import Wasp.Process (InputMode (NoInput))
+import qualified Wasp.Job.Process as JobProcess
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
@@ -66,7 +64,9 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir = do
-  installExitCode <- Job.Output.runAndPrintPrefixedOutput Kind.Wasp installProjectDepsJob
+  installExitCode <-
+    Job.Output.withPrefixed $ \prefixed ->
+      Job.runJob (prefixed Job.Output.Wasp) installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
@@ -76,17 +76,17 @@ installProjectNpmDependencies projectDir = do
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
 installNpmDependenciesAndReport projectDir = do
-  Job.emitJobOutput Event.Stdout "Starting npm install\n"
+  Job.emitJobOutput Job.Stdout "Starting npm install\n"
   Job.withBackgroundOutputWorker reportInstallationProgress $
-    Node.runChecked NoInput [] projectDir "npm" ["install"]
+    JobProcess.run_ =<< Node.command [] projectDir "npm" ["install"]
 
-reportInstallationProgress :: (Event.JobOutputKind -> T.Text -> IO ()) -> IO ()
-reportInstallationProgress emit =
+reportInstallationProgress :: Job.Sink -> IO ()
+reportInstallationProgress sink =
   mapM_ reportMessage $ cycle possibleMessages
   where
     reportMessage message = do
       threadDelay $ secondsToMicroSeconds 5
-      emit Event.Stdout $ T.append message "\n"
+      sink Job.Stdout $ T.append message "\n"
       threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =

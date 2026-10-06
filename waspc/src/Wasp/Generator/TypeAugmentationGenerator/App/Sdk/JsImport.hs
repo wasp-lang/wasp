@@ -41,9 +41,9 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
 
 extSrcDirFromSdkTypesRootDir :: Path Posix (Rel SdkTypeAugmentationRootDir) (Dir UserSrcDir)
 extSrcDirFromSdkTypesRootDir =
-  SP.castRel $
-    fromJust $
-      relDirToPosix $
-        generatedCodeDirFromTypesRootDir </> waspProjectDirFromGeneratedAppDir </> srcDirInWaspProjectDir
+  SP.castRel
+    $ fromJust
+    $ relDirToPosix
+    $ generatedCodeDirFromTypesRootDir </> waspProjectDirFromGeneratedAppDir </> srcDirInWaspProjectDir
   where
     generatedCodeDirFromTypesRootDir = invertRelDir sdkTypeAugmentationRootDirInGeneratedCodeDir

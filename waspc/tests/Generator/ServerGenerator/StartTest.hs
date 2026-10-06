@@ -1,6 +1,6 @@
 module Generator.ServerGenerator.StartTest where
 
-import Control.Concurrent (newChan, threadDelay)
+import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (cancel, withAsync)
 import Control.Exception (SomeException, finally, try)
 import Control.Monad (void, when)
@@ -12,7 +12,7 @@ import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldNotBe, shouldReturn)
 import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
-import Wasp.AppComponentUrl (AppComponentUrl (..))
+import Wasp.AppComponentUrl (makeAppComponentUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start
@@ -24,37 +24,35 @@ import Wasp.Generator.ServerGenerator.Start
     startServer,
   )
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Kind as Kind
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_ServerEffect :: Spec
 spec_ServerEffect =
-  describe "ServerEffect" $
-    it "combines effects by choosing the strongest" $
-      [ mconcat [],
+  describe "ServerEffect"
+    $ it "combines effects by choosing the strongest"
+    $ [ mconcat [],
         NoServerEffect <> RestartServer,
         RestartServer <> NoServerEffect,
         RestartServer <> RestartServer,
         RestartServer <> RebundleAndRestartServer,
         RebundleAndRestartServer <> RestartServer
       ]
-        `shouldBe` [ NoServerEffect,
-                     RestartServer,
-                     RestartServer,
-                     RestartServer,
-                     RebundleAndRestartServer,
-                     RebundleAndRestartServer
-                   ]
+      `shouldBe` [ NoServerEffect,
+                   RestartServer,
+                   RestartServer,
+                   RestartServer,
+                   RebundleAndRestartServer,
+                   RebundleAndRestartServer
+                 ]
 
 spec_ServerProcessController :: Spec
 spec_ServerProcessController =
   describe "server process controller" $ do
     it "starts, restarts, and stops the server across compile outcomes" $
       withGeneratedAppDirFixture $ \fixture -> do
-        chan <- newChan
         controller <- newServerProcessController
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-        withAsync (Job.runJob Kind.Server (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+        withAsync (Job.runJob ignoreOutput (startServer serverRunConfig generatedAppDir controller)) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -125,12 +123,11 @@ spec_ServerProcessController =
 
     it "stops the server after a failed bundle and recovers on the next successful compile" $
       withGeneratedAppDirFixture $ \fixture -> do
-        chan <- newChan
         controller <- newServerProcessController
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
         let bundleScriptPath = serverDirPath fixture </> "bundle.js"
         originalBundleScript <- readFile' bundleScriptPath
-        withAsync (Job.runJob Kind.Server (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+        withAsync (Job.runJob ignoreOutput (startServer serverRunConfig generatedAppDir controller)) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -158,10 +155,9 @@ spec_ServerProcessController =
       it "cleans up a crashed server with a pipe-holding child before restarting it" $
         withGeneratedAppDirFixture $ \fixture -> do
           writeServerStartScript fixture crashingServerScript
-          chan <- newChan
           controller <- newServerProcessController
           generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-          withAsync (Job.runJob Kind.Server (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+          withAsync (Job.runJob ignoreOutput (startServer serverRunConfig generatedAppDir controller)) $ \controllerJob -> do
             waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
             crashedPid <- readServerPid fixture
             waitUntil "leftover process port file" $ doesFileExist $ leftoverPortFilePath fixture
@@ -183,8 +179,11 @@ spec_ServerProcessController =
             isPortAvailable newPort `shouldReturn` True
             clearServerPid fixture
 
+ignoreOutput :: Job.Sink
+ignoreOutput _ _ = return ()
+
 serverRunConfig :: ServerRunConfig
-serverRunConfig = makeServerRunConfig (Local 0 Nothing) "http://localhost:3000"
+serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"
 
 newtype GeneratedAppDirFixture = GeneratedAppDirFixture
   { _generatedAppDirPath :: FilePath

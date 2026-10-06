@@ -1,38 +1,30 @@
-module Wasp.Job.Node
-  ( runChecked,
-    runReturningExitCode,
-    spawn,
-  )
-where
+module Wasp.Job.Node (command) where
 
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode)
+import qualified StrongPath as SP
+import System.Environment (getEnvironment)
 import qualified System.Process as P
-import Wasp.Job (failWithExitCode)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Output.Event as Event
 import qualified Wasp.Job.Process as JobProcess
-import Wasp.Process (InputMode)
-import qualified Wasp.Process.Node as NodeProcess
+import qualified Wasp.Node.Version as NodeVersion
 
--- | Runs the command to completion, failing the Job on a nonzero child exit.
-runChecked :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ()
-runChecked inputMode = runCommandUsing $ JobProcess.runChecked inputMode
-
--- | Runs the command and returns the child process's exit status for explicit handling.
-runReturningExitCode :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ExitCode
-runReturningExitCode inputMode = runCommandUsing $ JobProcess.runReturningExitCode inputMode
-
-spawn :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job JobProcess.Subprocess
-spawn = runCommandUsing JobProcess.spawn
-
-runCommandUsing :: (P.CreateProcess -> Job.Job a) -> [(String, String)] -> Path' Abs (Dir dir) -> String -> [String] -> Job.Job a
-runCommandUsing runProcess extraEnvVars workingDir executable arguments = do
-  prepared <- liftIO $ NodeProcess.prepare extraEnvVars workingDir executable arguments
-  case prepared of
-    Left message -> do
-      Job.emitJobOutput Event.Stderr $ T.pack message
-      failWithExitCode 1
-    Right process -> runProcess process
+-- | Like 'JobProcess.command', for a command that uses the user's Node
+-- installation. Fails the job if Node or npm don't meet Wasp's requirements.
+command :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job P.CreateProcess
+command extraEnvVars workingDir executable arguments =
+  liftIO NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
+    NodeVersion.VersionCheckFail message -> do
+      Job.emitJobOutput Job.Stderr $ T.pack message
+      Job.failWithExitCode 1
+    NodeVersion.VersionCheckSuccess -> do
+      -- Haskell will use the first value for variable name it finds. Since env
+      -- vars in 'extraEnvVars' should override the inherited env vars, we
+      -- must prepend them.
+      envVars <- (extraEnvVars ++) <$> liftIO getEnvironment
+      return $
+        (JobProcess.command executable arguments)
+          { P.env = Just envVars,
+            P.cwd = Just $ SP.fromAbsDir workingDir
+          }

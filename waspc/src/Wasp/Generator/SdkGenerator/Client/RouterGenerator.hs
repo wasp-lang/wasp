@@ -38,10 +38,10 @@ genIndexTs spec =
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
-createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
-createRouteTemplateData (name, route) =
+createRouteTemplateData :: AS.Route.Route -> Aeson.Value
+createRouteTemplateData route =
   object
-    [ "name" .= name,
+    [ "name" .= route.name,
       "urlPath" .= makeJsStringLiteral path,
       "urlParams" .= map mapPathParamToJson urlParams,
       "hasUrlParams" .= (not . null $ urlParams),

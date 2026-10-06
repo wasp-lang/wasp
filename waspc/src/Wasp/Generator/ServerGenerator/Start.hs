@@ -22,9 +22,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Output.Event as Event
 import qualified Wasp.Job.Process as JobProcess
-import Wasp.Process (InputMode (NoInput))
 
 newtype ServerProcessController = ServerProcessController (Chan ServerControllerCommand)
 
@@ -130,7 +128,7 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
         (ServerRunning {}, NoServerEffect) -> return ()
         (ServerRunning {}, RestartServer) -> replaceServerProcess
         _ -> do
-          bundleExitCode <- Node.runReturningExitCode NoInput [] serverDir "npm" ["run", "bundle"]
+          bundleExitCode <- JobProcess.run =<< Node.command [] serverDir "npm" ["run", "bundle"]
           case bundleExitCode of
             ExitSuccess -> replaceServerProcess
             ExitFailure {} -> stopServerProcess
@@ -142,7 +140,7 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
     startServerProcess = do
       mask_ $ do
         serverProcessId <- liftIO getNextServerProcessId
-        subprocess <- Node.spawn (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
+        subprocess <- JobProcess.spawn =<< Node.command (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
         liftIO $ writeIORef serverStateRef $ ServerRunning ServerProcess {_serverProcessId = serverProcessId, _subprocess = subprocess}
         exitWatcher <- liftIO $ async $ do
           exitCode <- JobProcess.wait subprocess
@@ -179,7 +177,7 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
       case serverState of
         ServerNotRunning -> return ()
         ServerRunning serverProcess ->
-          liftIO (JobProcess.poll $ _subprocess serverProcess) >>= \case
+          JobProcess.poll (_subprocess serverProcess) >>= \case
             Nothing -> return ()
             Just exitCode -> cleanUpExitedServerProcess serverProcess exitCode
 
@@ -195,8 +193,8 @@ printServerProcessExit :: ExitCode -> Job.Job ()
 printServerProcessExit exitCode =
   Job.emitJobOutput (outputStream exitCode) $ formatServerProcessExit exitCode
   where
-    outputStream ExitSuccess = Event.Stdout
-    outputStream ExitFailure {} = Event.Stderr
+    outputStream ExitSuccess = Job.Stdout
+    outputStream ExitFailure {} = Job.Stderr
 
 formatServerProcessExit :: ExitCode -> T.Text
 formatServerProcessExit ExitSuccess = "Server process exited.\n"

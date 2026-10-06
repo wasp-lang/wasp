@@ -137,9 +137,9 @@ tryGettingInstalledPackageVersion ::
   InstallablePackage ->
   IO (Either String SV.Version)
 tryGettingInstalledPackageVersion projectDir package = runExceptT $ do
-  unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath) $
-    throwError $
-      "Couldn't find " ++ fromAbsFile packageJsonPath
+  unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath)
+    $ throwError
+    $ "Couldn't find " ++ fromAbsFile packageJsonPath
   packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
   ExceptT $ return $ case PJ.version packageJson of
     Just versionString -> first show $ SV.parseVersion versionString

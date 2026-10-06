@@ -5,17 +5,15 @@ module Wasp.Cli.Command.BuildStart.Server
 where
 
 import qualified StrongPath as SP
-import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Process as JobProcess
-import Wasp.Process (InputMode (NoInput))
 
 buildServer :: BuildStartConfig -> Job.Job ()
 buildServer config =
-  JobProcess.runChecked NoInput (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  JobProcess.run_ (JobProcess.command "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
@@ -23,8 +21,8 @@ buildServer config =
 
 startServer :: BuildStartConfig -> Job.Job ()
 startServer config =
-  JobProcess.runChecked NoInput $
-    proc
+  JobProcess.run_ $
+    JobProcess.command
       "docker"
       ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
           <> envVarParams

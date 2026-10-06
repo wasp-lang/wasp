@@ -81,21 +81,21 @@ sessionsFieldOnAuthEntityName = "sessions"
 authFieldOnSessionEntityName :: String
 authFieldOnSessionEntityName = Util.toLowerFirst authEntityName
 
-injectAuth :: [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
-injectAuth entities (userEntityName, userEntity) = do
-  authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
+injectAuth :: [AS.Entity.Entity] -> AS.Entity.Entity -> Generator [AS.Entity.Entity]
+injectAuth entities userEntity = do
+  authEntity <- makeAuthEntity userEntityIdField userEntity
   authIdentityEntity <- makeAuthIdentityEntity
   sessionEntity <- makeSessionEntity
-  let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
+  let entitiesWithAuth = injectAuthIntoUserEntity userEntity entities
   return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
 
-makeAuthIdentityEntity :: Generator (String, AS.Entity.Entity)
+makeAuthIdentityEntity :: Generator AS.Entity.Entity
 makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authIdentityEntityName ++ " entity: " ++ show err
-  Right pslBody -> return (authIdentityEntityName, AS.Entity.makeEntity pslBody)
+  Right pslBody -> return $ AS.Entity.makeEntity $ Psl.Model.Model authIdentityEntityName pslBody
   where
     authIdentityPslBody =
       T.unpack
@@ -115,10 +115,10 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
-makeAuthEntity :: Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parseBody authEntityPslBody of
+makeAuthEntity :: Psl.Model.Field -> AS.Entity.Entity -> Generator AS.Entity.Entity
+makeAuthEntity userEntityIdField userEntity = case Psl.Parser.Model.parseBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
-  Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
+  Right pslBody -> return $ AS.Entity.makeEntity $ Psl.Model.Model authEntityName pslBody
   where
     authEntityPslBody =
       T.unpack
@@ -131,7 +131,7 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.par
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType
-    userEntityNameText = T.pack userEntityName
+    userEntityNameText = T.pack $ AS.Entity.getName userEntity
     userFieldOnAuthEntityNameText = T.pack userFieldOnAuthEntityName
     authIdentityEntityNameText = T.pack authIdentityEntityName
     identitiesFieldOnAuthEntityNameText = T.pack identitiesFieldOnAuthEntityName
@@ -149,10 +149,10 @@ makeUserEntityIdFieldAttributes field = unwords attrs
     waspDefinedAttrs = ["@unique"]
     userDefinedNativeDbTypeAttributes = filter Psl.Attribute.isNativeDbTypeAttr $ Psl.Model._attrs field
 
-makeSessionEntity :: Generator (String, AS.Entity.Entity)
+makeSessionEntity :: Generator AS.Entity.Entity
 makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ sessionEntityName ++ " entity: " ++ show err
-  Right pslBody -> return (sessionEntityName, AS.Entity.makeEntity pslBody)
+  Right pslBody -> return $ AS.Entity.makeEntity $ Psl.Model.Model sessionEntityName pslBody
   where
     sessionEntityPslBody =
       T.unpack
@@ -172,14 +172,14 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnSessionEntityNameText = T.pack authFieldOnSessionEntityName
 
-injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
-injectAuthIntoUserEntity userEntityName entities =
-  let userEntity = fromJust $ lookup userEntityName entities
-      userEntityWithAuthInjected = injectRelationToAuth userEntity
-   in (userEntityName, userEntityWithAuthInjected) : filter ((/= userEntityName) . fst) entities
+injectAuthIntoUserEntity :: AS.Entity.Entity -> [AS.Entity.Entity] -> [AS.Entity.Entity]
+injectAuthIntoUserEntity userEntity entities =
+  injectRelationToAuth userEntity : filter ((/= userEntityName) . AS.Entity.getName) entities
   where
+    userEntityName = AS.Entity.getName userEntity
+
     injectRelationToAuth :: AS.Entity.Entity -> AS.Entity.Entity
-    injectRelationToAuth entity = AS.Entity.makeEntity newPslBody
+    injectRelationToAuth entity = AS.Entity.makeEntity $ Psl.Model.Model userEntityName newPslBody
       where
         (Psl.Model.Body existingPsl) = AS.Entity.getPslModelBody entity
         relationToAuthEntity =

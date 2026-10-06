@@ -3,10 +3,11 @@ module Wasp.Generator.Start
   )
 where
 
-import Control.Concurrent (Chan, dupChan, newChan, readChan)
-import Control.Concurrent.Async (concurrently, race)
+import Control.Concurrent (MVar, newEmptyMVar, takeMVar, tryPutMVar)
+import Control.Concurrent.Async (race)
 import Control.Concurrent.Extra (threadDelay)
-import Control.Monad (void)
+import Control.Monad (forever, void)
+import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
@@ -14,9 +15,7 @@ import Wasp.Generator.ServerGenerator.Start (ServerProcessController, startServe
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
-import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
-import qualified Wasp.Job.Output.Event as Event
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -27,29 +26,35 @@ import Wasp.Util (secondsToMicroSeconds)
 --   produced some output.
 start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> IO () -> IO (Either String ())
 start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverProcessController onJobsQuietDown = do
-  chan <- newChan
-  let runStartJobs =
-        J.runJob Kind.Server (startServer serverRunConfig outDir serverProcessController) chan
-          `race` J.runJob Kind.WebApp (startWebApp webAppRunConfig waspProjectDir) chan
-  ((serverOrWebExitCode, _), _) <-
-    runStartJobs
-      `concurrently` Output.printEventsPrefixedUntilExit chan
-      `concurrently` (dupChan chan >>= (`listenForJobsQuietDown` onJobsQuietDown))
+  serverOrWebExitCode <-
+    Output.withPrefixed $ \prefixed ->
+      withJobsQuietDownListener onJobsQuietDown $ \notifyJobOutput -> do
+        let sink jobKind stream output = notifyJobOutput >> prefixed jobKind stream output
+        J.runJob (sink Output.Server) (startServer serverRunConfig outDir serverProcessController)
+          `race` J.runJob (sink Output.WebApp) (startWebApp webAppRunConfig waspProjectDir)
 
   case serverOrWebExitCode of
     Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
     Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 
-listenForJobsQuietDown :: Chan Event.JobEvent -> IO () -> IO ()
-listenForJobsQuietDown jobsChan onJobsQuietDown = do
-  waitForJobMsg
+-- | Gives the action a function to call on every job output. Stops listening
+-- once the action returns.
+withJobsQuietDownListener :: IO () -> (IO () -> IO a) -> IO a
+withJobsQuietDownListener onJobsQuietDown action = do
+  jobOutputSignal <- newEmptyMVar
+  either id absurd
+    <$> action (void $ tryPutMVar jobOutputSignal ())
+      `race` listenForJobsQuietDown jobOutputSignal onJobsQuietDown
+
+listenForJobsQuietDown :: MVar () -> IO () -> IO Void
+listenForJobsQuietDown jobOutputSignal onJobsQuietDown = forever $ do
+  waitForJobOutput
   waitForPeriodOfSilence
   onJobsQuietDown
-  listenForJobsQuietDown jobsChan onJobsQuietDown
   where
-    waitForJobMsg = void $ readChan jobsChan
+    waitForJobOutput = takeMVar jobOutputSignal
     waitForPeriodOfSilence = do
-      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsToMicroSeconds 5)
-      case jobMsgOrTimeout of
+      jobOutputOrTimeout <- waitForJobOutput `race` threadDelay (secondsToMicroSeconds 5)
+      case jobOutputOrTimeout of
         Left _ -> waitForPeriodOfSilence
         Right _ -> return ()

@@ -59,30 +59,30 @@ build = withProjectLock $ do
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
-    cliSendMessageC $
-      Msg.Start $
-        "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
+    cliSendMessageC
+      $ Msg.Start
+      $ "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
-    cliSendMessageC $
-      Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+    cliSendMessageC
+      $ Msg.Success
+      $ "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
   liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $
-    throwError $
-      CommandError "Building of wasp project failed" $
-        show (length errors) ++ " errors found."
+  unless (null errors)
+    $ throwError
+    $ CommandError "Building of wasp project failed"
+    $ show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
-  cliSendMessageC $
-    Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  cliSendMessageC
+    $ Msg.Success
+    $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       let srcTsConfigPath = srcTsConfig tsConfigPaths

@@ -63,7 +63,7 @@ genAuth spec = case maybeAuth of
       <++> genOAuthAuth auth
       <++> genEmailAuth spec auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
     genFileCopy = return . C.mkSrcTmplFd
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -100,14 +100,14 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
           ]
 
     makeConfigImportJson providerId =
-      jsImportToImportJson $
-        Just $
-          JI.JsImport
-            { JI._kind = JI.ValueImport,
-              JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
-              JI._name = JI.JsImportModule providerId,
-              JI._importAlias = Nothing
-            }
+      jsImportToImportJson
+        $ Just
+        $ JI.JsImport
+          { JI._kind = JI.ValueImport,
+            JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
+            JI._name = JI.JsImportModule providerId,
+            JI._importAlias = Nothing
+          }
 
 genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
 genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)
@@ -134,7 +134,7 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
 depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
     authDeps =
       Npm.Dependency.fromList
         [ ("lucia", "^3.0.1"),

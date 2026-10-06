@@ -11,8 +11,8 @@ import Data.List (intercalate)
 import Data.Maybe (isJust)
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Job.Process (ProcessGroupDidNotStop)
 import qualified Wasp.Message as Msg
-import Wasp.Process (ProcessGroupDidNotStop)
 
 withExceptionReporting :: IO () -> IO ()
 withExceptionReporting action =

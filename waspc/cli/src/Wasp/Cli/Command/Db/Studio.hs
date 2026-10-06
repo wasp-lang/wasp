@@ -9,7 +9,7 @@ import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
-import qualified Wasp.Job.Kind as Kind
+import qualified Wasp.Job as Job
 import qualified Wasp.Job.Output as Output
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -21,6 +21,6 @@ studio = do
 
   cliSendMessageC $ Msg.Start "Running studio..."
 
-  _ <- liftIO $ Output.runAndPrintPrefixedOutput Kind.Db $ runStudio genProjectDir
+  _ <- liftIO $ Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Db) $ runStudio genProjectDir
 
   error "This should never happen, studio should never stop."
