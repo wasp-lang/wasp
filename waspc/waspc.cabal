@@ -578,6 +578,7 @@ test-suite waspc-tests
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
     Fixtures
+    Fixtures.AppSpec
     Generator.AuthInjectionTest
     Generator.CommonTest
     Generator.CrudTest
