@@ -101,7 +101,6 @@ withDatabaseSession args request action = do
           case result of
             Left _ -> E.throwError $ CommandError "Could not start PostgreSQL" "The Docker process exited before PostgreSQL was ready. Check the database output above."
             Right () -> return ()
-          cliSendMessageC $ Msg.Info "PostgreSQL ready."
           when (request == StartNewDatabase) $ do
             cliSendMessageC $ Msg.Info $ "Database URL: " <> Dev.Postgres.getDevConnectionUrl db
             cliSendMessageC $ Msg.Info $ "Data volume: " <> db.dockerVolumeName
