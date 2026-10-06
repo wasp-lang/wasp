@@ -22,7 +22,6 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
 import qualified Wasp.Message as Msg
 
@@ -49,12 +48,12 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
-  liftIO (Output.runAndPrintPrefixedOutput Kind.WebApp $ buildClient config)
+  liftIO (Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.WebApp) $ buildClient config)
     >>= throwOnExitFailure "Building client failed."
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  liftIO (Output.runAndPrintPrefixedOutput Kind.Server $ buildServer config)
+  liftIO (Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Server) $ buildServer config)
     >>= throwOnExitFailure "Building server failed."
   cliSendMessageC $ Msg.Success "Server built."
 
@@ -64,10 +63,10 @@ buildAndStartServerAndClient config = do
       showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
   firstExit <-
-    liftIO $ Output.withPrefixedOutput $ \events ->
+    liftIO $ Output.withPrefixed $ \prefixed ->
       Async.race
-        (Job.runJob Kind.WebApp (startClient config) events)
-        (Job.runJob Kind.Server (startServer config) events)
+        (Job.runJob (prefixed Output.WebApp) (startClient config))
+        (Job.runJob (prefixed Output.Server) (startServer config))
   case firstExit of
     Left clientExit -> throwOnExitFailure "Serving client failed." clientExit
     Right serverExit -> throwOnExitFailure "Running server failed." serverExit

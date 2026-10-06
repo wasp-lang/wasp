@@ -24,6 +24,7 @@ import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
+import qualified Wasp.Job.Process as JobProcess
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ()
@@ -177,7 +178,7 @@ runPrismaCommandAsJobWithExtraEnv ::
   [String] ->
   J.Job ()
 runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
-  Node.runChecked extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
+  JobProcess.run_ =<< Node.command extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

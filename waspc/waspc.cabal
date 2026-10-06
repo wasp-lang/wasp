@@ -317,19 +317,14 @@ library
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
     Wasp.Job
-    Wasp.Job.Kind
     Wasp.Job.Node
     Wasp.Job.Output
-    Wasp.Job.Output.Event
-    Wasp.Job.Output.Prefixed
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
-    Wasp.Process
-    Wasp.Process.Node
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType
