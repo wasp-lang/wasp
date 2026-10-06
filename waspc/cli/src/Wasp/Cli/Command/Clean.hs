@@ -27,4 +27,8 @@ clean = withProjectLock $ do
 
   cliSendMessageC
     $ Msg.Info
-    $ "\nRun " ++ styleCode "wasp install" ++ " to reinstall dependencies."
+    $ "\nRun "
+      ++ styleCode "wasp start"
+      ++ " or "
+      ++ styleCode "wasp install"
+      ++ " to reinstall dependencies."
