@@ -263,7 +263,7 @@ Let's create and run our first Wasp app in 3 short steps:
    wasp start
    ```
 
-That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>) to see it.
+That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>, unless it's taken) to see it.
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
 
