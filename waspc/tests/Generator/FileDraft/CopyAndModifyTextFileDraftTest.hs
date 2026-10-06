@@ -1,6 +1,6 @@
 module Generator.FileDraft.CopyAndModifyTextFileDraftTest where
 
-import Fixtures (systemSPRoot)
+import Fixtures.Paths (systemSPRoot)
 import qualified Generator.MockWriteableMonad as Mock
 import StrongPath (parent, reldir, relfile, toFilePath, (</>))
 import Test.Hspec
