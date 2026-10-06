@@ -1,6 +1,4 @@
----
-title: Environment variables
----
+# Environment variables
 
 We talked about environment variables in the [environment variables reference](../advanced/env-vars.md). If you haven't read it, make sure to check it out first. In this section, we'll talk about environment variables in the context of deploying the app.
 

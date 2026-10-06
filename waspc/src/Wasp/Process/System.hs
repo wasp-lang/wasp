@@ -30,7 +30,6 @@ configureIsolatedProcess process =
   process
     { P.create_group = not isWindows,
       P.use_process_jobs = isWindows,
-      P.std_in = P.NoStream,
       P.std_out = P.CreatePipe,
       P.std_err = P.CreatePipe
     }

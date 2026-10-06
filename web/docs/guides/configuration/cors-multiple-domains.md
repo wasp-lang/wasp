@@ -1,5 +1,4 @@
 ---
-title: Multiple Domains CORS
 comments: true
 ---
 

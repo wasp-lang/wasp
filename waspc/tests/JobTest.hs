@@ -1,78 +1,41 @@
 module JobTest where
 
-import Control.Concurrent (newChan, newEmptyMVar, putMVar, readChan, takeMVar, threadDelay)
+import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (bracket_)
 import Control.Monad.Except (catchError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (register)
 import Data.IORef (newIORef, readIORef, writeIORef)
-import Data.Maybe (isNothing)
 import System.Exit (ExitCode (..))
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldReturn, shouldSatisfy)
+import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
-import qualified Wasp.Job.Output.Event as Event
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_Job :: Spec
 spec_Job =
   describe "Job" $ do
-    it "uses the execution label for every event when reusing a job" $ do
-      let job = Job.emitJobOutput Event.Stdout "output"
-      let checkLabel kind = do
-            events <- newChan
-            Job.runJob kind job events `shouldReturn` ExitSuccess
-            output <- readChan events
-            exit <- readChan events
-            Event._jobKind output `shouldBe` kind
-            Event._jobKind exit `shouldBe` kind
-      checkLabel Kind.Server
-      checkLabel Kind.WebApp
-
     it "short-circuits on a required subprocess failure" $ do
-      events <- newChan
       let action = do
-            Job.emitJobOutput Event.Stdout "before failure"
+            Job.emitJobOutput Job.Stdout "before failure"
             Job.requireExitSuccess $ ExitFailure 7
-            Job.emitJobOutput Event.Stdout "after failure"
+            Job.emitJobOutput Job.Stdout "after failure"
+      Output.capturing (`Job.runJob` action)
+        `shouldReturn` (ExitFailure 7, "before failure")
 
-      exitCode <- Job.runJob Kind.Wasp action events
-
-      exitCode `shouldBe` ExitFailure 7
-      firstEvent <- readChan events
-      Event._jobKind firstEvent `shouldBe` Kind.Wasp
-      case Event._eventData firstEvent of
-        Event.JobOutput Event.Stdout output -> output `shouldBe` "before failure"
-        eventData -> expectationFailure $ "Expected stdout output, got: " <> show eventData
-
-      secondEvent <- readChan events
-      case Event._eventData secondEvent of
-        Event.JobExited jobExitCode -> jobExitCode `shouldBe` ExitFailure 7
-        eventData -> expectationFailure $ "Expected JobExited, got: " <> show eventData
-
-      remainingEvent <- timeout (secondsToMicroSeconds 0.1) $ readChan events
-      remainingEvent `shouldSatisfy` isNothing
-
-    it "releases resources before emitting JobExited" $ do
-      events <- newChan
+    it "releases resources before returning" $ do
       released <- newIORef False
       let action = do
             _ <- register $ writeIORef released True
             Job.requireExitSuccess $ ExitFailure 7
 
-      _ <- Job.runJob Kind.Wasp action events
+      _ <- Job.runJob ignoreOutput action
 
       readIORef released `shouldReturn` True
-      event <- readChan events
-      case Event._eventData event of
-        Event.JobExited exitCode -> exitCode `shouldBe` ExitFailure 7
-        eventData -> expectationFailure $ "Expected JobExited, got: " <> show eventData
 
-    it "releases resources without emitting JobExited when cancelled" $ do
-      events <- newChan
+    it "releases resources when cancelled" $ do
       resourceRegistered <- newEmptyMVar
       released <- newEmptyMVar
       let action = do
@@ -80,35 +43,35 @@ spec_Job =
             liftIO $ putMVar resourceRegistered ()
             liftIO $ threadDelay $ secondsToMicroSeconds 10
 
-      Async.withAsync (Job.runJob Kind.Wasp action events) $ \job -> do
+      Async.withAsync (Job.runJob ignoreOutput action) $ \job -> do
         takeMVar resourceRegistered
         Async.cancel job
 
-      takeMVar released
-      maybeEvent <- timeout (secondsToMicroSeconds 0.1) $ readChan events
-      maybeEvent `shouldSatisfy` isNothing
+      timeout (secondsToMicroSeconds 5) (takeMVar released) `shouldReturn` Just ()
 
-spec_runAndCaptureOutput :: Spec
-spec_runAndCaptureOutput =
-  describe "runAndCaptureOutput" $ do
+    it "keeps the output a cancelled job writes while releasing its resources" $ do
+      resourceRegistered <- newEmptyMVar
+      let cancelledJob = do
+            sink <- Job.getSink
+            _ <- register $ sink Job.Stdout "released"
+            liftIO $ putMVar resourceRegistered ()
+            liftIO $ threadDelay $ secondsToMicroSeconds 10
+          finishingJob = liftIO $ takeMVar resourceRegistered
+      (_, output) <-
+        Output.capturing $ \sink ->
+          Job.runJob sink cancelledJob `Async.race` Job.runJob sink finishingJob
+      output `shouldBe` "released"
+
+spec_capturing :: Spec
+spec_capturing =
+  describe "capturing" $ do
     it "returns all stdout and stderr chunks in emission order" $ do
       let action = do
-            Job.emitJobOutput Event.Stdout "first "
-            Job.emitJobOutput Event.Stderr "second "
-            Job.emitJobOutput Event.Stdout "last"
-      Output.runAndCaptureOutput Kind.Wasp action
+            Job.emitJobOutput Job.Stdout "first "
+            Job.emitJobOutput Job.Stderr "second "
+            Job.emitJobOutput Job.Stdout "last"
+      Output.capturing (`Job.runJob` action)
         `shouldReturn` (ExitSuccess, "first second last")
-
-    it "returns output and the failure code after releasing resources" $ do
-      released <- newIORef False
-      let action = do
-            _ <- register $ writeIORef released True
-            Job.emitJobOutput Event.Stderr "failed"
-            Job.requireExitSuccess $ ExitFailure 7
-            Job.emitJobOutput Event.Stdout "unreachable"
-      Output.runAndCaptureOutput Kind.Wasp action
-        `shouldReturn` (ExitFailure 7, "failed")
-      readIORef released `shouldReturn` True
 
 spec_withBackgroundOutputWorker :: Spec
 spec_withBackgroundOutputWorker =
@@ -117,9 +80,9 @@ spec_withBackgroundOutputWorker =
       started <- newEmptyMVar
       stopped <- newIORef False
       block <- newEmptyMVar
-      let worker emit =
+      let worker sink =
             bracket_
-              (emit Event.Stdout "progress" >> putMVar started ())
+              (sink Job.Stdout "progress" >> putMVar started ())
               (writeIORef stopped True)
               (takeMVar block)
           action = do
@@ -128,7 +91,7 @@ spec_withBackgroundOutputWorker =
               return (42 :: Int)
             liftIO $ result `shouldBe` 42
             liftIO $ readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput Kind.Wasp action)
+      timeout (secondsToMicroSeconds 5) (Output.capturing (`Job.runJob` action))
         `shouldReturn` Just (ExitSuccess, "progress")
 
     it "stops the worker before an enclosing action handles job failure" $ do
@@ -145,14 +108,13 @@ spec_withBackgroundOutputWorker =
               worker
               (liftIO (takeMVar started) >> Job.failWithExitCode 7)
               `catchError` \_ -> liftIO $ readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput Kind.Wasp action)
-        `shouldReturn` Just (ExitSuccess, "")
+      timeout (secondsToMicroSeconds 5) (Job.runJob ignoreOutput action)
+        `shouldReturn` Just ExitSuccess
 
     it "stops the worker when the job is cancelled" $ do
       started <- newEmptyMVar
       stopped <- newIORef False
       block <- newEmptyMVar
-      events <- newChan
       let worker _ =
             bracket_
               (putMVar started ())
@@ -160,8 +122,11 @@ spec_withBackgroundOutputWorker =
               (takeMVar block)
           action = Job.withBackgroundOutputWorker worker $ liftIO $ takeMVar block
           cancelJob =
-            Async.withAsync (Job.runJob Kind.Wasp action events) $ \job -> do
+            Async.withAsync (Job.runJob ignoreOutput action) $ \job -> do
               takeMVar started
               Async.cancel job
               readIORef stopped `shouldReturn` True
       timeout (secondsToMicroSeconds 5) cancelJob `shouldReturn` Just ()
+
+ignoreOutput :: Job.Sink
+ignoreOutput _ _ = return ()

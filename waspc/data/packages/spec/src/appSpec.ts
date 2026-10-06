@@ -7,7 +7,6 @@
 export type Decl = {
   [Type in keyof DeclTypeToValue]: {
     declType: Type;
-    declName: string;
     declValue: DeclTypeToValue[Type];
   };
 }[keyof DeclTypeToValue];
@@ -34,11 +33,13 @@ export type GetDeclForType<T extends Decl["declType"]> = Extract<
 export type DeclType = Decl["declType"] | "Entity";
 
 export type Page = {
+  name: string;
   component: ExtImport;
   authRequired: Optional<boolean>;
 };
 
 export type Route = {
+  name: string;
   path: string;
   to: Ref<"Page">;
   // List of concrete static paths to prerender at build time (empty when
@@ -49,18 +50,21 @@ export type Route = {
 };
 
 export type Action = {
+  name: string;
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
   auth: Optional<boolean>;
 };
 
 export type Query = {
+  name: string;
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
   auth: Optional<boolean>;
 };
 
 export type Job = {
+  name: string;
   executor: JobExecutor;
   perform: Perform;
   schedule: Optional<Schedule>;
@@ -78,6 +82,7 @@ export type Perform = {
 };
 
 export type Api = {
+  name: string;
   fn: ExtImport;
   middlewareConfigFn: Optional<ExtImport>;
   entities: Optional<Ref<"Entity">[]>;
@@ -86,16 +91,19 @@ export type Api = {
 };
 
 export type ApiNamespace = {
+  name: string;
   middlewareConfigFn: ExtImport;
   path: string;
 };
 
 export type Crud = {
+  name: string;
   entity: Ref<"Entity">;
   operations: CrudOperations;
 };
 
 export type App = {
+  name: string;
   wasp: Wasp;
   title: string;
   deployment: Optional<Deployment>;

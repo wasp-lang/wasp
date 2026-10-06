@@ -141,6 +141,7 @@ library
     mustache ^>=2.4.2,
     neat-interpolation ^>=0.5.1,
     network ^>=3.1.4,
+    network-uri ^>=2.6.4,
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
@@ -320,19 +321,14 @@ library
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
     Wasp.Job
-    Wasp.Job.Kind
     Wasp.Job.Node
     Wasp.Job.Output
-    Wasp.Job.Output.Event
-    Wasp.Job.Output.Prefixed
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
-    Wasp.Process
-    Wasp.Process.Node
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType
@@ -438,6 +434,7 @@ library cli-lib
     mtl,
     neat-interpolation,
     network,
+    network-uri,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -531,6 +528,7 @@ library cli-lib
     Wasp.Cli.SignalHandling
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.PortArgument
@@ -569,6 +567,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    network-uri,
     parsec,
     process,
     resourcet,
@@ -583,6 +582,7 @@ test-suite waspc-tests
   if !os(windows)
     build-depends: unix
   other-modules:
+    AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -608,7 +608,6 @@ test-suite waspc-tests
     JsImportTest
     Node.InternalTest
     Paths_waspc
-    ProcessTest
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
@@ -661,6 +660,7 @@ test-suite wasp-cli-tests
     cli-lib,
     hspec,
     network,
+    network-uri,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -678,6 +678,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Util.HttpUrlArgumentTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
@@ -713,6 +714,7 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
+    Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest

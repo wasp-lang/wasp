@@ -8,14 +8,14 @@ import Wasp.Env (getEnvVars)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig (..))
 import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
-import Wasp.Process (InputMode (InheritTerminal))
+import qualified Wasp.Job.Process as JobProcess
 import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ()
 startWebApp webAppRunConfig waspProjectDir = do
-  Node.runChecked
-    InheritTerminal
-    (getEnvVars webAppRunConfig)
-    waspProjectDir
-    "npx"
-    ["vite"]
+  JobProcess.run_ . JobProcess.interactive
+    =<< Node.command
+      (getEnvVars webAppRunConfig)
+      waspProjectDir
+      "npx"
+      ["vite"]

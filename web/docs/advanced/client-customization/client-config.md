@@ -1,11 +1,9 @@
----
-title: Client configuration
----
-
 import BaseDirEnvNote from './_baseDirEnvNote.md'
 
 import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
+
+# Client configuration
 
 You can configure the client using the `client` field inside the `app` spec:
 

@@ -73,7 +73,7 @@ genRouter spec =
           )
     ]
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
     isExternalAuthEnabled = maybe False AS.Auth.isExternalAuthEnabled maybeAuth
 
 genAuthPages :: AppSpec -> Generator [FileDraft]
@@ -85,7 +85,7 @@ genAuthPages spec =
         genCreateAuthRequiredPage auth
           : [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
 
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
 genCreateAuthRequiredPage auth =
@@ -112,8 +112,8 @@ genLayout spec =
         C.mkTmplFdWithData
           [relfile|client/app/layout.tsx|]
           ( object
-              [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-                "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+              [ "title" .= (AS.App.title (getApp spec) :: String),
+                "head" .= (maybe "" (intercalate "\n") (AS.App.head $ getApp spec) :: String)
               ]
           )
 

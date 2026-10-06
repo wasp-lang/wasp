@@ -44,7 +44,7 @@ getPackageJsonPrismaSeedField spec =
     _ -> Nothing
 
 getDbSeeds :: AppSpec -> Maybe [ExtImport]
-getDbSeeds spec = AS.Db.seeds =<< AS.App.db (snd $ getApp spec)
+getDbSeeds spec = AS.Db.seeds =<< AS.App.db (getApp spec)
 
 dbSeedsToTemplateData :: Maybe [ExtImport] -> Maybe Aeson.Value
 dbSeedsToTemplateData Nothing = Nothing

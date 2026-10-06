@@ -1,9 +1,7 @@
----
-title: Middleware
----
-
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { CardLink } from '@site/src/components/CardLink';
+
+# Middleware
 
 Wasp comes with a minimal set of useful Express middleware in every application. While this is good for most users, we realize some may wish to add, modify, or remove some of these choices both globally, or on a per-`api`/path basis.
 

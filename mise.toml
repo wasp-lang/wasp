@@ -1,5 +1,5 @@
 # Keep in sync with .github/actions/setup-tools/action.yaml
-min_version = "2026.8.9"
+min_version = "2026.9.15"
 
 [tools]
 ghcup = "0.2.6.2"
@@ -38,18 +38,13 @@ cabal = "3.16.1.0"
 
 jq = "1.8.2"
 
-# TODO: Provide a fallback for Linux ARM64 and macOS x64
-# The upstream repo only distributes prebuilt binaries for Linux x64, macOS
-# arm64, and Windows x64.
-# https://github.com/jdx/mise/discussions/10828
-"github:tfausak/cabal-gild".version = "1.8.4.1"
-"github:tfausak/cabal-gild".os = ["linux/x64", "darwin/arm64", "windows/x64"]
+"github:tfausak/cabal-gild" = "1.8.4.2"
 
 # TODO: Provide a fallback for Linux ARM64
 # The upstream repo only distributes prebuilt binaries for Linux x64, macOS
 # (all, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
-ormolu.version = "0.8.1.1"
+ormolu.version = "0.9.0.0"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
 "mise-cabal:stan" = "0.2.1.0"

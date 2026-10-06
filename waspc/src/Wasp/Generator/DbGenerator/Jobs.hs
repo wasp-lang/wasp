@@ -16,6 +16,7 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
+import qualified System.Process as P
 import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
@@ -24,17 +25,15 @@ import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
-import Wasp.Process (InputMode (..))
+import qualified Wasp.Job.Process as JobProcess
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ()
 migrateDev generatedAppDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
-  runPrismaCommandAsJobFromWaspServerDir
-    InheritTerminal
-    generatedAppDir
-    prismaArgs
+  JobProcess.run_ . JobProcess.interactive
+    =<< prismaCommandInServerDir generatedAppDir prismaArgs
   where
     schemaFile = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -64,17 +63,17 @@ asPrismaCliArgs migrateArgs = do
 -- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
 migrateDiff :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 migrateDiff generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir
-    NoInput
-    generatedAppDir
-    [ "migrate",
-      "diff",
-      "--from-schema-datamodel",
-      SP.fromAbsFile schema,
-      "--to-schema-datasource",
-      SP.fromAbsFile schema,
-      "--exit-code"
-    ]
+  JobProcess.run_
+    =<< prismaCommandInServerDir
+      generatedAppDir
+      [ "migrate",
+        "diff",
+        "--from-schema-datamodel",
+        SP.fromAbsFile schema,
+        "--to-schema-datasource",
+        SP.fromAbsFile schema,
+        "--exit-code"
+      ]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -85,10 +84,10 @@ migrateDiff generatedAppDir =
 -- Therefore, this should be checked **after** a command that ensures connectivity.
 migrateStatus :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 migrateStatus generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir
-    NoInput
-    generatedAppDir
-    ["migrate", "status", "--schema", SP.fromAbsFile schema]
+  JobProcess.run_
+    =<< prismaCommandInServerDir
+      generatedAppDir
+      ["migrate", "status", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -96,20 +95,20 @@ migrateStatus generatedAppDir =
 -- reapplies all the migrations.
 reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job ()
 reset generatedAppDir resetArgs =
-  runPrismaCommandAsJobFromWaspServerDir
-    InheritTerminal
-    generatedAppDir
-    ( [ "migrate",
-        "reset",
-        "--schema",
-        SP.fromAbsFile schema,
-        "--skip-generate",
-        -- NOTE(martin): We do "--skip-seed" here because I just think seeding
-        --   happening automatically on reset is too aggressive / confusing.
-        "--skip-seed"
-      ]
-        ++ (["--force" | force resetArgs])
-    )
+  JobProcess.run_ . JobProcess.interactive
+    =<< prismaCommandInServerDir
+      generatedAppDir
+      ( [ "migrate",
+          "reset",
+          "--schema",
+          SP.fromAbsFile schema,
+          "--skip-generate",
+          -- NOTE(martin): We do "--skip-seed" here because I just think seeding
+          --   happening automatically on reset is too aggressive / confusing.
+          "--skip-seed"
+        ]
+          ++ (["--force" | force resetArgs])
+      )
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -121,12 +120,12 @@ reset generatedAppDir resetArgs =
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ()
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
-  runPrismaCommandAsJobWithExtraEnv
-    InheritTerminal
-    serverDir
-    ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
-    generatedAppDir
-    ["db", "seed"]
+  JobProcess.run_ . JobProcess.interactive
+    =<< prismaCommand
+      serverDir
+      ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
+      generatedAppDir
+      ["db", "seed"]
   where
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
@@ -134,31 +133,31 @@ seed serverRunConfig generatedAppDir seedName =
 -- `prisma db execute --stdin --schema <path to db schema>`.
 --  Runs the command in the generated server code directory so it has access to the database URL.
 --
--- Since nothing is passed to stdin, `prisma db execute` just runs an empty
--- SQL command, which works perfectly for checking if the database is running.
+-- Since its stdin is empty, `prisma db execute` just runs an empty SQL command,
+-- which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 dbExecuteTest generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir NoInput generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+  JobProcess.run_ =<< prismaCommandInServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 runStudio generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir NoInput generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
+  JobProcess.run_ =<< prismaCommandInServerDir generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 generatePrismaClient generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir
-    NoInput
-    generatedAppDir
-    [ "generate",
-      "--schema",
-      SP.fromAbsFile schema,
-      disablePrismaPromotionsFlag
-    ]
+  JobProcess.run_
+    =<< prismaCommandInServerDir
+      generatedAppDir
+      [ "generate",
+        "--schema",
+        SP.fromAbsFile schema,
+        disablePrismaPromotionsFlag
+      ]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -167,9 +166,9 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag :: String
     disablePrismaPromotionsFlag = "--no-hints"
 
-runPrismaCommandAsJobFromWaspServerDir :: InputMode -> Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job ()
-runPrismaCommandAsJobFromWaspServerDir inputMode generatedAppDir cmdArgs =
-  runPrismaCommandAsJobWithExtraEnv inputMode serverDir [] generatedAppDir cmdArgs
+prismaCommandInServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job P.CreateProcess
+prismaCommandInServerDir generatedAppDir =
+  prismaCommand serverDir [] generatedAppDir
   where
     -- We must run our Prisma commands from the server dir for Prisma
     -- to pick up our .env file there like before.  In the future, we might want
@@ -177,15 +176,14 @@ runPrismaCommandAsJobFromWaspServerDir inputMode generatedAppDir cmdArgs =
     -- this. Text copied from: https://github.com/wasp-lang/wasp/pull/1662
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
-runPrismaCommandAsJobWithExtraEnv ::
-  InputMode ->
+prismaCommand ::
   Path' Abs (Dir a) ->
   [(String, String)] ->
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
-  J.Job ()
-runPrismaCommandAsJobWithExtraEnv inputMode fromDir extraEnvVars generatedAppDir cmdArgs =
-  Node.runChecked inputMode extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
+  J.Job P.CreateProcess
+prismaCommand fromDir extraEnvVars generatedAppDir cmdArgs =
+  Node.command extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

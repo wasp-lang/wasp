@@ -1,8 +1,6 @@
----
-title: Customizing the app
----
-
 import { CardLink } from '@site/src/components/CardLink';
+
+# Customizing the app
 
 Each Wasp project can have only one `app` spec. It is used to configure your app and its components.
 
