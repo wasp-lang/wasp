@@ -134,9 +134,9 @@ viteBuildTest =
     writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     writeDotEnvClientFile value = do
       waspProjectContext <- ask
-      writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
-        T.pack $
-          testEnvVarKey ++ "=" ++ value
+      writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient)
+        $ T.pack
+        $ testEnvVarKey ++ "=" ++ value
 
     addTypeErrorToSrcFile :: ShellCommandBuilder WaspProjectContext ShellCommand
     addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError

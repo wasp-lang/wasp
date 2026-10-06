@@ -21,9 +21,9 @@ httpJSONThatThrowsIfNot2xx request = do
   response <- HTTP.httpLBS request
 
   let statusCode = HTTP.getResponseStatusCode response
-  when (statusCode < 200 || statusCode >= 300) $
-    throwIO $
-      HTTP.HttpExceptionRequest request (HTTP.C.StatusCodeException (void response) "")
+  when (statusCode < 200 || statusCode >= 300)
+    $ throwIO
+    $ HTTP.HttpExceptionRequest request (HTTP.C.StatusCodeException (void response) "")
 
   return $ Aeson.eitherDecode $ HTTP.getResponseBody response
 

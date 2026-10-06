@@ -147,17 +147,20 @@ printUsage =
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
         cmd   "    version               Prints current version of CLI.",
-        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
+        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start [--client-port <port>] [--server-port <port>]",
+        cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
-        cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
+              "                          Optionally specify the URLs the client and the server are reachable at,",
+              "                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).",
+        cmd   "    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
-              "                          Optionally specify a custom Docker image or Docker volume mount path.",
+              "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
+              "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -224,10 +227,11 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd $ intercalate "\n" [
-              "  start [--db-image <image>] [--db-volume-mount-path <path>]",
+              "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
               "                               Starts managed development database for you.",
-              "                               Optionally specify a custom Docker image or Docker volume mount path."
+              "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
+              "                               If the port is not specified, Wasp picks the first free port when the default one is taken."
         ],
         cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
@@ -248,7 +252,8 @@ printDbUsage =
               "  wasp db migrate-dev",
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
-              "  wasp db studio"
+              "  wasp db studio",
+              "  wasp db start --db-port 8080"
       ]
 {- ORMOLU_ENABLE -}
 

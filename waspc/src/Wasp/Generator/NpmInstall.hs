@@ -21,6 +21,7 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
+import Wasp.Process (InputMode (InheritTerminal))
 import qualified Wasp.Job.Output.Event as Event
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
@@ -77,7 +78,7 @@ installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
 installNpmDependenciesAndReport projectDir = do
   Job.emitJobOutput Event.Stdout "Starting npm install\n"
   Job.withBackgroundOutputWorker reportInstallationProgress $
-    Node.runChecked [] projectDir "npm" ["install"]
+    Node.runChecked InheritTerminal [] projectDir "npm" ["install"]
 
 reportInstallationProgress :: (Event.JobOutputKind -> T.Text -> IO ()) -> IO ()
 reportInstallationProgress emit =

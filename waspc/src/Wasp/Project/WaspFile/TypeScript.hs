@@ -29,6 +29,7 @@ import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Output
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
+import Wasp.Process (InputMode (InheritTerminal))
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -76,6 +77,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   runExitCode <-
     Output.runAndPrintPrefixedOutput Kind.Wasp $
       Node.runChecked
+        InheritTerminal
         [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
           -- Not related to `node` itself, so we have to set it manually.
           -- It enables users to write environment specific code in the TS config.
@@ -111,9 +113,9 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
     readSpecResultFile = do
       contents <- IOUtil.readFileBytes absSpecResultFile
-      return $
-        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
-          Aeson.eitherDecode contents
+      return
+        $ left (\err -> ["Error while reading the spec result from JSON: " ++ err])
+        $ Aeson.eitherDecode contents
 
 -- | The result handed back by the spec analyzer subprocess. Mirrors the
 -- @SpecResult@ type in @waspc.sh/spec; keep them in sync.

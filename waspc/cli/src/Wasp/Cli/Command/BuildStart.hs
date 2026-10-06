@@ -59,9 +59,9 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $
-    Msg.Info $
-      showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
+  cliSendMessageC
+    $ Msg.Info
+    $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
   firstExit <-
     liftIO $ Output.withPrefixedOutput $ \events ->

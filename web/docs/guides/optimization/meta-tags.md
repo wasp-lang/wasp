@@ -1,5 +1,5 @@
 ---
-title: Meta tags
+sidebar_label: Meta tags
 comments: true
 ---
 

@@ -41,31 +41,29 @@ spec_GeneratorAuthInjectionTest = do
           _nativeDbType = maybeUserEntityIdFieldNativeDbType
         } = do
         let userEntityIdField =
-              Psl.WithCtx.empty $
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "id"
-                    userEntityIdFieldType
-                    []
-                    (Psl.Attribute.Attribute "id" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
+              Psl.WithCtx.empty
+                $ Psl.Model.ElementField
+                $ Psl.Model.Field
+                  "id"
+                  userEntityIdFieldType
+                  []
+                  (Psl.Attribute.Attribute "id" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
         let userEntity =
-              ( "User",
-                AS.Entity.makeEntity $
-                  Psl.Model.Body [userEntityIdField]
-              )
+              AS.Entity.makeEntity
+                $ Psl.Model.Model "User"
+                $ Psl.Model.Body [userEntityIdField]
         let authEntityRelation =
-              Psl.WithCtx.empty $
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "auth"
-                    (Psl.Model.UserType "Auth")
-                    [Psl.Model.Optional]
-                    []
+              Psl.WithCtx.empty
+                $ Psl.Model.ElementField
+                $ Psl.Model.Field
+                  "auth"
+                  (Psl.Model.UserType "Auth")
+                  [Psl.Model.Optional]
+                  []
         let userEntityWithInjectedRelationship =
-              ( "User",
-                AS.Entity.makeEntity $
-                  Psl.Model.Body [userEntityIdField, authEntityRelation]
-              )
+              AS.Entity.makeEntity
+                $ Psl.Model.Model "User"
+                $ Psl.Model.Body [userEntityIdField, authEntityRelation]
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
@@ -79,11 +77,12 @@ spec_GeneratorAuthInjectionTest = do
                   sessionEntity
                 ]
 
-    makeAuthEntity :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> (String, AS.Entity.Entity)
+    makeAuthEntity :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> AS.Entity.Entity
     makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
       let userIdField = makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
-       in ( "Auth",
-            AS.Entity.makeEntity
+       in AS.Entity.makeEntity $
+            Psl.Model.Model
+              "Auth"
               ( Psl.Model.Body $
                   Psl.WithCtx.empty
                     <$> [ Psl.Model.ElementField $
@@ -121,7 +120,6 @@ spec_GeneratorAuthInjectionTest = do
                               []
                         ]
               )
-          )
 
     makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Psl.Model.Element
     makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
@@ -165,4 +163,4 @@ spec_GeneratorAuthInjectionTest = do
           id Int @id @default(autoincrement())
         |]
 
-    makeEntity name bodyText = (name, AS.Entity.makeEntity $ getPrismaModelBody bodyText)
+    makeEntity name bodyText = AS.Entity.makeEntity $ Psl.Model.Model name $ getPrismaModelBody bodyText

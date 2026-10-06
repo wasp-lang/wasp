@@ -9,17 +9,17 @@ import qualified Wasp.Validator as V
 
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
 waspConfigValidator spec =
-  V.inField ("wasp", P.wasp) $
-    V.ifJust $
-      V.all
-        [ overriddenDepsValidator spec
-        ]
+  V.inField ("wasp", P.wasp)
+    $ V.ifJust
+    $ V.all
+      [ overriddenDepsValidator spec
+      ]
 
 overriddenDepsValidator :: AS.AppSpec -> V.Validator P.WaspConfig
 overriddenDepsValidator spec =
-  V.inField ("overriddenDeps", P.overriddenDeps) $
-    V.ifJust $
-      forEachDep getValidationForDep
+  V.inField ("overriddenDeps", P.overriddenDeps)
+    $ V.ifJust
+    $ forEachDep getValidationForDep
   where
     overridableDeps :: M.Map P.PackageName P.PackageVersion
     overridableDeps = getAllWaspDependencies spec

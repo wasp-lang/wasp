@@ -13,15 +13,16 @@ import Wasp.Job (failWithExitCode)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Output.Event as Event
 import qualified Wasp.Job.Process as JobProcess
+import Wasp.Process (InputMode)
 import qualified Wasp.Process.Node as NodeProcess
 
 -- | Runs the command to completion, failing the Job on a nonzero child exit.
-runChecked :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ()
-runChecked = runCommandUsing JobProcess.runChecked
+runChecked :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ()
+runChecked inputMode = runCommandUsing $ JobProcess.runChecked inputMode
 
 -- | Runs the command and returns the child process's exit status for explicit handling.
-runReturningExitCode :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ExitCode
-runReturningExitCode = runCommandUsing JobProcess.runReturningExitCode
+runReturningExitCode :: InputMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.Job ExitCode
+runReturningExitCode inputMode = runCommandUsing $ JobProcess.runReturningExitCode inputMode
 
 runCommandUsing :: (P.CreateProcess -> Job.Job a) -> [(String, String)] -> Path' Abs (Dir dir) -> String -> [String] -> Job.Job a
 runCommandUsing runProcess extraEnvVars workingDir executable arguments = do

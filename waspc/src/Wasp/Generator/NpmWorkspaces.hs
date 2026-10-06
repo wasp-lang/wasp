@@ -32,10 +32,10 @@ requiredWorkspaceGlobs =
 
     makeGlobForDir :: Path' (Rel WaspProjectDir) (Dir a) -> String
     makeGlobForDir inputDir =
-      FP.dropTrailingPathSeparator $
-        SP.fromRelDirP $
-          fromRight (makeNonPosixError inputDir) $
-            SP.relDirToPosix inputDir
+      FP.dropTrailingPathSeparator
+        $ SP.fromRelDirP
+        $ fromRight (makeNonPosixError inputDir)
+        $ SP.relDirToPosix inputDir
 
     makeNonPosixError inputDir =
       error $

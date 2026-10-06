@@ -1,5 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Wasp.Process
-  ( OutputStream (..),
+  ( InputMode (..),
+    OutputStream (..),
     run,
   )
 where
@@ -15,6 +18,9 @@ import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
 
+data InputMode = InheritTerminal | NoInput
+  deriving (Show, Eq)
+
 data OutputStream = Stdout | Stderr deriving (Show, Eq)
 
 -- TODO(#4575):
@@ -22,18 +28,22 @@ data OutputStream = Stdout | Stderr deriving (Show, Eq)
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
 -- | Runs the process to completion and forwards its output.
-run :: P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
-run process emit =
+run :: InputMode -> P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
+run InheritTerminal process emit = runWithStdin CP.Inherited process emit
+run NoInput process emit = runWithStdin CP.ClosedStream process emit
+
+runWithStdin :: forall stdin. (CP.InputSource stdin) => stdin -> P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
+runWithStdin _stdin process emit =
   bracket
     (CP.streamingProcess process)
     cleanUpStreamingProcess
-    (runStreamingProcessAndStreamOutput emit)
+    runStreamingProcessAndStreamOutput
   where
     cleanUpStreamingProcess (_, _, _, streamingProcessHandle) =
       terminateStreamingProcess streamingProcessHandle
         `finally` CP.closeStreamingProcessHandle streamingProcessHandle
 
-    runStreamingProcessAndStreamOutput emit (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
+    runStreamingProcessAndStreamOutput (_ :: stdin, stdoutStream, stderrStream, processHandle) = do
       let forwardOutput outputKind stream =
             runConduit $
               stream .| CT.decodeUtf8Lenient .| CL.mapM_ (emit outputKind)
