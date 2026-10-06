@@ -551,7 +551,6 @@ test-suite waspc-tests
   build-depends:
     aeson,
     base,
-    directory,
     containers,
     deepseq,
     filepath,
