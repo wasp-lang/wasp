@@ -49,10 +49,10 @@ instance Inspectable Crud where
       showOperation options =
         unwords
           [ "Enabled",
-            wrapInParens $
-              intercalate ", " $
-                ["public" | isPublic options == Just True]
-                  ++ ["overridden" | isJust (overrideFn options)]
+            wrapInParens
+              $ intercalate ", "
+              $ ["public" | isPublic options == Just True]
+                ++ ["overridden" | isJust (overrideFn options)]
           ]
 
       wrapInParens "" = ""

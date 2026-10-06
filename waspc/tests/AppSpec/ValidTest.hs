@@ -378,15 +378,15 @@ spec_AppSpecValid = do
                                   },
                             AS.App.emailSender = emailSender
                           },
-                      AS.Decl.makeDecl $
-                        AS.Entity.makeEntity $
-                          Psl.Model.Model
-                            userEntityName
-                            ( Psl.Model.Body $
-                                Psl.WithCtx.empty
-                                  <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
-                                      ]
-                            ),
+                      AS.Decl.makeDecl
+                        $ AS.Entity.makeEntity
+                        $ Psl.Model.Model
+                          userEntityName
+                          ( Psl.Model.Body $
+                              Psl.WithCtx.empty
+                                <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                                    ]
+                          ),
                       basicPageDecl,
                       basicRouteDecl
                     ]
