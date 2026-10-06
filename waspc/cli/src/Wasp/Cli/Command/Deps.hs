@@ -10,7 +10,7 @@ import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
@@ -23,7 +23,7 @@ import qualified Wasp.Util.Terminal as Term
 deps :: Command ()
 deps = do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  ValidNodeAndNpm <- require
   (appSpecOrAnalyzerErrors, _analyzerWarnings) <-
     liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-

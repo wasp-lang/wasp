@@ -18,7 +18,6 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (GeneratedAppIsProduction))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
@@ -32,7 +31,6 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
   GeneratedAppIsProduction _ <- require
 
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir
 
   -- TODO: Find a way to easily check we can connect to the DB. We'd like to

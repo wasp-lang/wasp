@@ -8,7 +8,6 @@ import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 
 specShowSubcommand :: ShowSubcommand
@@ -23,5 +22,4 @@ analyzeAppSpec :: Command InspectableAppSpec
 analyzeAppSpec = do
   ValidNodeAndNpm <- require
   InWaspProject waspDir <- require
-  WaspSpecAvailable <- require
   InspectableAppSpec <$> analyzeWithDiagnosticsOnStderr waspDir

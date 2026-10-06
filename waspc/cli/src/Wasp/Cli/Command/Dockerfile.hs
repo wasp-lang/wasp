@@ -9,13 +9,13 @@ import qualified Data.Text.IO as T.IO
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Project (compileAndRenderDockerfile)
 
 printDockerfile :: Command ()
 printDockerfile = do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  ValidNodeAndNpm <- require
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions waspProjectDir)
   either
     (throwError . CommandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)

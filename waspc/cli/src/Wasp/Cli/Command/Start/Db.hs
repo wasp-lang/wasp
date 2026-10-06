@@ -23,7 +23,7 @@ import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
@@ -42,7 +42,7 @@ import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 start :: Arguments -> Command ()
 start = withArguments "wasp start db" startDbArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  ValidNodeAndNpm <- require
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec

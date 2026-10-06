@@ -31,11 +31,11 @@ import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspProjectLockTest (waspProjectLockTest)
 import Tests.WaspShowTest (waspShowTest)
-import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
+import Tests.WaspWithoutInstallTest (waspWithoutInstallTest)
 import Text.Read (readMaybe)
 import UnliftIO.Async (pooledMapConcurrentlyN)
 
@@ -109,7 +109,7 @@ e2eTests = do
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspProjectLockTest,
-        waspSpecAvailableTest,
+        waspWithoutInstallTest,
         waspShowTest,
         waspInstallTest,
         waspDepsTest,

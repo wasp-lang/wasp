@@ -493,7 +493,6 @@ library cli-lib
     Wasp.Cli.Command.Require.GeneratedApp
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
-    Wasp.Cli.Command.Require.WaspSpecAvailable
     Wasp.Cli.Command.Show
     Wasp.Cli.Command.Show.Build
     Wasp.Cli.Command.Show.Spec
@@ -720,10 +719,10 @@ test-suite waspc-e2e-tests
     Tests.WaspNewTest
     Tests.WaspProjectLockTest
     Tests.WaspShowTest
-    Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
     Tests.WaspStudioTest
     Tests.WaspTelemetryTest
     Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest
+    Tests.WaspWithoutInstallTest
