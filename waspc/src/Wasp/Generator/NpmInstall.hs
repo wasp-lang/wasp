@@ -5,6 +5,7 @@ module Wasp.Generator.NpmInstall
 where
 
 import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (withAsync)
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
@@ -21,8 +22,7 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
-import Wasp.Process (InputMode (InheritTerminal))
-import qualified Wasp.Job.Output.Event as Event
+import Wasp.Process (InputMode (InheritTerminal), OutputStream (..))
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
@@ -74,19 +74,20 @@ installProjectNpmDependencies projectDir = do
     installProjectDepsJob =
       installNpmDependenciesAndReport projectDir
 
-installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
-  Job.emitJobOutput Event.Stdout "Starting npm install\n"
-  Job.withBackgroundOutputWorker reportInstallationProgress $
-    Node.runChecked InheritTerminal [] projectDir "npm" ["install"]
+  Job.emit Stdout "Starting npm install\n"
+  Job.fromCallback $ \emit ->
+    withAsync (reportInstallationProgress emit) $ \_ ->
+      Job.runWith emit $ Node.run InheritTerminal [] projectDir "npm" ["install"]
 
-reportInstallationProgress :: (Event.JobOutputKind -> T.Text -> IO ()) -> IO ()
+reportInstallationProgress :: (OutputStream -> T.Text -> IO ()) -> IO ()
 reportInstallationProgress emit =
   mapM_ reportMessage $ cycle possibleMessages
   where
     reportMessage message = do
       threadDelay $ secondsToMicroSeconds 5
-      emit Event.Stdout $ T.append message "\n"
+      emit Stdout $ T.append message "\n"
       threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =

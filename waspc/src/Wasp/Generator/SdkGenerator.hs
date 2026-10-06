@@ -7,7 +7,6 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
@@ -91,7 +90,7 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Output.runAndPrintPrefixedOutput Kind.Wasp $
-      Node.runChecked InheritTerminal [] sdkRootDir "npm" ["run", "build"]
+      Node.run InheritTerminal [] sdkRootDir "npm" ["run", "build"]
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code

@@ -54,7 +54,7 @@ data DbConnectionTestResult
 -- up to the wasp project dir to ensure they remain in sync.
 migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> IO (Either String ())
 migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = do
-  dbExitCode <- Output.runAndPrintOutput Kind.Db $ DbJobs.migrateDev generatedAppDirAbs migrateArgs
+  dbExitCode <- Output.runAndPrintOutput $ DbJobs.migrateDev generatedAppDirAbs migrateArgs
   case dbExitCode of
     ExitSuccess -> finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
@@ -147,7 +147,7 @@ testDbConnection ::
   Path' Abs (Dir GeneratedAppDir) ->
   IO DbConnectionTestResult
 testDbConnection generatedAppDir = do
-  (exitCode, output) <- Output.runAndCaptureOutput Kind.Db $ DbJobs.dbExecuteTest generatedAppDir
+  (exitCode, output) <- Output.runAndCaptureOutput $ DbJobs.dbExecuteTest generatedAppDir
 
   case exitCode of
     ExitSuccess -> return DbConnectionSuccess

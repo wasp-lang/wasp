@@ -5,6 +5,7 @@ module Wasp.Cli.Command.BuildStart.Server
 where
 
 import qualified StrongPath as SP
+import System.Exit (ExitCode)
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
@@ -13,17 +14,17 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Job.Process as JobProcess
 import Wasp.Process (InputMode (InheritTerminal))
 
-buildServer :: BuildStartConfig -> Job.Job ()
+buildServer :: BuildStartConfig -> Job.Job ExitCode
 buildServer config =
-  JobProcess.runChecked InheritTerminal (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  JobProcess.run InheritTerminal (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
     dockerImageName = Config.dockerImageName config
 
-startServer :: BuildStartConfig -> Job.Job ()
+startServer :: BuildStartConfig -> Job.Job ExitCode
 startServer config =
-  JobProcess.runChecked InheritTerminal $
+  JobProcess.run InheritTerminal $
     proc
       "docker"
       ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]

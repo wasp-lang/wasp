@@ -1,74 +1,70 @@
 module Wasp.Job
   ( Job,
-    JobOutputSink,
-    runJob,
-    emitJobOutput,
-    failWithExitCode,
-    requireExitSuccess,
-    getJobOutputSink,
-    withBackgroundOutputWorker,
+    Output (..),
+    emit,
+    getOutputHandle,
+    fromCallback,
+    runWith,
   )
 where
 
-import Control.Concurrent (Chan, writeChan)
-import qualified Control.Concurrent.Async as Async
-import qualified Control.Monad.Catch as Catch
-import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
-import Control.Monad.IO.Class (MonadIO (liftIO))
-import Control.Monad.Reader (ReaderT, ask, runReaderT)
-import Control.Monad.Trans.Resource (ResourceT, runResourceT)
+import Control.Concurrent.Async (asyncWithUnmask, cancel, waitCatchSTM)
+import Control.Concurrent.STM (atomically, newTQueueIO, orElse, readTQueue, writeTQueue)
+import Control.Exception (throwIO)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Resource (ResourceT)
+import Data.Conduit (ConduitT, bracketP, fuseUpstream, runConduitRes, yield)
+import qualified Data.Conduit.List as CL
 import Data.Text (Text)
-import System.Exit (ExitCode (..))
-import Wasp.Job.Kind (JobKind)
-import Wasp.Job.Output.Event (JobEvent (..), JobEventData (..), JobOutputKind)
+import System.IO (Handle, stderr, stdout)
+import Wasp.Process (OutputStream (..))
 
-type Job = ReaderT JobOutputSink (ExceptT JobFailure (ResourceT IO))
+-- | A job streams the output of the work it does, e.g. of the processes it
+-- runs, and ends with a result, usually the exit code of its last process.
+--
+-- Jobs compose like any other conduit: run them in sequence with '>>=',
+-- transform their output with 'Data.Conduit.fuseUpstream', and consume it
+-- with the runners in "Wasp.Job.Output".
+type Job = ConduitT () Output (ResourceT IO)
 
-newtype JobFailure = JobFailure Int
+data Output = Output OutputStream Text
+  deriving (Show, Eq)
 
-type JobOutputSink = JobOutputKind -> Text -> IO ()
+emit :: OutputStream -> Text -> Job ()
+emit stream text = yield $ Output stream text
 
-runJob :: JobKind -> Job () -> Chan JobEvent -> IO ExitCode
-runJob jobKind action chan = do
-  result <-
-    runResourceT $
-      runExceptT $
-        runReaderT action outputSink
-  let exitCode = either jobFailureExitCode (const ExitSuccess) result
-  emitEvent $ JobExited exitCode
-  return exitCode
+-- | Wasp's own handle for printing output from the given stream.
+getOutputHandle :: OutputStream -> Handle
+getOutputHandle Stdout = stdout
+getOutputHandle Stderr = stderr
+
+-- | Runs the action in a background thread and streams the output it emits,
+-- in order. Returns the action's result after streaming all of its output.
+-- If the job is stopped before that, the action is cancelled.
+--
+-- NOTE: stm-conduit's @Data.Conduit.Async.gatherFrom@ does the same, but
+-- with a bounded queue. We use an unbounded one, so a slow consumer never
+-- blocks a process that is writing output.
+fromCallback :: ((OutputStream -> Text -> IO ()) -> IO a) -> Job a
+fromCallback action = do
+  queue <- liftIO newTQueueIO
+  let emitToQueue stream text = atomically $ writeTQueue queue $ Output stream text
+  bracketP
+    (asyncWithUnmask $ \unmask -> unmask $ action emitToQueue)
+    cancel
+    (streamUntilDone queue)
   where
-    outputSink outputKind output = emitEvent $ JobOutput outputKind output
-    emitEvent eventData =
-      writeChan chan $
-        JobEvent
-          { _eventData = eventData,
-            _jobKind = jobKind
-          }
+    streamUntilDone queue worker = do
+      -- Output is queued before the worker finishes, so reading the queue
+      -- first guarantees nothing is left in it once we see the result.
+      next <- liftIO $ atomically $ (Left <$> readTQueue queue) `orElse` (Right <$> waitCatchSTM worker)
+      case next of
+        Left output -> yield output >> streamUntilDone queue worker
+        Right (Left exception) -> liftIO $ throwIO exception
+        Right (Right result) -> return result
 
-jobFailureExitCode :: JobFailure -> ExitCode
-jobFailureExitCode (JobFailure exitCode) = ExitFailure exitCode
-
-emitJobOutput :: JobOutputKind -> Text -> Job ()
-emitJobOutput outputKind output = do
-  emit <- getJobOutputSink
-  liftIO $ emit outputKind output
-
-requireExitSuccess :: ExitCode -> Job ()
-requireExitSuccess ExitSuccess = return ()
-requireExitSuccess (ExitFailure exitCode) = failWithExitCode exitCode
-
-failWithExitCode :: Int -> Job a
-failWithExitCode = throwError . JobFailure
-
-getJobOutputSink :: Job JobOutputSink
-getJobOutputSink = ask
-
--- | Stops the worker before returning, including on job failure or cancellation.
-withBackgroundOutputWorker :: ((JobOutputKind -> Text -> IO ()) -> IO ()) -> Job a -> Job a
-withBackgroundOutputWorker worker action = do
-  emit <- getJobOutputSink
-  Catch.bracket
-    (liftIO $ Async.async $ worker emit)
-    (liftIO . Async.cancel)
-    (const action)
+-- | Runs the job to completion, passing its output to the callback.
+runWith :: (OutputStream -> Text -> IO ()) -> Job a -> IO a
+runWith callback job =
+  runConduitRes $
+    job `fuseUpstream` CL.mapM_ (\(Output stream text) -> liftIO $ callback stream text)

@@ -1,74 +1,59 @@
+{-# LANGUAGE TupleSections #-}
+
 module Wasp.Job.Output
   ( runAndPrintPrefixedOutput,
-    withPrefixedOutput,
     runAndPrintOutput,
     runAndCaptureOutput,
-    printEventsPrefixedUntilExit,
+    raceAndPrintPrefixedOutput,
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan)
-import Control.Concurrent.Async (concurrently)
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Concurrent (newChan, readChan, writeChan)
+import Control.Concurrent.Async (concurrently, race)
+import Control.Exception (finally)
+import Control.Monad.IO.Class (liftIO)
+import Data.Conduit (ConduitT, fuseBoth, fuseUpstream, runConduit, runConduitRes, yield, (.|))
+import qualified Data.Conduit.List as CL
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import System.Exit (ExitCode)
 import System.IO (hFlush)
+import Wasp.Job (Job)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Kind as Kind
-import Wasp.Job.Output.Event (getEventContent, getEventOutHandle)
-import qualified Wasp.Job.Output.Event as Event
-import Wasp.Job.Output.Prefixed (printEventPrefixed, runPrefixedWriter)
+import Wasp.Job.Kind (JobKind)
+import Wasp.Job.Output.Prefixed (JobOutput, printPrefixed)
 
-runAndPrintPrefixedOutput :: Kind.JobKind -> Job.Job () -> IO ExitCode
-runAndPrintPrefixedOutput jobKind job = withPrefixedOutput $ Job.runJob jobKind job
+runAndPrintPrefixedOutput :: JobKind -> Job a -> IO a
+runAndPrintPrefixedOutput jobKind job =
+  runConduitRes $ job `fuseUpstream` (labelWith jobKind .| printPrefixed)
 
--- | Prints output until the first JobExited event. The producer must emit
--- an exit event on normal completion so the output consumer can finish.
-withPrefixedOutput :: (Chan Event.JobEvent -> IO a) -> IO a
-withPrefixedOutput produceEvents =
-  fst <$> runWithOutput printEventsPrefixedUntilExit produceEvents
+runAndPrintOutput :: Job a -> IO a
+runAndPrintOutput = Job.runWith $ \stream text -> do
+  let handle = Job.getOutputHandle stream
+  T.IO.hPutStr handle text
+  hFlush handle
 
-runAndPrintOutput :: Kind.JobKind -> Job.Job () -> IO ExitCode
-runAndPrintOutput jobKind job = fst <$> runWithOutput printEventsUntilExit (Job.runJob jobKind job)
+runAndCaptureOutput :: Job a -> IO (a, Text)
+runAndCaptureOutput job = do
+  (result, chunks) <- runConduitRes $ job `fuseBoth` (CL.map (\(Job.Output _ text) -> text) .| CL.consume)
+  return (result, T.concat chunks)
 
-runAndCaptureOutput :: Kind.JobKind -> Job.Job () -> IO (ExitCode, Text)
-runAndCaptureOutput jobKind job = do
-  (exitCode, chunks) <- runWithOutput collectTextUntilExit (Job.runJob jobKind job)
-  return (exitCode, T.concat $ reverse chunks)
-
-runWithOutput :: (Chan Event.JobEvent -> IO b) -> (Chan Event.JobEvent -> IO a) -> IO (a, b)
-runWithOutput consumeOutput produceEvents = do
-  events <- newChan
-  produceEvents events `concurrently` consumeOutput events
-
-printEventsUntilExit :: Chan Event.JobEvent -> IO ()
-printEventsUntilExit = consumeEventsUntilExit $ liftIO . printEvent
-
-printEventsPrefixedUntilExit :: Chan Event.JobEvent -> IO ()
-printEventsPrefixedUntilExit chan =
-  runPrefixedWriter $ consumeEventsUntilExit printEventPrefixed chan
-
-consumeEventsUntilExit :: (MonadIO m) => (Event.JobEvent -> m ()) -> Chan Event.JobEvent -> m ()
-consumeEventsUntilExit consumeEvent chan = do
-  event <- liftIO $ readChan chan
-  case Event._eventData event of
-    Event.JobOutput {} -> consumeEvent event >> consumeEventsUntilExit consumeEvent chan
-    Event.JobExited {} -> return ()
-
-collectTextUntilExit :: Chan Event.JobEvent -> IO [Text]
-collectTextUntilExit = go []
+-- | Runs both jobs concurrently and prints their prefixed output until the
+-- first one finishes, then stops the other one.
+raceAndPrintPrefixedOutput :: (JobKind, Job a) -> (JobKind, Job b) -> IO (Either a b)
+raceAndPrintPrefixedOutput (jobKindA, jobA) (jobKindB, jobB) = do
+  outputs <- newChan
+  let runAndSendOutput jobKind job =
+        runConduitRes $
+          job `fuseUpstream` (labelWith jobKind .| CL.mapM_ (liftIO . writeChan outputs . Just))
+  let runJobs = race (runAndSendOutput jobKindA jobA) (runAndSendOutput jobKindB jobB)
+  let printOutputs = runConduit $ sourceUntilNothing (readChan outputs) .| printPrefixed
+  fst <$> concurrently (runJobs `finally` writeChan outputs Nothing) printOutputs
   where
-    go textOutput chan = do
-      event <- readChan chan
-      case Event._eventData event of
-        Event.JobExited {} -> return textOutput
-        Event.JobOutput _ text -> go (text : textOutput) chan
+    sourceUntilNothing readNext =
+      liftIO readNext >>= \case
+        Nothing -> return ()
+        Just output -> yield output >> sourceUntilNothing readNext
 
-printEvent :: Event.JobEvent -> IO ()
-printEvent event = do
-  let outHandle = getEventOutHandle event
-  let message = getEventContent event
-  T.IO.hPutStr outHandle message
-  hFlush outHandle
+labelWith :: (Monad m) => JobKind -> ConduitT Job.Output JobOutput m ()
+labelWith jobKind = CL.map (jobKind,)

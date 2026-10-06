@@ -4,6 +4,7 @@ module Wasp.Generator.ServerGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path', (</>))
+import System.Exit (ExitCode)
 import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
@@ -12,10 +13,10 @@ import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
 import Wasp.Process (InputMode (InheritTerminal))
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ()
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 startServer serverRunConfig generatedAppDir = do
   let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-  Node.runChecked
+  Node.run
     InheritTerminal
     (getEnvVars serverRunConfig)
     serverDir

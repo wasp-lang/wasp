@@ -76,7 +76,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   -- strips executable permissions from data files.
   runExitCode <-
     Output.runAndPrintPrefixedOutput Kind.Wasp $
-      Node.runChecked
+      Node.run
         InheritTerminal
         [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
           -- Not related to `node` itself, so we have to set it manually.
