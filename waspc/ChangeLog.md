@@ -31,7 +31,7 @@
 
 ### 🐞 Bug fixes
 
-- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4887](https://github.com/wasp-lang/wasp/pull/4887))
+- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4981](https://github.com/wasp-lang/wasp/pull/4981))
 
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
