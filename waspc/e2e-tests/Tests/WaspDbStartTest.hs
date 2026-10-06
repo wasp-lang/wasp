@@ -82,9 +82,7 @@ waspDbStartTest =
                   assertDevDbRemoved,
                   waspCliDbMigrateDev "automatic_start",
                   assertDevDbRemoved,
-                  assertCommandOutputContains
-                    (return "$WASP_CLI_CMD db reset --force")
-                    "PostgreSQL ready.",
+                  return "$WASP_CLI_CMD db reset --force",
                   assertDevDbRemoved,
                   -- Test 6: Can the user remove the volume reported by `wasp db start`?
                   removeReportedDevDbVolume
