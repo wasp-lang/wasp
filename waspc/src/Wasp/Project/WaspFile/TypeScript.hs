@@ -19,7 +19,6 @@ import StrongPath
     relfile,
     (</>),
   )
-import System.Exit (ExitCode (..))
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
@@ -74,10 +73,11 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   -- We invoke the script directly via `node` instead of `npx` because
   -- `npx` requires the bin file to be executable, and `cabal install`
   -- strips executable permissions from data files.
-  runExitCode <-
-    Output.withPrefixed $ \prefixed ->
-      Job.runJob (prefixed Output.Wasp) $
-        JobProcess.run_
+  runResult <-
+    Output.withPrefixed $ \printer ->
+      Job.runJob printer
+        $ Job.withKind Job.Wasp
+        $ JobProcess.run_
           =<< Node.command
             [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
               -- Not related to `node` itself, so we have to set it manually.
@@ -100,9 +100,9 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
               -- entity that doesn't exist.
               encodeToString allowedEntityNames
             ]
-  case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
-    ExitSuccess -> readSpecResultFile
+  case runResult of
+    Left _ -> return $ Left ["Error while analyzing the *.wasp.ts file."]
+    Right () -> readSpecResultFile
   where
     absSpecResultFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec-result.json|]
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst

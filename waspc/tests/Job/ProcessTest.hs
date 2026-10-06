@@ -31,7 +31,7 @@ spec_JobProcess :: Spec
 spec_JobProcess = do
   describe "JobProcess.run_" $ do
     it "fails the job on a nonzero child exit" $ do
-      Job.runJob ignoreOutput (JobProcess.run_ $ node "process.exit(7)")
+      runJob ignoreOutput (JobProcess.run_ $ node "process.exit(7)")
         `shouldReturn` ExitFailure 7
 
   describe "JobProcess.run" $ do
@@ -39,23 +39,23 @@ spec_JobProcess = do
       let action = do
             exitCode <- JobProcess.run $ node "process.exit(7)"
             liftIO $ exitCode `shouldBe` ExitFailure 7
-      Job.runJob ignoreOutput action `shouldReturn` ExitSuccess
+      runJob ignoreOutput action `shouldReturn` ExitSuccess
 
     it "forwards stdout and stderr to the job's sink" $ do
       chunks <- newMVar []
-      let sink stream output = modifyMVar_ chunks $ return . ((stream, output) :)
+      let printer _ stream output = modifyMVar_ chunks $ return . ((stream, output) :)
           action = JobProcess.run_ $ node "process.stdout.write('out'); process.stderr.write('err');"
-      Job.runJob sink action `shouldReturn` ExitSuccess
+      runJob printer action `shouldReturn` ExitSuccess
       sort <$> readMVar chunks `shouldReturn` [(Job.Stdout, "out"), (Job.Stderr, "err")]
 
     it "forwards all output before returning the exit code" $ do
       let action = JobProcess.run_ $ node "process.stdout.write('x'.repeat(200000)); process.exitCode = 7;"
-      Output.capturing (`Job.runJob` action)
+      Output.capturing (`runJob` action)
         `shouldReturn` (ExitFailure 7, T.replicate 200000 "x")
 
     it "gives commands an empty stdin" $ do
       let action = JobProcess.run_ $ node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
-      timeout (secondsToMicroSeconds 10) (Job.runJob ignoreOutput action)
+      timeout (secondsToMicroSeconds 10) (runJob ignoreOutput action)
         `shouldReturn` Just (ExitFailure 3)
 
     it "stops descendants on cancellation" $
@@ -84,7 +84,7 @@ spec_JobProcess = do
                 "setInterval(() => {}, 1000);"
               ]
       Async.withAsync
-        (Job.runJob ignoreOutput $ JobProcess.run_ $ node script)
+        (runJob ignoreOutput $ JobProcess.run_ $ node script)
         ( \running -> do
             waitUntil "stubborn process ready" $ doesFileExist pidPath
             pid <- readProcessId pidPath
@@ -108,8 +108,8 @@ spec_JobProcess = do
       firstReady <- newEmptyMVar
       secondReady <- newEmptyMVar
       let action = JobProcess.run_ $ node "console.log('ready'); setInterval(() => {}, 1000);"
-      Async.withAsync (Job.runJob (\_ _ -> putMVar firstReady ()) action) $ \first ->
-        Async.withAsync (Job.runJob (\_ _ -> putMVar secondReady ()) action) $ \second -> do
+      Async.withAsync (runJob (\_ _ _ -> putMVar firstReady ()) action) $ \first ->
+        Async.withAsync (runJob (\_ _ _ -> putMVar secondReady ()) action) $ \second -> do
           timeout 5000000 (takeMVar firstReady) `shouldReturn` Just ()
           timeout 5000000 (takeMVar secondReady) `shouldReturn` Just ()
           Async.cancel first
@@ -130,15 +130,19 @@ node script = nodeWithArgs script []
 nodeWithArgs :: String -> [String] -> P.CreateProcess
 nodeWithArgs script args = JobProcess.command "node" $ ["-e", script] <> args
 
-ignoreOutput :: Job.Sink
-ignoreOutput _ _ = return ()
+ignoreOutput :: Job.Printer
+ignoreOutput _ _ _ = return ()
+
+-- | Runs the job and returns the exit code it finished with.
+runJob :: Job.Printer -> Job.Job () -> IO ExitCode
+runJob printer job = either (ExitFailure . Job.jobFailureExitCode) (const ExitSuccess) <$> Job.runJob printer job
 
 withListeningDescendant :: (Async.Async ExitCode -> String -> IO () -> IO ()) -> IO ()
 withListeningDescendant action = do
   portPath <- makeTempPath "wasp-isolated-child-port"
   rootExitPath <- makeTempPath "wasp-isolated-root-exit"
   Async.withAsync
-    (Job.runJob ignoreOutput $ JobProcess.run_ $ nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath])
+    (runJob ignoreOutput $ JobProcess.run_ $ nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath])
     ( \running -> do
         waitUntil "descendant listening" $ doesFileExist portPath
         port <- readFile portPath
@@ -178,11 +182,11 @@ assertGroup :: ProcessGroupID -> Bool -> IO ()
 assertGroup parentGroup isInteractive = do
   childGroup <- newEmptyMVar
   let process = node "console.log(process.pid); setInterval(() => {}, 1000);"
-      captureGroup _ text = case readMaybe $ T.unpack text of
+      captureGroup _ _ text = case readMaybe $ T.unpack text of
         Nothing -> fail $ "Invalid child PID: " <> T.unpack text
         Just pid -> Posix.getProcessGroupIDOf pid >>= putMVar childGroup
       action = JobProcess.run_ $ if isInteractive then JobProcess.interactive process else process
-  Async.withAsync (Job.runJob captureGroup action) $ \running -> do
+  Async.withAsync (runJob captureGroup action) $ \running -> do
     group <- timeout 5000000 $ takeMVar childGroup
     if isInteractive
       then group `shouldBe` Just parentGroup
