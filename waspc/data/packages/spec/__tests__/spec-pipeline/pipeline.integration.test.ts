@@ -6,6 +6,7 @@ import { describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 const SPEC_PACKAGE_DIR = path.resolve(import.meta.dirname, "..", "..");
+const OWN_ANALYZER_SCRIPT = path.join(SPEC_PACKAGE_DIR, "dist/src/run.js");
 
 describe("Wasp TS spec pipeline", () => {
   test("analyzes split specs with lowered ref imports", () => {
@@ -158,11 +159,103 @@ describe("Wasp TS spec pipeline", () => {
       ),
     });
   });
+
+  test("analyzes a project whose dependencies aren't installed", () => {
+    using project = makeTempProject("wasp-spec-pipeline-no-deps-");
+
+    project.writeProjectFile(
+      "tsconfig.json",
+      JSON.stringify({
+        compilerOptions: {
+          target: "ES2022",
+          module: "ESNext",
+          moduleResolution: "bundler",
+          strict: true,
+          noEmit: true,
+          types: ["node"],
+        },
+        include: ["main.wasp.ts"],
+      }),
+    );
+
+    const result = project.analyzeSpecWithoutInstallingDependencies(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: process.env.DEMO_TITLE ?? "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    expect(result).toEqual({ status: "ok", value: expect.any(Array) });
+    expect(project.hasProjectPath("node_modules")).toBe(false);
+    expect(project.hasProjectPath(".wasp/spec-bundle")).toBe(false);
+  });
+
+  test("gives userland libraries the analyzer's own @wasp.sh/spec", () => {
+    using project = makeTempProject("wasp-spec-pipeline-userland-lib-");
+
+    // A library in the project's `node_modules` that imports `@wasp.sh/spec`,
+    // while the project has no `@wasp.sh/spec` of its own.
+    project.writeProjectFile(
+      "node_modules/spec-helpers/package.json",
+      JSON.stringify({
+        name: "spec-helpers",
+        type: "module",
+        exports: { ".": { types: "./index.d.ts", default: "./index.js" } },
+      }),
+    );
+    project.writeProjectFile(
+      "node_modules/spec-helpers/index.js",
+      [
+        `import { WaspSpecUserError } from "@wasp.sh/spec";`,
+        `export function requirePositive(n) {`,
+        `  if (n <= 0) throw new WaspSpecUserError(\`Expected a positive number, got \${n}.\`);`,
+        `  return n;`,
+        `}`,
+      ].join("\n"),
+    );
+    project.writeProjectFile(
+      "node_modules/spec-helpers/index.d.ts",
+      `export declare function requirePositive(n: number): number;\n`,
+    );
+
+    const result = project.analyzeSpecWithoutInstallingDependencies(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        `import { requirePositive } from "spec-helpers";`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: String(requirePositive(0)),`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    // Only a single `@wasp.sh/spec` module instance turns the library's error
+    // into a clean user error.
+    expect(result).toEqual({
+      status: "error",
+      error: "Expected a positive number, got 0.",
+    });
+  });
 });
 
 type TempProject = Disposable & {
   writeProjectFile: (relativeFilePath: string, sourceText: string) => void;
+  hasProjectPath: (relativePath: string) => boolean;
   analyzeSpec: (sourceText: string) => ReturnType<typeof analyzeApp>;
+  // Runs the analyzer from this package, the way the Wasp CLI does, without
+  // installing anything into the project.
+  analyzeSpecWithoutInstallingDependencies: (
+    sourceText: string,
+  ) => ReturnType<typeof analyzeApp>;
 };
 
 function makeTempProject(prefix: string): TempProject {
@@ -214,6 +307,9 @@ function scaffoldProject({
       writeProjectFile(projectRootDir, relativeFilePath, sourceText);
     },
 
+    hasProjectPath: (relativePath: string) =>
+      fs.existsSync(path.join(projectRootDir, relativePath)),
+
     analyzeSpec: (sourceText: string) => {
       writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
 
@@ -223,11 +319,35 @@ function scaffoldProject({
         { cwd: projectRootDir, stdio: "inherit" },
       );
 
-      return JSON.parse(
-        fs.readFileSync(path.join(projectRootDir, "result.json"), "utf8"),
+      return readAnalysisResult(projectRootDir);
+    },
+
+    analyzeSpecWithoutInstallingDependencies: (sourceText: string) => {
+      writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
+
+      cp.execFileSync(
+        "node",
+        [
+          OWN_ANALYZER_SCRIPT,
+          "analyze",
+          "main.wasp.ts",
+          "tsconfig.json",
+          ".",
+          "result.json",
+          "[]",
+        ],
+        { cwd: projectRootDir, stdio: "inherit" },
       );
+
+      return readAnalysisResult(projectRootDir);
     },
   };
+}
+
+function readAnalysisResult(projectRootDir: string) {
+  return JSON.parse(
+    fs.readFileSync(path.join(projectRootDir, "result.json"), "utf8"),
+  );
 }
 
 function writeProjectFile(
