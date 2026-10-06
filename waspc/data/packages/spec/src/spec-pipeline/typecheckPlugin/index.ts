@@ -1,14 +1,16 @@
 import assert from "node:assert/strict";
 import type { Plugin } from "rolldown";
-import ts from "typescript";
+import { DiagnosticCategory } from "typescript/unstable/sync";
 import { WaspSpecUserError } from "../../spec/waspSpecUserError.js";
 import { WASP_SPEC_FILE_REGEX } from "../common.js";
 import { typecheckProject } from "./project.js";
 
 export function typecheckPlugin({
   tsconfigPath,
+  projectRootDir,
 }: {
   tsconfigPath: string;
+  projectRootDir: string;
 }): Plugin {
   // The bundler hands us each spec file's (already lowered) source as it parses
   // it. We collect them here and type check them together once the build ends.
@@ -31,6 +33,7 @@ export function typecheckPlugin({
       const { diagnostics, formatDiagnosticsWithColorAndContext } =
         typecheckProject({
           tsconfigPath,
+          projectRootDir,
           overriddenFiles: specFileSources,
         });
 
@@ -40,7 +43,7 @@ export function typecheckPlugin({
           : undefined;
 
       const hasErrorDiagnostic = diagnostics.some(
-        (d) => d.category === ts.DiagnosticCategory.Error,
+        (d) => d.category === DiagnosticCategory.Error,
       );
 
       if (hasErrorDiagnostic) {

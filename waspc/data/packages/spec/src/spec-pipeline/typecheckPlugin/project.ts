@@ -1,118 +1,111 @@
+import * as fs from "node:fs";
 import * as path from "node:path";
-import ts from "typescript";
-import { resolveWaspSpecToSelfOnHost_mutate } from "./waspSpecSelfResolution.js";
+import {
+  API,
+  DiagnosticCategory,
+  type Diagnostic,
+} from "typescript/unstable/sync";
+import { createAnalyzerFileSystem } from "./analyzerFileSystem.js";
+import {
+  formatDiagnostics,
+  formatDiagnosticsWithColorAndContext,
+  sortAndDeduplicateDiagnostics,
+  type DiagnosticsFormatHost,
+} from "./formatDiagnostics.js";
+
+// Lives next to the user's tsconfig (so `${configDir}` in it keeps its
+// meaning), but only in the analyzer's virtual file system.
+const ANALYZER_TSCONFIG_FILE_NAME = "tsconfig.wasp-analyzer.json";
 
 export function typecheckProject({
   tsconfigPath,
+  projectRootDir,
   overriddenFiles,
 }: {
   tsconfigPath: string;
+  projectRootDir: string;
   overriddenFiles: ReadonlyMap<string, string>;
-}) {
-  const { options: compilerOptions, tsconfigDir } = parseTsConfig(tsconfigPath);
-
-  const host = createCompilerHostWithOverriddenFiles({
-    compilerOptions,
-    tsconfigDir,
-    overriddenFiles,
-  });
-
-  const program = ts.createProgram({
-    rootNames: [...overriddenFiles.keys()],
-    options: compilerOptions,
-    host,
-  });
-
-  const diagnostics = ts.getPreEmitDiagnostics(program);
-
-  const formatDiagnosticsWithColorAndContext = (
-    diagnostics: readonly ts.Diagnostic[],
-  ) => ts.formatDiagnosticsWithColorAndContext(diagnostics, host);
-
-  return { diagnostics, formatDiagnosticsWithColorAndContext };
-}
-
-function parseTsConfig(tsconfigPath: string): {
-  options: ts.CompilerOptions;
-  tsconfigDir: string;
+}): {
+  diagnostics: readonly Diagnostic[];
+  formatDiagnosticsWithColorAndContext: (
+    diagnostics: readonly Diagnostic[],
+  ) => string;
 } {
   const tsconfigDir = path.dirname(tsconfigPath);
-
-  const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
-  if (configFile.error) {
-    throw new Error(
-      `Error when reading ${tsconfigPath}:\n${formatConfigError(configFile.error, tsconfigDir)}`,
-    );
-  }
-
-  // Converts the raw JSON (e.g. `"target": "ES2022"`) into the typed compiler
-  // options the compiler API expects (e.g. `target: ts.ScriptTarget.ES2022`).
-  const parsed = ts.parseJsonConfigFileContent(
-    configFile.config,
-    ts.sys,
+  const analyzerTsconfigPath = path.join(
     tsconfigDir,
-    undefined,
-    tsconfigPath,
+    ANALYZER_TSCONFIG_FILE_NAME,
   );
-  if (parsed.errors.length > 0) {
-    const formattedErrors = parsed.errors
-      .map((error) => formatConfigError(error, tsconfigDir))
-      .join("\n");
-    throw new Error(`Error when parsing ${tsconfigPath}:\n${formattedErrors}`);
-  }
 
-  return { options: parsed.options, tsconfigDir };
-}
-
-function createCompilerHostWithOverriddenFiles({
-  compilerOptions,
-  tsconfigDir,
-  overriddenFiles,
-}: {
-  compilerOptions: ts.CompilerOptions;
-  tsconfigDir: string;
-  overriddenFiles: ReadonlyMap<string, string>;
-}): ts.CompilerHost {
-  const host = ts.createCompilerHost(compilerOptions, true);
-
-  // Resolve everything relative to the project root (where `node_modules` and
-  // its `@types/*` packages live) so type acquisition works regardless of the
-  // process' working directory.
-  host.getCurrentDirectory = () => tsconfigDir;
-
-  overlayOverriddenFilesOnHost_mutate(host, overriddenFiles);
-  resolveWaspSpecToSelfOnHost_mutate(host, compilerOptions);
-
-  return host;
-}
-
-// We want to read the specific overridden files from memory instead of disk.
-// For other files, we delegate to the normal FS implementation.
-function overlayOverriddenFilesOnHost_mutate(
-  host: ts.CompilerHost,
-  overriddenFiles: ReadonlyMap<string, string>,
-) {
-  const fsGetSourceFile = host.getSourceFile.bind(host);
-  host.getSourceFile = (fileName, languageVersionOrOptions, ...rest) => {
-    const source = overriddenFiles.get(fileName);
-    return source !== undefined
-      ? ts.createSourceFile(fileName, source, languageVersionOrOptions, true)
-      : fsGetSourceFile(fileName, languageVersionOrOptions, ...rest);
+  // The user's compiler options, applied only to the spec files.
+  const analyzerTsconfig = {
+    extends: tsconfigPath,
+    files: [...overriddenFiles.keys()],
+    include: [],
   };
 
-  const fsFileExists = host.fileExists.bind(host);
-  host.fileExists = (fileName) =>
-    overriddenFiles.has(fileName) || fsFileExists(fileName);
+  const fileSystem = createAnalyzerFileSystem({
+    projectRootDir,
+    virtualFiles: new Map([
+      ...overriddenFiles,
+      [analyzerTsconfigPath, JSON.stringify(analyzerTsconfig)],
+    ]),
+  });
 
-  const fsReadFile = host.readFile.bind(host);
-  host.readFile = (fileName) =>
-    overriddenFiles.get(fileName) ?? fsReadFile(fileName);
+  const formatHost: DiagnosticsFormatHost = {
+    currentDirectory: tsconfigDir,
+    readFile: (fileName) =>
+      fileSystem.readFile(fileName) ?? readFileIfExists(fileName),
+  };
+
+  const api = new API({ cwd: tsconfigDir, fs: fileSystem });
+  try {
+    const snapshot = api.updateSnapshot({
+      openProjects: [analyzerTsconfigPath],
+    });
+    const project = snapshot.getProject(analyzerTsconfigPath);
+    if (!project) {
+      throw new Error(`TypeScript didn't load ${tsconfigPath}.`);
+    }
+    const { program } = project;
+
+    const configDiagnostics = program.getConfigFileParsingDiagnostics();
+    if (configDiagnostics.some(isError)) {
+      throw new Error(
+        `Error when parsing ${tsconfigPath}:\n${formatDiagnostics(configDiagnostics, formatHost)}`,
+      );
+    }
+
+    const diagnostics = sortAndDeduplicateDiagnostics([
+      ...configDiagnostics,
+      ...program.getProgramDiagnostics(),
+      ...program.getSyntacticDiagnostics(),
+      ...program.getGlobalDiagnostics(),
+      ...program.getSemanticDiagnostics(),
+      ...(project.compilerOptions.declaration ||
+      project.compilerOptions.composite
+        ? program.getDeclarationDiagnostics()
+        : []),
+    ]);
+
+    return {
+      diagnostics,
+      formatDiagnosticsWithColorAndContext: (diagnostics) =>
+        formatDiagnosticsWithColorAndContext(diagnostics, formatHost),
+    };
+  } finally {
+    api.close();
+  }
 }
 
-function formatConfigError(diagnostic: ts.Diagnostic, cwd: string): string {
-  return ts.formatDiagnostic(diagnostic, {
-    getCurrentDirectory: () => cwd,
-    getCanonicalFileName: (fileName) => fileName,
-    getNewLine: () => ts.sys.newLine,
-  });
+function isError(diagnostic: Diagnostic): boolean {
+  return diagnostic.category === DiagnosticCategory.Error;
+}
+
+function readFileIfExists(fileName: string): string | undefined {
+  try {
+    return fs.readFileSync(fileName, "utf8");
+  } catch {
+    return undefined;
+  }
 }

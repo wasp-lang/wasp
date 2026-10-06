@@ -65,7 +65,7 @@ async function bundleWaspTsSpec({
     plugins: [
       resolveSpecImportsPlugin({ bundleDir, externalUserlandPackages }),
       transformWaspTsSpecFilesPlugin(),
-      typecheckPlugin({ tsconfigPath }),
+      typecheckPlugin({ tsconfigPath, projectRootDir }),
     ],
     transform: { define: makeSourceLocationDefines(specPath) },
     logLevel: "silent",
