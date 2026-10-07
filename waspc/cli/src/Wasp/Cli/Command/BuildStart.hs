@@ -3,9 +3,7 @@ module Wasp.Cli.Command.BuildStart
   )
 where
 
-import qualified Control.Concurrent.Async as Async
-import Control.Monad.Except (MonadError (throwError))
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad (void)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
@@ -21,7 +19,6 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Output as Output
 import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
@@ -47,13 +44,17 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
-  runAndPrintJob "Building client failed." $
-    buildClient config
+  Job.run
+    $ Job.failOnExitFailure (makeExitError "Building client failed." "Building the client")
+    $ Job.prefixWith Job.WebApp
+    $ buildClient config
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  runAndPrintJob "Building server failed." $
-    buildServer config
+  Job.run
+    $ Job.failOnExitFailure (makeExitError "Building server failed." "Building the server")
+    $ Job.prefixWith Job.Server
+    $ buildServer config
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
@@ -61,19 +62,22 @@ buildAndStartServerAndClient config = do
     $ Msg.Info
     $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
-  firstResult <-
-    liftIO $ Output.withPrefixed $ \printer ->
-      either id id
-        <$> Async.race
-          (Job.runJob printer $ startClient config)
-          (Job.runJob printer $ startServer config)
-  throwOnJobFailure "Starting Wasp app failed." firstResult
+  void
+    $ Job.run
+    $ Job.race
+      ( Job.failOnExitFailure (makeExitError startErrorTitle "Serving the client")
+          $ Job.prefixWith Job.WebApp
+          $ startClient config
+      )
+      ( Job.failOnExitFailure (makeExitError startErrorTitle "Running the server")
+          $ Job.prefixWith Job.Server
+          $ startServer config
+      )
   where
-    runAndPrintJob :: String -> Job.Job () -> Command ()
-    runAndPrintJob errorTitle job =
-      liftIO (Output.withPrefixed (`Job.runJob` job))
-        >>= throwOnJobFailure errorTitle
+    startErrorTitle = "Starting Wasp app failed."
 
-    throwOnJobFailure :: String -> Either Job.JobFailure () -> Command ()
-    throwOnJobFailure errorTitle =
-      either (throwError . CommandError errorTitle . Job.jobFailureMessage) return
+    makeExitError :: String -> String -> Int -> CommandError
+    makeExitError errorTitle failedStep code =
+      CommandError
+        errorTitle
+        (failedStep <> " failed with exit code: " <> show code)

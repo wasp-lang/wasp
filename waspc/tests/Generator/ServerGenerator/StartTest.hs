@@ -4,6 +4,10 @@ import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (cancel, withAsync)
 import Control.Exception (SomeException, finally, try)
 import Control.Monad (void, when)
+import Control.Monad.Except (runExceptT)
+import Data.Text (Text)
+import Data.Void (Void)
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, removeFile)
 import System.FilePath ((</>))
@@ -13,6 +17,7 @@ import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldNotBe, shouldReturn)
 import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
 import Wasp.AppComponentUrl (makeAppComponentUrl)
+import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start
@@ -52,7 +57,7 @@ spec_ServerProcessController =
       withGeneratedAppDirFixture $ \fixture -> do
         controller <- newServerProcessController
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-        withAsync (Job.runJob ignoreOutput (startServer serverRunConfig generatedAppDir controller)) $ \controllerJob -> do
+        withAsync (runController controller generatedAppDir) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -87,7 +92,7 @@ spec_ServerProcessController =
 
           -- Stale exit notification from the stopped process must not
           -- trigger a restart of its replacement.
-          threadDelay $ secondsToMicroSeconds 0.5
+          threadDelay $ secondsToMicroSeconds 1 `div` 2
           notifySuccessfulCompileOrFail controller NoServerEffect
           readBundleCount fixture `shouldReturn` 2
           readServerPid fixture `shouldReturn` restartedPid
@@ -127,7 +132,7 @@ spec_ServerProcessController =
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
         let bundleScriptPath = serverDirPath fixture </> "bundle.js"
         originalBundleScript <- readFile' bundleScriptPath
-        withAsync (Job.runJob ignoreOutput (startServer serverRunConfig generatedAppDir controller)) $ \controllerJob -> do
+        withAsync (runController controller generatedAppDir) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -157,7 +162,7 @@ spec_ServerProcessController =
           writeServerStartScript fixture crashingServerScript
           controller <- newServerProcessController
           generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-          withAsync (Job.runJob ignoreOutput (startServer serverRunConfig generatedAppDir controller)) $ \controllerJob -> do
+          withAsync (runController controller generatedAppDir) $ \controllerJob -> do
             waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
             crashedPid <- readServerPid fixture
             waitUntil "leftover process port file" $ doesFileExist $ leftoverPortFilePath fixture
@@ -179,8 +184,10 @@ spec_ServerProcessController =
             isPortAvailable newPort `shouldReturn` True
             clearServerPid fixture
 
-ignoreOutput :: Job.Printer
-ignoreOutput _ _ _ = return ()
+-- | Runs the controller until it's cancelled, discarding its output.
+runController :: ServerProcessController -> Path' Abs (Dir GeneratedAppDir) -> IO (Either () (Void, Text))
+runController controller generatedAppDir =
+  runExceptT $ Job.run $ Job.captureOutput $ startServer serverRunConfig generatedAppDir controller
 
 serverRunConfig :: ServerRunConfig
 serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"
@@ -346,5 +353,5 @@ waitUntilWithin label seconds condition = go attempts
           if result
             then return ()
             else do
-              threadDelay (secondsToMicroSeconds 0.25)
+              threadDelay (secondsToMicroSeconds 1 `div` 4)
               go $ remainingAttempts - 1

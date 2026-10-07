@@ -1,154 +1,301 @@
+{-# LANGUAGE CPP #-}
+
 module JobTest where
 
-import Control.Concurrent (modifyMVar_, newEmptyMVar, newMVar, putMVar, readMVar, takeMVar, threadDelay)
+import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (bracket_)
-import Control.Monad.Except (catchError)
+import Control.Exception (finally)
+import Control.Monad (unless, void, when)
+import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Resource (register)
-import Data.IORef (newIORef, readIORef, writeIORef)
+import Data.IORef (modifyIORef', newIORef, readIORef, writeIORef)
+import qualified Data.Text as T
+import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
+import qualified System.Info
+import qualified System.Process as P
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
+import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
+import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Output as Output
 import Wasp.Util (secondsToMicroSeconds)
+#if !mingw32_HOST_OS
+import qualified System.Posix.Process as Posix
+import System.Posix.Types (ProcessGroupID)
+import Test.Hspec (shouldNotBe)
+import Test.Process.Util (processIdToPid)
+#endif
 
 spec_Job :: Spec
-spec_Job =
-  describe "Job" $ do
-    it "short-circuits on a required subprocess failure" $ do
-      let action = do
-            Job.emitJobOutput Job.Stdout "before failure"
-            Job.requireExitSuccess $ ExitFailure 7
-            Job.emitJobOutput Job.Stdout "after failure"
-      Output.capturing (`runJob` action)
-        `shouldReturn` (ExitFailure 7, "before failure")
+spec_Job = do
+  describe "captureOutput" $ do
+    it "collects stdout and stderr in the order they were emitted" $ do
+      let job = do
+            Job.emitOutput Job.Stdout "first "
+            Job.emitOutput Job.Stderr "second "
+            Job.emitOutput Job.Stdout "last"
+      runJob (Job.captureOutput job) `shouldReturn` Right ((), "first second last")
 
-    it "releases resources before returning" $ do
-      released <- newIORef False
-      let action = do
-            _ <- register $ writeIORef released True
-            Job.requireExitSuccess $ ExitFailure 7
+    it "doesn't pass the output on" $ do
+      outputCount <- newIORef (0 :: Int)
+      let job =
+            Job.onOutput (modifyIORef' outputCount (+ 1))
+              $ Job.captureOutput
+              $ Job.emitOutput Job.Stdout "captured"
+      _ <- runJob job
+      readIORef outputCount `shouldReturn` 0
 
-      _ <- runJob ignoreOutput action
+  describe "onOutput" $ do
+    it "calls the action for every output" $ do
+      outputCount <- newIORef (0 :: Int)
+      let job =
+            Job.captureOutput $
+              Job.onOutput (modifyIORef' outputCount (+ 1)) $ do
+                Job.emitOutput Job.Stdout "first"
+                Job.emitOutput Job.Stderr "second"
+      _ <- runJob job
+      readIORef outputCount `shouldReturn` 2
 
-      readIORef released `shouldReturn` True
+  describe "onProcessExit" $ do
+    -- On Windows, a process isn't seen to exit until the processes it left
+    -- behind have exited too.
+    unless isWindows $
+      it "calls the action as soon as the process exits, before stopping the processes it left behind" $ do
+        portRef <- newIORef ""
+        processExit <- newEmptyMVar
+        let recordProcessExit exitCode = do
+              port <- readIORef portRef
+              descendantIsRunning <- not <$> isPortAvailable port
+              putMVar processExit (exitCode, descendantIsRunning)
+        withListeningDescendant (Job.onProcessExit recordProcessExit) $ \running port exitRoot -> do
+          writeIORef portRef port
+          exitRoot
+          timeout (secondsToMicroSeconds 3) (Async.wait running) `shouldReturn` Just (Right ExitSuccess)
+          takeMVar processExit `shouldReturn` (ExitSuccess, True)
 
-    it "releases resources when cancelled" $ do
-      resourceRegistered <- newEmptyMVar
-      released <- newEmptyMVar
-      let action = do
-            _ <- register $ putMVar released ()
-            liftIO $ putMVar resourceRegistered ()
-            liftIO $ threadDelay $ secondsToMicroSeconds 10
+  describe "failOnExitFailure" $ do
+    it "fails the job with the error for a non-zero exit code" $ do
+      let job = do
+            Job.failOnExitFailure failWith $ return $ ExitFailure 7
+            Job.emitOutput Job.Stdout "after failure"
+      runJob job `shouldReturn` Left "Failed with 7"
 
-      Async.withAsync (runJob ignoreOutput action) $ \job -> do
-        takeMVar resourceRegistered
-        Async.cancel job
+    it "doesn't fail the job on a zero exit code" $ do
+      runJob (Job.failOnExitFailure failWith $ return ExitSuccess)
+        `shouldReturn` Right ()
 
-      timeout (secondsToMicroSeconds 5) (takeMVar released) `shouldReturn` Just ()
+  describe "race" $ do
+    it "returns the result of the job that finishes first" $ do
+      let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
+      timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob (return ("fast" :: String)))
+        `shouldReturn` Just (Right (Right "fast"))
 
-    it "keeps the output a cancelled job writes while releasing its resources" $ do
-      resourceRegistered <- newEmptyMVar
-      let cancelledJob = do
-            sink <- Job.getSink
-            _ <- register $ sink Job.Stdout "released"
-            liftIO $ putMVar resourceRegistered ()
-            liftIO $ threadDelay $ secondsToMicroSeconds 10
-          finishingJob = liftIO $ takeMVar resourceRegistered
-      (_, output) <-
-        Output.capturing $ \printer ->
-          runJob printer cancelledJob `Async.race` runJob printer finishingJob
-      output `shouldBe` "released"
+    it "fails if the job that finishes first fails" $ do
+      let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
+          failingJob = Job.failOnExitFailure failWith $ return $ ExitFailure 7
+      timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob failingJob)
+        `shouldReturn` Just (Left "Failed with 7")
 
-    it "labels output with the kind set by the job" $ do
-      chunks <- newMVar []
-      let printer kind _ output = modifyMVar_ chunks $ return . ((kind, output) :)
-          action = do
-            Job.emitJobOutput Job.Stdout "wasp"
-            Job.withKind Job.Db $ do
-              Job.emitJobOutput Job.Stdout "db"
-              Job.withKind Job.Server $ Job.emitJobOutput Job.Stdout "server"
-      runJob printer action `shouldReturn` ExitSuccess
-      reverse <$> readMVar chunks
-        `shouldReturn` [(Job.Wasp, "wasp"), (Job.Db, "db"), (Job.Server, "server")]
+    it "stops the process of the job that didn't finish" $ do
+      processStarted <- newEmptyMVar
+      -- The process exits by itself after a while, so that the test fails
+      -- instead of hanging if stopping it doesn't work.
+      let slowProcess = node "console.log(process.pid); setTimeout(() => {}, 10000)"
+          slowJob = Job.onOutput (void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
+          jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
+      result <-
+        timeout (secondsToMicroSeconds 5)
+          $ runJob
+          $ Job.captureOutput
+          $ Job.race slowJob jobThatFinishesOnceProcessStarts
+      case result of
+        Just (Right (Right (), output)) -> case parseProcessId $ T.unpack output of
+          Just pid -> waitUntil "the process exits" $ not <$> isProcessAlive pid
+          Nothing -> expectationFailure $ "Invalid process ID: " <> T.unpack output
+        _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
-    it "fails with the message set by the job" $ do
-      let describe' code = "Step failed with exit code: " <> show code
-      result <- Job.runJob ignoreOutput $ Job.describeFailure describe' $ Job.failWithExitCode 7
-      either Job.jobFailureMessage (const "") result `shouldBe` "Step failed with exit code: 7"
-      either Job.jobFailureExitCode (const 0) result `shouldBe` 7
+  describe "fromProc" $ do
+    it "returns the exit code of the process without failing the job" $ do
+      runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (Right (ExitFailure 7))
 
-spec_capturing :: Spec
-spec_capturing =
-  describe "capturing" $ do
-    it "returns all stdout and stderr chunks in emission order" $ do
-      let action = do
-            Job.emitJobOutput Job.Stdout "first "
-            Job.emitJobOutput Job.Stderr "second "
-            Job.emitJobOutput Job.Stdout "last"
-      Output.capturing (`runJob` action)
-        `shouldReturn` (ExitSuccess, "first second last")
+    it "emits the process's stdout and stderr" $ do
+      let process = node "process.stdout.write('out'); setTimeout(() => process.stderr.write('err'), 100);"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (Right (ExitSuccess, "outerr"))
 
-spec_withBackgroundOutputWorker :: Spec
-spec_withBackgroundOutputWorker =
-  describe "withBackgroundOutputWorker" $ do
-    it "forwards output and stops the worker before returning its result" $ do
-      started <- newEmptyMVar
-      stopped <- newIORef False
-      block <- newEmptyMVar
-      let worker sink =
-            bracket_
-              (sink Job.Stdout "progress" >> putMVar started ())
-              (writeIORef stopped True)
-              (takeMVar block)
-          action = do
-            result <- Job.withBackgroundOutputWorker worker $ do
-              liftIO $ takeMVar started
-              return (42 :: Int)
-            liftIO $ result `shouldBe` 42
-            liftIO $ readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) (Output.capturing (`runJob` action))
-        `shouldReturn` Just (ExitSuccess, "progress")
+    it "emits all the output before returning the exit code" $ do
+      let process = node "process.stdout.write('x'.repeat(200000)); process.exitCode = 7;"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (Right (ExitFailure 7, T.replicate 200000 "x"))
 
-    it "stops the worker before an enclosing action handles job failure" $ do
-      started <- newEmptyMVar
-      stopped <- newIORef False
-      block <- newEmptyMVar
-      let worker _ =
-            bracket_
-              (putMVar started ())
-              (writeIORef stopped True)
-              (takeMVar block)
-          action =
-            Job.withBackgroundOutputWorker
-              worker
-              (liftIO (takeMVar started) >> Job.failWithExitCode 7)
-              `catchError` \_ -> liftIO $ readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) (runJob ignoreOutput action)
-        `shouldReturn` Just ExitSuccess
+    it "gives the process an empty stdin" $ do
+      let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
+      runProcessJob (Job.fromProc readsStdinToEnd)
+        `shouldReturn` Just (Right (ExitFailure 3))
 
-    it "stops the worker when the job is cancelled" $ do
-      started <- newEmptyMVar
-      stopped <- newIORef False
-      block <- newEmptyMVar
-      let worker _ =
-            bracket_
-              (putMVar started ())
-              (writeIORef stopped True)
-              (takeMVar block)
-          action = Job.withBackgroundOutputWorker worker $ liftIO $ takeMVar block
-          cancelJob =
-            Async.withAsync (runJob ignoreOutput action) $ \job -> do
-              takeMVar started
-              Async.cancel job
-              readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) cancelJob `shouldReturn` Just ()
+    it "stops the processes it started when the job is stopped" $
+      withListeningDescendant id $ \running port _ -> do
+        isPortAvailable port `shouldReturn` False
+        timeout (secondsToMicroSeconds 3) (Async.cancel running) `shouldReturn` Just ()
+        isPortAvailable port `shouldReturn` True
 
-ignoreOutput :: Job.Printer
-ignoreOutput _ _ _ = return ()
+    unless isWindows $
+      it "stops the processes it started once it exits" $
+        withListeningDescendant id $ \running port exitRoot -> do
+          exitRoot
+          timeout (secondsToMicroSeconds 3) (Async.wait running) `shouldReturn` Just (Right ExitSuccess)
+          isPortAvailable port `shouldReturn` True
 
--- | Runs the job and returns the exit code it finished with.
-runJob :: Job.Printer -> Job.Job () -> IO ExitCode
-runJob printer job = either (ExitFailure . Job.jobFailureExitCode) (const ExitSuccess) <$> Job.runJob printer job
+    unless isWindows $
+      it "interrupts the processes so they can exit gracefully before stopping them" $ do
+        gracefulExitPath <- makeTempPath "wasp-graceful-exit"
+        let exitGracefully =
+              "process.on('SIGINT', () => { require('node:fs').writeFileSync("
+                <> show gracefulExitPath
+                <> ", ''); process.exit(0); });"
+        ( withRunningProcess Job.fromProc exitGracefully $ \running _ -> do
+            Async.cancel running
+            doesFileExist gracefulExitPath `shouldReturn` True
+          )
+          `finally` removeIfExists gracefulExitPath
+
+    it "forces a process that ignores interruption to stop" $ do
+      let ignoreInterruption = "process.on('SIGINT', () => {}); process.on('SIGTERM', () => {});"
+      withRunningProcess Job.fromProc ignoreInterruption $ \running pid -> do
+        timeout (secondsToMicroSeconds 3) (Async.cancel running) `shouldReturn` Just ()
+        isProcessAlive pid `shouldReturn` False
+
+    it "doesn't stop another job's process when one job is stopped" $
+      withRunningProcess Job.fromProc "" $ \first _ ->
+        withRunningProcess Job.fromProc "" $ \second secondPid -> do
+          Async.cancel first
+          Async.poll second >>= \case
+            Nothing -> isProcessAlive secondPid `shouldReturn` True
+            Just _ -> expectationFailure "Stopping one job stopped another job's process"
+
+    it "decodes UTF-8 output split across chunks, replacing incomplete characters" $ do
+      let euroSignCount = 40000 :: Int
+          process =
+            node $
+              "process.stdout.write(Buffer.concat([Buffer.from('\8364'.repeat("
+                <> show euroSignCount
+                <> ")), Buffer.from([0xe2])]));"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (Right (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533"))
+
+#if !mingw32_HOST_OS
+    it "runs the process in its own process group" $ do
+      waspGroup <- Posix.getProcessGroupID
+      processGroup <- getProcessGroupOfProcessRunBy Job.fromProc
+      processGroup `shouldNotBe` waspGroup
+
+  describe "fromInteractiveProc" $ do
+    it "runs the process in Wasp's process group" $ do
+      waspGroup <- Posix.getProcessGroupID
+      getProcessGroupOfProcessRunBy Job.fromInteractiveProc `shouldReturn` waspGroup
+#endif
+
+runJob :: Job.Job String a -> IO (Either String a)
+runJob = runExceptT . Job.run
+
+-- | Fails the test instead of hanging it if the process doesn't finish.
+runProcessJob :: Job.Job String a -> IO (Maybe (Either String a))
+runProcessJob = timeout (secondsToMicroSeconds 10) . runJob
+
+failWith :: Int -> String
+failWith code = "Failed with " <> show code
+
+node :: String -> P.CreateProcess
+node script = nodeWithArgs script []
+
+nodeWithArgs :: String -> [String] -> P.CreateProcess
+nodeWithArgs script args = P.proc "node" $ ["-e", script] <> args
+
+isWindows :: Bool
+isWindows = System.Info.os == "mingw32"
+
+-- | Runs a process with the given function while the action runs, once the
+-- process has started. The process runs until it's stopped, after running the
+-- given script.
+withRunningProcess ::
+  (P.CreateProcess -> Job.Job String ExitCode) ->
+  String ->
+  (Async.Async (Either String ExitCode) -> ProcessId -> IO ()) ->
+  IO ()
+withRunningProcess runProcess script action = do
+  pidPath <- makeTempPath "wasp-running-process"
+  let process =
+        nodeWithArgs
+          ( unlines
+              [ script,
+                "const fs = require('node:fs');",
+                "const pidPath = process.argv[1];",
+                "fs.writeFileSync(pidPath + '.tmp', String(process.pid));",
+                "fs.renameSync(pidPath + '.tmp', pidPath);",
+                "setInterval(() => {}, 1000);"
+              ]
+          )
+          [pidPath]
+  Async.withAsync
+    (runJob $ runProcess process)
+    ( \running -> do
+        waitUntil "the process starts" $ doesFileExist pidPath
+        pid <- readProcessId pidPath
+        action running pid `finally` killProcess pid
+    )
+    `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+
+-- | Runs a process that starts a descendant listening on a port, and gives the
+-- action the running job, the port, and an action that makes the root process
+-- exit (while the descendant keeps running).
+withListeningDescendant ::
+  (Job.Job String ExitCode -> Job.Job String ExitCode) ->
+  (Async.Async (Either String ExitCode) -> String -> IO () -> IO ()) ->
+  IO ()
+withListeningDescendant modifyJob action = do
+  portPath <- makeTempPath "wasp-isolated-child-port"
+  rootExitPath <- makeTempPath "wasp-isolated-root-exit"
+  Async.withAsync
+    (runJob $ modifyJob $ Job.fromProc $ nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath])
+    ( \running -> do
+        waitUntil "the descendant listens" $ doesFileExist portPath
+        port <- readFile portPath
+        action running port $ writeFile rootExitPath ""
+    )
+    `finally` mapM_ removeIfExists [portPath, portPath <> ".tmp", rootExitPath]
+
+descendantRootScript :: String
+descendantRootScript =
+  unlines
+    [ "const fs = require('node:fs')",
+      "const { spawn } = require('node:child_process')",
+      "const [childScript, portPath, exitPath] = process.argv.slice(1)",
+      "spawn(process.execPath, ['-e', childScript, portPath], { stdio: 'inherit' })",
+      "setInterval(() => { if (fs.existsSync(exitPath)) process.exit(0) }, 10)"
+    ]
+
+listeningServerScript :: String
+listeningServerScript =
+  unlines
+    [ "const fs = require('node:fs')",
+      "const server = require('node:net').createServer()",
+      "const portPath = process.argv[1]",
+      "server.listen(0, '127.0.0.1', () => {",
+      "  fs.writeFileSync(portPath + '.tmp', String(server.address().port))",
+      "  fs.renameSync(portPath + '.tmp', portPath)",
+      "})"
+    ]
+
+removeIfExists :: FilePath -> IO ()
+removeIfExists path = do
+  exists <- doesFileExist path
+  when exists $ removeFile path
+
+#if !mingw32_HOST_OS
+getProcessGroupOfProcessRunBy :: (P.CreateProcess -> Job.Job String ExitCode) -> IO ProcessGroupID
+getProcessGroupOfProcessRunBy runProcess = do
+  processGroup <- newEmptyMVar
+  withRunningProcess runProcess "" $ \_ pid ->
+    Posix.getProcessGroupIDOf (processIdToPid pid) >>= putMVar processGroup
+  takeMVar processGroup
+#endif

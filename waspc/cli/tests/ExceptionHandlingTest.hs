@@ -2,45 +2,17 @@ module ExceptionHandlingTest where
 
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
-import Control.Monad.Trans.Resource (ResourceCleanupException (..))
 import System.Exit (ExitCode (..))
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
-import Wasp.Cli.ExceptionHandling (formatCleanupException, withExceptionReporting)
-import Wasp.Job.Process (ProcessGroupDidNotStop (..))
-
-spec_formatCleanupException :: Spec
-spec_formatCleanupException =
-  describe "cleanup error output" $ do
-    let stopFailure = E.toException ProcessGroupDidNotStop
-        stopMessage = "Could not stop the subprocess group. A child process may still be running."
-
-    it "omits cancellation context when reporting cleanup failures" $
-      mapM_
-        ( \cancellation ->
-            formatCleanupException (ResourceCleanupException (Just cancellation) stopFailure [])
-              `shouldBe` stopMessage
-        )
-        [E.toException Async.AsyncCancelled, E.toException E.ThreadKilled]
-
-    it "preserves original and additional failures through nested cleanup wrappers" $ do
-      let original = E.toException $ userError "controller failed"
-          additional = E.toException $ userError "pipe close failed"
-          nested = E.toException $ ResourceCleanupException Nothing stopFailure []
-      formatCleanupException (ResourceCleanupException (Just original) nested [additional])
-        `shouldBe` ("user error (controller failed)\n" <> stopMessage <> "\nuser error (pipe close failed)")
+import Wasp.Cli.ExceptionHandling (withExceptionReporting)
+import Wasp.Job (ProcessGroupDidNotStop (..))
 
 spec_withExceptionReporting :: Spec
 spec_withExceptionReporting =
   describe "exception reporting" $ do
-    it "exits unsuccessfully for known process and cleanup failures" $
-      mapM_
-        ( \exception -> do
-            result <- E.try $ withExceptionReporting $ E.throwIO exception
-            result `shouldBe` Left (ExitFailure 1)
-        )
-        [ E.toException ProcessGroupDidNotStop,
-          E.toException $ ResourceCleanupException Nothing (E.toException ProcessGroupDidNotStop) []
-        ]
+    it "exits unsuccessfully when a process group doesn't stop" $ do
+      result <- E.try $ withExceptionReporting $ E.throwIO ProcessGroupDidNotStop
+      result `shouldBe` Left (ExitFailure 1)
 
     it "preserves ordinary exit statuses" $ do
       result <- E.try $ withExceptionReporting $ E.throwIO $ ExitFailure 130

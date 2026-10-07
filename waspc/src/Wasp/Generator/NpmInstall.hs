@@ -5,21 +5,21 @@ module Wasp.Generator.NpmInstall
 where
 
 import Control.Concurrent (threadDelay)
-import Control.Monad (when)
+import Control.Monad (forever, when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
+import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
+import System.Exit (ExitCode (..))
+import System.Process (CreateProcess (cwd), proc)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Output as Job.Output
-import qualified Wasp.Job.Process as JobProcess
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
@@ -63,28 +63,33 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir = do
-  installResult <- Job.Output.withPrefixed (`Job.runJob` installProjectDepsJob)
-  return $ case installResult of
-    Left failure -> Left $ "Project setup failed with exit code " ++ show (Job.jobFailureExitCode failure) ++ "."
-    Right () -> Right ()
-  where
-    installProjectDepsJob =
-      installNpmDependenciesAndReport projectDir
+  installExitCode <-
+    Job.run $ Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir
+  return $ case installExitCode of
+    ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
+    _success -> Right ()
 
-installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
-installNpmDependenciesAndReport projectDir = Job.withKind Job.Wasp $ do
-  Job.emitJobOutput Job.Stdout "Starting npm install\n"
-  Job.withBackgroundOutputWorker reportInstallationProgress $
-    JobProcess.run_ =<< Node.command [] projectDir "npm" ["install"]
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job e ExitCode
+installNpmDependenciesAndReport projectDir = do
+  Job.emitOutput Job.Stdout "Starting npm install\n"
 
-reportInstallationProgress :: Job.Sink -> IO ()
-reportInstallationProgress sink =
-  mapM_ reportMessage $ cycle possibleMessages
+  either absurd id
+    <$> Job.race
+      reportInstallationProgress
+      ( Job.fromProc $
+          (proc "npm" ["install"])
+            { cwd = Just $ SP.fromAbsDir projectDir
+            }
+      )
+
+reportInstallationProgress :: Job.Job e Void
+reportInstallationProgress =
+  forever $ mapM_ reportMessage possibleMessages
   where
     reportMessage message = do
-      threadDelay $ secondsToMicroSeconds 5
-      sink Job.Stdout $ T.append message "\n"
-      threadDelay $ secondsToMicroSeconds 5
+      liftIO $ threadDelay $ secondsToMicroSeconds 5
+      Job.emitOutput Job.Stdout $ T.append message "\n"
+      liftIO $ threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =
       [ "Still installing npm dependencies!",

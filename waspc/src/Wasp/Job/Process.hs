@@ -1,37 +1,30 @@
 module Wasp.Job.Process
-  ( ProcessGroupDidNotStop (..),
-    Subprocess,
-    command,
-    interactive,
+  ( Interactivity (..),
+    ProcessGroupDidNotStop (..),
     run,
-    run_,
-    spawn,
-    wait,
-    poll,
-    stop,
   )
 where
 
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (Exception (displayException), SomeException, finally, onException, throwIO, try)
+import Control.Exception (Exception (displayException), IOException, finally, mask, onException, throwIO, try)
 import Control.Monad (unless, void)
-import qualified Control.Monad.Catch as Catch
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.Trans.Resource (ReleaseKey, allocate, release)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Text as CT
+import Data.Text (Text)
 import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job (Job, Sink, Stream (..), getSink, requireExitSuccess)
+import Wasp.Job.Printer (OutputKind (..))
 import qualified Wasp.Process.System as System
-import Wasp.Util (secondsToMicroSeconds)
 
 -- TODO(#4575):
 --   Switch from System.Process to System.Process.Typed.
+
+-- | Whether a process reads from Wasp's terminal.
+data Interactivity = Isolated | Interactive
 
 data ProcessGroupDidNotStop = ProcessGroupDidNotStop
   deriving (Show, Eq)
@@ -39,164 +32,92 @@ data ProcessGroupDidNotStop = ProcessGroupDidNotStop
 instance Exception ProcessGroupDidNotStop where
   displayException _ = "Could not stop the subprocess group. A child process may still be running."
 
--- | A command with an empty stdin. It runs in its own process group, so
--- stopping it also stops every process it started.
-command :: FilePath -> [String] -> P.CreateProcess
-command executable arguments = (P.proc executable arguments) {P.std_in = P.CreatePipe}
-
--- | Lets the command read from Wasp's terminal. For that, it has to stay in
--- Wasp's process group, so stopping it only stops its root process.
-interactive :: P.CreateProcess -> P.CreateProcess
-interactive process = process {P.std_in = P.Inherit}
-
--- | Runs the process to completion and forwards all its output to the job's
--- sink before returning. See 'spawn' for how the process is started and
--- stopped.
-run :: P.CreateProcess -> Job ExitCode
-run process = Catch.bracket (spawn process) stop wait
-
--- | Like 'run', but fails the job if the process exits with a nonzero code.
-run_ :: P.CreateProcess -> Job ()
-run_ process = run process >>= requireExitSuccess
-
--- | A process started with 'spawn'.
-data Subprocess = Subprocess
-  { _rootExit :: Async.Async ExitCode,
-    _stopKey :: ReleaseKey
-  }
-
--- | Starts the process and forwards its output to the job's sink in the
--- background. The job stops the process when it finishes, unless it was
--- stopped before with 'stop'.
+-- | Runs the process to completion, passing its output to the given function,
+-- and returns its exit code once all of its output has been passed on. Calls
+-- the given exit hook as soon as the process exits by itself.
 --
--- A process that doesn't inherit Wasp's stdin (see 'interactive') runs in its
--- own process group, and stopping it stops every process left in the group,
--- even after the root process has exited. A process whose stdin is
--- 'P.CreatePipe' gets an empty stdin.
-spawn :: P.CreateProcess -> Job Subprocess
-spawn process = do
-  sink <- getSink
-  (stopKey, startedProcess) <- allocate (startProcess sink process) stopProcess
-  return $ Subprocess (_startedRootExit startedProcess) stopKey
-
--- | Waits for the root process to exit. Other processes in its group may still
--- be running until it is stopped.
-wait :: (MonadIO m) => Subprocess -> m ExitCode
-wait subprocess = liftIO $ Async.wait $ _rootExit subprocess
-
-poll :: (MonadIO m) => Subprocess -> m (Maybe ExitCode)
-poll subprocess =
-  liftIO $
-    Async.poll (_rootExit subprocess) >>= \case
-      Nothing -> return Nothing
-      Just (Left exception) -> throwIO exception
-      Just (Right exitCode) -> return $ Just exitCode
-
--- | Stops the process, and forwards the output it wrote until then. Does
--- nothing if it was already stopped. Throws 'ProcessGroupDidNotStop' if its
--- process group doesn't stop in time.
-stop :: (MonadIO m) => Subprocess -> m ()
-stop = release . _stopKey
-
-data StartedProcess = StartedProcess
-  { _startedHandles :: ProcessHandles,
-    _startedIsInteractive :: Bool,
-    _startedProcessGroup :: Maybe P.Pid,
-    _startedRootExit :: Async.Async ExitCode,
-    _startedOutputForwarders :: [Async.Async ()]
-  }
-
-type ProcessHandles = (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle)
-
-startProcess :: Sink -> P.CreateProcess -> IO StartedProcess
-startProcess sink process = do
-  handles@(stdinHandle, stdoutHandle, stderrHandle, processHandle) <- P.createProcess configuredProcess
-  ( do
-      processGroup <- if isInteractive then return Nothing else P.getPid processHandle
-      mapM_ hClose stdinHandle
-      rootExit <- Async.async $ P.waitForProcess processHandle
-      outputForwarders <-
-        mapM
-          Async.async
-          [ forwardOutput sink Stdout stdoutHandle,
-            forwardOutput sink Stderr stderrHandle
-          ]
-      return
-        StartedProcess
-          { _startedHandles = handles,
-            _startedIsInteractive = isInteractive,
-            _startedProcessGroup = processGroup,
-            _startedRootExit = rootExit,
-            _startedOutputForwarders = outputForwarders
+-- An 'Isolated' process runs in its own process group (a job object on
+-- Windows), with an empty stdin. Once it exits, or this is stopped, any
+-- process left in its group is stopped too. If the group doesn't stop in time,
+-- this throws 'ProcessGroupDidNotStop'.
+--
+-- An 'Interactive' process reads from Wasp's stdin. For that, it has to stay
+-- in Wasp's process group, so stopping this only stops the process itself.
+run :: Interactivity -> (OutputKind -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
+run interactivity emit onExit process = mask $ \restore -> do
+  (resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle), processGroup) <- start
+  mapM_ hClose stdinHandle
+  -- Also reaps the process if this is stopped, so it's never cancelled.
+  rootExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
+  outputForwarding <-
+    Async.asyncWithUnmask $ \unmask ->
+      unmask $
+        Async.concurrently_
+          (forwardOutput (emit Stdout) stdoutHandle)
+          (forwardOutput (emit Stderr) stderrHandle)
+  let stop = stopProcess processHandle rootExit processGroup
+  exitCode <-
+    restore
+      ( do
+          exitCode <- Async.wait rootExit
+          onExit exitCode
+          stop
+          Async.wait outputForwarding
+          return exitCode
+      )
+      -- The process has to stop before the output forwarding is cancelled: on
+      -- Windows, reading the output can't be interrupted until its pipes close.
+      `onException` ((stop `finally` Async.cancel outputForwarding) `finally` closeHandles resources)
+  closeHandles resources
+  return exitCode
+  where
+    configuredProcess = case interactivity of
+      Isolated -> System.configureIsolatedProcess process {P.std_in = P.CreatePipe}
+      Interactive ->
+        process
+          { P.std_in = P.Inherit,
+            P.create_group = False,
+            P.use_process_jobs = False,
+            P.std_out = P.CreatePipe,
+            P.std_err = P.CreatePipe
           }
-    )
-    `onException` emergencyCleanUp isInteractive handles
-  where
-    isInteractive = P.std_in process == P.Inherit
 
-    configuredProcess =
-      if isInteractive
-        then
-          process
-            { P.create_group = False,
-              P.use_process_jobs = False,
-              P.std_out = P.CreatePipe,
-              P.std_err = P.CreatePipe
-            }
-        else System.configureIsolatedProcess process
+    start = do
+      resources@(_, _, _, processHandle) <- P.createProcess configuredProcess
+      processGroup <-
+        ( case interactivity of
+            Isolated -> P.getPid processHandle
+            Interactive -> return Nothing
+        )
+          `onException` emergencyCleanUp resources
+      return (resources, processGroup)
 
-stopProcess :: StartedProcess -> IO ()
-stopProcess startedProcess = do
-  stopped <- stopProcessTree `finally` cleanUpOutput
-  unless stopped $ throwIO ProcessGroupDidNotStop
-  where
-    stopProcessTree =
-      if _startedIsInteractive startedProcess
-        then do
-          P.getProcessExitCode processHandle >>= \case
-            Just _ -> return ()
-            Nothing -> P.terminateProcess processHandle
-          return True
-        else
-          System.stopProcessGroup
-            processHandle
-            (_startedRootExit startedProcess)
-            (_startedProcessGroup startedProcess)
+    stopProcess processHandle rootExit processGroup = case interactivity of
+      Isolated -> do
+        stopped <- System.stopProcessGroup processHandle rootExit processGroup
+        unless stopped $ throwIO ProcessGroupDidNotStop
+      Interactive ->
+        P.getProcessExitCode processHandle >>= \case
+          Just _ -> return ()
+          Nothing -> P.terminateProcess processHandle
 
-    -- Processes that escaped the group could keep the output pipes open, so
-    -- we don't wait for the output forever.
-    cleanUpOutput =
-      mapM_ drainOrCancel (_startedOutputForwarders startedProcess)
-        `finally` closeHandles (_startedHandles startedProcess)
-
-    (_, _, _, processHandle) = _startedHandles startedProcess
-
-drainOrCancel :: Async.Async () -> IO ()
-drainOrCancel outputForwarder =
-  timeout outputDrainTimeoutMicroseconds (Async.waitCatch outputForwarder) >>= \case
-    Nothing -> Async.cancel outputForwarder
-    Just (Left exception) -> throwIO exception
-    Just (Right ()) -> return ()
-
-forwardOutput :: Sink -> Stream -> Maybe Handle -> IO ()
-forwardOutput _ _ Nothing = return ()
-forwardOutput sink stream (Just handle) =
+forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
+forwardOutput _ Nothing = return ()
+forwardOutput emit (Just handle) =
   runConduit $
-    CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ (sink stream)
+    CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit
 
-emergencyCleanUp :: Bool -> ProcessHandles -> IO ()
-emergencyCleanUp isInteractive handles@(_, _, _, processHandle) = do
-  unless isInteractive $ System.killStartedProcessGroup =<< P.getPid processHandle
-  ignoreExceptions $ P.terminateProcess processHandle
-  closeHandles handles
-  void $ timeout System.hardStopTimeoutMicroseconds $ ignoreExceptions $ P.waitForProcess processHandle
+emergencyCleanUp :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
+emergencyCleanUp resources@(_, _, _, processHandle) =
+  ( do
+      P.terminateProcess processHandle
+      void $ timeout System.hardStopTimeoutMicroseconds $ P.waitForProcess processHandle
+  )
+    `finally` closeHandles resources
 
-closeHandles :: ProcessHandles -> IO ()
+closeHandles :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
 closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =
-  mapM_ (mapM_ $ ignoreExceptions . hClose) [stdinHandle, stdoutHandle, stderrHandle]
-
-ignoreExceptions :: IO a -> IO ()
-ignoreExceptions action = void (try (void action) :: IO (Either SomeException ()))
-
-outputDrainTimeoutMicroseconds :: Int
-outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
+  mapM_ closeHandle [stdinHandle, stdoutHandle, stderrHandle]
+  where
+    closeHandle Nothing = return ()
+    closeHandle (Just handle) = void (try (hClose handle) :: IO (Either IOException ()))

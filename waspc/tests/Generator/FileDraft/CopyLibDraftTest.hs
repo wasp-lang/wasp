@@ -1,6 +1,6 @@
 module Generator.FileDraft.CopyLibDraftTest where
 
-import Fixtures (systemSPRoot)
+import Fixtures.Paths (systemSPRoot)
 import qualified Generator.MockWriteableMonad as Mock
 import qualified StrongPath as SP
 import Test.Hspec

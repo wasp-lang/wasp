@@ -8,23 +8,24 @@ module Wasp.Generator.ServerGenerator.Start
   )
 where
 
-import Control.Concurrent (Chan, MVar, newChan, newEmptyMVar, putMVar, readChan, takeMVar, writeChan)
-import Control.Concurrent.Async (async, link)
-import Control.Monad.Catch (finally, mask_)
-import Control.Monad.IO.Class (liftIO)
-import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Control.Concurrent (MVar, newEmptyMVar, putMVar, takeMVar, threadDelay)
+import Control.Concurrent.STM (TMVar, TQueue, atomically, newEmptyTMVarIO, newTQueueIO, orElse, putTMVar, readTQueue, takeTMVar, writeTQueue)
+import Control.Monad (forever)
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.Functor ((<&>))
 import qualified Data.Text as T
+import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path', (</>))
+import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import Wasp.Env (getEnvVars)
-import Wasp.Generator.Common (GeneratedAppDir, ServerRootDir)
+import System.Process (CreateProcess (..), proc)
+import Wasp.Env (getEnvVars, inheritEnvWith)
+import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
-import qualified Wasp.Job as Job
-import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Process as JobProcess
+import qualified Wasp.Job as J
 
-newtype ServerProcessController = ServerProcessController (Chan ServerControllerCommand)
+newtype ServerProcessController = ServerProcessController (TQueue ServerControllerCommand)
 
 -- Effect of a successful compile on a healthy, running server.
 -- Without one, the controller conservatively rebundles before starting.
@@ -43,159 +44,99 @@ instance Semigroup ServerEffect where
 instance Monoid ServerEffect where
   mempty = NoServerEffect
 
+-- | Each command carries an @MVar@ that the controller fills once it has
+-- handled the command.
 data ServerControllerCommand
   = SuccessfulCompile ServerEffect (MVar ())
   | FailedCompile (MVar ())
-  | ServerProcessExited ServerProcessId ExitCode
-
-newtype ServerProcessId = ServerProcessId Int deriving (Eq)
-
-data ServerProcess = ServerProcess
-  { _serverProcessId :: ServerProcessId,
-    _subprocess :: JobProcess.Subprocess
-  }
-
-data ServerProcessState
-  = ServerNotRunning
-  | ServerRunning ServerProcess
 
 newServerProcessController :: IO ServerProcessController
-newServerProcessController = ServerProcessController <$> newChan
+newServerProcessController = ServerProcessController <$> newTQueueIO
 
 notifySuccessfulCompile :: ServerProcessController -> ServerEffect -> IO ()
 notifySuccessfulCompile controller serverEffect =
-  sendBlockingServerControllerCommand controller $ SuccessfulCompile serverEffect
+  sendCommand controller $ SuccessfulCompile serverEffect
 
 notifyFailedCompile :: ServerProcessController -> IO ()
 notifyFailedCompile controller =
-  sendBlockingServerControllerCommand controller FailedCompile
+  sendCommand controller FailedCompile
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> Job.Job ()
-startServer serverRunConfig generatedAppDir =
-  Job.withKind Job.Server . runServerProcessController serverRunConfig serverDir
-  where
-    serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-
-runServerProcessController :: ServerRunConfig -> Path' Abs (Dir ServerRootDir) -> ServerProcessController -> Job.Job ()
-runServerProcessController serverRunConfig serverDir controller = do
-  -- Only the controller thread accesses these refs. Exit watchers send commands.
-  serverStateRef <- liftIO $ newIORef ServerNotRunning
-  nextServerProcessIdRef <- liftIO $ newIORef 0
-  runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
-
-sendBlockingServerControllerCommand :: ServerProcessController -> (MVar () -> ServerControllerCommand) -> IO ()
-sendBlockingServerControllerCommand (ServerProcessController commandChan) mkCommand = do
+-- | Returns once the controller has handled the command.
+sendCommand :: ServerProcessController -> (MVar () -> ServerControllerCommand) -> IO ()
+sendCommand (ServerProcessController commands) makeCommand = do
   done <- newEmptyMVar
-  writeChan commandChan $ mkCommand done
+  atomically $ writeTQueue commands $ makeCommand done
   takeMVar done
 
-readServerControllerCommand :: ServerProcessController -> IO ServerControllerCommand
-readServerControllerCommand (ServerProcessController commandChan) = readChan commandChan
-
-writeServerControllerCommand :: ServerProcessController -> ServerControllerCommand -> IO ()
-writeServerControllerCommand (ServerProcessController commandChan) = writeChan commandChan
-
-runServerProcessControllerLoop ::
-  ServerRunConfig ->
-  Path' Abs (Dir ServerRootDir) ->
-  ServerProcessController ->
-  IORef ServerProcessState ->
-  IORef Int ->
-  Job.Job ()
-runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef = do
-  handleSuccessfulCompile RebundleAndRestartServer
-  processServerCommands
+-- | Bundles and runs the development server, and then keeps it up to date with
+-- the compiles the controller is notified about. Never finishes by itself.
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> J.Job e Void
+startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
+  bundleAndRun Nothing
   where
-    processServerCommands :: Job.Job ()
-    processServerCommands = do
-      command <- liftIO $ readServerControllerCommand controller
-      case command of
-        SuccessfulCompile serverEffect done ->
-          acknowledgeCommand done $ handleSuccessfulCompile serverEffect
-        FailedCompile done ->
-          acknowledgeCommand done stopServerProcess
-        ServerProcessExited serverProcessId exitCode ->
-          handleServerProcessExited serverProcessId exitCode
-      processServerCommands
+    -- There is no known-good bundle while the server isn't running, so any
+    -- successful compile rebundles it before starting it.
+    notRunning :: J.Job e Void
+    notRunning =
+      liftIO (atomically $ readTQueue commands) >>= \case
+        SuccessfulCompile _ done -> bundleAndRun $ Just done
+        FailedCompile done -> acknowledge done >> notRunning
 
-    acknowledgeCommand done action = action `finally` liftIO (putMVar done ())
+    bundleAndRun :: Maybe (MVar ()) -> J.Job e Void
+    bundleAndRun done =
+      bundle >>= \case
+        ExitSuccess -> running done
+        ExitFailure _ -> mapM_ acknowledge done >> notRunning
 
-    handleSuccessfulCompile :: ServerEffect -> Job.Job ()
-    handleSuccessfulCompile serverEffect = do
-      reconcileExitedServerProcess
-      serverState <- liftIO $ readIORef serverStateRef
-      case (serverState, serverEffect) of
-        (ServerRunning {}, NoServerEffect) -> return ()
-        (ServerRunning {}, RestartServer) -> replaceServerProcess
-        _ -> do
-          bundleExitCode <- JobProcess.run =<< Node.command [] serverDir "npm" ["run", "bundle"]
-          case bundleExitCode of
-            ExitSuccess -> replaceServerProcess
-            ExitFailure {} -> stopServerProcess
+    -- Runs the server until it exits, or a command needs it stopped.
+    running :: Maybe (MVar ()) -> J.Job e Void
+    running done = do
+      serverExit <- liftIO newEmptyTMVarIO
+      next <-
+        either absurd id
+          <$> J.race
+            (runServer serverExit)
+            (mapM_ acknowledge done >> handleCommandsWhileRunning serverExit)
+      next
 
-    replaceServerProcess :: Job.Job ()
-    replaceServerProcess = stopServerProcess >> startServerProcess
+    -- Reports the server's exit instead of finishing, so that a command that
+    -- is being handled doesn't get cancelled. It reports it as soon as the
+    -- server exits, so that a compile right after a crash restarts it.
+    runServer :: TMVar ExitCode -> J.Job e Void
+    runServer serverExit = do
+      _ <- J.onProcessExit (atomically . putTMVar serverExit) $ J.fromProc =<< serverProcess
+      liftIO $ forever $ threadDelay maxBound
 
-    startServerProcess :: Job.Job ()
-    startServerProcess = do
-      mask_ $ do
-        serverProcessId <- liftIO getNextServerProcessId
-        subprocess <- JobProcess.spawn =<< Node.command (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
-        liftIO $ writeIORef serverStateRef $ ServerRunning ServerProcess {_serverProcessId = serverProcessId, _subprocess = subprocess}
-        exitWatcher <- liftIO $ async $ do
-          exitCode <- JobProcess.wait subprocess
-          writeServerControllerCommand controller $ ServerProcessExited serverProcessId exitCode
-        liftIO $ link exitWatcher
+    -- Returns what to do once the server is stopped.
+    handleCommandsWhileRunning :: TMVar ExitCode -> J.Job e (J.Job e Void)
+    handleCommandsWhileRunning serverExit =
+      liftIO (atomically $ (Left <$> takeTMVar serverExit) `orElse` (Right <$> readTQueue commands)) >>= \case
+        Left exitCode -> return $ reportServerExit exitCode >> notRunning
+        Right (SuccessfulCompile NoServerEffect done) ->
+          acknowledge done >> handleCommandsWhileRunning serverExit
+        Right (SuccessfulCompile RestartServer done) -> return $ running $ Just done
+        Right (SuccessfulCompile RebundleAndRestartServer done) ->
+          -- The current server keeps running while the new one is bundled.
+          bundle <&> \case
+            ExitSuccess -> running $ Just done
+            ExitFailure _ -> acknowledge done >> notRunning
+        Right (FailedCompile done) -> return $ acknowledge done >> notRunning
 
-    getNextServerProcessId :: IO ServerProcessId
-    getNextServerProcessId = do
-      nextServerProcessId <- (+ 1) <$> readIORef nextServerProcessIdRef
-      writeIORef nextServerProcessIdRef nextServerProcessId
-      return $ ServerProcessId nextServerProcessId
+    acknowledge :: MVar () -> J.Job e ()
+    acknowledge done = liftIO $ putMVar done ()
 
-    stopServerProcess :: Job.Job ()
-    stopServerProcess = mask_ $ do
-      serverState <- liftIO $ readIORef serverStateRef
-      case serverState of
-        ServerNotRunning -> return ()
-        ServerRunning serverProcess -> do
-          JobProcess.stop $ _subprocess serverProcess
-          liftIO $ writeIORef serverStateRef ServerNotRunning
+    bundle :: J.Job e ExitCode
+    bundle = J.fromProc (proc "npm" ["run", "bundle"]) {cwd = Just serverDir}
 
-    handleServerProcessExited :: ServerProcessId -> ExitCode -> Job.Job ()
-    handleServerProcessExited serverProcessId exitCode = do
-      serverState <- liftIO $ readIORef serverStateRef
-      case serverState of
-        ServerRunning serverProcess
-          | _serverProcessId serverProcess == serverProcessId ->
-              cleanUpExitedServerProcess serverProcess exitCode
-        _ -> return ()
+    serverProcess :: (MonadIO m) => m CreateProcess
+    serverProcess =
+      inheritEnvWith
+        (("NODE_ENV", "development") : getEnvVars serverRunConfig)
+        (proc Common.devServerStartExecutable Common.devServerStartArgs) {cwd = Just serverDir}
 
-    reconcileExitedServerProcess :: Job.Job ()
-    reconcileExitedServerProcess = do
-      serverState <- liftIO $ readIORef serverStateRef
-      case serverState of
-        ServerNotRunning -> return ()
-        ServerRunning serverProcess ->
-          JobProcess.poll (_subprocess serverProcess) >>= \case
-            Nothing -> return ()
-            Just exitCode -> cleanUpExitedServerProcess serverProcess exitCode
+    serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
-    cleanUpExitedServerProcess :: ServerProcess -> ExitCode -> Job.Job ()
-    cleanUpExitedServerProcess serverProcess exitCode = do
-      -- The root process exited on its own, but its descendants may have survived
-      -- and could still hold the server port or output pipes.
-      JobProcess.stop $ _subprocess serverProcess
-      printServerProcessExit exitCode
-      liftIO $ writeIORef serverStateRef ServerNotRunning
-
-printServerProcessExit :: ExitCode -> Job.Job ()
-printServerProcessExit exitCode =
-  Job.emitJobOutput (outputStream exitCode) $ formatServerProcessExit exitCode
-  where
-    outputStream ExitSuccess = Job.Stdout
-    outputStream ExitFailure {} = Job.Stderr
-
-formatServerProcessExit :: ExitCode -> T.Text
-formatServerProcessExit ExitSuccess = "Server process exited.\n"
-formatServerProcessExit (ExitFailure exitCode) = T.pack $ "Server process exited with code " <> show exitCode <> ".\n"
+reportServerExit :: ExitCode -> J.Job e ()
+reportServerExit = \case
+  ExitSuccess -> J.emitOutput J.Stdout "Server process exited.\n"
+  ExitFailure code -> J.emitOutput J.Stderr $ T.pack $ "Server process exited with code " <> show code <> ".\n"
