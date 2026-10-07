@@ -108,7 +108,7 @@ runs:
         set -euxo pipefail
         mkdir -p .cabal-index
         echo '*' > .cabal-index/.gitignore
-        cabal user-config update -a "remote-repo-cache: $(pwd)/.cabal-index"
+        cabal user-config update -a "remote-repo-cache: $GITHUB_WORKSPACE/.cabal-index"
 
     - name: Cache Hackage index
       if: ${{ inputs.haskell == 'true' }}
