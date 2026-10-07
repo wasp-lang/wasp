@@ -20,7 +20,7 @@ Run `wasp install` before using the project.
 
 ### Database
 
-Run `wasp db migrate-dev` before starting the app. Wasp starts the development database automatically.
+Run `wasp db migrate-dev` before starting the app.
 
 ### Env variables
 
@@ -29,6 +29,8 @@ Copy `env.server` to `.env.server` and fill in the values.
 ### Running
 
 `wasp start`
+
+Wasp starts the development database automatically.
 
 ## Testing
 
