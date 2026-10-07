@@ -1,6 +1,6 @@
-module Wasp.Cli.Command.Db.ArgumentsParser
-  ( StartDbArgs (..),
-    startDbArgsParser,
+module Wasp.Cli.Command.Db.StartOptions
+  ( DbStartOptions (..),
+    dbStartOptionsParser,
   )
 where
 
@@ -11,16 +11,16 @@ import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresPort)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 
-data StartDbArgs = StartDbArgs
+data DbStartOptions = DbStartOptions
   { dbPort :: Maybe PortNumber,
     dbImage :: Maybe DockerImageName,
     dbVolumeMountPath :: Maybe DockerVolumeMountPath
   }
   deriving (Eq, Show)
 
-startDbArgsParser :: Opt.Parser StartDbArgs
-startDbArgsParser =
-  StartDbArgs
+dbStartOptionsParser :: Opt.Parser DbStartOptions
+dbStartOptionsParser =
+  DbStartOptions
     <$> Opt.optional (portParser "db-port" (printf "Port to run the dev database on (default: %s)" (show defaultPostgresPort)))
     <*> Opt.optional
       ( Opt.strOption
