@@ -17,7 +17,7 @@ import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
-import qualified Wasp.Cli.Command.Db.Lifecycle as DbLifecycle
+import qualified Wasp.Cli.Command.Db.DevDb as DevDb
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
@@ -41,7 +41,7 @@ import qualified Wasp.Project.Env as Env
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ DbLifecycle.withManagedDb args.dbStartOptions $ \managedDb -> do
+start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ DevDb.withDevDb args.dbStartOptions $ \managedDb -> do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to

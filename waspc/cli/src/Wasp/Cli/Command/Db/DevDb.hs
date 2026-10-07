@@ -1,6 +1,6 @@
-module Wasp.Cli.Command.Db.Lifecycle
+module Wasp.Cli.Command.Db.DevDb
   ( start,
-    withManagedDb,
+    withDevDb,
   )
 where
 
@@ -48,15 +48,24 @@ import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: DbStartOptions -> Command ()
-start args =
-  withDatabaseSession args StartNewDatabase $ \case
-    NoDatabase ->
-      cliSendMessageC $ Msg.Info "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
-    StartedDatabase _ _ process -> do
-      cliSendMessageC $ Msg.Info "PostgreSQL is running. Ctrl+C stops PostgreSQL."
-      _ <- liftIO $ wait process
-      E.throwError $ CommandError "PostgreSQL stopped" "The database container exited. Check the PostgreSQL logs above."
-    _ -> E.throwError $ CommandError "Database not started" "No managed PostgreSQL database was started."
+start args = do
+  InWaspProject waspProjectDir <- require
+  WaspSpecAvailable <- require
+  appSpec <- analyze waspProjectDir
+  customDbError <- liftIO $ customDatabaseError appSpec
+  case customDbError of
+    Just err -> E.throwError err
+    Nothing -> case ASV.getValidDbSystem appSpec of
+      AS.App.Db.SQLite ->
+        cliSendMessageC $ Msg.Info "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
+      AS.App.Db.PostgreSQL ->
+        withPostgresSession waspProjectDir (ASV.getApp appSpec).name args StartNewDatabase $ \case
+          StartedDatabase _ _ process -> do
+            cliSendMessageC $ Msg.Info "PostgreSQL is running. Ctrl+C stops PostgreSQL."
+            _ <- liftIO $ wait process
+            E.throwError $ CommandError "PostgreSQL stopped" "The database container exited. Check the PostgreSQL logs above."
+          ReusedDatabase _ ->
+            E.throwError $ CommandError "Database not started" "No managed PostgreSQL database was started."
 
 printDbMessages :: Chan Job.JobMessage -> IO ()
 printDbMessages channel = runPrefixedWriter go
@@ -69,29 +78,42 @@ printDbMessages channel = runPrefixedWriter go
           go
         Job.JobExit _ -> return ()
 
-withManagedDb :: DbStartOptions -> (Maybe Dev.Postgres.DevDbSpec -> Command a) -> Command a
-withManagedDb args action = withDatabaseSession args EnsureDatabase (action . databaseForSession)
+withDevDb :: DbStartOptions -> (Maybe Dev.Postgres.DevDbSpec -> Command a) -> Command a
+withDevDb args action = do
+  InWaspProject waspProjectDir <- require
+  WaspSpecAvailable <- require
+  appSpec <- analyze waspProjectDir
+  customDbError <- liftIO $ customDatabaseError appSpec
+  case customDbError of
+    Just _ -> do
+      rejectUnusedOptions "DATABASE_URL is set." args
+      action Nothing
+    Nothing -> case ASV.getValidDbSystem appSpec of
+      AS.App.Db.SQLite -> do
+        rejectUnusedOptions "This project uses SQLite." args
+        action Nothing
+      AS.App.Db.PostgreSQL ->
+        withPostgresSession waspProjectDir (ASV.getApp appSpec).name args EnsureDatabase $
+          action . Just . databaseForSession
 
 data DatabaseRequest = StartNewDatabase | EnsureDatabase
   deriving (Eq)
 
 data DatabaseSession
-  = NoDatabase
-  | ReusedDatabase Dev.Postgres.DevDbSpec
+  = ReusedDatabase Dev.Postgres.DevDbSpec
   | StartedDatabase Dev.Postgres.DevDbSpec String (Async ExitCode)
 
 data PreparedDatabase
   = ExistingDatabase DatabaseSession
   | NewDatabase Dev.Postgres.DevDbSpec DockerImageName DockerVolumeMountPath
 
-databaseForSession :: DatabaseSession -> Maybe Dev.Postgres.DevDbSpec
-databaseForSession NoDatabase = Nothing
-databaseForSession (ReusedDatabase db) = Just db
-databaseForSession (StartedDatabase db _ _) = Just db
+databaseForSession :: DatabaseSession -> Dev.Postgres.DevDbSpec
+databaseForSession (ReusedDatabase db) = db
+databaseForSession (StartedDatabase db _ _) = db
 
-withDatabaseSession :: DbStartOptions -> DatabaseRequest -> (DatabaseSession -> Command a) -> Command a
-withDatabaseSession args request action = do
-  prepared <- prepare
+withPostgresSession :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseRequest -> (DatabaseSession -> Command a) -> Command a
+withPostgresSession waspProjectDir appName args request action = do
+  prepared <- preparePostgresDevDb waspProjectDir appName args request
   bracket (acquire prepared) release use
   where
     use session = do
@@ -110,23 +132,6 @@ withDatabaseSession args request action = do
             $ additionalInfoLines db
         _ -> return ()
       action session
-    prepare = do
-      InWaspProject waspProjectDir <- require
-      WaspSpecAvailable <- require
-      appSpec <- analyze waspProjectDir
-      customDbError <- liftIO $ customDatabaseError appSpec
-      case customDbError of
-        Just err -> case request of
-          StartNewDatabase -> E.throwError err
-          EnsureDatabase -> rejectUnusedOptions "DATABASE_URL is set." args >> return (ExistingDatabase NoDatabase)
-        Nothing -> case ASV.getValidDbSystem appSpec of
-          AS.App.Db.SQLite -> case request of
-            StartNewDatabase -> return (ExistingDatabase NoDatabase)
-            EnsureDatabase -> rejectUnusedOptions "This project uses SQLite." args >> return (ExistingDatabase NoDatabase)
-          AS.App.Db.PostgreSQL -> do
-            let appName = (ASV.getApp appSpec).name
-            preparePostgresDevDb waspProjectDir appName args request
-
     acquire (ExistingDatabase session) = return session
     acquire (NewDatabase db image mountPath) =
       bracketOnError

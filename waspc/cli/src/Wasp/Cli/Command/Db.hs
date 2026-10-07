@@ -7,7 +7,7 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, require, runCommand)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
-import qualified Wasp.Cli.Command.Db.Lifecycle as DbLifecycle
+import qualified Wasp.Cli.Command.Db.DevDb as DevDb
 import Wasp.Cli.Command.Db.StartOptions (dbStartOptionsParser)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -22,7 +22,7 @@ runCommandThatRequiresDbRunning commandName parser command args =
   runCommand $ withArguments commandName ((,) <$> dbStartOptionsParser <*> parser) run args
   where
     run (dbStartOptions, commandArgs) =
-      withProjectLock $ DbLifecycle.withManagedDb dbStartOptions $ \_ -> makeDbCommand (command commandArgs)
+      withProjectLock $ DevDb.withDevDb dbStartOptions $ \_ -> makeDbCommand (command commandArgs)
 
 -- | This function makes sure that all the prerequisites which db commands
 --   need are set up (e.g. makes sure Prisma CLI is installed).
