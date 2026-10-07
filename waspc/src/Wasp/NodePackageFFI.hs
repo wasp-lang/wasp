@@ -100,10 +100,10 @@ scriptInPackageDir = [relfile|dist/index.js|]
 getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
   NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> do
+    Left errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
-    NodeVersion.VersionCheckSuccess -> pure ()
+    Right () -> pure ()
 
   packageDir <- getRunnablePackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
