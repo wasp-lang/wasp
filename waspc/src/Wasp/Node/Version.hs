@@ -1,5 +1,5 @@
 module Wasp.Node.Version
-  ( VersionCheckResult (..),
+  ( VersionCheckResult,
     oldestWaspSupportedNpmVersion,
     oldestWaspSupportedNodeVersion,
     nodeTypesVersionRangeMatchingNodeMajor,
