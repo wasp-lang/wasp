@@ -10,6 +10,7 @@ module Wasp.Project.Db.Dev.Postgres
   )
 where
 
+import Control.Monad (unless)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
@@ -70,16 +71,10 @@ createDevPostgresContainer db image mountPath = do
 
 waitForDevDbReady :: DevDbSpec -> IO ()
 waitForDevDbReady devDbSpec = do
-  result <- Retry.retry (Retry.constPause 1000000) 59 checkReady
-  case result of
-    Right () -> return ()
-    Left () -> do
-      (_, output, errors) <- readProcessWithExitCode "docker" ["logs", "--tail", "30", devDbSpec.dockerContainerName] ""
-      ioError $ userError $ printf "PostgreSQL did not become ready. Check the logs below, then try again.\n%s%s" output errors
-  where
-    checkReady = do
-      ready <- isDevDbReady devDbSpec
-      return $ if ready then Right () else Left ()
+  ready <- Retry.retryUntil (Retry.constPause 1000000) 59 $ isDevDbReady devDbSpec
+  unless ready $ do
+    (_, output, errors) <- readProcessWithExitCode "docker" ["logs", "--tail", "30", devDbSpec.dockerContainerName] ""
+    ioError $ userError $ printf "PostgreSQL did not become ready. Check the logs below, then try again.\n%s%s" output errors
 
 isDevDbReady :: DevDbSpec -> IO Bool
 isDevDbReady devDbSpec = do
