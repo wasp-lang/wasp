@@ -136,26 +136,6 @@ runs:
       working-directory: waspc
       run: cabal update
 
-    # We key the Cabal store on the resolved dependency plan instead of the
-    # `.cabal` file, so changes that don't affect dependencies (e.g. adding a
-    # module or bumping our version) don't create a new cache entry.
-    - name: Compute Cabal dependency plan
-      if: ${{ inputs.haskell == 'true' }}
-      shell: bash
-      working-directory: waspc
-      run: |
-        set -euxo pipefail
-        cabal build all --dry-run
-        # We leave out our own packages, whose IDs change with every edit.
-        node -e '
-          const plan = require("./dist-newstyle/cache/plan.json");
-          const ids = plan["install-plan"]
-            .filter((unit) => unit.style !== "local")
-            .map((unit) => unit.id)
-            .sort();
-          console.log(ids.join("\n"));
-        ' > dist-newstyle/cabal-dependencies.txt
-
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
     - name: Cache Cabal store
@@ -172,21 +152,30 @@ runs:
         # are stored, as it is the most expensive part of the build, and easily
         # reusable.
         path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
-        key: >
+        key:
+          # The `v3` prefix is used so we don't restore older entries, which
+          # also had the Hackage index inside.
+          >
           ${{
             format(
-              'cabal-store-v1-{0}-{1}-{2}-{3}-{4}',
+              'cabal-v3-{0}-{1}-{2}-{3}-{4}-{5}',
+              'waspc',
               runner.os,
               runner.arch,
               steps.probe-libc.outputs.LIBC || 'unknown',
               steps.probe-ghc-cabal.outputs.GHC_VERSION,
-              hashFiles('waspc/dist-newstyle/cabal-dependencies.txt')
+              hashFiles(
+                'waspc/*.cabal',
+                'waspc/*.project',
+                'waspc/*.project.freeze'
+              )
             )
           }}
         restore-keys: >
           ${{
             format(
-              'cabal-store-v1-{0}-{1}-{2}-{3}-',
+              'cabal-v3-{0}-{1}-{2}-{3}-{4}-',
+              'waspc',
               runner.os,
               runner.arch,
               steps.probe-libc.outputs.LIBC || 'unknown',
