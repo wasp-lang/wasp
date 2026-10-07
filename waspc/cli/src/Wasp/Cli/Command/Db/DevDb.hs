@@ -11,7 +11,7 @@ where
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (Async, async, cancel, concurrently, race, wait)
 import Control.Exception (IOException, try)
-import Control.Monad (unless, when)
+import Control.Monad (forM_, unless, when)
 import Control.Monad.Catch (bracket, bracketOnError, finally)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
@@ -126,30 +126,31 @@ withPostgresSession waspProjectDir appName options policy action = do
       stopDatabase containerId `finally` (liftIO (cancel databaseJob) `finally` removeContainer containerId)
     release _ = return ()
 
-    stopDatabase containerId = do
-      cliSendMessageC $ Msg.Start "Stopping database..."
-      runDockerCleanup "stop" containerId
+stopDatabase :: String -> Command ()
+stopDatabase containerId = do
+  cliSendMessageC $ Msg.Start "Stopping database..."
+  failure <- runDockerCleanup ["stop", containerId]
+  forM_ failure $ \errors ->
+    cliSendMessageC $ Msg.Warning "Could not stop PostgreSQL" (printf "Wasp will try to remove the container. %s" errors)
 
 removeContainer :: String -> Command ()
-removeContainer = runDockerCleanup "rm"
+removeContainer containerId = do
+  failure <- runDockerCleanup ["rm", "--force", containerId]
+  forM_ failure $ \errors ->
+    cliSendMessageC $ Msg.Warning "Could not remove PostgreSQL container" (printf "Try `docker rm --force %s`. %s" containerId errors)
 
-runDockerCleanup :: String -> String -> Command ()
-runDockerCleanup operation containerId = do
-  let args = [operation] ++ ["--force" | operation == "rm"] ++ [containerId]
-  -- Let Docker finish stopping or removing the container even if the user presses Ctrl+C again.
+runDockerCleanup :: [String] -> Command (Maybe String)
+runDockerCleanup args = do
+  -- create_group keeps terminal Ctrl+C from interrupting Docker's cleanup command.
   (status, _, errors) <- liftIO $ readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
-  when (status /= ExitSuccess && not ("No such container" `isInfixOf` errors)) $
-    if operation == "stop"
-      then cliSendMessageC $ Msg.Warning "Could not stop PostgreSQL" (printf "Wasp will try to remove the container. %s" errors)
-      else cliSendMessageC $ Msg.Warning "Could not remove PostgreSQL container" (printf "Try `docker rm --force %s`. %s" containerId errors)
+  return $
+    if status == ExitSuccess || "No such container" `isInfixOf` errors
+      then Nothing
+      else Just errors
 
 rejectUnusedOptions :: String -> DbStartOptions -> Command ()
 rejectUnusedOptions reason options =
-  unless (null optionNames)
-    $ E.throwError
-    $ CommandError
-      "Database options do not apply"
-      (printf "%s These options only apply to Wasp-managed PostgreSQL: %s. Remove them to continue." reason (intercalate ", " optionNames))
+  unless (null optionNames) $ E.throwError $ CommandError "Database options do not apply" (printf "%s These options only apply to Wasp-managed PostgreSQL: %s. Remove them to continue." reason (intercalate ", " optionNames))
   where
     optionNames = suppliedOptionNames options
 
@@ -162,9 +163,7 @@ suppliedOptionNames options =
 requireDockerAvailable :: Command ()
 requireDockerAvailable = do
   (exitCode, _, stderr) <- liftIO $ readProcessWithExitCode "docker" ["info", "--format", "{{.ServerVersion}}"] ""
-  when (exitCode /= ExitSuccess)
-    $ E.throwError
-    $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
+  when (exitCode /= ExitSuccess) $ E.throwError $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
 
 preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> Command PreparedDatabase
 preparePostgresDevDb waspProjectDir appName options policy = do
@@ -204,11 +203,7 @@ preparePostgresDevDb waspProjectDir appName options policy = do
     prepareExistingDatabase devDbSpec = do
       withDatabaseError "PostgreSQL is not ready" $ Dev.Postgres.waitForDevDbReady devDbSpec
       cliSendMessageC $ Msg.Info "PostgreSQL was already running for this project. Wasp did not start it and will not stop it."
-      unless (null $ suppliedOptionNames options)
-        $ cliSendMessageC
-        $ Msg.Warning
-          "Database options not used"
-          (printf "These options only apply when starting a new container: %s. Stop the running database before changing them." (intercalate ", " (suppliedOptionNames options)))
+      unless (null $ suppliedOptionNames options) $ cliSendMessageC $ Msg.Warning "Database options not used" (printf "These options only apply when starting a new container: %s. Stop the running database before changing them." (intercalate ", " (suppliedOptionNames options)))
       return $ ReusedDatabase devDbSpec
 
     prepareDbOnPort :: PortNumber -> Command PreparedDatabase
@@ -237,9 +232,7 @@ preparePostgresDevDb waspProjectDir appName options policy = do
         pullStatus <- liftIO $ do
           channel <- newChan
           fst <$> concurrently (runProcessAsJob (proc "docker" ["pull", dbDockerImage]) Job.Db channel) (printDbMessages channel)
-        when (pullStatus /= ExitSuccess)
-          $ E.throwError
-          $ CommandError "Could not pull PostgreSQL image" (printf "Check the image name, registry access, and network connection. Image: %s" dbDockerImage)
+        when (pullStatus /= ExitSuccess) $ E.throwError $ CommandError "Could not pull PostgreSQL image" (printf "Check the image name, registry access, and network connection. Image: %s" dbDockerImage)
 
 withDatabaseError :: String -> IO a -> Command a
 withDatabaseError title action = do
