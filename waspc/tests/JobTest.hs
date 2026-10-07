@@ -1,10 +1,12 @@
 module JobTest where
 
 import Control.Concurrent (threadDelay)
+import Control.Monad (unless)
 import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import System.Exit (ExitCode (..))
+import qualified System.Info
 import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, it, shouldReturn)
@@ -64,12 +66,15 @@ spec_Job = do
       timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob failingJob)
         `shouldReturn` Just (Left "Failed with 7")
 
-    it "stops the process of the job that didn't finish" $ do
-      -- The process exits by itself after a while, so that the test fails
-      -- instead of hanging if stopping it doesn't work.
-      let slowProcess = (node "setTimeout(() => {}, 10000)") {P.create_group = True}
-      timeout (secondsToMicroSeconds 5) (runJob $ Job.race (Job.fromProc slowProcess) (return ()))
-        `shouldReturn` Just (Right (Right ()))
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "stops the process of the job that didn't finish" $ do
+        -- The process exits by itself after a while, so that the test fails
+        -- instead of hanging if stopping it doesn't work.
+        let slowProcess = (node "setTimeout(() => {}, 10000)") {P.create_group = True}
+        timeout (secondsToMicroSeconds 5) (runJob $ Job.race (Job.fromProc slowProcess) (return ()))
+          `shouldReturn` Just (Right (Right ()))
 
   describe "fromProc" $ do
     it "returns the exit code of the process without failing the job" $ do
