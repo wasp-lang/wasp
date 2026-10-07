@@ -2,7 +2,7 @@ import { CardLink } from '@site/src/components/CardLink'
 
 # Database
 
-In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local dev database (started with `wasp start db` or some other way). However, when it's time to deploy your app, you'll need to set up a production database.
+In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local development database that Wasp starts when needed. However, when it's time to deploy your app, you'll need to set up a production database.
 
 ### Production database requirements
 
