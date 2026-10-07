@@ -1,8 +1,8 @@
 -- | This module captures how Wasp runs a PostgreSQL dev database.
 module Wasp.Project.Db.Dev.Postgres
   ( makeDevPostgresDbSpec,
-    createDevPostgresDb,
-    waitForReadyDevDb,
+    createDevPostgresContainer,
+    waitForDevDbReady,
     DevDbSpec (..),
     getDevConnectionUrl,
     discoverProjectsRunningDevDb,
@@ -45,8 +45,8 @@ getDevConnectionUrl :: DevDbSpec -> String
 getDevConnectionUrl devDbSpec =
   makeConnectionUrl devDbSpec.user devDbSpec.password devDbSpec.port devDbSpec.dbName
 
-createDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO String
-createDevPostgresDb db image mountPath = do
+createDevPostgresContainer :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO String
+createDevPostgresContainer db image mountPath = do
   -- create_group keeps Docker outside the terminal's Ctrl+C group so it can return the container ID needed for cleanup.
   (status, output, errors) <- readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
   case (status, words output) of
@@ -68,8 +68,8 @@ createDevPostgresDb db image mountPath = do
           [image]
         ]
 
-waitForReadyDevDb :: DevDbSpec -> IO ()
-waitForReadyDevDb devDbSpec = do
+waitForDevDbReady :: DevDbSpec -> IO ()
+waitForDevDbReady devDbSpec = do
   result <- Retry.retry (Retry.constPause 1000000) 59 checkReady
   case result of
     Right () -> return ()
