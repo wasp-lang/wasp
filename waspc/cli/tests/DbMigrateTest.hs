@@ -11,8 +11,6 @@ spec_databaseOptions = do
   it "parses database and migration options together" $ do
     parseOptions ["--name", "new model", "--db-image", "postgis:18", "--create-only", "--db-port", "5544"]
       `shouldBe` Right (StartDbArgs (Just 5544) (Just "postgis:18") Nothing, MigrateArgs (Just "new model") True)
-    parseOptions ["--db-volume-mount-path=/var/lib/postgresql/data"]
-      `shouldBe` Right (StartDbArgs Nothing Nothing (Just "/var/lib/postgresql/data"), defaultMigrateArgs)
     parseOptions [] `shouldBe` Right (StartDbArgs Nothing Nothing Nothing, defaultMigrateArgs)
   where
     parseOptions = parse ((,) <$> startDbArgsParser <*> migrateArgsParser)

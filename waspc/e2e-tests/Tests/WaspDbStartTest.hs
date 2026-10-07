@@ -11,6 +11,7 @@ import ShellCommands
     setWaspDbToPSQL,
     skipIfDockerDisabled,
     waspCliDbMigrateDev,
+    waspCliDbStart,
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -25,11 +26,11 @@ waspDbStartTest =
         "fail-outside-project"
         (return [waspCliDbStartFails]),
       TestCase
-        "fail-sqlite-project"
+        "succeed-sqlite-project"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ assertCommandOutputContains (return waspCliDbStartFails) "SQLite uses a local file"
+                [ waspCliDbStart
                 ]
             ]
         ),
@@ -50,43 +51,41 @@ waspDbStartTest =
         "succeed-postgresql-project"
         ( skipIfDockerDisabled . sequence $
             [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  installDbCleanup,
-                  -- Test 1: Does `wasp db start` work?
-                  waspCliDbStartInBackground,
-                  -- Test 2: Does a Wasp command find the database and connect to it
-                  -- after `wasp db start` says it's ready?
-                  waitUntilDevDbReportsItIsReady,
-                  waspCliDbMigrateDev "first_migration",
-                  assertDevDbRunning,
-                  -- Test 3: Does the second `wasp db start` detect and report
-                  -- an already running dev database?
-                  assertCommandOutputContains
-                    (return "! timeout 30 $WASP_CLI_CMD db start")
-                    "PostgreSQL already running",
-                  -- Test 4:
-                  --   - Does stopping PostgreSQL delete the container?
-                  --     If it didn't delete the container, the next `wasp db start` would fail
-                  --     with a container name conflict.
-                  --   - Does `wasp db start` find a new port when the default one is taken?
-                  stopDevDbAndWait,
-                  occupyDefaultDevDbPort,
-                  waspCliDbStartInBackground,
-                  waitUntilDevDbReportsItIsReady,
-                  -- Test 5: Does a Wasp command find and connect to the database
-                  -- even when it's running on a non-default port?
-                  waspCliDbMigrateDev "no_new_migration",
-                  removeDefaultDevDbPortHolder,
-                  stopDevDbAndWait,
-                  assertDevDbRemoved,
-                  waspCliDbMigrateDev "automatic_start",
-                  assertDevDbRemoved,
-                  return "$WASP_CLI_CMD db reset --force",
-                  assertDevDbRemoved,
-                  -- Test 6: Can the user remove the volume reported by `wasp db start`?
-                  removeReportedDevDbVolume
-                ]
+              inTestWaspProjectDir $
+                concat
+                  [ [setWaspDbToPSQL, installDbCleanup],
+                    -- Migration reuses a separately started database and leaves it running.
+                    [ waspCliDbStartInBackground,
+                      waitUntilDevDbReportsItIsReady,
+                      waspCliDbMigrateDev "first_migration",
+                      assertDevDbRunning,
+                      assertCommandOutputContains
+                        (return waspCliDbStartFails)
+                        "PostgreSQL already running",
+                      stopDevDbAndWait,
+                      assertDevDbRemoved
+                    ],
+                    -- Startup finds another port when the default is occupied.
+                    [ occupyDefaultDevDbPort,
+                      waspCliDbStartInBackground,
+                      waitUntilDevDbReportsItIsReady,
+                      waspCliDbMigrateDev "no_new_migration",
+                      assertDevDbRunning,
+                      removeDefaultDevDbPortHolder,
+                      stopDevDbAndWait,
+                      assertDevDbRemoved
+                    ],
+                    -- Migration starts and removes its own database.
+                    [ waspCliDbMigrateDev "automatic_start",
+                      assertDevDbRemoved
+                    ],
+                    -- Reset starts and removes its own database.
+                    [ return "$WASP_CLI_CMD db reset --force",
+                      assertDevDbRemoved
+                    ],
+                    -- The reported data volume remains available for explicit removal.
+                    [removeReportedDevDbVolume]
+                  ]
             ]
         )
     ]
@@ -109,6 +108,7 @@ stopDevDbAndWait =
       ++ reportedDevDbVolumeName
       ++ "\")\" && { wait \"$(cat db-start.pid)\" || true; } && rm db-start.pid; }"
 
+-- Wasp prints the volume name after its database readiness check succeeds.
 waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
 waitUntilDevDbReportsItIsReady =
   return $
