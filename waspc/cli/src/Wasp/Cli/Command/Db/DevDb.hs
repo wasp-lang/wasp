@@ -48,21 +48,21 @@ import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: DbStartOptions -> Command ()
-start args = do
+start options = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir
-  customDbError <- liftIO $ customDatabaseError appSpec
-  case customDbError of
-    Just err -> E.throwError err
+  databaseUrlSource <- liftIO $ findDatabaseUrlSource appSpec
+  case databaseUrlSource of
+    Just source -> throwCustomDatabaseError source
     Nothing -> case ASV.getValidDbSystem appSpec of
       AS.App.Db.SQLite ->
         cliSendMessageC $ Msg.Info "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
       AS.App.Db.PostgreSQL ->
-        withPostgresSession waspProjectDir (ASV.getApp appSpec).name args StartNewDatabase $ \case
-          StartedDatabase _ _ process -> do
+        withPostgresSession waspProjectDir (ASV.getApp appSpec).name options StartNewDatabase $ \case
+          StartedDatabase _ _ databaseJob -> do
             cliSendMessageC $ Msg.Info "PostgreSQL is running. Ctrl+C stops PostgreSQL."
-            _ <- liftIO $ wait process
+            _ <- liftIO $ wait databaseJob
             E.throwError $ CommandError "PostgreSQL stopped" "The database container exited. Check the PostgreSQL logs above."
           ReusedDatabase _ ->
             E.throwError $ CommandError "Database not started" "No managed PostgreSQL database was started."
@@ -79,24 +79,24 @@ printDbMessages channel = runPrefixedWriter go
         Job.JobExit _ -> return ()
 
 withDevDb :: DbStartOptions -> (Maybe Dev.Postgres.DevDbSpec -> Command a) -> Command a
-withDevDb args action = do
+withDevDb options action = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir
-  customDbError <- liftIO $ customDatabaseError appSpec
-  case customDbError of
+  databaseUrlSource <- liftIO $ findDatabaseUrlSource appSpec
+  case databaseUrlSource of
     Just _ -> do
-      rejectUnusedOptions "DATABASE_URL is set." args
+      rejectUnusedOptions "DATABASE_URL is set." options
       action Nothing
     Nothing -> case ASV.getValidDbSystem appSpec of
       AS.App.Db.SQLite -> do
-        rejectUnusedOptions "This project uses SQLite." args
+        rejectUnusedOptions "This project uses SQLite." options
         action Nothing
       AS.App.Db.PostgreSQL ->
-        withPostgresSession waspProjectDir (ASV.getApp appSpec).name args EnsureDatabase $
-          action . Just . databaseForSession
+        withPostgresSession waspProjectDir (ASV.getApp appSpec).name options StartOrReuseDatabase $
+          action . Just . getDatabaseForSession
 
-data DatabaseRequest = StartNewDatabase | EnsureDatabase
+data DatabaseStartPolicy = StartNewDatabase | StartOrReuseDatabase
   deriving (Eq)
 
 data DatabaseSession
@@ -104,51 +104,51 @@ data DatabaseSession
   | StartedDatabase Dev.Postgres.DevDbSpec String (Async ExitCode)
 
 data PreparedDatabase
-  = ExistingDatabase DatabaseSession
-  | NewDatabase Dev.Postgres.DevDbSpec DockerImageName DockerVolumeMountPath
+  = ReuseDatabase DatabaseSession
+  | CreateDatabase Dev.Postgres.DevDbSpec DockerImageName DockerVolumeMountPath
 
-databaseForSession :: DatabaseSession -> Dev.Postgres.DevDbSpec
-databaseForSession (ReusedDatabase db) = db
-databaseForSession (StartedDatabase db _ _) = db
+getDatabaseForSession :: DatabaseSession -> Dev.Postgres.DevDbSpec
+getDatabaseForSession (ReusedDatabase db) = db
+getDatabaseForSession (StartedDatabase db _ _) = db
 
-withPostgresSession :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseRequest -> (DatabaseSession -> Command a) -> Command a
-withPostgresSession waspProjectDir appName args request action = do
-  prepared <- preparePostgresDevDb waspProjectDir appName args request
+withPostgresSession :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> (DatabaseSession -> Command a) -> Command a
+withPostgresSession waspProjectDir appName options policy action = do
+  prepared <- preparePostgresDevDb waspProjectDir appName options policy
   bracket (acquire prepared) release use
   where
     use session = do
       case session of
-        StartedDatabase db _ process -> do
+        StartedDatabase db _ databaseJob -> do
           result <-
             withDatabaseError "Could not start PostgreSQL" $
-              race (wait process) (Dev.Postgres.waitForReadyDevDb db)
+              race (wait databaseJob) (Dev.Postgres.waitForDevDbReady db)
           case result of
             Left _ -> E.throwError $ CommandError "Could not start PostgreSQL" "The Docker process exited before PostgreSQL was ready. Check the database output above."
             Right () -> return ()
-          when (request == StartNewDatabase)
+          when (policy == StartNewDatabase)
             $ cliSendMessageC
             $ Msg.Info
             $ unlines
             $ additionalInfoLines db
         _ -> return ()
       action session
-    acquire (ExistingDatabase session) = return session
-    acquire (NewDatabase db image mountPath) =
+    acquire (ReuseDatabase session) = return session
+    acquire (CreateDatabase db image mountPath) =
       bracketOnError
-        (withDatabaseError "Could not start PostgreSQL" $ Dev.Postgres.createDevPostgresDb db image mountPath)
+        (withDatabaseError "Could not start PostgreSQL" $ Dev.Postgres.createDevPostgresContainer db image mountPath)
         removeContainer
         ( \containerId -> do
-            process <- liftIO $ async $ do
+            databaseJob <- liftIO $ async $ do
               channel <- newChan
               fst
                 <$> concurrently
                   (runProcessAsJob (proc "docker" ["start", "--attach", containerId]) Job.Db channel)
                   (printDbMessages channel)
-            return $ StartedDatabase db containerId process
+            return $ StartedDatabase db containerId databaseJob
         )
 
-    release (StartedDatabase _ containerId process) =
-      stopDatabase containerId `finally` (liftIO (cancel process) `finally` removeContainer containerId)
+    release (StartedDatabase _ containerId databaseJob) =
+      stopDatabase containerId `finally` (liftIO (cancel databaseJob) `finally` removeContainer containerId)
     release _ = return ()
 
     stopDatabase containerId = do
@@ -169,20 +169,20 @@ runDockerCleanup operation containerId = do
       else cliSendMessageC $ Msg.Warning "Could not remove PostgreSQL container" (printf "Try `docker rm --force %s`. %s" containerId errors)
 
 rejectUnusedOptions :: String -> DbStartOptions -> Command ()
-rejectUnusedOptions source args =
-  unless (null options)
+rejectUnusedOptions reason options =
+  unless (null optionNames)
     $ E.throwError
     $ CommandError
       "Database options do not apply"
-      (printf "%s These options only apply to Wasp-managed PostgreSQL: %s. Remove them to continue." source (intercalate ", " options))
+      (printf "%s These options only apply to Wasp-managed PostgreSQL: %s. Remove them to continue." reason (intercalate ", " optionNames))
   where
-    options = suppliedOptionNames args
+    optionNames = suppliedOptionNames options
 
 suppliedOptionNames :: DbStartOptions -> [String]
-suppliedOptionNames args =
-  ["--db-port" | isJust args.dbPort]
-    ++ ["--db-image" | isJust args.dbImage]
-    ++ ["--db-volume-mount-path" | isJust args.dbVolumeMountPath]
+suppliedOptionNames options =
+  ["--db-port" | isJust options.dbPort]
+    ++ ["--db-image" | isJust options.dbImage]
+    ++ ["--db-volume-mount-path" | isJust options.dbVolumeMountPath]
 
 requireDockerAvailable :: Command ()
 requireDockerAvailable = do
@@ -191,15 +191,15 @@ requireDockerAvailable = do
     $ E.throwError
     $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
 
-preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseRequest -> Command PreparedDatabase
-preparePostgresDevDb waspProjectDir appName args request = do
+preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> Command PreparedDatabase
+preparePostgresDevDb waspProjectDir appName options policy = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   requireDockerAvailable
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
-    Just runningDb -> case request of
+    Just runningDb -> case policy of
       StartNewDatabase ->
         E.throwError $
           CommandError
@@ -210,30 +210,30 @@ preparePostgresDevDb waspProjectDir appName args request = do
                 runningDb.dockerContainerName
                 (unlines $ additionalInfoLines runningDb)
             )
-      EnsureDatabase -> ExistingDatabase <$> reportReusedDb runningDb
+      StartOrReuseDatabase -> ReuseDatabase <$> prepareExistingDatabase runningDb
     Nothing -> prepareDbOnPort =<< resolveDevDbPort
   where
-    dbDockerImage = fromMaybe (fst defaultPostgresDockerImageSpec) args.dbImage
-    dbDockerVolumeMountPath = fromMaybe (snd defaultPostgresDockerImageSpec) args.dbVolumeMountPath
+    dbDockerImage = fromMaybe (fst defaultPostgresDockerImageSpec) options.dbImage
+    dbDockerVolumeMountPath = fromMaybe (snd defaultPostgresDockerImageSpec) options.dbVolumeMountPath
 
     resolveDevDbPort :: Command PortNumber
     resolveDevDbPort =
       resolvePort
-        args.dbPort
+        options.dbPort
         defaultPostgresPort
         []
         "Choose a different port with --db-port, or free up this one."
         "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
 
-    reportReusedDb :: Dev.Postgres.DevDbSpec -> Command DatabaseSession
-    reportReusedDb devDbSpec = do
-      withDatabaseError "PostgreSQL is not ready" $ Dev.Postgres.waitForReadyDevDb devDbSpec
+    prepareExistingDatabase :: Dev.Postgres.DevDbSpec -> Command DatabaseSession
+    prepareExistingDatabase devDbSpec = do
+      withDatabaseError "PostgreSQL is not ready" $ Dev.Postgres.waitForDevDbReady devDbSpec
       cliSendMessageC $ Msg.Info "PostgreSQL was already running for this project. Wasp did not start it and will not stop it."
-      unless (null $ suppliedOptionNames args)
+      unless (null $ suppliedOptionNames options)
         $ cliSendMessageC
         $ Msg.Warning
           "Database options not used"
-          (printf "These options only apply when starting a new container: %s. Stop the running database before changing them." (intercalate ", " (suppliedOptionNames args)))
+          (printf "These options only apply when starting a new container: %s. Stop the running database before changing them." (intercalate ", " (suppliedOptionNames options)))
       return $ ReusedDatabase devDbSpec
 
     prepareDbOnPort :: PortNumber -> Command PreparedDatabase
@@ -242,7 +242,7 @@ preparePostgresDevDb waspProjectDir appName args request = do
       ensureImageAvailable
       cliSendMessageC $ Msg.Start "Starting PostgreSQL..."
       cliSendMessageC $ Msg.Info $ unlines dockerRunInfoLines
-      return $ NewDatabase devDbSpec dbDockerImage dbDockerVolumeMountPath
+      return $ CreateDatabase devDbSpec dbDockerImage dbDockerVolumeMountPath
 
     -- These lines describe what Docker is about to use, so we print them
     -- only when starting the database: an already running container might have
@@ -284,26 +284,30 @@ additionalInfoLines db =
     printf "     %s" db.dockerVolumeName
   ]
 
-customDatabaseError :: AS.AppSpec -> IO (Maybe CommandError)
-customDatabaseError appSpec = do
+data DatabaseUrlSource = Environment | ServerDotEnv
+
+findDatabaseUrlSource :: AS.AppSpec -> IO (Maybe DatabaseUrlSource)
+findDatabaseUrlSource appSpec = do
   envUrl <- lookupEnv databaseUrlEnvVarName
   return $
     if isJust envUrl
-      then
-        Just
-          $ errorWithMessage
-          $ printf
-            "Wasp has detected existing %s var in your environment.\nTo have Wasp run the dev database for you, make sure you remove that env var first."
-            databaseUrlEnvVarName
+      then Just Environment
       else
         if any ((== databaseUrlEnvVarName) . fst) appSpec.devEnvVarsServer
-          then
-            Just
-              $ errorWithMessage
-              $ printf
-                "Wasp has detected that you have defined %s env var in your %s file.\nTo have Wasp run the dev database for you, make sure you remove that env var first."
-                databaseUrlEnvVarName
-                (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
+          then Just ServerDotEnv
           else Nothing
+
+throwCustomDatabaseError :: DatabaseUrlSource -> Command a
+throwCustomDatabaseError source =
+  E.throwError $ CommandError "You are using custom database already" message
   where
-    errorWithMessage = CommandError "You are using custom database already"
+    message = case source of
+      Environment ->
+        printf
+          "Wasp has detected existing %s var in your environment.\nTo have Wasp run the dev database for you, make sure you remove that env var first."
+          databaseUrlEnvVarName
+      ServerDotEnv ->
+        printf
+          "Wasp has detected that you have defined %s env var in your %s file.\nTo have Wasp run the dev database for you, make sure you remove that env var first."
+          databaseUrlEnvVarName
+          (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
