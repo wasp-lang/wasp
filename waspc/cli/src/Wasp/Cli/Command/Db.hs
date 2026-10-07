@@ -11,7 +11,7 @@ import Wasp.Cli.Command.Compile (defaultCompileOptions, withSetupGoals)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Command.Db.ArgumentsParser (startDbArgsParser)
+import Wasp.Cli.Command.Db.StartOptions (dbStartOptionsParser)
 import qualified Wasp.Cli.Command.Db.Lifecycle as DbLifecycle
 import Wasp.Cli.Compile (waitEnsureCompile)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
@@ -21,9 +21,9 @@ runCommandThatRequiresDbRunning :: ArgsParser a -> (a -> Command ()) -> Argument
 runCommandThatRequiresDbRunning parser command args =
   runCommand $ withArguments databaseArgsParser run args
   where
-    databaseArgsParser = parser {optParser = (,) <$> startDbArgsParser <*> parser.optParser}
-    run (dbArgs, commandArgs) =
-      DbLifecycle.withManagedDb dbArgs $ \_ -> command commandArgs
+    databaseArgsParser = parser {optParser = (,) <$> dbStartOptionsParser <*> parser.optParser}
+    run (dbStartOptions, commandArgs) =
+      DbLifecycle.withManagedDb dbStartOptions $ \_ -> command commandArgs
 
 -- | Prepares what a db command needs before it runs: a compile,
 --   post-compile setup, and a reachable database.

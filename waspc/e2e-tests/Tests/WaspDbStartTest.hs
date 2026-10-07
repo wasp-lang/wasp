@@ -112,7 +112,9 @@ stopDevDbAndWait =
 waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
 waitUntilDevDbReportsItIsReady =
   return $
-    "{ retries=180; until grep -q 'Data volume:' "
+    "{ retries=180; until grep -q '"
+      ++ Dev.Postgres.waspDevDbDockerVolumePrefix
+      ++ "' "
       ++ devDbOutputFile
       ++ "; do retries=$((retries - 1)); [ \"$retries\" -gt 0 ] || exit 1; sleep 1; done ; }"
 

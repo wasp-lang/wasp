@@ -42,7 +42,7 @@ import qualified Wasp.Project.Env as Env
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
 start = withArguments startArgsParser $ \args ->
-  ProjectLock.acquireWatcher $ \projectLock -> DbLifecycle.withManagedDb args.dbArgs $ \managedDb -> do
+  ProjectLock.acquireWatcher $ \projectLock -> DbLifecycle.withManagedDb args.dbStartOptions $ \managedDb -> do
     -- We check for the news only in `wasp start`, and only periodically,
     -- to avoid being too aggressive. Specifically:
     --   - We don't run it in other `wasp` commands because we don't want to
