@@ -7,7 +7,7 @@ import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Test as WebAppTest
-import qualified Wasp.Job.Fictional as Job
+import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir)
 
 testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())

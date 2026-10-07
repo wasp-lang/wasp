@@ -147,7 +147,6 @@ library
     path-io ^>=1.8.2,
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
-    resourcet ^>=1.3.0,
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
@@ -158,9 +157,7 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
-  other-modules:
-    Paths_waspc
-
+  other-modules: Paths_waspc
   exposed-modules:
     Wasp.AppComponentUrl
     Wasp.AppSpec
@@ -317,7 +314,8 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
-    Wasp.Job.Fictional
+    Wasp.Job
+    Wasp.Job.Printer
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
@@ -548,7 +546,6 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
-    async,
     base,
     containers,
     deepseq,
@@ -560,7 +557,6 @@ test-suite waspc-tests
     network-uri,
     parsec,
     process,
-    resourcet,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
@@ -592,6 +588,7 @@ test-suite waspc-tests
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
+    JobTest
     JsImportTest
     Node.InternalTest
     Paths_waspc

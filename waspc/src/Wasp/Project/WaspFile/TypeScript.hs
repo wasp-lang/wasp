@@ -26,8 +26,8 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
-import Wasp.Job.Fictional (inheritEnvWith)
-import qualified Wasp.Job.Fictional as Job
+import Wasp.Env (inheritEnvWith)
+import qualified Wasp.Job as Job
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common

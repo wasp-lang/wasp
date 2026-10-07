@@ -18,14 +18,13 @@ import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import System.Exit (ExitCode)
 import System.Process (CreateProcess (..), StdStream (..), proc)
-import Wasp.Env (getEnvVars)
+import Wasp.Env (getEnvVars, inheritEnvWith)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
-import Wasp.Job.Fictional (inheritEnvWith)
-import qualified Wasp.Job.Fictional as J
+import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job e ExitCode

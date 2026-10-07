@@ -10,7 +10,7 @@ import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
-import qualified Wasp.Job.Fictional as Job
+import qualified Wasp.Job as Job
 
 buildServer :: BuildStartConfig -> Job.Job e ExitCode
 buildServer config =

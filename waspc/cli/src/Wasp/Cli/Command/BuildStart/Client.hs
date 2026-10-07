@@ -8,9 +8,8 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode)
 import System.Process (CreateProcess (..), proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Env (getEnvVars)
-import Wasp.Job.Fictional (inheritEnvWith)
-import qualified Wasp.Job.Fictional as Job
+import Wasp.Env (getEnvVars, inheritEnvWith)
+import qualified Wasp.Job as Job
 
 buildClient :: BuildStartConfig -> Job.Job e ExitCode
 buildClient config = do

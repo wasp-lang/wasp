@@ -19,7 +19,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import qualified Wasp.Job.Fictional as Job
+import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
@@ -66,11 +66,11 @@ buildAndStartServerAndClient config = do
   void
     $ Job.run
     $ Job.race
-      ( Job.maybeFailWith (makeExitError startErrorTitle "Starting the client")
+      ( Job.maybeFailWith (makeExitError startErrorTitle "Serving the client")
           $ Job.prefixWith Job.WebApp
           $ startClient config
       )
-      ( Job.maybeFailWith (makeExitError startErrorTitle "Starting the server")
+      ( Job.maybeFailWith (makeExitError startErrorTitle "Running the server")
           $ Job.prefixWith Job.Server
           $ startServer config
       )
