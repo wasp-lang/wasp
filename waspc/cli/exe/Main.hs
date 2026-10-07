@@ -23,6 +23,7 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTem
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
+import qualified Wasp.Cli.Command.Db.Start as Command.Db.Start
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
@@ -32,7 +33,6 @@ import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
-import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
@@ -214,7 +214,7 @@ dbCli :: [String] -> IO ()
 dbCli args = case args of
   [helpArg] | isHelpArg helpArg -> printDbUsage
   -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
+  "start" : optionalStartArgs -> runCommand $ Command.Db.Start.start optionalStartArgs
   -- These commands require an existing and running database.
   "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
