@@ -104,11 +104,7 @@ withPostgresSession waspProjectDir appName options policy action = do
           case result of
             Left _ -> E.throwError $ CommandError "Could not start PostgreSQL" "The Docker process exited before PostgreSQL was ready. Check the database output above."
             Right () -> return ()
-          when (policy == StartNewDatabase)
-            $ cliSendMessageC
-            $ Msg.Info
-            $ unlines
-            $ additionalInfoLines db
+          when (policy == StartNewDatabase) $ cliSendMessageC $ Msg.Info $ unlines $ additionalInfoLines db
         _ -> return ()
       action session
     acquire (ReuseDatabase session) = return session
