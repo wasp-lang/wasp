@@ -1,15 +1,16 @@
 module JobTest where
 
-import Control.Concurrent (threadDelay)
-import Control.Monad (unless)
+import Control.Concurrent (newEmptyMVar, takeMVar, threadDelay, tryPutMVar)
+import Control.Monad (unless, void)
 import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
+import qualified Data.Text as T
 import System.Exit (ExitCode (..))
 import qualified System.Info
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, it, shouldReturn)
+import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -70,11 +71,21 @@ spec_Job = do
     -- because reading the process's output can't be interrupted there.
     unless (System.Info.os == "mingw32") $
       it "stops the process of the job that didn't finish" $ do
+        processStarted <- newEmptyMVar
         -- The process exits by itself after a while, so that the test fails
         -- instead of hanging if stopping it doesn't work.
-        let slowProcess = (node "setTimeout(() => {}, 10000)") {P.create_group = True}
-        timeout (secondsToMicroSeconds 5) (runJob $ Job.race (Job.fromProc slowProcess) (return ()))
-          `shouldReturn` Just (Right (Right ()))
+        let slowProcess = (node "console.log(process.pid); setTimeout(() => {}, 10000)") {P.create_group = True}
+            slowJob = Job.onOutput (void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
+            jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
+        result <-
+          timeout (secondsToMicroSeconds 5)
+            $ runJob
+            $ Job.captureOutput
+            $ Job.race slowJob jobThatFinishesOnceProcessStarts
+        case result of
+          Just (Right (Right (), output)) ->
+            waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
+          _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
   describe "fromProc" $ do
     it "returns the exit code of the process without failing the job" $ do
@@ -103,3 +114,14 @@ failOnExitFailure (ExitFailure code) = Just $ "Failed with " <> show code
 
 node :: String -> P.CreateProcess
 node script = P.proc "node" ["-e", script]
+
+-- | Returns whether the process with the given ID exits within 5 seconds.
+waitForProcessToExit :: Int -> IO Bool
+waitForProcessToExit pid = go (50 :: Int)
+  where
+    go 0 = return False
+    go attemptsLeft = do
+      (exitCode, _, _) <- P.readCreateProcessWithExitCode (node $ "process.kill(" <> show pid <> ", 0)") ""
+      if exitCode /= ExitSuccess
+        then return True
+        else threadDelay (secondsToMicroSeconds 1 `div` 10) >> go (attemptsLeft - 1)
