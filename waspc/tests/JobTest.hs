@@ -65,30 +65,32 @@ spec_Job = do
         `shouldReturn` Just (Left "Failed with 7")
 
     it "stops the process of the job that didn't finish" $ do
-      let neverEndingProcess = (node "setInterval(() => {}, 1000)") {P.create_group = True}
-      timeout
-        (secondsToMicroSeconds 5)
-        (runJob $ Job.race (Job.fromProc neverEndingProcess) (return ()))
+      -- The process exits by itself after a while, so that the test fails
+      -- instead of hanging if stopping it doesn't work.
+      let slowProcess = (node "setTimeout(() => {}, 10000)") {P.create_group = True}
+      timeout (secondsToMicroSeconds 5) (runJob $ Job.race (Job.fromProc slowProcess) (return ()))
         `shouldReturn` Just (Right (Right ()))
 
   describe "fromProc" $ do
     it "returns the exit code of the process without failing the job" $ do
-      runJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Right (ExitFailure 7)
+      runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (Right (ExitFailure 7))
 
     it "emits the process's stdout and stderr" $ do
       let process = node "process.stdout.write('out'); setTimeout(() => process.stderr.write('err'), 100);"
-      runJob (Job.captureOutput $ Job.fromProc process)
-        `shouldReturn` Right (ExitSuccess, "outerr")
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (Right (ExitSuccess, "outerr"))
 
     it "gives an empty stdin to a process that asks for a pipe" $ do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
-      timeout
-        (secondsToMicroSeconds 10)
-        (runJob $ Job.fromProc readsStdinToEnd {P.std_in = P.CreatePipe})
+      runProcessJob (Job.fromProc readsStdinToEnd {P.std_in = P.CreatePipe})
         `shouldReturn` Just (Right (ExitFailure 3))
 
 runJob :: Job.Job String a -> IO (Either String a)
 runJob = runExceptT . Job.run
+
+-- | Fails the test instead of hanging it if the process doesn't finish.
+runProcessJob :: Job.Job String a -> IO (Maybe (Either String a))
+runProcessJob = timeout (secondsToMicroSeconds 10) . runJob
 
 failOnExitFailure :: ExitCode -> Maybe String
 failOnExitFailure ExitSuccess = Nothing
