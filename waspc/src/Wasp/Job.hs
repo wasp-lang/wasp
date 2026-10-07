@@ -15,8 +15,8 @@ module Wasp.Job
   )
 where
 
+import Control.Concurrent (forkIO)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (IOException, bracket, finally, try)
 import Control.Monad (void)
 import Control.Monad.Except (ExceptT (..), MonadError (throwError), liftEither, runExceptT)
 import Control.Monad.IO.Class (MonadIO (..))
@@ -32,6 +32,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Info
 import qualified System.Process as P
+import UnliftIO.Exception (bracket)
 import Wasp.Job.Printer (JobKind (..), OutputKind (..))
 import qualified Wasp.Job.Printer as Printer
 
@@ -111,8 +112,10 @@ fromProc process = Job $ do
           *> Async.Concurrently (forwardOutput (emit Stderr) stderrHandle)
           *> Async.Concurrently (P.waitForProcess processHandle)
 
-    cleanUp resources@(_, _, _, processHandle) =
-      terminate processHandle `finally` closeHandles resources
+    cleanUp (_, _, _, processHandle) = do
+      terminate processHandle
+      -- Reaps the process once it exits, without making the job wait for it.
+      void $ forkIO $ void $ P.waitForProcess processHandle
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
@@ -131,13 +134,6 @@ forwardOutput _ Nothing = return ()
 forwardOutput emit (Just handle) =
   runConduit $
     CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit
-
-closeHandles :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
-closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =
-  mapM_ closeHandle [stdinHandle, stdoutHandle, stderrHandle]
-  where
-    closeHandle Nothing = return ()
-    closeHandle (Just handle) = void (try (hClose handle) :: IO (Either IOException ()))
 
 withSink :: (Sink -> Sink) -> Job e a -> Job e a
 withSink modifySink (Job job) = Job $ local modifySink job
