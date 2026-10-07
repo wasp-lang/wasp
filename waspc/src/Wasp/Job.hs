@@ -5,10 +5,10 @@ module Wasp.Job
     run,
     race,
     OutputKind (..),
-    emitJobOutput,
+    emitOutput,
     captureOutput,
     onOutput,
-    maybeFailWith,
+    failOnExitFailure,
     fromProc,
     JobKind (..),
     prefixWith,
@@ -28,7 +28,7 @@ import qualified Data.Conduit.Text as CT
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
-import System.Exit (ExitCode)
+import System.Exit (ExitCode (..))
 import System.IO (Handle, hClose)
 import qualified System.Info
 import qualified System.Process as P
@@ -63,8 +63,8 @@ race left right = Job $ ReaderT $ \sink ->
     either (fmap Left) (fmap Right)
       <$> Async.race (runWithSink sink left) (runWithSink sink right)
 
-emitJobOutput :: OutputKind -> Text -> Job e ()
-emitJobOutput outputKind output = Job $ do
+emitOutput :: OutputKind -> Text -> Job e ()
+emitOutput outputKind output = Job $ do
   sink <- ask
   liftIO $ sink Nothing outputKind output
 
@@ -84,9 +84,12 @@ onOutput action = withSink $ \sink jobKind outputKind output ->
   action >> sink jobKind outputKind output
 
 -- | Fails the job with the error that the given function returns for its exit
--- code, if any.
-maybeFailWith :: (ExitCode -> Maybe e) -> Job e ExitCode -> Job e ()
-maybeFailWith toError job = job >>= maybe (return ()) (Job . throwError) . toError
+-- code, unless it exited successfully.
+failOnExitFailure :: (Int -> e) -> Job e ExitCode -> Job e ()
+failOnExitFailure toError job =
+  job >>= \case
+    ExitSuccess -> return ()
+    ExitFailure code -> Job $ throwError $ toError code
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.

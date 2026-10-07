@@ -4,7 +4,6 @@ module Wasp.Cli.Command.BuildStart
 where
 
 import Control.Monad (void)
-import System.Exit (ExitCode (..))
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
@@ -46,14 +45,14 @@ buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
   Job.run
-    $ Job.maybeFailWith (makeExitError "Building client failed." "Building the client")
+    $ Job.failOnExitFailure (makeExitError "Building client failed." "Building the client")
     $ Job.prefixWith Job.WebApp
     $ buildClient config
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
   Job.run
-    $ Job.maybeFailWith (makeExitError "Building server failed." "Building the server")
+    $ Job.failOnExitFailure (makeExitError "Building server failed." "Building the server")
     $ Job.prefixWith Job.Server
     $ buildServer config
   cliSendMessageC $ Msg.Success "Server built."
@@ -66,21 +65,19 @@ buildAndStartServerAndClient config = do
   void
     $ Job.run
     $ Job.race
-      ( Job.maybeFailWith (makeExitError startErrorTitle "Serving the client")
+      ( Job.failOnExitFailure (makeExitError startErrorTitle "Serving the client")
           $ Job.prefixWith Job.WebApp
           $ startClient config
       )
-      ( Job.maybeFailWith (makeExitError startErrorTitle "Running the server")
+      ( Job.failOnExitFailure (makeExitError startErrorTitle "Running the server")
           $ Job.prefixWith Job.Server
           $ startServer config
       )
   where
     startErrorTitle = "Starting Wasp app failed."
 
-    makeExitError :: String -> String -> ExitCode -> Maybe CommandError
-    makeExitError _ _ ExitSuccess = Nothing
-    makeExitError errorTitle failedStep (ExitFailure code) =
-      Just $
-        CommandError
-          errorTitle
-          (failedStep <> " failed with exit code: " <> show code)
+    makeExitError :: String -> String -> Int -> CommandError
+    makeExitError errorTitle failedStep code =
+      CommandError
+        errorTitle
+        (failedStep <> " failed with exit code: " <> show code)

@@ -64,17 +64,14 @@ installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir = do
   installExitCode <-
-    Job.run $ Job.prefixWith Job.Wasp installProjectDepsJob
+    Job.run $ Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
-  where
-    installProjectDepsJob =
-      installNpmDependenciesAndReport projectDir
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job e ExitCode
 installNpmDependenciesAndReport projectDir = do
-  Job.emitJobOutput Job.Stdout "Starting npm install\n"
+  Job.emitOutput Job.Stdout "Starting npm install\n"
 
   either absurd id
     <$> Job.race
@@ -91,7 +88,7 @@ reportInstallationProgress =
   where
     reportMessage message = do
       liftIO $ threadDelay $ secondsToMicroSeconds 5
-      Job.emitJobOutput Job.Stdout $ T.append message "\n"
+      Job.emitOutput Job.Stdout $ T.append message "\n"
       liftIO $ threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =

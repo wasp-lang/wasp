@@ -19,9 +19,9 @@ spec_Job = do
   describe "captureOutput" $ do
     it "collects stdout and stderr in the order they were emitted" $ do
       let job = do
-            Job.emitJobOutput Job.Stdout "first "
-            Job.emitJobOutput Job.Stderr "second "
-            Job.emitJobOutput Job.Stdout "last"
+            Job.emitOutput Job.Stdout "first "
+            Job.emitOutput Job.Stderr "second "
+            Job.emitOutput Job.Stdout "last"
       runJob (Job.captureOutput job) `shouldReturn` Right ((), "first second last")
 
     it "doesn't pass the output on" $ do
@@ -29,7 +29,7 @@ spec_Job = do
       let job =
             Job.onOutput (modifyIORef' outputCount (+ 1))
               $ Job.captureOutput
-              $ Job.emitJobOutput Job.Stdout "captured"
+              $ Job.emitOutput Job.Stdout "captured"
       _ <- runJob job
       readIORef outputCount `shouldReturn` 0
 
@@ -39,20 +39,20 @@ spec_Job = do
       let job =
             Job.captureOutput $
               Job.onOutput (modifyIORef' outputCount (+ 1)) $ do
-                Job.emitJobOutput Job.Stdout "first"
-                Job.emitJobOutput Job.Stderr "second"
+                Job.emitOutput Job.Stdout "first"
+                Job.emitOutput Job.Stderr "second"
       _ <- runJob job
       readIORef outputCount `shouldReturn` 2
 
-  describe "maybeFailWith" $ do
-    it "fails the job with the error for the exit code" $ do
+  describe "failOnExitFailure" $ do
+    it "fails the job with the error for a non-zero exit code" $ do
       let job = do
-            Job.maybeFailWith failOnExitFailure $ return $ ExitFailure 7
-            Job.emitJobOutput Job.Stdout "after failure"
+            Job.failOnExitFailure failWith $ return $ ExitFailure 7
+            Job.emitOutput Job.Stdout "after failure"
       runJob job `shouldReturn` Left "Failed with 7"
 
-    it "doesn't fail the job when there is no error for the exit code" $ do
-      runJob (Job.maybeFailWith failOnExitFailure $ return ExitSuccess)
+    it "doesn't fail the job on a zero exit code" $ do
+      runJob (Job.failOnExitFailure failWith $ return ExitSuccess)
         `shouldReturn` Right ()
 
   describe "race" $ do
@@ -63,7 +63,7 @@ spec_Job = do
 
     it "fails if the job that finishes first fails" $ do
       let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
-          failingJob = Job.maybeFailWith failOnExitFailure $ return $ ExitFailure 7
+          failingJob = Job.failOnExitFailure failWith $ return $ ExitFailure 7
       timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob failingJob)
         `shouldReturn` Just (Left "Failed with 7")
 
@@ -108,9 +108,8 @@ runJob = runExceptT . Job.run
 runProcessJob :: Job.Job String a -> IO (Maybe (Either String a))
 runProcessJob = timeout (secondsToMicroSeconds 10) . runJob
 
-failOnExitFailure :: ExitCode -> Maybe String
-failOnExitFailure ExitSuccess = Nothing
-failOnExitFailure (ExitFailure code) = Just $ "Failed with " <> show code
+failWith :: Int -> String
+failWith code = "Failed with " <> show code
 
 node :: String -> P.CreateProcess
 node script = P.proc "node" ["-e", script]
