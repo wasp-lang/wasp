@@ -45,60 +45,63 @@ waspDbStartTest =
                 ]
             ]
         ),
-      -- NOTE: Tasty runs test cases in parallel, so the PostgreSQL scenarios (which
-      -- compete for the same host ports) are all in a single sequential test case.
-      TestCase
-        "succeed-postgresql-project"
-        ( skipIfDockerDisabled . sequence $
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir $
-                concat
-                  [ [setWaspDbToPSQL, installDbCleanup],
-                    -- Migration reuses a separately started database and leaves it running.
-                    [ waspCliDbStartInBackground,
-                      waitUntilDevDbReportsItIsReady,
-                      waspCliDbMigrateDev "first_migration",
-                      assertDevDbRunning,
-                      assertCommandOutputContains
-                        (return waspCliDbStartFails)
-                        "PostgreSQL already running",
-                      stopDevDbAndWait,
-                      assertDevDbRemoved
-                    ],
-                    -- Startup finds another port when the default is occupied.
-                    [ occupyDefaultDevDbPort,
-                      waspCliDbStartInBackground,
-                      waitUntilDevDbReportsItIsReady,
-                      waspCliDbMigrateDev "no_new_migration",
-                      assertDevDbRunning,
-                      removeDefaultDevDbPortHolder,
-                      stopDevDbAndWait,
-                      assertDevDbRemoved
-                    ],
-                    -- Migration starts and removes its own database.
-                    [ waspCliDbMigrateDev "automatic_start",
-                      assertDevDbRemoved
-                    ],
-                    -- Reset starts and removes its own database.
-                    [ return "$WASP_CLI_CMD db reset --force",
-                      assertDevDbRemoved
-                    ],
-                    -- The reported data volume remains available for explicit removal.
-                    [removeReportedDevDbVolume]
-                  ]
-            ]
-        )
+      postgresTestCase
+        "migration-reuses-running-database"
+        [ waspCliDbStartInBackground (Just 15432),
+          waitUntilDevDbReportsItIsReady,
+          waspCliDbMigrateDev "first_migration",
+          assertDevDbRunning,
+          assertCommandOutputContains
+            (return waspCliDbStartFails)
+            "PostgreSQL already running",
+          stopDevDbAndWait,
+          assertDevDbRemoved,
+          removeReportedDevDbVolume
+        ],
+      postgresTestCase
+        "startup-uses-another-port-when-default-is-occupied"
+        [ occupyDefaultDevDbPort,
+          waspCliDbStartInBackground Nothing,
+          waitUntilDevDbReportsItIsReady,
+          waspCliDbMigrateDev "first_migration",
+          assertDevDbRunning,
+          removeDefaultDevDbPortHolder,
+          stopDevDbAndWait,
+          assertDevDbRemoved,
+          removeReportedDevDbVolume
+        ],
+      postgresTestCase
+        "migration-starts-and-removes-database"
+        [ return "$WASP_CLI_CMD db migrate-dev --name first_migration --db-port 15433",
+          assertDevDbRemoved
+        ],
+      postgresTestCase
+        "reset-starts-and-removes-database"
+        [ return "$WASP_CLI_CMD db reset --force --db-port 15434",
+          assertDevDbRemoved
+        ]
     ]
   where
     waspCliDbStartFails :: ShellCommand
     waspCliDbStartFails = "! $WASP_CLI_CMD db start"
 
+postgresTestCase :: String -> [ShellCommandBuilder WaspProjectContext ShellCommand] -> TestCase
+postgresTestCase name commands =
+  TestCase name
+    $ skipIfDockerDisabled
+    $ sequence
+      [ createTestWaspProject minimalStarterTemplate,
+        inTestWaspProjectDir $ [setWaspDbToPSQL, installDbCleanup] ++ commands
+      ]
+
 -- | `wasp db start` runs the database in the foreground, so we background it.
 -- We capture its output to test whether it correctly reports its readiness and volume name.
-waspCliDbStartInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbStartInBackground =
+waspCliDbStartInBackground :: Maybe Int -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbStartInBackground port =
   return $
-    "rm -f " ++ devDbOutputFile ++ " && { $WASP_CLI_CMD db start > " ++ devDbOutputFile ++ " 2>&1 & echo $! > db-start.pid ; }"
+    "rm -f " ++ devDbOutputFile ++ " && { $WASP_CLI_CMD db start" ++ portOption ++ " > " ++ devDbOutputFile ++ " 2>&1 & echo $! > db-start.pid ; }"
+  where
+    portOption = maybe "" ((" --db-port " ++) . show) port
 
 -- Stop PostgreSQL directly so this test does not depend on terminal signal forwarding.
 stopDevDbAndWait :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -122,10 +125,11 @@ devDbOutputFile :: FilePath
 devDbOutputFile = "db-start-output.log"
 
 occupyDefaultDevDbPort :: ShellCommandBuilder WaspProjectContext ShellCommand
-occupyDefaultDevDbPort =
+occupyDefaultDevDbPort = do
+  containerName <- devDbPortHolderContainerName
   return $
     "docker run -d --rm --name "
-      ++ devDbPortHolderContainerName
+      ++ containerName
       ++ " -p "
       ++ defaultPort
       ++ ":"
@@ -135,7 +139,7 @@ occupyDefaultDevDbPort =
     defaultPort = show defaultPostgresPort
 
 removeDefaultDevDbPortHolder :: ShellCommandBuilder WaspProjectContext ShellCommand
-removeDefaultDevDbPortHolder = return $ "docker rm -f " ++ devDbPortHolderContainerName
+removeDefaultDevDbPortHolder = ("docker rm -f " ++) <$> devDbPortHolderContainerName
 
 removeReportedDevDbVolume :: ShellCommandBuilder WaspProjectContext ShellCommand
 removeReportedDevDbVolume =
@@ -147,24 +151,34 @@ reportedDevDbVolumeName :: String
 reportedDevDbVolumeName =
   "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[a-zA-Z0-9_-]*' " ++ devDbOutputFile ++ ")"
 
-devDbPortHolderContainerName :: String
-devDbPortHolderContainerName = "wasp-e2e-tests-db-port-holder"
+devDbPortHolderContainerName :: ShellCommandBuilder WaspProjectContext String
+devDbPortHolderContainerName = do
+  db <- testDevDb
+  return $ db.dockerContainerName ++ "-port-holder"
+
+testDevDb :: ShellCommandBuilder WaspProjectContext Dev.Postgres.DevDbSpec
+testDevDb = do
+  context <- ask
+  return $ Dev.Postgres.makeDevPostgresDbSpec context.waspProjectDir "waspApp" defaultPostgresPort
 
 assertDevDbRunning :: ShellCommandBuilder WaspProjectContext ShellCommand
 assertDevDbRunning =
   return $ "test -n \"$(docker ps -q --filter \"volume=" ++ reportedDevDbVolumeName ++ "\")\""
 
 assertDevDbRemoved :: ShellCommandBuilder WaspProjectContext ShellCommand
-assertDevDbRemoved =
-  return $ "test -z \"$(docker ps -aq --filter \"volume=" ++ reportedDevDbVolumeName ++ "\")\""
+assertDevDbRemoved = do
+  db <- testDevDb
+  return $ "test -z \"$(docker ps -aq --filter \"volume=" ++ db.dockerVolumeName ++ "\")\""
 
 installDbCleanup :: ShellCommandBuilder WaspProjectContext ShellCommand
 installDbCleanup = do
-  context <- ask
-  let db = Dev.Postgres.makeDevPostgresDbSpec context.waspProjectDir "waspApp" defaultPostgresPort
+  db <- testDevDb
+  portHolder <- devDbPortHolderContainerName
   return $
     "trap 'if [ -f db-start.pid ]; then kill \"$(cat db-start.pid)\" 2>/dev/null || true; wait \"$(cat db-start.pid)\" 2>/dev/null || true; fi; docker rm -f "
       ++ db.dockerContainerName
       ++ " "
-      ++ devDbPortHolderContainerName
+      ++ portHolder
+      ++ " >/dev/null 2>&1 || true; docker volume rm "
+      ++ db.dockerVolumeName
       ++ " >/dev/null 2>&1 || true' EXIT"
