@@ -53,20 +53,57 @@ runs:
         # zizmor: ignore[github-env]
         echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
 
+    - name: Select cache policy
+      id: cache-policy
+      shell: bash
+      env:
+        # We only save caches from long-lived branches. PR runs can still
+        # restore them, but if they saved their own copies (which can't be
+        # shared with other PRs), they would push the repo over its cache
+        # storage limit and get the long-lived branches' caches evicted.
+        SAVE: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release' }}
+      run: echo "save=$SAVE" >> "$GITHUB_OUTPUT"
+
     - name: Install Mise
       uses: jdx/mise-action@v5
       with:
         version: 2026.9.15
         bootstrap: true
         bootstrap_args: --update --yes
+        cache_save: ${{ steps.cache-policy.outputs.save }}
+
+    # `actions/cache` always saves in its post step, so to only restore we have
+    # to use `actions/cache/restore` instead. For each cache below, we pick one
+    # or the other with `if`.
+
+    - name: Probe npm cache
+      id: probe-npm
+      shell: bash
+      env:
+        KEY: >-
+          ${{ format('npm-v1-{0}-{1}-{2}', runner.os, runner.arch, hashFiles('package-lock.json')) }}
+        RESTORE_KEY: >-
+          ${{ format('npm-v1-{0}-{1}-', runner.os, runner.arch) }}
+      run: |
+        echo "NPM_CACHE=$(npm config get cache)" >> "$GITHUB_OUTPUT"
+        echo "KEY=$KEY" >> "$GITHUB_OUTPUT"
+        echo "RESTORE_KEY=$RESTORE_KEY" >> "$GITHUB_OUTPUT"
 
     - name: Cache npm dependencies
-      uses: actions/setup-node@v6
+      if: ${{ steps.cache-policy.outputs.save == 'true' }}
+      uses: actions/cache@v5
       with:
-        # We don't specify a node-version here because we already have it
-        # installed. We use this step to setup the npm cache.
-        cache: npm
-        package-manager-cache: true
+        path: ${{ steps.probe-npm.outputs.NPM_CACHE }}
+        key: ${{ steps.probe-npm.outputs.KEY }}
+        restore-keys: ${{ steps.probe-npm.outputs.RESTORE_KEY }}
+
+    - name: Restore npm dependencies
+      if: ${{ steps.cache-policy.outputs.save != 'true' }}
+      uses: actions/cache/restore@v5
+      with:
+        path: ${{ steps.probe-npm.outputs.NPM_CACHE }}
+        key: ${{ steps.probe-npm.outputs.KEY }}
+        restore-keys: ${{ steps.probe-npm.outputs.RESTORE_KEY }}
 
     # We can't have the following steps in a different action because of a
     # GitHub Actions bug with how caches interact with nested composite actions:
@@ -86,8 +123,19 @@ runs:
         echo '*' > .cabal-index/.gitignore
         cabal user-config update -a "remote-repo-cache: $GITHUB_WORKSPACE/.cabal-index"
 
-    - name: Cache Hackage index
+    - name: Probe Hackage index cache
       if: ${{ inputs.haskell == 'true' }}
+      id: probe-hackage-index
+      shell: bash
+      env:
+        # The `index-state` in `cabal.project` decides which part of the index
+        # we need. When it changes, we fall back to an older index, and `cabal
+        # update` just downloads the missing part.
+        KEY: cabal-index-v1-${{ hashFiles('waspc/cabal.project') }}
+      run: echo "KEY=$KEY" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Hackage index
+      if: ${{ inputs.haskell == 'true' && steps.cache-policy.outputs.save == 'true' }}
       id: cache-hackage-index
       uses: actions/cache@v5
       with:
@@ -96,15 +144,29 @@ runs:
         path: |
           .cabal-index/hackage.haskell.org/01-index.*
           .cabal-index/hackage.haskell.org/*.json
-        # The `index-state` in `cabal.project` decides which part of the index
-        # we need. When it changes, we fall back to an older index, and `cabal
-        # update` just downloads the missing part.
-        key: cabal-index-v1-${{ hashFiles('waspc/cabal.project') }}
+        key: ${{ steps.probe-hackage-index.outputs.KEY }}
+        restore-keys: cabal-index-v1-
+        enableCrossOsArchive: true
+
+    - name: Restore Hackage index
+      if: ${{ inputs.haskell == 'true' && steps.cache-policy.outputs.save != 'true' }}
+      id: restore-hackage-index
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          .cabal-index/hackage.haskell.org/01-index.*
+          .cabal-index/hackage.haskell.org/*.json
+        key: ${{ steps.probe-hackage-index.outputs.KEY }}
         restore-keys: cabal-index-v1-
         enableCrossOsArchive: true
 
     - name: Update Cabal package index
-      if: ${{ inputs.haskell == 'true' && steps.cache-hackage-index.outputs.cache-hit != 'true' }}
+      if: >-
+        ${{
+          inputs.haskell == 'true'
+          && steps.cache-hackage-index.outputs.cache-hit != 'true'
+          && steps.restore-hackage-index.outputs.cache-hit != 'true'
+        }}
       shell: bash
       working-directory: waspc
       run: cabal update
@@ -134,22 +196,15 @@ runs:
         esac
         echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
 
-    # Based on the official recipe for Cabal caching:
-    # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
-    - name: Cache Cabal store
+    - name: Probe Cabal store cache
       if: ${{ inputs.haskell == 'true' }}
-      uses: actions/cache@v5
-      with:
-        # While commonly cached, we've decided not to cache:
-        #
-        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
-        #   often enough that a cache would need to be invalidated on every run,
-        #   and make our cache much bigger.
-        path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
-        key:
+      id: probe-cabal-store
+      shell: bash
+      env:
+        KEY:
           # The `v3` prefix is used so we don't restore older entries, which
           # also had the Hackage index inside.
-          >
+          >-
           ${{
             format(
               'cabal-v3-{0}-{1}-{2}-{3}-{4}-{5}',
@@ -165,7 +220,7 @@ runs:
               )
             )
           }}
-        restore-keys: >
+        RESTORE_KEY: >-
           ${{
             format(
               'cabal-v3-{0}-{1}-{2}-{3}-{4}-',
@@ -176,3 +231,29 @@ runs:
               steps.probe-ghc-cabal.outputs.GHC_VERSION
             )
           }}
+      run: |
+        echo "KEY=$KEY" >> "$GITHUB_OUTPUT"
+        echo "RESTORE_KEY=$RESTORE_KEY" >> "$GITHUB_OUTPUT"
+
+    # Based on the official recipe for Cabal caching:
+    # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
+    - name: Cache Cabal store
+      if: ${{ inputs.haskell == 'true' && steps.cache-policy.outputs.save == 'true' }}
+      uses: actions/cache@v5
+      with:
+        # While commonly cached, we've decided not to cache:
+        #
+        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
+        #   often enough that a cache would need to be invalidated on every run,
+        #   and make our cache much bigger.
+        path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
+        key: ${{ steps.probe-cabal-store.outputs.KEY }}
+        restore-keys: ${{ steps.probe-cabal-store.outputs.RESTORE_KEY }}
+
+    - name: Restore Cabal store
+      if: ${{ inputs.haskell == 'true' && steps.cache-policy.outputs.save != 'true' }}
+      uses: actions/cache/restore@v5
+      with:
+        path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
+        key: ${{ steps.probe-cabal-store.outputs.KEY }}
+        restore-keys: ${{ steps.probe-cabal-store.outputs.RESTORE_KEY }}
