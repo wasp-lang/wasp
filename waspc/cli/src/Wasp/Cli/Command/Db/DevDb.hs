@@ -1,6 +1,10 @@
 module Wasp.Cli.Command.Db.DevDb
-  ( start,
-    withDevDb,
+  ( withDevDb,
+    withPostgresSession,
+    DatabaseStartPolicy (..),
+    DatabaseSession (..),
+    DatabaseUrlSource (..),
+    findDatabaseUrlSource,
   )
 where
 
@@ -14,7 +18,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate, isInfixOf)
 import Data.Maybe (fromMaybe, isJust)
 import Network.Socket (PortNumber)
-import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
+import StrongPath (Abs, Dir, Path')
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Error (ioeGetErrorString)
@@ -40,32 +44,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
-import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
-
--- | Starts a "managed" dev database, where "managed" means that
--- Wasp creates it and connects the Wasp app with it.
--- Wasp is smart while doing this so it checks which database is specified
--- in Wasp configuration and spins up a database of appropriate type.
-start :: DbStartOptions -> Command ()
-start options = do
-  InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
-  appSpec <- analyze waspProjectDir
-  databaseUrlSource <- liftIO $ findDatabaseUrlSource appSpec
-  case databaseUrlSource of
-    Just source -> throwCustomDatabaseError source
-    Nothing -> case ASV.getValidDbSystem appSpec of
-      AS.App.Db.SQLite ->
-        cliSendMessageC $ Msg.Info "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
-      AS.App.Db.PostgreSQL ->
-        withPostgresSession waspProjectDir (ASV.getApp appSpec).name options StartNewDatabase $ \case
-          StartedDatabase _ _ databaseJob -> do
-            cliSendMessageC $ Msg.Info "PostgreSQL is running. Ctrl+C stops PostgreSQL."
-            _ <- liftIO $ wait databaseJob
-            E.throwError $ CommandError "PostgreSQL stopped" "The database container exited. Check the PostgreSQL logs above."
-          ReusedDatabase _ ->
-            E.throwError $ CommandError "Database not started" "No managed PostgreSQL database was started."
 
 printDbMessages :: Chan Job.JobMessage -> IO ()
 printDbMessages channel = runPrefixedWriter go
@@ -296,18 +275,3 @@ findDatabaseUrlSource appSpec = do
         if any ((== databaseUrlEnvVarName) . fst) appSpec.devEnvVarsServer
           then Just ServerDotEnv
           else Nothing
-
-throwCustomDatabaseError :: DatabaseUrlSource -> Command a
-throwCustomDatabaseError source =
-  E.throwError $ CommandError "You are using custom database already" message
-  where
-    message = case source of
-      Environment ->
-        printf
-          "Wasp has detected existing %s var in your environment.\nTo have Wasp run the dev database for you, make sure you remove that env var first."
-          databaseUrlEnvVarName
-      ServerDotEnv ->
-        printf
-          "Wasp has detected that you have defined %s env var in your %s file.\nTo have Wasp run the dev database for you, make sure you remove that env var first."
-          databaseUrlEnvVarName
-          (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
