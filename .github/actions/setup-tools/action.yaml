@@ -72,30 +72,6 @@ runs:
     # GitHub Actions bug with how caches interact with nested composite actions:
     # https://github.com/actions/runner/issues/2030
 
-    - name: Probe GHC and Cabal
-      if: ${{ inputs.haskell == 'true' }}
-      id: probe-ghc-cabal
-      shell: bash
-      run: |
-        set -euxo pipefail
-        echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
-        echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
-
-    - name: Probe system libc
-      id: probe-libc
-      if: ${{ inputs.haskell == 'true' && runner.os == 'Linux' }}
-      shell: bash
-      run: |
-        set -euxo pipefail
-        # Detect the libc so the Cabal cache key keeps glibc and musl builds
-        # apart.
-        ldd_version="$(ldd --version 2>&1 || true)"
-        case "$ldd_version" in
-          *musl*) libc=musl ;;
-          *) libc=default ;;
-        esac
-        echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
-
     ##### Caching Cabal index #####
     # The Cabal index is the biggest part of our Cabal cache, and it can be
     # cached once between all OS and shared, so we cache it separately from the
@@ -134,6 +110,30 @@ runs:
       run: cabal update
 
     ##### Caching Cabal store #####
+    - name: Probe GHC and Cabal
+      if: ${{ inputs.haskell == 'true' }}
+      id: probe-ghc-cabal
+      shell: bash
+      run: |
+        set -euxo pipefail
+        echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
+        echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
+
+    - name: Probe system libc
+      id: probe-libc
+      if: ${{ inputs.haskell == 'true' && runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        set -euxo pipefail
+        # Detect the libc so the Cabal cache key keeps glibc and musl builds
+        # apart.
+        ldd_version="$(ldd --version 2>&1 || true)"
+        case "$ldd_version" in
+          *musl*) libc=musl ;;
+          *) libc=default ;;
+        esac
+        echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
+
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
     - name: Cache Cabal store
