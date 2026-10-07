@@ -101,7 +101,7 @@ runs:
     # cached once between all OS and shared, so we cache it separately from the
     # store. `actions/cache` only shares entries if the `path` is constant, so
     # we move it inside our workspace.
-    - name: Move Cabal package cache into the workspace
+    - name: Move Cabal index into the workspace
       if: ${{ inputs.haskell == 'true' }}
       shell: bash
       run: |
