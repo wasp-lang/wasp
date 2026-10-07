@@ -96,12 +96,11 @@ runs:
         esac
         echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
 
-    # The Hackage index is the same for every OS, so we want a single cache
-    # entry for all jobs. But `actions/cache` only shares entries between jobs
-    # whose paths are equal, both in the `path` input and relative to the
-    # workspace, and Cabal keeps the index in `$HOME`, which is different in
-    # containers and on Windows. So we move it to a fixed path inside the
-    # workspace.
+    ##### Caching Cabal index #####
+    # The Cabal index is the biggest part of our Cabal cache, and it can be
+    # cached once between all OS and shared, so we cache it separately from the
+    # store. `actions/cache` only shares entries if the `path` is constant, so
+    # we move it inside our workspace.
     - name: Move Cabal package cache into the workspace
       if: ${{ inputs.haskell == 'true' }}
       shell: bash
@@ -109,7 +108,7 @@ runs:
         set -euxo pipefail
         mkdir -p .cabal-index
         echo '*' > .cabal-index/.gitignore
-        cabal user-config update -a "remote-repo-cache: $GITHUB_WORKSPACE/.cabal-index"
+        cabal user-config update -a "remote-repo-cache: $(pwd)/.cabal-index"
 
     - name: Cache Hackage index
       if: ${{ inputs.haskell == 'true' }}
@@ -128,14 +127,13 @@ runs:
         restore-keys: cabal-index-v1-
         enableCrossOsArchive: true
 
-    # On an exact cache hit, the index was saved after a `cabal update` with
-    # this same `index-state`, so it already has everything we need.
     - name: Update Cabal package index
       if: ${{ inputs.haskell == 'true' && steps.cache-hackage-index.outputs.cache-hit != 'true' }}
       shell: bash
       working-directory: waspc
       run: cabal update
 
+    ##### Caching Cabal store #####
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
     - name: Cache Cabal store
@@ -147,10 +145,6 @@ runs:
         # - `./dist-newstyle`: Our internal code builds quite fast, and changes
         #   often enough that a cache would need to be invalidated on every run,
         #   and make our cache much bigger.
-        #
-        # We do cache the Cabal store, which is where the actual built packages
-        # are stored, as it is the most expensive part of the build, and easily
-        # reusable.
         path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
         key:
           # The `v3` prefix is used so we don't restore older entries, which
