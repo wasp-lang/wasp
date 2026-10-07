@@ -19,8 +19,6 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
--- | The seed entry point and the rollup config that bundles it on its own,
--- both only when the app defines seeds.
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
   return $ case dbSeedsToTemplateData (getDbSeeds spec) of
