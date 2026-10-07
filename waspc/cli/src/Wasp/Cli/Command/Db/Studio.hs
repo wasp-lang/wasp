@@ -12,13 +12,12 @@ import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
-import Wasp.Generator.Setup (allSetupSteps)
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 studio :: Command ()
-studio = makeDbCommand allSetupSteps $ \_appSpec -> do
+studio = makeDbCommand [] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

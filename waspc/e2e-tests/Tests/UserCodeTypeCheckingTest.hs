@@ -15,6 +15,8 @@ import ShellCommands
     setWaspDbToPSQL,
     waspCliBuild,
     waspCliCompile,
+    waspCliDbMigrateDev,
+    waspCliDbReset,
     writeToFile,
   )
 import StrongPath (relfile, (</>))
@@ -80,6 +82,22 @@ userCodeTypeCheckingTest =
                   appendToFile "src/MainPage.tsx" "const shouldBeNumber: number = 'wrong'",
                   assertCommandOutputContains
                     (("! " ++) <$> waspCliBuild)
+                    userCodeTypeCheckFailure
+                ]
+            ]
+        ),
+      -- Migrating and resetting don't run the user's code, so they must keep
+      -- working while the user is in the middle of fixing their types.
+      TestCase
+        "db-commands-tolerate-user-code-error"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToFile "src/MainPage.tsx" "const shouldBeNumber: number = 'wrong'",
+                  waspCliDbMigrateDev "no_migration",
+                  waspCliDbReset,
+                  assertCommandOutputContains
+                    (("! " ++) <$> waspCliCompile)
                     userCodeTypeCheckFailure
                 ]
             ]

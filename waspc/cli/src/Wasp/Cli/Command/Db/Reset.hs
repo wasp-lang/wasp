@@ -16,12 +16,11 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
-import Wasp.Generator.Setup (allSetupSteps)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: Arguments -> Command ()
-reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> makeDbCommand allSetupSteps $ \_appSpec -> do
+reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> makeDbCommand [] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   let genProjectDir =
         waspProjectDir

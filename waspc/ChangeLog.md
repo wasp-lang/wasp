@@ -56,6 +56,7 @@
 - Email validation now accepts internationalized addresses such as `jürgen@münchen.de`, accepts addresses typed in uppercase, and no longer accepts a string that merely contains an address somewhere inside it. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
+- `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` now skip the SDK build and the type check before running, so they are faster and keep working while the project has type errors. ([#4949](https://github.com/wasp-lang/wasp/issues/4949))
 
 ## 0.25.0
 

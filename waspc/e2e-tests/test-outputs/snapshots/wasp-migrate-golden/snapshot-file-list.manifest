@@ -9,7 +9,6 @@ wasp-app/.wasp/out/db/dev.db-journal
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/migrations/no-date-foo/migration.sql
 wasp-app/.wasp/out/db/schema.prisma
-wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
 wasp-app/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 wasp-app/.wasp/out/installedNpmDepsLog.json
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
@@ -257,10 +256,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.js
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.js

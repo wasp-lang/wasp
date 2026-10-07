@@ -10,17 +10,20 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter, setupSteps))
-import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.Setup (SetupStep)
+import Wasp.CompileOptions (CompileOptions (setupSteps))
+import Wasp.Generator.Setup (SetupStep (..))
 
 -- | Prepares what a db command needs before it runs: the generated code, the
---   given setup steps (e.g. the npm install that provides the Prisma CLI) and a
+--   setup steps every db command needs plus the extra ones given, and a
 --   reachable database. The command then gets the analyzed spec.
+--
+--   Only the steps listed here run, so a db command does not build the SDK or
+--   type-check the user's code unless it asks for it. That keeps the commands
+--   fast and lets them run while the user's code has type errors.
 --
 --   All the commands that operate on the db should be created using this function.
 makeDbCommand :: [SetupStep] -> (AS.AppSpec -> Command a) -> Command a
-makeDbCommand dbCommandSetupSteps cmd = withProjectLock $ do
+makeDbCommand extraSetupSteps cmd = withProjectLock $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   (_, appSpec) <- compileWithOptions $ compileOptions waspProjectDir
@@ -29,13 +32,11 @@ makeDbCommand dbCommandSetupSteps cmd = withProjectLock $ do
   where
     compileOptions waspProjectDir =
       (defaultCompileOptions waspProjectDir)
-        { setupSteps = dbCommandSetupSteps,
-          -- Ignore "DB needs migration warnings" during database commands, as that is redundant
-          -- for `db migrate-dev` and not helpful for `db studio`.
-          generatorWarningsFilter =
-            filter
-              ( \case
-                  GeneratorNeedsMigrationWarning _ -> False
-                  _ -> True
-              )
+        { setupSteps = prismaCliSetupSteps ++ extraSetupSteps
         }
+
+    -- What Prisma needs to run against the generated schema: the npm install
+    -- that provides the Prisma CLI, and a formatted schema so the checksums
+    -- Wasp keeps next to it stay consistent with the ones `wasp start` writes.
+    prismaCliSetupSteps :: [SetupStep]
+    prismaCliSetupSteps = [InstallNpmDeps, FormatPrismaSchema]
