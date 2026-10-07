@@ -197,7 +197,6 @@ library
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Db.RunConfig
-    Wasp.RunConfig
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
@@ -381,6 +380,7 @@ library
     Wasp.Psl.Parser.WithCtx
     Wasp.Psl.Util
     Wasp.Psl.Valid
+    Wasp.RunConfig
     Wasp.SemanticVersion
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
@@ -574,8 +574,8 @@ test-suite waspc-tests
     AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
-    Db.RunConfigTest
     AppSpec.ValidTest
+    Db.RunConfigTest
     EnvTest
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
