@@ -41,6 +41,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import qualified Wasp.Db.RunConfig as DbRunConfig
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
@@ -110,7 +111,7 @@ genDotEnv spec =
   where
     envVars = waspEnvVars ++ userEnvVars
     userEnvVars = spec.devEnvVarsServer
-    waspEnvVars = case spec.devDatabaseUrl of
+    waspEnvVars = case spec.devDbRunConfig >>= DbRunConfig.connectionUrl of
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
     isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars

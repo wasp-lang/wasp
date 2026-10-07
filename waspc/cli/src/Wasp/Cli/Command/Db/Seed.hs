@@ -23,6 +23,7 @@ import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.RunConfig (RunConfigs (..))
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
@@ -30,13 +31,13 @@ seed maybeUserProvidedSeedName = do
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   appSpec <- analyze waspProjectDir
-  let (_, serverRunConfig) = makeDefaultDevRunConfigs appSpec
+  configs <- liftIO $ makeDefaultDevRunConfigs appSpec
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  liftIO (dbSeed serverRunConfig genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed configs.server genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 

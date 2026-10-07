@@ -61,7 +61,7 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Starting client and server..."
   cliSendMessageC
     $ Msg.Info
-    $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
+    $ showRunConfigUrls config.runConfigs
 
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_

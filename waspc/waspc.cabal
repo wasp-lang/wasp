@@ -196,6 +196,8 @@ library
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
+    Wasp.Db.RunConfig
+    Wasp.RunConfig
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
@@ -572,6 +574,7 @@ test-suite waspc-tests
     AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
+    Db.RunConfigTest
     AppSpec.ValidTest
     EnvTest
     ExternalConfig.Npm.NpmDependenciesTest

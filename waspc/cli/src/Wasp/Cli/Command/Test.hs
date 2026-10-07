@@ -23,6 +23,7 @@ import Wasp.Project.Common
   ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
   )
+import Wasp.RunConfig (RunConfigs (..))
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
@@ -39,7 +40,7 @@ watchAndTest testRunner = withProjectLock $ do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
-  let (clientRunConfig, _) = makeDefaultDevRunConfigs appSpec
+  configs <- liftIO $ makeDefaultDevRunConfigs appSpec
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
@@ -50,7 +51,7 @@ watchAndTest testRunner = withProjectLock $ do
     -- Vitest must run from the root of the project because Vite won't resolve
     -- files outside of the project root (in this case, user src/ dir which the
     -- web app imports).
-    watchWaspProjectSource `race` testRunner clientRunConfig waspRoot
+    watchWaspProjectSource `race` testRunner configs.client waspRoot
 
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."

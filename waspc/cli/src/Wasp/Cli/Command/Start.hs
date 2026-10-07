@@ -25,15 +25,14 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
+import Wasp.Cli.RunConfigs (makeDevDbRunConfig, makeRunConfigs, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
+import Wasp.RunConfig (RunConfigs (..))
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -58,7 +57,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
   (warnings, appSpec) <- compile
 
   appComponentUrls <- makeDevAppComponentUrls appSpec args
-  let runConfigs = makeRunConfigs appComponentUrls
+  dbRunConfig <- liftIO $ makeDevDbRunConfig appSpec
+  let runConfigs = makeRunConfigs appComponentUrls dbRunConfig
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
   DbConnectionEstablished <- require
@@ -122,16 +122,16 @@ makeDevAppComponentUrls appSpec args = do
 -- (https://github.com/wasp-lang/wasp/issues/4739). However, we should still
 -- check that they do not conflict with the environment variables that Wasp
 -- itself uses to tell these apps where to run.
-assertImplicitEnvVarsDontOverrideWaspEnvVars :: Path' Abs (Dir WaspProjectDir) -> (WebAppRunConfig, ServerRunConfig) -> Command ()
-assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, serverRunConfig) = do
+assertImplicitEnvVarsDontOverrideWaspEnvVars :: Path' Abs (Dir WaspProjectDir) -> RunConfigs -> Command ()
+assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir configs = do
   implicitClientEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvClient
   implicitServerEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvServer
 
   -- We only use this to check for env vars being overriden. We throw away the
   -- merged env vars, because the generated apps will read the .env files and
   -- inherited environment themselves.
-  _ <- clientRunConfig `addEnvVarsUniqueC` implicitClientEnvVars
-  _ <- serverRunConfig `addEnvVarsUniqueC` implicitServerEnvVars
+  _ <- configs.client `addEnvVarsUniqueC` implicitClientEnvVars
+  _ <- configs.server `addEnvVarsUniqueC` implicitServerEnvVars
 
   return ()
   where

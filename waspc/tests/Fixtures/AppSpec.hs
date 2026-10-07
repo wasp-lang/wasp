@@ -33,7 +33,7 @@ basicAppSpec =
       AS.devEnvVarsClient = [],
       AS.devEnvVarsServer = [],
       AS.userDockerfileContents = Nothing,
-      AS.devDatabaseUrl = Nothing,
+      AS.devDbRunConfig = Nothing,
       AS.srcTsConfigPath = [relfile|tsconfig.json|]
     }
 

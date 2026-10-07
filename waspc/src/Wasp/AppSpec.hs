@@ -44,6 +44,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
+import Wasp.Db.RunConfig (DbRunConfig)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -78,9 +79,9 @@ data AppSpec = AppSpec
     buildType :: BuildType.BuildType,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | Connection URL for a database used during development. If provided, generated app will
-    -- make sure to use it when run in development mode.
-    devDatabaseUrl :: Maybe String,
+    -- | Default development database configuration, before DATABASE_URL overrides.
+    -- Its connection URL is used as a fallback in the generated server's .env.
+    devDbRunConfig :: Maybe DbRunConfig,
     srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
   }
 
