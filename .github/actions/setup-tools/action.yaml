@@ -80,7 +80,6 @@ runs:
         set -euxo pipefail
         echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
         echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
-        echo "CABAL_INDEX=$(cabal path -v0 --remote-repo-cache)" >> $GITHUB_OUTPUT
 
     - name: Probe system libc
       id: probe-libc
@@ -97,58 +96,100 @@ runs:
         esac
         echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
 
+    # The Hackage index is the same for every OS, so we want a single cache
+    # entry for all jobs. But `actions/cache` only shares entries between jobs
+    # whose paths are equal, both in the `path` input and relative to the
+    # workspace, and Cabal keeps the index in `$HOME`, which is different in
+    # containers and on Windows. So we move it to a fixed path inside the
+    # workspace.
+    - name: Move Cabal package cache into the workspace
+      if: ${{ inputs.haskell == 'true' }}
+      shell: bash
+      run: |
+        set -euxo pipefail
+        mkdir -p .cabal-index
+        echo '*' > .cabal-index/.gitignore
+        cabal user-config update -a "remote-repo-cache: $GITHUB_WORKSPACE/.cabal-index"
+
+    - name: Cache Hackage index
+      if: ${{ inputs.haskell == 'true' }}
+      id: cache-hackage-index
+      uses: actions/cache@v5
+      with:
+        # We skip the downloaded package sources, as they're only needed when
+        # building dependencies, which are already cached in the Cabal store.
+        path: |
+          .cabal-index/hackage.haskell.org/01-index.*
+          .cabal-index/hackage.haskell.org/*.json
+        # The `index-state` in `cabal.project` decides which part of the index
+        # we need. When it changes, we fall back to an older index, and `cabal
+        # update` just downloads the missing part.
+        key: cabal-index-v1-${{ hashFiles('waspc/cabal.project') }}
+        restore-keys: cabal-index-v1-
+        enableCrossOsArchive: true
+
+    # On an exact cache hit, the index was saved after a `cabal update` with
+    # this same `index-state`, so it already has everything we need.
+    - name: Update Cabal package index
+      if: ${{ inputs.haskell == 'true' && steps.cache-hackage-index.outputs.cache-hit != 'true' }}
+      shell: bash
+      working-directory: waspc
+      run: cabal update
+
+    # We key the Cabal store on the resolved dependency plan instead of the
+    # `.cabal` file, so changes that don't affect dependencies (e.g. adding a
+    # module or bumping our version) don't create a new cache entry.
+    - name: Compute Cabal dependency plan
+      if: ${{ inputs.haskell == 'true' }}
+      shell: bash
+      working-directory: waspc
+      run: |
+        set -euxo pipefail
+        cabal build all --dry-run
+        # We leave out our own packages, whose IDs change with every edit.
+        node -e '
+          const plan = require("./dist-newstyle/cache/plan.json");
+          const ids = plan["install-plan"]
+            .filter((unit) => unit.style !== "local")
+            .map((unit) => unit.id)
+            .sort();
+          console.log(ids.join("\n"));
+        ' > dist-newstyle/cabal-dependencies.txt
+
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
-    - name: Cache Cabal dependencies
+    - name: Cache Cabal store
       if: ${{ inputs.haskell == 'true' }}
       uses: actions/cache@v5
       with:
-        path:
-          # While commonly cached, we've decided not to cache:
-          #
-          # - `./dist-newstyle`: Our internal code builds quite fast, and
-          #   changes often enough that a cache would need to be invalidated on
-          #   every run, and make our cache much bigger.
-          #
-          # We do cache the Cabal store and index files, which is where the
-          # actual built packages are stored, as it is the most expensive part
-          # of the build, and easily reusable.
-          |
-          ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
-          ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}
-        key:
-          # The `v2` prefix is used so we don't mix with an older cache that
-          # didn't have a good glibc/musl detection.
-          >
+        # While commonly cached, we've decided not to cache:
+        #
+        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
+        #   often enough that a cache would need to be invalidated on every run,
+        #   and make our cache much bigger.
+        #
+        # We do cache the Cabal store, which is where the actual built packages
+        # are stored, as it is the most expensive part of the build, and easily
+        # reusable.
+        path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
+        key: >
           ${{
             format(
-              'cabal-v2-{0}-{1}-{2}-{3}-{4}-{5}',
-              'waspc',
+              'cabal-store-v1-{0}-{1}-{2}-{3}-{4}',
               runner.os,
               runner.arch,
               steps.probe-libc.outputs.LIBC || 'unknown',
               steps.probe-ghc-cabal.outputs.GHC_VERSION,
-              hashFiles(
-                'waspc/*.cabal',
-                'waspc/*.project',
-                'waspc/*.project.freeze'
-              )
+              hashFiles('waspc/dist-newstyle/cabal-dependencies.txt')
             )
           }}
         restore-keys: >
           ${{
             format(
-              'cabal-v2-{0}-{1}-{2}-{3}-{4}-',
-              'waspc',
+              'cabal-store-v1-{0}-{1}-{2}-{3}-',
               runner.os,
               runner.arch,
               steps.probe-libc.outputs.LIBC || 'unknown',
               steps.probe-ghc-cabal.outputs.GHC_VERSION
             )
           }}
-
-    - name: Update Cabal package index
-      if: ${{ inputs.haskell == 'true' }}
-      shell: bash
-      working-directory: waspc
-      run: cabal update
