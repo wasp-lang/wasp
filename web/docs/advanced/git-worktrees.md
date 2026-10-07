@@ -65,7 +65,7 @@ wasp db migrate-dev
 
 #### PostgreSQL
 
-With Docker running and no `DATABASE_URL` set, apply the migrations. Wasp starts the development database if needed:
+Apply the migrations. Wasp starts the development database automatically:
 
 ```bash
 wasp db migrate-dev

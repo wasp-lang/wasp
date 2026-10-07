@@ -3766,7 +3766,7 @@ datasource db {
 
 Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](https://wasp.sh/docs/features/data/prisma-file) section.
 
-You'll have to ensure a database instance is running during development to use PostgreSQL. Wasp needs access to your database for commands such as `wasp start` or `wasp db migrate-dev`.
+Wasp can start a PostgreSQL development database for commands such as `wasp start` or `wasp db migrate-dev`.
 
 We cover all supported ways of connecting to a database in [the next section](#connecting-to-a-database).
 
@@ -3774,7 +3774,7 @@ We cover all supported ways of connecting to a database in [the next section](#c
 
 #### SQLite
 
-If you are using SQLite, you don't need to do anything special to connect to the database. Wasp will take care of it for you.
+If you are using SQLite, you don't need to do anything special to connect to the database. Wasp will take care of it for you without starting a Docker database.
 
 #### PostgreSQL
 
@@ -3785,25 +3785,34 @@ If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 
 ##### Using the Dev Database provided by Wasp
 
-The command `wasp start db` will start a default PostgreSQL dev database for you.
-
-Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background. Also, make sure that you have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
-
-By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
+Run migrations, then start the app. Wasp starts the development database automatically:
 
 ```bash
-wasp start db --db-port 8080
+wasp db migrate-dev
+wasp start
 ```
 
-:::tip
-In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
-:::
+Wasp runs the development database in [Docker](https://www.docker.com/get-started/). Each command starts it if needed, waits until it is ready, and shows its logs. When the command finishes, Wasp stops and removes the container. Database files are stored in a Docker volume and reused on the next run.
+
+If the database is already running, Wasp uses it without stopping it afterward. This applies to `wasp start`, `wasp db migrate-dev`, `wasp db reset`, `wasp db seed`, and `wasp db studio`.
+
+Stop `wasp start` before running `wasp db migrate-dev`, `wasp db reset`, `wasp db seed`, or `wasp db studio`. These commands need the same project lock.
+
+To keep the database running across commands, run `wasp db start` in a separate terminal. This command fails if the development database is already running. It prints connection credentials for tools such as `psql` or [pgAdmin](https://www.pgadmin.org/).
+
+By default, Wasp uses port `5432`, or the next free port if `5432` is taken. With `--db-port <port>`, it fails if the requested port is unavailable:
+
+```bash
+wasp start --db-port 8080
+```
 
 ###### Customising the dev database {#custom-database}
 
 The Wasp development database uses the [PostgreSQL 18 Docker image](https://hub.docker.com/_/postgres/tags?name=18) by default, and will set up its data volumes according to their guidance.
 
-If you need to customise the development database, you can use the following options:
+All the commands above accept these options when starting a development database:
+
+- `--db-port`: Specify the database port
 
 - `--db-image`: Specify a custom Docker image
 
@@ -3815,22 +3824,24 @@ If you need to customise the development database, you can use the following opt
 
   If the volume mount path is incorrect, the data won't be persisted in your development database.
 
+Options apply only to the current invocation and are not remembered. Wasp rejects these options for SQLite or when `DATABASE_URL` is set. When a command uses an already running development database, Wasp warns and ignores the options.
+
 Here are some examples of customising the development database:
 
 ```bash
 # Use default PostgreSQL image:
-wasp start db
+wasp db start
 # Same as:
-wasp start db --db-image postgres:18
+wasp db start --db-image postgres:18
 
 # Use PostgreSQL with PostGIS extension for geographic data:
-wasp start db --db-image postgis/postgis:18-3.6 
+wasp db start --db-image postgis/postgis:18-3.6
 
 # Use PostgreSQL with pgvector extension for AI embeddings:
-wasp start db --db-image pgvector/pgvector:pg18
+wasp db start --db-image pgvector/pgvector:pg18
 
 # Use PostgreSQL version 15 (requires different volume path):
-wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
+wasp db start --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
 ```
 
 :::note
@@ -3839,7 +3850,7 @@ The custom Docker image you specify must use the `POSTGRES_DB`, `POSTGRES_USER`,
 
 ##### Connecting to an existing database
 
-If you want to spin up your own dev database (or connect to an external one), you can tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string.
+If you want to spin up your own dev database (or connect to an external one), you can tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string. It does not start or stop that database.
 
 The easiest way to set the necessary `DATABASE_URL` environment variable is by adding it to the [.env.server](https://wasp.sh/docs/advanced/env-vars) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
 
@@ -3883,11 +3894,9 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    wasp clean
    ```
 
-3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
+3. Stop `wasp start` if it is running, then run `wasp db migrate-dev` to create and apply a new initial migration. Wasp starts the development database if needed. If you set `DATABASE_URL`, make sure that database is running first.
 
-4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
-
-5. That is it, you are all done!
+4. Run `wasp start` to start your app.
 
 ### Seeding the Database
 
@@ -11589,13 +11598,7 @@ wasp db migrate-dev
 
 ##### PostgreSQL
 
-If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
-
-```bash
-wasp start db
-```
-
-Then apply the migrations from another terminal:
+Apply the migrations. Wasp starts the development database automatically:
 
 ```bash
 wasp db migrate-dev
@@ -11605,7 +11608,7 @@ Wasp gives each worktree a unique [development database](https://wasp.sh/docs/fe
 
 ##### Seed data
 
-If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command.
+If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command. It starts the development database if needed. Stop `wasp start` before running database commands such as migrations or seeds.
 
 #### Start the app
 
@@ -11619,7 +11622,7 @@ wasp start
 
 `wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](https://wasp.sh/docs/advanced/cli#project-commands).
 
-`wasp start db` does the same for the dev database: it starts on port `5432` or the first free port after it, and `wasp start` finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](https://wasp.sh/docs/advanced/cli#project-commands).
+`wasp start` also starts the development database if needed, on port `5432` or the first free port after it. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](https://wasp.sh/docs/advanced/cli#project-commands).
 
 ### Extra resources
 
@@ -13344,16 +13347,12 @@ COMMANDS
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
-    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]
+    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>] [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]
                           Runs Wasp app in development mode, watching for file changes.
                           Optionally specify the ports the client and the server run on.
                           If not specified, Wasp picks the first free port when the default one is taken.
                           Optionally specify the URLs the client and the server are reachable at,
                           if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).
-    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]
-                          Starts managed development database for you.
-                          Optionally specify a custom port, Docker image, or Docker volume mount path.
-                          If the port is not specified, Wasp picks the first free port when the default one is taken.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
@@ -13361,7 +13360,6 @@ COMMANDS
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
-                          Accepts the same port and URL options as 'start'.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -13425,13 +13423,13 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
 cd MyFirstProject
-wasp db start
+wasp db migrate-dev
+wasp start
 ```
 
 #### Project Commands
 
-- `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
-- `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app. By default, it runs on port 5432, or the next free port if that one is taken. Use `--db-port <port>` to choose the port yourself; if you do, Wasp won't look for an alternative when it's taken.
+- `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server, and any database it started on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp).
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
 ```
@@ -13480,11 +13478,11 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
 Wasp provides a suite of commands for managing the database. These commands all begin with `db` and primarily execute Prisma commands behind the scenes.
 
-- `wasp db migrate-dev` synchronizes the development database with the current state of the schema (entities). If there are any changes in the schema, it generates a new migration and applies any pending migrations to the database.
-
-- The `--name foo` option allows you to specify a name for the migration, while the `--create-only` option lets you create an empty migration without applying it.
-
-- `wasp db studio` opens the GUI for inspecting your database.
+- `wasp db start` starts the development database in the foreground and fails if it is already running. Keep it running in a separate terminal to use it across commands. It accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp).
+- `wasp db migrate-dev` synchronizes the development database with the current schema (entities), generates a migration for schema changes, and applies pending migrations. Use `--name foo` to name the migration or `--create-only` to create a migration without applying it. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp).
+- `wasp db reset` deletes all data and reapplies migrations. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp).
+- `wasp db seed [seed-name]` runs a seed function. If you omit the name and have several seed functions, Wasp asks you to choose one. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp).
+- `wasp db studio` opens the GUI for inspecting your database. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp).
 
 :::caution[using prisma CLI directly]
 Although Wasp uses the `schema.prisma` file to define the database schema, you must not use the `prisma` command directly. Instead, use the `wasp db` commands.
@@ -13686,7 +13684,7 @@ We talk about specific providers in the [Cloud Providers section](https://wasp.s
 
 ## Deployment / Database
 
-In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local dev database (started with `wasp start db` or some other way). However, when it's time to deploy your app, you'll need to set up a production database.
+In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local development database that Wasp starts when needed. However, when it's time to deploy your app, you'll need to set up a production database.
 
 #### Production database requirements
 
@@ -13775,9 +13773,11 @@ While it's not identical to a real production environment, it's the closest you 
 
 ### Usage
 
+`wasp build start` does not start a database. Keep `wasp db start` running in a separate terminal while previewing the production build.
+
 ```bash
 # Start a local database, copy the connection URL
-wasp start db
+wasp db start
 
 # Start the local production build server
 # (this is an example, you'll probably need to add more environment variables)
@@ -19574,12 +19574,10 @@ Copy this password and type `exit` to leave the SSH session.
 
 Before opening the tunnel, make sure nothing else is running on port 5432:
 
-- Stop any local database started with `wasp db start`
+- Stop `wasp start` and any local database started with `wasp db start`
 - Check for Docker containers that might be using the port
 
-:::warning[Background processes]
-Even if you close the terminal that was running `wasp db start`, the Docker container may still be running in the background. Make sure to stop it before proceeding.
-:::
+Wasp stops the database it started when the command exits. If it used an existing database, that database stays running. Stop it separately if it occupies port 5432.
 
 Open the tunnel:
 

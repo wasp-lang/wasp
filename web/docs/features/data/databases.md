@@ -73,16 +73,16 @@ If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 
 #### Using the Dev Database provided by Wasp
 
-With PostgreSQL and no `DATABASE_URL` set, `wasp start`, `wasp db migrate-dev`, `wasp db reset`, `wasp db seed`, and `wasp db studio` start the database if needed. Install [Docker](https://www.docker.com/get-started/), make sure it is available in your `PATH`, and keep it running.
-
-Apply your migrations, then start the app:
+Run migrations, then start the app. Wasp starts the development database automatically:
 
 ```bash
 wasp db migrate-dev
 wasp start
 ```
 
-Wasp waits for the database to be ready before continuing. It shows logs from the database it started, then stops and removes its container when the command exits. The Docker volume persists, so your data is available the next time. If the development database is already running, Wasp uses the existing database and leaves it running.
+Wasp runs the development database in [Docker](https://www.docker.com/get-started/). Each command starts it if needed, waits until it is ready, and shows its logs. When the command finishes, Wasp stops and removes the container. Database files are stored in a Docker volume and reused on the next run.
+
+If the database is already running, Wasp uses it without stopping it afterward. This applies to `wasp start`, `wasp db migrate-dev`, `wasp db reset`, `wasp db seed`, and `wasp db studio`.
 
 Stop `wasp start` before running `wasp db migrate-dev`, `wasp db reset`, `wasp db seed`, or `wasp db studio`. These commands need the same project lock.
 

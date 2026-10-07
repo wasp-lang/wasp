@@ -20,8 +20,7 @@ Run `wasp install` before using the project.
 
 ### Database
 
-With Docker running and no `DATABASE_URL` set, run `wasp db migrate-dev`.
-Wasp starts PostgreSQL automatically for migrations and `wasp start`. It stops a database it started when the command exits and keeps its data.
+Run `wasp db migrate-dev` before starting the app. Wasp starts the development database automatically.
 
 ### Env variables
 

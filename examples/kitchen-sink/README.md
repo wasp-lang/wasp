@@ -46,7 +46,7 @@ npm run env:push
 
 The `kitchen-sink` app runs like any other Wasp application.
 
-With Docker running and no `DATABASE_URL` set, Wasp starts PostgreSQL automatically. It stops a database it started when the command exits and keeps its data.
+Wasp starts the development database automatically.
 
 1. Migrate the database (if needed):
 
