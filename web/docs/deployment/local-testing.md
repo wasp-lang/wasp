@@ -14,9 +14,11 @@ While it's not identical to a real production environment, it's the closest you 
 
 ## Usage
 
+`wasp build start` does not start a database. Keep `wasp db start` running in a separate terminal while previewing the production build.
+
 ```bash
 # Start a local database, copy the connection URL
-wasp start db
+wasp db start
 
 # Start the local production build server
 # (this is an example, you'll probably need to add more environment variables)

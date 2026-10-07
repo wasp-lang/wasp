@@ -88,7 +88,7 @@ You can override the Docker image used for Postgres via `--db-image`. If not pro
 Examples: `--db-image postgres:15`, `--db-image pgvector/pgvector:pg16`, `--db-image postgis/postgis:14-3.2`.
 
 > [!NOTE]
-> The same requirements as in `wasp start db` apply for the Postgres image used. See [Wasp docs](../web/docs/data-model/databases.md#custom-database) for more details.
+> The same requirements as in `wasp db start` apply for the Postgres image used. See [Wasp docs](../web/docs/features/data/databases.md#custom-database) for more details.
 
 ### Env variables
 

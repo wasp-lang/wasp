@@ -20,10 +20,8 @@ Run `wasp install` before using the project.
 
 ### Database
 
-Wasp needs the Postgres database running.
-
-Easiest way to do this is to use `wasp start db` to start a PostgreSQL locally using Docker.
-Then run `wasp db migrate-dev` in another terminal.
+With Docker running and no `DATABASE_URL` set, run `wasp db migrate-dev`.
+Wasp starts PostgreSQL automatically for migrations and `wasp start`. It stops a database it started when the command exits and keeps its data.
 
 ### Env variables
 
