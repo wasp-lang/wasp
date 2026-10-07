@@ -86,7 +86,7 @@ run interactivity emit process = mask $ \restore -> do
         ( case interactivity of
             Isolated -> P.getPid processHandle
             Interactive -> return Nothing
-          )
+        )
           `onException` emergencyCleanUp resources
       return (resources, processGroup)
 
