@@ -24,6 +24,7 @@ import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
+import qualified Wasp.Cli.Command.Db.Start as Command.Db.Start
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
@@ -33,7 +34,6 @@ import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
-import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
@@ -201,7 +201,7 @@ printVersion = do
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  "start" : startArgs -> runCommand $ Command.Start.Db.start startArgs
+  "start" : startArgs -> runCommand $ Command.Db.Start.start startArgs
   "reset" : resetArgs -> runCommandThatRequiresDbRunning "wasp db reset" Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
   "migrate-dev" : migrateArgs -> runCommandThatRequiresDbRunning "wasp db migrate-dev" Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev migrateArgs
   "seed" : seedArgs -> runCommandThatRequiresDbRunning "wasp db seed" Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
