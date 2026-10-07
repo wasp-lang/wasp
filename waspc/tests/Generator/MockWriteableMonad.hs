@@ -15,7 +15,7 @@ import Control.Monad.State
 import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
 import Data.Text (Text, pack)
-import Fixtures (systemSPRoot)
+import Fixtures.Paths (systemSPRoot)
 import StrongPath (Abs, Dir, Dir', File', Path', Rel, castDir, reldir, (</>))
 import StrongPath.Operations (castFile)
 import StrongPath.Types (File)

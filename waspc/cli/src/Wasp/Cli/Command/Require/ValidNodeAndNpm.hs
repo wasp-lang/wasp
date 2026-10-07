@@ -18,6 +18,6 @@ data ValidNodeAndNpm = ValidNodeAndNpm deriving (Typeable)
 instance Requirable ValidNodeAndNpm where
   checkRequirement =
     liftIO NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-      NodeVersion.VersionCheckFail errorMsg ->
+      Left errorMsg ->
         throwError $ CommandError "Node/NPM requirement not met" errorMsg
-      NodeVersion.VersionCheckSuccess -> return ValidNodeAndNpm
+      Right () -> return ValidNodeAndNpm

@@ -1,4 +1,4 @@
-module Fixtures where
+module Fixtures.Paths where
 
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
