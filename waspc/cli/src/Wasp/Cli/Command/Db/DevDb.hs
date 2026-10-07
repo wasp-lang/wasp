@@ -19,6 +19,7 @@ import Data.List (intercalate, isInfixOf)
 import Data.Maybe (fromMaybe, isJust)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
+import System.Directory (findExecutable)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Error (ioeGetErrorString)
@@ -29,7 +30,6 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
-import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Db.StartOptions (DbStartOptions (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -65,11 +65,11 @@ withDevDb options action = do
   databaseUrlSource <- liftIO $ findDatabaseUrlSource appSpec
   case databaseUrlSource of
     Just _ -> do
-      rejectUnusedOptions "DATABASE_URL is set." options
+      throwIfDbStartOptionsSupplied "DATABASE_URL is set." options
       action Nothing
     Nothing -> case ASV.getValidDbSystem appSpec of
       AS.App.Db.SQLite -> do
-        rejectUnusedOptions "This project uses SQLite." options
+        throwIfDbStartOptionsSupplied "This project uses SQLite." options
         action Nothing
       AS.App.Db.PostgreSQL ->
         withPostgresSession waspProjectDir (ASV.getApp appSpec).name options StartOrReuseDatabase $
@@ -148,8 +148,8 @@ runDockerCleanup args = do
       then Nothing
       else Just errors
 
-rejectUnusedOptions :: String -> DbStartOptions -> Command ()
-rejectUnusedOptions reason options =
+throwIfDbStartOptionsSupplied :: String -> DbStartOptions -> Command ()
+throwIfDbStartOptionsSupplied reason options =
   unless (null optionNames) $ E.throwError $ CommandError "Database options do not apply" (printf "%s These options only apply to Wasp-managed PostgreSQL: %s. Remove them to continue." reason (intercalate ", " optionNames))
   where
     optionNames = suppliedOptionNames options
@@ -160,17 +160,21 @@ suppliedOptionNames options =
     ++ ["--db-image" | isJust options.dbImage]
     ++ ["--db-volume-mount-path" | isJust options.dbVolumeMountPath]
 
-requireDockerAvailable :: Command ()
-requireDockerAvailable = do
+ensureDockerDaemonAvailable :: Command ()
+ensureDockerDaemonAvailable = do
+  liftIO (findExecutable "docker") >>= \case
+    Just _ -> return ()
+    Nothing ->
+      E.throwError $
+        CommandError
+          "Couldn't find `docker` executable"
+          "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   (exitCode, _, stderr) <- liftIO $ readProcessWithExitCode "docker" ["info", "--format", "{{.ServerVersion}}"] ""
   when (exitCode /= ExitSuccess) $ E.throwError $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
 
 preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> Command PreparedDatabase
 preparePostgresDevDb waspProjectDir appName options policy = do
-  throwIfExeIsNotAvailable
-    "docker"
-    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
-  requireDockerAvailable
+  ensureDockerDaemonAvailable
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> case policy of
