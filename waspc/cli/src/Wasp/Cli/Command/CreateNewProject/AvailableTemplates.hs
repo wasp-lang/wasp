@@ -97,7 +97,7 @@ openSaasStarterTemplate =
                     styleText $ "  1. Position into app's root directory:",
                     styleCode $ "    cd " <> projectDirName FP.</> "app",
                     styleText $ "",
-                    styleText $ "  2. With Docker running, apply initial database migrations:",
+                    styleText $ "  2. Apply initial database migrations:",
                     styleCode $ "    wasp db migrate-dev",
                     styleText $ "",
                     styleText $

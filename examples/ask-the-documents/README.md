@@ -36,7 +36,7 @@ This is an example Wasp app that supports:
    GOOGLE_CLIENT_SECRET="<your_google_client_secret>"
    ```
 
-4. With Docker running and no `DATABASE_URL` set, migrate the database with:
+4. Migrate the database:
 
    ```bash
    wasp db migrate-dev --db-image pgvector/pgvector:pg18
@@ -48,4 +48,4 @@ This is an example Wasp app that supports:
    wasp start --db-image pgvector/pgvector:pg18
    ```
 
-Wasp starts PostgreSQL automatically. It stops a database it started when the command exits and keeps its data. Pass `--db-image pgvector/pgvector:pg18` to each command that starts the database.
+Wasp starts the development database automatically. Pass `--db-image pgvector/pgvector:pg18` to each command that starts the database.

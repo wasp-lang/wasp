@@ -13,7 +13,7 @@ The deployed version of this example can be found at https://waspleau-app-client
 2. `wasp db migrate-dev` to migrate the database.
 3. `wasp start` to run the app.
 
-With Docker running and no `DATABASE_URL` set, Wasp starts PostgreSQL automatically. It stops a database it started when the command exits and keeps its data.
+Wasp starts the development database automatically.
 
 This will start your background workers as Wasp Jobs and present a dashboard UI that will auto-refresh every minute.
 
