@@ -4,39 +4,37 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
+import qualified StrongPath as SP
+import System.Exit (ExitCode)
+import System.Process (CreateProcess (..), proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Env (getEnvVars)
+import Wasp.Env (getEnvVars, inheritEnvWith)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Process as JobProcess
 
-buildClient :: BuildStartConfig -> Job.Job ()
-buildClient config =
-  Job.withKind Job.WebApp
-    . Job.describeFailure (("Building the client failed with exit code: " <>) . show)
-    $ JobProcess.run_
-      =<< Node.command
-        envVars
-        projectDir
-        "npx"
-        ["vite", "build"]
+buildClient :: BuildStartConfig -> Job.Job e ExitCode
+buildClient config = do
+  Job.fromProc
+    =<< inheritEnvWith
+      envVars
+      (proc "npx" ["vite", "build"]) {cwd = Just projectDir}
   where
     envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
+    projectDir = SP.fromAbsDir config.projectDir
 
-startClient :: BuildStartConfig -> Job.Job ()
-startClient config =
-  Job.withKind Job.WebApp
-    . Job.describeFailure (("Serving the client failed with exit code: " <>) . show)
-    $ JobProcess.run_ . JobProcess.interactive
-      =<< Node.command
-        envVars
-        projectDir
-        "npx"
-        [ "vite",
-          "preview", -- `preview` launches a static file server for the built client.
-          "--strictPort" -- This will make it fail if the port is already in use.
-        ]
+startClient :: BuildStartConfig -> Job.Job e ExitCode
+startClient config = do
+  Job.fromProc
+    =<< inheritEnvWith
+      envVars
+      ( proc
+          "npx"
+          [ "vite",
+            "preview", -- `preview` launches a static file server for the built client.
+            "--strictPort" -- This will make it fail if the port is already in use.
+          ]
+      )
+        { cwd = Just projectDir
+        }
   where
     envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
+    projectDir = SP.fromAbsDir config.projectDir

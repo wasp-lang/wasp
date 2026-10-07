@@ -1,17 +1,10 @@
-{-# LANGUAGE TypeApplications #-}
-
 module AppSpec.ValidTest where
 
 import Data.List (isInfixOf)
-import qualified Data.Map as M
 import Data.Maybe (fromJust)
-import qualified Data.Set as S
-import Fixtures (systemSPRoot)
-import NeatInterpolation (trimming)
-import StrongPath (relfile)
+import Fixtures.AppSpec (basicAppSpec)
 import qualified StrongPath as SP
 import Test.Hspec
-import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -33,8 +26,6 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
-import qualified Wasp.Generator.NpmWorkspaces as NW
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
@@ -446,12 +437,7 @@ spec_AppSpecValid = do
       let jobDecl = makeBasicJobDecl "testJob"
 
       let testDuplicateDecls decls declTypeName expectedErrorMessage = it ("returns an error if there are duplicate " ++ declTypeName ++ " declarations") $ do
-            ASV.validateAppSpec
-              ( basicAppSpec
-                  { AS.decls = decls ++ [basicRouteDecl],
-                    AS.prismaSchema = getPrismaSchemaWithConfig ""
-                  }
-              )
+            ASV.validateAppSpec (basicAppSpec {AS.decls = decls ++ [basicRouteDecl]})
               `shouldBe` [Valid.GenericValidationError expectedErrorMessage]
 
       testDuplicateDecls [basicAppDecl, pageDecl, pageDecl] "page" "There are duplicate page declarations with name 'testPage'."
@@ -668,42 +654,6 @@ spec_AppSpecValid = do
         }
 
     basicAppDecl = AS.Decl.makeDecl basicApp
-
-    basicAppSpec =
-      AS.AppSpec
-        { AS.decls = [basicAppDecl],
-          AS.prismaSchema = getPrismaSchemaWithConfig "",
-          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
-          AS.packageJson =
-            Npm.PackageJson.PackageJson
-              { Npm.PackageJson.name = "testApp",
-                Npm.PackageJson.version = Nothing,
-                Npm.PackageJson.dependencies = M.empty,
-                Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
-                Npm.PackageJson.wasp = Nothing
-              },
-          AS.buildType = BuildType.Development,
-          AS.migrationsDir = Nothing,
-          AS.devEnvVarsClient = [],
-          AS.devEnvVarsServer = [],
-          AS.userDockerfileContents = Nothing,
-          AS.devDatabaseUrl = Nothing,
-          AS.srcTsConfigPath = [relfile|tsconfig.json|]
-        }
-
-    getPrismaSchemaWithConfig restOfPrismaSource =
-      Util.getPrismaSchema
-        [trimming|
-          datasource db {
-            provider = "postgresql"
-            url      = env("DATABASE_URL")
-          }
-          generator client {
-            provider = "prisma-client-js"
-          }
-          ${restOfPrismaSource}
-        |]
 
     basicPage =
       AS.Page.Page
