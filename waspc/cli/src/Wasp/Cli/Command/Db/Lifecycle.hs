@@ -19,6 +19,7 @@ import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Error (ioeGetErrorString)
 import System.Process (CreateProcess (create_group), proc, readCreateProcessWithExitCode, readProcessWithExitCode)
+import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
@@ -48,6 +49,8 @@ import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 start :: StartDbArgs -> Command ()
 start args =
   withDatabaseSession args StartNewDatabase $ \case
+    NoDatabase ->
+      cliSendMessageC $ Msg.Info "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
     StartedDatabase _ _ process -> do
       cliSendMessageC $ Msg.Info "PostgreSQL is running. Ctrl+C stops PostgreSQL."
       _ <- liftIO $ wait process
@@ -100,8 +103,8 @@ withDatabaseSession args request action = do
             Left _ -> E.throwError $ CommandError "Could not start PostgreSQL" "The Docker process exited before PostgreSQL was ready. Check the database output above."
             Right () -> return ()
           when (request == StartNewDatabase) $ do
-            cliSendMessageC $ Msg.Info $ "Database URL: " <> Dev.Postgres.getDevConnectionUrl db
-            cliSendMessageC $ Msg.Info $ "Data volume: " <> db.dockerVolumeName
+            cliSendMessageC $ Msg.Info $ printf "Database URL: %s" (Dev.Postgres.getDevConnectionUrl db)
+            cliSendMessageC $ Msg.Info $ printf "Data volume: %s" db.dockerVolumeName
         _ -> return ()
       action session
     prepare = do
@@ -115,7 +118,7 @@ withDatabaseSession args request action = do
           EnsureDatabase -> rejectUnusedOptions "DATABASE_URL is set." args >> return (ExistingDatabase NoDatabase)
         else case ASV.getValidDbSystem appSpec of
           AS.App.Db.SQLite -> case request of
-            StartNewDatabase -> E.throwError $ CommandError "No database to start" "SQLite uses a local file and needs no separate startup."
+            StartNewDatabase -> return (ExistingDatabase NoDatabase)
             EnsureDatabase -> rejectUnusedOptions "This project uses SQLite." args >> return (ExistingDatabase NoDatabase)
           AS.App.Db.PostgreSQL -> do
             let appName = (ASV.getApp appSpec).name
@@ -154,16 +157,16 @@ runDockerCleanup operation containerId = do
   (status, _, errors) <- liftIO $ readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
   when (status /= ExitSuccess && not ("No such container" `isInfixOf` errors)) $
     if operation == "stop"
-      then cliSendMessageC $ Msg.Warning "Could not stop PostgreSQL" ("Wasp will try to remove the container. " <> errors)
-      else cliSendMessageC $ Msg.Warning "Could not remove PostgreSQL container" ("Try `docker rm --force " <> containerId <> "`. " <> errors)
+      then cliSendMessageC $ Msg.Warning "Could not stop PostgreSQL" (printf "Wasp will try to remove the container. %s" errors)
+      else cliSendMessageC $ Msg.Warning "Could not remove PostgreSQL container" (printf "Try `docker rm --force %s`. %s" containerId errors)
 
 rejectUnusedOptions :: String -> StartDbArgs -> Command ()
 rejectUnusedOptions source args =
-  unless (null options) $
-    E.throwError $
-      CommandError
-        "Database options do not apply"
-        (source <> " These options only apply to Wasp-managed PostgreSQL: " <> intercalate ", " options <> ". Remove them to continue.")
+  unless (null options)
+    $ E.throwError
+    $ CommandError
+      "Database options do not apply"
+      (printf "%s These options only apply to Wasp-managed PostgreSQL: %s. Remove them to continue." source (intercalate ", " options))
   where
     options = suppliedOptionNames args
 
@@ -176,9 +179,9 @@ suppliedOptionNames args =
 requireDockerAvailable :: Command ()
 requireDockerAvailable = do
   (exitCode, _, stderr) <- liftIO $ readProcessWithExitCode "docker" ["info", "--format", "{{.ServerVersion}}"] ""
-  when (exitCode /= ExitSuccess) $
-    E.throwError $
-      CommandError "Docker unavailable" ("Start Docker and retry. " <> stderr)
+  when (exitCode /= ExitSuccess)
+    $ E.throwError
+    $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
 
 preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> StartDbArgs -> DatabaseRequest -> Command PreparedDatabase
 preparePostgresDevDb waspProjectDir appName args request = do
@@ -193,10 +196,10 @@ preparePostgresDevDb waspProjectDir appName args request = do
         E.throwError $
           CommandError
             "PostgreSQL already running"
-            ( "This project's database is already running. Stop the command that started it, or run `docker stop "
-                <> runningDb.dockerContainerName
-                <> "` before starting it again. Database URL: "
-                <> Dev.Postgres.getDevConnectionUrl runningDb
+            ( printf
+                "This project's database is already running. Stop the command that started it, or run `docker stop %s` before starting it again. Database URL: %s"
+                runningDb.dockerContainerName
+                (Dev.Postgres.getDevConnectionUrl runningDb)
             )
       EnsureDatabase -> ExistingDatabase <$> reportReusedDb runningDb
     Nothing -> prepareDbOnPort =<< resolveDevDbPort
@@ -217,11 +220,11 @@ preparePostgresDevDb waspProjectDir appName args request = do
     reportReusedDb devDbSpec = do
       withDatabaseError "PostgreSQL is not ready" $ Dev.Postgres.waitForReadyDevDb devDbSpec
       cliSendMessageC $ Msg.Info "PostgreSQL was already running for this project. Wasp did not start it and will not stop it."
-      unless (null $ suppliedOptionNames args) $
-        cliSendMessageC $
-          Msg.Warning
-            "Database options not used"
-            ("These options only apply when starting a new container: " <> intercalate ", " (suppliedOptionNames args) <> ". Stop the running database before changing them.")
+      unless (null $ suppliedOptionNames args)
+        $ cliSendMessageC
+        $ Msg.Warning
+          "Database options not used"
+          (printf "These options only apply when starting a new container: %s. Stop the running database before changing them." (intercalate ", " (suppliedOptionNames args)))
       return $ ReusedDatabase devDbSpec
 
     prepareDbOnPort :: PortNumber -> Command PreparedDatabase
@@ -238,21 +241,21 @@ preparePostgresDevDb waspProjectDir appName args request = do
     -- invocation's arguments.
     dockerRunInfoLines :: [String]
     dockerRunInfoLines =
-      [ " ℹ Using Docker image: " <> dbDockerImage,
-        "   with the data volume mounted at: " <> dbDockerVolumeMountPath
+      [ printf " ℹ Using Docker image: %s" dbDockerImage,
+        printf "   with the data volume mounted at: %s" dbDockerVolumeMountPath
       ]
 
     ensureImageAvailable :: Command ()
     ensureImageAvailable = do
       (imageStatus, _, _) <- liftIO $ readProcessWithExitCode "docker" ["image", "inspect", dbDockerImage] ""
       when (imageStatus /= ExitSuccess) $ do
-        cliSendMessageC $ Msg.Start $ "Pulling PostgreSQL image " <> dbDockerImage <> "..."
+        cliSendMessageC $ Msg.Start $ printf "Pulling PostgreSQL image %s..." dbDockerImage
         pullStatus <- liftIO $ do
           channel <- newChan
           fst <$> concurrently (runProcessAsJob (proc "docker" ["pull", dbDockerImage]) Job.Db channel) (printDbMessages channel)
-        when (pullStatus /= ExitSuccess) $
-          E.throwError $
-            CommandError "Could not pull PostgreSQL image" ("Check the image name, registry access, and network connection. Image: " <> dbDockerImage)
+        when (pullStatus /= ExitSuccess)
+          $ E.throwError
+          $ CommandError "Could not pull PostgreSQL image" (printf "Check the image name, registry access, and network connection. Image: %s" dbDockerImage)
 
 withDatabaseError :: String -> IO a -> Command a
 withDatabaseError title action = do

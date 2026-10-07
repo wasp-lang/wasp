@@ -9,6 +9,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import Text.Printf (printf)
 import Wasp.AppComponentUrl (AppComponentUrl)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
@@ -70,7 +71,7 @@ start = withArguments startArgsParser $ \args ->
     cliSendMessageC $ Msg.Start "Starting up generated project..."
     let databaseUrlLine = case managedDb of
           Nothing -> ""
-          Just db -> " ℹ Database: " <> Dev.Postgres.getDevConnectionUrl db <> "\n"
+          Just db -> printf " ℹ Database: %s\n" (Dev.Postgres.getDevConnectionUrl db)
     cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs <> databaseUrlLine
 
     watchOrStartResult <- liftIO $ do

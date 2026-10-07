@@ -6,6 +6,7 @@ where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
+import Text.Printf (printf)
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresPort)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
@@ -20,7 +21,7 @@ data StartDbArgs = StartDbArgs
 startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
-    <$> Opt.optional (portParser "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")"))
+    <$> Opt.optional (portParser "db-port" (printf "Port to run the dev database on (default: %s)" (show defaultPostgresPort)))
     <*> Opt.optional
       ( Opt.strOption
           ( Opt.long "db-image"

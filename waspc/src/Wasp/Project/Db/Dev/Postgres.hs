@@ -10,14 +10,15 @@ module Wasp.Project.Db.Dev.Postgres
   )
 where
 
-import Control.Concurrent (threadDelay)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (create_group), proc, readCreateProcessWithExitCode, readProcessWithExitCode)
+import Text.Printf (printf)
 import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
+import qualified Wasp.Util.IO.Retry as Retry
 import qualified Wasp.Util.Network.Socket as Socket
 
 data DevDbSpec = DevDbSpec
@@ -46,43 +47,39 @@ getDevConnectionUrl devDbSpec =
 
 createDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO String
 createDevPostgresDb db image mountPath = do
-  -- Keep terminal Ctrl+C from stopping Docker before it returns the container ID we need for cleanup.
+  -- create_group keeps Docker outside the terminal's Ctrl+C group so it can return the container ID needed for cleanup.
   (status, output, errors) <- readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
   case (status, words output) of
     (ExitSuccess, [containerId]) -> return containerId
-    _ -> ioError $ userError $ "Could not create PostgreSQL container. " <> errors
+    _ -> ioError $ userError $ printf "Could not create PostgreSQL container. %s" errors
   where
     -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
     --   only when initializing the database -> if the volume was created previously, they will be ignored.
     --   This is how the postgres Docker image works.
     args =
-      [ "create",
-        "--rm",
-        "--name",
-        db.dockerContainerName,
-        "--publish",
-        show db.port <> ":" <> show defaultPostgresPort,
-        "-v",
-        db.dockerVolumeName <> ":" <> mountPath,
-        "--env",
-        "POSTGRES_PASSWORD=" <> db.password,
-        "--env",
-        "POSTGRES_USER=" <> db.user,
-        "--env",
-        "POSTGRES_DB=" <> db.dbName,
-        image
-      ]
+      concat
+        [ ["create", "--rm"],
+          ["--name", db.dockerContainerName],
+          ["--publish", printf "%s:%s" (show db.port) (show defaultPostgresPort)],
+          ["-v", printf "%s:%s" db.dockerVolumeName mountPath],
+          ["--env", printf "POSTGRES_PASSWORD=%s" db.password],
+          ["--env", printf "POSTGRES_USER=%s" db.user],
+          ["--env", printf "POSTGRES_DB=%s" db.dbName],
+          [image]
+        ]
 
 waitForReadyDevDb :: DevDbSpec -> IO ()
-waitForReadyDevDb devDbSpec = waitForReady 60
-  where
-    waitForReady :: Int -> IO ()
-    waitForReady 0 = do
+waitForReadyDevDb devDbSpec = do
+  result <- Retry.retry (Retry.constPause 1000000) 59 checkReady
+  case result of
+    Right () -> return ()
+    Left () -> do
       (_, output, errors) <- readProcessWithExitCode "docker" ["logs", "--tail", "30", devDbSpec.dockerContainerName] ""
-      ioError $ userError $ "PostgreSQL did not become ready. Check the logs below, then try again.\n" <> output <> errors
-    waitForReady attempts = do
+      ioError $ userError $ printf "PostgreSQL did not become ready. Check the logs below, then try again.\n%s%s" output errors
+  where
+    checkReady = do
       ready <- isDevDbReady devDbSpec
-      if ready then return () else threadDelay 1000000 >> waitForReady (attempts - 1)
+      return $ if ready then Right () else Left ()
 
 isDevDbReady :: DevDbSpec -> IO Bool
 isDevDbReady devDbSpec = do
@@ -93,27 +90,18 @@ isDevDbReady devDbSpec = do
 
 isDevDbConnectionReady :: DevDbSpec -> IO Bool
 isDevDbConnectionReady devDbSpec = do
-  (exitCode, output, _) <-
-    readProcessWithExitCode
-      "docker"
-      [ "exec",
-        "--env",
-        "PGPASSWORD=" <> devDbSpec.password,
-        devDbSpec.dockerContainerName,
-        "psql",
-        "-h",
-        "127.0.0.1",
-        "-U",
-        devDbSpec.user,
-        "-d",
-        devDbSpec.dbName,
-        "-t",
-        "-A",
-        "-c",
-        "SELECT 1"
-      ]
-      ""
+  (exitCode, output, _) <- readProcessWithExitCode "docker" args ""
   return $ exitCode == ExitSuccess && output == "1\n"
+  where
+    args =
+      concat
+        [ ["exec", "--env", printf "PGPASSWORD=%s" devDbSpec.password],
+          [devDbSpec.dockerContainerName, "psql"],
+          ["-h", "127.0.0.1"],
+          ["-U", devDbSpec.user],
+          ["-d", devDbSpec.dbName],
+          ["-t", "-A", "-c", "SELECT 1"]
+        ]
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its
 -- container is running, 'Nothing' otherwise.
