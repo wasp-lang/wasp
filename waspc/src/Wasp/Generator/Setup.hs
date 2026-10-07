@@ -1,15 +1,19 @@
 module Wasp.Generator.Setup
-  ( runSetup,
+  ( SetupStep (..),
+    allSetupSteps,
+    runSetup,
+    orderSetupSteps, -- Exported for testing.
   )
 where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad (unless)
+import Control.Monad (forM_, unless)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
 import Data.Either (fromLeft)
+import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -26,19 +30,51 @@ import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 
+-- | The work that turns freshly generated code into a runnable app.
+--
+-- The constructors are declared in the order the steps must run: npm install
+-- provides the tooling for everything after it, and the Prisma client has to
+-- exist before the SDK that imports it is built.
+data SetupStep
+  = InstallNpmDeps
+  | FormatPrismaSchema
+  | WarnIfDbNeedsMigration
+  | GeneratePrismaClient
+  | BuildSdk
+  | CreateWebAppRootDir
+  | TypeCheckUserCode
+  deriving (Eq, Show, Enum, Bounded)
+
+allSetupSteps :: [SetupStep]
+allSetupSteps = [minBound .. maxBound]
+
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
-runSetup :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
-runSetup spec generatedAppDir sendMessage = do
-  (result, warnings) <- runWriterT $ runExceptT $ do
-    installDependencies spec generatedAppDir sendMessage
-    setUpDatabase spec generatedAppDir sendMessage
-    -- todo(filip): Should we consider building SDK as part of code generation?
-    -- todo(filip): Avoid building on each setup if we don't need to.
-    buildSdk generatedAppDir sendMessage
-    liftIO $ createWebAppRootDir generatedAppDir
-    typeCheckUserCode spec sendMessage
+-- | Runs the requested steps in their declaration order, whatever order they
+-- were requested in, and stops at the first step that fails.
+runSetup :: [SetupStep] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
+runSetup requestedSteps spec generatedAppDir sendMessage = do
+  (result, warnings) <-
+    runWriterT $
+      runExceptT $
+        forM_ (orderSetupSteps requestedSteps) $ \step ->
+          runSetupStep step spec generatedAppDir sendMessage
   return (warnings, fromLeft [] result)
+
+orderSetupSteps :: [SetupStep] -> [SetupStep]
+orderSetupSteps requestedSteps = filter (`elem` requestedSteps) allSetupSteps
+
+runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+runSetupStep step spec generatedAppDir sendMessage = case step of
+  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
+  FormatPrismaSchema -> liftIO $ DbGenerator.formatPrismaSchemaFileOnDisk generatedAppDir
+  WarnIfDbNeedsMigration -> warnIfDbNeedsMigration spec generatedAppDir
+  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
+  -- todo(filip): Should we consider building SDK as part of code generation?
+  -- todo(filip): Avoid building on each setup if we don't need to.
+  BuildSdk -> buildSdk generatedAppDir sendMessage
+  CreateWebAppRootDir -> liftIO $ createWebAppRootDir generatedAppDir
+  TypeCheckUserCode -> typeCheckUserCode spec sendMessage
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 installDependencies spec generatedAppDir sendMessage = do
@@ -47,14 +83,22 @@ installDependencies spec generatedAppDir sendMessage = do
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
 
-setUpDatabase :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpDatabase spec dstDir sendMessage = do
-  (dbGeneratorWarnings, dbGeneratorErrors) <- liftIO $ do
-    sendMessage $ Msg.Start "Setting up database..."
-    DbGenerator.postWriteDbGeneratorActions spec dstDir
-  tell dbGeneratorWarnings
-  unless (null dbGeneratorErrors) $ throwError dbGeneratorErrors
-  liftIO $ sendMessage $ Msg.Success "Database successfully set up."
+warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
+warnIfDbNeedsMigration spec generatedAppDir =
+  -- Only development has a database to check against. A production build
+  -- (`wasp build`) is deployed somewhere else, so there is nothing to compare to.
+  unless (AS.isProduction spec) $ do
+    warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
+    tell $ maybeToList warning
+
+generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+generatePrismaClient spec generatedAppDir sendMessage = do
+  result <- liftIO $ do
+    sendMessage $ Msg.Start "Generating Prisma client..."
+    DbGenerator.generatePrismaClient spec generatedAppDir
+  case result of
+    Just generatorError -> throwError [generatorError]
+    Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 buildSdk generatedAppDir sendMessage = do

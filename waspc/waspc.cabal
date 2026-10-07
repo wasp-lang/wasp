@@ -590,6 +590,7 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
+    Generator.SetupTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
