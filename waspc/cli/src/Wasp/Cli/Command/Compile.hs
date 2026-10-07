@@ -7,6 +7,7 @@ module Wasp.Cli.Command.Compile
     compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
+    fullCompileOptions,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
     analyze,
@@ -34,6 +35,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
+import Wasp.Generator.Setup (allSetupSteps)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -55,7 +57,7 @@ compile = do
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  compileWithOptions $ defaultCompileOptions waspProjectDir
+  compileWithOptions $ fullCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -142,7 +144,7 @@ compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO ([CompileWarning], Either [CompileError] AS.AppSpec)
-compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
+compileIO waspProjectDir = compileIOWithOptions (fullCompileOptions waspProjectDir) waspProjectDir
 
 compileIOWithOptions ::
   CompileOptions ->
@@ -158,8 +160,16 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      generatorWarningsFilter = id
+      generatorWarningsFilter = id,
+      -- Nothing runs after code generation unless the caller asks for it.
+      setupSteps = []
     }
+
+-- | Options for a full development compile: generate the code and run every
+-- setup step, so the app is ready to start.
+fullCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
+fullCompileOptions waspProjectDir =
+  (defaultCompileOptions waspProjectDir) {setupSteps = allSetupSteps}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do

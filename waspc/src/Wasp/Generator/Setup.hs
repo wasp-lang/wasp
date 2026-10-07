@@ -8,7 +8,7 @@ where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad (forM_, unless)
+import Control.Monad (forM_)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
@@ -84,12 +84,9 @@ installDependencies spec generatedAppDir sendMessage = do
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir =
-  -- Only development has a database to check against. A production build
-  -- (`wasp build`) is deployed somewhere else, so there is nothing to compare to.
-  unless (AS.isProduction spec) $ do
-    warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
-    tell $ maybeToList warning
+warnIfDbNeedsMigration spec generatedAppDir = do
+  warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
+  tell $ maybeToList warning
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 generatePrismaClient spec generatedAppDir sendMessage = do

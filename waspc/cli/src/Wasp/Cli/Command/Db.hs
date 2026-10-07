@@ -9,8 +9,9 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
+import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter, setupSteps))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Generator.Setup (allSetupSteps)
 
 runCommandThatRequiresDbRunning :: Command a -> IO ()
 runCommandThatRequiresDbRunning = runCommand . makeDbCommand
@@ -30,7 +31,8 @@ makeDbCommand cmd = withProjectLock $ do
   where
     compileOptions waspProjectDir =
       (defaultCompileOptions waspProjectDir)
-        { -- Ignore "DB needs migration warnings" during database commands, as that is redundant
+        { setupSteps = allSetupSteps,
+          -- Ignore "DB needs migration warnings" during database commands, as that is redundant
           -- for `db migrate-dev` and not helpful for `db studio`.
           generatorWarningsFilter =
             filter
