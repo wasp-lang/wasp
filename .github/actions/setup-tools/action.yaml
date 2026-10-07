@@ -80,7 +80,6 @@ runs:
         set -euxo pipefail
         echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
         echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
-        echo "CABAL_INDEX=$(cabal path -v0 --remote-repo-cache)" >> $GITHUB_OUTPUT
 
     - name: Probe system libc
       id: probe-libc
@@ -96,38 +95,6 @@ runs:
           *) libc=default ;;
         esac
         echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
-
-    # Cabal needs the Hackage index to compute the dependency plan that keys the
-    # Cabal store cache below, so the index gets its own cache. It only changes
-    # when the `index-state` in `cabal.project` is bumped, and `cabal update`
-    # tops it up incrementally after a restore.
-    - name: Cache Hackage index
-      if: ${{ inputs.haskell == 'true' }}
-      uses: actions/cache@v5
-      with:
-        # We skip the source tarballs that also live in this folder. Cabal
-        # downloads them again on the rare occasions it needs to build a
-        # dependency.
-        path: |
-          ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}/hackage.haskell.org/01-index.*
-          ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}/hackage.haskell.org/*.json
-        key: >
-          ${{
-            format(
-              'cabal-index-v1-{0}-{1}-{2}',
-              runner.os,
-              steps.probe-libc.outputs.LIBC || 'unknown',
-              hashFiles('waspc/cabal.project')
-            )
-          }}
-        restore-keys: >
-          ${{
-            format(
-              'cabal-index-v1-{0}-{1}-',
-              runner.os,
-              steps.probe-libc.outputs.LIBC || 'unknown'
-            )
-          }}
 
     - name: Update Cabal package index
       if: ${{ inputs.haskell == 'true' }}
@@ -162,6 +129,8 @@ runs:
           # - `./dist-newstyle`: Our internal code builds quite fast, and
           #   changes often enough that a cache would need to be invalidated on
           #   every run, and make our cache much bigger.
+          # - The Hackage index: We need it before this step to compute the
+          #   cache key, and it makes up most of the cache's size.
           #
           # We do cache the Cabal store, which is where the actual built
           # packages are stored, as it is the most expensive part of the build,
