@@ -2,6 +2,7 @@
 
 module Wasp.Util.IO.Retry
   ( retry,
+    retryUntil,
     retryWithCallback,
     constPause,
     linearPause,
@@ -14,6 +15,7 @@ module Wasp.Util.IO.Retry
 where
 
 import Control.Concurrent (threadDelay)
+import Data.Either (isRight)
 import Numeric.Natural (Natural)
 import Prelude hiding (readFile, writeFile)
 
@@ -23,6 +25,16 @@ import Prelude hiding (readFile, writeFile)
 --   Uses provided pauseStrategy to calculate pause between tries.
 retry :: (MonadRetry m) => PauseStrategy -> Natural -> m (Either e a) -> m (Either e a)
 retry pauseStrategy maxNumRetries = retryWithCallback pauseStrategy maxNumRetries (\_ _ -> pure ())
+
+-- | Repeats a check until it returns True or the retries are exhausted.
+retryUntil :: (MonadRetry m) => PauseStrategy -> Natural -> m Bool -> m Bool
+retryUntil pauseStrategy maxNumRetries check = do
+  result <- retry pauseStrategy maxNumRetries attempt
+  return $ isRight result
+  where
+    attempt = do
+      ready <- check
+      return $ if ready then Right () else Left ()
 
 -- | Same as 'retry', but also runs provided onRetry callback after each failed try
 --   that will be retried, right before the pause. The callback receives the number
