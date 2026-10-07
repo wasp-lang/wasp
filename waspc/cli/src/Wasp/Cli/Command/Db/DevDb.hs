@@ -19,7 +19,6 @@ import Data.List (intercalate, isInfixOf)
 import Data.Maybe (fromMaybe, isJust)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
-import System.Directory (findExecutable)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Error (ioeGetErrorString)
@@ -30,6 +29,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Db.StartOptions (DbStartOptions (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -162,13 +162,9 @@ suppliedOptionNames options =
 
 ensureDockerDaemonAvailable :: Command ()
 ensureDockerDaemonAvailable = do
-  liftIO (findExecutable "docker") >>= \case
-    Just _ -> return ()
-    Nothing ->
-      E.throwError $
-        CommandError
-          "Couldn't find `docker` executable"
-          "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+  throwIfExeIsNotAvailable
+    "docker"
+    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   (exitCode, _, stderr) <- liftIO $ readProcessWithExitCode "docker" ["info", "--format", "{{.ServerVersion}}"] ""
   when (exitCode /= ExitSuccess) $ E.throwError $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
 
