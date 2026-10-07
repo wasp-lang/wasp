@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.Start.Db
+module Wasp.Cli.Command.Db.Start
   ( start,
   )
 where
