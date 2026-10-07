@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 -- | This modules implements general concepts regarding env vars.
 -- It is not specific to Wasp in any way.
 module Wasp.Env
@@ -17,8 +19,10 @@ where
 
 import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
+import qualified Data.Conduit.Process as P
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
@@ -68,6 +72,14 @@ findDuplicateEnvVars existing incoming =
 class HasEnvVars a where
   getEnvVars :: a -> [EnvVar]
   setEnvVars :: a -> [EnvVar] -> a
+
+instance HasEnvVars [EnvVar] where
+  getEnvVars envVars = envVars
+  setEnvVars _oldEnvVars newEnvVars = newEnvVars
+
+instance HasEnvVars P.CreateProcess where
+  getEnvVars cp = fromMaybe [] (P.env cp)
+  setEnvVars cp newEnvVars = cp {P.env = Just newEnvVars}
 
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, returns a @Left@ of the duplicate env var

@@ -5,24 +5,27 @@ module Wasp.Cli.Command.BuildStart.Server
 where
 
 import qualified StrongPath as SP
+import System.Exit (ExitCode)
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
-import qualified Wasp.Job as Job
-import qualified Wasp.Job.Process as JobProcess
+import qualified Wasp.Job.Fictional as Job
 
-buildServer :: BuildStartConfig -> Job.Job ()
+buildServer :: BuildStartConfig -> Job.Job e ExitCode
 buildServer config =
-  JobProcess.run_ (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  Job.fromProc $
+    proc
+      "docker"
+      ["build", "--tag", dockerImageName, dockerContextDir]
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
     dockerImageName = Config.dockerImageName config
 
-startServer :: BuildStartConfig -> Job.Job ()
+startServer :: BuildStartConfig -> Job.Job e ExitCode
 startServer config =
-  JobProcess.run_ $
+  Job.fromProc $
     proc
       "docker"
       ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]

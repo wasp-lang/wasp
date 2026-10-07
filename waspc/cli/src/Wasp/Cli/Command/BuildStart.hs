@@ -3,9 +3,7 @@ module Wasp.Cli.Command.BuildStart
   )
 where
 
-import qualified Control.Concurrent.Async as Async
-import Control.Monad.Except (MonadError (throwError))
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad (void)
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
@@ -21,8 +19,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import qualified Wasp.Job as Job
-import qualified Wasp.Job.Output as Output
+import qualified Wasp.Job.Fictional as Job
 import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
@@ -48,13 +45,17 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
-  liftIO (Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.WebApp) $ buildClient config)
-    >>= throwOnExitFailure "Building client failed." "Building the client"
+  Job.run
+    $ Job.maybeFailWith (makeExitError "Building client failed." "Building the client")
+    $ Job.prefixWith Job.WebApp
+    $ buildClient config
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  liftIO (Output.withPrefixed $ \prefixed -> Job.runJob (prefixed Output.Server) $ buildServer config)
-    >>= throwOnExitFailure "Building server failed." "Building the server"
+  Job.run
+    $ Job.maybeFailWith (makeExitError "Building server failed." "Building the server")
+    $ Job.prefixWith Job.Server
+    $ buildServer config
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
@@ -62,21 +63,24 @@ buildAndStartServerAndClient config = do
     $ Msg.Info
     $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
-  firstExit <-
-    liftIO $ Output.withPrefixed $ \prefixed ->
-      Async.race
-        (Job.runJob (prefixed Output.WebApp) (startClient config))
-        (Job.runJob (prefixed Output.Server) (startServer config))
-  case firstExit of
-    Left clientExit -> throwOnExitFailure startErrorTitle "Serving the client" clientExit
-    Right serverExit -> throwOnExitFailure startErrorTitle "Running the server" serverExit
+  void
+    $ Job.run
+    $ Job.race
+      ( Job.maybeFailWith (makeExitError startErrorTitle "Starting the client")
+          $ Job.prefixWith Job.WebApp
+          $ startClient config
+      )
+      ( Job.maybeFailWith (makeExitError startErrorTitle "Starting the server")
+          $ Job.prefixWith Job.Server
+          $ startServer config
+      )
   where
     startErrorTitle = "Starting Wasp app failed."
 
-    throwOnExitFailure :: String -> String -> ExitCode -> Command ()
-    throwOnExitFailure _ _ ExitSuccess = return ()
-    throwOnExitFailure errorTitle failedStep (ExitFailure code) =
-      throwError $
+    makeExitError :: String -> String -> ExitCode -> Maybe CommandError
+    makeExitError _ _ ExitSuccess = Nothing
+    makeExitError errorTitle failedStep (ExitFailure code) =
+      Just $
         CommandError
           errorTitle
           (failedStep <> " failed with exit code: " <> show code)

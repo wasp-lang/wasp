@@ -4,18 +4,18 @@ module Wasp.Generator.WebAppGenerator.Test
 where
 
 import StrongPath (Abs, Dir, Path')
+import qualified StrongPath as SP
+import System.Exit (ExitCode)
+import System.Process (CreateProcess (..), proc)
 import Wasp.Env (getEnvVars)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
-import qualified Wasp.Job as J
-import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Process as JobProcess
+import Wasp.Job.Fictional (inheritEnvWith)
+import qualified Wasp.Job.Fictional as J
 import Wasp.Project.Common (WaspProjectDir)
 
-testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job ()
+testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job e ExitCode
 testWebApp clientRunConfig args waspProjectDir = do
-  JobProcess.run_
-    =<< Node.command
+  J.fromProc
+    =<< inheritEnvWith
       (getEnvVars clientRunConfig)
-      waspProjectDir
-      "npx"
-      ("vitest" : args)
+      (proc "npx" ("vitest" : args)) {cwd = Just $ SP.fromAbsDir waspProjectDir}

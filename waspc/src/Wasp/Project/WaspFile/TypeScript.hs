@@ -20,15 +20,14 @@ import StrongPath
     (</>),
   )
 import System.Exit (ExitCode (..))
+import System.Process (CreateProcess (cwd), proc)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
-import qualified Wasp.Job as Job
-import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Output as Output
-import qualified Wasp.Job.Process as JobProcess
+import Wasp.Job.Fictional (inheritEnvWith)
+import qualified Wasp.Job.Fictional as Job
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
@@ -75,31 +74,35 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   -- `npx` requires the bin file to be executable, and `cabal install`
   -- strips executable permissions from data files.
   runExitCode <-
-    Output.withPrefixed $ \prefixed ->
-      Job.runJob (prefixed Output.Wasp) $
-        JobProcess.run_
-          =<< Node.command
-            [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
-              -- Not related to `node` itself, so we have to set it manually.
-              -- It enables users to write environment specific code in the TS config.
-              -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
-              --       also provide the `NODE_ENV` values for the "configuration runtime".
-              --       Maybe consider using a different key, e.g. `WASP_MODE`?
-              ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
-            ]
-            compileOptions.waspProjectDir
-            "node"
-            [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
-              "analyze",
-              fromAbsFile waspFilePath,
-              fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-              fromAbsDir compileOptions.waspProjectDir,
-              fromAbsFile absSpecResultFile,
-              -- When the user is coding main.wasp.ts, TypeScript must know about
-              -- all the available entities to warn the user if they use an
-              -- entity that doesn't exist.
-              encodeToString allowedEntityNames
-            ]
+    Job.run
+      $ Job.prefixWith Job.Wasp
+      $ Job.fromProc
+        =<< inheritEnvWith
+          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+            -- Not related to `node` itself, so we have to set it manually.
+            -- It enables users to write environment specific code in the TS config.
+            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+            --       also provide the `NODE_ENV` values for the "configuration runtime".
+            --       Maybe consider using a different key, e.g. `WASP_MODE`?
+            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+          ]
+          ( proc
+              "node"
+              [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+                "analyze",
+                fromAbsFile waspFilePath,
+                fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+                fromAbsDir compileOptions.waspProjectDir,
+                fromAbsFile absSpecResultFile,
+                -- When the user is coding main.wasp.ts, TypeScript must know about
+                -- all the available entities to warn the user if they use an
+                -- entity that doesn't exist.
+                encodeToString allowedEntityNames
+              ]
+          )
+            { cwd = Just $ fromAbsDir compileOptions.waspProjectDir
+            }
+
   case runExitCode of
     ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
     ExitSuccess -> readSpecResultFile

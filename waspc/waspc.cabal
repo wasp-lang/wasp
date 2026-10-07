@@ -317,10 +317,7 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
-    Wasp.Job
-    Wasp.Job.Node
-    Wasp.Job.Output
-    Wasp.Job.Process
+    Wasp.Job.Fictional
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
@@ -594,8 +591,6 @@ test-suite waspc-tests
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
-    Job.ProcessTest
-    JobTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
