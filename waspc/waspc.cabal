@@ -161,6 +161,7 @@ library
     build-depends: unix
   other-modules:
     Paths_waspc
+    Wasp.Job.Process
     Wasp.Process.System
 
   exposed-modules:
@@ -554,6 +555,7 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,

@@ -14,7 +14,7 @@ import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job e ExitCode
 startWebApp webAppRunConfig waspProjectDir = do
-  J.fromProc
+  J.fromInteractiveProc
     =<< inheritEnvWith
       (getEnvVars webAppRunConfig)
       (proc "npx" ["vite"]) {cwd = Just $ SP.fromAbsDir waspProjectDir}

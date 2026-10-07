@@ -1,5 +1,7 @@
 module Test.Process.Util
   ( ProcessId,
+    parseProcessId,
+    processIdToPid,
     readProcessId,
     isPortAvailable,
     isProcessAlive,
@@ -28,6 +30,9 @@ parseProcessId text = do
   value <- readMaybe text :: Maybe Integer
   guard $ value > 0 && value <= fromIntegral (maxBound :: Int32)
   return $ ProcessId $ fromIntegral value
+
+processIdToPid :: ProcessId -> P.Pid
+processIdToPid (ProcessId pid) = fromIntegral pid
 
 readProcessId :: FilePath -> IO ProcessId
 readProcessId path = do

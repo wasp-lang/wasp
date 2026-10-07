@@ -17,7 +17,7 @@ startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job e Exi
 startServer serverRunConfig generatedAppDir = do
   let serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
-  J.fromProc
+  J.fromInteractiveProc
     =<< inheritEnvWith
       (getEnvVars serverRunConfig)
       (proc "npm" ["run", "watch"]) {cwd = Just serverDir}

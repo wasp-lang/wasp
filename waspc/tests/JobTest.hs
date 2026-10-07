@@ -1,18 +1,30 @@
+{-# LANGUAGE CPP #-}
+
 module JobTest where
 
-import Control.Concurrent (newEmptyMVar, takeMVar, threadDelay, tryPutMVar)
-import Control.Monad (unless, void)
+import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (finally)
+import Control.Monad (unless, void, when)
 import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
+import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
 import qualified System.Info
 import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
+import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
+#if !mingw32_HOST_OS
+import qualified System.Posix.Process as Posix
+import System.Posix.Types (ProcessGroupID)
+import Test.Hspec (shouldNotBe)
+import Test.Process.Util (processIdToPid)
+#endif
 
 spec_Job :: Spec
 spec_Job = do
@@ -67,25 +79,23 @@ spec_Job = do
       timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob failingJob)
         `shouldReturn` Just (Left "Failed with 7")
 
-    -- On Windows, stopping a job waits for its process to exit by itself,
-    -- because reading the process's output can't be interrupted there.
-    unless (System.Info.os == "mingw32") $
-      it "stops the process of the job that didn't finish" $ do
-        processStarted <- newEmptyMVar
-        -- The process exits by itself after a while, so that the test fails
-        -- instead of hanging if stopping it doesn't work.
-        let slowProcess = (node "console.log(process.pid); setTimeout(() => {}, 10000)") {P.create_group = True}
-            slowJob = Job.onOutput (void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
-            jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
-        result <-
-          timeout (secondsToMicroSeconds 5)
-            $ runJob
-            $ Job.captureOutput
-            $ Job.race slowJob jobThatFinishesOnceProcessStarts
-        case result of
-          Just (Right (Right (), output)) ->
-            waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
-          _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
+    it "stops the process of the job that didn't finish" $ do
+      processStarted <- newEmptyMVar
+      -- The process exits by itself after a while, so that the test fails
+      -- instead of hanging if stopping it doesn't work.
+      let slowProcess = node "console.log(process.pid); setTimeout(() => {}, 10000)"
+          slowJob = Job.onOutput (void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
+          jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
+      result <-
+        timeout (secondsToMicroSeconds 5)
+          $ runJob
+          $ Job.captureOutput
+          $ Job.race slowJob jobThatFinishesOnceProcessStarts
+      case result of
+        Just (Right (Right (), output)) -> case parseProcessId $ T.unpack output of
+          Just pid -> waitUntil "the process exits" $ not <$> isProcessAlive pid
+          Nothing -> expectationFailure $ "Invalid process ID: " <> T.unpack output
+        _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
   describe "fromProc" $ do
     it "returns the exit code of the process without failing the job" $ do
@@ -96,10 +106,54 @@ spec_Job = do
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (Right (ExitSuccess, "outerr"))
 
-    it "gives an empty stdin to a process that asks for a pipe" $ do
+    it "emits all the output before returning the exit code" $ do
+      let process = node "process.stdout.write('x'.repeat(200000)); process.exitCode = 7;"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (Right (ExitFailure 7, T.replicate 200000 "x"))
+
+    it "gives the process an empty stdin" $ do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
-      runProcessJob (Job.fromProc readsStdinToEnd {P.std_in = P.CreatePipe})
+      runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (Right (ExitFailure 3))
+
+    it "stops the processes it started when the job is stopped" $
+      withListeningDescendant $ \running port _ -> do
+        isPortAvailable port `shouldReturn` False
+        timeout (secondsToMicroSeconds 3) (Async.cancel running) `shouldReturn` Just ()
+        isPortAvailable port `shouldReturn` True
+
+    unless isWindows $
+      it "stops the processes it started once it exits" $
+        withListeningDescendant $ \running port exitRoot -> do
+          exitRoot
+          timeout (secondsToMicroSeconds 3) (Async.wait running) `shouldReturn` Just (Right ExitSuccess)
+          isPortAvailable port `shouldReturn` True
+
+    it "forces a process that ignores interruption to stop" $ do
+      let ignoreInterruption = "process.on('SIGINT', () => {}); process.on('SIGTERM', () => {});"
+      withRunningProcess Job.fromProc ignoreInterruption $ \running pid -> do
+        timeout (secondsToMicroSeconds 3) (Async.cancel running) `shouldReturn` Just ()
+        isProcessAlive pid `shouldReturn` False
+
+    it "doesn't stop another job's process when one job is stopped" $
+      withRunningProcess Job.fromProc "" $ \first _ ->
+        withRunningProcess Job.fromProc "" $ \second secondPid -> do
+          Async.cancel first
+          Async.poll second >>= \case
+            Nothing -> isProcessAlive secondPid `shouldReturn` True
+            Just _ -> expectationFailure "Stopping one job stopped another job's process"
+
+#if !mingw32_HOST_OS
+    it "runs the process in its own process group" $ do
+      waspGroup <- Posix.getProcessGroupID
+      processGroup <- getProcessGroupOfProcessRunBy Job.fromProc
+      processGroup `shouldNotBe` waspGroup
+
+  describe "fromInteractiveProc" $ do
+    it "runs the process in Wasp's process group" $ do
+      waspGroup <- Posix.getProcessGroupID
+      getProcessGroupOfProcessRunBy Job.fromInteractiveProc `shouldReturn` waspGroup
+#endif
 
 runJob :: Job.Job String a -> IO (Either String a)
 runJob = runExceptT . Job.run
@@ -112,15 +166,93 @@ failWith :: Int -> String
 failWith code = "Failed with " <> show code
 
 node :: String -> P.CreateProcess
-node script = P.proc "node" ["-e", script]
+node script = nodeWithArgs script []
 
--- | Returns whether the process with the given ID exits within 5 seconds.
-waitForProcessToExit :: Int -> IO Bool
-waitForProcessToExit pid = go (50 :: Int)
-  where
-    go 0 = return False
-    go attemptsLeft = do
-      (exitCode, _, _) <- P.readCreateProcessWithExitCode (node $ "process.kill(" <> show pid <> ", 0)") ""
-      if exitCode /= ExitSuccess
-        then return True
-        else threadDelay (secondsToMicroSeconds 1 `div` 10) >> go (attemptsLeft - 1)
+nodeWithArgs :: String -> [String] -> P.CreateProcess
+nodeWithArgs script args = P.proc "node" $ ["-e", script] <> args
+
+isWindows :: Bool
+isWindows = System.Info.os == "mingw32"
+
+-- | Runs a process with the given function while the action runs, once the
+-- process has started. The process runs until it's stopped, after running the
+-- given script.
+withRunningProcess ::
+  (P.CreateProcess -> Job.Job String ExitCode) ->
+  String ->
+  (Async.Async (Either String ExitCode) -> ProcessId -> IO ()) ->
+  IO ()
+withRunningProcess runProcess script action = do
+  pidPath <- makeTempPath "wasp-running-process"
+  let process =
+        nodeWithArgs
+          ( unlines
+              [ script,
+                "const fs = require('node:fs');",
+                "const pidPath = process.argv[1];",
+                "fs.writeFileSync(pidPath + '.tmp', String(process.pid));",
+                "fs.renameSync(pidPath + '.tmp', pidPath);",
+                "setInterval(() => {}, 1000);"
+              ]
+          )
+          [pidPath]
+  Async.withAsync
+    (runJob $ runProcess process)
+    ( \running -> do
+        waitUntil "the process starts" $ doesFileExist pidPath
+        pid <- readProcessId pidPath
+        action running pid `finally` killProcess pid
+    )
+    `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+
+-- | Runs a process that starts a descendant listening on a port, and gives the
+-- action the running job, the port, and an action that makes the root process
+-- exit (while the descendant keeps running).
+withListeningDescendant :: (Async.Async (Either String ExitCode) -> String -> IO () -> IO ()) -> IO ()
+withListeningDescendant action = do
+  portPath <- makeTempPath "wasp-isolated-child-port"
+  rootExitPath <- makeTempPath "wasp-isolated-root-exit"
+  Async.withAsync
+    (runJob $ Job.fromProc $ nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath])
+    ( \running -> do
+        waitUntil "the descendant listens" $ doesFileExist portPath
+        port <- readFile portPath
+        action running port $ writeFile rootExitPath ""
+    )
+    `finally` mapM_ removeIfExists [portPath, portPath <> ".tmp", rootExitPath]
+
+descendantRootScript :: String
+descendantRootScript =
+  unlines
+    [ "const fs = require('node:fs')",
+      "const { spawn } = require('node:child_process')",
+      "const [childScript, portPath, exitPath] = process.argv.slice(1)",
+      "spawn(process.execPath, ['-e', childScript, portPath], { stdio: 'inherit' })",
+      "setInterval(() => { if (fs.existsSync(exitPath)) process.exit(0) }, 10)"
+    ]
+
+listeningServerScript :: String
+listeningServerScript =
+  unlines
+    [ "const fs = require('node:fs')",
+      "const server = require('node:net').createServer()",
+      "const portPath = process.argv[1]",
+      "server.listen(0, '127.0.0.1', () => {",
+      "  fs.writeFileSync(portPath + '.tmp', String(server.address().port))",
+      "  fs.renameSync(portPath + '.tmp', portPath)",
+      "})"
+    ]
+
+removeIfExists :: FilePath -> IO ()
+removeIfExists path = do
+  exists <- doesFileExist path
+  when exists $ removeFile path
+
+#if !mingw32_HOST_OS
+getProcessGroupOfProcessRunBy :: (P.CreateProcess -> Job.Job String ExitCode) -> IO ProcessGroupID
+getProcessGroupOfProcessRunBy runProcess = do
+  processGroup <- newEmptyMVar
+  withRunningProcess runProcess "" $ \_ pid ->
+    Posix.getProcessGroupIDOf (processIdToPid pid) >>= putMVar processGroup
+  takeMVar processGroup
+#endif

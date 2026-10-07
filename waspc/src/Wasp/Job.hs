@@ -10,34 +10,24 @@ module Wasp.Job
     onOutput,
     failOnExitFailure,
     fromProc,
+    fromInteractiveProc,
     JobKind (..),
     prefixWith,
   )
 where
 
-import Control.Concurrent (forkIO)
 import qualified Control.Concurrent.Async as Async
-import Control.Monad (void)
 import Control.Monad.Except (ExceptT (..), MonadError (throwError), liftEither, runExceptT)
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (ReaderT (..), ask, local)
-import Data.Conduit (runConduit, (.|))
-import qualified Data.Conduit.Binary as CB
-import qualified Data.Conduit.List as CL
-import qualified Data.Conduit.Text as CT
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
-import System.IO (Handle, hClose)
-import qualified System.Info
 import qualified System.Process as P
-import UnliftIO.Exception (bracket)
 import Wasp.Job.Printer (JobKind (..), OutputKind (..))
 import qualified Wasp.Job.Printer as Printer
-
--- TODO(#4575):
---   Switch from System.Process to System.Process.Typed.
+import qualified Wasp.Job.Process as JobProcess
 
 -- | An action that runs processes and emits their output. It can fail with an
 -- error of type @e@.
@@ -96,47 +86,26 @@ failOnExitFailure toError job =
 prefixWith :: JobKind -> Job e a -> Job e a
 prefixWith jobKind = withSink $ \sink _ -> sink (Just jobKind)
 
--- | Runs the process to completion, emitting its stdout and stderr as the
--- job's output, and returns its exit code. A process whose stdin is
--- 'P.CreatePipe' gets an empty stdin.
--- Makes sure to terminate the process (or process group on *nix) if the job is
--- stopped before the process finishes.
+-- | Runs the process to completion in its own process group (a job object on
+-- Windows), with an empty stdin. Emits its stdout and stderr as the job's
+-- output, and returns its exit code once all of it has been emitted.
+--
+-- Once the process exits, or the job is stopped, any process left in its group
+-- is stopped too. If they don't stop in time, this throws
+-- 'JobProcess.ProcessGroupDidNotStop'.
 fromProc :: P.CreateProcess -> Job e ExitCode
-fromProc process = Job $ do
+fromProc = runProcess JobProcess.Isolated
+
+-- | Like 'fromProc', but the process reads from Wasp's stdin. For that, it
+-- stays in Wasp's process group, so stopping the job only stops the process
+-- itself, and not the processes it started.
+fromInteractiveProc :: P.CreateProcess -> Job e ExitCode
+fromInteractiveProc = runProcess JobProcess.Interactive
+
+runProcess :: JobProcess.Interactivity -> P.CreateProcess -> Job e ExitCode
+runProcess interactivity process = Job $ do
   sink <- ask
-  liftIO $ bracket start cleanUp (waitForExit $ sink Nothing)
-  where
-    start = P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
-
-    waitForExit emit (stdinHandle, stdoutHandle, stderrHandle, processHandle) = do
-      mapM_ hClose stdinHandle
-      Async.runConcurrently $
-        Async.Concurrently (forwardOutput (emit Stdout) stdoutHandle)
-          *> Async.Concurrently (forwardOutput (emit Stderr) stderrHandle)
-          *> Async.Concurrently (P.waitForProcess processHandle)
-
-    cleanUp (_, _, _, processHandle) = do
-      terminate processHandle
-      -- Reaps the process once it exits, without making the job wait for it.
-      void $ forkIO $ void $ P.waitForProcess processHandle
-
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
-    terminate processHandle =
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
-
-forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
-forwardOutput _ Nothing = return ()
-forwardOutput emit (Just handle) =
-  runConduit $
-    CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit
+  liftIO $ JobProcess.run interactivity (sink Nothing) process
 
 withSink :: (Sink -> Sink) -> Job e a -> Job e a
 withSink modifySink (Job job) = Job $ local modifySink job

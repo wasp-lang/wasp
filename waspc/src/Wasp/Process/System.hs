@@ -106,13 +106,13 @@ waitForCondition condition timeoutMicroseconds
           loop
 
 gracefulStopTimeoutMicroseconds :: Int
-gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 0.25
+gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 1 `div` 4
 
 hardStopTimeoutMicroseconds :: Int
 hardStopTimeoutMicroseconds = secondsToMicroSeconds 2
 
 pollIntervalMicroseconds :: Int
-pollIntervalMicroseconds = secondsToMicroSeconds 0.1
+pollIntervalMicroseconds = secondsToMicroSeconds 1 `div` 10
 
 isWindows :: Bool
 #if mingw32_HOST_OS
