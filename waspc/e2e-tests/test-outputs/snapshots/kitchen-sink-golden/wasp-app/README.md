@@ -46,8 +46,6 @@ npm run env:push
 
 The `kitchen-sink` app runs like any other Wasp application.
 
-Wasp starts the development database automatically.
-
 1. Migrate the database (if needed):
 
 ```sh
@@ -59,6 +57,8 @@ wasp db migrate-dev
 ```sh
 wasp start
 ```
+
+Wasp starts the development database automatically.
 
 3. Open `localhost:3000` in the browser to see the app!
 
