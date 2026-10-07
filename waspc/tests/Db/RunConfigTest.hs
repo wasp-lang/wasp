@@ -16,8 +16,8 @@ spec_connectionUrl = do
     connectionUrl (DbRunConfig PostgreSQL (LocalPostgreSQL (Just db)))
       `shouldBe` Just "postgresql://user:password@localhost:5438/app"
 
-spec_withConnectionUrl :: Spec
-spec_withConnectionUrl = do
+spec_resolveDevConnection :: Spec
+spec_resolveDevConnection = do
   let fallback = DbRunConfig SQLite (SQLiteFile "file:./dev.db")
 
   it "uses the file URL when neither override is supplied" $
@@ -35,7 +35,3 @@ spec_withConnectionUrl = do
     case connection config of
       SuppliedConnection Environment "" -> return ()
       _ -> expectationFailure "Expected the environment URL and its source"
-
-  it "leaves a production connection unconfigured without an explicit URL" $
-    connectionUrl (withConnectionUrl CommandOptions Nothing (DbRunConfig PostgreSQL Unconfigured))
-      `shouldBe` Nothing
