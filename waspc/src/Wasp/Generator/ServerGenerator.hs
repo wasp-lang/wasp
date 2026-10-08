@@ -81,7 +81,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
-      genFileCopy [relfile|createRollupBundle.js|],
+      genFileCopy [relfile|src/createRollupBundle.js|],
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,

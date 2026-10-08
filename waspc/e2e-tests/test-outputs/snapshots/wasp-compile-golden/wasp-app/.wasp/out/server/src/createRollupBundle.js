@@ -1,6 +1,6 @@
 import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
-import { virtualUserModules } from "./src/plugins/virtualUserModules.js";
+import { virtualUserModules } from "./plugins/virtualUserModules.js";
 
 export function createRollupBundle(inputFilePath, outputFilePath) {
   return {
