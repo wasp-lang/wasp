@@ -12,10 +12,10 @@ import Wasp.Project.Common (UserSrcDir)
 
 spec_nubByModuleId :: Spec
 spec_nubByModuleId =
-  describe "nubByModuleId" $
-    it "keeps one module per user file, however many exports are imported from it" $
-      map (EI.name . extImport) (nubByModuleId [getTasks, createTask, getTask])
-        `shouldBe` [EI.ExtImportField "getTasks", EI.ExtImportField "createTask"]
+  describe "nubByModuleId"
+    $ it "keeps one module per user file, however many exports are imported from it"
+    $ map (EI.name . extImport) (nubByModuleId [getTasks, createTask, getTask])
+      `shouldBe` [EI.ExtImportField "getTasks", EI.ExtImportField "createTask"]
   where
     getTasks = userModule [relfileP|queries.ts|] "getTasks"
     getTask = userModule [relfileP|queries.ts|] "getTask"
