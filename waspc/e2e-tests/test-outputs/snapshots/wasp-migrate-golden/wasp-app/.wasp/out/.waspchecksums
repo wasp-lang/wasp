@@ -674,13 +674,6 @@
     [
         [
             "file",
-            "server/createRollupBundle.js"
-        ],
-        "c0d1b2581e5793487b30361db1d40a0761a2cf3e91cd3478ddbc7eb15fc9a7d5"
-    ],
-    [
-        [
-            "file",
             "server/nodemon.json"
         ],
         "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
@@ -697,7 +690,7 @@
             "file",
             "server/rollup.config.js"
         ],
-        "1f0dda1557d0db51d73706a7c3de643c755af7f209c5c31e8b847fbdc3eb5018"
+        "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
     ],
     [
         [
@@ -705,6 +698,13 @@
             "server/src/app.js"
         ],
         "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
+    ],
+    [
+        [
+            "file",
+            "server/src/createRollupBundle.js"
+        ],
+        "2b07abc31217e602c11da492c559bc849c13cec4a193b0ee7b3b721cf3179bbb"
     ],
     [
         [

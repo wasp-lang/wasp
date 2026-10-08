@@ -910,7 +910,6 @@ wasp-app/.wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts
 wasp-app/.wasp/out/server/.env
 wasp-app/.wasp/out/server/.gitignore
 wasp-app/.wasp/out/server/README.md
-wasp-app/.wasp/out/server/createRollupBundle.js
 wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
@@ -954,6 +953,7 @@ wasp-app/.wasp/out/server/src/auth/providers/oauth/oneTimeCode.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/state.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/types.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/user.ts
+wasp-app/.wasp/out/server/src/createRollupBundle.js
 wasp-app/.wasp/out/server/src/crud/taskVotes.ts
 wasp-app/.wasp/out/server/src/crud/tasks.ts
 wasp-app/.wasp/out/server/src/dbSeed.ts
