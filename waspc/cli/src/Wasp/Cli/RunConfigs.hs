@@ -1,33 +1,48 @@
 module Wasp.Cli.RunConfigs
   ( makeDefaultDevRunConfigs,
     makeRunConfigs,
+    makeDevDbRunConfig,
     showRunConfigUrls,
   )
 where
 
+import Data.Maybe (fromMaybe)
+import System.Environment (lookupEnv)
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import qualified Wasp.AppComponentUrl as AppComponentUrl
-import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec (AppSpec (..))
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.AppComponentUrls (makeDefaultUrls)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
+import Wasp.Db.RunConfig
+import Wasp.Generator.ServerGenerator.RunConfig (makeServerRunConfig)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerRunConfig
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (makeWebAppRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppRunConfig
+import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.RunConfig (RunConfigs (..))
 
-makeDefaultDevRunConfigs :: AppSpec -> (WebAppRunConfig, ServerRunConfig)
-makeDefaultDevRunConfigs appSpec = makeRunConfigs $ makeDefaultUrls appSpec
+makeDefaultDevRunConfigs :: AppSpec -> IO RunConfigs
+makeDefaultDevRunConfigs appSpec =
+  makeRunConfigs (makeDefaultUrls appSpec) <$> makeDevDbRunConfig appSpec
 
-makeRunConfigs :: (AppComponentUrl, AppComponentUrl) -> (WebAppRunConfig, ServerRunConfig)
-makeRunConfigs (clientUrl, serverUrl) = (clientRunConfig, serverRunConfig)
+makeDevDbRunConfig :: AppSpec -> IO DbRunConfig
+makeDevDbRunConfig appSpec = do
+  environmentUrl <- lookupEnv databaseUrlEnvVarName
+  let defaultConfig = fromMaybe (DbRunConfig (ASV.getValidDbSystem appSpec) Unconfigured) appSpec.devDbRunConfig
+      serverDotEnvUrl = lookup databaseUrlEnvVarName appSpec.devEnvVarsServer
+  return $ resolveDevConnection environmentUrl serverDotEnvUrl defaultConfig
+
+makeRunConfigs :: (AppComponentUrl, AppComponentUrl) -> DbRunConfig -> RunConfigs
+makeRunConfigs (clientUrl, serverUrl) database = RunConfigs clientRunConfig serverRunConfig database
   where
     clientRunConfig = makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
     serverRunConfig = makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
 
-showRunConfigUrls :: (WebAppRunConfig, ServerRunConfig) -> String
-showRunConfigUrls (clientRunConfig, serverRunConfig) =
+showRunConfigUrls :: RunConfigs -> String
+showRunConfigUrls configs =
   unlines
-    [ showUrls "Client" clientRunConfig.url,
-      showUrls "Server" serverRunConfig.url
+    [ showUrls "Client" configs.client.url,
+      showUrls "Server" configs.server.url
     ]
   where
     showUrls name appComponentUrl =

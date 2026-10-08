@@ -23,16 +23,17 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.RunConfigs (makeRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import Wasp.Db.RunConfig
+import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.RunConfig (RunConfigs (..))
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientRunConfig :: WebAppRunConfig,
-    serverRunConfig :: ServerRunConfig,
+    runConfigs :: RunConfigs,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -50,18 +51,19 @@ makeBuildStartConfig appSpec args projectDir' = do
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
   let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
-      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
+      baseConfigs = makeRunConfigs appComponentUrls (DbRunConfig (ASV.getValidDbSystem appSpec) Unconfigured)
 
-  clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
-  serverRunConfig' <- baseServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
+  clientRunConfig' <- baseConfigs.client `addEnvVarsUniqueC` userClientEnvVars
+  serverRunConfig' <- baseConfigs.server `addEnvVarsUniqueC` userServerEnvVars
 
+  let databaseUrl = lookup databaseUrlEnvVarName (getEnvVars serverRunConfig')
+      databaseConfig = withConnectionUrl CommandOptions databaseUrl baseConfigs.database
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        serverRunConfig = serverRunConfig',
-        clientRunConfig = clientRunConfig'
+        runConfigs = RunConfigs clientRunConfig' serverRunConfig' databaseConfig
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' app.name
