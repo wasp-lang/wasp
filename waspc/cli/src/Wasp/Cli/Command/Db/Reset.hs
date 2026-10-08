@@ -12,14 +12,14 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: Arguments -> Command ()
-reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> do
+reset = withArguments resetArgsParser $ \resetArgs -> do
   InWaspProject waspProjectDir <- require
   let genProjectDir =
         waspProjectDir
@@ -31,10 +31,11 @@ reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> do
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database reset successfully!"
 
-resetArgsParser :: Opt.Parser ResetArgs
+resetArgsParser :: ArgsParser ResetArgs
 resetArgsParser =
-  ResetArgs
-    <$> Opt.switch
-      ( Opt.long "force"
-          <> Opt.help "Skip the confirmation prompt"
-      )
+  ArgsParser "wasp db reset" $
+    ResetArgs
+      <$> Opt.switch
+        ( Opt.long "force"
+            <> Opt.help "Skip the confirmation prompt"
+        )
