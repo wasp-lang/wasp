@@ -1397,14 +1397,21 @@
             "file",
             "server/package.json"
         ],
-        "b241ad5c7c020c091dcaf5b76eb40a642635968ab0a27e1009c20aa2c1e873e9"
+        "e9ef1a5b8a75793ef69a7977c675b5c5694dcc2e7462cf0d5fd7e65a543f4d3e"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "5ff77153dc740eb6a3f5b7951002add2f931b949db59c769277fc27c3d49bd40"
+        "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
+    ],
+    [
+        [
+            "file",
+            "server/rollup.dbSeed.config.js"
+        ],
+        "318ed528c170df23b50e030aee92fc344c35b6e8a9e5f618202173f0256bba42"
     ],
     [
         [
@@ -1678,6 +1685,13 @@
             "server/src/auth/providers/oauth/user.ts"
         ],
         "70c10d31134efc795abb2f38a3c1a81dbbb21a2806551d74867df1f8a80dee42"
+    ],
+    [
+        [
+            "file",
+            "server/src/createRollupBundle.js"
+        ],
+        "2b07abc31217e602c11da492c559bc849c13cec4a193b0ee7b3b721cf3179bbb"
     ],
     [
         [
