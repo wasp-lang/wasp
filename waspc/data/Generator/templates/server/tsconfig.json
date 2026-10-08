@@ -26,7 +26,6 @@
   },
   "include": [
     "src",
-    "createRollupBundle.js",
     "rollup.config.js",
     "rollup.dbSeed.config.js"
   ],

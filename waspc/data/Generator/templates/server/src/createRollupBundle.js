@@ -1,5 +1,5 @@
-import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
+import esbuild from "rollup-plugin-esbuild";
 import { virtualUserModules } from "./plugins/virtualUserModules.js";
 
 /**
