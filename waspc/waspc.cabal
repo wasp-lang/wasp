@@ -477,6 +477,7 @@ library cli-lib
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
+    Wasp.Cli.Command.Db.Start
     Wasp.Cli.Command.Db.StartOptions
     Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deploy
@@ -503,7 +504,6 @@ library cli-lib
     Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.ArgumentsParser
-    Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
