@@ -5,6 +5,7 @@
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
     "allowJs": true,
+    "checkJs": true,
     // The project reference takes care of the user project,
     // so `rootDir` only needs to include the server files.
     "rootDir": ".",
@@ -24,7 +25,9 @@
     "types": ["node"]
   },
   "include": [
-    "src"
+    "src",
+    "rollup.config.js",
+    "rollup.dbSeed.config.js"
   ],
   "references": [
     { "path": "{= srcTsConfigPath =}" }

@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Message as Msg
@@ -21,6 +22,7 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWasp
 reset :: Arguments -> Command ()
 reset = withArguments resetArgsParser $ \resetArgs -> do
   InWaspProject waspProjectDir <- require
+  ValidNodeAndNpm <- require
   let genProjectDir =
         waspProjectDir
           </> dotWaspDirInWaspProjectDir
