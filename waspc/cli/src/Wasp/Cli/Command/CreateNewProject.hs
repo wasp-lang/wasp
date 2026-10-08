@@ -32,7 +32,7 @@ import qualified Wasp.Util.Terminal as Term
 
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
-createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
+createNewProject = withArguments newProjectArgsParser $ \args -> do
   ValidNodeAndNpm <- require
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
