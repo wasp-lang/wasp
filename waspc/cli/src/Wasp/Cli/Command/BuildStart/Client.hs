@@ -23,7 +23,7 @@ buildClient config = do
 
 startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config = do
-  Job.fromProc
+  Job.fromInteractiveProc
     =<< inheritEnvWith
       envVars
       ( proc
