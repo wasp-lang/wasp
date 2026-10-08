@@ -149,7 +149,7 @@ printUsage =
         cmd   "    version               Prints current version of CLI.",
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
-        cmd   "    uninstall             Removes Wasp from your system.",
+        cmd   "    uninstall [--force]   Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
