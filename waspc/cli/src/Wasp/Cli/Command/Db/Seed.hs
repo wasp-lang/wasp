@@ -21,9 +21,10 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Interactive (NonInteractiveHint (NonInteractiveHint))
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage, withArguments)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -56,7 +57,7 @@ seedArgsParser =
       <$> Opt.optional
         ( Opt.strArgument $
             Opt.metavar "SEED_NAME"
-              <> Opt.help "Name of the seed to run. If omitted and more than one seed is defined, you will be asked to pick one"
+              <> Opt.help "Name of the seed to run. Required when running non-interactively with more than one seed defined"
         )
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
@@ -66,8 +67,10 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     Just name -> parseUserProvidedSeedName name seedNames
     Nothing -> case seedNames of
       seedName :| [] -> return seedName
-      _seedNames -> liftIO $ Interactive.askToChoose "Choose a seed to run" seedNames
+      _seedNames -> liftIO $ Interactive.askToChoose "Choose a seed to run" nonInteractiveHint seedNames
   where
+    nonInteractiveHint = NonInteractiveHint $ getParserHelpMessage seedArgsParser
+
     parseUserProvidedSeedName :: String -> NE.NonEmpty String -> Command String
     parseUserProvidedSeedName userProvidedSeedName seedNames =
       if userProvidedSeedName `elem` seedNames

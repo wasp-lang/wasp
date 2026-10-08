@@ -29,6 +29,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
     waspProjectDirFromTemplateOutputDir,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
+import Wasp.Cli.Interactive (NonInteractiveHint)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
@@ -69,9 +70,9 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
-obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
-  projectName <- maybe askForName return projectNameArg
+obtainNewProjectDescription :: NewProjectArgs -> NonInteractiveHint -> [StarterTemplate] -> Command NewProjectDescription
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} nonInteractiveHint starterTemplates = do
+  projectName <- maybe (askForName nonInteractiveHint) return projectNameArg
   appName <-
     either throwProjectCreationError pure $
       parseWaspProjectNameIntoAppName projectName
@@ -79,7 +80,7 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
   let prefersInteractive = isNothing projectNameArg
       getFallbackTemplate =
         if prefersInteractive
-          then askForTemplate starterTemplates
+          then askForTemplate nonInteractiveHint starterTemplates
           else return defaultStarterTemplate
 
   template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateNameArg
@@ -87,13 +88,13 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
   absTemplateOutputDir <- obtainAvailableTemplateOutputDirPath projectName
   return $ mkNewProjectDescription projectName appName absTemplateOutputDir template
 
-askForName :: Command String
-askForName =
-  liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
+askForName :: NonInteractiveHint -> Command String
+askForName nonInteractiveHint =
+  liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)" nonInteractiveHint
 
-askForTemplate :: [StarterTemplate] -> Command StarterTemplate
-askForTemplate starterTemplates =
-  liftIO $ Interactive.askToChoose "Choose a starter template" $ fromList starterTemplates
+askForTemplate :: NonInteractiveHint -> [StarterTemplate] -> Command StarterTemplate
+askForTemplate nonInteractiveHint starterTemplates =
+  liftIO $ Interactive.askToChoose "Choose a starter template" nonInteractiveHint $ fromList starterTemplates
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName
