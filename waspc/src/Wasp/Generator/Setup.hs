@@ -1,5 +1,6 @@
 module Wasp.Generator.Setup
-  ( runSetup,
+  ( setUpGeneratedApp,
+    runSetup,
   )
 where
 
@@ -28,16 +29,19 @@ import qualified Wasp.Message as Msg
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
-runSetup :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
-runSetup spec generatedAppDir sendMessage = do
-  (result, warnings) <- runWriterT $ runExceptT $ do
-    installDependencies spec generatedAppDir sendMessage
-    setUpDatabase spec generatedAppDir sendMessage
-    -- todo(filip): Should we consider building SDK as part of code generation?
-    -- todo(filip): Avoid building on each setup if we don't need to.
-    buildSdk generatedAppDir sendMessage
-    liftIO $ createWebAppRootDir generatedAppDir
-    typeCheckUserCode spec sendMessage
+setUpGeneratedApp :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+setUpGeneratedApp spec generatedAppDir sendMessage = do
+  installDependencies spec generatedAppDir sendMessage
+  setUpDatabase spec generatedAppDir sendMessage
+  -- todo(filip): Should we consider building SDK as part of code generation?
+  -- todo(filip): Avoid building on each setup if we don't need to.
+  buildSdk generatedAppDir sendMessage
+  liftIO $ createWebAppRootDir generatedAppDir
+  typeCheckUserCode spec sendMessage
+
+runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
+runSetup setupAction = do
+  (result, warnings) <- runWriterT $ runExceptT setupAction
   return (warnings, fromLeft [] result)
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()

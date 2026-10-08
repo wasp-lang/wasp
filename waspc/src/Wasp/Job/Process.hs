@@ -13,7 +13,6 @@ import Control.Concurrent.Async (Concurrently (..))
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
-import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
@@ -23,7 +22,6 @@ import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Job as J
-import qualified Wasp.Node.Version as NodeVersion
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -105,27 +103,12 @@ runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> St
 runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndStdin CP.Inherited
 
 runNodeCommandAsJobWithExtraEnvAndStdin :: (CP.InputSource stdin) => stdin -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir command args jobType chan =
-  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    NodeVersion.VersionCheckSuccess -> do
-      envVars <- getAllEnvVars
-      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-      runProcessAsJobWithStdin stdin nodeCommandProcess jobType chan
+runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir command args jobType chan = do
+  envVars <- getAllEnvVars
+  let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+  runProcessAsJobWithStdin stdin nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
     -- vars in 'extraEnvVars' should override the inherited env vars, we
     -- must prepend them.
     getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
-    exitWithError exitCode errorMsg = do
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobOutput errorMsg J.Stderr,
-            J._jobType = jobType
-          }
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobExit exitCode,
-            J._jobType = jobType
-          }
-      return exitCode

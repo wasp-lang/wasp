@@ -10,6 +10,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
@@ -23,6 +24,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 migrateDev :: [String] -> Command ()
 migrateDev optionalMigrateArgs = do
   InWaspProject waspProjectDir <- require
+  ValidNodeAndNpm <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
   let generatedAppDir =
         waspProjectDir
