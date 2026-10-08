@@ -3,7 +3,6 @@ module Wasp.Cli.Command.Db.Studio
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -22,6 +21,6 @@ studio = do
 
   cliSendMessageC $ Msg.Start "Running studio..."
 
-  _ <- liftIO $ Job.run $ Job.prefixWith Job.Db $ runStudio genProjectDir
+  _ <- Job.run $ Job.prefixWith Job.Db $ runStudio genProjectDir
 
   error "This should never happen, studio should never stop."

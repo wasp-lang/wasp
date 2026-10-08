@@ -161,7 +161,6 @@ library
     build-depends: unix
   other-modules:
     Paths_waspc
-    Wasp.Job.Process
     Wasp.Process.System
 
   exposed-modules:
@@ -321,7 +320,9 @@ library
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
     Wasp.Job
+    Wasp.Job.Internal
     Wasp.Job.Printer
+    Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal

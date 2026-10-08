@@ -1,13 +1,15 @@
 module Wasp.Job.Process
-  ( Interactivity (..),
+  ( fromProc,
+    fromInteractiveProc,
     ProcessGroupDidNotStop (..),
-    run,
   )
 where
 
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (Exception (displayException), IOException, finally, mask, onException, throwIO, try)
 import Control.Monad (unless, void)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader (ask)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
@@ -17,6 +19,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
+import Wasp.Job.Internal (Job (..))
 import Wasp.Job.Printer (OutputKind (..))
 import qualified Wasp.Process.System as System
 
@@ -31,6 +34,27 @@ data ProcessGroupDidNotStop = ProcessGroupDidNotStop
 
 instance Exception ProcessGroupDidNotStop where
   displayException _ = "Could not stop the subprocess group. A child process may still be running."
+
+-- | Runs the process to completion in its own process group (a job object on
+-- Windows), with an empty stdin. Emits its stdout and stderr as the job's
+-- output, and returns its exit code once all of it has been emitted.
+--
+-- Once the process exits, or the job is stopped, any process left in its group
+-- is stopped too. If they don't stop in time, this throws
+-- 'ProcessGroupDidNotStop'.
+fromProc :: P.CreateProcess -> Job ExitCode
+fromProc = runProcess Isolated
+
+-- | Like 'fromProc', but the process reads from Wasp's stdin. For that, it
+-- stays in Wasp's process group, so stopping the job only stops the process
+-- itself, and not the processes it started.
+fromInteractiveProc :: P.CreateProcess -> Job ExitCode
+fromInteractiveProc = runProcess Interactive
+
+runProcess :: Interactivity -> P.CreateProcess -> Job ExitCode
+runProcess interactivity process = Job $ do
+  sink <- ask
+  liftIO $ run interactivity (sink Nothing) process
 
 -- | Runs the process to completion, passing its output to the given function,
 -- and returns its exit code once all of its output has been passed on.

@@ -12,7 +12,7 @@ import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 
-buildServer :: BuildStartConfig -> Job.Job e ExitCode
+buildServer :: BuildStartConfig -> Job.Job ExitCode
 buildServer config =
   Job.fromProc $
     proc
@@ -23,7 +23,7 @@ buildServer config =
     buildDir = config.buildDir
     dockerImageName = Config.dockerImageName config
 
-startServer :: BuildStartConfig -> Job.Job e ExitCode
+startServer :: BuildStartConfig -> Job.Job ExitCode
 startServer config =
   Job.fromProc $
     proc
