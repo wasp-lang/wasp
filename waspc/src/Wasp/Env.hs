@@ -21,6 +21,7 @@ import Control.Exception (ErrorCall (ErrorCall))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
@@ -73,6 +74,10 @@ class HasEnvVars a where
   getEnvVars :: a -> [EnvVar]
   setEnvVars :: a -> [EnvVar] -> a
 
+instance HasEnvVars P.CreateProcess where
+  getEnvVars process = fromMaybe [] (P.env process)
+  setEnvVars process envVars = process {P.env = Just envVars}
+
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, returns a @Left@ of the duplicate env var
 -- names.
@@ -97,8 +102,7 @@ addEnvVarsOverride x incoming = setEnvVars x $ nubEnvVars merged
 
 -- | Sets the process's env vars to the ones of the current process, combined
 -- with the given env vars, which take priority.
-inheritEnvWith :: (MonadIO m) => [EnvVar] -> P.CreateProcess -> m P.CreateProcess
-inheritEnvWith extraEnvVars process = liftIO $ do
+inheritEnvWith :: (MonadIO m, HasEnvVars a) => [EnvVar] -> a -> m a
+inheritEnvWith extraEnvVars x = liftIO $ do
   environment <- getEnvironment
-  -- Extra env vars first so that they take priority over the inherited ones.
-  return process {P.env = Just $ nubEnvVars $ extraEnvVars <> environment}
+  return $ (x `setEnvVars` environment) `addEnvVarsOverride` extraEnvVars
