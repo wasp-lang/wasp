@@ -23,7 +23,10 @@ subcommands = [specShowSubcommand, buildShowSubcommand]
 
 showParser :: ArgsParser (Command ())
 showParser =
-  ArgsParser "wasp show" $ Opt.hsubparser $ mconcat $ subcommandsMetavar : (toOptCommand <$> subcommands)
+  ArgsParser "wasp show"
+    $ Opt.hsubparser
+    $ mconcat
+    $ subcommandsMetavar : (toOptCommand <$> subcommands)
   where
     toOptCommand subcommand =
       Opt.command subcommand.name

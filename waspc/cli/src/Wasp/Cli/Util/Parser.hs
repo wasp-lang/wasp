@@ -18,7 +18,7 @@ import qualified Wasp.Message as Msg
 
 data ArgsParser a = ArgsParser
   { commandName :: String,
-    parser :: Opt.Parser a
+    optParser :: Opt.Parser a
   }
 
 withArguments :: ArgsParser a -> (a -> Command ()) -> Arguments -> Command ()
@@ -30,7 +30,7 @@ withArguments argsParser onSuccess args =
 
 getParserHelpMessage :: ArgsParser a -> String
 getParserHelpMessage =
-  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp parserPreferences . parser
+  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp parserPreferences . optParser
 
 data ArgsParseResult args
   = ArgsParsed args
@@ -38,7 +38,7 @@ data ArgsParseResult args
   | ShowHelp String
 
 parseArguments :: ArgsParser a -> Arguments -> ArgsParseResult a
-parseArguments ArgsParser {commandName = cmdName, parser = optParser} args =
+parseArguments ArgsParser {commandName = cmdName, optParser = optParser'} args =
   case Opt.execParserPure parserPreferences parserInfo args of
     (Opt.Success success) -> ArgsParsed success
     (Opt.CompletionInvoked _) ->
@@ -48,7 +48,7 @@ parseArguments ArgsParser {commandName = cmdName, parser = optParser} args =
         (help, EC.ExitSuccess, _) -> ShowHelp $ show help
         (help, EC.ExitFailure _, _) -> ParseFailure $ show help
   where
-    parserInfo = Opt.info (optParser <**> Opt.helper) Opt.fullDesc
+    parserInfo = Opt.info (optParser' <**> Opt.helper) Opt.fullDesc
 
 parserPreferences :: Opt.ParserPrefs
 parserPreferences = Opt.defaultPrefs
