@@ -8,7 +8,8 @@
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",
     "start": "{= devServerStartCommand =}",
-    "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
+    "bundle-db-seed": "tsc --build && rollup --config rollup.dbSeed.config.js --silent",
+    "db-seed": "npm run bundle-db-seed && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}"
   },

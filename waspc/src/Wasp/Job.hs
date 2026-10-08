@@ -2,7 +2,7 @@ module Wasp.Job
   ( Job,
     run,
     race,
-    OutputKind (..),
+    OutputType (..),
     emitOutput,
     captureOutput,
     onOutput,
@@ -10,7 +10,7 @@ module Wasp.Job
     fromProc,
     fromInteractiveProc,
     ProcessGroupDidNotStop (..),
-    JobKind (..),
+    JobType (..),
     prefixWith,
   )
 where
@@ -22,8 +22,7 @@ import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
 import System.Exit (ExitCode)
-import Wasp.Job.Internal (Job (..), JobEnv (..), runWithEnv, withSink)
-import Wasp.Job.Printer (JobKind (..), OutputKind (..))
+import Wasp.Job.Common (Job (..), JobEnv (..), JobType (..), OutputType (..), runWithEnv, withSink)
 import qualified Wasp.Job.Printer as Printer
 import Wasp.Job.Process (ProcessGroupDidNotStop (..), fromInteractiveProc, fromProc)
 
@@ -40,13 +39,13 @@ race :: Job a -> Job b -> Job (Either a b)
 race left right = Job $ ReaderT $ \env ->
   Async.race (runWithEnv env left) (runWithEnv env right)
 
-emitOutput :: OutputKind -> Text -> Job ()
-emitOutput outputKind output = Job $ do
+emitOutput :: OutputType -> Text -> Job ()
+emitOutput outputType output = Job $ do
   env <- ask
-  liftIO $ _sink env Nothing outputKind output
+  liftIO $ _sink env Nothing outputType output
 
 -- | Collects all the output the job emits, from both stdout and stderr, in
--- the order it was emitted, instead of passing it on.
+-- the order it was emitted, as the monad's result.
 captureOutput :: Job a -> Job (a, Text)
 captureOutput job = do
   chunksRef <- liftIO $ newIORef []
@@ -57,8 +56,8 @@ captureOutput job = do
 
 -- | Calls the given action every time the job emits output.
 onOutput :: IO () -> Job a -> Job a
-onOutput action = withSink $ \sink jobKind outputKind output ->
-  action >> sink jobKind outputKind output
+onOutput action = withSink $ \sink jobType outputType output ->
+  action >> sink jobType outputType output
 
 -- | Calls the given action as soon as a process that the job runs exits by
 -- itself, with its exit code. That is before the processes it left behind are
@@ -70,5 +69,5 @@ onProcessExit action (Job job) = Job $ local addHook job
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.
-prefixWith :: JobKind -> Job a -> Job a
-prefixWith jobKind = withSink $ \sink _ -> sink (Just jobKind)
+prefixWith :: JobType -> Job a -> Job a
+prefixWith outerJobType = withSink $ \sink _innerJobType -> sink (Just outerJobType)

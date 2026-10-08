@@ -60,7 +60,7 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -79,7 +79,8 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genRollupConfigJs spec,
+      genFileCopy [relfile|rollup.config.js|],
+      genFileCopy [relfile|src/createRollupBundle.js|],
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -344,12 +345,3 @@ genOperationsMiddleware spec =
       (Just tmplData)
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
-
-genRollupConfigJs :: AppSpec -> Generator FileDraft
-genRollupConfigJs spec =
-  return $
-    C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
-  where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
-
-    areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec

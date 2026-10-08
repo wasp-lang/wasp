@@ -1390,14 +1390,21 @@
             "file",
             "server/package.json"
         ],
-        "73c004772e2c78cddf97029674b21da1652b6a0adb2b24615048f95ef4b6d2c7"
+        "6153c54555ba815a5073e245b95576dea0a0bd398a0bd7089ff8b8fc757ba299"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "5ff77153dc740eb6a3f5b7951002add2f931b949db59c769277fc27c3d49bd40"
+        "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
+    ],
+    [
+        [
+            "file",
+            "server/rollup.dbSeed.config.js"
+        ],
+        "318ed528c170df23b50e030aee92fc344c35b6e8a9e5f618202173f0256bba42"
     ],
     [
         [
@@ -1530,7 +1537,7 @@
             "file",
             "server/src/app.js"
         ],
-        "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
+        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
     ],
     [
         [
@@ -1675,6 +1682,13 @@
     [
         [
             "file",
+            "server/src/createRollupBundle.js"
+        ],
+        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
+    ],
+    [
+        [
+            "file",
             "server/src/crud/taskVotes.ts"
         ],
         "b12e5eedb5cf9dc9d4316bdd731a142172fd59c9b51f94faa3361f0e2a294c45"
@@ -1747,7 +1761,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "05ef7019d3bdaa6201371e2fc7bfaa0b4fa30c786b634a6abe1d5ed11dcb579b"
+        "7d01a92b6b6462bede6e2eda16b765a920a9d9a87b29ad09b16abe60992816ec"
     ],
     [
         [
@@ -2146,7 +2160,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9acba4a5ce9c3e21a9794485c8e26f152747e1fa670776fbc111d85253669aa7"
+        "09f5563c093b52b6c9ab99a4def30a2ac3febde3904a48f8413c23aaf8907eea"
     ],
     [
         [
