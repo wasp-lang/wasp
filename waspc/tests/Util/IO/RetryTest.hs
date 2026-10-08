@@ -4,6 +4,7 @@ module Util.IO.RetryTest where
 
 import Control.Monad (forM_)
 import Control.Monad.State (MonadState (get), State, modify, runState)
+import Data.Either (isRight)
 import Numeric.Natural (Natural)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import qualified Wasp.Util.IO.Retry as R
@@ -37,6 +38,14 @@ spec_RetryTest = do
       it "for linearPause" $ testPause (R.linearPause 10) (10, 20, 30)
       it "for expPause" $ testPause (R.expPause 10) (10, 20, 40)
       it "for customPause" $ testPause (R.customPause (^ (2 :: Int))) (1, 4, 9)
+
+  describe "retryUntil" $ do
+    it "stops when the check succeeds" $ do
+      runState (R.retryUntil (R.constPause 42) 5 (isRight <$> mockAction (NumFails 1))) []
+        `shouldBe` (True, [ActionCall, ThreadDelayCall 42, ActionCall])
+    it "returns False after the last attempt without another pause" $ do
+      runState (R.retryUntil (R.constPause 42) 1 (isRight <$> mockAction (NumFails 3))) []
+        `shouldBe` (False, [ActionCall, ThreadDelayCall 42, ActionCall])
 
   describe "retryWithCallback" $ do
     it "does not call onRetry when action succeeds on the first try" $ do

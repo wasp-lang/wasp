@@ -9,6 +9,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import Text.Printf (printf)
 import Wasp.AppComponentUrl (AppComponentUrl)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
@@ -16,6 +17,7 @@ import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import qualified Wasp.Cli.Command.Db.DevDb as DevDb
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
@@ -33,12 +35,13 @@ import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
+import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ do
+start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ DevDb.withDevDb args.dbStartOptions $ \managedDb -> do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -65,7 +68,10 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
+  let databaseUrlLine = case managedDb of
+        Nothing -> ""
+        Just db -> printf " ℹ Database: %s\n" (Dev.Postgres.getDevConnectionUrl db)
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs <> databaseUrlLine
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
