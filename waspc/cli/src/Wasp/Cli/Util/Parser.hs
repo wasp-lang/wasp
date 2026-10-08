@@ -8,8 +8,6 @@ where
 import Control.Applicative ((<**>))
 import Control.Monad.Except (throwError)
 import qualified Options.Applicative as Opt
-import qualified Options.Applicative.Help as Opt.Help
-import Options.Applicative.Help.Core (parserHelp)
 import qualified System.Exit as EC
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Call (Arguments)
@@ -29,8 +27,13 @@ withArguments argsParser onSuccess args =
     (ShowHelp helpMessage) -> cliSendMessageC $ Msg.Info helpMessage
 
 getParserHelpMessage :: ArgsParser a -> String
-getParserHelpMessage =
-  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp parserPreferences . optParser
+getParserHelpMessage argsParser =
+  case parseArguments argsParser [helpFlag] of
+    ShowHelp helpMessage -> helpMessage
+    _unexpected -> error $ "Asking '" <> commandName argsParser <> "' for " <> helpFlag <> " didn't produce help, but this should never happen"
+  where
+    -- Must match the flag 'Opt.helper' defines.
+    helpFlag = "--help"
 
 data ArgsParseResult args
   = ArgsParsed args
