@@ -65,13 +65,7 @@ wasp db migrate-dev
 
 #### PostgreSQL
 
-If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
-
-```bash
-wasp start db
-```
-
-Then apply the migrations from another terminal:
+Apply the migrations. Wasp starts the development database automatically:
 
 ```bash
 wasp db migrate-dev
@@ -81,7 +75,7 @@ Wasp gives each worktree a unique [development database](../features/data/databa
 
 #### Seed data
 
-If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command.
+If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command. It starts the development database if needed. Stop `wasp start` before running database commands such as migrations or seeds.
 
 ### Start the app
 
@@ -95,7 +89,7 @@ wasp start
 
 `wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](./cli.md#project-commands).
 
-`wasp start db` does the same for the dev database: it starts on port `5432` or the first free port after it, and `wasp start` finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](./cli.md#project-commands).
+`wasp start` also starts the development database if needed, on port `5432` or the first free port after it. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](./cli.md#project-commands).
 
 ## Extra resources
 

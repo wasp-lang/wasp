@@ -16,6 +16,8 @@
 
 ### 🎉 New Features
 
+- `wasp start` and database commands now start the PostgreSQL development database automatically. Each command stops the database it started when finished. See [development databases](https://wasp.sh/docs/features/data/databases#using-the-dev-database-provided-by-wasp). ([#4914](https://github.com/wasp-lang/wasp/pull/4914))
+
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
 - `wasp start` and `wasp build start` now accept `--client-url <url>` and `--server-url <url>` to make your app reachable at a URL other than `localhost`, such as a LAN hostname or an HTTPS tunnel. ([#4915](https://github.com/wasp-lang/wasp/pull/4915))

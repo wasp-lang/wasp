@@ -67,12 +67,10 @@ Copy this password and type `exit` to leave the SSH session.
 
 Before opening the tunnel, make sure nothing else is running on port 5432:
 
-- Stop any local database started with `wasp db start`
+- Stop `wasp start` and any local database started with `wasp db start`
 - Check for Docker containers that might be using the port
 
-:::warning Background processes
-Even if you close the terminal that was running `wasp db start`, the Docker container may still be running in the background. Make sure to stop it before proceeding.
-:::
+Wasp stops the database it started when the command exits. If it used an existing database, that database stays running. Stop it separately if it occupies port 5432.
 
 Open the tunnel:
 
