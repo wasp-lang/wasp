@@ -1,0 +1,35 @@
+{
+  "name": "@wasp.sh/lib-sdk-core",
+  "version": "0.26.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./node": {
+      "types": "./dist/node.d.mts",
+      "default": "./dist/node.mjs"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.mts",
+      "default": "./dist/browser.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "prepare": "npm run build",
+    "test": "npm run test:types",
+    "test:types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
+    "@types/node": "^22.17.1",
+    "tsdown": "^0.21.5",
+    "typescript": "^6.0.3"
+  }
+}
