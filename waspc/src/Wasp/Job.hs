@@ -6,8 +6,10 @@ module Wasp.Job
     emitOutput,
     captureOutput,
     onOutput,
+    onProcessExit,
     fromProc,
     fromInteractiveProc,
+    ProcessGroupDidNotStop (..),
     JobType (..),
     prefixWith,
   )
@@ -15,31 +17,32 @@ where
 
 import qualified Control.Concurrent.Async as Async
 import Control.Monad.IO.Class (MonadIO (..))
-import Control.Monad.Reader (ReaderT (..), ask)
+import Control.Monad.Reader (ReaderT (..), ask, local)
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
+import System.Exit (ExitCode)
+import Wasp.Job.Common (Job (..), JobEnv (..), JobType (..), OutputType (..), runWithEnv, withSink)
 import qualified Wasp.Job.Printer as Printer
-import Wasp.Job.Process (fromInteractiveProc, fromProc)
+import Wasp.Job.Process (ProcessGroupDidNotStop (..), fromInteractiveProc, fromProc)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.
 run :: (MonadIO m) => Job a -> m a
 run job = liftIO $ do
   printer <- Printer.newPrinter
-  runWithSink (Printer.printOutput printer) job
+  runWithEnv (JobEnv (Printer.printOutput printer) (const $ return ())) job
 
 -- | Runs both jobs at the same time, until one of them finishes. Then it stops
 -- the other one and returns the result of the first one.
 race :: Job a -> Job b -> Job (Either a b)
-race left right = Job $ ReaderT $ \sink ->
-  Async.race (runWithSink sink left) (runWithSink sink right)
+race left right = Job $ ReaderT $ \env ->
+  Async.race (runWithEnv env left) (runWithEnv env right)
 
 emitOutput :: OutputType -> Text -> Job ()
 emitOutput outputType output = Job $ do
-  sink <- ask
-  liftIO $ sink Nothing outputType output
+  env <- ask
+  liftIO $ _sink env Nothing outputType output
 
 -- | Collects all the output the job emits, from both stdout and stderr, in
 -- the order it was emitted, as the monad's result.
@@ -55,6 +58,14 @@ captureOutput job = do
 onOutput :: IO () -> Job a -> Job a
 onOutput action = withSink $ \sink jobType outputType output ->
   action >> sink jobType outputType output
+
+-- | Calls the given action as soon as a process that the job runs exits by
+-- itself, with its exit code. That is before the processes it left behind are
+-- stopped, and before all of its output is emitted.
+onProcessExit :: (ExitCode -> IO ()) -> Job a -> Job a
+onProcessExit action (Job job) = Job $ local addHook job
+  where
+    addHook env = env {_processExitHook = \exitCode -> action exitCode >> _processExitHook env exitCode}
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.

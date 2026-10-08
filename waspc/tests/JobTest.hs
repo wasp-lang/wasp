@@ -7,7 +7,7 @@ import qualified Control.Concurrent.Async as Async
 import Control.Exception (finally)
 import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (liftIO)
-import Data.IORef (modifyIORef', newIORef, readIORef)
+import Data.IORef (modifyIORef', newIORef, readIORef, writeIORef)
 import qualified Data.Text as T
 import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
@@ -55,6 +55,23 @@ spec_Job = do
       _ <- Job.run job
       readIORef outputCount `shouldReturn` 2
 
+  describe "onProcessExit" $ do
+    -- On Windows, a process isn't seen to exit until the processes it left
+    -- behind have exited too.
+    unless isWindows $
+      it "calls the action as soon as the process exits, before stopping the processes it left behind" $ do
+        portRef <- newIORef ""
+        processExit <- newEmptyMVar
+        let recordProcessExit exitCode = do
+              port <- readIORef portRef
+              descendantIsRunning <- not <$> isPortAvailable port
+              putMVar processExit (exitCode, descendantIsRunning)
+        withListeningDescendant (Job.onProcessExit recordProcessExit) $ \running port exitRoot -> do
+          writeIORef portRef port
+          exitRoot
+          timeout (secondsToMicroSeconds 3) (Async.wait running) `shouldReturn` Just ExitSuccess
+          takeMVar processExit `shouldReturn` (ExitSuccess, True)
+
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do
       let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
@@ -99,17 +116,30 @@ spec_Job = do
         `shouldReturn` Just (ExitFailure 3)
 
     it "stops the processes it started when the job is stopped" $
-      withListeningDescendant $ \running port _ -> do
+      withListeningDescendant id $ \running port _ -> do
         isPortAvailable port `shouldReturn` False
         timeout (secondsToMicroSeconds 3) (Async.cancel running) `shouldReturn` Just ()
         isPortAvailable port `shouldReturn` True
 
     unless isWindows $
       it "stops the processes it started once it exits" $
-        withListeningDescendant $ \running port exitRoot -> do
+        withListeningDescendant id $ \running port exitRoot -> do
           exitRoot
           timeout (secondsToMicroSeconds 3) (Async.wait running) `shouldReturn` Just ExitSuccess
           isPortAvailable port `shouldReturn` True
+
+    unless isWindows $
+      it "interrupts the processes so they can exit gracefully before stopping them" $ do
+        gracefulExitPath <- makeTempPath "wasp-graceful-exit"
+        let exitGracefully =
+              "process.on('SIGINT', () => { require('node:fs').writeFileSync("
+                <> show gracefulExitPath
+                <> ", ''); process.exit(0); });"
+        ( withRunningProcess Job.fromProc exitGracefully $ \running _ -> do
+            Async.cancel running
+            doesFileExist gracefulExitPath `shouldReturn` True
+          )
+          `finally` removeIfExists gracefulExitPath
 
     it "forces a process that ignores interruption to stop" $ do
       let ignoreInterruption = "process.on('SIGINT', () => {}); process.on('SIGTERM', () => {});"
@@ -124,6 +154,16 @@ spec_Job = do
           Async.poll second >>= \case
             Nothing -> isProcessAlive secondPid `shouldReturn` True
             Just _ -> expectationFailure "Stopping one job stopped another job's process"
+
+    it "decodes UTF-8 output split across chunks, replacing incomplete characters" $ do
+      let euroSignCount = 40000 :: Int
+          process =
+            node $
+              "process.stdout.write(Buffer.concat([Buffer.from('\8364'.repeat("
+                <> show euroSignCount
+                <> ")), Buffer.from([0xe2])]));"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533")
 
 #if !mingw32_HOST_OS
     it "runs the process in its own process group" $ do
@@ -184,12 +224,15 @@ withRunningProcess runProcess script action = do
 -- | Runs a process that starts a descendant listening on a port, and gives the
 -- action the running job, the port, and an action that makes the root process
 -- exit (while the descendant keeps running).
-withListeningDescendant :: (Async.Async ExitCode -> String -> IO () -> IO ()) -> IO ()
-withListeningDescendant action = do
+withListeningDescendant ::
+  (Job.Job ExitCode -> Job.Job ExitCode) ->
+  (Async.Async ExitCode -> String -> IO () -> IO ()) ->
+  IO ()
+withListeningDescendant modifyJob action = do
   portPath <- makeTempPath "wasp-isolated-child-port"
   rootExitPath <- makeTempPath "wasp-isolated-root-exit"
   Async.withAsync
-    (Job.run $ Job.fromProc $ nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath])
+    (Job.run $ modifyJob $ Job.fromProc $ nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath])
     ( \running -> do
         waitUntil "the descendant listens" $ doesFileExist portPath
         port <- readFile portPath

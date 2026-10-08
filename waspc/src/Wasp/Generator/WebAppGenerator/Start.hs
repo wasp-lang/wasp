@@ -14,7 +14,9 @@ import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
 startWebApp webAppRunConfig waspProjectDir = do
-  J.fromInteractiveProc
+  -- Wasp owns the shared terminal during `wasp start`, so Vite should not
+  -- interpret keystrokes as its own shortcuts.
+  J.fromProc
     =<< inheritEnvWith
       (getEnvVars webAppRunConfig)
       (proc "npx" ["vite"]) {cwd = Just $ SP.fromAbsDir waspProjectDir}

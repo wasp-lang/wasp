@@ -19,7 +19,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Common (Job (..), OutputType (..))
+import Wasp.Job.Common (Job (..), JobEnv (..), OutputType (..))
 import qualified Wasp.Process.System as System
 
 -- TODO(#4575):
@@ -52,11 +52,12 @@ fromInteractiveProc = runProcess Interactive
 
 runProcess :: Interactivity -> P.CreateProcess -> Job ExitCode
 runProcess interactivity process = Job $ do
-  sink <- ask
-  liftIO $ run interactivity (sink Nothing) process
+  env <- ask
+  liftIO $ run interactivity (_sink env Nothing) (_processExitHook env) process
 
 -- | Runs the process to completion, passing its output to the given function,
--- and returns its exit code once all of its output has been passed on.
+-- and returns its exit code once all of its output has been passed on. Calls
+-- the given exit hook as soon as the process exits by itself.
 --
 -- An 'Isolated' process runs in its own process group (a job object on
 -- Windows), with an empty stdin. Once it exits, or this is stopped, any
@@ -65,8 +66,8 @@ runProcess interactivity process = Job $ do
 --
 -- An 'Interactive' process reads from Wasp's stdin. For that, it has to stay
 -- in Wasp's process group, so stopping this only stops the process itself.
-run :: Interactivity -> (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
-run interactivity emit process = mask $ \restore -> do
+run :: Interactivity -> (OutputType -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
+run interactivity emit onExit process = mask $ \restore -> do
   (resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle), processGroup) <- start
   mapM_ hClose stdinHandle
   -- Also reaps the process if this is stopped, so it's never cancelled.
@@ -82,6 +83,7 @@ run interactivity emit process = mask $ \restore -> do
     restore
       ( do
           exitCode <- Async.wait rootExit
+          onExit exitCode
           stop
           Async.wait outputForwarding
           return exitCode
