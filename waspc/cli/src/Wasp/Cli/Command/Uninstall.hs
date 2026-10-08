@@ -19,8 +19,9 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Cli.Interactive (NonInteractiveHint (NonInteractiveHint))
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -54,6 +55,9 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
 newtype UninstallArgs = UninstallArgs
   { force :: Bool
   }
+
+nonInteractiveHint :: NonInteractiveHint
+nonInteractiveHint = NonInteractiveHint $ getParserHelpMessage uninstallArgsParser
 
 uninstallArgsParser :: ArgsParser UninstallArgs
 uninstallArgsParser =
@@ -101,10 +105,9 @@ removeWaspPaths skipConfirmation pathsToRemove = do
         indent 2 $ unlines $ toFilePaths pathsToRemove
       ]
 
-  unless skipConfirmation $
-    Interactive.tryGettingConfirmation "Are you sure you want to continue? [y/N]" "y" >>= \case
-      Right () -> return ()
-      Left _ -> die "Aborted."
+  unless skipConfirmation $ do
+    confirmed <- Interactive.askForConfirmation "Are you sure you want to continue?" nonInteractiveHint
+    unless confirmed $ die "Aborted."
 
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
   mapM_ deleteFileIfExists $ snd pathsToRemove
