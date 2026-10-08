@@ -42,7 +42,7 @@ emitOutput outputKind output = Job $ do
   liftIO $ sink Nothing outputKind output
 
 -- | Collects all the output the job emits, from both stdout and stderr, in
--- the order it was emitted, instead of passing it on.
+-- the order it was emitted, as the monad's result.
 captureOutput :: Job a -> Job (a, Text)
 captureOutput job = do
   chunksRef <- liftIO $ newIORef []
@@ -59,4 +59,4 @@ onOutput action = withSink $ \sink jobKind outputKind output ->
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.
 prefixWith :: JobKind -> Job a -> Job a
-prefixWith jobKind = withSink $ \sink _ -> sink (Just jobKind)
+prefixWith outerJobKind = withSink $ \sink _innerJobKind -> sink (Just outerJobKind)
