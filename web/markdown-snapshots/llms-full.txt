@@ -13342,7 +13342,7 @@ COMMANDS
     version               Prints current version of CLI.
     doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).
     completion            Prints help on bash completion.
-    uninstall             Removes Wasp from your system.
+    uninstall [--force]   Removes Wasp from your system.
   IN PROJECT
     start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]
                           Runs Wasp app in development mode, watching for file changes.
@@ -13530,7 +13530,7 @@ Running Wasp doctor...
 [✓] Docker: running
 ```
 
-- `wasp uninstall` removes Wasp from your system.
+- `wasp uninstall` removes Wasp from your system. It asks for confirmation before deleting anything. Use `--force` to skip the confirmation prompt, for example in a script.
 
 ```
 
