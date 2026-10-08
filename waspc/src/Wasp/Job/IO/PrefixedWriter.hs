@@ -5,6 +5,9 @@ module Wasp.Job.IO.PrefixedWriter
   ( printJobMessagePrefixed,
     runPrefixedWriter,
     PrefixedWriter,
+    formatJobMessage,
+    PrefixedWriterState,
+    initialPrefixedWriterState,
   )
 where
 
@@ -50,13 +53,9 @@ import qualified Wasp.Util.Terminal as Term
 --
 -- This is not an easy problem to solve, as we can't know what kind of message is coming next,
 -- and there are always situations where some other output might interrupt us.
--- But, what we can at least do is avoid having this situation described above, where newline is
--- "kidnapped", and we do that by postponing the newline (make it pending) for later,
--- until the next message from the same output (job + output stream) arrives.
---
--- Specifically, what we do is postpone printing of a newline if it is the last character in a message.
--- We make it pending instead, and once the new message comes from the same output, we apply it at the
--- start of that message.
+-- We avoid this by printing the newline immediately, but postponing the next prefix
+-- until another message from the same output arrives. Holding back the newline as
+-- well would make ordinary CLI messages join the previous line.
 --
 -- This way we get proper output in the situation as described above:
 --   Server: First line
@@ -69,20 +68,24 @@ import qualified Wasp.Util.Terminal as Term
 -- output from another job, or when message is the very first message.
 printJobMessagePrefixed :: J.JobMessage -> PrefixedWriter ()
 printJobMessagePrefixed jobMessage = do
-  (PrefixedWriterState outputsWithPendingNewline lastJobMessage) <- get
-
-  let (outputsWithPendingNewline', messageContent) =
-        applyPendingNewline outputsWithPendingNewline jobMessage
-  let prefixedMessageContent = addPrefixWhereNeeded lastJobMessage messageContent
-
-  put $ PrefixedWriterState outputsWithPendingNewline' (Just jobMessage)
-
-  liftIO $ printPrefixedMessageContent prefixedMessageContent
+  writerState <- get
+  let (writerState', content) = formatJobMessage writerState jobMessage
+  put writerState'
+  liftIO $ printPrefixedMessageContent content
   where
     printPrefixedMessageContent :: T.Text -> IO ()
     printPrefixedMessageContent content = T.IO.hPutStr outHandle content >> hFlush outHandle
       where
         outHandle = getJobMessageOutHandle jobMessage
+
+formatJobMessage :: PrefixedWriterState -> J.JobMessage -> (PrefixedWriterState, T.Text)
+formatJobMessage (PrefixedWriterState outputsWithPendingPrefix lastJobMessage) jobMessage =
+  (PrefixedWriterState outputsWithPendingPrefix' (Just jobMessage), prefixedMessageContent)
+  where
+    (outputsWithPendingPrefix', messageContent) =
+      applyPendingPrefix outputsWithPendingPrefix jobMessage
+    trailingNewline = if "\n" `T.isSuffixOf` getJobMessageContent jobMessage then "\n" else ""
+    prefixedMessageContent = addPrefixWhereNeeded lastJobMessage messageContent <> trailingNewline
 
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
@@ -109,7 +112,8 @@ printJobMessagePrefixed jobMessage = do
           let interruptingAnotherOutput =
                 (getJobMessageOutput <$> lastJobMessage) /= Just (getJobMessageOutput jobMessage)
               newlineAtStart = "\n" `T.isPrefixOf` text
-           in if interruptingAnotherOutput && not newlineAtStart then "\n" <> text else text
+              previousLineComplete = maybe False (T.isSuffixOf "\n" . getJobMessageContent) lastJobMessage
+           in if interruptingAnotherOutput && not newlineAtStart && not previousLineComplete then "\n" <> text else text
 
         prefix :: T.Text
         prefix = makeJobMessagePrefix jobMessage
@@ -118,18 +122,19 @@ newtype PrefixedWriter a = PrefixedWriter {_runPrefixedWriter :: StateT Prefixed
   deriving (Functor, Applicative, Monad, MonadIO, MonadState PrefixedWriterState)
 
 data PrefixedWriterState = PrefixedWriterState
-  { _outputsWithPendingNewline :: !OutputsWithPendingNewline,
+  { _outputsWithPendingPrefix :: !OutputsWithPendingPrefix,
     _lastJobMessage :: !(Maybe J.JobMessage)
   }
 
 runPrefixedWriter :: PrefixedWriter a -> IO a
-runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initState
-  where
-    initState =
-      PrefixedWriterState
-        { _outputsWithPendingNewline = S.empty,
-          _lastJobMessage = Nothing
-        }
+runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initialPrefixedWriterState
+
+initialPrefixedWriterState :: PrefixedWriterState
+initialPrefixedWriterState =
+  PrefixedWriterState
+    { _outputsWithPendingPrefix = S.empty,
+      _lastJobMessage = Nothing
+    }
 
 -- Job message output type.
 data Output = Output
@@ -138,24 +143,22 @@ data Output = Output
   }
   deriving (Eq, Ord)
 
-type OutputsWithPendingNewline = S.Set Output
+type OutputsWithPendingPrefix = S.Set Output
 
--- | Given a set of job message outputs with pending newline and a job message,
--- it applies any pending newline (newline from the previous messages from the same output)
--- to the job message content while also detecting if content ends with a newline
--- and in that case adds it to the set of pending newlines (while removing used pending newline).
--- It returns this updated content and updated set of pending newlines.
-applyPendingNewline ::
-  OutputsWithPendingNewline -> J.JobMessage -> (OutputsWithPendingNewline, T.Text)
-applyPendingNewline outputsWithPendingNewline jobMessage = (outputsWithPendingNewline', content')
+-- | Removes the final newline while adding prefixes, and adds the prefix owed
+-- from the previous message. The caller prints the final newline immediately
+-- after formatting, without leaving an unused prefix on the next line.
+applyPendingPrefix ::
+  OutputsWithPendingPrefix -> J.JobMessage -> (OutputsWithPendingPrefix, T.Text)
+applyPendingPrefix outputsWithPendingPrefix jobMessage = (outputsWithPendingPrefix', content')
   where
-    content' = addPendingNewlineToStartIfAny $ removeTrailingNewlineIfAny content
+    content' = addPendingPrefixToStartIfAny $ removeTrailingNewlineIfAny content
       where
         removeTrailingNewlineIfAny = if contentEndsWithNewline then T.init else id
-        addPendingNewlineToStartIfAny =
-          if getJobMessageOutput jobMessage `S.member` outputsWithPendingNewline then ("\n" <>) else id
+        addPendingPrefixToStartIfAny =
+          if getJobMessageOutput jobMessage `S.member` outputsWithPendingPrefix then (makeJobMessagePrefix jobMessage <>) else id
 
-    outputsWithPendingNewline' = updateOp output outputsWithPendingNewline
+    outputsWithPendingPrefix' = updateOp output outputsWithPendingPrefix
       where
         updateOp = if contentEndsWithNewline then S.insert else S.delete
 
