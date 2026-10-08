@@ -26,7 +26,7 @@ import Wasp.Job.Printer (OutputKind (..))
 -- 'P.CreatePipe' gets an empty stdin.
 -- Makes sure to terminate the process (or process group on *nix) if the job is
 -- stopped before the process finishes.
-fromProc :: P.CreateProcess -> Job e ExitCode
+fromProc :: P.CreateProcess -> Job ExitCode
 fromProc process = Job $ do
   sink <- ask
   liftIO $ bracket start cleanUp (waitForExit $ sink Nothing)

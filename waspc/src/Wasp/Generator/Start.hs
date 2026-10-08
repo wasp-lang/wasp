@@ -39,7 +39,7 @@ start (webAppRunConfig, serverRunConfig) waspProjectDir outDir onJobsQuietDown =
 -- | Calls 'onJobsQuietDown' every time the job goes quiet: it emits some
 -- output, and then nothing for 5 seconds. Stops listening once the job
 -- finishes.
-withJobsQuietDownListener :: IO () -> J.Job e a -> J.Job e a
+withJobsQuietDownListener :: IO () -> J.Job a -> J.Job a
 withJobsQuietDownListener onJobsQuietDown job = do
   jobOutputSignal <- liftIO newEmptyMVar
   either id absurd

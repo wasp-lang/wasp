@@ -13,7 +13,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job e ExitCode
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 startServer serverRunConfig generatedAppDir = do
   let serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 

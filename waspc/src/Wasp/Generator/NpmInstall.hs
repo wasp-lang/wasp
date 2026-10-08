@@ -69,7 +69,7 @@ installProjectNpmDependencies projectDir = do
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
 
-installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job e ExitCode
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
   Job.emitOutput Job.Stdout "Starting npm install\n"
 
@@ -82,7 +82,7 @@ installNpmDependenciesAndReport projectDir = do
             }
       )
 
-reportInstallationProgress :: Job.Job e Void
+reportInstallationProgress :: Job.Job Void
 reportInstallationProgress =
   forever $ mapM_ reportMessage possibleMessages
   where

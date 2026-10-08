@@ -11,7 +11,7 @@ import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import Wasp.Env (getEnvVars, inheritEnvWith)
 import qualified Wasp.Job as Job
 
-buildClient :: BuildStartConfig -> Job.Job e ExitCode
+buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config = do
   Job.fromProc
     =<< inheritEnvWith
@@ -21,7 +21,7 @@ buildClient config = do
     envVars = getEnvVars config.clientRunConfig
     projectDir = SP.fromAbsDir config.projectDir
 
-startClient :: BuildStartConfig -> Job.Job e ExitCode
+startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config = do
   Job.fromProc
     =<< inheritEnvWith

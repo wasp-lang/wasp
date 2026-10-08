@@ -2,7 +2,6 @@ module JobTest where
 
 import Control.Concurrent (newEmptyMVar, takeMVar, threadDelay, tryPutMVar)
 import Control.Monad (unless, void)
-import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
@@ -22,7 +21,7 @@ spec_Job = do
             Job.emitOutput Job.Stdout "first "
             Job.emitOutput Job.Stderr "second "
             Job.emitOutput Job.Stdout "last"
-      runJob (Job.captureOutput job) `shouldReturn` Right ((), "first second last")
+      Job.run (Job.captureOutput job) `shouldReturn` ((), "first second last")
 
     it "doesn't pass the output on" $ do
       outputCount <- newIORef (0 :: Int)
@@ -30,7 +29,7 @@ spec_Job = do
             Job.onOutput (modifyIORef' outputCount (+ 1))
               $ Job.captureOutput
               $ Job.emitOutput Job.Stdout "captured"
-      _ <- runJob job
+      _ <- Job.run job
       readIORef outputCount `shouldReturn` 0
 
   describe "onOutput" $ do
@@ -41,31 +40,14 @@ spec_Job = do
               Job.onOutput (modifyIORef' outputCount (+ 1)) $ do
                 Job.emitOutput Job.Stdout "first"
                 Job.emitOutput Job.Stderr "second"
-      _ <- runJob job
+      _ <- Job.run job
       readIORef outputCount `shouldReturn` 2
-
-  describe "failOnExitFailure" $ do
-    it "fails the job with the error for a non-zero exit code" $ do
-      let job = do
-            Job.failOnExitFailure failWith $ return $ ExitFailure 7
-            Job.emitOutput Job.Stdout "after failure"
-      runJob job `shouldReturn` Left "Failed with 7"
-
-    it "doesn't fail the job on a zero exit code" $ do
-      runJob (Job.failOnExitFailure failWith $ return ExitSuccess)
-        `shouldReturn` Right ()
 
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do
       let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
-      timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob (return ("fast" :: String)))
-        `shouldReturn` Just (Right (Right "fast"))
-
-    it "fails if the job that finishes first fails" $ do
-      let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
-          failingJob = Job.failOnExitFailure failWith $ return $ ExitFailure 7
-      timeout (secondsToMicroSeconds 5) (runJob $ Job.race slowJob failingJob)
-        `shouldReturn` Just (Left "Failed with 7")
+      timeout (secondsToMicroSeconds 5) (Job.run $ Job.race slowJob (return ("fast" :: String)))
+        `shouldReturn` Just (Right "fast")
 
     -- On Windows, stopping a job waits for its process to exit by itself,
     -- because reading the process's output can't be interrupted there.
@@ -79,37 +61,31 @@ spec_Job = do
             jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
         result <-
           timeout (secondsToMicroSeconds 5)
-            $ runJob
+            $ Job.run
             $ Job.captureOutput
             $ Job.race slowJob jobThatFinishesOnceProcessStarts
         case result of
-          Just (Right (Right (), output)) ->
+          Just (Right (), output) ->
             waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
           _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
   describe "fromProc" $ do
-    it "returns the exit code of the process without failing the job" $ do
-      runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (Right (ExitFailure 7))
+    it "returns the exit code of the process" $ do
+      runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (ExitFailure 7)
 
     it "emits the process's stdout and stderr" $ do
       let process = node "process.stdout.write('out'); setTimeout(() => process.stderr.write('err'), 100);"
       runProcessJob (Job.captureOutput $ Job.fromProc process)
-        `shouldReturn` Just (Right (ExitSuccess, "outerr"))
+        `shouldReturn` Just (ExitSuccess, "outerr")
 
     it "gives an empty stdin to a process that asks for a pipe" $ do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
       runProcessJob (Job.fromProc readsStdinToEnd {P.std_in = P.CreatePipe})
-        `shouldReturn` Just (Right (ExitFailure 3))
-
-runJob :: Job.Job String a -> IO (Either String a)
-runJob = runExceptT . Job.run
+        `shouldReturn` Just (ExitFailure 3)
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
-runProcessJob :: Job.Job String a -> IO (Maybe (Either String a))
-runProcessJob = timeout (secondsToMicroSeconds 10) . runJob
-
-failWith :: Int -> String
-failWith code = "Failed with " <> show code
+runProcessJob :: Job.Job a -> IO (Maybe a)
+runProcessJob = timeout (secondsToMicroSeconds 10) . Job.run
 
 node :: String -> P.CreateProcess
 node script = P.proc "node" ["-e", script]

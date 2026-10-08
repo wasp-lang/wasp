@@ -12,7 +12,7 @@ import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 
-testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job e ExitCode
+testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
 testWebApp clientRunConfig args waspProjectDir = do
   J.fromProc
     =<< inheritEnvWith
