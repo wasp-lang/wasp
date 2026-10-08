@@ -70,26 +70,26 @@ sendCommand (ServerProcessController commands) makeCommand = do
 
 -- | Bundles and runs the development server, and then keeps it up to date with
 -- the compiles the controller is notified about. Never finishes by itself.
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> J.Job e Void
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> J.Job Void
 startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
   bundleAndRun Nothing
   where
     -- There is no known-good bundle while the server isn't running, so any
     -- successful compile rebundles it before starting it.
-    notRunning :: J.Job e Void
+    notRunning :: J.Job Void
     notRunning =
       liftIO (atomically $ readTQueue commands) >>= \case
         SuccessfulCompile _ done -> bundleAndRun $ Just done
         FailedCompile done -> acknowledge done >> notRunning
 
-    bundleAndRun :: Maybe (MVar ()) -> J.Job e Void
+    bundleAndRun :: Maybe (MVar ()) -> J.Job Void
     bundleAndRun done =
       bundle >>= \case
         ExitSuccess -> running done
         ExitFailure _ -> mapM_ acknowledge done >> notRunning
 
     -- Runs the server until it exits, or a command needs it stopped.
-    running :: Maybe (MVar ()) -> J.Job e Void
+    running :: Maybe (MVar ()) -> J.Job Void
     running done = do
       serverExit <- liftIO newEmptyTMVarIO
       next <-
@@ -102,13 +102,13 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     -- Reports the server's exit instead of finishing, so that a command that
     -- is being handled doesn't get cancelled. It reports it as soon as the
     -- server exits, so that a compile right after a crash restarts it.
-    runServer :: TMVar ExitCode -> J.Job e Void
+    runServer :: TMVar ExitCode -> J.Job Void
     runServer serverExit = do
       _ <- J.onProcessExit (atomically . putTMVar serverExit) $ J.fromProc =<< serverProcess
       liftIO $ forever $ threadDelay maxBound
 
     -- Returns what to do once the server is stopped.
-    handleCommandsWhileRunning :: TMVar ExitCode -> J.Job e (J.Job e Void)
+    handleCommandsWhileRunning :: TMVar ExitCode -> J.Job (J.Job Void)
     handleCommandsWhileRunning serverExit =
       liftIO (atomically $ (Left <$> takeTMVar serverExit) `orElse` (Right <$> readTQueue commands)) >>= \case
         Left exitCode -> return $ reportServerExit exitCode >> notRunning
@@ -122,10 +122,10 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
             ExitFailure _ -> acknowledge done >> notRunning
         Right (FailedCompile done) -> return $ acknowledge done >> notRunning
 
-    acknowledge :: MVar () -> J.Job e ()
+    acknowledge :: MVar () -> J.Job ()
     acknowledge done = liftIO $ putMVar done ()
 
-    bundle :: J.Job e ExitCode
+    bundle :: J.Job ExitCode
     bundle = J.fromProc (proc "npm" ["run", "bundle"]) {cwd = Just serverDir}
 
     serverProcess :: (MonadIO m) => m CreateProcess
@@ -136,7 +136,7 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
 
     serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
-reportServerExit :: ExitCode -> J.Job e ()
+reportServerExit :: ExitCode -> J.Job ()
 reportServerExit = \case
   ExitSuccess -> J.emitOutput J.Stdout "Server process exited.\n"
   ExitFailure code -> J.emitOutput J.Stderr $ T.pack $ "Server process exited with code " <> show code <> ".\n"

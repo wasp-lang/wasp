@@ -4,7 +4,6 @@ import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (cancel, withAsync)
 import Control.Exception (SomeException, finally, try)
 import Control.Monad (void, when)
-import Control.Monad.Except (runExceptT)
 import Data.Text (Text)
 import Data.Void (Void)
 import StrongPath (Abs, Dir, Path')
@@ -185,9 +184,9 @@ spec_ServerProcessController =
             clearServerPid fixture
 
 -- | Runs the controller until it's cancelled, discarding its output.
-runController :: ServerProcessController -> Path' Abs (Dir GeneratedAppDir) -> IO (Either () (Void, Text))
+runController :: ServerProcessController -> Path' Abs (Dir GeneratedAppDir) -> IO (Void, Text)
 runController controller generatedAppDir =
-  runExceptT $ Job.run $ Job.captureOutput $ startServer serverRunConfig generatedAppDir controller
+  Job.run $ Job.captureOutput $ startServer serverRunConfig generatedAppDir controller
 
 serverRunConfig :: ServerRunConfig
 serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"

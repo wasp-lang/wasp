@@ -12,7 +12,7 @@ import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 
-startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job e ExitCode
+startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
 startWebApp webAppRunConfig waspProjectDir = do
   -- Wasp owns the shared terminal during `wasp start`, so Vite should not
   -- interpret keystrokes as its own shortcuts.
