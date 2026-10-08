@@ -4,11 +4,11 @@ module Wasp.Cli.Command.Db
 where
 
 import Wasp.Cli.Command (Command, require, runCommand)
-import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
+import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.ProjectLock (withProjectLock)
+import Wasp.Cli.Compile (waitEnsureCompile)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 
@@ -20,11 +20,11 @@ runCommandThatRequiresDbRunning = runCommand . makeDbCommand
 --
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
-makeDbCommand cmd = withProjectLock $ do
+makeDbCommand cmd = do
   -- Ensure code is generated and npm dependencies are installed.
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  _ <- compileWithOptions $ compileOptions waspProjectDir
+  waitEnsureCompile $ compileOptions waspProjectDir
   DbConnectionEstablished <- require
   cmd
   where

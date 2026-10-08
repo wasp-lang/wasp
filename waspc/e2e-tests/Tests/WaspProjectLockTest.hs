@@ -7,6 +7,7 @@ import ShellCommands
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliClean,
+    waspCliCompile,
     waspCliInstall,
     (~&&),
   )
@@ -48,8 +49,43 @@ waspProjectLockTest =
               inTestWaspProjectDir
                 [ -- A lock file whose owner died: the file exists, but no
                   -- process holds the OS-level lock on it.
-                  return "mkdir -p .wasp && printf 999999999 > .wasp/.projectlock",
+                  -- Even if that owner was a watcher that had the generated app
+                  -- up to date, nobody is keeping it up to date anymore.
+                  return $ "mkdir -p .wasp" ~&& writeLockFileAsWatcher "999999999" "UpToDate",
                   waspCliClean
+                ]
+            ]
+        ),
+      TestCase
+        "db-command-runs-alongside-watcher-only-while-generated-app-is-up-to-date"
+        -- We can't run a real watcher (e.g. `wasp start`) here, so we fake one:
+        -- we hold the lock with a stalled `wasp install` (see the first test
+        -- case), and then rewrite the lock file on its behalf, to go through
+        -- the statuses a watcher reports.
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ -- The db command won't compile the project while the lock
+                  -- is held, so the generated app must already be there.
+                  waspCliCompile,
+                  return addBlockingNpmPreinstallHook,
+                  startWaspInstallInBackground,
+                  return waitForLockToBeHeld,
+                  -- `wasp install` is not a watcher, so the db command waits for
+                  -- it to finish, and gives up after a while.
+                  return $ assertWaspDbMigrateDevFailsWith "is working on this project right now.",
+                  return $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
+                  return $ writeLockFileAsWatcher lockOwnerPid "CompilationFailed",
+                  return $ assertWaspDbMigrateDevFailsWith "is running for this project, but it failed to compile it.",
+                  -- While the watcher compiles, the db command waits for it, and
+                  -- goes on without compiling once the watcher is done.
+                  return $ writeLockFileAsWatcher lockOwnerPid "Compiling",
+                  return startWaspDbMigrateDevInBackground,
+                  return $ waitUntil $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
+                  return $ writeLockFileAsWatcher lockOwnerPid "UpToDate",
+                  return "wait \"$WASP_E2E_DB_PID\"",
+                  return "grep -qF 'Skipping compilation' .wasp-e2e-db.log",
+                  return releaseLockAndAwaitWaspInstall
                 ]
             ]
         )
@@ -80,8 +116,12 @@ waspProjectLockTest =
           ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
 
     waitForLockToBeHeld :: ShellCommand
-    waitForLockToBeHeld =
-      "( i=0; until [ -f " ++ lockAcquiredMarkerFile ++ " ]; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done )"
+    waitForLockToBeHeld = waitUntil $ "[ -f " ++ lockAcquiredMarkerFile ++ " ]"
+
+    -- Polls the given condition for up to ~120s.
+    waitUntil :: ShellCommand -> ShellCommand
+    waitUntil condition =
+      "( i=0; until " ++ condition ++ "; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done )"
 
     -- The reported PID must be exactly the one the holding process wrote into
     -- the lock file.
@@ -90,7 +130,43 @@ waspProjectLockTest =
       cleanCommand <- waspCliClean
       return $
         ("! " ++ cleanCommand ++ " > .wasp-e2e-clean.log 2>&1")
-          ~&& "grep -qF \"Another Wasp command (PID $(cat .wasp/.projectlock)) is already running for this project.\" .wasp-e2e-clean.log"
+          ~&& assertLogMentionsLockHolder ".wasp-e2e-clean.log" "is already running for this project."
+
+    assertWaspDbMigrateDevFailsWith :: String -> ShellCommand
+    assertWaspDbMigrateDevFailsWith messageAfterLockHolder =
+      ("! " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1")
+        ~&& assertLogMentionsLockHolder ".wasp-e2e-db.log" messageAfterLockHolder
+
+    assertLogMentionsLockHolder :: FilePath -> String -> ShellCommand
+    assertLogMentionsLockHolder logFile messageAfterLockHolder =
+      "grep -qF \"Another Wasp command (PID " ++ lockOwnerPid ++ ") " ++ messageAfterLockHolder ++ "\" " ++ logFile
+
+    -- Shell expression for the PID that the lock holder wrote into the lock file.
+    lockOwnerPid :: String
+    lockOwnerPid = "$(sed -E 's/.*\"pid\":([0-9]+).*/\\1/' .wasp/.projectlock)"
+
+    -- NOTE: The redirection rewrites the lock file in place. That's important
+    -- because the OS-level lock is tied to the file itself, so replacing the
+    -- file with a new one would leave us with an unlocked lock file.
+    writeLockFileAsWatcher :: String -> String -> ShellCommand
+    writeLockFileAsWatcher pid watcherStatus =
+      "WASP_E2E_LOCK_FILE_CONTENTS=\"{\\\"pid\\\":"
+        ++ pid
+        ++ ",\\\"watcherStatus\\\":\\\""
+        ++ watcherStatus
+        ++ "\\\"}\""
+          ~&& "printf %s \"$WASP_E2E_LOCK_FILE_CONTENTS\" > .wasp/.projectlock"
+
+    startWaspDbMigrateDevInBackground :: ShellCommand
+    startWaspDbMigrateDevInBackground =
+      ("{ " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1 & }")
+        ~&& "WASP_E2E_DB_PID=$!"
+
+    waspCliDbMigrateDev :: ShellCommand
+    waspCliDbMigrateDev = "$WASP_CLI_CMD db migrate-dev --name foo"
+
+    waitingForCompilationMessage :: String
+    waitingForCompilationMessage = "'Waiting for compilation to finish'"
 
     releaseLockAndAwaitWaspInstall :: ShellCommand
     releaseLockAndAwaitWaspInstall =
