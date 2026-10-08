@@ -351,10 +351,13 @@ var assetsURL = function(dep) {
 	return "/" + dep;
 };
 var seen = {};
+var isCssPreloadUrl = function isCssPreloadUrl(url) {
+	return url.pathname.endsWith(".css");
+};
 var __vitePreload = function preload(baseModule, deps, importerUrl) {
 	let promise = Promise.resolve();
 	if (deps && deps.length > 0) {
-		const links = document.getElementsByTagName("link");
+		let preloadedHrefs;
 		const cspNonceMeta = document.querySelector("meta[property=csp-nonce]");
 		const cspNonce = cspNonceMeta?.nonce || cspNonceMeta?.getAttribute("nonce");
 		function allSettled(promises) {
@@ -367,28 +370,37 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 			}))));
 		}
 		function importMetaResolve(specifier) {
-			if (import.meta.resolve) return import.meta.resolve(specifier);
+			if (import.meta.resolve) return new URL(import.meta.resolve(specifier));
 			return new URL(
 				specifier,
 				/** #__KEEP__ */
 				import.meta.url
-			).href;
+			);
 		}
-		promise = allSettled(deps.map((dep) => {
-			dep = assetsURL(dep, importerUrl);
-			dep = importMetaResolve(dep);
-			if (dep in seen) return;
-			seen[dep] = true;
-			const isCss = dep.endsWith(".css");
-			for (let i = links.length - 1; i >= 0; i--) {
-				const link = links[i];
-				if (link.href === dep && (!isCss || link.rel === "stylesheet")) return;
+		promise = allSettled(deps.map((depString) => {
+			depString = assetsURL(depString, importerUrl);
+			const dep = importMetaResolve(depString);
+			if (dep.href in seen) return;
+			seen[dep.href] = true;
+			const isCss = isCssPreloadUrl(dep);
+			if (preloadedHrefs === void 0) {
+				preloadedHrefs = {
+					all: /* @__PURE__ */ new Set(),
+					styles: /* @__PURE__ */ new Set()
+				};
+				const links = document.getElementsByTagName("link");
+				for (let i = links.length - 1; i >= 0; i--) {
+					const link = links[i];
+					preloadedHrefs.all.add(link.href);
+					if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+				}
 			}
+			if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
 			const link = document.createElement("link");
 			link.rel = isCss ? "stylesheet" : scriptRel;
 			if (!isCss) link.as = "script";
 			link.crossOrigin = "";
-			link.href = dep;
+			link.href = dep.href;
 			if (cspNonce) link.setAttribute("nonce", cspNonce);
 			document.head.appendChild(link);
 			if (isCss) return new Promise((res, rej) => {

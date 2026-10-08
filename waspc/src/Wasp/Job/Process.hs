@@ -19,8 +19,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Internal (Job (..))
-import Wasp.Job.Printer (OutputKind (..))
+import Wasp.Job.Common (Job (..), OutputType (..))
 import qualified Wasp.Process.System as System
 
 -- TODO(#4575):
@@ -66,7 +65,7 @@ runProcess interactivity process = Job $ do
 --
 -- An 'Interactive' process reads from Wasp's stdin. For that, it has to stay
 -- in Wasp's process group, so stopping this only stops the process itself.
-run :: Interactivity -> (OutputKind -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
+run :: Interactivity -> (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run interactivity emit process = mask $ \restore -> do
   (resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle), processGroup) <- start
   mapM_ hClose stdinHandle

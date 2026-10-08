@@ -320,7 +320,7 @@ library
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
     Wasp.Job
-    Wasp.Job.Internal
+    Wasp.Job.Common
     Wasp.Job.Printer
     Wasp.Job.Process
     Wasp.JsImport
@@ -601,6 +601,7 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
+    Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
     JobTest
     JsImportTest
