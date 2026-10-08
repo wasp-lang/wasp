@@ -16,8 +16,6 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
@@ -89,13 +87,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
       -- - Accidentally, we don't need to do this because Wasp SDK is symlinked and Vite would
       --   exclude it anyways - but we are keeping it here because we want to be explicit.
       --   Read more: https://vite.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies
-      sdkPackageName
-        :
-        -- Wasp libs are excluded from optimization because they are internal npm packages that
-        -- have a static version during Wasp development which means once they are cached by Vite,
-        -- they aren't updated even though the lib changes.
-        -- Read more about libs versioning in `waspc/libs/README.md`.
-        map WaspLib.packageName waspLibs
+      [sdkPackageName]
 
 genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
