@@ -36,9 +36,6 @@ import UnliftIO.Exception (bracket)
 import Wasp.Job.Printer (JobKind (..), OutputKind (..))
 import qualified Wasp.Job.Printer as Printer
 
--- TODO(#4575):
---   Switch from System.Process to System.Process.Typed.
-
 -- | An action that runs processes and emits their output. It can fail with an
 -- error of type @e@.
 newtype Job e a = Job (ReaderT Sink (ExceptT e IO) a)
