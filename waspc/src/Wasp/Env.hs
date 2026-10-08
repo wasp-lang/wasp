@@ -12,17 +12,22 @@ module Wasp.Env
     HasEnvVars (..),
     addEnvVarsUnique,
     addEnvVarsOverride,
+    inheritEnvWith,
   )
 where
 
 import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
+import System.Environment (getEnvironment)
+import qualified System.Process as P
 import UnliftIO.Exception (catch, throwIO)
 
 type EnvVar = (EnvVarName, EnvVarValue)
@@ -69,6 +74,10 @@ class HasEnvVars a where
   getEnvVars :: a -> [EnvVar]
   setEnvVars :: a -> [EnvVar] -> a
 
+instance HasEnvVars P.CreateProcess where
+  getEnvVars process = fromMaybe [] (P.env process)
+  setEnvVars process envVars = process {P.env = Just envVars}
+
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, returns a @Left@ of the duplicate env var
 -- names.
@@ -90,3 +99,10 @@ addEnvVarsOverride x incoming = setEnvVars x $ nubEnvVars merged
       -- Incoming first so that they take priority over existing.
       incoming <> existing
     existing = getEnvVars x
+
+-- | Sets the process's env vars to the ones of the current process, combined
+-- with the given env vars, which take priority.
+inheritEnvWith :: (MonadIO m, HasEnvVars a) => [EnvVar] -> a -> m a
+inheritEnvWith extraEnvVars x = liftIO $ do
+  environment <- getEnvironment
+  return $ (x `setEnvVars` environment) `addEnvVarsOverride` extraEnvVars

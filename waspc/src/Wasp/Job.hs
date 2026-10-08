@@ -1,31 +1,61 @@
 module Wasp.Job
   ( Job,
-    JobMessage (..),
-    JobMessageData (..),
-    JobOutputType (..),
+    run,
+    race,
+    OutputType (..),
+    emitOutput,
+    captureOutput,
+    onOutput,
+    fromProc,
     JobType (..),
+    prefixWith,
   )
 where
 
-import Control.Concurrent (Chan)
+import qualified Control.Concurrent.Async as Async
+import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Reader (ReaderT (..), ask)
+import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
-import System.Exit (ExitCode)
+import qualified Data.Text as T
+import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
+import qualified Wasp.Job.Printer as Printer
+import Wasp.Job.Process (fromProc)
 
--- | Job is an IO action that communicates progress by writing messages to given channel
---   until it is done, when it returns exit code.
-type Job = Chan JobMessage -> IO ExitCode
+-- | Runs the job, printing its output to Wasp's own stdout and stderr, and
+-- returns once it has finished.
+run :: (MonadIO m) => Job a -> m a
+run job = liftIO $ do
+  printer <- Printer.newPrinter
+  runWithSink (Printer.printOutput printer) job
 
-data JobMessage = JobMessage
-  { _data :: JobMessageData,
-    _jobType :: JobType
-  }
-  deriving (Show)
+-- | Runs both jobs at the same time, until one of them finishes. Then it stops
+-- the other one and returns the result of the first one.
+race :: Job a -> Job b -> Job (Either a b)
+race left right = Job $ ReaderT $ \sink ->
+  Async.race (runWithSink sink left) (runWithSink sink right)
 
-data JobMessageData
-  = JobOutput Text JobOutputType
-  | JobExit ExitCode
-  deriving (Show)
+emitOutput :: OutputType -> Text -> Job ()
+emitOutput outputType output = Job $ do
+  sink <- ask
+  liftIO $ sink Nothing outputType output
 
-data JobOutputType = Stdout | Stderr deriving (Show, Eq)
+-- | Collects all the output the job emits, from both stdout and stderr, in
+-- the order it was emitted, as the monad's result.
+captureOutput :: Job a -> Job (a, Text)
+captureOutput job = do
+  chunksRef <- liftIO $ newIORef []
+  let capture _ _ output = atomicModifyIORef' chunksRef $ \chunks -> (output : chunks, ())
+  result <- withSink (const capture) job
+  chunks <- liftIO $ readIORef chunksRef
+  return (result, T.concat $ reverse chunks)
 
-data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
+-- | Calls the given action every time the job emits output.
+onOutput :: IO () -> Job a -> Job a
+onOutput action = withSink $ \sink jobType outputType output ->
+  action >> sink jobType outputType output
+
+-- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
+-- 'prefixWith' calls are nested, the outermost one decides the prefix.
+prefixWith :: JobType -> Job a -> Job a
+prefixWith outerJobType = withSink $ \sink _innerJobType -> sink (Just outerJobType)

@@ -4,38 +4,37 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
-import Data.Function ((&))
+import qualified StrongPath as SP
+import System.Exit (ExitCode)
+import System.Process (CreateProcess (..), proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Env (getEnvVars)
-import qualified Wasp.Job as J
-import Wasp.Job.Except (ExceptJob, toExceptJob)
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Env (getEnvVars, inheritEnvWith)
+import qualified Wasp.Job as Job
 
-buildClient :: BuildStartConfig -> ExceptJob
-buildClient config =
-  runNodeCommandAsJobWithExtraEnv
-    envVars
-    projectDir
-    "npx"
-    ["vite", "build"]
-    J.WebApp
-    & toExceptJob (("Building the client failed with exit code: " <>) . show)
+buildClient :: BuildStartConfig -> Job.Job ExitCode
+buildClient config = do
+  Job.fromProc
+    =<< inheritEnvWith
+      envVars
+      (proc "npx" ["vite", "build"]) {cwd = Just projectDir}
   where
     envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
+    projectDir = SP.fromAbsDir config.projectDir
 
-startClient :: BuildStartConfig -> ExceptJob
-startClient config =
-  runNodeCommandAsJobWithExtraEnv
-    envVars
-    projectDir
-    "npx"
-    [ "vite",
-      "preview", -- `preview` launches a static file server for the built client.
-      "--strictPort" -- This will make it fail if the port is already in use.
-    ]
-    J.WebApp
-    & toExceptJob (("Serving the client failed with exit code: " <>) . show)
+startClient :: BuildStartConfig -> Job.Job ExitCode
+startClient config = do
+  Job.fromProc
+    =<< inheritEnvWith
+      envVars
+      ( proc
+          "npx"
+          [ "vite",
+            "preview", -- `preview` launches a static file server for the built client.
+            "--strictPort" -- This will make it fail if the port is already in use.
+          ]
+      )
+        { cwd = Just projectDir
+        }
   where
     envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
+    projectDir = SP.fromAbsDir config.projectDir

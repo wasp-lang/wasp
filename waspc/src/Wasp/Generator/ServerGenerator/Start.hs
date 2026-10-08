@@ -4,19 +4,20 @@ module Wasp.Generator.ServerGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.Env (getEnvVars)
+import qualified StrongPath as SP
+import System.Exit (ExitCode)
+import System.Process (CreateProcess (..), proc)
+import Wasp.Env (getEnvVars, inheritEnvWith)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 startServer serverRunConfig generatedAppDir = do
-  let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-  runNodeCommandAsJobWithExtraEnv
-    (getEnvVars serverRunConfig)
-    serverDir
-    "npm"
-    ["run", "watch"]
-    J.Server
+  let serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
+
+  J.fromProc
+    =<< inheritEnvWith
+      (getEnvVars serverRunConfig)
+      (proc "npm" ["run", "watch"]) {cwd = Just serverDir}
