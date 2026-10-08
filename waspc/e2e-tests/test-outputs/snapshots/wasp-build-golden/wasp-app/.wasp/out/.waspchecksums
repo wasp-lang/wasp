@@ -30,6 +30,13 @@
     [
         [
             "file",
+            "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+        ],
+        "117307052732745723e9ee3dfc1e25c33bd626b419103ae4a83cc31c32e89927"
+    ],
+    [
+        [
+            "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
         ],
         "5861342fc44ba43a186562a67b729c98a140f69aef4efb1b33474832dbeba466"
@@ -340,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "c113a94a370aa44c8653cd570bb8b6fcc8042735872207e03806790d49df0a3a"
+        "1056517f0038154e64aeac090972147ee38cb8bdb96d1b5bc2e2e26c78981c8c"
     ],
     [
         [
@@ -424,7 +431,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ce7a6d191e80bd921bac0e1c0e9286c30c4658e1f500500da6ef46a420ecdd9d"
+        "54c2d762d1f734b3a0ddfb6c00cc056a558aa7c93e596699f9fb34a27480670a"
     ],
     [
         [
@@ -676,21 +683,28 @@
             "file",
             "server/package.json"
         ],
-        "6762dea4fe86ea61bd6f78bb924b0ccd56c1ad7cd2fad2ff885faf3cb1622cd4"
+        "0d940966395197b752c59fe04107d594c6d536f1453eb23068c8c56529e6f069"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "ad3308f02976dc31d660543bf2840c2d71ecc611eded594d4530aeb9946e8c97"
+        "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
+        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
+    ],
+    [
+        [
+            "file",
+            "server/src/createRollupBundle.js"
+        ],
+        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
     ],
     [
         [
@@ -718,7 +732,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "c54b770823bcfad9bea0df4d4fabd12af7b58cab67b462972cad829c472a011e"
+        "ad88273aa0e3a0cc0853faace8c1236f352d0e1865ceeba1f21b2d712e9e6484"
     ],
     [
         [
@@ -746,7 +760,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9acba4a5ce9c3e21a9794485c8e26f152747e1fa670776fbc111d85253669aa7"
+        "09f5563c093b52b6c9ab99a4def30a2ac3febde3904a48f8413c23aaf8907eea"
     ],
     [
         [
