@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (filterM, unless, when)
+import Control.Monad (filterM, unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
@@ -19,8 +19,9 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Cli.Interactive (NonInteractiveHint (NonInteractiveHint))
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -48,6 +49,9 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
 newtype UninstallArgs = UninstallArgs
   { force :: Bool
   }
+
+nonInteractiveHint :: NonInteractiveHint
+nonInteractiveHint = NonInteractiveHint $ getParserHelpMessage uninstallArgsParser
 
 uninstallArgsParser :: ArgsParser UninstallArgs
 uninstallArgsParser =
@@ -82,8 +86,8 @@ removeWaspFiles skipConfirmation = do
         ]
 
     unless skipConfirmation $ do
-      answer <- Interactive.askForInput "Are you sure you want to continue? [y/N]"
-      when (answer /= "y") $ die "Aborted."
+      confirmed <- Interactive.askForConfirmation "Are you sure you want to continue?" nonInteractiveHint
+      unless confirmed $ die "Aborted."
 
     mapM_ deleteDirectoryIfExists dirsToRemove
     mapM_ deleteFileIfExists filesToRemove

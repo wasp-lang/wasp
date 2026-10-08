@@ -23,8 +23,9 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (crea
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.Parser (getParserHelpMessage, withArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
@@ -34,12 +35,14 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject = withArguments newProjectArgsParser $ \args -> do
   ValidNodeAndNpm <- require
-  newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
+  newProjectDescription <- obtainNewProjectDescription args nonInteractiveHint availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
   -- TODO consider removing if we start doing `wasp install` automatically
   liftIO $ installDepsForNewProject (getAbsWaspProjectDir newProjectDescription)
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
+  where
+    nonInteractiveHint = Interactive.NonInteractiveHint $ getParserHelpMessage newProjectArgsParser
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
