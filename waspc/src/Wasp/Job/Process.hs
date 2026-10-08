@@ -18,8 +18,7 @@ import System.IO (Handle, hClose)
 import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
-import Wasp.Job.Common (Job (..))
-import Wasp.Job.Printer (OutputKind (..))
+import Wasp.Job.Common (Job (..), OutputType (..))
 
 -- | Runs the process to completion, emitting its stdout and stderr as the
 -- job's output, and returns its exit code. A process whose stdin is

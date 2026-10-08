@@ -2,12 +2,12 @@ module Wasp.Job
   ( Job,
     run,
     race,
-    OutputKind (..),
+    OutputType (..),
     emitOutput,
     captureOutput,
     onOutput,
     fromProc,
-    JobKind (..),
+    JobType (..),
     prefixWith,
   )
 where
@@ -18,8 +18,7 @@ import Control.Monad.Reader (ReaderT (..), ask)
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Wasp.Job.Common (Job (..), runWithSink, withSink)
-import Wasp.Job.Printer (JobKind (..), OutputKind (..))
+import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
 import qualified Wasp.Job.Printer as Printer
 import Wasp.Job.Process (fromProc)
 
@@ -36,10 +35,10 @@ race :: Job a -> Job b -> Job (Either a b)
 race left right = Job $ ReaderT $ \sink ->
   Async.race (runWithSink sink left) (runWithSink sink right)
 
-emitOutput :: OutputKind -> Text -> Job ()
-emitOutput outputKind output = Job $ do
+emitOutput :: OutputType -> Text -> Job ()
+emitOutput outputType output = Job $ do
   sink <- ask
-  liftIO $ sink Nothing outputKind output
+  liftIO $ sink Nothing outputType output
 
 -- | Collects all the output the job emits, from both stdout and stderr, in
 -- the order it was emitted, as the monad's result.
@@ -53,10 +52,10 @@ captureOutput job = do
 
 -- | Calls the given action every time the job emits output.
 onOutput :: IO () -> Job a -> Job a
-onOutput action = withSink $ \sink jobKind outputKind output ->
-  action >> sink jobKind outputKind output
+onOutput action = withSink $ \sink jobType outputType output ->
+  action >> sink jobType outputType output
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.
-prefixWith :: JobKind -> Job a -> Job a
-prefixWith outerJobKind = withSink $ \sink _innerJobKind -> sink (Just outerJobKind)
+prefixWith :: JobType -> Job a -> Job a
+prefixWith outerJobType = withSink $ \sink _innerJobType -> sink (Just outerJobType)
