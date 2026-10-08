@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Db.Seed
   ( seed,
+    seedArgsParser,
   )
 where
 
@@ -8,6 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
+import qualified Options.Applicative as Opt
 import StrongPath ((</>))
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
@@ -94,3 +96,6 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
 
 getDbSeeds :: AS.AppSpec -> Maybe [AS.ExtImport.ExtImport]
 getDbSeeds spec = AS.Db.seeds =<< AS.App.db (ASV.getApp spec)
+
+seedArgsParser :: Opt.Parser (Maybe String)
+seedArgsParser = Opt.optional $ Opt.strArgument $ Opt.metavar "NAME"

@@ -207,14 +207,11 @@ printVersion = do
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
-  -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  "start" : startArgs -> runCommand $ Command.Start.Db.start startArgs
+  "reset" : resetArgs -> runCommandThatRequiresDbRunning "wasp db reset" Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
+  "migrate-dev" : migrateArgs -> runCommandThatRequiresDbRunning "wasp db migrate-dev" Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev migrateArgs
+  "seed" : seedArgs -> runCommandThatRequiresDbRunning "wasp db seed" Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
+  "studio" : studioArgs -> runCommandThatRequiresDbRunning "wasp db studio" (pure ()) (const Command.Db.Studio.studio) studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
