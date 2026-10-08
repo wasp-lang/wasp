@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Wasp.Job.Internal
+module Wasp.Job.Common
   ( Job (..),
     Sink,
     withSink,

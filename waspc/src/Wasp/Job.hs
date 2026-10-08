@@ -18,7 +18,7 @@ import Control.Monad.Reader (ReaderT (..), ask)
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Wasp.Job.Internal (Job (..), runWithSink, withSink)
+import Wasp.Job.Common (Job (..), runWithSink, withSink)
 import Wasp.Job.Printer (JobKind (..), OutputKind (..))
 import qualified Wasp.Job.Printer as Printer
 import Wasp.Job.Process (fromProc)

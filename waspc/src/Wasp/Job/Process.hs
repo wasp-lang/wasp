@@ -18,7 +18,7 @@ import System.IO (Handle, hClose)
 import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
-import Wasp.Job.Internal (Job (..))
+import Wasp.Job.Common (Job (..))
 import Wasp.Job.Printer (OutputKind (..))
 
 -- | Runs the process to completion, emitting its stdout and stderr as the
