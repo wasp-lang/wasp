@@ -160,7 +160,6 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      generatorWarningsFilter = id,
       setupGoal = GeneratedAppReady
     }
 

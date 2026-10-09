@@ -4,7 +4,6 @@ module Wasp.CompileOptions
 where
 
 import StrongPath (Abs, Dir, Path')
-import Wasp.Generator.Monad (GeneratorWarning)
 import Wasp.Generator.Setup (SetupGoal)
 import Wasp.Message (SendMessage)
 import qualified Wasp.Project.BuildType as BuildType
@@ -20,11 +19,6 @@ data CompileOptions = CompileOptions
     -- invokes the compiler (such as the CLI) can then implement a way
     -- to display these messages.
     sendMessage :: SendMessage,
-    -- The generator returns a list of warnings and errors that happen during compilation.
-    -- CLI commands will almost always compile before they execute to ensure the project is up to date.
-    -- This filter function allows callers to ignore certain warnings where they do not make sense.
-    -- For example, showing a compilation warning to run `db migrate-dev` when you are running that command.
-    generatorWarningsFilter :: [GeneratorWarning] -> [GeneratorWarning],
     -- How far to set up the generated app after the code is generated
     -- (npm install, Prisma client, SDK build, ...).
     setupGoal :: SetupGoal
