@@ -8,25 +8,28 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
+import qualified Options.Applicative as Opt
 import StrongPath ((</>))
-import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
-seed :: Maybe String -> Command ()
-seed maybeUserProvidedSeedName = do
+seed :: Arguments -> Command ()
+seed = withArguments seedArgsParser $ \SeedArgs {_seedName = maybeUserProvidedSeedName} -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -42,6 +45,20 @@ seed maybeUserProvidedSeedName = do
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
+newtype SeedArgs = SeedArgs
+  { _seedName :: Maybe String
+  }
+
+seedArgsParser :: ArgsParser SeedArgs
+seedArgsParser =
+  ArgsParser "wasp db seed" $
+    SeedArgs
+      <$> Opt.optional
+        ( Opt.strArgument $
+            Opt.metavar "SEED_NAME"
+              <> Opt.help "Name of the seed to run. If omitted and more than one seed is defined, you will be asked to pick one"
+        )
+
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
   seedNames <- getSeedNames <$> getSeedsFromAppSpecOrThrowIfNone
@@ -49,29 +66,8 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     Just name -> parseUserProvidedSeedName name seedNames
     Nothing -> case seedNames of
       seedName :| [] -> return seedName
-      _seedNames -> liftIO $ askUserToChooseFromSeedNames seedNames
+      _seedNames -> liftIO $ Interactive.askToChoose "Choose a seed to run" seedNames
   where
-    askUserToChooseFromSeedNames :: NE.NonEmpty String -> IO String
-    askUserToChooseFromSeedNames seedNames = do
-      putStrLn "Choose a seed to run:"
-      mapM_ (\(i, n) -> putStrLn $ printf " [%d] %s" i n) $ zip [1 :: Int ..] (NE.toList seedNames)
-      putStrLn "Type a number (e.g. 1 or 2):"
-      chosenNumber <- getLine
-      case parseNumberInRange (1, length seedNames) chosenNumber of
-        Right idx -> return $ seedNames NE.!! (idx - 1)
-        Left errMsg -> do
-          putStrLn $ "Invalid number (" <> errMsg <> "), please try again.\n"
-          askUserToChooseFromSeedNames seedNames
-
-    parseNumberInRange :: (Int, Int) -> String -> Either String Int
-    parseNumberInRange (minNum, maxNum) strNum =
-      case reads strNum of
-        [(num, _)] ->
-          if num >= minNum && num <= maxNum
-            then Right num
-            else Left "number out of range"
-        _notANum -> Left "not a number"
-
     parseUserProvidedSeedName :: String -> NE.NonEmpty String -> Command String
     parseUserProvidedSeedName userProvidedSeedName seedNames =
       if userProvidedSeedName `elem` seedNames
