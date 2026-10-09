@@ -167,7 +167,7 @@ spec_Job = do
       it "asks the process to stop before killing it" $ do
         stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
         let stopGracefully =
-              "process.on('SIGTERM', () => { require('node:fs').writeFileSync("
+              "process.on('SIGINT', () => { require('node:fs').writeFileSync("
                 <> show stoppedGracefullyPath
                 <> ", ''); process.exit(0); });"
         withRunningProcess
@@ -179,7 +179,7 @@ spec_Job = do
           `finally` removeIfExists stoppedGracefullyPath
 
     it "kills a process that doesn't stop when asked to" $ do
-      withRunningProcess "process.on('SIGTERM', () => {});" $ \running pid -> do
+      withRunningProcess "process.on('SIGINT', () => {});" $ \running pid -> do
         timeout (secondsToMicroSeconds 6) (Async.cancel running) `shouldReturn` Just ()
         isProcessAlive pid `shouldReturn` False
 
