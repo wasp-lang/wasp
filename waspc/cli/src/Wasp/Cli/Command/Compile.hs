@@ -7,6 +7,7 @@ module Wasp.Cli.Command.Compile
     compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
+    withSetupSteps,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
     analyze,
@@ -34,6 +35,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
+import Wasp.Generator.Setup (SetupStep, allSetupSteps)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -55,7 +57,7 @@ compile = do
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  compileWithOptions $ defaultCompileOptions waspProjectDir
+  compileWithOptions $ withSetupSteps allSetupSteps $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -142,7 +144,8 @@ compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO ([CompileWarning], Either [CompileError] AS.AppSpec)
-compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
+compileIO waspProjectDir =
+  compileIOWithOptions (withSetupSteps allSetupSteps $ defaultCompileOptions waspProjectDir) waspProjectDir
 
 compileIOWithOptions ::
   CompileOptions ->
@@ -158,8 +161,12 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      generatorWarningsFilter = id
+      generatorWarningsFilter = id,
+      setupSteps = []
     }
+
+withSetupSteps :: [SetupStep] -> CompileOptions -> CompileOptions
+withSetupSteps steps options = options {setupSteps = steps}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do

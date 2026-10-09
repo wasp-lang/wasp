@@ -5,6 +5,7 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Monad (GeneratorWarning)
+import Wasp.Generator.Setup (SetupStep)
 import Wasp.Message (SendMessage)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
@@ -23,5 +24,8 @@ data CompileOptions = CompileOptions
     -- CLI commands will almost always compile before they execute to ensure the project is up to date.
     -- This filter function allows callers to ignore certain warnings where they do not make sense.
     -- For example, showing a compilation warning to run `db migrate-dev` when you are running that command.
-    generatorWarningsFilter :: [GeneratorWarning] -> [GeneratorWarning]
+    generatorWarningsFilter :: [GeneratorWarning] -> [GeneratorWarning],
+    -- The setup steps to run after the code is generated (npm install, Prisma
+    -- client, SDK build, ...). Each caller lists the steps it needs.
+    setupSteps :: [SetupStep]
   }
