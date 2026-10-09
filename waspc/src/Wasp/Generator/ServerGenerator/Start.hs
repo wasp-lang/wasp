@@ -91,12 +91,10 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     running :: Maybe (MVar ()) -> J.Job Void
     running done = do
       serverExit <- liftIO newEmptyTMVarIO
-      next <-
-        either absurd id
-          <$> J.race
-            (runServer serverExit)
-            (mapM_ acknowledge done >> handleCommandsWhileRunning serverExit)
-      next
+      either absurd id
+        =<< J.race
+          (runServer serverExit)
+          (mapM_ acknowledge done >> handleCommandsWhileRunning serverExit)
 
     -- Reports the server's exit instead of finishing, so that a command that
     -- is being handled doesn't get cancelled. It reports it as soon as the
