@@ -10,16 +10,15 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
-import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.Setup (SetupStep)
+import Wasp.Generator.Setup (SetupStep (..))
 
 -- | Prepares what a db command needs before it runs: a compile, setup steps,
 --   and a reachable database.
+--   By default it includes the 'InstallNpmDeps' and 'FormatPrismaSchema' setup steps.
 --
 --   All the commands that operate on the db should be created using this function.
 makeDbCommand :: [SetupStep] -> (AS.AppSpec -> Command a) -> Command a
-makeDbCommand dbCommandSetupSteps cmd = withProjectLock $ do
+makeDbCommand extraSetupSteps cmd = withProjectLock $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   (_, appSpec) <- compileWithOptions $ compileOptions waspProjectDir
@@ -27,14 +26,9 @@ makeDbCommand dbCommandSetupSteps cmd = withProjectLock $ do
   cmd appSpec
   where
     compileOptions waspProjectDir =
-      withSetupSteps dbCommandSetupSteps $
-        (defaultCompileOptions waspProjectDir)
-          { -- Ignore "DB needs migration warnings" during database commands, as that is redundant
-            -- for `db migrate-dev` and not helpful for `db studio`.
-            generatorWarningsFilter =
-              filter
-                ( \case
-                    GeneratorNeedsMigrationWarning _ -> False
-                    _ -> True
-                )
-          }
+      withSetupSteps (prismaCliSetupSteps ++ extraSetupSteps) (defaultCompileOptions waspProjectDir)
+
+    -- The npm install provides the Prisma CLI.
+    -- Formatted schema ensures the checksums stay consistent.
+    prismaCliSetupSteps :: [SetupStep]
+    prismaCliSetupSteps = [InstallNpmDeps, FormatPrismaSchema]

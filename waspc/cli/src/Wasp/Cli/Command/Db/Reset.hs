@@ -17,12 +17,11 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
-import Wasp.Generator.Setup (allSetupSteps)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: Arguments -> Command ()
-reset = withArguments resetArgsParser $ \resetArgs -> makeDbCommand allSetupSteps $ \_appSpec -> do
+reset = withArguments resetArgsParser $ \resetArgs -> makeDbCommand [] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir =

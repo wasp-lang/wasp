@@ -161,6 +161,5 @@ buildIO waspProjectDir buildDir =
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
-          generatorWarningsFilter = id,
           setupSteps = allSetupSteps
         }
