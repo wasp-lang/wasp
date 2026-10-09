@@ -1,4 +1,5 @@
 {
+  "exec": "tsc --build && rollup --config --silent && node --enable-source-maps -r dotenv/config bundle/server.js || exit 1",
   "env": {
     "NODE_ENV": "development"
   },

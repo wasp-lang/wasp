@@ -23,13 +23,11 @@ import Control.Exception (ErrorCall (ErrorCall))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
-import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
 import System.Environment (getEnvironment)
-import qualified System.Process as P
 import UnliftIO.Exception (catch, throwIO)
 
 type EnvVar = (EnvVarName, EnvVarValue)
@@ -78,11 +76,7 @@ class HasEnvVars a where
 
 instance HasEnvVars [EnvVar] where
   getEnvVars = id
-  setEnvVars newEnvVars _ = newEnvVars
-
-instance HasEnvVars P.CreateProcess where
-  getEnvVars process = fromMaybe [] (P.env process)
-  setEnvVars newEnvVars process = process {P.env = Just newEnvVars}
+  setEnvVars newEnv _ = newEnv
 
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, returns a @Left@ of the duplicate env var

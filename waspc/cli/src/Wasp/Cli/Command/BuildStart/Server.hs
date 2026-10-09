@@ -6,7 +6,6 @@ where
 
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
-import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
@@ -15,7 +14,7 @@ import qualified Wasp.Job as Job
 buildServer :: BuildStartConfig -> Job.Job ExitCode
 buildServer config =
   Job.fromProc $
-    proc
+    Job.proc
       "docker"
       ["build", "--tag", dockerImageName, dockerContextDir]
   where
@@ -26,7 +25,7 @@ buildServer config =
 startServer :: BuildStartConfig -> Job.Job ExitCode
 startServer config =
   Job.fromProc $
-    proc
+    Job.proc
       "docker"
       ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
           <> envVarParams

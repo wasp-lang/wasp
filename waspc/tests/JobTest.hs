@@ -56,7 +56,12 @@ spec_Job = do
         processStarted <- newEmptyMVar
         -- The process exits by itself after a while, so that the test fails
         -- instead of hanging if stopping it doesn't work.
-        let slowProcess = (node "console.log(process.pid); setTimeout(() => {}, 10000)") {P.create_group = True}
+        -- It runs in its own process group, because stopping the job interrupts
+        -- the process's whole group, which would otherwise include the tests.
+        let slowProcess =
+              Job.proc
+                "perl"
+                ["-e", "setpgrp; exec @ARGV", "node", "-e", "console.log(process.pid); setTimeout(() => {}, 10000)"]
             slowJob = Job.onOutput (void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
             jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
         result <-
@@ -69,6 +74,19 @@ spec_Job = do
             waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
           _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
+  describe "andThen" $ do
+    it "runs the second job if the first one succeeds" $ do
+      let job =
+            (Job.emitOutput Job.Stdout "first " >> return ExitSuccess)
+              `Job.andThen` (Job.emitOutput Job.Stdout "second" >> return (ExitFailure 2))
+      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 2, "first second")
+
+    it "doesn't run the second job if the first one fails" $ do
+      let job =
+            (Job.emitOutput Job.Stdout "first" >> return (ExitFailure 1))
+              `Job.andThen` (Job.emitOutput Job.Stdout " second" >> return ExitSuccess)
+      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 1, "first")
+
   describe "fromProc" $ do
     it "returns the exit code of the process" $ do
       runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (ExitFailure 7)
@@ -78,17 +96,17 @@ spec_Job = do
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitSuccess, "outerr")
 
-    it "gives an empty stdin to a process that asks for a pipe" $ do
+    it "gives an empty stdin to a process that isn't interactive" $ do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
-      runProcessJob (Job.fromProc readsStdinToEnd {P.std_in = P.CreatePipe})
+      runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)
 runProcessJob = timeout (secondsToMicroSeconds 10) . Job.run
 
-node :: String -> P.CreateProcess
-node script = P.proc "node" ["-e", script]
+node :: String -> Job.CreateJobProcess
+node script = Job.proc "node" ["-e", script]
 
 -- | Returns whether the process with the given ID exits within 5 seconds.
 waitForProcessToExit :: Int -> IO Bool
@@ -96,7 +114,7 @@ waitForProcessToExit pid = go (50 :: Int)
   where
     go 0 = return False
     go attemptsLeft = do
-      (exitCode, _, _) <- P.readCreateProcessWithExitCode (node $ "process.kill(" <> show pid <> ", 0)") ""
+      (exitCode, _, _) <- P.readProcessWithExitCode "node" ["-e", "process.kill(" <> show pid <> ", 0)"] ""
       if exitCode /= ExitSuccess
         then return True
         else threadDelay (secondsToMicroSeconds 1 `div` 10) >> go (attemptsLeft - 1)
