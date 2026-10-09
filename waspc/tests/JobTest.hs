@@ -1,15 +1,18 @@
 module JobTest where
 
 import Control.Concurrent (newEmptyMVar, takeMVar, threadDelay, tryPutMVar)
+import Control.Exception (finally)
 import Control.Monad (unless, void)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
+import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import qualified System.Info
 import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
+import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -82,6 +85,21 @@ spec_Job = do
       let process = node "process.stdout.write('out'); setTimeout(() => process.stderr.write('err'), 100);"
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitSuccess, "outerr")
+
+    it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
+      let inheritedVar = "WASP_JOB_TEST_INHERITED"
+          overriddenVar = "WASP_JOB_TEST_OVERRIDDEN"
+          process =
+            setEnvVars [(overriddenVar, "set")]
+              $ node
+              $ "process.stdout.write(process.env." <> inheritedVar <> " + ' ' + process.env." <> overriddenVar <> ")"
+      ( do
+          setEnv inheritedVar "inherited"
+          setEnv overriddenVar "inherited"
+          runProcessJob (Job.captureOutput $ Job.fromProc process)
+            `shouldReturn` Just (ExitSuccess, "inherited set")
+        )
+        `finally` mapM_ unsetEnv [inheritedVar, overriddenVar]
 
     it "gives an empty stdin to a process that isn't interactive" $ do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
