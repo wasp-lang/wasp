@@ -7,7 +7,7 @@ module Wasp.Generator.Setup
   )
 where
 
-import Control.Monad (forM_, unless)
+import Control.Monad (forM_, when)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
@@ -63,7 +63,9 @@ runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.S
 runSetupStep step spec generatedAppDir sendMessage = case step of
   InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
   FormatPrismaSchema -> liftIO $ DbGenerator.formatPrismaSchemaFileOnDisk generatedAppDir
-  WarnIfDbNeedsMigration -> warnIfDbNeedsMigration spec generatedAppDir
+  -- A production build is deployed elsewhere, so there is no local database
+  -- to check for pending migrations.
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
   GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
@@ -78,12 +80,9 @@ installDependencies spec generatedAppDir sendMessage = do
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir =
-  -- Only development has a database to check against. A production build
-  -- (`wasp build`) is deployed somewhere else, so there is nothing to compare to.
-  unless (AS.isProduction spec) $ do
-    warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
-    tell $ maybeToList warning
+warnIfDbNeedsMigration spec generatedAppDir = do
+  warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
+  tell $ maybeToList warning
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 generatePrismaClient spec generatedAppDir sendMessage = do

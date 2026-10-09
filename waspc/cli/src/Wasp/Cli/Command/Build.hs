@@ -24,7 +24,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Generator.Setup (allSetupSteps)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
@@ -161,11 +161,6 @@ buildIO waspProjectDir buildDir =
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
-          -- Ignore "DB needs migration warnings" during build, as that is not a required step.
-          generatorWarningsFilter =
-            filter
-              ( \case
-                  GeneratorNeedsMigrationWarning _ -> False
-                  _ -> True
-              )
+          generatorWarningsFilter = id,
+          setupSteps = allSetupSteps
         }
