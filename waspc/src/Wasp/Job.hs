@@ -7,6 +7,7 @@ module Wasp.Job
     captureOutput,
     onOutput,
     fromProc,
+    fromInteractiveProc,
     JobType (..),
     prefixWith,
   )
@@ -20,7 +21,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
 import qualified Wasp.Job.Printer as Printer
-import Wasp.Job.Process (fromProc)
+import Wasp.Job.Process (fromInteractiveProc, fromProc)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.

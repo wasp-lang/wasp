@@ -157,7 +157,12 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
-  other-modules: Paths_waspc
+  if !os(windows)
+    build-depends: unix
+  other-modules:
+    Paths_waspc
+    Wasp.Process.System
+
   exposed-modules:
     Wasp.AppComponentUrl
     Wasp.AppSpec
@@ -442,6 +447,8 @@ library cli-lib
     waspc,
     zlib ^>=0.7.1,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     Paths_waspc
 
@@ -517,6 +524,7 @@ library cli-lib
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
     Wasp.Cli.RunConfigs
+    Wasp.Cli.SignalHandling
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
@@ -548,9 +556,11 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
+    directory,
     filepath,
     hspec >=2.11,
     megaparsec,
@@ -567,6 +577,8 @@ test-suite waspc-tests
     time,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     AppComponentUrlTest
     AppSpec.EntityTest
@@ -623,6 +635,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Process.Util
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
@@ -654,9 +667,12 @@ test-suite wasp-cli-tests
     time,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     DbMigrateTest
     Paths_waspc
+    SignalHandlingTest
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
