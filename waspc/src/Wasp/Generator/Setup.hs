@@ -88,8 +88,7 @@ typeCheckUserCode spec sendMessage = do
         (AS.waspProjectDir spec)
         "npx"
         [ "tsc",
-          "--project",
-          SP.fromRelFile $ AS.srcTsConfigPath spec,
+          "--project " ++ SP.fromRelFile (AS.srcTsConfigPath spec),
           "--noEmit"
         ]
         J.Wasp
