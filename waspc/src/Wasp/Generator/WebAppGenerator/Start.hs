@@ -16,6 +16,6 @@ startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCo
 startWebApp webAppRunConfig waspProjectDir = do
   Just vite <- liftIO $ findNpmBin waspProjectDir "vite"
   J.fromProc
-    $ (`setEnvVars` getEnvVars webAppRunConfig)
+    $ setEnvVars (getEnvVars webAppRunConfig)
     $ J.setCwd waspProjectDir
     $ J.proc vite []

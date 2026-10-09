@@ -57,6 +57,7 @@
 - The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
 - The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
+- `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
 
 ## 0.25.0
 

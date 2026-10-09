@@ -121,7 +121,7 @@ seed serverRunConfig generatedAppDir seedName =
     runInServerDir binName args = do
       Just binPath <- liftIO $ findNpmBin serverDir binName
       J.fromProc
-        $ (`setEnvVars` envVars)
+        $ setEnvVars envVars
         $ J.setCwd serverDir
         $ J.proc binPath args
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig

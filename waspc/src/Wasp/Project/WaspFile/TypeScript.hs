@@ -76,16 +76,15 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     Job.run
       $ Job.prefixWith Job.Wasp
       $ Job.fromProc
-      $ ( `setEnvVars`
-            [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
-              -- Not related to `node` itself, so we have to set it manually.
-              -- It enables users to write environment specific code in the TS config.
-              -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
-              --       also provide the `NODE_ENV` values for the "configuration runtime".
-              --       Maybe consider using a different key, e.g. `WASP_MODE`?
-              ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
-            ]
-        )
+      $ setEnvVars
+        [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+          -- Not related to `node` itself, so we have to set it manually.
+          -- It enables users to write environment specific code in the TS config.
+          -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+          --       also provide the `NODE_ENV` values for the "configuration runtime".
+          --       Maybe consider using a different key, e.g. `WASP_MODE`?
+          ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+        ]
       $ Job.setCwd compileOptions.waspProjectDir
       $ Job.proc
         "node"

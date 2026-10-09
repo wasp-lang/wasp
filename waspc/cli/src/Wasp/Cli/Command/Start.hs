@@ -38,7 +38,7 @@ import qualified Wasp.Project.Env as Env
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ do
+start = withArguments startArgsParser $ \args -> withProjectLock $ do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -130,8 +130,8 @@ assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, se
   -- We only use this to check for env vars being overriden. We throw away the
   -- merged env vars, because the generated apps will read the .env files and
   -- inherited environment themselves.
-  _ <- clientRunConfig `addEnvVarsUniqueC` implicitClientEnvVars
-  _ <- serverRunConfig `addEnvVarsUniqueC` implicitServerEnvVars
+  _ <- implicitClientEnvVars `addEnvVarsUniqueC` clientRunConfig
+  _ <- implicitServerEnvVars `addEnvVarsUniqueC` serverRunConfig
 
   return ()
   where

@@ -24,7 +24,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Util (exitCodeToEither)
 
 buildStart :: Arguments -> Command ()
-buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
+buildStart = withArguments buildStartArgsParser $ \args -> do
   ValidNodeAndNpm <- require
   GeneratedAppIsProduction _ <- require
 

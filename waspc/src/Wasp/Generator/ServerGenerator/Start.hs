@@ -19,7 +19,7 @@ startServer serverRunConfig generatedAppDir = do
   Just nodemon <- liftIO $ findNpmBin serverDir "nodemon"
 
   J.fromProc
-    $ (`setEnvVars` getEnvVars serverRunConfig)
+    $ setEnvVars (getEnvVars serverRunConfig)
     $ J.setCwd serverDir
     $ J.proc
       nodemon

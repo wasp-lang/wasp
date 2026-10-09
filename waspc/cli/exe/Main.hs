@@ -20,7 +20,6 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
-import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -210,11 +209,11 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  "reset" : resetArgs -> runCommand $ Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  ["seed"] -> runCommand $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runCommand $ Command.Db.Seed.seed $ Just seedName
+  ["studio"] -> runCommand Command.Db.Studio.studio
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}

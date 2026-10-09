@@ -27,7 +27,7 @@ data CreateJobProcess
 
 instance HasEnvVars CreateJobProcess where
   getEnvVars = envVars
-  setEnvVars cjp newEnv = cjp {envVars = newEnv}
+  setEnvVars newEnv cjp = cjp {envVars = newEnv}
 
 proc :: String -> [String] -> CreateJobProcess
 proc bin args =

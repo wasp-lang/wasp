@@ -15,7 +15,7 @@ buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config = do
   Just vite <- liftIO $ findNpmBin config.projectDir "vite"
   Job.fromProc
-    $ (`setEnvVars` envVars)
+    $ setEnvVars envVars
     $ Job.setCwd config.projectDir
     $ Job.proc
       vite
@@ -27,7 +27,7 @@ startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config = do
   Just vite <- liftIO $ findNpmBin config.projectDir "vite"
   Job.fromProc
-    $ (`setEnvVars` envVars)
+    $ setEnvVars envVars
     $ Job.setCwd config.projectDir
     $ Job.proc
       vite
