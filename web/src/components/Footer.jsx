@@ -88,7 +88,7 @@ const Segment = ({ title, links }) => (
 
 const Footer = () => {
   return (
-    <footer className="border-t">
+    <footer className="border-t" data-track-placement="footer">
       <SectionContainer>
         <div className="grid grid-cols-1 gap-8 xl:grid xl:grid-cols-3">
           {/* cols with links */}

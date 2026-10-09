@@ -9,7 +9,10 @@ export default function BlogPostItemWrapper(props) {
     <>
       <BlogPostItem {...props} />
 
-      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div
+        className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2"
+        data-track-placement="post_card"
+      >
         <JoinOurCommunityCard />
         <JoinNewsletterCard />
       </div>

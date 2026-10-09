@@ -1,11 +1,22 @@
 import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import classNames from "classnames";
 import { useState } from "react";
+import { getPlacement, track } from "../lib/analytics";
 
 const createNewEmailSubscriberApiEndpoint =
   "https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu";
 
 const NEWSLETTER_INPUT_ID = "newsletter-input";
+
+// Do not rename these values: Loops stores them on each new contact.
+const LOOPS_SOURCE_BY_PLACEMENT = {
+  newsletter: "web-homepage",
+  footer: "web-footer",
+  post_card: "web-post",
+};
+
+const SUCCESS_MESSAGE = "Thank you for subscribing! 🙏";
+const ERROR_MESSAGE = "🛑 Oops! Something went wrong. Please try again.";
 
 const buttonVariantClasses = {
   yellow: "bg-wasp-yellow text-wasp-black hover:bg-wasp-yellow-dark",
@@ -24,18 +35,39 @@ const SubscribeForm = ({
   const handleSubmit = async (event) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
     event.preventDefault();
+    // React clears `currentTarget` after the first `await`.
+    const form = event.currentTarget;
 
+    const body = new URLSearchParams({
+      userGroup: "",
+      email,
+      source: LOOPS_SOURCE_BY_PLACEMENT[getPlacement(form)] ?? "web",
+    });
+
+    let response;
     try {
-      await fetch(createNewEmailSubscriberApiEndpoint, {
+      response = await fetch(createNewEmailSubscriberApiEndpoint, {
         method: "POST",
-        body: "userGroup=&email=" + email,
+        body: body.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
-      setMessage("Thank you for subscribing! 🙏");
     } catch (error) {
-      setMessage("🛑 Oops! Something went wrong. Please try again.");
+      track(form, "Newsletter: Error", { status: "network" });
+      setMessage(ERROR_MESSAGE);
+      return;
+    }
+
+    const result = await response.json().catch(() => null);
+    if (response.ok && result?.success) {
+      track(form, "Newsletter: Signup", {});
+      setMessage(SUCCESS_MESSAGE);
+    } else {
+      track(form, "Newsletter: Error", {
+        status: getErrorStatus(response.status),
+      });
+      setMessage(ERROR_MESSAGE);
     }
   };
 
@@ -48,7 +80,8 @@ const SubscribeForm = ({
       ) : (
         <form
           onSubmit={handleSubmit}
-          className={classNames("sm:flex", className)}
+          // `ph-no-capture` keeps the form out of PostHog autocapture.
+          className={classNames("ph-no-capture sm:flex", className)}
         >
           <input
             aria-label="Email address"
@@ -81,5 +114,15 @@ const SubscribeForm = ({
     </>
   );
 };
+
+function getErrorStatus(httpStatus) {
+  if (httpStatus === 429) {
+    return "429";
+  }
+  if (httpStatus >= 500) {
+    return "500";
+  }
+  return "400";
+}
 
 export default SubscribeForm;
