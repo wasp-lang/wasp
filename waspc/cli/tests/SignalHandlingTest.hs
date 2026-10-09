@@ -29,6 +29,7 @@ spec_withGracefulTermination =
     it "finishes cleanup, preserves the first signal exit status, and restores handlers" $ do
       assertSignalExitAndHandlerRestoration
       assertSignalExit Signals.sigTERM (ExitFailure 143)
+      assertSignalExit Signals.sigHUP (ExitFailure 129)
       assertRepeatedSignalCleanup
 
 assertRepeatedSignalCleanup :: IO ()
