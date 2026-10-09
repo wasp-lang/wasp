@@ -69,6 +69,8 @@ installProjectNpmDependencies projectDir = do
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
 
+{- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}
+
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
   Job.emitOutput Job.Stdout "Starting npm install\n"
