@@ -24,7 +24,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.Setup (allSetupSteps)
+import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
@@ -162,5 +162,5 @@ buildIO waspProjectDir buildDir =
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
           generatorWarningsFilter = id,
-          setupSteps = allSetupSteps
+          setupGoal = GeneratedAppReady
         }

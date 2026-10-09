@@ -1,16 +1,19 @@
 module Generator.SetupTest where
 
-import Test.Hspec (Spec, describe, it, shouldBe)
-import Wasp.Generator.Setup (SetupStep (..), allSetupSteps, deduplicateAndOrderSetupSteps)
+import Data.List (isSubsequenceOf)
+import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
+import Wasp.Generator.Setup (SetupGoal (..), SetupStep (..), allSetupSteps, setupStepsFor)
 
-spec_deduplicateAndOrderSetupSteps :: Spec
-spec_deduplicateAndOrderSetupSteps =
-  describe "deduplicateAndOrderSetupSteps" $ do
-    it "runs the steps in declaration order no matter what order they were requested in" $
-      deduplicateAndOrderSetupSteps (reverse allSetupSteps) `shouldBe` allSetupSteps
-    it "runs only the requested steps" $
-      deduplicateAndOrderSetupSteps [InstallNpmDeps, BuildSdk] `shouldBe` [InstallNpmDeps, BuildSdk]
-    it "runs a step once even when it is requested twice" $
-      deduplicateAndOrderSetupSteps [BuildSdk, BuildSdk] `shouldBe` [BuildSdk]
-    it "runs nothing when nothing is requested" $
-      deduplicateAndOrderSetupSteps [] `shouldBe` []
+spec_setupStepsFor :: Spec
+spec_setupStepsFor =
+  describe "setupStepsFor" $ do
+    it "prepares the Prisma CLI" $
+      setupStepsFor PrismaCliReady `shouldBe` [InstallNpmDeps, FormatPrismaSchema]
+    it "builds the SDK and the Prisma client it imports" $
+      setupStepsFor SdkReady `shouldBe` [InstallNpmDeps, FormatPrismaSchema, GeneratePrismaClient, BuildSdk]
+    it "runs every step for the whole generated app" $
+      setupStepsFor GeneratedAppReady `shouldBe` allSetupSteps
+    it "includes the steps of every goal before it" $
+      zip [minBound ..] (tail [minBound ..])
+        `shouldSatisfy` all
+          (\(goal, nextGoal) -> setupStepsFor goal `isSubsequenceOf` setupStepsFor nextGoal)

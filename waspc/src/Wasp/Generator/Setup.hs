@@ -1,9 +1,10 @@
 module Wasp.Generator.Setup
-  ( SetupStep (..),
-    allSetupSteps,
+  ( SetupGoal (..),
     setUpGeneratedApp,
     runSetup,
-    deduplicateAndOrderSetupSteps, -- Exported for testing.
+    SetupStep (..), -- Exported for testing.
+    allSetupSteps, -- Exported for testing.
+    setupStepsFor, -- Exported for testing.
   )
 where
 
@@ -24,7 +25,19 @@ import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Message as Msg
 
--- | Setup steps that a command might need post code generation.
+-- | How far to set up the generated app after code generation.
+--
+-- Each goal includes everything the goals before it prepare.
+data SetupGoal
+  = -- | The Prisma CLI is installed and can read the schema.
+    PrismaCliReady
+  | -- | The SDK is built, along with the Prisma client it imports.
+    SdkReady
+  | -- | The generated app has everything it needs to run or be built.
+    GeneratedAppReady
+  deriving (Eq, Ord, Show, Enum, Bounded)
+
+-- | Setup steps that a goal might need post code generation.
 --
 -- The constructors are declared in the order the steps must execute.
 -- I.e. the 'InstallNpmDeps' will always run first.
@@ -42,11 +55,11 @@ allSetupSteps = [minBound .. maxBound]
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
--- | Runs the requested setup steps in a pre-determined order.
+-- | Runs the setup steps the goal needs, in a pre-determined order.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: [SetupStep] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp requestedSteps spec generatedAppDir sendMessage =
-  forM_ (deduplicateAndOrderSetupSteps requestedSteps) $ \step ->
+setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+setUpGeneratedApp goal spec generatedAppDir sendMessage =
+  forM_ (setupStepsFor goal) $ \step ->
     runSetupStep step spec generatedAppDir sendMessage
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
@@ -54,10 +67,20 @@ runSetup setupAction = do
   (result, warnings) <- runWriterT $ runExceptT setupAction
   return (warnings, fromLeft [] result)
 
--- | Deduplicates and orders the steps.
--- The steps must execute in the order of 'SetupStep' constructor declarations.
-deduplicateAndOrderSetupSteps :: [SetupStep] -> [SetupStep]
-deduplicateAndOrderSetupSteps requestedSteps = filter (`elem` requestedSteps) allSetupSteps
+-- | The steps the goal needs, in the order of 'SetupStep' constructor declarations.
+setupStepsFor :: SetupGoal -> [SetupStep]
+setupStepsFor goal = filter ((<= goal) . earliestGoalNeeding) allSetupSteps
+
+earliestGoalNeeding :: SetupStep -> SetupGoal
+earliestGoalNeeding = \case
+  -- The npm install provides the Prisma CLI.
+  InstallNpmDeps -> PrismaCliReady
+  -- Formatted schema ensures the checksums stay consistent.
+  FormatPrismaSchema -> PrismaCliReady
+  GeneratePrismaClient -> SdkReady
+  BuildSdk -> SdkReady
+  WarnIfDbNeedsMigration -> GeneratedAppReady
+  CreateWebAppRootDir -> GeneratedAppReady
 
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
