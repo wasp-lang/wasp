@@ -1,4 +1,5 @@
-import { login, signup } from '../../../username'
+import { login } from '../../../username/actions/login'
+import { signup } from '../../../username/actions/signup'
 
 // PRIVATE API
 export function useUsernameAndPassword({

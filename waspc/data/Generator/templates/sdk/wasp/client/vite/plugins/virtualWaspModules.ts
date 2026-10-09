@@ -5,7 +5,7 @@ import {
   getRoutesTsxContent,
   getSsrEntryTsxContent,
 } from "../virtual-files/index.js";
-import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
+import { makeVirtualFilesResolver, type VirtualFiles } from "@wasp.sh/lib-sdk-core/node/vite";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
   { id: "{= clientEntryPointPath =}", load: getClientEntryTsxContent },

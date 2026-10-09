@@ -71,30 +71,14 @@ genEmailForms auth =
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
-  sequence
-    [genFileCopyInAuthFormsInternal [relfile|util.ts|]]
-    <++> genLoginSignupForm auth
-    <++> genFormComponent
-    <++> genMessageComponent
+  genLoginSignupForm auth
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
-    <++> genSocialComponents
   where
-    genFormComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|Form.tsx|]
-        ]
-
-    genMessageComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|Message.tsx|]
-        ]
-
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ genFileCopyInAuthFormsInternal [relfile|emailField.ts|],
-            genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
+          [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
             genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]
@@ -106,24 +90,8 @@ genInternalAuthComponents auth =
           [ genFileCopyInAuthFormsInternal [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
           ]
 
-    genSocialComponents =
-      genConditionally isExternalAuthEnabled $
-        genSocialButtonComponent
-          <++> genSocialIconsComponent
-
-    genSocialButtonComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|social/SocialButton.tsx|]
-        ]
-
-    genSocialIconsComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.tsx|]
-        ]
-
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =

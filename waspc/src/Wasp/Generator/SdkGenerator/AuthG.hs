@@ -35,7 +35,6 @@ genAuth spec =
       -- shared stuff
       sequence
         [ genUserTs auth,
-          genFileCopyInAuth [relfile|providerData.ts|],
           genFileCopyInAuth [relfile|validation.ts|],
           genIndexTs auth,
           genProvidersTypes auth,
@@ -43,10 +42,7 @@ genAuth spec =
         ]
         -- client stuff
         <++> sequence
-          [ genFileCopyInAuth [relfile|helpers/user.ts|],
-            genFileCopyInAuth [relfile|types.ts|],
-            genFileCopyInAuth [relfile|logout.ts|],
-            genFileCopyInAuth [relfile|responseSchemas.ts|],
+          [ genFileCopyInAuth [relfile|logout.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth
