@@ -51,7 +51,7 @@ allSetupSteps = [minBound .. maxBound]
 -- | The prerequisite steps that must run before the provided step.
 --
 -- 'InstallNpmDeps' installs the node modules of the whole project (user project,
--- SDK, generated server), so every step that runs a Node tool depends on it.
+-- SDK, generated server), so the steps that use installed packages depend on it.
 -- 'FormatPrismaSchema' matters for the steps that compare schema checksums.
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
