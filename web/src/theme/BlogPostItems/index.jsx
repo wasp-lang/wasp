@@ -17,7 +17,7 @@ export default function BlogPostItems({
     <>
       <section
         className={`bg-yellow-500 py-20 pb-20 md:py-36`}
-        data-placement="post_list"
+        data-track-placement="post_list"
       >
         <div className={`container mx-auto lg:px-8`}>
           <article
@@ -72,7 +72,7 @@ export default function BlogPostItems({
 
       <section
         className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-8"
-        data-placement="post_list"
+        data-track-placement="post_list"
       >
         <div className="mb-8 grid grid-cols-1 gap-5 md:-mt-12 md:grid-cols-2 xl:grid-cols-3">
           {items.slice(1).map((item) => {

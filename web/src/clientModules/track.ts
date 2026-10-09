@@ -1,28 +1,19 @@
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 
-import { track, type AnalyticsEventName } from "../lib/analytics";
+import { track, type GitHubTarget } from "../lib/analytics";
 import {
   classifyCopiedText,
   isShellLanguage,
+  type AgentPluginKind,
 } from "../lib/analytics-classifier";
 
 const CODE_BLOCK_SELECTOR = ".theme-code-block";
 // Match on `title`: Docusaurus changes the `aria-label` to "Copied" after a copy.
 const CODE_BLOCK_COPY_BUTTON_SELECTOR = `${CODE_BLOCK_SELECTOR} button[title="Copy"]`;
 
-// Checked before `data-placement`: the mobile menu reuses the navbar item props.
-const MOBILE_MENU_SELECTOR = ".navbar-sidebar, .theme-layout-navbar-sidebar";
-
-const PLACEMENT_BY_THEME_SELECTOR: [selector: string, placement: string][] = [
-  [".theme-announcement-bar", "announcement_bar"],
-  [".theme-layout-navbar, .navbar", "header"],
-  [".theme-doc-sidebar-container", "sidebar"],
-  [".theme-doc-toc-desktop, .theme-doc-toc-mobile", "toc"],
-  [".theme-doc-footer", "doc_footer"],
-  [".theme-layout-footer, .footer", "footer"],
-];
-
-const DEFAULT_PLACEMENT = "body";
+// A component with its own copy button sets `data-track-event` (and
+// `data-track-kind`), so a copy of its text by hand sends the same event.
+const COPY_BLOCK_SELECTOR = '[data-track-event$=": Copy"]';
 
 declare global {
   interface Window {
@@ -76,7 +67,7 @@ function handleCopy(): void {
     return;
   }
 
-  const copyBlock = anchorElement.closest<HTMLElement>("[data-copy-event]");
+  const copyBlock = anchorElement.closest<HTMLElement>(COPY_BLOCK_SELECTOR);
   if (copyBlock) {
     trackCopyBlockSelection(copyBlock);
     return;
@@ -87,12 +78,15 @@ function handleCopy(): void {
 }
 
 function trackCopyBlockSelection(copyBlock: HTMLElement): void {
-  const { copyEvent, copyKind } = copyBlock.dataset;
-  track(copyEvent as AnalyticsEventName, {
-    ...(copyKind ? { kind: copyKind } : {}),
-    placement: resolvePlacement(copyBlock),
-    method: "selection",
-  });
+  const { trackEvent, trackKind } = copyBlock.dataset;
+  if (trackEvent === "Install Command: Copy") {
+    track(copyBlock, trackEvent, { method: "selection" });
+  } else if (trackEvent === "Agent Plugin: Copy" && trackKind) {
+    track(copyBlock, trackEvent, {
+      method: "selection",
+      kind: trackKind as AgentPluginKind,
+    });
+  }
 }
 
 function trackCodeCopy(
@@ -104,24 +98,26 @@ function trackCodeCopy(
   const result = classifyCopiedText(text, {
     isShellBlock: codeBlock !== null && isShellLanguage(getLanguage(codeBlock)),
   });
-  if (!result) {
-    return;
-  }
 
-  track(result.name, {
-    ...result.props,
-    placement: resolvePlacement(element),
-    method,
-  });
+  switch (result?.name) {
+    case "Install Command: Copy":
+      track(element, result.name, { method });
+      break;
+    case "Agent Plugin: Copy":
+      track(element, result.name, { method, kind: result.props.kind });
+      break;
+    case "CLI Command: Copy":
+      track(element, result.name, { method, command: result.props.command });
+      break;
+  }
 }
 
 function trackLinkClick(link: HTMLAnchorElement): void {
-  const placement = resolvePlacement(link);
-
   if (
-    link.closest("[data-track]")?.getAttribute("data-track") === "get_started"
+    link.closest("[data-track-event]")?.getAttribute("data-track-event") ===
+    "Get Started: Click"
   ) {
-    track("Get Started: Click", { placement });
+    track(link, "Get Started: Click", {});
     return;
   }
 
@@ -136,37 +132,17 @@ function trackLinkClick(link: HTMLAnchorElement): void {
     url.origin !== window.location.origin && link.target !== "_blank";
 
   if (isDiscordUrl(url)) {
-    track("Discord: Click", { placement }, { leavesPage });
+    track(link, "Discord: Click", {}, { leavesPage });
   } else if (isWaspGitHubUrl(url)) {
     track(
+      link,
       "GitHub: Click",
-      { placement, target: getGitHubTarget(url) },
+      { target: getGitHubTarget(url) },
       { leavesPage },
     );
   } else if (isOpenSaasUrl(url)) {
-    track("Open SaaS: Click", { placement }, { leavesPage });
+    track(link, "Open SaaS: Click", {}, { leavesPage });
   }
-}
-
-function resolvePlacement(element: Element): string {
-  if (element.closest(MOBILE_MENU_SELECTOR)) {
-    return "mobile_menu";
-  }
-
-  const ownPlacement = element
-    .closest("[data-placement]")
-    ?.getAttribute("data-placement");
-  if (ownPlacement) {
-    return ownPlacement;
-  }
-
-  for (const [selector, placement] of PLACEMENT_BY_THEME_SELECTOR) {
-    if (element.closest(selector)) {
-      return placement;
-    }
-  }
-
-  return DEFAULT_PLACEMENT;
 }
 
 function getCodeBlockText(codeBlock: Element): string {
@@ -207,7 +183,7 @@ function isOpenSaasUrl(url: URL): boolean {
   return host === "opensaas.sh" || host === "docs.opensaas.sh";
 }
 
-function getGitHubTarget(url: URL): string {
+function getGitHubTarget(url: URL): GitHubTarget {
   const [, , repo, section] = url.pathname.toLowerCase().split("/");
   if (repo !== "wasp") {
     return "other_repo";

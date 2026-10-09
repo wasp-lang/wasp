@@ -4,13 +4,19 @@ export type CliCommand =
   | "wasp_db"
   | "wasp_deploy"
   | "wasp_build"
+  // Any other `wasp` command.
   | "wasp_other"
+  // A shell block with no `wasp` command, for example `npm install`.
   | "other_shell";
 
 export type AgentPluginKind =
+  // `claude plugin ...` commands.
   | "claude_plugin"
+  // `npx skills add wasp-lang/wasp-agent-plugins`.
   | "skills_cli"
+  // Any other text that names the plugin, for example a slash command.
   | "plugin_prompt"
+  // The example prompt on `/vibe-coding`.
   | "example_prompt";
 
 export type CopyClassification =

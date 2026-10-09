@@ -48,7 +48,7 @@ const Nav = () => {
       <div className="sticky top-0 z-50">
         <nav
           className="border-b border-wasp-g3 bg-wasp-bg"
-          data-placement="header"
+          data-track-placement="header"
         >
           <div className="relative mx-auto flex h-16 items-center justify-between lg:container lg:px-16">
             <HamburgerButton toggleFlyOut={() => setOpen(true)} />
@@ -84,7 +84,7 @@ const Nav = () => {
               </a>
               <Link
                 to="/docs/quick-start"
-                data-track="get_started"
+                data-track-event="Get Started: Click"
                 className="inline-flex items-center border-2 border-wasp-black bg-wasp-yellow px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest text-wasp-black transition-colors hover:bg-wasp-yellow-dark hover:text-wasp-black"
               >
                 Get Started
@@ -107,7 +107,7 @@ const Nav = () => {
             <div
               ref={navSidebarRef}
               className="fixed inset-y-0 z-50 h-screen w-screen transform overflow-y-scroll bg-wasp-bg p-4 md:p-8"
-              data-placement="mobile_menu"
+              data-track-placement="mobile_menu"
             >
               <div className="absolute right-4 top-4">
                 <button
@@ -170,7 +170,7 @@ const Nav = () => {
                 <Link
                   to="/docs/quick-start"
                   onClick={closeMenu}
-                  data-track="get_started"
+                  data-track-event="Get Started: Click"
                   className="ml-3 mt-2 inline-flex items-center border-2 border-wasp-black bg-wasp-yellow px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-wasp-black transition-colors hover:bg-wasp-yellow-dark hover:text-wasp-black"
                 >
                   Get Started

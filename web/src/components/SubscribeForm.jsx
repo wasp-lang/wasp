@@ -1,7 +1,7 @@
 import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import classNames from "classnames";
 import { useState } from "react";
-import { track } from "../lib/analytics";
+import { getPlacement, track } from "../lib/analytics";
 
 const createNewEmailSubscriberApiEndpoint =
   "https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu";
@@ -10,7 +10,7 @@ const NEWSLETTER_INPUT_ID = "newsletter-input";
 
 // Do not rename these values: Loops stores them on each new contact.
 const LOOPS_SOURCE_BY_PLACEMENT = {
-  body: "web-homepage",
+  newsletter: "web-homepage",
   footer: "web-footer",
   post_card: "web-post",
 };
@@ -27,7 +27,6 @@ const SubscribeForm = ({
   className,
   inputBgColor = "bg-wasp-white",
   buttonVariant = "yellow",
-  placement = "body",
 }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -36,11 +35,13 @@ const SubscribeForm = ({
   const handleSubmit = async (event) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
     event.preventDefault();
+    // React clears `currentTarget` after the first `await`.
+    const form = event.currentTarget;
 
     const body = new URLSearchParams({
       userGroup: "",
       email,
-      source: LOOPS_SOURCE_BY_PLACEMENT[placement] ?? "web",
+      source: LOOPS_SOURCE_BY_PLACEMENT[getPlacement(form)] ?? "web",
     });
 
     let response;
@@ -53,18 +54,17 @@ const SubscribeForm = ({
         },
       });
     } catch (error) {
-      track("Newsletter: Error", { placement, status: "network" });
+      track(form, "Newsletter: Error", { status: "network" });
       setMessage(ERROR_MESSAGE);
       return;
     }
 
     const result = await response.json().catch(() => null);
     if (response.ok && result?.success) {
-      track("Newsletter: Signup", { placement });
+      track(form, "Newsletter: Signup", {});
       setMessage(SUCCESS_MESSAGE);
     } else {
-      track("Newsletter: Error", {
-        placement,
+      track(form, "Newsletter: Error", {
         status: getErrorStatus(response.status),
       });
       setMessage(ERROR_MESSAGE);

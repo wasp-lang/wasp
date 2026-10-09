@@ -30,7 +30,7 @@ const VCFinalCTA = () => {
         />
 
         <div className="flex items-center justify-center gap-3">
-          <Link to="/docs/quick-start" data-track="get_started">
+          <Link to="/docs/quick-start" data-track-event="Get Started: Click">
             <button className={primaryBtnClass}>
               <Terminal size={16} />
               <span>Get Started</span>

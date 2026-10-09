@@ -24,14 +24,12 @@ export const InstallBlock = ({
   className = "",
   event = "Install Command: Copy",
   kind,
-  placement = "body",
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
+  const handleCopy = (clickEvent) => {
     navigator.clipboard.writeText(command);
-    track(event, {
-      placement,
+    track(clickEvent.currentTarget, event, {
       method: "button",
       ...(kind ? { kind } : {}),
     });
@@ -42,8 +40,8 @@ export const InstallBlock = ({
   return (
     <code
       className={`inline-flex items-center gap-2 rounded-none border-0 bg-neutral-100 px-4 py-2 text-sm text-neutral-500 ${className}`}
-      data-copy-event={event}
-      data-copy-kind={kind}
+      data-track-event={event}
+      data-track-kind={kind}
     >
       <span>
         <span className="text-yellow-400">%</span> {command}

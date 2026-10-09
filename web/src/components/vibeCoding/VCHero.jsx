@@ -4,7 +4,7 @@ import { InstallBlock } from "./vcWrappers";
 
 const ActionButtons = () => (
   <div className="flex items-center justify-center gap-4">
-    <Link to="/docs/quick-start" data-track="get_started">
+    <Link to="/docs/quick-start" data-track-event="Get Started: Click">
       <button className="inline-flex items-center space-x-2 rounded-none border border-neutral-300 bg-neutral-200 px-5 py-3 font-mono text-sm font-medium uppercase tracking-wider text-neutral-700 transition duration-200 ease-out hover:border-neutral-400">
         <Terminal size={16} />
         <span>Get Started</span>
@@ -54,7 +54,7 @@ const VCHero = () => {
       />
       <div
         className="relative z-[2] mx-auto max-w-4xl px-6 pb-36 pt-28 text-center lg:pb-52 lg:pt-40"
-        data-placement="hero"
+        data-track-placement="hero"
       >
         <h1 className="text-5xl font-extrabold tracking-tight text-neutral-800 sm:text-6xl lg:text-7xl">
           The framework for building{" "}
@@ -71,7 +71,7 @@ const VCHero = () => {
           <ActionButtons />
         </div>
         <div className="mt-6 flex justify-center">
-          <InstallBlock placement="hero" />
+          <InstallBlock />
         </div>
       </div>
     </div>

@@ -64,7 +64,7 @@ const VCWorkflow = () => {
       </div>
 
       <div className="mt-12 text-center">
-        <Link to="/docs/quick-start" data-track="get_started">
+        <Link to="/docs/quick-start" data-track-event="Get Started: Click">
           <button className={buttonClass}>
             <Terminal size={16} />
             <span>Start Building</span>
