@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (filterM, unless, when)
+import Control.Monad (filterM, unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
@@ -81,9 +81,10 @@ removeWaspFiles skipConfirmation = do
           indent 2 $ unlines allPathsToRemove
         ]
 
-    unless skipConfirmation $ do
-      answer <- Interactive.askForInput "Are you sure you want to continue? [y/N]"
-      when (answer /= "y") $ die "Aborted."
+    unless skipConfirmation $
+      Interactive.tryGettingConfirmation "Are you sure you want to continue? [y/N]" "y" >>= \case
+        Right () -> return ()
+        Left _ -> die "Aborted."
 
     mapM_ deleteDirectoryIfExists dirsToRemove
     mapM_ deleteFileIfExists filesToRemove
