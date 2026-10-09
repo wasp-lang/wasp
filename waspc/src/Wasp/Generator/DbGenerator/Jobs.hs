@@ -18,13 +18,14 @@ import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import System.Exit (ExitCode)
 import System.Process (CreateProcess (..), StdStream (..), proc)
-import Wasp.Env (getEnvVars, inheritEnvWith)
+import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
+import Wasp.Node.Bin (nodeBinProc)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
@@ -110,20 +111,16 @@ reset generatedAppDir resetArgs =
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
--- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
---   prisma.seed field.
---   NOTE: We are running this command from server dir since that's where we defined the "prisma.seed"
---   script in package.json. In the future, we might want to allow users to specify the script name
---   in the project package.json, in which case we would run this command from project root dir.
+-- | Bundles the server's db seed script and runs the seed with the given name.
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
--- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
-  J.fromProc
-    =<< inheritEnvWith
-      envVars
-      (prismaCommandInServerDir generatedAppDir ["db", "seed"])
+  runInServerDir "tsc" ["--build"]
+    `J.andThen` runInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
+    `J.andThen` runInServerDir "node" ["--enable-source-maps", "-r", "dotenv/config", "bundle/dbSeed.js"]
   where
+    runInServerDir binName args = J.fromProc =<< nodeBinProc envVars serverDir binName args
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
+    serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
 -- | Checks if the DB is running and connectable by running
 -- `prisma db execute --stdin --schema <path to db schema>`.

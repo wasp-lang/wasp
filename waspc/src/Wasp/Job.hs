@@ -2,6 +2,7 @@ module Wasp.Job
   ( Job,
     run,
     race,
+    andThen,
     OutputType (..),
     emitOutput,
     captureOutput,
@@ -18,6 +19,7 @@ import Control.Monad.Reader (ReaderT (..), ask)
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
+import System.Exit (ExitCode (..))
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
 import qualified Wasp.Job.Printer as Printer
 import Wasp.Job.Process (fromProc)
@@ -54,6 +56,14 @@ captureOutput job = do
 onOutput :: IO () -> Job a -> Job a
 onOutput action = withSink $ \sink jobType outputType output ->
   action >> sink jobType outputType output
+
+-- | Runs the second job only if the first one succeeds (like @&&@ in a shell),
+-- and returns the exit code of the last one that ran.
+andThen :: Job ExitCode -> Job ExitCode -> Job ExitCode
+andThen firstJob secondJob =
+  firstJob >>= \case
+    ExitSuccess -> secondJob
+    exitCode -> return exitCode
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.

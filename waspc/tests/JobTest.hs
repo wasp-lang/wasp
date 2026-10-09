@@ -69,6 +69,19 @@ spec_Job = do
             waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
           _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
+  describe "andThen" $ do
+    it "runs the second job if the first one succeeds" $ do
+      let job =
+            (Job.emitOutput Job.Stdout "first " >> return ExitSuccess)
+              `Job.andThen` (Job.emitOutput Job.Stdout "second" >> return (ExitFailure 2))
+      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 2, "first second")
+
+    it "doesn't run the second job if the first one fails" $ do
+      let job =
+            (Job.emitOutput Job.Stdout "first" >> return (ExitFailure 1))
+              `Job.andThen` (Job.emitOutput Job.Stdout " second" >> return ExitSuccess)
+      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 1, "first")
+
   describe "fromProc" $ do
     it "returns the exit code of the process" $ do
       runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (ExitFailure 7)

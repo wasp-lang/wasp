@@ -38,13 +38,14 @@
     lhs: '"npm"'
     rhs: '"node_modules/.bin/<tool>"'
     note: >
-      If you're running an npm script, run the commands directly, so that
-      signals are forwarded correctly when Wasp stops the process.
+      If you're running an npm script, run its commands directly (with
+      `nodeBinProc`, and `Job.andThen` instead of `&&`), so that signals are
+      forwarded correctly when Wasp stops the process.
 
 - error:
     name: Avoid npm and npx
     lhs: '"npx"'
     rhs: '"node_modules/.bin/<tool>"'
     note: >
-      Run the tool's binary directly, so that signals are forwarded correctly
-      when Wasp stops the process.
+      Run the tool's binary directly with `nodeBinProc`, so that signals are
+      forwarded correctly when Wasp stops the process.

@@ -8,10 +8,6 @@
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",
     "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
-    "bundle-and-start": "npm run bundle && npm run start",
-    "watch": "nodemon --exec 'npm run bundle-and-start || exit 1'",
-    "bundle-db-seed": "tsc --build && rollup --config rollup.dbSeed.config.js --silent",
-    "db-seed": "npm run bundle-db-seed && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}"
   },
@@ -22,7 +18,6 @@
   "engines": {
     "node": "{=& nodeVersionRange =}"
   },
-  "prisma": {=& prisma =},
   {=& depsChunk =},
   {=& devDepsChunk =}
 }
