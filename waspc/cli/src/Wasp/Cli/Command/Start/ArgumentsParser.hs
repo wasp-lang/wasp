@@ -8,6 +8,7 @@ import Network.Socket (PortNumber)
 import Network.URI (URI)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.HttpUrlArgument (httpUrlParser)
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Cli.Util.PortArgument (portParser)
 
 data StartArgs = StartArgs
@@ -18,10 +19,11 @@ data StartArgs = StartArgs
   }
   deriving (Eq, Show)
 
-startArgsParser :: Opt.Parser StartArgs
+startArgsParser :: ArgsParser StartArgs
 startArgsParser =
-  StartArgs
-    <$> Opt.optional (portParser "client-port" "Port to run the client on")
-    <*> Opt.optional (portParser "server-port" "Port to run the server on")
-    <*> Opt.optional (httpUrlParser "client-url" "URL at which the client is reachable")
-    <*> Opt.optional (httpUrlParser "server-url" "URL at which the server is reachable")
+  ArgsParser "wasp start" $
+    StartArgs
+      <$> Opt.optional (portParser "client-port" "Port to run the client on")
+      <*> Opt.optional (portParser "server-port" "Port to run the server on")
+      <*> Opt.optional (httpUrlParser "client-url" "URL at which the client is reachable")
+      <*> Opt.optional (httpUrlParser "server-url" "URL at which the server is reachable")
