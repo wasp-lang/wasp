@@ -2,7 +2,21 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import ShellCommands
+  ( ShellCommand,
+    ShellCommandBuilder,
+    WaspProjectContext,
+    appendToPrismaFile,
+    createSeedFile,
+    createTestWaspProject,
+    inTestWaspProjectDir,
+    replaceMainWaspTsFile,
+    waitUntil,
+    waspCliCompile,
+    waspCliDbMigrateDev,
+    waspCliDbSeed,
+    (~&&),
+  )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
@@ -45,6 +59,34 @@ waspDbSeedTest =
                   waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
                   waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
                   waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName
+                ]
+            ]
+        ),
+      TestCase
+        "stop-seed-on-sigterm"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile taskPrismaModel,
+                  createSeedFile
+                    (T.unpack seedScriptThatWaitsName <> ".ts")
+                    seedScriptThatWaits,
+                  replaceMainWaspTsFile mainWaspTsWithSeedThatWaits,
+                  startWaspDbSeedInBackground,
+                  return $ waitUntil 300 ("[ -s " ++ seedPidFile ++ " ]") "The seed didn't start.",
+                  -- We send SIGTERM only to Wasp, so that it's Wasp's job to
+                  -- stop the seed.
+                  return "kill -TERM \"$(cat .wasp/.projectlock)\"",
+                  return $
+                    waitUntil
+                      60
+                      "! kill -0 \"$WASP_DB_SEED_PID\" 2>/dev/null"
+                      "Wasp didn't stop after SIGTERM.",
+                  return $
+                    waitUntil
+                      30
+                      ("! kill -0 \"$(cat " ++ seedPidFile ++ ")\" 2>/dev/null")
+                      "The seed kept running after Wasp stopped."
                 ]
             ]
         )
@@ -128,6 +170,52 @@ waspDbSeedTest =
           if (taskCount === 0) {
             throw new Error('Expected tasks table to have data, but it was empty')
           }
+        }
+      |]
+
+    -- Stores the PID of the background process in `$WASP_DB_SEED_PID`.
+    startWaspDbSeedInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
+    startWaspDbSeedInBackground = do
+      seedCommand <- waspCliDbSeed $ T.unpack seedScriptThatWaitsName
+      return $
+        ("{ SEED_PID_FILE=\"$PWD/" ++ seedPidFile ++ "\" " ++ seedCommand ++ " > wasp-db-seed.log 2>&1 & }")
+          ~&& "WASP_DB_SEED_PID=$!"
+
+    seedPidFile :: FilePath
+    seedPidFile = "seed.pid"
+
+    mainWaspTsWithSeedThatWaits :: T.Text
+    mainWaspTsWithSeedThatWaits =
+      [trimming|
+        import { app, page, route } from "@wasp.sh/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { $seedScriptThatWaitsName } from "./src/db/$seedScriptThatWaitsName" with { type: "ref" };
+
+        export default app({
+          name: "waspDbSeedTest",
+          title: "waspDbSeedTest",
+          wasp: { version: "$textWaspVersion" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
+          db: {
+            seeds: [$seedScriptThatWaitsName]
+          },
+          spec: [
+            route("RootRoute", "/", page(MainPage)),
+          ]
+        })
+      |]
+
+    -- Stores the PID of the seed's process in the file at `$SEED_PID_FILE`,
+    -- and waits long enough for the test to stop it.
+    seedScriptThatWaitsName :: T.Text
+    seedScriptThatWaitsName = "waitUntilStopped"
+    seedScriptThatWaits =
+      [trimming|
+        import { writeFileSync } from 'node:fs'
+
+        export async function $seedScriptThatWaitsName() {
+          writeFileSync(process.env.SEED_PID_FILE!, String(process.pid))
+          await new Promise((resolve) => setTimeout(resolve, 10 * 60 * 1000))
         }
       |]
 

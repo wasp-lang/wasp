@@ -13,7 +13,6 @@ import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import System.Process (CreateProcess (cwd), proc)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
@@ -26,7 +25,7 @@ import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
 -- Thanks to npm workspaces, this single install covers the user's project deps,
--- the generated server and web app deps, and the Wasp SDK.
+-- the generated server deps, and the Wasp SDK.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
   Path' Abs (Dir GeneratedAppDir) ->
@@ -66,6 +65,8 @@ installProjectNpmDependencies projectDir =
   exitCodeToEither "Project setup"
     <$> Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
 
+{- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}
+
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
   Job.emitOutput Job.Stdout "Starting npm install\n"
@@ -73,10 +74,9 @@ installNpmDependenciesAndReport projectDir = do
   either absurd id
     <$> Job.race
       reportInstallationProgress
-      ( Job.fromProc $
-          (proc "npm" ["install"])
-            { cwd = Just $ SP.fromAbsDir projectDir
-            }
+      ( Job.fromProc
+          $ Job.setCwd projectDir
+          $ Job.proc "npm" ["install"]
       )
 
 reportInstallationProgress :: Job.Job Void
@@ -99,13 +99,13 @@ reportInstallationProgress =
       ]
 
 -- | Figure out if installation of npm deps is needed, be it for npm workspace deps (top level
--- package.json + web app + server), or for wasp sdk npm deps.
+-- package.json + server), or for wasp sdk npm deps.
 --
 -- To this end, this code keeps track of the dependencies installed with a metadata file, which it
 -- updates after each install.
 --
 -- Note: Here, we do a single check for all the deps, as the npm workspace ensures `npm install`
--- takes care of the user project, server, and web-app, all at once. The SDK is also installed as
+-- takes care of the user project and server, all at once. The SDK is also installed as
 -- part of our installation logic, so we don't need to check it separately.
 areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 areThereNpmDepsToInstall allNpmDeps dstDir = do

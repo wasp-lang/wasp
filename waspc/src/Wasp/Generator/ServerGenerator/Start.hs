@@ -11,19 +11,18 @@ where
 import Control.Concurrent (MVar, newEmptyMVar, putMVar, takeMVar, threadDelay)
 import Control.Concurrent.STM (TMVar, TQueue, atomically, newEmptyTMVarIO, newTQueueIO, orElse, putTMVar, readTQueue, takeTMVar, writeTQueue)
 import Control.Monad (forever)
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.IO.Class (liftIO)
 import Data.Functor ((<&>))
 import qualified Data.Text as T
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path', (</>))
-import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import System.Process (CreateProcess (..), proc)
-import Wasp.Env (getEnvVars, inheritEnvWith)
+import Wasp.Env (getEnvVars, setEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
+import Wasp.Node.Bin (findNpmBin)
 
 newtype ServerProcessController = ServerProcessController (TQueue ServerControllerCommand)
 
@@ -104,7 +103,7 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     -- server exits, so that a compile right after a crash restarts it.
     runServer :: TMVar ExitCode -> J.Job Void
     runServer serverExit = do
-      _ <- J.onProcessExit (atomically . putTMVar serverExit) $ J.fromProc =<< serverProcess
+      _ <- J.onProcessExit (atomically . putTMVar serverExit) $ J.fromProc serverProcess
       liftIO $ forever $ threadDelay maxBound
 
     -- Returns what to do once the server is stopped.
@@ -125,16 +124,24 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     acknowledge :: MVar () -> J.Job ()
     acknowledge done = liftIO $ putMVar done ()
 
+    -- Same as the `bundle` script in the server's `package.json`.
     bundle :: J.Job ExitCode
-    bundle = J.fromProc (proc "npm" ["run", "bundle"]) {cwd = Just serverDir}
+    bundle =
+      runNpmBinInServerDir "tsc" ["--build"]
+        `J.andThen` runNpmBinInServerDir "rollup" ["--config", "--silent"]
 
-    serverProcess :: (MonadIO m) => m CreateProcess
+    runNpmBinInServerDir :: String -> [String] -> J.Job ExitCode
+    runNpmBinInServerDir binName args = do
+      Just binPath <- liftIO $ findNpmBin serverDir binName
+      J.fromProc $ J.setCwd serverDir $ J.proc binPath args
+
+    serverProcess :: J.CreateJobProcess
     serverProcess =
-      inheritEnvWith
-        (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-        (proc Common.devServerStartExecutable Common.devServerStartArgs) {cwd = Just serverDir}
+      setEnvVars (("NODE_ENV", "development") : getEnvVars serverRunConfig)
+        $ J.setCwd serverDir
+        $ J.proc Common.devServerStartExecutable Common.devServerStartArgs
 
-    serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
+    serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
 reportServerExit :: ExitCode -> J.Job ()
 reportServerExit = \case

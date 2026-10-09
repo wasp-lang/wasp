@@ -18,7 +18,7 @@ import System.Exit (ExitCode)
 
 -- | An action that runs processes and emits their output.
 newtype Job a = Job (ReaderT JobEnv IO a)
-  deriving (Functor, Applicative, Monad, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadFail, MonadIO)
 
 data JobEnv = JobEnv
   { _sink :: Sink,

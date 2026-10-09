@@ -90,7 +90,7 @@
                 },
                 {
                     "name": "@wasp.sh/wasp-app-runner",
-                    "version": "^0.0.17"
+                    "version": "^0.0.18"
                 },
                 {
                     "name": "prisma",
@@ -338,6 +338,10 @@
             {
                 "name": "@types/node",
                 "version": "^24.0.0"
+            },
+            {
+                "name": "nodemon",
+                "version": "^2.0.19"
             },
             {
                 "name": "rollup",

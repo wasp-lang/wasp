@@ -160,10 +160,7 @@ library
 
   if !os(windows)
     build-depends: unix
-  other-modules:
-    Paths_waspc
-    Wasp.Process.System
-
+  other-modules: Paths_waspc
   exposed-modules:
     Wasp.AppComponentUrl
     Wasp.AppSpec
@@ -322,10 +319,12 @@ library
     Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
+    Wasp.Job.CreateProcess
     Wasp.Job.Printer
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
+    Wasp.Node.Bin
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
@@ -528,8 +527,8 @@ library cli-lib
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
     Wasp.Cli.RunConfigs
-    Wasp.Cli.SignalHandling
     Wasp.Cli.Terminal
+    Wasp.Cli.TerminationSignals
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser
@@ -577,12 +576,11 @@ test-suite waspc-tests
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
+    temporary,
     text,
     time,
     waspc,
 
-  if !os(windows)
-    build-depends: unix
   other-modules:
     AppComponentUrlTest
     AppSpec.EntityTest
@@ -606,10 +604,12 @@ test-suite waspc-tests
     Generator.MockWriteableMonad
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
+    Generator.SetupTest
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
     JobTest
     JsImportTest
+    Node.BinTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
@@ -674,13 +674,10 @@ test-suite wasp-cli-tests
     time,
     waspc,
 
-  if !os(windows)
-    build-depends: unix
   other-modules:
     DbMigrateTest
     ExceptionHandlingTest
     Paths_waspc
-    SignalHandlingTest
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest

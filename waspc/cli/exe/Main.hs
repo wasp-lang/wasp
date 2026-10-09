@@ -19,7 +19,6 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
-import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -38,19 +37,24 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.ExceptionHandling (withExceptionReporting)
-import Wasp.Cli.SignalHandling (withGracefulTermination)
 import Wasp.Cli.Terminal (title)
+import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
 main :: IO ()
-main = withUtf8 $ withExceptionReporting $ withGracefulTermination $ do
+main = withUtf8 $ withExceptionReporting $ do
   -- If we don't explicitly set line buffering, the output gets block-buffered
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.
   hSetBuffering stdout LineBuffering
+
+  -- So that Wasp also cleans up after itself (e.g. stops the processes it
+  -- started) when it's stopped with SIGTERM (process managers, `kill`) or
+  -- SIGHUP (closed terminal), and not only with Ctrl+C.
+  handleTerminationSignalsLikeInterrupt
 
   args <- getArgs
   let commandCall = case args of
@@ -206,11 +210,11 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  "reset" : resetArgs -> runCommand $ Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  ["seed"] -> runCommand $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runCommand $ Command.Db.Seed.seed $ Just seedName
+  ["studio"] -> runCommand Command.Db.Studio.studio
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}

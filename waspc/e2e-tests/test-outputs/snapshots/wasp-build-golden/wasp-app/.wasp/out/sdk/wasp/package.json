@@ -83,7 +83,6 @@
   "peerDependencies": {},
   "private": true,
   "scripts": {
-    "build": "tsc && node ./scripts/copy-assets.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
   },

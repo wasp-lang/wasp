@@ -19,3 +19,33 @@
 - ignore: { name: Use list comprehension } # We can decide this on our own.
 - ignore: { name: Use ++ } # I sometimes prefer concat over ++ due to the nicer formatting / extensibility.
 - ignore: { name: Redundant lambda } # Sometimes it is nicer to create explicit lambda then function.
+
+# npm and npx run their commands through the installed shell, which does not
+# forward signals correctly in some distros, or when running multiple commands
+# with `&&`. This would mean that if Wasp tries to stop its child process, it
+# only stops `npm` and leaves the real process running unintentionally.
+#
+# If you're not using `npm` to call further commands (e.g. you're just calling
+# `npm install`), you can ignore the lint by adding a comment on the enclosing
+# function:
+# ```hs
+# {- HLINT ignore myFunc "Avoid npm and npx" -}
+# myFunc = proc "npm" ["install"]
+# ```
+
+- error:
+    name: Avoid npm and npx
+    lhs: '"npm"'
+    rhs: '"node_modules/.bin/<tool>"'
+    note: >
+      If you're running an npm script, run its commands directly (with
+      `nodeBinProc`, and `Job.andThen` instead of `&&`), so that signals are
+      forwarded correctly when Wasp stops the process.
+
+- error:
+    name: Avoid npm and npx
+    lhs: '"npx"'
+    rhs: '"node_modules/.bin/<tool>"'
+    note: >
+      Run the tool's binary directly with `nodeBinProc`, so that signals are
+      forwarded correctly when Wasp stops the process.

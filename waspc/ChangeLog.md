@@ -33,9 +33,9 @@
 
 - `wasp start` now manages the development server process directly instead of relying on the generated server's `nodemon`, improving restart behavior. ([#4976](https://github.com/wasp-lang/wasp/pull/4976))
 
-- Cancelling noninteractive commands now stops their subprocess groups, with a deadline for forced shutdown. Commands that need terminal input retain access to it. ([#4975](https://github.com/wasp-lang/wasp/pull/4975))
+- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). Wasp now also waits for the command to exit, and kills it if it doesn't stop in time.
 
-- Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4920](https://github.com/wasp-lang/wasp/issues/4920))
+- Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
 
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
@@ -63,6 +63,7 @@
 - The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
 - The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
+- `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
 
 ## 0.25.0
 

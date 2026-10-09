@@ -174,6 +174,8 @@ getRunnablePackageDir package = do
   let packageDir = waspDataDir </> packagesDirInDataDir </> runnablePackageDirInPackagesDir package
   return packageDir
 
+{- HLINT ignore ensurePackageDependenciesAreInstalled "Avoid npm and npx" -}
+
 -- | Runs @npm install@ if @node_modules@ does not exist in the package directory.
 ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO ()
 ensurePackageDependenciesAreInstalled packageDir =

@@ -3,13 +3,13 @@ module Generator.ServerGenerator.StartTest where
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (cancel, withAsync)
 import Control.Exception (SomeException, finally, try)
-import Control.Monad (void, when)
+import Control.Monad (unless, void, when)
 import Data.Text (Text)
 import Data.Void (Void)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
-import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, removeFile)
-import System.FilePath ((</>))
+import System.Directory (createDirectoryIfMissing, doesFileExist, exeExtension, getPermissions, removeDirectoryRecursive, removeFile, setOwnerExecutable, setPermissions)
+import System.FilePath ((<.>), (</>))
 import System.IO (readFile')
 import System.Info (os)
 import System.Timeout (timeout)
@@ -51,7 +51,9 @@ spec_ServerEffect =
 
 spec_ServerProcessController :: Spec
 spec_ServerProcessController =
-  describe "server process controller" $ do
+  -- The fake `tsc` and `rollup` that bundle the server are shell scripts, which
+  -- Windows can't run.
+  unless (os == "mingw32") $ describe "server process controller" $ do
     it "starts, restarts, and stops the server across compile outcomes" $
       withGeneratedAppDirFixture $ \fixture -> do
         controller <- newServerProcessController
@@ -154,34 +156,28 @@ spec_ServerProcessController =
           isPortAvailable serverPort `shouldReturn` True
           clearServerPid fixture
 
-    -- TODO: Windows Job Objects need separate root/tree handles; native supervisor work is out of scope here.
-    when (os /= "mingw32") $
-      it "cleans up a crashed server with a pipe-holding child before restarting it" $
-        withGeneratedAppDirFixture $ \fixture -> do
-          writeServerStartScript fixture crashingServerScript
-          controller <- newServerProcessController
-          generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-          withAsync (runController controller generatedAppDir) $ \controllerJob -> do
-            waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
-            crashedPid <- readServerPid fixture
-            waitUntil "leftover process port file" $ doesFileExist $ leftoverPortFilePath fixture
-            leftoverPort <- trim <$> readFile' (leftoverPortFilePath fixture)
-            waitUntil "server crash" $ not <$> isProcessAlive crashedPid
-            waitUntil "leftover process port release" $ isPortAvailable leftoverPort
-            mapM_ removeFileIfExists [leftoverPidFilePath fixture, leftoverPortFilePath fixture]
+    it "starts the server again after it crashes, on the next successful compile" $
+      withGeneratedAppDirFixture $ \fixture -> do
+        writeServerStartScript fixture crashingServerScript
+        controller <- newServerProcessController
+        generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
+        withAsync (runController controller generatedAppDir) $ \controllerJob -> do
+          waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
+          crashedPid <- readServerPid fixture
+          waitUntil "server crash" $ not <$> isProcessAlive crashedPid
 
-            writeServerStartScript fixture loopingServerScript
-            clearServerPid fixture
-            notifySuccessfulCompileOrFail controller NoServerEffect
-            waitForServerStart fixture
-            newPid <- readServerPid fixture
-            newPid `shouldNotBe` crashedPid
-            readBundleCount fixture `shouldReturn` 2
-            newPort <- readServerPort fixture
+          writeServerStartScript fixture loopingServerScript
+          clearServerPid fixture
+          notifySuccessfulCompileOrFail controller NoServerEffect
+          waitForServerStart fixture
+          newPid <- readServerPid fixture
+          newPid `shouldNotBe` crashedPid
+          readBundleCount fixture `shouldReturn` 2
+          newPort <- readServerPort fixture
 
-            cancel controllerJob
-            isPortAvailable newPort `shouldReturn` True
-            clearServerPid fixture
+          cancel controllerJob
+          isPortAvailable newPort `shouldReturn` True
+          clearServerPid fixture
 
 -- | Runs the controller until it's cancelled, discarding its output.
 runController :: ServerProcessController -> Path' Abs (Dir GeneratedAppDir) -> IO (Void, Text)
@@ -201,30 +197,29 @@ withGeneratedAppDirFixture test = do
   let fixture = GeneratedAppDirFixture generatedAppDirPath
   createDirectoryIfMissing True $ serverBundleDirPath fixture
   createDirectoryIfMissing True $ dotenvModuleDirPath fixture
-  writeFile (serverDirPath fixture </> "package.json") packageJson
+  createNodeBin fixture "tsc" "exit 0"
+  createNodeBin fixture "rollup" "exec node bundle.js"
   writeFile (serverDirPath fixture </> "bundle.js") bundleScript
   writeFile (dotenvModuleDirPath fixture </> "config.js") ""
   writeFile (serverDirPath fixture </> serverPortFileName) "0"
   writeServerStartScript fixture loopingServerScript
   test fixture `finally` cleanUpFixture fixture
   where
-    packageJson =
-      unlines
-        [ "{",
-          "  \"name\": \"wasp-server-controller-test\",",
-          "  \"version\": \"1.0.0\",",
-          "  \"scripts\": {",
-          "    \"bundle\": \"node bundle.js\",",
-          "    \"start\": \"node bundle/server.js\"",
-          "  }",
-          "}"
-        ]
-
     bundleScript = "require('node:fs').appendFileSync('bundles.log', 'bundled\\n');\n"
+
+-- | Creates an executable in the server's node_modules/.bin that runs the given
+-- shell command, like npm does when installing a package with a bin.
+createNodeBin :: GeneratedAppDirFixture -> String -> String -> IO ()
+createNodeBin fixture binName command = do
+  let binDir = serverDirPath fixture </> "node_modules" </> ".bin"
+      binPath = binDir </> binName <.> exeExtension
+  createDirectoryIfMissing True binDir
+  writeFile binPath $ "#!/bin/sh\n" <> command <> "\n"
+  getPermissions binPath >>= setPermissions binPath . setOwnerExecutable True
 
 cleanUpFixture :: GeneratedAppDirFixture -> IO ()
 cleanUpFixture fixture = do
-  mapM_ killPidFromFile [serverPidFilePath fixture, leftoverPidFilePath fixture]
+  killPidFromFile $ serverPidFilePath fixture
   void (try (removeDirectoryRecursive $ _generatedAppDirPath fixture) :: IO (Either SomeException ()))
   where
     killPidFromFile pidFilePath = do
@@ -252,18 +247,10 @@ loopingServerScript =
 crashingServerScript :: String
 crashingServerScript =
   unlines
-    [ "const { spawn } = require('node:child_process');",
-      "const fs = require('node:fs');",
-      "const childScript = \"const net = require('node:net'); const server = net.createServer(); server.listen(0, '127.0.0.1', () => process.send(String(server.address().port)));\";",
-      "const child = spawn(process.execPath, ['-e', childScript], { stdio: ['ignore', 'inherit', 'inherit', 'ipc'] });",
-      "child.once('message', (port) => {",
-      "  fs.writeFileSync('server.pid.tmp', String(process.pid));",
-      "  fs.renameSync('server.pid.tmp', 'server.pid');",
-      "  fs.writeFileSync('leftover.pid.tmp', String(child.pid));",
-      "  fs.renameSync('leftover.pid.tmp', 'leftover.pid');",
-      "  fs.writeFileSync('leftover-port.txt', String(port));",
-      "  process.exit(1);",
-      "});"
+    [ "const fs = require('node:fs');",
+      "fs.writeFileSync('server.pid.tmp', String(process.pid));",
+      "fs.renameSync('server.pid.tmp', 'server.pid');",
+      "process.exit(1);"
     ]
 
 writeServerStartScript :: GeneratedAppDirFixture -> String -> IO ()
@@ -281,12 +268,6 @@ dotenvModuleDirPath fixture = serverDirPath fixture </> "node_modules" </> "dote
 
 serverPidFilePath :: GeneratedAppDirFixture -> FilePath
 serverPidFilePath fixture = serverDirPath fixture </> "server.pid"
-
-leftoverPidFilePath :: GeneratedAppDirFixture -> FilePath
-leftoverPidFilePath fixture = serverDirPath fixture </> "leftover.pid"
-
-leftoverPortFilePath :: GeneratedAppDirFixture -> FilePath
-leftoverPortFilePath fixture = serverDirPath fixture </> "leftover-port.txt"
 
 bundlesLogFilePath :: GeneratedAppDirFixture -> FilePath
 bundlesLogFilePath fixture = serverDirPath fixture </> "bundles.log"

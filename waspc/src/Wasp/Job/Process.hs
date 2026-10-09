@@ -1,7 +1,9 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE GADTs #-}
+
 module Wasp.Job.Process
   ( fromProc,
-    fromInteractiveProc,
-    ProcessGroupDidNotStop (..),
+    ProcessDidNotStop (..),
   )
 where
 
@@ -14,126 +16,112 @@ import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Text as CT
+import Data.Maybe (isJust)
 import Data.Text (Text)
 import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
 import Wasp.Job.Common (Job (..), JobEnv (..), OutputType (..))
-import qualified Wasp.Process.System as System
+import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
+import Wasp.Util (secondsToMicroSeconds)
+#if !mingw32_HOST_OS
+import System.IO.Error (tryIOError)
+import qualified System.Posix.Signals as Signals
+#endif
 
--- | Whether a process reads from Wasp's terminal.
-data Interactivity = Isolated | Interactive
-
-data ProcessGroupDidNotStop = ProcessGroupDidNotStop
+data ProcessDidNotStop = ProcessDidNotStop
   deriving (Show, Eq)
 
-instance Exception ProcessGroupDidNotStop where
-  displayException _ = "Could not stop the subprocess group. A child process may still be running."
+instance Exception ProcessDidNotStop where
+  displayException _ = "Could not stop a process that Wasp started. It may still be running."
 
--- | Runs the process to completion in its own process group (a job object on
--- Windows), with an empty stdin. Emits its stdout and stderr as the job's
+-- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code once all of it has been emitted.
 --
--- Once the process exits, or the job is stopped, any process left in its group
--- is stopped too. If they don't stop in time, this throws
--- 'ProcessGroupDidNotStop'.
-fromProc :: P.CreateProcess -> Job ExitCode
-fromProc = runProcess Isolated
-
--- | Like 'fromProc', but the process reads from Wasp's stdin. For that, it
--- stays in Wasp's process group, so stopping the job only stops the process
--- itself, and not the processes it started.
-fromInteractiveProc :: P.CreateProcess -> Job ExitCode
-fromInteractiveProc = runProcess Interactive
-
-runProcess :: Interactivity -> P.CreateProcess -> Job ExitCode
-runProcess interactivity process = Job $ do
+-- If the job is stopped before the process finishes, this stops the process
+-- and waits for it to exit. If it doesn't exit in time, this kills it, and if
+-- it still doesn't exit, this throws 'ProcessDidNotStop'.
+fromProc :: CreateJobProcess -> Job ExitCode
+fromProc jobProcess = Job $ do
+  process <- liftIO $ asCreateProcess jobProcess
   env <- ask
-  liftIO $ run interactivity (_sink env Nothing) (_processExitHook env) process
+  liftIO $ run (_sink env Nothing) (_processExitHook env) process
 
 -- | Runs the process to completion, passing its output to the given function,
 -- and returns its exit code once all of its output has been passed on. Calls
 -- the given exit hook as soon as the process exits by itself.
---
--- An 'Isolated' process runs in its own process group (a job object on
--- Windows), with an empty stdin. Once it exits, or this is stopped, any
--- process left in its group is stopped too. If the group doesn't stop in time,
--- this throws 'ProcessGroupDidNotStop'.
---
--- An 'Interactive' process reads from Wasp's stdin. For that, it has to stay
--- in Wasp's process group, so stopping this only stops the process itself.
-run :: Interactivity -> (OutputType -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
-run interactivity emit onExit process = mask $ \restore -> do
-  (resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle), processGroup) <- start
-  mapM_ hClose stdinHandle
+run :: (OutputType -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
+run emit onExit process = mask $ \restore -> do
+  resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle) <-
+    P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
   -- Also reaps the process if this is stopped, so it's never cancelled.
-  rootExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
+  processExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
   outputForwarding <-
     Async.asyncWithUnmask $ \unmask ->
       unmask $
         Async.concurrently_
           (forwardOutput (emit Stdout) stdoutHandle)
           (forwardOutput (emit Stderr) stderrHandle)
-  let stop = stopProcess processHandle rootExit processGroup
   exitCode <-
     restore
       ( do
-          exitCode <- Async.wait rootExit
+          mapM_ hClose stdinHandle
+          exitCode <- Async.wait processExit
           onExit exitCode
-          stop
           Async.wait outputForwarding
           return exitCode
       )
       -- The process has to stop before the output forwarding is cancelled: on
       -- Windows, reading the output can't be interrupted until its pipes close.
-      `onException` ((stop `finally` Async.cancel outputForwarding) `finally` closeHandles resources)
+      `onException` ( (stopProcess processHandle processExit `finally` Async.cancel outputForwarding)
+                        `finally` closeHandles resources
+                    )
   closeHandles resources
   return exitCode
+
+-- | Asks the process to stop (with SIGTERM on *nix), and waits for it to exit.
+-- If it doesn't exit in time, kills it, and if it still doesn't exit, throws
+-- 'ProcessDidNotStop'.
+--
+-- We only signal the process itself, and rely on it to stop the processes it
+-- started. We don't signal its process group: it's Wasp's own, so that would
+-- also stop Wasp, its other jobs, and whatever started Wasp (e.g. an npm script
+-- or a CI shell).
+stopProcess :: P.ProcessHandle -> Async.Async ExitCode -> IO ()
+stopProcess processHandle processExit = do
+  P.terminateProcess processHandle
+  stoppedInTime <- waitForExit gracefulStopTimeoutMicroseconds
+  unless stoppedInTime $ do
+    killProcess processHandle
+    stoppedAfterKill <- waitForExit killTimeoutMicroseconds
+    unless stoppedAfterKill $ throwIO ProcessDidNotStop
   where
-    configuredProcess = case interactivity of
-      Isolated -> System.configureIsolatedProcess process {P.std_in = P.CreatePipe}
-      Interactive ->
-        process
-          { P.std_in = P.Inherit,
-            P.create_group = False,
-            P.use_process_jobs = False,
-            P.std_out = P.CreatePipe,
-            P.std_err = P.CreatePipe
-          }
+    waitForExit timeoutMicroseconds = isJust <$> timeout timeoutMicroseconds (Async.waitCatch processExit)
 
-    start = do
-      resources@(_, _, _, processHandle) <- P.createProcess configuredProcess
-      processGroup <-
-        ( case interactivity of
-            Isolated -> P.getPid processHandle
-            Interactive -> return Nothing
-        )
-          `onException` emergencyCleanUp resources
-      return (resources, processGroup)
+-- | On Windows, 'P.terminateProcess' already kills the process.
+killProcess :: P.ProcessHandle -> IO ()
+#if mingw32_HOST_OS
+killProcess = P.terminateProcess
+#else
+killProcess processHandle =
+  -- The process might have exited in the meantime, so we ignore errors.
+  P.getPid processHandle >>= mapM_ (tryIOError . Signals.signalProcess Signals.sigKILL)
+#endif
 
-    stopProcess processHandle rootExit processGroup = case interactivity of
-      Isolated -> do
-        stopped <- System.stopProcessGroup processHandle rootExit processGroup
-        unless stopped $ throwIO ProcessGroupDidNotStop
-      Interactive ->
-        P.getProcessExitCode processHandle >>= \case
-          Just _ -> return ()
-          Nothing -> P.terminateProcess processHandle
+-- | How long a process gets to exit by itself after being asked to stop, e.g.
+-- to stop the processes it started, before it's killed.
+gracefulStopTimeoutMicroseconds :: Int
+gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 2
+
+killTimeoutMicroseconds :: Int
+killTimeoutMicroseconds = secondsToMicroSeconds 2
 
 forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
 forwardOutput _ Nothing = return ()
 forwardOutput emit (Just handle) =
   runConduit $
     CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit
-
-emergencyCleanUp :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
-emergencyCleanUp resources@(_, _, _, processHandle) =
-  ( do
-      P.terminateProcess processHandle
-      void $ timeout System.hardStopTimeoutMicroseconds $ P.waitForProcess processHandle
-  )
-    `finally` closeHandles resources
 
 closeHandles :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
 closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =

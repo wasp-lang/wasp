@@ -1,15 +1,19 @@
 module Wasp.Job
   ( Job,
+    proc,
+    CreateJobProcess (..),
+    setCwd,
+    markInteractive,
     run,
     race,
+    andThen,
     OutputType (..),
     emitOutput,
     captureOutput,
     onOutput,
     onProcessExit,
     fromProc,
-    fromInteractiveProc,
-    ProcessGroupDidNotStop (..),
+    ProcessDidNotStop (..),
     JobType (..),
     prefixWith,
   )
@@ -21,10 +25,11 @@ import Control.Monad.Reader (ReaderT (..), ask, local)
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
-import System.Exit (ExitCode)
+import System.Exit (ExitCode (..))
 import Wasp.Job.Common (Job (..), JobEnv (..), JobType (..), OutputType (..), runWithEnv, withSink)
+import Wasp.Job.CreateProcess (CreateJobProcess (..), cwd, markInteractive, proc, setCwd)
 import qualified Wasp.Job.Printer as Printer
-import Wasp.Job.Process (ProcessGroupDidNotStop (..), fromInteractiveProc, fromProc)
+import Wasp.Job.Process (ProcessDidNotStop (..), fromProc)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.
@@ -59,9 +64,16 @@ onOutput :: IO () -> Job a -> Job a
 onOutput action = withSink $ \sink jobType outputType output ->
   action >> sink jobType outputType output
 
+-- | Runs the second job only if the first one succeeds (like @&&@ in a shell),
+-- and returns the exit code of the last one that ran.
+andThen :: Job ExitCode -> Job ExitCode -> Job ExitCode
+andThen firstJob secondJob =
+  firstJob >>= \case
+    ExitSuccess -> secondJob
+    exitCode -> return exitCode
+
 -- | Calls the given action as soon as a process that the job runs exits by
--- itself, with its exit code. That is before the processes it left behind are
--- stopped, and before all of its output is emitted.
+-- itself, with its exit code. That is before all of its output is emitted.
 onProcessExit :: (ExitCode -> IO ()) -> Job a -> Job a
 onProcessExit action (Job job) = Job $ local addHook job
   where
