@@ -98,10 +98,8 @@ stopProcess processHandle processExit = do
   where
     waitForExit timeoutMicroseconds = isJust <$> timeout timeoutMicroseconds (Async.waitCatch processExit)
 
--- | Sends SIGINT to the process, like Ctrl+C does. We don't use SIGTERM
--- because some tools don't stop their child processes on it, e.g. nodemon
--- kills its child shell right away, and that leaves the shell's command
--- running.
+-- | Sends SIGINT to the process, like Ctrl+C does, which is what the tools we
+-- run expect to be stopped with.
 -- Windows has no signals, so there we terminate the process instead.
 interruptProcess :: P.ProcessHandle -> IO ()
 killProcess :: P.ProcessHandle -> IO ()
