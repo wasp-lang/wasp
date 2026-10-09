@@ -5,17 +5,19 @@ module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
 where
 
 import qualified Options.Applicative as Opt
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 
 data NewProjectArgs = NewProjectArgs
   { _projectName :: Maybe String,
     _templateName :: Maybe String
   }
 
-newProjectArgsParser :: Opt.Parser NewProjectArgs
+newProjectArgsParser :: ArgsParser NewProjectArgs
 newProjectArgsParser =
-  NewProjectArgs
-    <$> Opt.optional projectNameParser
-    <*> Opt.optional templateNameParser
+  ArgsParser "wasp new" $
+    NewProjectArgs
+      <$> Opt.optional projectNameParser
+      <*> Opt.optional templateNameParser
   where
     projectNameParser :: Opt.Parser String
     projectNameParser = Opt.strArgument $ Opt.metavar "PROJECT_NAME"

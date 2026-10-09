@@ -22,7 +22,7 @@ import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildSt
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.RunConfigs (makeRunConfigs)
-import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -52,8 +52,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
       (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
 
-  clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
-  serverRunConfig' <- baseServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
+  clientRunConfig' <- userClientEnvVars `addEnvVarsUniqueC` baseClientRunConfig
+  serverRunConfig' <- userServerEnvVars `addEnvVarsUniqueC` baseServerRunConfig
 
   return $
     BuildStartConfig
@@ -73,13 +73,13 @@ makeBuildStartConfig appSpec args projectDir' = do
       CommandError
         "No env vars specified"
         $ "You called "
-          ++ styleCode "wasp build start"
+          ++ styleCode (commandName buildStartArgsParser)
           ++ " without specifying any environment variables for the started apps (client and server). This is likely a mistake, as all apps require some env vars: https://wasp.sh/docs/advanced/env-vars.\n\n"
           ++ "To faithfully simulate the production environment, "
-          ++ styleCode "wasp build start"
+          ++ styleCode (commandName buildStartArgsParser)
           ++ " won't automatically read your "
           ++ styleCode ".env"
-          ++ " files unless you explicitly tell it. "
+          ++ " files unless you explicitly tell it.\n"
           ++ getParserHelpMessage buildStartArgsParser
 
 dockerImageName :: BuildStartConfig -> String
