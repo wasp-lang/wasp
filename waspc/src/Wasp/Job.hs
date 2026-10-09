@@ -12,6 +12,7 @@ module Wasp.Job
     captureOutput,
     onOutput,
     fromProc,
+    ProcessDidNotStop (..),
     JobType (..),
     prefixWith,
   )
@@ -27,7 +28,7 @@ import System.Exit (ExitCode (..))
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess (..), cwd, markInteractive, proc, setCwd)
 import qualified Wasp.Job.Printer as Printer
-import Wasp.Job.Process (fromProc)
+import Wasp.Job.Process (ProcessDidNotStop (..), fromProc)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.

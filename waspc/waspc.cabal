@@ -157,6 +157,8 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
+  if !os(windows)
+    build-depends: unix
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.AppComponentUrl
@@ -512,6 +514,7 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.EnvVarWithCtx
+    Wasp.Cli.ExceptionHandling
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
@@ -550,6 +553,7 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
@@ -628,6 +632,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Process.Util
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
@@ -648,6 +653,7 @@ test-suite wasp-cli-tests
     tasty-discover:tasty-discover
 
   build-depends:
+    async,
     base,
     cli-lib,
     hspec,
@@ -661,6 +667,7 @@ test-suite wasp-cli-tests
 
   other-modules:
     DbMigrateTest
+    ExceptionHandlingTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
