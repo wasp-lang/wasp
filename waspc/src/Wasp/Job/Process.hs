@@ -22,9 +22,6 @@ import System.Timeout (timeout)
 import Wasp.Job.Common (Job (..), OutputType (..))
 import qualified Wasp.Process.System as System
 
--- TODO(#4575):
---   Switch from System.Process to System.Process.Typed.
-
 -- | Whether a process reads from Wasp's terminal.
 data Interactivity = Isolated | Interactive
 
