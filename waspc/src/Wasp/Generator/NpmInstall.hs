@@ -21,7 +21,7 @@ import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
-import Wasp.Util (secondsToMicroSeconds)
+import Wasp.Util (exitCodeToEither, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
@@ -62,12 +62,9 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies projectDir = do
-  installExitCode <-
-    Job.run $ Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir
-  return $ case installExitCode of
-    ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
-    _success -> Right ()
+installProjectNpmDependencies projectDir =
+  exitCodeToEither "Project setup"
+    <$> Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do

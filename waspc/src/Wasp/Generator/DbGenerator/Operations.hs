@@ -13,7 +13,9 @@ module Wasp.Generator.DbGenerator.Operations
 where
 
 import Control.Monad.Catch (catch)
+import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.Extra (whenM)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
@@ -39,7 +41,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import qualified Wasp.Job as Job
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
-import Wasp.Util (checksumFromFilePath, hexToString)
+import Wasp.Util (checksumFromFilePath, exitCodeToEither, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -52,11 +54,9 @@ data DbConnectionTestResult
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
 migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> IO (Either String ())
-migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = do
-  dbExitCode <- Job.run $ DbJobs.migrateDev generatedAppDirAbs migrateArgs
-  case dbExitCode of
-    ExitSuccess -> finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
-    ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
+migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = runExceptT $ do
+  ExceptT $ exitCodeToEither "Migrate (dev)" <$> Job.run (DbJobs.migrateDev generatedAppDirAbs migrateArgs)
+  ExceptT $ finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
 
 finalizeMigration :: Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> RefreshOnLastDbConcurrenceChecksumFile -> IO (Either String ())
 finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs onLastDbConcurrenceChecksumFileRefreshAction = do
@@ -126,21 +126,15 @@ dbReset generatedAppDir resetArgs = do
   -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
-  exitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.reset generatedAppDir resetArgs
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure c -> Left $ "Failed with exit code " <> show c
+  exitCodeToEither "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset generatedAppDir resetArgs)
 
 dbSeed ::
   ServerRunConfig ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed serverRunConfig generatedAppDir seedName = do
-  exitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.seed serverRunConfig generatedAppDir seedName
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure c -> Left $ "Failed with exit code " <> show c
+dbSeed serverRunConfig generatedAppDir seedName =
+  exitCodeToEither "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed serverRunConfig generatedAppDir seedName)
 
 testDbConnection ::
   Path' Abs (Dir GeneratedAppDir) ->
@@ -168,13 +162,9 @@ isDbConnectionPossible DbNotCreated = True
 isDbConnectionPossible _ = False
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-generatePrismaClient generatedAppDir = do
-  exitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.generatePrismaClient generatedAppDir
-  case exitCode of
-    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
-    ExitSuccess -> do
-      updateDbSchemaChecksumOnLastGenerate
-      return $ Right ()
+generatePrismaClient generatedAppDir = runExceptT $ do
+  ExceptT $ exitCodeToEither "Prisma client generation" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.generatePrismaClient generatedAppDir)
+  liftIO updateDbSchemaChecksumOnLastGenerate
   where
     updateDbSchemaChecksumOnLastGenerate =
       writeDbSchemaChecksumToFile generatedAppDir dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir
