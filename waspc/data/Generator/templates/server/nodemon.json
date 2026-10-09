@@ -1,5 +1,13 @@
 {{={= =}=}}
 {
+  {=!
+    These are the `bundle` and `start` scripts from `package.json`, run directly instead of through
+    `npm run`, which would start a shell and npm several times on every restart.
+    nodemon stops for good if the command exits with code 2 right after starting (it assumes the
+    command has a syntax error), and `tsc` uses that code for type errors, so `|| exit 1` makes it
+    wait for file changes instead.
+  =}
+  "exec": "tsc --build && rollup --config --silent && node --enable-source-maps -r dotenv/config bundle/server.js || exit 1",
   "env": {
     "NODE_ENV": "development"
   },

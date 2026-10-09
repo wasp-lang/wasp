@@ -6,6 +6,7 @@ import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Map as Map
 import qualified Data.Time as T
+import System.Exit (ExitCode (..))
 import Test.Hspec
 import Wasp.Util
 
@@ -213,6 +214,14 @@ spec_findDuplicateElems = do
 
   it "Returns empty list for empty list" $ do
     findDuplicateElems ([] :: [Int]) `shouldBe` []
+
+spec_exitCodeToEither :: Spec
+spec_exitCodeToEither = do
+  it "Returns Right for a successful exit" $ do
+    exitCodeToEither "Build" ExitSuccess `shouldBe` Right ()
+
+  it "Returns an error naming the failed step and its exit code" $ do
+    exitCodeToEither "Build" (ExitFailure 2) `shouldBe` Left "Build failed with exit code: 2"
 
 spec_checkIfEnvValueIsTruthy :: Spec
 spec_checkIfEnvValueIsTruthy = do

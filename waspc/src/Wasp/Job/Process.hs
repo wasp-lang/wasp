@@ -1,172 +1,127 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE GADTs #-}
 
 module Wasp.Job.Process
-  ( runProcessAsJob,
-    runNodeCommandAsJob,
-    runNodeCommandAsJobWithExtraEnv,
-    runNodeCommandAsJobWithExtraEnvAndStdin,
+  ( fromProc,
+    ProcessDidNotStop (..),
   )
 where
 
-import Control.Concurrent (writeChan)
-import Control.Concurrent.Async (Concurrently (..))
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (Exception (displayException), IOException, finally, mask, onException, throwIO, try)
+import Control.Monad (unless, void)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader (ask)
 import Data.Conduit (runConduit, (.|))
+import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
-import qualified Data.Conduit.Process as CP
-import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8)
-import StrongPath (Abs, Dir, Path')
-import qualified StrongPath as SP
-import System.Environment (getEnvironment)
-import System.Exit (ExitCode (..))
+import qualified Data.Conduit.Text as CT
+import Data.Maybe (isJust)
+import Data.Text (Text)
+import System.Exit (ExitCode)
+import System.IO (Handle, hClose)
 import qualified System.Process as P
-import UnliftIO.Exception (bracket)
-#if !defined(mingw32_HOST_OS)
-import Data.Maybe (mapMaybe)
+import System.Timeout (timeout)
+import Wasp.Job.Common (Job (..), OutputType (..))
+import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
+import Wasp.Util (secondsToMicroSeconds)
+#if !mingw32_HOST_OS
 import System.IO.Error (tryIOError)
 import qualified System.Posix.Signals as Signals
-import Text.Read (readMaybe)
 #endif
-import qualified Wasp.Job as J
-import qualified Wasp.Node.Version as NodeVersion
 
--- TODO:
---   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
---   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
+data ProcessDidNotStop = ProcessDidNotStop
+  deriving (Show, Eq)
 
--- | Same as 'runProcessAsJobWithStdin', with stdin inherited.
-runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob = runProcessAsJobWithStdin CP.Inherited
+instance Exception ProcessDidNotStop where
+  displayException _ = "Could not stop a process that Wasp started. It may still be running."
 
--- | Runs a given process while streaming its stderr and stdout to provided channel.
---   The type of the first argument decides the process' stdin, e.g. 'CP.Inherited' for Wasp's own,
---   or 'CP.ClosedStream' for one that is already at end-of-input.
---   Returns exit code of the process once it finishes, and also sends it to the channel.
---   Makes sure to stop the process if exception occurs.
-runProcessAsJobWithStdin :: forall stdin. (CP.InputSource stdin) => stdin -> P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJobWithStdin _stdin process jobType chan =
-  bracket
-    (CP.streamingProcess process)
-    (\(_, _, _, sph) -> terminateStreamingProcess sph)
-    runStreamingProcessAsJob
+-- | Runs the process to completion, emitting its stdout and stderr as the job's
+-- output, and returns its exit code once all of it has been emitted.
+--
+-- If the job is stopped before the process finishes, this stops the process
+-- and waits for it to exit. If it doesn't exit in time, this kills it, and if
+-- it still doesn't exit, this throws 'ProcessDidNotStop'.
+fromProc :: CreateJobProcess -> Job ExitCode
+fromProc jobProcess = Job $ do
+  process <- liftIO $ asCreateProcess jobProcess
+  sink <- ask
+  liftIO $ run (sink Nothing) process
+
+run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
+run emit process = mask $ \restore -> do
+  resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle) <-
+    P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
+  -- Also reaps the process if this is stopped, so it's never cancelled.
+  processExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
+  outputForwarding <-
+    Async.asyncWithUnmask $ \unmask ->
+      unmask $
+        Async.concurrently_
+          (forwardOutput (emit Stdout) stdoutHandle)
+          (forwardOutput (emit Stderr) stderrHandle)
+  exitCode <-
+    restore
+      ( do
+          mapM_ hClose stdinHandle
+          exitCode <- Async.wait processExit
+          Async.wait outputForwarding
+          return exitCode
+      )
+      -- The process has to stop before the output forwarding is cancelled: on
+      -- Windows, reading the output can't be interrupted until its pipes close.
+      `onException` ( (stopProcess processHandle processExit `finally` Async.cancel outputForwarding)
+                        `finally` closeHandles resources
+                    )
+  closeHandles resources
+  return exitCode
+
+-- | Asks the process to stop (with SIGTERM on *nix), and waits for it to exit.
+-- If it doesn't exit in time, kills it, and if it still doesn't exit, throws
+-- 'ProcessDidNotStop'.
+--
+-- We only signal the process itself, and rely on it to stop the processes it
+-- started. We don't signal its process group: it's Wasp's own, so that would
+-- also stop Wasp, its other jobs, and whatever started Wasp (e.g. an npm script
+-- or a CI shell).
+stopProcess :: P.ProcessHandle -> Async.Async ExitCode -> IO ()
+stopProcess processHandle processExit = do
+  P.terminateProcess processHandle
+  stoppedInTime <- waitForExit gracefulStopTimeoutMicroseconds
+  unless stoppedInTime $ do
+    killProcess processHandle
+    stoppedAfterKill <- waitForExit killTimeoutMicroseconds
+    unless stoppedAfterKill $ throwIO ProcessDidNotStop
   where
-    runStreamingProcessAsJob (_ :: stdin, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
-            runConduit $
-              stdoutStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout,
-                            J._jobType = jobType
-                          }
-                  )
+    waitForExit timeoutMicroseconds = isJust <$> timeout timeoutMicroseconds (Async.waitCatch processExit)
 
-      let forwardStderrToChan =
-            runConduit $
-              stderrStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr,
-                            J._jobType = jobType
-                          }
-                  )
-
-      exitCode <-
-        runConcurrently $
-          Concurrently forwardStdoutToChan
-            *> Concurrently forwardStderrToChan
-            *> Concurrently (CP.waitForStreamingProcess processHandle)
-
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobExit exitCode,
-            J._jobType = jobType
-          }
-
-      return exitCode
-
-    terminateStreamingProcess streamingProcessHandle = do
-      interruptProcess $ CP.streamingProcessHandleRaw streamingProcessHandle
-      return $ ExitFailure 1
-
--- | On *nix, sends SIGINT (same as Ctrl+C) to the given process and all its descendants.
--- We don't rely on the process to stop its descendants: e.g. npm runs scripts with `sh -c`, and
--- some shells (like dash on Ubuntu) stay around as the parent of the script's command and don't
--- forward the signal to it.
--- We don't signal the whole process group either: the processes we start share it with Wasp, so
--- that would also interrupt Wasp itself, its other jobs, and whatever process started Wasp.
--- Windows has no signals, so there we terminate the process instead.
-interruptProcess :: P.ProcessHandle -> IO ()
-#if defined(mingw32_HOST_OS)
-interruptProcess = P.terminateProcess
+-- | On Windows, 'P.terminateProcess' already kills the process.
+killProcess :: P.ProcessHandle -> IO ()
+#if mingw32_HOST_OS
+killProcess = P.terminateProcess
 #else
-interruptProcess processHandle =
-  P.getPid processHandle >>= mapM_ interruptProcessTree
-
-interruptProcessTree :: P.Pid -> IO ()
-interruptProcessTree rootPid = do
-  descendantPids <- getDescendantPids rootPid
-  -- Some of the processes might have exited in the meantime, so we ignore errors.
-  mapM_ (tryIOError . Signals.signalProcess Signals.sigINT) (rootPid : descendantPids)
-
--- | Lists the descendants of the given process with `ps`, or returns none if `ps` fails.
-getDescendantPids :: P.Pid -> IO [P.Pid]
-getDescendantPids rootPid =
-  maybe [] (descendantsOf rootPid) <$> listPidsWithParents
-  where
-    -- BusyBox's `ps` doesn't support `-A`, but lists all processes without it.
-    listPidsWithParents =
-      runPs ["-A", "-o", "pid=", "-o", "ppid="]
-        >>= maybe (runPs ["-o", "pid=", "-o", "ppid="]) (return . Just)
-
-    runPs args =
-      tryIOError (P.readProcessWithExitCode "ps" args "") >>= \case
-        Right (ExitSuccess, psOutput, _) -> return $ Just $ mapMaybe parsePsLine $ lines psOutput
-        _ -> return Nothing
-
-    parsePsLine line = case mapM readMaybe (words line) of
-      Just [pid, parentPid] -> Just (fromInteger pid, fromInteger parentPid)
-      _ -> Nothing
-
-    descendantsOf pid pidsWithParents =
-      concatMap
-        (\childPid -> childPid : descendantsOf childPid pidsWithParents)
-        [childPid | (childPid, parentPid) <- pidsWithParents, parentPid == pid]
+killProcess processHandle =
+  -- The process might have exited in the meantime, so we ignore errors.
+  P.getPid processHandle >>= mapM_ (tryIOError . Signals.signalProcess Signals.sigKILL)
 #endif
 
-runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
+-- | How long a process gets to exit by itself after being asked to stop, e.g.
+-- to stop the processes it started, before it's killed.
+gracefulStopTimeoutMicroseconds :: Int
+gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 2
 
-runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndStdin CP.Inherited
+killTimeoutMicroseconds :: Int
+killTimeoutMicroseconds = secondsToMicroSeconds 2
 
-runNodeCommandAsJobWithExtraEnvAndStdin :: (CP.InputSource stdin) => stdin -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir command args jobType chan =
-  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    NodeVersion.VersionCheckSuccess -> do
-      envVars <- getAllEnvVars
-      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-      runProcessAsJobWithStdin stdin nodeCommandProcess jobType chan
+forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
+forwardOutput _ Nothing = return ()
+forwardOutput emit (Just handle) =
+  runConduit $
+    CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit
+
+closeHandles :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
+closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =
+  mapM_ closeHandle [stdinHandle, stdoutHandle, stderrHandle]
   where
-    -- Haskell will use the first value for variable name it finds. Since env
-    -- vars in 'extraEnvVars' should override the inherited env vars, we
-    -- must prepend them.
-    getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
-    exitWithError exitCode errorMsg = do
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobOutput errorMsg J.Stderr,
-            J._jobType = jobType
-          }
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobExit exitCode,
-            J._jobType = jobType
-          }
-      return exitCode
+    closeHandle Nothing = return ()
+    closeHandle (Just handle) = void (try (hClose handle) :: IO (Either IOException ()))

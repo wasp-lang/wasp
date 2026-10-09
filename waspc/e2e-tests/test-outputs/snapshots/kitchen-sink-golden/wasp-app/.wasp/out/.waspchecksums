@@ -37,6 +37,13 @@
     [
         [
             "file",
+            "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+        ],
+        "117307052732745723e9ee3dfc1e25c33bd626b419103ae4a83cc31c32e89927"
+    ],
+    [
+        [
+            "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
         ],
         "5861342fc44ba43a186562a67b729c98a140f69aef4efb1b33474832dbeba466"
@@ -767,7 +774,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "c113a94a370aa44c8653cd570bb8b6fcc8042735872207e03806790d49df0a3a"
+        "1056517f0038154e64aeac090972147ee38cb8bdb96d1b5bc2e2e26c78981c8c"
     ],
     [
         [
@@ -872,7 +879,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "51dbfb69a530319fa40e9eeda98c1f1a9b64713f5712eec93493ea1739bec3ff"
+        "05386d31074202be34f878f43a15aa8e1b803596628f22339ab8d57137a97b78"
     ],
     [
         [
@@ -1292,14 +1299,14 @@
             "file",
             "sdk/wasp/types/index.ts"
         ],
-        "ac77b944feeb257d8764e38501dbfcf0f1f0724788f10e9c4acf29a4b92b45fe"
+        "fc608aabec2f763b3bbcca6f427b7a709a1a9baa53db793d57235d50dbda62d4"
     ],
     [
         [
             "file",
             "sdk/wasp/types/register.ts"
         ],
-        "f72ef243bdcb890e8f3313ef72aaca61ae7af832105f70d54ec0c5270a263fd9"
+        "7af219d2d6a3c3b686925ebc406355da6e9fb72f0aec9fe09a182a0318f66b7f"
     ],
     [
         [
@@ -1383,21 +1390,28 @@
             "file",
             "server/nodemon.json"
         ],
-        "3acce842d0d0b6cdd1c4adaccc9ab4a9f2b04a6f9b7721e6fcc51bb2d37554c5"
+        "02c3ff62d58fbb953b199dccfa4c0e8d8721a59a3295a907690102253a599d18"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "91c935f3dc70f466c41f4071f70912ba46cbe622103e10033cec3ac8b7a2f2e2"
+        "14723ea77e4987af464b264b1f5d1e135df20acd7bf0859c685cdffbcbe46149"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "5ff77153dc740eb6a3f5b7951002add2f931b949db59c769277fc27c3d49bd40"
+        "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
+    ],
+    [
+        [
+            "file",
+            "server/rollup.dbSeed.config.js"
+        ],
+        "318ed528c170df23b50e030aee92fc344c35b6e8a9e5f618202173f0256bba42"
     ],
     [
         [
@@ -1530,7 +1544,7 @@
             "file",
             "server/src/app.js"
         ],
-        "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
+        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
     ],
     [
         [
@@ -1656,7 +1670,7 @@
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "859a7a244cffb3c6bf6e308b43293c9ad06122dcc73a3fbaa362add8a9ebd3c5"
+        "772fd49c04eff2f47701565175c9756787d8548db3c4af190ce3420208bd4919"
     ],
     [
         [
@@ -1671,6 +1685,13 @@
             "server/src/auth/providers/oauth/user.ts"
         ],
         "70c10d31134efc795abb2f38a3c1a81dbbb21a2806551d74867df1f8a80dee42"
+    ],
+    [
+        [
+            "file",
+            "server/src/createRollupBundle.js"
+        ],
+        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
     ],
     [
         [
@@ -1747,7 +1768,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "05ef7019d3bdaa6201371e2fc7bfaa0b4fa30c786b634a6abe1d5ed11dcb579b"
+        "7d01a92b6b6462bede6e2eda16b765a920a9d9a87b29ad09b16abe60992816ec"
     ],
     [
         [
@@ -2146,7 +2167,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9acba4a5ce9c3e21a9794485c8e26f152747e1fa670776fbc111d85253669aa7"
+        "09f5563c093b52b6c9ab99a4def30a2ac3febde3904a48f8413c23aaf8907eea"
     ],
     [
         [

@@ -20,6 +20,7 @@
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
 - `wasp start` and `wasp build start` now accept `--client-url <url>` and `--server-url <url>` to make your app reachable at a URL other than `localhost`, such as a LAN hostname or an HTTPS tunnel. ([#4915](https://github.com/wasp-lang/wasp/pull/4915))
 - You can now run dev databases for multiple Wasp projects in parallel: `wasp start db` looks for a first port instead of failing when the default one is taken, and `wasp start` automatically finds the port the database ended up on. ([#4571](https://github.com/wasp-lang/wasp/pull/4571))
+- `wasp start db` now accepts a `--db-port <port>` argument to choose the port your dev database runs on (by @Nihal-Ahamed-MS). ([#4424](https://github.com/wasp-lang/wasp/issues/4424))
 - Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Added `--db-volume-mount-path` to `wasp deploy railway launch` and `wasp deploy railway setup` for custom database images that store data elsewhere. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
@@ -30,11 +31,18 @@
 
 ### 🐞 Bug fixes
 
+- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). Wasp now also waits for the command to exit, and kills it if it doesn't stop in time.
+
+- Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
+
+- Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
+
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
+- Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4941](https://github.com/wasp-lang/wasp/pull/4941))
 
 ### 🔧 Small improvements
 
@@ -52,6 +60,8 @@
 - Email validation now accepts internationalized addresses such as `jürgen@münchen.de`, accepts addresses typed in uppercase, and no longer accepts a string that merely contains an address somewhere inside it. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
+- The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
+- `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
 
 ## 0.25.0
 

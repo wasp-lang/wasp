@@ -19,14 +19,12 @@ spec_GeneratorCrudTest = do
   describe "getCrudOperationJson" $ do
     it "returns empty operations list when no operations are defined" $ do
       getCrudOperationJson
-        crudOperationsName
         crudWithoutOperations
         primaryEntityField
         `shouldBe` mkOperationsJson []
 
     it "adds JSON for defined operations" $ do
       getCrudOperationJson
-        crudOperationsName
         crudWithoutOperations
           { AS.Crud.operations =
               AS.Crud.CrudOperations
@@ -46,9 +44,9 @@ spec_GeneratorCrudTest = do
 
     it "returns proper JSON for public operations" $ do
       getCrudOperationJson
-        crudOperationsName
         AS.Crud.Crud
-          { entity = AS.Core.Ref.Ref crudOperationEntityName,
+          { name = crudOperationsName,
+            entity = AS.Core.Ref.Ref crudOperationEntityName,
             operations =
               AS.Crud.CrudOperations
                 { get = publicCrudOperationOptions,
@@ -67,7 +65,6 @@ spec_GeneratorCrudTest = do
 
     it "allows overrides of operations" $ do
       getCrudOperationJson
-        crudOperationsName
         crudWithoutOperations
           { AS.Crud.operations =
               AS.Crud.CrudOperations
@@ -113,7 +110,8 @@ spec_GeneratorCrudTest = do
         }
     crudWithoutOperations =
       AS.Crud.Crud
-        { entity = AS.Core.Ref.Ref crudOperationEntityName,
+        { name = crudOperationsName,
+          entity = AS.Core.Ref.Ref crudOperationEntityName,
           operations =
             AS.Crud.CrudOperations
               { get = Nothing,

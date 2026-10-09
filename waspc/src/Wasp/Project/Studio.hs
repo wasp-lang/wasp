@@ -3,9 +3,9 @@ module Wasp.Project.Studio
   )
 where
 
-import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import Wasp.NodePackageFFI (RunnablePackage (WaspStudioPackage), getPackageProcessOptions)
+import Wasp.Util (exitCodeToEither)
 
 startStudio ::
   -- | Path to the data JSON file.
@@ -29,6 +29,4 @@ startStudio pathToDataFile = do
             P.delegate_ctlc = True
           }
   exitCode <- P.withCreateProcess cpInheritHandles $ \_ _ _ ph -> P.waitForProcess ph
-  case exitCode of
-    ExitSuccess -> return $ Right ()
-    ExitFailure code -> return $ Left $ "Studio command failed with exit code: " ++ show code
+  return $ exitCodeToEither "Studio command" exitCode

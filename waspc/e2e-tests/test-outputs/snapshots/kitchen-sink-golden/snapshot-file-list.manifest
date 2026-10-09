@@ -913,6 +913,7 @@ wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
+wasp-app/.wasp/out/server/rollup.dbSeed.config.js
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToVoidAuth.ts
@@ -952,6 +953,7 @@ wasp-app/.wasp/out/server/src/auth/providers/oauth/oneTimeCode.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/state.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/types.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/user.ts
+wasp-app/.wasp/out/server/src/createRollupBundle.js
 wasp-app/.wasp/out/server/src/crud/taskVotes.ts
 wasp-app/.wasp/out/server/src/crud/tasks.ts
 wasp-app/.wasp/out/server/src/dbSeed.ts
@@ -1044,6 +1046,7 @@ wasp-app/e2e-tests/tests/lazy-loading.spec.ts
 wasp-app/e2e-tests/tests/liveness.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
+wasp-app/e2e-tests/tests/oauth-callback.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts

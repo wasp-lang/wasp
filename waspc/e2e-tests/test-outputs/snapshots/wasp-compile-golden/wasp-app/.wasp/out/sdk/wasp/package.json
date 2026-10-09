@@ -6,6 +6,7 @@
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.1.9",
     "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz",
+    "@wasp.sh/lib-sdk-core": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz",
     "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz",
     "dotenv": "^16.6.1",
     "dotenv-expand": "^12.0.3",
@@ -82,7 +83,6 @@
   "peerDependencies": {},
   "private": true,
   "scripts": {
-    "build": "tsc && node ./scripts/copy-assets.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
   },

@@ -35,7 +35,7 @@ genClientCrudApi spec =
     cruds = getCruds spec
     areThereAnyCruds = not $ null cruds
 
-genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
+genCrudIndex :: AppSpec -> [AS.Crud.Crud] -> Generator FileDraft
 genCrudIndex spec cruds =
   return $
     mkTmplFdWithData
@@ -43,22 +43,22 @@ genCrudIndex spec cruds =
       tmplData
   where
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
-    getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
-    getCrudOperationJsonFromCrud (name, crud) = getCrudOperationJson name crud idField
+    getCrudOperationJsonFromCrud :: AS.Crud.Crud -> Aeson.Value
+    getCrudOperationJsonFromCrud crud = getCrudOperationJson crud idField
       where
         idField = getIdFieldFromCrudEntity spec crud
 
-genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudOperations :: AppSpec -> [AS.Crud.Crud] -> Generator [FileDraft]
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
-    genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) =
+    genCrudOperation :: AS.Crud.Crud -> FileDraft
+    genCrudOperation crud =
       mkTmplFdWithDstAndData
         (clientCrudDirInSdkTemplatesDir </> [relfile|_crud.ts|])
-        (castRel clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (name ++ ".ts")))
+        (castRel clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (crud.name ++ ".ts")))
         (Just tmplData)
       where
-        tmplData = getCrudOperationJson name crud idField
+        tmplData = getCrudOperationJson crud idField
         idField = getIdFieldFromCrudEntity spec crud
 
 clientCrudDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

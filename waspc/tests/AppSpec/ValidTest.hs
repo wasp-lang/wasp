@@ -1,17 +1,10 @@
-{-# LANGUAGE TypeApplications #-}
-
 module AppSpec.ValidTest where
 
 import Data.List (isInfixOf)
-import qualified Data.Map as M
 import Data.Maybe (fromJust)
-import qualified Data.Set as S
-import Fixtures (systemSPRoot)
-import NeatInterpolation (trimming)
-import StrongPath (relfile)
+import Fixtures.AppSpec (basicAppSpec)
 import qualified StrongPath as SP
 import Test.Hspec
-import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -33,8 +26,6 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
-import qualified Wasp.Generator.NpmWorkspaces as NW
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
@@ -59,8 +50,8 @@ spec_AppSpecValid = do
         ASV.validateAppSpec
           ( basicAppSpec
               { AS.decls =
-                  [ AS.Decl.makeDecl "app1" basicApp,
-                    AS.Decl.makeDecl "app2" basicApp
+                  [ AS.Decl.makeDecl basicApp {AS.App.name = "app1"},
+                    AS.Decl.makeDecl basicApp {AS.App.name = "app2"}
                   ]
               }
           )
@@ -76,7 +67,7 @@ spec_AppSpecValid = do
         let basicAppSpecWithVersionRange versionRange =
               basicAppSpec
                 { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $ basicAppWithVersionRange versionRange,
+                    [ AS.Decl.makeDecl $ basicAppWithVersionRange versionRange,
                       basicRouteDecl
                     ]
                 }
@@ -120,12 +111,14 @@ spec_AppSpecValid = do
     describe "auth-related validation" $ do
       let userEntityName = "User"
       let validUserEntity =
-            AS.Entity.makeEntity
-              ( Psl.Model.Body $
-                  Psl.WithCtx.empty
-                    <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
-                        ]
-              )
+            AS.Entity.makeEntity $
+              Psl.Model.Model
+                userEntityName
+                ( Psl.Model.Body $
+                    Psl.WithCtx.empty
+                      <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                          ]
+                )
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
@@ -154,11 +147,11 @@ spec_AppSpecValid = do
         let makeSpec appAuth pageAuthRequired =
               basicAppSpec
                 { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $
+                    [ AS.Decl.makeDecl $
                         basicApp {AS.App.auth = appAuth},
-                      AS.Decl.makeDecl "TestPage" $
+                      AS.Decl.makeDecl $
                         basicPage {AS.Page.authRequired = pageAuthRequired},
-                      AS.Decl.makeDecl userEntityName validUserEntity,
+                      AS.Decl.makeDecl validUserEntity,
                       basicRouteDecl
                     ]
                 }
@@ -182,7 +175,7 @@ spec_AppSpecValid = do
         let makeSpec authMethods userEntity =
               basicAppSpec
                 { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $
+                    [ AS.Decl.makeDecl $
                         basicApp
                           { AS.App.auth =
                               Just
@@ -205,7 +198,7 @@ spec_AppSpecValid = do
                                     AS.EmailSender.defaultFrom = Nothing
                                   }
                           },
-                      AS.Decl.makeDecl userEntityName userEntity,
+                      AS.Decl.makeDecl userEntity,
                       basicPageDecl,
                       basicRouteDecl
                     ]
@@ -282,35 +275,39 @@ spec_AppSpecValid = do
         let makeSpec appAuth userEntity =
               basicAppSpec
                 { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $
+                    [ AS.Decl.makeDecl $
                         basicApp {AS.App.auth = appAuth},
-                      AS.Decl.makeDecl userEntityName (userEntity :: AS.Entity.Entity),
+                      AS.Decl.makeDecl (userEntity :: AS.Entity.Entity),
                       basicRouteDecl
                     ]
                 }
         let invalidUserEntityWithoutIdField =
-              AS.Entity.makeEntity
-                ( Psl.Model.Body
-                    []
-                )
+              AS.Entity.makeEntity $
+                Psl.Model.Model
+                  userEntityName
+                  ( Psl.Model.Body
+                      []
+                  )
         let invalidUserEntityWithoutDefaultAttr =
-              AS.Entity.makeEntity
-                ( Psl.Model.Body $
-                    Psl.WithCtx.empty
-                      <$> [ Psl.Model.ElementField $
-                              Psl.Model.Field
-                                { Psl.Model._name = "id",
-                                  Psl.Model._type = Psl.Model.String,
-                                  Psl.Model._typeModifiers = [],
-                                  Psl.Model._attrs =
-                                    [ Psl.Attribute.Attribute
-                                        { Psl.Attribute._attrName = "id",
-                                          Psl.Attribute._attrArgs = []
-                                        }
-                                    ]
-                                }
-                          ]
-                )
+              AS.Entity.makeEntity $
+                Psl.Model.Model
+                  userEntityName
+                  ( Psl.Model.Body $
+                      Psl.WithCtx.empty
+                        <$> [ Psl.Model.ElementField $
+                                Psl.Model.Field
+                                  { Psl.Model._name = "id",
+                                    Psl.Model._type = Psl.Model.String,
+                                    Psl.Model._typeModifiers = [],
+                                    Psl.Model._attrs =
+                                      [ Psl.Attribute.Attribute
+                                          { Psl.Attribute._attrName = "id",
+                                            Psl.Attribute._attrArgs = []
+                                          }
+                                      ]
+                                  }
+                            ]
+                  )
 
         it "returns no error if app.auth is not set, regardless of shape of user entity" $ do
           ASV.validateAppSpec (makeSpec Nothing invalidUserEntityWithoutIdField) `shouldBe` []
@@ -353,7 +350,7 @@ spec_AppSpecValid = do
               basicAppSpec
                 { AS.buildType = if isProduction then BuildType.Production else BuildType.Development,
                   AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $
+                    [ AS.Decl.makeDecl $
                         basicApp
                           { AS.App.auth =
                               Just
@@ -372,8 +369,10 @@ spec_AppSpecValid = do
                                   },
                             AS.App.emailSender = emailSender
                           },
-                      AS.Decl.makeDecl userEntityName $
-                        AS.Entity.makeEntity
+                      AS.Decl.makeDecl
+                        $ AS.Entity.makeEntity
+                        $ Psl.Model.Model
+                          userEntityName
                           ( Psl.Model.Body $
                               Psl.WithCtx.empty
                                 <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
@@ -438,12 +437,7 @@ spec_AppSpecValid = do
       let jobDecl = makeBasicJobDecl "testJob"
 
       let testDuplicateDecls decls declTypeName expectedErrorMessage = it ("returns an error if there are duplicate " ++ declTypeName ++ " declarations") $ do
-            ASV.validateAppSpec
-              ( basicAppSpec
-                  { AS.decls = decls ++ [basicRouteDecl],
-                    AS.prismaSchema = getPrismaSchemaWithConfig ""
-                  }
-              )
+            ASV.validateAppSpec (basicAppSpec {AS.decls = decls ++ [basicRouteDecl]})
               `shouldBe` [Valid.GenericValidationError expectedErrorMessage]
 
       testDuplicateDecls [basicAppDecl, pageDecl, pageDecl] "page" "There are duplicate page declarations with name 'testPage'."
@@ -459,17 +453,17 @@ spec_AppSpecValid = do
     describe "operation entities uniqueness validation" $ do
       let makeActionDeclWithEntities name entityNames =
             AS.Decl.makeDecl
-              name
               AS.Action.Action
-                { AS.Action.auth = Nothing,
+                { AS.Action.name = name,
+                  AS.Action.auth = Nothing,
                   AS.Action.entities = Just $ AS.Core.Ref.Ref <$> entityNames,
                   AS.Action.fn = dummyExtImport
                 }
       let makeQueryDeclWithEntities name entityNames =
             AS.Decl.makeDecl
-              name
               AS.Query.Query
-                { AS.Query.auth = Nothing,
+                { AS.Query.name = name,
+                  AS.Query.auth = Nothing,
                   AS.Query.entities = Just $ AS.Core.Ref.Ref <$> entityNames,
                   AS.Query.fn = dummyExtImport
                 }
@@ -505,9 +499,9 @@ spec_AppSpecValid = do
     describe "prerender route validation" $ do
       let makePrerenderRouteDecl name pageName routePath prerenderVal =
             AS.Decl.makeDecl
-              name
               AS.Route.Route
-                { AS.Route.to = AS.Core.Ref.Ref pageName,
+                { AS.Route.name = name,
+                  AS.Route.to = AS.Core.Ref.Ref pageName,
                   AS.Route.path = routePath,
                   AS.Route.lazy = Nothing,
                   AS.Route.prerender = prerenderVal
@@ -515,9 +509,9 @@ spec_AppSpecValid = do
 
       let makePageDeclWithAuth name authReq =
             AS.Decl.makeDecl
-              name
               AS.Page.Page
-                { AS.Page.component = dummyExtImport,
+                { AS.Page.name = name,
+                  AS.Page.component = dummyExtImport,
                   AS.Page.authRequired = authReq
                 }
 
@@ -638,7 +632,8 @@ spec_AppSpecValid = do
 
     basicApp =
       AS.App.App
-        { AS.App.wasp =
+        { AS.App.name = "TestApp",
+          AS.App.wasp =
             AS.Wasp.Wasp
               { AS.Wasp.version = "^" ++ show WV.waspVersion
               },
@@ -658,47 +653,12 @@ spec_AppSpecValid = do
           AS.App.webSocket = Nothing
         }
 
-    basicAppDecl = AS.Decl.makeDecl "TestApp" basicApp
-
-    basicAppSpec =
-      AS.AppSpec
-        { AS.decls = [basicAppDecl],
-          AS.prismaSchema = getPrismaSchemaWithConfig "",
-          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
-          AS.packageJson =
-            Npm.PackageJson.PackageJson
-              { Npm.PackageJson.name = "testApp",
-                Npm.PackageJson.version = Nothing,
-                Npm.PackageJson.dependencies = M.empty,
-                Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
-                Npm.PackageJson.wasp = Nothing
-              },
-          AS.buildType = BuildType.Development,
-          AS.migrationsDir = Nothing,
-          AS.devEnvVarsClient = [],
-          AS.devEnvVarsServer = [],
-          AS.userDockerfileContents = Nothing,
-          AS.devDatabaseUrl = Nothing,
-          AS.srcTsConfigPath = [relfile|tsconfig.json|]
-        }
-
-    getPrismaSchemaWithConfig restOfPrismaSource =
-      Util.getPrismaSchema
-        [trimming|
-          datasource db {
-            provider = "postgresql"
-            url      = env("DATABASE_URL")
-          }
-          generator client {
-            provider = "prisma-client-js"
-          }
-          ${restOfPrismaSource}
-        |]
+    basicAppDecl = AS.Decl.makeDecl basicApp
 
     basicPage =
       AS.Page.Page
-        { AS.Page.component =
+        { AS.Page.name = basicPageName,
+          AS.Page.component =
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
               (fromJust $ SP.parseRelFileP "pages/Main")
@@ -716,40 +676,39 @@ spec_AppSpecValid = do
 
     makeBasicPageDecl name =
       AS.Decl.makeDecl
-        name
         AS.Page.Page
-          { AS.Page.component = dummyExtImport,
+          { AS.Page.name = name,
+            AS.Page.component = dummyExtImport,
             AS.Page.authRequired = Nothing
           }
 
     makeBasicRouteDecl name pageName =
       AS.Decl.makeDecl
-        name
-        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = []}
+        AS.Route.Route {AS.Route.name = name, AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = []}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl
-        name
         AS.Action.Action
-          { AS.Action.auth = Nothing,
+          { AS.Action.name = name,
+            AS.Action.auth = Nothing,
             AS.Action.entities = Nothing,
             AS.Action.fn = dummyExtImport
           }
 
     makeBasicQueryDecl name =
       AS.Decl.makeDecl
-        name
         AS.Query.Query
-          { AS.Query.auth = Nothing,
+          { AS.Query.name = name,
+            AS.Query.auth = Nothing,
             AS.Query.entities = Nothing,
             AS.Query.fn = dummyExtImport
           }
 
     makeBasicApiDecl name route =
       AS.Decl.makeDecl
-        name
         AS.Api.Api
-          { AS.Api.fn = dummyExtImport,
+          { AS.Api.name = name,
+            AS.Api.fn = dummyExtImport,
             AS.Api.middlewareConfigFn = Nothing,
             AS.Api.entities = Nothing,
             AS.Api.httpRoute = route,
@@ -758,17 +717,17 @@ spec_AppSpecValid = do
 
     makeBasicApiNamespaceDecl name path =
       AS.Decl.makeDecl
-        name
         AS.ApiNamespace.ApiNamespace
-          { AS.ApiNamespace.middlewareConfigFn = dummyExtImport,
+          { AS.ApiNamespace.name = name,
+            AS.ApiNamespace.middlewareConfigFn = dummyExtImport,
             AS.ApiNamespace.path = path
           }
 
     makeBasicCrudDecl name entityName =
       AS.Decl.makeDecl
-        name
         AS.Crud.Crud
-          { -- CRUD references testEntity, which is defined below,
+          { AS.Crud.name = name,
+            -- CRUD references testEntity, which is defined below,
             -- it needs to be included in the test declarations.
             AS.Crud.entity = AS.Core.Ref.Ref entityName,
             AS.Crud.operations =
@@ -788,14 +747,13 @@ spec_AppSpecValid = do
 
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
-        name
-        (AS.Entity.makeEntity $ Psl.Model.Body $ Psl.WithCtx.empty <$> [Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
+        (AS.Entity.makeEntity $ Psl.Model.Model name $ Psl.Model.Body $ Psl.WithCtx.empty <$> [Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl
-        name
         AS.Job.Job
-          { AS.Job.executor = AS.Job.PgBoss,
+          { AS.Job.name = name,
+            AS.Job.executor = AS.Job.PgBoss,
             AS.Job.perform =
               AS.Job.Perform
                 { AS.Job.fn = dummyExtImport,

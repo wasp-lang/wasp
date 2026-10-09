@@ -95,11 +95,7 @@ wasp start
 
 `wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](./cli.md#project-commands).
 
-Wasp's dev PostgreSQL database still requires port `5432`, so to run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
-
-:::note
-We are working on automatic port selection for [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
-:::
+`wasp start db` does the same for the dev database: it starts on port `5432` or the first free port after it, and `wasp start` finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](./cli.md#project-commands).
 
 ## Extra resources
 

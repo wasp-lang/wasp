@@ -34,7 +34,7 @@ genEmailSenderApi spec = case maybeEmailSender of
       <++> genCore emailSender
   Nothing -> return []
   where
-    maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
+    maybeEmailSender = AS.App.emailSender $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex emailSender =
@@ -107,7 +107,7 @@ depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
   where
     maybeProvider :: Maybe Providers.EmailSenderProvider
-    maybeProvider = Providers.getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
+    maybeProvider = Providers.getEmailSenderProvider <$> (AS.App.emailSender . getApp $ spec)
     maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
 
 serverEmailDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

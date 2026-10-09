@@ -15,11 +15,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
-import Data.Maybe
-  ( isJust,
-    maybeToList,
-  )
+import Data.Maybe (isJust)
 import StrongPath
   ( Dir,
     File,
@@ -61,7 +57,7 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -80,7 +76,8 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genRollupConfigJs spec,
+      genFileCopy [relfile|rollup.config.js|],
+      genFileCopy [relfile|src/createRollupBundle.js|],
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -149,19 +146,13 @@ genPackageJson spec waspDependencies =
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
-                   ),
-              "prisma" .= ByteStringLazyUTF8.toString (Aeson.encode $ getPackageJsonPrismaField spec)
+                   )
             ]
       )
   where
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
 
     hasEntities = AS.Util.hasEntities spec
-
-getPackageJsonPrismaField :: AppSpec -> Aeson.Value
-getPackageJsonPrismaField spec = object $ [] <> seedEntry
-  where
-    seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
 npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
@@ -269,8 +260,8 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (getApp spec)
+    maybeWebSocket = AS.App.webSocket $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
@@ -298,8 +289,9 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "appName" .= (app.name :: String)
         ]
+    app = getApp spec
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
@@ -337,7 +329,7 @@ genMiddleware spec =
 
     globalMiddlewareConfigFnTmplData :: Aeson.Value
     globalMiddlewareConfigFnTmplData =
-      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+      let maybeGlobalMiddlewareConfigFn = AS.App.server (getApp spec) >>= AS.App.Server.middlewareConfigFn
           globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
           maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
        in object
@@ -355,12 +347,3 @@ genOperationsMiddleware spec =
       (Just tmplData)
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
-
-genRollupConfigJs :: AppSpec -> Generator FileDraft
-genRollupConfigJs spec =
-  return $
-    C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
-  where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
-
-    areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec

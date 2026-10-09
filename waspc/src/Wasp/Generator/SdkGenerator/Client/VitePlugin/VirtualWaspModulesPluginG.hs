@@ -84,6 +84,6 @@ genVirtualSsrEntryTsx spec =
 
 routeObjectsImportJson :: Value
 routeObjectsImportJson =
-  jsImportToImportJson $
-    Just $
-      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
+  jsImportToImportJson
+    $ Just
+    $ makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")

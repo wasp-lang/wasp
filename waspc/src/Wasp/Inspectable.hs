@@ -2,7 +2,6 @@ module Wasp.Inspectable
   ( Inspectable (..),
     InspectionEntry (..),
     InspectionDatapoint,
-    modifyDatapointList,
   )
 where
 
@@ -21,7 +20,3 @@ data InspectionEntry = InspectionEntry
   deriving (Show, Eq)
 
 type InspectionDatapoint = (String, String)
-
-modifyDatapointList :: ([InspectionDatapoint] -> [InspectionDatapoint]) -> InspectionEntry -> InspectionEntry
-modifyDatapointList f entry@(InspectionEntry {datapoints}) =
-  entry {datapoints = f datapoints}

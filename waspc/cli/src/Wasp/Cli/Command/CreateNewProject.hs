@@ -32,7 +32,7 @@ import qualified Wasp.Util.Terminal as Term
 
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
-createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
+createNewProject = withArguments newProjectArgsParser $ \args -> do
   ValidNodeAndNpm <- require
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
@@ -56,12 +56,12 @@ installDepsForNewProject absWaspProjectDir =
   installIO absWaspProjectDir >>= \case
     Right () -> return ()
     Left _err ->
-      putStrLn $
-        Term.applyStyles [Term.Yellow] $
-          "Warning: The project was created, but dependency installation failed.\n"
-            ++ "Run "
-            ++ styleCode "wasp install"
-            ++ " in the project directory to install the dependencies."
+      putStrLn
+        $ Term.applyStyles [Term.Yellow]
+        $ "Warning: The project was created, but dependency installation failed.\n"
+          ++ "Run "
+          ++ styleCode "wasp install"
+          ++ " in the project directory to install the dependencies."
 
 -- | This function assumes that the project dir was created inside the current working directory.
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()

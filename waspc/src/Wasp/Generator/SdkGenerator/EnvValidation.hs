@@ -67,7 +67,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-    app = snd $ getApp spec
+    app = getApp spec
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
@@ -79,7 +79,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    app = snd $ getApp spec
+    app = getApp spec
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

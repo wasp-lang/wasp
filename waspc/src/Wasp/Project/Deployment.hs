@@ -9,10 +9,10 @@ import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
-import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import Wasp.NodePackageFFI (RunnablePackage (DeployPackage), getPackageProcessOptions)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util (exitCodeToEither)
 
 loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
 loadUserDockerfileContents waspDir = do
@@ -42,6 +42,4 @@ deploy waspExe waspDir cmdArgs = do
             P.delegate_ctlc = True
           }
   exitCode <- P.withCreateProcess cpInheritHandles $ \_ _ _ ph -> P.waitForProcess ph
-  case exitCode of
-    ExitSuccess -> return $ Right ()
-    ExitFailure code -> return $ Left $ "Deploy command failed with exit code: " ++ show code
+  return $ exitCodeToEither "Deploy command" exitCode

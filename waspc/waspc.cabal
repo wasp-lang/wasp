@@ -158,8 +158,7 @@ library
     validation-selective ^>=0.2.0,
 
   if !os(windows)
-    build-depends:
-      unix ^>=2.8.8
+    build-depends: unix
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.AppComponentUrl
@@ -319,12 +318,12 @@ library
     Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
-    Wasp.Job.Except
-    Wasp.Job.IO
-    Wasp.Job.IO.PrefixedWriter
+    Wasp.Job.CreateProcess
+    Wasp.Job.Printer
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
+    Wasp.Node.Bin
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
@@ -517,6 +516,7 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.EnvVarWithCtx
+    Wasp.Cli.ExceptionHandling
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
@@ -556,9 +556,11 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
+    directory,
     filepath,
     hspec >=2.11,
     megaparsec,
@@ -566,10 +568,12 @@ test-suite waspc-tests
     neat-interpolation,
     network-uri,
     parsec,
+    process,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
+    temporary,
     text,
     time,
     waspc,
@@ -583,7 +587,8 @@ test-suite waspc-tests
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
-    Fixtures
+    Fixtures.AppSpec
+    Fixtures.Paths
     Generator.AuthInjectionTest
     Generator.CommonTest
     Generator.CrudTest
@@ -595,8 +600,12 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
+    Generator.SetupTest
+    Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
+    JobTest
     JsImportTest
+    Node.BinTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
@@ -626,6 +635,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Process.Util
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
@@ -646,6 +656,7 @@ test-suite wasp-cli-tests
     tasty-discover:tasty-discover
 
   build-depends:
+    async,
     base,
     cli-lib,
     hspec,
@@ -659,6 +670,7 @@ test-suite wasp-cli-tests
 
   other-modules:
     DbMigrateTest
+    ExceptionHandlingTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
@@ -701,6 +713,7 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
+    Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest

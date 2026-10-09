@@ -8,6 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsDevelopment (GeneratedAppIsDevelopment))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
@@ -21,6 +22,9 @@ instance Requirable DbConnectionEstablished where
     -- to determine the database location. See the linked issue for more
     -- details.
     GeneratedAppIsDevelopment outDir <- require
+    -- Testing the connection runs Prisma, so it requires Node.js and npm to be
+    -- present.
+    ValidNodeAndNpm <- require
 
     dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 

@@ -91,6 +91,8 @@ wrapViteConfigForDeterministicBuild = do
     importOriginalFromMain :: T.Text
     importOriginalFromMain = T.pack $ "./" ++ FP.fromRelFile originalViteFile
 
+{- HLINT ignore viteBuild "Avoid npm and npx" -}
+
 viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 viteBuild =
   return $

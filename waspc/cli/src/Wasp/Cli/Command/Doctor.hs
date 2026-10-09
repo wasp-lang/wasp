@@ -37,6 +37,8 @@ doctor = do
     result <- runExceptT check
     putStrLn $ renderCheckResult title result
 
+{- HLINT ignore checks "Avoid npm and npx" -}
+
 -- | The checks to run, each as a (title, check) pair. A check returns the text
 -- to print after the title: `Right` if it succeeded, `Left` if it failed.
 checks :: [(String, Check String)]

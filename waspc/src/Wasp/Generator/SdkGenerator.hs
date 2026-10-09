@@ -7,18 +7,17 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
+import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
-import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -76,28 +75,30 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as Job
+import Wasp.Node.Bin (findNpmBin)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
-  ( Version (major),
-  )
-import Wasp.Util ((<++>))
+import Wasp.Util (exitCodeToEither, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
-  chan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
+  exitCode <-
+    Job.run . Job.prefixWith Job.Wasp $
+      runNpmBinInSdkDir "tsc" []
+        `Job.andThen` runInSdkDir "node" ["./scripts/copy-assets.js"]
+
+  return $ exitCodeToEither "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
+    runNpmBinInSdkDir binName args = do
+      Just binPath <- liftIO $ findNpmBin sdkRootDir binName
+      runInSdkDir binPath args
+    runInSdkDir bin args =
+      Job.fromProc
+        $ Job.setCwd sdkRootDir
+        $ Job.proc bin args
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -179,8 +180,8 @@ genEntitiesAndServerTypesDirs spec =
               "isAuthEnabled" .= isJust maybeUserEntityName
             ]
         )
-    allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
-    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
+    allEntities = map (makeJsonWithEntityData . AS.Entity.getName) $ AS.getEntities spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec = do
@@ -349,7 +350,7 @@ genServerDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    app = snd $ getApp spec
+    app = getApp spec
 
 -- | Declares only those virtual user modules that are used by the SDK.
 genVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft

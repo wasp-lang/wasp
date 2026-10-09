@@ -54,7 +54,7 @@ genAuth spec =
         <++> genOAuthAuth auth
         <++> genEmailAuth auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in

@@ -16,20 +16,23 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
-import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
+import Wasp.Generator.Setup (SetupGoal (SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
+-- | Seed functions import the SDK.
 seed :: Maybe String -> Command ()
-seed maybeUserProvidedSeedName = do
+seed maybeUserProvidedSeedName = makeDbCommand SdkReady $ \appSpec -> do
   InWaspProject waspProjectDir <- require
+  ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-  appSpec <- analyze waspProjectDir
   let (_, serverRunConfig) = makeDefaultDevRunConfigs appSpec
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
@@ -93,4 +96,4 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     getSeedNames seeds = AS.ExtImport.importIdentifier <$> seeds
 
 getDbSeeds :: AS.AppSpec -> Maybe [AS.ExtImport.ExtImport]
-getDbSeeds spec = AS.Db.seeds =<< AS.App.db (snd $ ASV.getApp spec)
+getDbSeeds spec = AS.Db.seeds =<< AS.App.db (ASV.getApp spec)
