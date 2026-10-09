@@ -31,7 +31,8 @@ withGracefulTermination action = do
           (\previousHandler -> void $ Signals.installHandler signal previousHandler Nothing)
           (const innerAction)
   withTerminationHandler Signals.sigINT $
-    withTerminationHandler Signals.sigTERM action
+    withTerminationHandler Signals.sigTERM $
+      withTerminationHandler Signals.sigHUP action
   where
     exitCodeForSignal signal = ExitFailure $ 128 + fromIntegral signal
 #endif

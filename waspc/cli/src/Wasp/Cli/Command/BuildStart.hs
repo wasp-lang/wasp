@@ -4,7 +4,7 @@ module Wasp.Cli.Command.BuildStart
 where
 
 import Control.Monad.Except (throwError)
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
@@ -21,6 +21,7 @@ import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
+import Wasp.Util (exitCodeToEither)
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
@@ -72,9 +73,5 @@ buildAndStartServerAndClient config = do
     startErrorTitle = "Starting Wasp app failed."
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
-    throwOnExitFailure _ _ ExitSuccess = return ()
-    throwOnExitFailure errorTitle failedStep (ExitFailure code) =
-      throwError $
-        CommandError
-          errorTitle
-          (failedStep <> " failed with exit code: " <> show code)
+    throwOnExitFailure errorTitle failedStep =
+      either (throwError . CommandError errorTitle) return . exitCodeToEither failedStep
