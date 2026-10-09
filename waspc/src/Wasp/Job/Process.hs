@@ -76,9 +76,8 @@ run emit process = mask $ \restore -> do
   closeHandles resources
   return exitCode
 
--- | Asks the process to stop (with SIGTERM on *nix), and waits for it to exit.
--- If it doesn't exit in time, kills it, and if it still doesn't exit, throws
--- 'ProcessDidNotStop'.
+-- | Interrupts the process, and waits for it to exit. If it doesn't exit in
+-- time, kills it, and if it still doesn't exit, throws 'ProcessDidNotStop'.
 --
 -- We only signal the process itself, and rely on it to stop the processes it
 -- started. We don't signal its process group: it's Wasp's own, so that would
@@ -86,7 +85,7 @@ run emit process = mask $ \restore -> do
 -- or a CI shell).
 stopProcess :: P.ProcessHandle -> Async.Async ExitCode -> IO ()
 stopProcess processHandle processExit = do
-  P.terminateProcess processHandle
+  interruptProcess processHandle
   stoppedInTime <- waitForExit gracefulStopTimeoutMicroseconds
   unless stoppedInTime $ do
     killProcess processHandle
@@ -95,14 +94,27 @@ stopProcess processHandle processExit = do
   where
     waitForExit timeoutMicroseconds = isJust <$> timeout timeoutMicroseconds (Async.waitCatch processExit)
 
--- | On Windows, 'P.terminateProcess' already kills the process.
+-- | Sends SIGINT to the process, like Ctrl+C does. We don't use SIGTERM
+-- because some tools don't stop their child processes on it, e.g. nodemon
+-- kills its child shell right away, and that leaves the shell's command
+-- running.
+-- Windows has no signals, so there we terminate the process instead.
+interruptProcess :: P.ProcessHandle -> IO ()
 killProcess :: P.ProcessHandle -> IO ()
+
 #if mingw32_HOST_OS
+interruptProcess = P.terminateProcess
+
 killProcess = P.terminateProcess
 #else
-killProcess processHandle =
+interruptProcess = signalProcess Signals.sigINT
+
+killProcess = signalProcess Signals.sigKILL
+
+signalProcess :: Signals.Signal -> P.ProcessHandle -> IO ()
+signalProcess signal processHandle =
   -- The process might have exited in the meantime, so we ignore errors.
-  P.getPid processHandle >>= mapM_ (tryIOError . Signals.signalProcess Signals.sigKILL)
+  P.getPid processHandle >>= mapM_ (tryIOError . Signals.signalProcess signal)
 #endif
 
 -- | How long a process gets to exit by itself after being asked to stop, e.g.
