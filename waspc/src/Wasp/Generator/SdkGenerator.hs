@@ -86,17 +86,19 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Job.run . Job.prefixWith Job.Wasp $
-      runInSdkDir "tsc" []
+      runNpmBinInSdkDir "tsc" []
         `Job.andThen` runInSdkDir "node" ["./scripts/copy-assets.js"]
 
   return $ exitCodeToEither "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
-    runInSdkDir binName args = do
+    runNpmBinInSdkDir binName args = do
       Just binPath <- liftIO $ findNpmBin sdkRootDir binName
+      runInSdkDir binPath args
+    runInSdkDir bin args =
       Job.fromProc
         $ Job.setCwd sdkRootDir
-        $ Job.proc binPath args
+        $ Job.proc bin args
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =

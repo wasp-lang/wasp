@@ -114,16 +114,18 @@ reset generatedAppDir resetArgs =
 -- | Bundles the server's db seed script and runs the seed with the given name.
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
 seed serverRunConfig generatedAppDir seedName =
-  runInServerDir "tsc" ["--build"]
-    `J.andThen` runInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
+  runNpmBinInServerDir "tsc" ["--build"]
+    `J.andThen` runNpmBinInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
     `J.andThen` runInServerDir "node" ["--enable-source-maps", "-r", "dotenv/config", "bundle/dbSeed.js"]
   where
-    runInServerDir binName args = do
+    runNpmBinInServerDir binName args = do
       Just binPath <- liftIO $ findNpmBin serverDir binName
+      runInServerDir binPath args
+    runInServerDir bin args =
       J.fromProc
         $ setEnvVars envVars
         $ J.setCwd serverDir
-        $ J.proc binPath args
+        $ J.proc bin args
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
