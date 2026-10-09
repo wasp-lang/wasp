@@ -12,7 +12,6 @@ import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
-import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (cwd), proc)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -83,7 +82,7 @@ import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
-import Wasp.Util ((<++>))
+import Wasp.Util (exitCodeToEither, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
@@ -95,9 +94,7 @@ buildSdk generatedAppDir = do
         { cwd = Just $ SP.fromAbsDir sdkRootDir
         }
 
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
+  return $ exitCodeToEither "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
