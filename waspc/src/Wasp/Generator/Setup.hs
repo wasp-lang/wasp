@@ -1,9 +1,11 @@
 module Wasp.Generator.Setup
-  ( SetupStep (..),
-    allSetupSteps,
+  ( SetupGoal (..),
     setUpGeneratedApp,
     runSetup,
-    deduplicateAndOrderSetupSteps, -- Exported for testing.
+    SetupStep (..), -- Exported for testing.
+    allSetupSteps, -- Exported for testing.
+    resolveSetupSteps, -- Exported for testing.
+    prerequisites, -- Exported for testing.
   )
 where
 
@@ -12,6 +14,7 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
 import Data.Either (fromLeft)
+import Data.List (nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
@@ -24,10 +27,15 @@ import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Message as Msg
 
--- | Setup steps that a command might need post code generation.
---
--- The constructors are declared in the order the steps must execute.
--- I.e. the 'InstallNpmDeps' will always run first.
+-- | What a command needs the generated app set up for, after code generation.
+data SetupGoal
+  = PrismaCliReady
+  | SdkReady
+  | -- | The generated app has everything it needs to run or be built.
+    GeneratedAppReady
+  deriving (Eq, Show)
+
+-- | Setup steps that a goal might need post code generation.
 data SetupStep
   = InstallNpmDeps
   | FormatPrismaSchema
@@ -40,13 +48,27 @@ data SetupStep
 allSetupSteps :: [SetupStep]
 allSetupSteps = [minBound .. maxBound]
 
+-- | The prerequisite steps that must run before the provided step.
+--
+-- 'InstallNpmDeps' installs the node modules of the whole project (user project,
+-- SDK, generated server), so the steps that use installed packages depend on it.
+-- 'FormatPrismaSchema' matters for the steps that compare schema checksums.
+prerequisites :: SetupStep -> [SetupStep]
+prerequisites InstallNpmDeps = []
+prerequisites FormatPrismaSchema = []
+prerequisites CreateWebAppRootDir = []
+prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
+prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
+-- Runs `tsc`, and the SDK imports the Prisma client.
+prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
+
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
--- | Runs the requested setup steps in a pre-determined order.
+-- | Runs the setup steps the goal needs, each after its prerequisites.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: [SetupStep] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp requestedSteps spec generatedAppDir sendMessage =
-  forM_ (deduplicateAndOrderSetupSteps requestedSteps) $ \step ->
+setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+setUpGeneratedApp goal spec generatedAppDir sendMessage =
+  forM_ (resolveSetupSteps goal) $ \step ->
     runSetupStep step spec generatedAppDir sendMessage
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
@@ -54,10 +76,21 @@ runSetup setupAction = do
   (result, warnings) <- runWriterT $ runExceptT setupAction
   return (warnings, fromLeft [] result)
 
--- | Deduplicates and orders the steps.
--- The steps must execute in the order of 'SetupStep' constructor declarations.
-deduplicateAndOrderSetupSteps :: [SetupStep] -> [SetupStep]
-deduplicateAndOrderSetupSteps requestedSteps = filter (`elem` requestedSteps) allSetupSteps
+-- | The steps a goal needs, in correct execution order.
+resolveSetupSteps :: SetupGoal -> [SetupStep]
+resolveSetupSteps = withPrerequisites . stepsForGoal
+
+stepsForGoal :: SetupGoal -> [SetupStep]
+stepsForGoal PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
+stepsForGoal SdkReady = [BuildSdk]
+stepsForGoal GeneratedAppReady = allSetupSteps
+
+-- | The steps with all their prerequisites. Each step comes after its
+-- prerequisites, and appears once.
+withPrerequisites :: [SetupStep] -> [SetupStep]
+withPrerequisites = nub . concatMap prerequisitesThenStep
+  where
+    prerequisitesThenStep step = concatMap prerequisitesThenStep (prerequisites step) ++ [step]
 
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of

@@ -4,7 +4,7 @@ module Wasp.CompileOptions
 where
 
 import StrongPath (Abs, Dir, Path')
-import Wasp.Generator.Setup (SetupStep)
+import Wasp.Generator.Setup (SetupGoal)
 import Wasp.Message (SendMessage)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
@@ -19,7 +19,7 @@ data CompileOptions = CompileOptions
     -- invokes the compiler (such as the CLI) can then implement a way
     -- to display these messages.
     sendMessage :: SendMessage,
-    -- The setup steps to run after the code is generated (npm install, Prisma
-    -- client, SDK build, ...). Each caller lists the steps it needs.
-    setupSteps :: [SetupStep]
+    -- How far to set up the generated app after the code is generated
+    -- (npm install, Prisma client, SDK build, ...).
+    setupGoal :: SetupGoal
   }

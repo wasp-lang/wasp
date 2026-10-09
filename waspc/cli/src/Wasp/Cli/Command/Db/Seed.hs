@@ -22,14 +22,13 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
-import Wasp.Generator.Setup (SetupStep (BuildSdk, GeneratePrismaClient))
+import Wasp.Generator.Setup (SetupGoal (SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
--- | Seeds run the user's code, which imports the SDK, which imports the Prisma
--- client, so both have to be built first.
+-- | Seed functions import the SDK.
 seed :: Maybe String -> Command ()
-seed maybeUserProvidedSeedName = makeDbCommand [GeneratePrismaClient, BuildSdk] $ \appSpec -> do
+seed maybeUserProvidedSeedName = makeDbCommand SdkReady $ \appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
