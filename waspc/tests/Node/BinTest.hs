@@ -3,13 +3,14 @@ module Node.BinTest where
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, exeExtension, getPermissions, setOwnerExecutable, setPermissions)
-import System.FilePath ((<.>), (</>))
+import System.Environment (lookupEnv)
+import System.FilePath (splitSearchPath, (<.>), (</>))
 import System.IO.Temp (withSystemTempDirectory)
 import Test.Hspec
-import Wasp.Node.Bin (findNpmBin)
+import Wasp.Node.Bin (findNpmBin, npmBinPathEnvVar)
 
 spec_NodeBin :: Spec
-spec_NodeBin =
+spec_NodeBin = do
   describe "findNpmBin" $ do
     it "finds the executable in the closest node_modules/.bin directory" $
       withProjectDirs $ \projectDir packageDir -> do
@@ -25,6 +26,16 @@ spec_NodeBin =
     it "returns Nothing if the executable isn't in any node_modules/.bin directory" $
       withProjectDirs $ \_ packageDir ->
         findNpmBin (toAbsDir packageDir) "missing-tool" `shouldReturn` Nothing
+
+  describe "npmBinPathEnvVar" $
+    it "puts the node_modules/.bin directories, closest first, before the current PATH" $
+      withProjectDirs $ \projectDir packageDir -> do
+        currentPath <- maybe [] splitSearchPath <$> lookupEnv "PATH"
+        (name, value) <- npmBinPathEnvVar (toAbsDir packageDir)
+        name `shouldBe` "PATH"
+        let pathDirs = splitSearchPath value
+        take 2 pathDirs `shouldBe` [packageDir </> "node_modules" </> ".bin", projectDir </> "node_modules" </> ".bin"]
+        drop (length pathDirs - length currentPath) pathDirs `shouldBe` currentPath
 
 -- | Gives the test a project directory and a package directory inside it.
 withProjectDirs :: (FilePath -> FilePath -> IO a) -> IO a
