@@ -316,6 +316,7 @@ library
     Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
+    Wasp.Job.CreateProcess
     Wasp.Job.Printer
     Wasp.Job.Process
     Wasp.JsImport

@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 -- | This modules implements general concepts regarding env vars.
 -- It is not specific to Wasp in any way.
 module Wasp.Env
@@ -21,13 +23,11 @@ import Control.Exception (ErrorCall (ErrorCall))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
-import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
 import System.Environment (getEnvironment)
-import qualified System.Process as P
 import UnliftIO.Exception (catch, throwIO)
 
 type EnvVar = (EnvVarName, EnvVarValue)
@@ -74,9 +74,9 @@ class HasEnvVars a where
   getEnvVars :: a -> [EnvVar]
   setEnvVars :: a -> [EnvVar] -> a
 
-instance HasEnvVars P.CreateProcess where
-  getEnvVars process = fromMaybe [] (P.env process)
-  setEnvVars process envVars = process {P.env = Just envVars}
+instance HasEnvVars [EnvVar] where
+  getEnvVars = id
+  setEnvVars _ newEnv = newEnv
 
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, returns a @Left@ of the duplicate env var

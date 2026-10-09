@@ -13,7 +13,6 @@ import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import System.Process (CreateProcess (cwd), proc)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
@@ -75,10 +74,9 @@ installNpmDependenciesAndReport projectDir = do
   either absurd id
     <$> Job.race
       reportInstallationProgress
-      ( Job.fromProc $
-          (proc "npm" ["install"])
-            { cwd = Just $ SP.fromAbsDir projectDir
-            }
+      ( Job.fromProc
+          $ Job.setCwd projectDir
+          $ Job.proc "npm" ["install"]
       )
 
 reportInstallationProgress :: Job.Job Void

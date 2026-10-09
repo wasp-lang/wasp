@@ -1,43 +1,30 @@
 module Node.BinTest where
 
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, exeExtension, getPermissions, setOwnerExecutable, setPermissions)
-import System.FilePath (splitSearchPath, (<.>), (</>))
+import System.FilePath ((<.>), (</>))
 import System.IO.Temp (withSystemTempDirectory)
-import qualified System.Process as P
 import Test.Hspec
-import Wasp.Node.Bin (nodeBinProc)
+import Wasp.Node.Bin (findNpmBin)
 
 spec_NodeBin :: Spec
 spec_NodeBin =
-  describe "nodeBinProc" $ do
-    it "runs the executable from the closest node_modules/.bin directory" $
+  describe "findNpmBin" $ do
+    it "finds the executable in the closest node_modules/.bin directory" $
       withProjectDirs $ \projectDir packageDir -> do
         _ <- createNodeBin projectDir "tool"
         packageTool <- createNodeBin packageDir "tool"
-        process <- nodeBinProc [] (toAbsDir packageDir) "tool" ["arg"]
-        P.cmdspec process `shouldBe` P.RawCommand packageTool ["arg"]
+        findNpmBin (toAbsDir packageDir) "tool" `shouldReturn` Just packageTool
 
     it "looks for the executable in the ancestors' node_modules/.bin directories" $
       withProjectDirs $ \projectDir packageDir -> do
         projectTool <- createNodeBin projectDir "tool"
-        process <- nodeBinProc [] (toAbsDir packageDir) "tool" []
-        P.cmdspec process `shouldBe` P.RawCommand projectTool []
+        findNpmBin (toAbsDir packageDir) "tool" `shouldReturn` Just projectTool
 
-    it "leaves the executable to be found in PATH if it isn't in any node_modules/.bin directory" $
-      withProjectDirs $ \_ packageDir -> do
-        process <- nodeBinProc [] (toAbsDir packageDir) "missing-tool" []
-        P.cmdspec process `shouldBe` P.RawCommand "missing-tool" []
-
-    it "runs the process from the given directory, with the node_modules/.bin directories in PATH and the given env vars" $
-      withProjectDirs $ \projectDir packageDir -> do
-        process <- nodeBinProc [("SOME_VAR", "value")] (toAbsDir packageDir) "tool" []
-        let envVars = fromMaybe [] $ P.env process
-        P.cwd process `shouldBe` Just (SP.fromAbsDir $ toAbsDir packageDir)
-        lookup "SOME_VAR" envVars `shouldBe` Just "value"
-        take 2 . splitSearchPath <$> lookup "PATH" envVars
-          `shouldBe` Just [packageDir </> "node_modules" </> ".bin", projectDir </> "node_modules" </> ".bin"]
+    it "returns Nothing if the executable isn't in any node_modules/.bin directory" $
+      withProjectDirs $ \_ packageDir ->
+        findNpmBin (toAbsDir packageDir) "missing-tool" `shouldReturn` Nothing
 
 -- | Gives the test a project directory and a package directory inside it.
 withProjectDirs :: (FilePath -> FilePath -> IO a) -> IO a
