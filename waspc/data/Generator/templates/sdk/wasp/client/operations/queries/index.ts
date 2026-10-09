@@ -14,6 +14,3 @@ export const {= operationName =}: QueryFor<{= registeredOperationTypeName =}> = 
   {=& entitiesArray =},
 )
 {=/ queries =}
-
-// PRIVATE API (used in SDK)
-export { buildAndRegisterQuery } from "./core"
