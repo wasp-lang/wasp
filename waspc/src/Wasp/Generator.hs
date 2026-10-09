@@ -26,7 +26,7 @@ import Wasp.Generator.Monad
   )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
-import Wasp.Generator.Setup (runSetup, setUpGeneratedApp)
+import Wasp.Generator.Setup (allSetupSteps, runSetup, setUpGeneratedApp)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
 import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
@@ -57,7 +57,7 @@ writeWebAppCode spec dstDir sendMessage = do
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
           WaspInfo.persist dstDir $ AS.buildType spec
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp spec dstDir sendMessage
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp allSetupSteps spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
