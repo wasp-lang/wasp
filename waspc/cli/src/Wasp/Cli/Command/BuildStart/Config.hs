@@ -52,8 +52,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
       (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
 
-  clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
-  serverRunConfig' <- baseServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
+  clientRunConfig' <- userClientEnvVars `addEnvVarsUniqueC` baseClientRunConfig
+  serverRunConfig' <- userServerEnvVars `addEnvVarsUniqueC` baseServerRunConfig
 
   return $
     BuildStartConfig

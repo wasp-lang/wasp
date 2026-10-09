@@ -74,20 +74,20 @@ spec_envVarCombining = do
 
   describe "addEnvVarsOverride"
     $ it "should let incoming env vars override the existing ones"
-    $ addEnvVarsOverride (EnvVarsHolder [("A", "1"), ("B", "2")]) [("B", "3"), ("C", "4")]
-      `shouldBe` EnvVarsHolder [("B", "3"), ("C", "4"), ("A", "1")]
+    $ addEnvVarsOverride
+      [("B", "3"), ("C", "4")]
+      ([("A", "1"), ("B", "2")] :: [EnvVar])
+      `shouldBe` [("B", "3"), ("C", "4"), ("A", "1")]
 
   describe "addEnvVarsUnique" $ do
     it "should add the incoming env vars when there are no duplicates" $
-      addEnvVarsUnique (EnvVarsHolder [("A", "1")]) [("B", "2")]
-        `shouldBe` Right (EnvVarsHolder [("B", "2"), ("A", "1")])
+      addEnvVarsUnique
+        [("B", "2")]
+        ([("A", "1")] :: [EnvVar])
+        `shouldBe` Right [("B", "2"), ("A", "1")]
 
     it "should return the duplicate env var names when there are duplicates" $
-      addEnvVarsUnique (EnvVarsHolder [("A", "1"), ("B", "2")]) [("B", "3"), ("A", "4")]
+      addEnvVarsUnique
+        [("B", "3"), ("A", "4")]
+        ([("A", "1"), ("B", "2")] :: [EnvVar])
         `shouldBe` Left (Set.fromList ["A", "B"])
-
-newtype EnvVarsHolder = EnvVarsHolder [EnvVar] deriving (Show, Eq, Ord)
-
-instance HasEnvVars EnvVarsHolder where
-  getEnvVars (EnvVarsHolder envVars) = envVars
-  setEnvVars _ = EnvVarsHolder
