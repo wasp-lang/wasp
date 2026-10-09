@@ -89,7 +89,11 @@ const Newsletter = () => {
           </div>
 
           <div className="max-w-lg lg:col-start-1 lg:row-start-2">
-            <SubscribeForm inputBgColor="bg-wasp-white" buttonVariant="black" />
+            <SubscribeForm
+              inputBgColor="bg-wasp-white"
+              buttonVariant="black"
+              placement="body"
+            />
           </div>
         </div>
       </SectionContainer>

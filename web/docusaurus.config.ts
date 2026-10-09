@@ -49,7 +49,7 @@ const config: Config = {
     announcementBar: {
       id: "wasp-100-typescript",
       content:
-        '<a href="/blog/2026/06/15/wasp-typescript-spec" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;"><span style="font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em;">Wasp is now 100% TypeScript</span><span style="display: inline-flex; align-items: center; border: 2px solid #111; background: #F5C842; color: #111; padding: 2px 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px;">Meet TS Spec →</span></a>',
+        '<a href="/blog/2026/06/15/wasp-typescript-spec" data-track="announcement" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;"><span style="font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em;">Wasp is now 100% TypeScript</span><span style="display: inline-flex; align-items: center; border: 2px solid #111; background: #F5C842; color: #111; padding: 2px 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px;">Meet TS Spec →</span></a>',
       backgroundColor: "#3178C6",
       textColor: "#FAFAFA",
       isCloseable: false,
@@ -268,6 +268,7 @@ const config: Config = {
     ],
   ],
   scripts: getScripts(),
+  clientModules: ["./src/clientModules/track.ts"],
   plugins: [
     "plugin-image-zoom",
 

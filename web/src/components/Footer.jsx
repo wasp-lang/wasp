@@ -88,7 +88,7 @@ const Segment = ({ title, links }) => (
 
 const Footer = () => {
   return (
-    <footer className="border-t">
+    <footer className="border-t" data-placement="footer">
       <SectionContainer>
         <div className="grid grid-cols-1 gap-8 xl:grid xl:grid-cols-3">
           {/* cols with links */}
@@ -111,6 +111,7 @@ const Footer = () => {
             <SubscribeForm
               className="mt-4 sm:max-w-md"
               inputBgColor="bg-transparent"
+              placement="footer"
             />
 
             <span className="mt-6 flex items-center">

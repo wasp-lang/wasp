@@ -9,7 +9,10 @@ export default function BlogPostItemWrapper(props) {
     <>
       <BlogPostItem {...props} />
 
-      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div
+        className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2"
+        data-placement="post_card"
+      >
         <JoinOurCommunityCard />
         <JoinNewsletterCard />
       </div>
@@ -89,7 +92,7 @@ const JoinNewsletterCard = () => {
 
       <p>Once per month - receive useful blog posts and Wasp news.</p>
 
-      <SubscribeForm className="self-stretch" />
+      <SubscribeForm className="self-stretch" placement="post_card" />
     </div>
   );
 };

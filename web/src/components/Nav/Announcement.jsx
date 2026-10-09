@@ -12,6 +12,8 @@ const Announcement = () => {
   return (
     <div
       onClick={handleClick}
+      data-placement="announcement_bar"
+      data-track="announcement"
       className="group cursor-pointer border-b-2 border-wasp-black bg-[#3178C6] text-wasp-white transition-colors hover:bg-[#235A97]"
     >
       <div className="mx-auto flex items-center justify-center gap-3 px-4 py-2 font-mono text-xs font-medium tracking-wide lg:container lg:px-16 lg:text-sm">
