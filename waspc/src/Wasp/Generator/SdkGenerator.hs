@@ -11,7 +11,6 @@ import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
-import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -82,7 +81,7 @@ import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
-import Wasp.Util ((<++>))
+import Wasp.Util (exitCodeToEither, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
@@ -92,9 +91,7 @@ buildSdk generatedAppDir = do
       $ runInSdkDir "tsc" []
         `Job.andThen` runInSdkDir "node" ["./scripts/copy-assets.js"]
 
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
+  return $ exitCodeToEither "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
     runInSdkDir binName args = Job.fromProc =<< nodeBinProc [] sdkRootDir binName args
