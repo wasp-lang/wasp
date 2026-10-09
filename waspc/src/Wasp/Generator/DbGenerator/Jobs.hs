@@ -17,8 +17,7 @@ import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import System.Exit (ExitCode)
-import System.Process (CreateProcess (..), StdStream (..), proc)
-import Wasp.Env (getEnvVars, inheritEnvWith)
+import Wasp.Env (getEnvVars, setEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
@@ -31,7 +30,7 @@ migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
 migrateDev generatedAppDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
-  J.fromProc $ prismaCommandInServerDir generatedAppDir prismaArgs
+  J.fromProc $ J.markInteractive $ prismaCommandInServerDir generatedAppDir prismaArgs
   where
     schemaFile = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -93,8 +92,9 @@ migrateStatus generatedAppDir =
 -- reapplies all the migrations.
 reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job ExitCode
 reset generatedAppDir resetArgs =
-  J.fromProc $
-    prismaCommandInServerDir
+  J.fromProc
+    $ J.markInteractive
+    $ prismaCommandInServerDir
       generatedAppDir
       ( [ "migrate",
           "reset",
@@ -119,9 +119,8 @@ seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job Ex
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
   J.fromProc
-    =<< inheritEnvWith
-      envVars
-      (prismaCommandInServerDir generatedAppDir ["db", "seed"])
+    $ setEnvVars envVars
+    $ prismaCommandInServerDir generatedAppDir ["db", "seed"]
   where
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
 
@@ -133,10 +132,8 @@ seed serverRunConfig generatedAppDir seedName =
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 dbExecuteTest generatedAppDir =
-  J.fromProc
-    (prismaCommandInServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema])
-      { std_in = CreatePipe
-      }
+  J.fromProc $
+    prismaCommandInServerDir generatedAppDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -165,11 +162,10 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag :: String
     disablePrismaPromotionsFlag = "--no-hints"
 
-prismaCommandInServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> CreateProcess
+prismaCommandInServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.CreateJobProcess
 prismaCommandInServerDir generatedAppDir cmdArgs =
-  (proc (absPrismaExecutableFp waspProjectDir) cmdArgs)
-    { cwd = Just $ SP.fromAbsDir serverDir
-    }
+  J.setCwd serverDir $
+    J.proc (absPrismaExecutableFp waspProjectDir) cmdArgs
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
     -- We must run our Prisma commands from the server dir for Prisma

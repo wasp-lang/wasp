@@ -11,8 +11,6 @@ import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
-import qualified StrongPath as SP
-import System.Process (CreateProcess (cwd), proc)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -90,9 +88,8 @@ buildSdk generatedAppDir = do
     Job.run
       $ Job.prefixWith Job.Wasp
       $ Job.fromProc
-      $ (proc "npm" ["run", "build"])
-        { cwd = Just $ SP.fromAbsDir sdkRootDir
-        }
+      $ Job.setCwd sdkRootDir
+      $ Job.proc "npm" ["run", "build"]
 
   return $ exitCodeToEither "SDK build" exitCode
   where

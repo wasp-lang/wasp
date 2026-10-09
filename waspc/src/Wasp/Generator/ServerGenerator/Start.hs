@@ -4,10 +4,8 @@ module Wasp.Generator.ServerGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path', (</>))
-import qualified StrongPath as SP
 import System.Exit (ExitCode)
-import System.Process (CreateProcess (..), proc)
-import Wasp.Env (getEnvVars, inheritEnvWith)
+import Wasp.Env (getEnvVars, setEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -15,9 +13,9 @@ import qualified Wasp.Job as J
 
 startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 startServer serverRunConfig generatedAppDir = do
-  let serverDir = SP.fromAbsDir $ generatedAppDir </> Common.serverRootDirInGeneratedAppDir
+  let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
   J.fromProc
-    =<< inheritEnvWith
-      (getEnvVars serverRunConfig)
-      (proc "npm" ["run", "watch"]) {cwd = Just serverDir}
+    $ setEnvVars (getEnvVars serverRunConfig)
+    $ J.setCwd serverDir
+    $ J.proc "npm" ["run", "watch"]

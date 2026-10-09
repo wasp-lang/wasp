@@ -1,3 +1,5 @@
+{-# LANGUAGE GADTs #-}
+
 module Wasp.Job.Process
   ( fromProc,
   )
@@ -19,18 +21,19 @@ import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import Wasp.Job.Common (Job (..), OutputType (..))
+import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 
--- | Runs the process to completion, emitting its stdout and stderr as the
--- job's output, and returns its exit code. A process whose stdin is
--- 'P.CreatePipe' gets an empty stdin.
+-- | Runs the process to completion, emitting its stdout and stderr as the job's
+-- output, and returns its exit code.
 -- Makes sure to terminate the process (or process group on *nix) if the job is
 -- stopped before the process finishes.
-fromProc :: P.CreateProcess -> Job ExitCode
-fromProc process = Job $ do
+fromProc :: CreateJobProcess -> Job ExitCode
+fromProc jobProcess = Job $ do
+  process <- liftIO $ asCreateProcess jobProcess
   sink <- ask
-  liftIO $ bracket start cleanUp (waitForExit $ sink Nothing)
+  liftIO $ bracket (start process) cleanUp (waitForExit $ sink Nothing)
   where
-    start = P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
+    start process = P.createProcess (process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe})
 
     waitForExit emit (stdinHandle, stdoutHandle, stderrHandle, processHandle) = do
       mapM_ hClose stdinHandle
