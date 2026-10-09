@@ -2,6 +2,7 @@ module Tests.WaspCompileTest (waspCompileTest) where
 
 import Control.Monad.Reader (ask)
 import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -10,12 +11,14 @@ import ShellCommands
     assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
+    replaceMainWaspTsFile,
     waspCliCompile,
     writeToFile,
   )
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Version (waspVersion)
 
 waspCompileTest :: Test
 waspCompileTest =
@@ -71,6 +74,25 @@ waspCompileTest =
                     "src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'."
                 ]
             ]
+        ),
+      -- Regression test for https://github.com/wasp-lang/wasp/pull/4942
+      TestCase
+        "fail-and-recover-with-updated-operation-types"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ replaceMainWaspTsFile mainWaspTsWithQuery,
+                  writeQuery "[{ id: 1 }]",
+                  writeMainPageUsingQuery,
+                  waspCliCompile,
+                  writeQuery "[]",
+                  assertCommandOutputContains
+                    (("! " ++) <$> waspCliCompile)
+                    "Property 'id' does not exist on type 'never'.",
+                  writeQuery "[{ id: 1 }]",
+                  waspCliCompile
+                ]
+            ]
         )
     ]
   where
@@ -84,3 +106,51 @@ waspCompileTest =
     writeUtilsFile contents = do
       context <- ask
       writeToFile (context.waspProjectDir </> [relfile|src/utils.ts|]) contents
+
+    writeQuery :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+    writeQuery result = do
+      context <- ask
+      writeToFile
+        (context.waspProjectDir </> [relfile|src/queries.ts|])
+        [trimming|
+          import type { GetTasks } from "wasp/server/operations";
+
+          export const getTasks = (async () => {
+            return $result;
+          }) satisfies GetTasks<void>;
+        |]
+
+    writeMainPageUsingQuery :: ShellCommandBuilder WaspProjectContext ShellCommand
+    writeMainPageUsingQuery = do
+      context <- ask
+      writeToFile
+        (context.waspProjectDir </> [relfile|src/MainPage.tsx|])
+        [trimming|
+          import { getTasks, useQuery } from "wasp/client/operations";
+
+          export function MainPage() {
+            const { data: tasks } = useQuery(getTasks);
+            return <div>{tasks?.map((task) => <p key={task.id}>{task.id}</p>)}</div>;
+          }
+        |]
+
+    mainWaspTsWithQuery :: T.Text
+    mainWaspTsWithQuery =
+      [trimming|
+        import { app, page, query, route } from "@wasp.sh/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { getTasks } from "./src/queries" with { type: "ref" };
+
+        export default app({
+          name: "operationTypes",
+          title: "Operation types",
+          wasp: { version: "$textWaspVersion" },
+          spec: [
+            route("RootRoute", "/", page(MainPage)),
+            query(getTasks),
+          ],
+        });
+      |]
+
+    textWaspVersion :: T.Text
+    textWaspVersion = T.pack . show $ waspVersion
