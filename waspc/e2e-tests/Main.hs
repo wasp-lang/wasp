@@ -33,6 +33,7 @@ import Tests.WaspProjectLockTest (waspProjectLockTest)
 import Tests.WaspShowTest (waspShowTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
+import Tests.WaspStartTest (waspStartTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
@@ -98,10 +99,10 @@ e2eTests = do
         waspVersionTest,
         -- Wasp project commands
         waspCompileTest,
+        waspStartTest,
         -- NOTE(Franjo): The following tests have the `FIXME` comment because they
         -- are long running processes, which we haven't implmemented support for yet.
         -- These will be fixed as part of the refactor to pure Haskell tests.
-        -- FIXME: waspStartTest,
         waspBuildTest,
         waspTsSpecNodeEnvTest,
         viteBuildTest,
