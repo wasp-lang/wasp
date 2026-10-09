@@ -17,11 +17,11 @@ export default mergeConfig(originalConfig, {
   },
 });
 
-// Externalize any import that resolves to node_modules,
-// so the build output only contains app code, for cleaner diffs.
+// Externalize most JS dependencies to keep snapshot diffs small.
 function externalizeNodeModules(): Plugin {
   return {
     name: "externalize-node-modules",
+    apply: "build",
     enforce: "pre",
     async resolveId(source, importer, options) {
       if (!importer) return null;
@@ -29,6 +29,8 @@ function externalizeNodeModules(): Plugin {
         ...options,
         skipSelf: true,
       });
+      // Let Vite process @wasp.sh/lib-sdk-core so its component CSS is included in the snapshot.
+      if (resolved?.id.includes("/node_modules/@wasp.sh/lib-sdk-core/")) return null;
       if (resolved && resolved.id.includes("/node_modules/")) {
         // We externalize the module
         return { id: source, external: true };

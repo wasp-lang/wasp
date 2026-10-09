@@ -1,3 +1,5 @@
+import { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
+export { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
 import type { _Awaited, _ReturnType } from '../../../universal/types.js'
 import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
@@ -43,7 +45,3 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   // https://www.typescriptlang.org/play/?#code/MYewdgzgLgBCBGArGBeGBvGBDAXDA5AGYgj4wC+AUAogHTyoHxYBO+llA9JzIQK5hgUAJbhsAG3EgA7hGxgYAUwBuIccuFgA5jCgBPAA6KY8PrBqKhMACYhFcsCCiVQkWPwVoAFAEpUAPgJiUkoPekZ8ZjYgA
   return action as unknown as ActionFor<BackendAction>
 }
-
-// PRIVATE API
-export type ActionFor<BackendAction extends GenericBackendOperation> =
-  OperationRpcFor<BackendAction>
