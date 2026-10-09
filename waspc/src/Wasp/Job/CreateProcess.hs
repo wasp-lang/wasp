@@ -49,7 +49,7 @@ markInteractive cjp = cjp {interactive = True}
 asCreateProcess :: CreateJobProcess -> IO P.CreateProcess
 asCreateProcess cjp = do
   inheritedEnv <- if cjp.inheritEnv then getEnvironment else pure []
-  let fullEnv = inheritedEnv `addEnvVarsOverride` cjp.envVars
+  let fullEnv = addEnvVarsOverride cjp.envVars inheritedEnv
   pure $
     (P.proc cjp.bin cjp.args)
       { P.cwd = SP.fromAbsDir <$> cwd cjp,

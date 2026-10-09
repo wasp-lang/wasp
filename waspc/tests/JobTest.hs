@@ -3,15 +3,18 @@ module JobTest where
 import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (finally)
-import Control.Monad (void, when)
+import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import qualified Data.Text as T
 import System.Directory (doesFileExist, removeFile)
+import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
+import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
+import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -139,24 +142,41 @@ spec_Job = do
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533")
 
+    it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
+      let inheritedVar = "WASP_JOB_TEST_INHERITED"
+          overriddenVar = "WASP_JOB_TEST_OVERRIDDEN"
+          process =
+            setEnvVars [(overriddenVar, "set")]
+              $ node
+              $ "process.stdout.write(process.env." <> inheritedVar <> " + ' ' + process.env." <> overriddenVar <> ")"
+      ( do
+          setEnv inheritedVar "inherited"
+          setEnv overriddenVar "inherited"
+          runProcessJob (Job.captureOutput $ Job.fromProc process)
+            `shouldReturn` Just (ExitSuccess, "inherited set")
+        )
+        `finally` mapM_ unsetEnv [inheritedVar, overriddenVar]
+
     it "gives an empty stdin to a process that isn't interactive" $ do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
-    it "asks the process to stop before killing it" $ do
-      stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
-      let stopGracefully =
-            "process.on('SIGTERM', () => { require('node:fs').writeFileSync("
-              <> show stoppedGracefullyPath
-              <> ", ''); process.exit(0); });"
-      withRunningProcess
-        stopGracefully
-        ( \running _ -> do
-            Async.cancel running
-            doesFileExist stoppedGracefullyPath `shouldReturn` True
-        )
-        `finally` removeIfExists stoppedGracefullyPath
+    -- On Windows, stopping a process kills it right away.
+    unless (System.Info.os == "mingw32") $
+      it "asks the process to stop before killing it" $ do
+        stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
+        let stopGracefully =
+              "process.on('SIGTERM', () => { require('node:fs').writeFileSync("
+                <> show stoppedGracefullyPath
+                <> ", ''); process.exit(0); });"
+        withRunningProcess
+          stopGracefully
+          ( \running _ -> do
+              Async.cancel running
+              doesFileExist stoppedGracefullyPath `shouldReturn` True
+          )
+          `finally` removeIfExists stoppedGracefullyPath
 
     it "kills a process that doesn't stop when asked to" $ do
       withRunningProcess "process.on('SIGTERM', () => {});" $ \running pid -> do
