@@ -5,6 +5,7 @@ module Wasp.Generator.Setup
     SetupStep (..), -- Exported for testing.
     allSetupSteps, -- Exported for testing.
     setupStepsFor, -- Exported for testing.
+    prerequisites, -- Exported for testing.
   )
 where
 
@@ -53,6 +54,28 @@ data SetupStep
 allSetupSteps :: [SetupStep]
 allSetupSteps = [minBound .. maxBound]
 
+-- | The steps that must run before the step can run.
+-- A step must be declared after all of its prerequisites.
+--
+-- 'InstallNpmDeps' installs the node modules of the whole project (user code,
+-- SDK, server, web app) in one go through npm workspaces, so every step that
+-- runs a Node tool depends on it.
+-- 'FormatPrismaSchema' matters for the steps that compare schema checksums:
+-- Prisma formats the schema it keeps, so ours has to be formatted the same way
+-- for the checksums to match.
+prerequisites :: SetupStep -> [SetupStep]
+prerequisites InstallNpmDeps = []
+prerequisites FormatPrismaSchema = []
+prerequisites CreateWebAppRootDir = []
+-- Compares the schema to the checksum from the last migration, or asks the
+-- Prisma CLI to compare it to the database.
+prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
+-- Runs the Prisma CLI, and skips regenerating when the schema checksum still
+-- matches the one from the last generation.
+prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
+-- Runs tsc, and the SDK imports the Prisma client.
+prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
+
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
 -- | Runs the setup steps the goal needs, in a pre-determined order.
@@ -67,20 +90,24 @@ runSetup setupAction = do
   (result, warnings) <- runWriterT $ runExceptT setupAction
   return (warnings, fromLeft [] result)
 
--- | The steps the goal needs, in the order of 'SetupStep' constructor declarations.
+-- | The steps the goal needs, with their prerequisites, in the order of
+-- 'SetupStep' constructor declarations.
 setupStepsFor :: SetupGoal -> [SetupStep]
-setupStepsFor goal = filter ((<= goal) . earliestGoalNeeding) allSetupSteps
+setupStepsFor = deduplicateAndOrderSetupSteps . withPrerequisites . targetSteps
 
-earliestGoalNeeding :: SetupStep -> SetupGoal
-earliestGoalNeeding = \case
-  -- The npm install provides the Prisma CLI.
-  InstallNpmDeps -> PrismaCliReady
-  -- Formatted schema ensures the checksums stay consistent.
-  FormatPrismaSchema -> PrismaCliReady
-  GeneratePrismaClient -> SdkReady
-  BuildSdk -> SdkReady
-  WarnIfDbNeedsMigration -> GeneratedAppReady
-  CreateWebAppRootDir -> GeneratedAppReady
+-- | The steps a goal is after. 'setupStepsFor' adds their prerequisites.
+targetSteps :: SetupGoal -> [SetupStep]
+targetSteps PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
+targetSteps SdkReady = [BuildSdk]
+targetSteps GeneratedAppReady = allSetupSteps
+
+withPrerequisites :: [SetupStep] -> [SetupStep]
+withPrerequisites steps = steps ++ concatMap (withPrerequisites . prerequisites) steps
+
+-- | Deduplicates and orders the steps.
+-- The steps must execute in the order of 'SetupStep' constructor declarations.
+deduplicateAndOrderSetupSteps :: [SetupStep] -> [SetupStep]
+deduplicateAndOrderSetupSteps steps = filter (`elem` steps) allSetupSteps
 
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of

@@ -12,8 +12,8 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Generator.Setup (SetupGoal)
 
--- | Prepares what a db command needs before it runs: a compile, the setup
---   goal it asks for, and a reachable database.
+-- | Prepares what a db command needs before it runs: a compile,
+--   post-compile setup, and a reachable database.
 --
 --   All the commands that operate on the db should be created using this function.
 makeDbCommand :: SetupGoal -> (AS.AppSpec -> Command a) -> Command a

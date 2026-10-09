@@ -2,7 +2,7 @@ module Generator.SetupTest where
 
 import Data.List (isSubsequenceOf)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
-import Wasp.Generator.Setup (SetupGoal (..), SetupStep (..), allSetupSteps, setupStepsFor)
+import Wasp.Generator.Setup (SetupGoal (..), SetupStep (..), allSetupSteps, prerequisites, setupStepsFor)
 
 spec_setupStepsFor :: Spec
 spec_setupStepsFor =
@@ -17,3 +17,10 @@ spec_setupStepsFor =
       zip [minBound ..] (tail [minBound ..])
         `shouldSatisfy` all
           (\(goal, nextGoal) -> setupStepsFor goal `isSubsequenceOf` setupStepsFor nextGoal)
+
+spec_prerequisites :: Spec
+spec_prerequisites =
+  describe "prerequisites" $ do
+    it "are declared before the step that needs them" $
+      allSetupSteps
+        `shouldSatisfy` all (\step -> all ((< fromEnum step) . fromEnum) (prerequisites step))
