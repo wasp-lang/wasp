@@ -3,7 +3,7 @@ export { PG_BOSS_EXECUTOR_NAME } from '@wasp.sh/lib-sdk-core/node'
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '@wasp.sh/lib-sdk-core'
-import { reportServerError } from "../../../errors.js";
+import { reportUnexpectedServerError } from "../../../errors.js";
 import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
 import type { PrismaDelegate } from '../../../_types/index.js'
 import type { JobFn } from './types.js'
@@ -196,7 +196,7 @@ function pgBossCallbackWrapper<
     try {
       return await jobFn(args.data, context);
     } catch (error: unknown) {
-      reportServerError(error, { source: "job", jobName });
+      reportUnexpectedServerError(error, { source: "job", jobName });
       // pg-boss marks the job as failed and retries it if configured to.
       throw error;
     }

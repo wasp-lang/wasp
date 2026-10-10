@@ -1,5 +1,5 @@
 import { config, HttpError } from '../../index.js'
-import { reportServerError } from "../../errors.js";
+import { reportUnexpectedServerError } from "../../errors.js";
 
 // PRIVATE API (server)
 export const loginPath = 'login'
@@ -25,7 +25,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
       : error.message;
     return getRedirectUriForError(errorMessage)
   }
-  reportServerError(error, { source: "oauth" });
+  reportUnexpectedServerError(error, { source: "oauth" });
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 

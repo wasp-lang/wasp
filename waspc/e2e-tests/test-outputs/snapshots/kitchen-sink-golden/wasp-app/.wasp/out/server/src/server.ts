@@ -2,7 +2,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportServerError } from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
@@ -52,7 +52,7 @@ const startServer = async () => {
 }
 
 startServer().catch((error: unknown) => {
-  reportServerError(error, { source: "startup" });
+  reportUnexpectedServerError(error, { source: "startup" });
   process.exit(1);
 });
 

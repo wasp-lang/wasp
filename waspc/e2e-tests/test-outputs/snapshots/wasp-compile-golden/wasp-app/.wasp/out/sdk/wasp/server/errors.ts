@@ -3,13 +3,6 @@ import { STATUS_CODES } from "node:http";
 import { HttpError } from "./HttpError.js";
 
 // PRIVATE API (server)
-/**
- * Where an unexpected server error happened.
- *
- * It's structured data instead of a plain string, like the bindings of a
- * pino child logger or Sentry's tags, so we can later group errors by
- * `source` (e.g. show all job errors in a dashboard).
- */
 export type ServerErrorContext =
   | { source: "request" }
   | { source: "job"; jobName: string }
@@ -19,10 +12,8 @@ export type ServerErrorContext =
   | { source: "dbSeed" };
 
 // PRIVATE API (server)
-/**
- * The one place where the server logs errors it didn't expect.
- */
-export function reportServerError(
+// TODO: Refactor this once Wasp has proper logging.
+export function reportUnexpectedServerError(
   error: unknown,
   context: ServerErrorContext,
 ): void {
@@ -59,7 +50,7 @@ function toHttpError(error: unknown): HttpError {
 
   const statusCode = getMiddlewareErrorStatusCode(error);
   if (statusCode === undefined || statusCode >= 500) {
-    reportServerError(error, { source: "request" });
+    reportUnexpectedServerError(error, { source: "request" });
   }
   if (statusCode === undefined) {
     return new HttpError(500, STATUS_CODES[500]);
