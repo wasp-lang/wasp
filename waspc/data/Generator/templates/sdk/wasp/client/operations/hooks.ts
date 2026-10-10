@@ -10,6 +10,7 @@ import {
 import { makeQueryCacheKey } from "./queries/core";
 import type { Action, Query } from "./rpc";
 import type { HttpError } from "../../errors/index.js";
+import { reportClientError } from "../errors.js";
 export { configureQueryClient } from "./queryClient";
 
 // PUBLIC API
@@ -274,11 +275,9 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
       // Attempt to optimistically update the cache using the new value.
       try {
         queryClient.setQueryData(queryKey, updateQuery);
-      } catch (e) {
-        console.error(
-          "The `updateQuery` function threw an exception, skipping optimistic update:"
-        );
-        console.error(e);
+      } catch (e: unknown) {
+        // We skip the optimistic update when `updateQuery` throws.
+        reportClientError(e, { source: "optimisticUpdate" });
       }
 
       // Remember the snapshotted value to restore in case of an error.

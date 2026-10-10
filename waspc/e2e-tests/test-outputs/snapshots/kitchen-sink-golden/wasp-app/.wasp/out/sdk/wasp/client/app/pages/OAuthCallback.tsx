@@ -4,6 +4,7 @@ import { useAuth } from "../../auth";
 import { api } from "../../../api";
 import { initSession } from "../../../auth/helpers/user";
 import { useEffectOnce } from "../../hooks";
+import { reportClientError } from "../../errors";
 import { MessageLoading, MessageError } from "../components/Message";
 import { FullPageWrapper } from "../components/FullPageWrapper";
 
@@ -59,7 +60,7 @@ function useOAuthCallbackHandler() {
       }
       await initSession(data.sessionId);
     } catch (e: unknown) {
-      console.error(e);
+      reportClientError(e, { source: "oauthCallback" });
       setError("Unable to login with the OAuth provider.");
     } finally {
       setisCallbackLoading(false);
