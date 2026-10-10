@@ -1,4 +1,5 @@
-import { config, HttpError } from '../../index.js'
+import { config } from '../../index.js'
+import { HttpError } from "../../../errors/index.js";
 import { reportServerError } from "../../errors.js";
 
 // PRIVATE API (server)

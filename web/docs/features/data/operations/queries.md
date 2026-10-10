@@ -413,7 +413,7 @@ If you do want to pass additional error information to the client, you can const
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/queries.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks = async (args, context) => {
       throw new HttpError(
@@ -428,7 +428,7 @@ If you do want to pass additional error information to the client, you can const
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
     import { type GetAllTasks } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
       throw new HttpError(
@@ -443,6 +443,22 @@ If you do want to pass additional error information to the client, you can const
 
 The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
 This happens for every status code, so only put information in them that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+```tsx title="src/MainPage.tsx" auto-js
+import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+export const MainPage = () => {
+  const { data: tasks, error } = useQuery(getAllTasks);
+
+  if (error instanceof HttpError && error.statusCode === 403) {
+    return <div>{error.message}</div>;
+  }
+  // ...
+};
+```
 
 ### Using Entities in Queries
 

@@ -1,10 +1,9 @@
 import type { ErrorMessage } from "@wasp.sh/lib-auth/browser";
-import { WaspHttpError } from "../../../api/index.js";
-import { getErrorMessage } from "../../../errors/index.js";
+import { HttpError, getErrorMessage } from "../../../errors/index.js";
 
 // PRIVATE API
 export function getAuthErrorMessage(error: unknown): ErrorMessage {
-  if (error instanceof WaspHttpError) {
+  if (error instanceof HttpError) {
     return {
       title: error.message,
       description: getHttpErrorDescription(error),
@@ -16,12 +15,8 @@ export function getAuthErrorMessage(error: unknown): ErrorMessage {
   return { title: getErrorMessage(error) };
 }
 
-function getHttpErrorDescription(error: WaspHttpError): string | undefined {
+function getHttpErrorDescription(error: HttpError): string | undefined {
   // Auth endpoints put the details in `HttpError`'s data, e.g. `{ message }`.
-  const responseJson = error.data as
-    | { data?: { message?: unknown } }
-    | undefined;
-  const description = responseJson?.data?.message;
-
+  const description = error.data?.message;
   return typeof description === "string" ? description : undefined;
 }

@@ -8,7 +8,7 @@ import {
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,

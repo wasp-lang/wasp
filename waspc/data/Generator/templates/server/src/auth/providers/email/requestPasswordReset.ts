@@ -13,7 +13,7 @@ import {
 import { ensureValidEmail } from 'wasp/auth/validation';
 import type { EmailFromField } from 'wasp/server/email/core/types';
 import { GetPasswordResetEmailContentFn } from 'wasp/server/auth/email';
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 
 export function getRequestPasswordResetRoute({
    fromField,

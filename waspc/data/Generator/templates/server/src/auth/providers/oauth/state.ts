@@ -5,7 +5,7 @@ import {
 import * as arctic from 'arctic';
 
 import type { ProviderConfig } from 'wasp/auth/providers/types';
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 
 import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
 

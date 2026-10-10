@@ -4,6 +4,7 @@
 
 ### ⚠️ Breaking Changes
 
+- On the client, an `HttpError`'s `data` is now the `data` it was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 - Renamed the `wasp deploy fly` flags `--vm-size`, `--initial-cluster-size`, and `--volume-size` to `--db-vm-size`, `--db-initial-cluster-size`, and `--db-volume-size`, respectively. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Wasp Deploy for Railway now requires Railway CLI 5.28.0 or newer. ([#4712](https://github.com/wasp-lang/wasp/pull/4712))
@@ -16,6 +17,7 @@
 
 ### 🎉 New Features
 
+- The Wasp server and client now work with the same `HttpError` class, exported from `wasp/errors`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
 - `wasp start` and `wasp build start` now accept `--client-url <url>` and `--server-url <url>` to make your app reachable at a URL other than `localhost`, such as a LAN hostname or an HTTPS tunnel. ([#4915](https://github.com/wasp-lang/wasp/pull/4915))
