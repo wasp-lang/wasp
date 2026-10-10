@@ -64,7 +64,7 @@ export function getRequestPasswordResetRoute({
                     ...getPasswordResetEmailContent({ passwordResetLink }),
                 },
             );
-        } catch (e) {
+        } catch (e: unknown) {
             console.error("Failed to send password reset email:", e);
             throw new HttpError(500, "Failed to send password reset email.");
         }

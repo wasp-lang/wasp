@@ -55,7 +55,7 @@ function createLocalStorageDataStore(prefix: string): DataStore {
       const value = localStorage.getItem(getPrefixedKey(key));
       try {
         return value ? JSON.parse(value) : undefined;
-      } catch (e) {
+      } catch (e: unknown) {
         return undefined;
       }
     },

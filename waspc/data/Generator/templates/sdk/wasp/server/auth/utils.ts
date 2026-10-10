@@ -10,7 +10,7 @@ import type {
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from '../../auth/validation.js'
-import { getErrorMessage } from '../../errors/index.js'
+import { getErrorMessage } from "../../errors/index.js";
 
 import {
   type ProviderId,
@@ -231,8 +231,8 @@ export async function validateAndGetUserFields(
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
-    } catch (e) {
-      throwValidationError(getErrorMessage(e))
+    } catch (e: unknown) {
+      throwValidationError(getErrorMessage(e));
     }
   }
   return result;

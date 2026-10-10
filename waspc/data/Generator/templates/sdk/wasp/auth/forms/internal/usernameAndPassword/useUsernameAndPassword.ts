@@ -18,8 +18,8 @@ export function useUsernameAndPassword({
       await login(data)
 
       onSuccess()
-    } catch (error) {
-      onError(error)
+    } catch (error: unknown) {
+      onError(error);
     }
   }
 

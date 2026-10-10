@@ -22,8 +22,8 @@ export function useEmail({
         await signup(data)
         showEmailVerificationPending()
       }
-    } catch (error) {
-      onError(error)
+    } catch (error: unknown) {
+      onError(error);
     }
   }
 

@@ -4,7 +4,7 @@ import { useLocation } from 'react-router'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
 import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
-import { getAuthErrorMessage } from '../authErrorMessage.js'
+import { getAuthErrorMessage } from "../authErrorMessage.js";
 
 // PRIVATE API
 export const ResetPasswordForm = () => {
@@ -33,8 +33,8 @@ export const ResetPasswordForm = () => {
       await resetPassword({ password: data.password, token })
       reset()
       setSuccessMessage('Your password has been reset.')
-    } catch (error) {
-      setErrorMessage(getAuthErrorMessage(error))
+    } catch (error: unknown) {
+      setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setIsLoading(false)
     }

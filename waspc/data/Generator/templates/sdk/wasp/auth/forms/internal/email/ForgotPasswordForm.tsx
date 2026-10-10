@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
 import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
-import { getAuthErrorMessage } from '../authErrorMessage.js'
+import { getAuthErrorMessage } from "../authErrorMessage.js";
 import { emailFieldRules, emailInputProps } from '../emailField'
 
 
@@ -20,8 +20,8 @@ export const ForgotPasswordForm = () => {
       await requestPasswordReset(data)
       reset()
       setSuccessMessage('Check your email for a password reset link.')
-    } catch (error) {
-      setErrorMessage(getAuthErrorMessage(error))
+    } catch (error: unknown) {
+      setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setIsLoading(false)
     }

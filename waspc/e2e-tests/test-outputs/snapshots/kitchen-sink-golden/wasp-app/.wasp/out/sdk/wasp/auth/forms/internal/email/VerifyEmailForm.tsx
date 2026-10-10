@@ -3,7 +3,7 @@ import { useLocation } from 'react-router'
 import { useEffectOnce } from '../../../../client/hooks.js'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
-import { getAuthErrorMessage } from '../authErrorMessage.js'
+import { getAuthErrorMessage } from "../authErrorMessage.js";
 
 // PRIVATE API
 export const VerifyEmailForm = () => {
@@ -25,8 +25,8 @@ export const VerifyEmailForm = () => {
     try {
       await verifyEmail({ token })
       setSuccessMessage('Your email has been verified. You can now log in.')
-    } catch (error) {
-      setErrorMessage(getAuthErrorMessage(error))
+    } catch (error: unknown) {
+      setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setIsLoading(false)
     }
