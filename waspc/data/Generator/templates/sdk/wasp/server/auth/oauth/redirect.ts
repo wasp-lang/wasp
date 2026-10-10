@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { config, HttpError } from '../../index.js'
-import { reportServerError } from '../../errors.js'
+import { reportServerError } from "../../errors.js";
 
 // PRIVATE API (server)
 export const loginPath = '{= serverOAuthLoginHandlerPath =}'
@@ -26,7 +26,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
       : error.message;
     return getRedirectUriForError(errorMessage)
   }
-  reportServerError(error, 'OAuth')
+  reportServerError(error, { source: "oauth" });
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 
@@ -37,7 +37,7 @@ export function getRedirectUriForCallback(providerName: string): URL {
 
 function getRedirectUriForError(error: string): URL {
   const url = new URL(`${config.frontendUrl}${clientOAuthCallbackPath}`);
-  url.searchParams.set('error', error);
+  url.searchParams.set("error", error);
   return url;
 }
 
