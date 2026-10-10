@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/authErrorMessage.ts"
         ],
-        "8b2c412ff68422fb301a1fda549d0aced77fbfdb18b52a612f610f992c356443"
+        "b3394ed9be391eaa4aac4c293a501c6a970a9e5bf864e271e6c8ceec9aebc41e"
     ],
     [
         [
@@ -396,7 +396,7 @@
             "file",
             "sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx"
         ],
-        "303821bb9b02b284835f571618c5f92e3da1b97709b7ed6cb3313fb33cc871f6"
+        "2d09e8c72a030be96218aad1f1683b6ff6b6f1fbf98207080eafc14eeb817da0"
     ],
     [
         [
@@ -452,7 +452,7 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "2b92439749007254dc9232d0737611c89d52337b207c40f9a3485df7b3833801"
+        "fe8de37aae2907a746b752275186d1bde826029f724beaf74839dfdd48e3daf4"
     ],
     [
         [
@@ -576,6 +576,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/errors.ts"
+        ],
+        "77d0bfbd94ea65719511607c36b4d078646b9dfcee60399c57028b17fa227025"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/hooks.ts"
         ],
         "71364b89472b1ad19b34967e4c701af40ea5f97065dc74ada9b43ffd9b2a8989"
@@ -606,7 +613,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "8d98b2c08a3df0c64cb3866182816891f44614a251d04b89720af4d2c1a9f867"
+        "8c9193ca6d1c2070dd1a44fbcf7133585ba1c6c6f637cdcc26f75c8706d16864"
     ],
     [
         [
