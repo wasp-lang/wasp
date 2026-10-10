@@ -44,7 +44,7 @@ export const CustomSignupPage = () => {
           text: result.message,
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       setMessage({
         type: "error",
         text:

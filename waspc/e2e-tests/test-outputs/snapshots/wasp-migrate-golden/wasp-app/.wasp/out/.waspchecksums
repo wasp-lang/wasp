@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "1f6f48cf099a63ebdb85f1e6bd9486abc4854fe25725cd18ee50053f20417325"
+        "9d6c6c00a9cf24e5ef5634b7b5cdd66e220918599127e46a3252aefb38830a6e"
     ],
     [
         [
@@ -172,7 +172,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "9c22f453fb7abaeca08f48c7fdf7650b23610cfa16038b86851d4117bb6f46ad"
+        "8d98b2c08a3df0c64cb3866182816891f44614a251d04b89720af4d2c1a9f867"
     ],
     [
         [
@@ -436,16 +436,23 @@
     [
         [
             "file",
+            "sdk/wasp/errors/HttpError.ts"
+        ],
+        "bcc0ab4bfc4ba4fa089dc520623a38e209e955cd7def1dded4941ce1c98daa02"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/errors/index.ts"
         ],
-        "030cb2f5e557074fd5069bf09acdad6ea21710fd03a798e6f0d24e00599c21d5"
+        "4915e4e78dba6e89cb485b43a462ca53d12cdddc9e4c99d1697fe17a015c5b27"
     ],
     [
         [
             "file",
             "sdk/wasp/package.json"
         ],
-        "98bb984110adba0805eaa3f441e3177f17398993654461433597938cdcf06e41"
+        "a2a019cb92734f54fa417b8d72a67ebee4676010741670a9af47abfd6d59344e"
     ],
     [
         [
@@ -467,13 +474,6 @@
             "sdk/wasp/serialization/index.ts"
         ],
         "ea0d33a9d5dda88e783ac63d402c9f7444bd516a5e624f6af2b9d69b4a15e0a3"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/server/HttpError.ts"
-        ],
-        "9c1b2449d8e9d68470c6014054a3c3074069a104ddb291b9089c30d624a2d9d9"
     ],
     [
         [
@@ -515,14 +515,14 @@
             "file",
             "sdk/wasp/server/errors.ts"
         ],
-        "0dadf3bb1405f67540f9d3a0a633bd33476dcb290d872f4171185814774d0fd0"
+        "51683659cdfd338bfde434201971c5fb09394e3bdc496f571b81e139a39b566d"
     ],
     [
         [
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "1436713aa5119623c6384d8b399da9ee19c29a2441974cf5c6f9d674446581de"
+        "18b0d51664268db6a86f700c214e0e01db500f393bb3e388a213ed6804d0e8d7"
     ],
     [
         [

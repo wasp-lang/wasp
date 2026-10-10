@@ -446,39 +446,19 @@ This happens for every status code, so only put information in them that is safe
 
 On the client, check whether the error is an `HttpError` to read these fields:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    import { getAllTasks, useQuery } from "wasp/client/operations"
-    import { HttpError } from "wasp/errors"
+```tsx title="src/MainPage.tsx" auto-js
+import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 
-    export const MainPage = () => {
-      const { data: tasks, error } = useQuery(getAllTasks)
+export const MainPage = () => {
+  const { data: tasks, error } = useQuery(getAllTasks);
 
-      if (error instanceof HttpError && error.statusCode === 403) {
-        return <div>{error.message}</div>
-      }
-      // ...
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    import { getAllTasks, useQuery } from "wasp/client/operations"
-    import { HttpError } from "wasp/errors"
-
-    export const MainPage = () => {
-      const { data: tasks, error } = useQuery(getAllTasks)
-
-      if (error instanceof HttpError && error.statusCode === 403) {
-        return <div>{error.message}</div>
-      }
-      // ...
-    }
-    ```
-  </TabItem>
-</Tabs>
+  if (error instanceof HttpError && error.statusCode === 403) {
+    return <div>{error.message}</div>;
+  }
+  // ...
+};
+```
 
 ### Using Entities in Queries
 

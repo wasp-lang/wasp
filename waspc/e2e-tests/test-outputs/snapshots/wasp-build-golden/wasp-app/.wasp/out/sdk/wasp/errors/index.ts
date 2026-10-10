@@ -1,5 +1,5 @@
 // PUBLIC API
-export { HttpError } from './HttpError.js'
+export { HttpError } from "./HttpError.js";
 
 // PUBLIC API
 /**

@@ -44,7 +44,7 @@ export const ManualSignupPage = () => {
           text: "Signup failed. Please try again.",
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       setMessage({
         type: "error",
         text:
