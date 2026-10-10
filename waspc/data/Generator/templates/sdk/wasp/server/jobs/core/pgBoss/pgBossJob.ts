@@ -1,7 +1,7 @@
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
-import { reportServerError } from '../../../errors.js'
+import { reportServerError } from "../../../errors.js";
 import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
 import type { PrismaDelegate } from '../../../_types/index.js'
 import type { JobFn } from './types.js'
@@ -194,11 +194,11 @@ function pgBossCallbackWrapper<
   return async (args: { data: Input }) => {
     const context = { entities }
     try {
-      return await jobFn(args.data, context)
-    } catch (error) {
-      reportServerError(error, `job ${jobName}`)
+      return await jobFn(args.data, context);
+    } catch (error: unknown) {
+      reportServerError(error, { source: "job", jobName });
       // pg-boss marks the job as failed and retries it if configured to.
-      throw error
+      throw error;
     }
   }
 }

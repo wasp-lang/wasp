@@ -508,7 +508,7 @@
             "file",
             "sdk/wasp/server/errors.ts"
         ],
-        "c54dcf86dc8443a0432cf355358b39a95dadcd60488ba92e908547f29f7b4037"
+        "0dadf3bb1405f67540f9d3a0a633bd33476dcb290d872f4171185814774d0fd0"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "server/src/app.js"
         ],
-        "eb8ea614bffaaf32abe39742019f4b226ec3331d5d31e13308ef9e4bf105ae0c"
+        "bd16da1d89d3b49580c7ff1e33191159bab7610e314bfcdaff7eb5653c7c862e"
     ],
     [
         [
@@ -767,7 +767,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "03447d3fdd07567b8cfee32133c2683eded41fcd788338e37b4dbb107f0c56eb"
+        "26a5ff42cf4d260f730cc029138cd02b42c46ef3e55a00c45374c3338e14caf4"
     ],
     [
         [

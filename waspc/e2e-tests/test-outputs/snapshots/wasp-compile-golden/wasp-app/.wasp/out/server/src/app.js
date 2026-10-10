@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { toHttpError } from 'wasp/server/errors'
+import { sendErrorResponse } from "wasp/server/errors";
 import indexRouter from './routes/index.js'
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that
@@ -18,8 +18,7 @@ app.use(/** @type {import('express').ErrorRequestHandler} */ ((err, _req, res, n
   // been sent to the client, we must delegate to the default error handler.
   if (res.headersSent) { return next(err) }
 
-  const httpError = toHttpError(err, 'request')
-  return res.status(httpError.statusCode).json({ message: httpError.message, data: httpError.data })
+  sendErrorResponse(res, err);
 }))
 
 export default app
