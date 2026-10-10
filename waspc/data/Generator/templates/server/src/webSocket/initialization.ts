@@ -5,6 +5,7 @@ import { Server, Socket } from 'socket.io'
 import type { ServerType } from 'wasp/server/webSocket'
 
 import { config, prisma } from 'wasp/server'
+import { reportServerError } from 'wasp/server/errors'
 
 {=# isAuthEnabled =}
 import { getSessionAndUserFromSessionId } from 'wasp/server/auth/session'
@@ -52,7 +53,9 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
         ...socket.data,
         user,
       }
-    } catch (err) { }
+    } catch (error) {
+      reportServerError(error, 'WebSocket authentication')
+    }
   }
   next()
 }
