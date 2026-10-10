@@ -3,12 +3,14 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (filterM, unless, when)
+import Control.Monad (filterM, unless)
 import Control.Monad.IO.Class (liftIO)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
@@ -17,6 +19,8 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -30,16 +34,29 @@ import Wasp.Util.IO
 import Wasp.Util.InstallMethod (uninstallationCommand)
 
 -- | Removes Wasp from the system.
-uninstall :: Command ()
-uninstall = do
+uninstall :: Arguments -> Command ()
+uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConfirmation} -> do
   cliSendMessageC $ Msg.Start "Removing Wasp data..."
-  liftIO removeWaspFiles
+  liftIO $ removeWaspFiles skipConfirmation
   cliSendMessageC $ Msg.Success "Removed Wasp data."
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
   cliSendMessageC $ Msg.Info $ indent 2 uninstallationCommand
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC dockerVolumeMsg
+
+newtype UninstallArgs = UninstallArgs
+  { force :: Bool
+  }
+
+uninstallArgsParser :: ArgsParser UninstallArgs
+uninstallArgsParser =
+  ArgsParser "wasp uninstall" $
+    UninstallArgs
+      <$> Opt.switch
+        ( Opt.long "force"
+            <> Opt.help "Skip the confirmation prompt"
+        )
 
 dockerVolumeMsg :: Message
 dockerVolumeMsg =
@@ -48,8 +65,8 @@ dockerVolumeMsg =
       <> " deleted all the docker volumes it might have created."
       <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
 
-removeWaspFiles :: IO ()
-removeWaspFiles = do
+removeWaspFiles :: Bool -> IO ()
+removeWaspFiles skipConfirmation = do
   dirsToRemove <- filterM doesDirectoryExist =<< getWaspDirectories
   filesToRemove <- filterM doesFileExist =<< getWaspFiles
 
@@ -61,12 +78,13 @@ removeWaspFiles = do
     putStr $
       unlines
         [ "We will remove the following files and directories:",
-          indent 2 $ unlines allPathsToRemove,
-          "Are you sure you want to continue? [y/N]"
+          indent 2 $ unlines allPathsToRemove
         ]
 
-    answer <- getLine
-    when (answer /= "y") $ die "Aborted."
+    unless skipConfirmation $
+      Interactive.tryGettingConfirmation "Are you sure you want to continue? [y/N]" "y" >>= \case
+        Right () -> return ()
+        Left _ -> die "Aborted."
 
     mapM_ deleteDirectoryIfExists dirsToRemove
     mapM_ deleteFileIfExists filesToRemove
