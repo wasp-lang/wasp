@@ -266,6 +266,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/env/validation.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/env/validation.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/env/validation.js
 wasp-app/.wasp/out/sdk/wasp/dist/env/validation.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
@@ -374,6 +378,7 @@ wasp-app/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 wasp-app/.wasp/out/sdk/wasp/entities/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/validation.ts
+wasp-app/.wasp/out/sdk/wasp/errors/index.ts
 wasp-app/.wasp/out/sdk/wasp/package.json
 wasp-app/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 wasp-app/.wasp/out/sdk/wasp/scripts/copy-assets.js

@@ -6,7 +6,7 @@ export function useUsernameAndPassword({
   onSuccess,
   isLogin,
 }: {
-  onError: (error: Error) => void
+  onError: (error: unknown) => void
   onSuccess: () => void
   isLogin: boolean
 }) {
@@ -18,8 +18,8 @@ export function useUsernameAndPassword({
       await login(data)
 
       onSuccess()
-    } catch (err: unknown) {
-      onError(err as Error)
+    } catch (error: unknown) {
+      onError(error);
     }
   }
 

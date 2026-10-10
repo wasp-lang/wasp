@@ -1,9 +1,10 @@
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
+import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
+import { getAuthErrorMessage } from "../authErrorMessage.js";
 
 // PRIVATE API
 export const ResetPasswordForm = () => {
@@ -32,11 +33,8 @@ export const ResetPasswordForm = () => {
       await resetPassword({ password: data.password, token })
       reset()
       setSuccessMessage('Your password has been reset.')
-    } catch (error: any) {
-      setErrorMessage({
-        title: error.message,
-        description: error.data?.data?.message,
-      })
+    } catch (error: unknown) {
+      setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setIsLoading(false)
     }

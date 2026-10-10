@@ -4,6 +4,7 @@
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
+    "useUnknownInCatchVariables": true,
     "allowJs": true,
     "checkJs": true,
     // The project reference takes care of the user project,

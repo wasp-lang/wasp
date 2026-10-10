@@ -30,6 +30,7 @@ import { SocialButton } from '../social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
+import { getAuthErrorMessage } from "../authErrorMessage";
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -95,8 +96,8 @@ export const LoginSignupForm = ({
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}
   const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
+  const onErrorHandler = (error: unknown) => {
+    setErrorMessage(getAuthErrorMessage(error));
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
   const hookForm = useForm<LoginSignupFormFields>()

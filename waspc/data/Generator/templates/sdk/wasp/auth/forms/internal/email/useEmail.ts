@@ -8,7 +8,7 @@ export function useEmail({
   onLoginSuccess,
   isLogin,
 }: {
-  onError: (error: Error) => void
+  onError: (error: unknown) => void
   showEmailVerificationPending: () => void
   onLoginSuccess: () => void
   isLogin: boolean
@@ -22,8 +22,8 @@ export function useEmail({
         await signup(data)
         showEmailVerificationPending()
       }
-    } catch (err: unknown) {
-      onError(err as Error)
+    } catch (error: unknown) {
+      onError(error);
     }
   }
 
