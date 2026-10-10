@@ -6,6 +6,7 @@
 //   maintaining access to logic from the server/ .
 
 import { prisma, DbSeedFn } from 'wasp/server'
+import { reportServerError } from 'wasp/server/errors'
 
 import { devSeedSimple } from "../../../../src/features/db/seeds"
 import { prodSeed } from "../../../../src/features/db/seeds"
@@ -27,8 +28,8 @@ async function main() {
 
 main()
   .then(async () => { await prisma.$disconnect() })
-  .catch(async (e) => {
-    console.error(e)
+  .catch(async (error) => {
+    reportServerError(error, 'database seed')
     await prisma.$disconnect()
     process.exit(1)
   })
