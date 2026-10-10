@@ -288,7 +288,7 @@ Before, `data` held the whole response body, so you had to read `error.data.data
 
     try {
       await signup({ username, password })
-    } catch (error) {
+    } catch (error: unknown) {
       // highlight-next-line
       if (error instanceof HttpError && error.statusCode === 422) {
         // highlight-next-line

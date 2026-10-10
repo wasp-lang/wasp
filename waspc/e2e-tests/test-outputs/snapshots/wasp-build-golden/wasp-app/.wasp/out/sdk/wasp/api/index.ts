@@ -2,7 +2,7 @@ import ky, { isHTTPError } from 'ky'
 import { config } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
-import { fromHttpErrorBody } from '../errors/HttpError.js'
+import { fromHttpErrorBody } from "../errors/HttpError.js";
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
@@ -107,9 +107,13 @@ if (typeof window !== 'undefined') {
  */
 export function handleApiError(error: unknown): unknown {
   if (isHTTPError(error)) {
-    return fromHttpErrorBody(error.response.status, error.data, error.message)
+    return fromHttpErrorBody({
+      statusCode: error.response.status,
+      body: error.data,
+      fallbackMessage: error.message,
+    });
   }
-  return error
+  return error;
 }
 
 function getSessionIdFromAuthorizationHeader(header: string | null): string | null {

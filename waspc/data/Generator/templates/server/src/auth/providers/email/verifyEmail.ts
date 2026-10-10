@@ -8,7 +8,7 @@ import {
   getProviderDataWithPassword,
   updateAuthIdentityProviderData,
 } from 'wasp/server/auth/utils';
-import { HttpError } from 'wasp/errors';
+import { HttpError } from "wasp/errors";
 import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
 

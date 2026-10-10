@@ -431,41 +431,20 @@ This happens for every status code, so only put information in them that is safe
 
 On the client, check whether the error is an `HttpError` to read these fields:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/NewTaskForm.jsx"
-    import { createTask } from "wasp/client/operations"
-    import { HttpError } from "wasp/errors"
+```ts title="src/NewTaskForm.tsx" auto-js
+import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 
-    async function handleSubmit(description) {
-      try {
-        await createTask({ description })
-      } catch (error) {
-        if (error instanceof HttpError && error.statusCode === 403) {
-          window.alert(error.message)
-        }
-      }
+async function handleSubmit(description: string) {
+  try {
+    await createTask({ description });
+  } catch (error: unknown) {
+    if (error instanceof HttpError && error.statusCode === 403) {
+      window.alert(error.message);
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/NewTaskForm.tsx"
-    import { createTask } from "wasp/client/operations"
-    import { HttpError } from "wasp/errors"
-
-    async function handleSubmit(description: string) {
-      try {
-        await createTask({ description })
-      } catch (error) {
-        if (error instanceof HttpError && error.statusCode === 403) {
-          window.alert(error.message)
-        }
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+  }
+}
+```
 
 ### Using Entities in Actions
 
