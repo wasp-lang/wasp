@@ -1,10 +1,11 @@
 import { useRouteError } from 'react-router'
 
+import { reportClientError } from '../../errors'
 import { FullPageWrapper } from './FullPageWrapper'
 
 export function DefaultRootErrorBoundary() {
   const error = useRouteError()
-  console.error(error)
+  reportClientError(error, 'page rendering')
   return (
     <FullPageWrapper>
       <div>
