@@ -1,4 +1,5 @@
 import type { ErrorMessage } from "@wasp.sh/lib-auth/browser";
+import { reportClientError } from '../../../client/errors.js'
 import { HttpError, getErrorMessage } from "../../../errors/index.js";
 
 // PRIVATE API
@@ -11,8 +12,8 @@ export function getAuthErrorMessage(error: unknown): ErrorMessage {
       description: typeof description === "string" ? description : undefined,
     };
   }
-  // We only expect HTTP errors here, so we log anything else,
+  // We only expect HTTP errors here, so we report anything else,
   // like a network failure, for the developer.
-  console.error(error);
+  reportClientError(error, 'auth form');
   return { title: getErrorMessage(error) };
 }
