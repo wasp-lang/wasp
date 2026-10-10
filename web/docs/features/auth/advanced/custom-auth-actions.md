@@ -40,7 +40,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
@@ -50,7 +50,7 @@ export const onBeforeSignup = async () => {
 
 ```ts title="src/auth/signup.ts" auto-js
 import type { CustomSignup } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   createEmailVerificationLink,
   createProviderId,
@@ -181,7 +181,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {

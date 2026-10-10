@@ -158,7 +158,7 @@ Here's the `src/tasks.{js,ts}` file:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/tasks.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask = async (args, context) => {
       if (!context.user) {
@@ -190,7 +190,7 @@ Here's the `src/tasks.{js,ts}` file:
     ```ts title="src/tasks.ts"
     import { type Tasks } from "wasp/server/crud"
     import { type Task } from "wasp/entities"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     type CreateTaskInput = { description: string; isDone: boolean }
 

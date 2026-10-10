@@ -83,6 +83,8 @@
     {=! Server: the auth entity type. =}
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
+    {=! Users: HttpError, getErrorMessage. =}
+    "./errors": "./dist/errors/index.js",
     {=! FIXME: Documented only in example apps, not in docs. =}
     "./serialization": "./dist/serialization/index.js",
     {=! Users: config, prisma, env, HttpError, type ServerSetupFn, type DbSeedFn, type MiddlewareConfigFn. =}

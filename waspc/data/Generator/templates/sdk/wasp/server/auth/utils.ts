@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { hashPassword } from './password.js'
-import { prisma, HttpError } from '../index.js'
+import { prisma } from '../index.js'
 import { sleep } from '../utils.js'
 import type {
   {= userEntityUpper =},
@@ -10,7 +10,7 @@ import type {
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from '../../auth/validation.js'
-import { getErrorMessage } from "../../errors/index.js";
+import { HttpError, getErrorMessage } from "../../errors/index.js";
 
 import {
   type ProviderId,

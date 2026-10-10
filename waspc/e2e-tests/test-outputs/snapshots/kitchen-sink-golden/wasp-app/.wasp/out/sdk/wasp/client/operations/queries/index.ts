@@ -6,6 +6,7 @@ import type {
   RegisteredGetOldestTask,
   RegisteredGetSerializedObjects,
   RegisteredGetTextUppercaseRequests,
+  RegisteredGetTeapot,
   RegisteredGetDate,
   RegisteredGetAnythingNoAuth,
   RegisteredGetAnythingAuth,
@@ -49,6 +50,12 @@ export const getSerializedObjects: QueryFor<RegisteredGetSerializedObjects> = cr
 export const getTextUppercaseRequests: QueryFor<RegisteredGetTextUppercaseRequests> = createQuery<RegisteredGetTextUppercaseRequests>(
   "operations/get-text-uppercase-requests",
   ["UppercaseTextRequest"],
+)
+
+// PUBLIC API
+export const getTeapot: QueryFor<RegisteredGetTeapot> = createQuery<RegisteredGetTeapot>(
+  "operations/get-teapot",
+  [],
 )
 
 // PUBLIC API
