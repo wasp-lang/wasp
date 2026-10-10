@@ -1,8 +1,9 @@
-import { useLocation } from 'react-router'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { useLocation } from 'react-router'
+import { useEffectOnce } from '../../../../client/hooks.js'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
-import { useEffectOnce } from '../../../../client/hooks.js'
+import { getAuthErrorMessage } from "../authErrorMessage.js";
 
 // PRIVATE API
 export const VerifyEmailForm = () => {
@@ -24,11 +25,8 @@ export const VerifyEmailForm = () => {
     try {
       await verifyEmail({ token })
       setSuccessMessage('Your email has been verified. You can now log in.')
-    } catch (error: any) {
-      setErrorMessage({
-        title: error.message,
-        description: error.data?.data?.message,
-      })
+    } catch (error: unknown) {
+      setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setIsLoading(false)
     }
