@@ -4,7 +4,6 @@ module Wasp.Cli.Command.Install
   )
 where
 
-import Control.Concurrent (newChan)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
@@ -29,5 +28,4 @@ install = withProjectLock $ do
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do
   ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
-  messageChan <- newChan
-  installProjectNpmDependencies messageChan waspProjectDir
+  installProjectNpmDependencies waspProjectDir
