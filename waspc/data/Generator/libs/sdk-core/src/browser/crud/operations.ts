@@ -1,0 +1,36 @@
+import type { GenericBackendOperation } from "../../operations/rpc.js";
+import type { _Awaited, _ReturnType } from "../../utils/types.js";
+import type { ActionFor } from "../operations/actions.js";
+import type { ActionOptions } from "../operations/hooks.js";
+import { useAction, useQuery } from "../operations/hooks.js";
+import type { QueryFor } from "../operations/queries.js";
+
+export type UseQueryFor<Operation extends GenericBackendOperation> = (
+  queryFnArgs?: OperationInput<Operation>,
+  options?: any,
+) => ReturnType<
+  typeof useQuery<OperationInput<Operation>, OperationOutput<Operation>>
+>;
+
+export function makeUseQueryFor<Operation extends GenericBackendOperation>(
+  query: QueryFor<Operation>,
+): UseQueryFor<Operation> {
+  return (queryFnArgs, options) => useQuery(query, queryFnArgs, options);
+}
+
+export type UseActionFor<Operation extends GenericBackendOperation> = (
+  actionOptions?: ActionOptions<OperationInput<Operation>>,
+) => ReturnType<
+  typeof useAction<OperationInput<Operation>, OperationOutput<Operation>>
+>;
+
+export function makeUseActionFor<Operation extends GenericBackendOperation>(
+  action: ActionFor<Operation>,
+): UseActionFor<Operation> {
+  return (actionOptions) => useAction(action, actionOptions);
+}
+
+export type OperationInput<Operation extends GenericBackendOperation> =
+  Parameters<Operation>[0];
+export type OperationOutput<Operation extends GenericBackendOperation> =
+  _Awaited<_ReturnType<Operation>>;
