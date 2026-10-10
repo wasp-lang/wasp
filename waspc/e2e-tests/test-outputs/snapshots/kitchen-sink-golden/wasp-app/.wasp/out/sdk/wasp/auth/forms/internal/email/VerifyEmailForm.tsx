@@ -24,7 +24,7 @@ export const VerifyEmailForm = () => {
     try {
       await verifyEmail({ token })
       setSuccessMessage('Your email has been verified. You can now log in.')
-    } catch (error) {
+    } catch (error: any) {
       setErrorMessage({
         title: error.message,
         description: error.data?.data?.message,

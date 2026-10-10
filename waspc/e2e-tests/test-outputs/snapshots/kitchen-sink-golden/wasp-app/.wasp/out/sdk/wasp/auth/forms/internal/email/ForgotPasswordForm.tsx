@@ -19,7 +19,7 @@ export const ForgotPasswordForm = () => {
       await requestPasswordReset(data)
       reset()
       setSuccessMessage('Check your email for a password reset link.')
-    } catch (error) {
+    } catch (error: any) {
       setErrorMessage({
         title: error.message,
         description: error.data?.data?.message,
