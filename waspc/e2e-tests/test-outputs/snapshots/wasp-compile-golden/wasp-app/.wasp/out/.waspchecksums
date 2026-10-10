@@ -60,7 +60,7 @@
             "file",
             "sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx"
         ],
-        "2d09e8c72a030be96218aad1f1683b6ff6b6f1fbf98207080eafc14eeb817da0"
+        "e55a155f26ab4db499aaed9c437c3adcf15f2c0ce5d700d9063f766318e1f9de"
     ],
     [
         [
@@ -144,7 +144,7 @@
             "file",
             "sdk/wasp/client/errors.ts"
         ],
-        "77d0bfbd94ea65719511607c36b4d078646b9dfcee60399c57028b17fa227025"
+        "381a8786d5e989d75cbbcccb97bac6d52cfb84cce797a33ce051096f24efa5bd"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "8c9193ca6d1c2070dd1a44fbcf7133585ba1c6c6f637cdcc26f75c8706d16864"
+        "d4ac298d81fa415ff40b3505ad1a6e38484d655b317f0472eed12644564b31e3"
     ],
     [
         [

@@ -267,10 +267,7 @@ function initializeQueryClient() {
 }
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/errors.js
-/**
-* The one place where the client logs errors it didn't expect.
-*/
-function reportClientError(error, context) {
+function reportUnexpectedClientError(error, context) {
 	console.error(`Unexpected error in ${context.source}:`, error);
 }
 //#endregion
@@ -301,7 +298,7 @@ function FullPageWrapper({ children, className }) {
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/components/DefaultRootErrorBoundary.jsx
 function DefaultRootErrorBoundary() {
-	reportClientError(useRouteError(), { source: "pageRender" });
+	reportUnexpectedClientError(useRouteError(), { source: "pageRender" });
 	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
 }
 //#endregion
