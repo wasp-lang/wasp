@@ -2,6 +2,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
+import { reportServerError } from "wasp/server/errors";
 
 
 
@@ -40,7 +41,10 @@ const startServer = async () => {
   })
 }
 
-startServer().catch(e => console.error(e))
+startServer().catch((error: unknown) => {
+  reportServerError(error, { source: "startup" });
+  process.exit(1);
+});
 
 /**
  * Normalize a port into a number, string, or false.

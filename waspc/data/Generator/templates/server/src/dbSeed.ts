@@ -7,6 +7,7 @@
 //   maintaining access to logic from the server/ .
 
 import { prisma, DbSeedFn } from 'wasp/server'
+import { reportServerError } from "wasp/server/errors";
 
 {=# dbSeeds =}
 {=& importStatement =}
@@ -30,8 +31,8 @@ async function main() {
 
 main()
   .then(async () => { await prisma.$disconnect() })
-  .catch(async (e) => {
-    console.error(e)
+  .catch(async (error: unknown) => {
+    reportServerError(error, { source: "dbSeed" });
     await prisma.$disconnect()
     process.exit(1)
   })

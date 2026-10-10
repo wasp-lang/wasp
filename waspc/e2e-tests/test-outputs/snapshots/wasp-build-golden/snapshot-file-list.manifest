@@ -304,6 +304,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/env.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.js
@@ -391,6 +395,7 @@ wasp-app/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 wasp-app/.wasp/out/sdk/wasp/server/config.ts
 wasp-app/.wasp/out/sdk/wasp/server/dbClient.ts
 wasp-app/.wasp/out/sdk/wasp/server/env.ts
+wasp-app/.wasp/out/sdk/wasp/server/errors.ts
 wasp-app/.wasp/out/sdk/wasp/server/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/sdk/wasp/server/middleware/index.ts

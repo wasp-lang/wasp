@@ -441,8 +441,8 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
-If the status code is `4xx`, the client will receive a response object with the corresponding `message` and `data` fields, and it will rethrow the error (including these fields).
-To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
+The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
+This happens for every status code, so only put information in them that is safe to show to the user.
 
 ### Using Entities in Queries
 
