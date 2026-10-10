@@ -445,7 +445,7 @@
             "file",
             "sdk/wasp/errors/index.ts"
         ],
-        "4915e4e78dba6e89cb485b43a462ca53d12cdddc9e4c99d1697fe17a015c5b27"
+        "b3c953fd962c881977cd784c0d6705838b4b9ca250f4dce9d738081b1cb40ffe"
     ],
     [
         [
@@ -515,14 +515,14 @@
             "file",
             "sdk/wasp/server/errors.ts"
         ],
-        "51683659cdfd338bfde434201971c5fb09394e3bdc496f571b81e139a39b566d"
+        "8231ba539127fd96176d39a5e1033a4760e23fbe813e0656caf65b5489ef04d7"
     ],
     [
         [
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "18b0d51664268db6a86f700c214e0e01db500f393bb3e388a213ed6804d0e8d7"
+        "f05ecb73ff9650c9d298c4b538133bc2ed90accbe697132e9fccec4539f872d9"
     ],
     [
         [
@@ -774,7 +774,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "26a5ff42cf4d260f730cc029138cd02b42c46ef3e55a00c45374c3338e14caf4"
+        "fb7d3e5b74d6e3dbf5544f7d03d9af02e4c2de97ff6747603c1a0297ddd669cd"
     ],
     [
         [

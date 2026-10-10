@@ -263,9 +263,27 @@ This breaks the Caddy setup from the [VPS deployment guide](./guides/deployment/
 
 If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
 
-### 8. Read `HttpError` data directly on the client
+### 8. Import `HttpError` from `wasp/errors`
 
-On the client, failed operations and auth actions now throw an `HttpError` from `wasp/errors`, the same class you throw on the server.
+The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    import { HttpError } from "wasp/server"
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+    ```
+  </TabItem>
+</Tabs>
+
+### 9. Read `HttpError` data directly on the client
+
+On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server.
 Its `data` is now the `data` you passed on the server.
 Before, `data` held the whole response body, so you had to read `error.data.data`.
 
@@ -299,8 +317,6 @@ Before, `data` held the whole response body, so you had to read `error.data.data
   </TabItem>
 </Tabs>
 
-You can keep importing `HttpError` from `wasp/server` on the server, but we recommend `wasp/errors` everywhere.
-
-### 9. Enjoy your updated Wasp app
+### 10. Enjoy your updated Wasp app
 
 That's it!

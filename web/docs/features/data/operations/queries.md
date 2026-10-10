@@ -405,10 +405,12 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ### Error Handling
 
-For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
-Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`. Wasp logs the error on the server and doesn't send its details, so you don't leak sensitive information by accident.
+
+To send error details to the client, throw an `HttpError`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -441,8 +443,7 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
-The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
-This happens for every status code, so only put information in them that is safe to show to the user.
+Only put information in an `HttpError` that is safe to show to the user.
 
 On the client, check whether the error is an `HttpError` to read these fields:
 

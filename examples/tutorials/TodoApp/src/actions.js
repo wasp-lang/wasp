@@ -1,4 +1,4 @@
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 export const createTask = async (args, context) => {
   if (!context.user) {

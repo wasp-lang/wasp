@@ -4,6 +4,7 @@
 
 ### ⚠️ Breaking Changes
 
+- `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 - On the client, an `HttpError`'s `data` is now the `data` it was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 - Renamed the `wasp deploy fly` flags `--vm-size`, `--initial-cluster-size`, and `--volume-size` to `--db-vm-size`, `--db-initial-cluster-size`, and `--db-volume-size`, respectively. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))

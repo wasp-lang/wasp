@@ -4,7 +4,7 @@ index 973d821..6c22a91 100644
 +++ b/src/actions.ts
 @@ -1,4 +1,5 @@
  import type { Task } from "wasp/entities";
-+import { HttpError } from "wasp/server";
++import { HttpError } from "wasp/errors";
  import type { CreateTask, UpdateTask } from "wasp/server/operations";
  
  type CreateTaskPayload = Pick<Task, "description">;
