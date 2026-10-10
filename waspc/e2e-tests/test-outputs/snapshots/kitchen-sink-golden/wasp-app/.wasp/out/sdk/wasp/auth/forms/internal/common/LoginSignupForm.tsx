@@ -24,6 +24,7 @@ import type {
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
+import { getAuthErrorMessage } from '../authErrorMessage'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -56,8 +57,8 @@ export const LoginSignupForm = ({
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
+  const onErrorHandler = (error: unknown) => {
+    setErrorMessage(getAuthErrorMessage(error))
   };
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm

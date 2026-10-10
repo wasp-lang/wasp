@@ -60,7 +60,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "aa06f20bfd37ead40b5d143458a0cf7d2c0acb9a28d5eac4a0ed1c503f67a0ef"
+        "1f6f48cf099a63ebdb85f1e6bd9486abc4854fe25725cd18ee50053f20417325"
     ],
     [
         [
@@ -184,6 +184,13 @@
     [
         [
             "file",
+            "sdk/wasp/auth/forms/internal/authErrorMessage.ts"
+        ],
+        "50fba8225e5cad7e620fdcd4ad0ae091c08499477e007c47f1e27408ff6990b9"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css"
         ],
         "ceb7e900e700da20b71487c1ad65d0d3148747990c1e2d4540b18ec001ea2bcd"
@@ -193,35 +200,35 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "a35d6502d232a88e1605702d3c28036b1e5477a41cffd65ef12dae6044c1f448"
+        "08a40d5841901ed4dbb097d6dab30978dc499a5f1653cbd16f1746eb371bce63"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx"
         ],
-        "d3888b2fb4dbd02bfe085565829ed56079c04bff2196ca9b694f3a458ef2319f"
+        "98282150b4f28d7d76fc5ea400caa29c0e80517d3b9bb4951ba52873e6856cdf"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "393875901644a0624347ba74fb09a336ac694b8b77a2a3eca21a7fdc96fae58c"
+        "4cc245fdc0aa381a1e03bb42885a2913e159117910bdd5f025e1a872da44c817"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "cf0b323b8e2d14538830f5a3005e45ec5e3321315fee444ac016dc0bcb8b5b21"
+        "3b590539bd3b9e8c2204fe5bf47635ac7e21ad2f1da84f15cf669b241e0549cd"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/useEmail.ts"
         ],
-        "7751b34516bc55579c5f556ff4092a255a09b4ecb94ce3ab9cc08ffe324a4bf0"
+        "fdb35d0112c0d502fc9234a08544a76f17c9bba911d845159e887df51475b735"
     ],
     [
         [
@@ -851,7 +858,7 @@
             "file",
             "sdk/wasp/core/storage.ts"
         ],
-        "f94fa2c6090a41621a2c45ed156001ad1e85893f134561e459cd206a2532a5ec"
+        "63c9eb720c77b935e4ea2015aa96b3aac9729ec8d7d2834b918e967b5bb1dd35"
     ],
     [
         [
@@ -873,6 +880,13 @@
             "sdk/wasp/env/validation.ts"
         ],
         "98533ab34114e30eb7890f9e5784623d7a7070b497e00440896cbea15d9d5616"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/errors/index.ts"
+        ],
+        "45fc0e84a11519877f9c70848e125b30bee3c6c36d9d6ebe8ceb7efbec4e95ed"
     ],
     [
         [
@@ -1054,7 +1068,7 @@
             "file",
             "sdk/wasp/server/auth/utils.ts"
         ],
-        "7822b1f4f6af54df0d65f60a1120d265919db64f94671d17c8b851bbdb69e17e"
+        "7461c82ed6433d68fad3423a9d1f32fff53303782c0bb9e9b64a5ba60807197e"
     ],
     [
         [
@@ -1607,7 +1621,7 @@
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "3646670b948ccae196e59adf96c46ef4f83781d16b3e87616b3635af8a0553af"
+        "63c75faec9fcd9dfb498a4adaabacfebb84eae7d903e5533ea62df0b8d1e0c0c"
     ],
     [
         [
@@ -2167,7 +2181,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "09f5563c093b52b6c9ab99a4def30a2ac3febde3904a48f8413c23aaf8907eea"
+        "09ae9bcde379c54456481290933e8101a72f5bb84198c86a684ca89fe8956320"
     ],
     [
         [

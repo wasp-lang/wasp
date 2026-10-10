@@ -1,8 +1,9 @@
-import { useForm } from 'react-hook-form'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { useForm } from 'react-hook-form'
 
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
+import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
+import { getAuthErrorMessage } from '../authErrorMessage.js'
 import { emailFieldRules, emailInputProps } from '../emailField'
 
 
@@ -19,11 +20,8 @@ export const ForgotPasswordForm = () => {
       await requestPasswordReset(data)
       reset()
       setSuccessMessage('Check your email for a password reset link.')
-    } catch (error: any) {
-      setErrorMessage({
-        title: error.message,
-        description: error.data?.data?.message,
-      })
+    } catch (error) {
+      setErrorMessage(getAuthErrorMessage(error))
     } finally {
       setIsLoading(false)
     }

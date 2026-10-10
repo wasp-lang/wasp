@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "aa06f20bfd37ead40b5d143458a0cf7d2c0acb9a28d5eac4a0ed1c503f67a0ef"
+        "1f6f48cf099a63ebdb85f1e6bd9486abc4854fe25725cd18ee50053f20417325"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "sdk/wasp/core/storage.ts"
         ],
-        "f94fa2c6090a41621a2c45ed156001ad1e85893f134561e459cd206a2532a5ec"
+        "63c9eb720c77b935e4ea2015aa96b3aac9729ec8d7d2834b918e967b5bb1dd35"
     ],
     [
         [
@@ -425,6 +425,13 @@
             "sdk/wasp/env/validation.ts"
         ],
         "98533ab34114e30eb7890f9e5784623d7a7070b497e00440896cbea15d9d5616"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/errors/index.ts"
+        ],
+        "45fc0e84a11519877f9c70848e125b30bee3c6c36d9d6ebe8ceb7efbec4e95ed"
     ],
     [
         [
@@ -767,7 +774,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "09f5563c093b52b6c9ab99a4def30a2ac3febde3904a48f8413c23aaf8907eea"
+        "09ae9bcde379c54456481290933e8101a72f5bb84198c86a684ca89fe8956320"
     ],
     [
         [

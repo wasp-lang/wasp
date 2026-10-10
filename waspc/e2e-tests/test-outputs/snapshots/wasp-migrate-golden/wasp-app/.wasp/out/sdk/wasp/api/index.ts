@@ -122,7 +122,8 @@ export function handleApiError(error: unknown): unknown {
   }
 }
 
-class WaspHttpError extends Error {
+// PRIVATE API (sdk)
+export class WaspHttpError extends Error {
   statusCode: number
 
   data: unknown
