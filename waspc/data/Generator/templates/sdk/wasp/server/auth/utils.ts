@@ -230,7 +230,7 @@ export async function validateAndGetUserFields(
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
-    } catch (e) {
+    } catch (e: any) {
       throwValidationError(e.message)
     }
   }

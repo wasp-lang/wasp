@@ -74,8 +74,12 @@ export type LoginSignupFormFields = {
 // PRIVATE API
 export const LoginSignupForm = ({
     state,
+    {=# isSocialAuthEnabled =}
     socialButtonsDirection = 'horizontal',
+    {=/ isSocialAuthEnabled =}
+    {=# isAnyPasswordBasedAuthEnabled =}
     additionalSignupFields,
+    {=/ isAnyPasswordBasedAuthEnabled =}
 }: {
     state: 'login' | 'signup'
     socialButtonsDirection?: 'horizontal' | 'vertical'

@@ -32,7 +32,7 @@ export const ResetPasswordForm = () => {
       await resetPassword({ password: data.password, token })
       reset()
       setSuccessMessage('Your password has been reset.')
-    } catch (error) {
+    } catch (error: any) {
       setErrorMessage({
         title: error.message,
         description: error.data?.data?.message,

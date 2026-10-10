@@ -57,7 +57,7 @@ type ParseSegments<T> = T extends [infer Head, ...infer Tail]
   ? [_ParseSegment<Head>, ...ParseSegments<Tail>]
   : T;
 
-type _ParseSegment<T> = T extends `:${infer P}`
+type _ParseSegment<T> = T extends `:${string}`
   ? // Param segment
     { segment: T }
   : T extends `${infer S}?`
