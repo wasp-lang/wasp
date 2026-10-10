@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { HttpError } from 'wasp/server';
+import { HttpError } from 'wasp/errors';
 import { defineHandler } from 'wasp/server/utils';
 import { findAuthWithUserBy } from 'wasp/server/auth/utils'
 import { createSession } from 'wasp/server/auth/session'

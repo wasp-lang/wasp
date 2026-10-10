@@ -18,6 +18,7 @@ const serverVirtualUserModuleMap = {
   "virtual:wasp/user/features/operations/queries": "../../../src/features/operations/queries",
   "virtual:wasp/user/features/operations/getOldestTask": "../../../src/features/operations/getOldestTask",
   "virtual:wasp/user/features/jobs/uppercaseText": "../../../src/features/jobs/uppercaseText",
+  "virtual:wasp/user/features/errors/queries": "../../../src/features/errors/queries",
   "virtual:wasp/user/rpcTests/operations/definitions": "../../../src/rpcTests/operations/definitions",
   "virtual:wasp/user/features/auth/customSignup": "../../../src/features/auth/customSignup",
   "virtual:wasp/user/features/operations/actions": "../../../src/features/operations/actions",

@@ -43,6 +43,10 @@ declare module "virtual:wasp/user/features/jobs/uppercaseText" {
   export const getTextUppercaseRequests: import("./server/operations/queries/index").RegisteredGetTextUppercaseRequests;
 }
 
+declare module "virtual:wasp/user/features/errors/queries" {
+  export const getTeapot: import("./server/operations/queries/index").RegisteredGetTeapot;
+}
+
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
   export const getDate: import("./server/operations/queries/index").RegisteredGetDate;
 }

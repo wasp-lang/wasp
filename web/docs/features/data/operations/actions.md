@@ -398,7 +398,7 @@ If you do want to pass additional error information to the client, you can const
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/actions.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask = async (args, context) => {
       throw new HttpError(
@@ -413,7 +413,7 @@ If you do want to pass additional error information to the client, you can const
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/actions.ts"
     import { type CreateTask } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask: CreateTask = async (args, context) => {
       throw new HttpError(
@@ -421,6 +421,47 @@ If you do want to pass additional error information to the client, you can const
         "You can't do this!", // message
         { foo: "bar" } // data
       )
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
+This happens for every status code, so only put information in them that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+<Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/NewTaskForm.jsx"
+    import { createTask } from "wasp/client/operations"
+    import { HttpError } from "wasp/errors"
+
+    async function handleSubmit(description) {
+      try {
+        await createTask({ description })
+      } catch (error) {
+        if (error instanceof HttpError && error.statusCode === 403) {
+          window.alert(error.message)
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/NewTaskForm.tsx"
+    import { createTask } from "wasp/client/operations"
+    import { HttpError } from "wasp/errors"
+
+    async function handleSubmit(description: string) {
+      try {
+        await createTask({ description })
+      } catch (error) {
+        if (error instanceof HttpError && error.statusCode === 403) {
+          window.alert(error.message)
+        }
+      }
     }
     ```
   </TabItem>
