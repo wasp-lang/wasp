@@ -24,7 +24,8 @@ incrementalTypeCheckingTest :: Test
 incrementalTypeCheckingTest =
   Test
     "incremental-type-checking"
-    [ TestCase
+    [ -- Regression test for https://github.com/wasp-lang/wasp/pull/4885
+      TestCase
         "detects-and-recovers-operation-return-type-errors-incrementally"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
@@ -37,7 +38,8 @@ incrementalTypeCheckingTest =
                   writeQuery "[]",
                   -- Editing a file makes TypeScript report the initial error.
                   appendToFile "src/MainPage.tsx" "",
-                  waspCliCompile,
+                  -- Compile rejects the type error, but still generates the new types.
+                  ("! " ++) <$> waspCliCompile,
                   assertCommandOutputContains
                     (("! " ++) <$> typeCheckApp)
                     "Property 'id' does not exist on type 'never'.",
