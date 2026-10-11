@@ -19,7 +19,7 @@ export function getRouteObjects({
   routesMapping: RouteMapping,
   rootElement: ReactNode,
 }): RouteObject[] {
-  const waspDefinedRoutes = [
+  const waspDefinedRoutes: RouteObject[] = [
     {=# isExternalAuthEnabled =}
     {
       path: "{= oAuthCallbackPath =}",

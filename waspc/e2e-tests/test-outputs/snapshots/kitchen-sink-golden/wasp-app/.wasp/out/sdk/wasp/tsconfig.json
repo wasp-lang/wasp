@@ -15,13 +15,7 @@
     "outDir": "dist",
 
     /* Strictness and type checking */
-    /*
-       We keep the SDK strict, but turn off `noImplicitAny` because parts
-       of the SDK code don't respect it.
-       Reference: https://github.com/wasp-lang/wasp/issues/1938
-    */
     "strict": true,
-    "noImplicitAny": false,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,

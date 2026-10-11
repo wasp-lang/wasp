@@ -17,7 +17,7 @@
     "jsdom": "^27.4.0",
     "ky": "^2.0.0",
     "lucia": "^3.0.1",
-    "mitt": "3.0.0",
+    "mitt": "3.0.1",
     "msw": "^2.12.7",
     "nodemailer": "^8.0.1",
     "pg-boss": "^8.4.2",
@@ -34,6 +34,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",

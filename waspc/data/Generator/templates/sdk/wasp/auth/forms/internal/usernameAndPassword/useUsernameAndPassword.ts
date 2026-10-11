@@ -1,4 +1,5 @@
 import { login, signup } from '../../../username'
+import type { UsernameSignupData } from "../../../username/actions/signup";
 
 // PRIVATE API
 export function useUsernameAndPassword({
@@ -10,7 +11,7 @@ export function useUsernameAndPassword({
   onSuccess: () => void
   isLogin: boolean
 }) {
-  async function handleSubmit(data) {
+  async function handleSubmit(data: UsernameSignupData): Promise<void> {
     try {
       if (!isLogin) {
         await signup(data)

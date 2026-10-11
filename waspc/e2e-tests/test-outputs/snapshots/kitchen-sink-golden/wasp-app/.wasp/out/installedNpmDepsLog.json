@@ -140,7 +140,7 @@
             },
             {
                 "name": "mitt",
-                "version": "3.0.0"
+                "version": "3.0.1"
             },
             {
                 "name": "react",
@@ -259,6 +259,10 @@
             {
                 "name": "@types/react-dom",
                 "version": "^19.2.3"
+            },
+            {
+                "name": "@types/nodemailer",
+                "version": "^8.0.0"
             }
         ],
         "peerDependencies": []

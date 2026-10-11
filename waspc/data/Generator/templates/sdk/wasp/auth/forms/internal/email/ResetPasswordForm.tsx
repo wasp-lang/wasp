@@ -6,13 +6,15 @@ import { resetPassword } from '../../../email/actions/passwordReset.js'
 import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
 import { getAuthErrorMessage } from "../authErrorMessage.js";
 
+type ResetPasswordFormFields = { password: string; passwordConfirmation: string };
+
 // PRIVATE API
 export const ResetPasswordForm = () => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<{ password: string; passwordConfirmation: string }>()
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ResetPasswordFormFields>()
   const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useAuthContext()
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: ResetPasswordFormFields): Promise<void> => {
     if (!token) {
       setErrorMessage({
         title:
