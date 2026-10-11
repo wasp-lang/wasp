@@ -12,6 +12,7 @@ module Wasp.Cli.Tui.Model
     selectPaneByIndex,
     selectNextPane,
     selectPreviousPane,
+    isAnyPaneBusy,
     scrollActivePaneBy,
     scrollActivePaneToTop,
     scrollActivePaneToBottom,
@@ -28,7 +29,7 @@ import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Time.Clock (UTCTime, diffUTCTime)
-import Wasp.Cli.Tui.Layout (logContentWidthFor, visibleLogRows)
+import Wasp.Cli.Tui.Layout (logContentWidthFor, visibleLogRows, wrapLogLine)
 import Wasp.Cli.Tui.Pane (Pane (..), PaneId (..))
 import qualified Wasp.Cli.Tui.Pane as Pane
 import qualified Wasp.Job as J
@@ -109,7 +110,21 @@ applyTuiEvent event state = case event of
           J.JobOutput text outputType -> feed pid (outputType == J.Stderr) text state
           J.JobExit exitCode -> overPane pid (Pane.markPaneExited exitCode) state
   where
-    feed pid isStderr text = overPane pid (markSeenIfActive pid . Pane.feedPane isStderr text)
+    feed pid isStderr text = overPane pid (markSeenIfActive pid . appendOutput isStderr text)
+
+    -- A pane the user has scrolled back in should keep showing what it was
+    -- showing, so new output pushes its scroll position along instead of
+    -- sliding the text out from under them.
+    appendOutput isStderr text pane =
+      let (pane', newLines) = Pane.feedPane isStderr text pane
+       in if paneIsFollowing pane'
+            then pane'
+            else
+              Pane.scrollPaneBy
+                (sum [length (wrapLogLine logContentWidth line) | line <- newLines])
+                pane'
+
+    logContentWidth = logContentWidthFor (tuiLogBodyWidth state)
 
     -- Output that lands on the tab the user is already looking at isn't
     -- "unseen", so the tab bar shouldn't nag about it.
@@ -139,6 +154,10 @@ selectRelativePane step state = selectPane nextPaneId state
   where
     currentIndex = fromMaybe 0 $ elemIndex (tuiActivePaneId state) paneOrder
     nextPaneId = paneOrder !! ((currentIndex + step) `mod` length paneOrder)
+
+-- | Whether any pane is doing something that the UI animates.
+isAnyPaneBusy :: TuiState -> Bool
+isAnyPaneBusy = any (Pane.paneIsBusy . paneStatus) . orderedPanes
 
 -- | Scrolls the active pane back by the given number of display rows
 -- (negative scrolls forward), stopping at the oldest line.

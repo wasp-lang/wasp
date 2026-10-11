@@ -13,6 +13,7 @@
 module Wasp.Cli.Tui
   ( TuiConfig (..),
     TuiHandle (..),
+    TuiOutcome (..),
     withTui,
     isTuiSupported,
   )
@@ -23,7 +24,8 @@ import qualified Brick.BChan as BChan
 import qualified Brick.Main as BrickMain
 import Control.Concurrent (Chan, newChan, readChan, threadDelay)
 import Control.Concurrent.Async (race, withAsync)
-import Control.Monad (forever, void)
+import qualified Control.Exception as E
+import Control.Monad (forever, unless, void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State.Strict (get, modify)
 import Data.Char (digitToInt, isDigit)
@@ -40,6 +42,8 @@ import Wasp.Cli.Tui.Model
     TuiName,
     TuiState (..),
     applyTuiEvent,
+    formatUptime,
+    isAnyPaneBusy,
     makeTuiState,
     scrollActivePaneBy,
     scrollActivePaneToBottom,
@@ -86,39 +90,53 @@ isTuiSupported = do
         not isCi
       ]
 
+-- | How a run of the TUI ended.
+data TuiOutcome a
+  = -- | The action finished on its own, with this result.
+    TuiFinished a
+  | -- | The user quit, which also cancelled the action and so stopped the
+    -- processes it had started.
+    TuiQuitByUser
+  | -- | Vty could not take over this terminal. Nothing was started, so the
+    -- caller is free to fall back to plain output.
+    TuiUnavailable
+
 -- | Runs the TUI alongside the given action, which receives the handle it
 -- should send all of its output to.
---
--- Returns 'Nothing' when the user quit the TUI (the action is then cancelled,
--- which stops the processes it started), and the action's result otherwise.
-withTui :: TuiConfig -> (TuiHandle -> IO a) -> IO (Maybe a)
+withTui :: TuiConfig -> (TuiHandle -> IO a) -> IO (TuiOutcome a)
 withTui config action = do
-  jobMessageChan <- newChan
-  eventChan <- BChan.newBChan eventChanCapacity
-  startTime <- getCurrentTime
-
-  let handle =
-        TuiHandle
-          { tuiJobMessageChan = jobMessageChan,
-            tuiSendWaspMessage = sendWaspMessageToTui eventChan
-          }
-      initialState =
-        makeTuiState (tuiConfigProjectName config) (tuiConfigAppUrls config) startTime
-
-  withAsync (forwardJobMessages jobMessageChan eventChan) $ \_ ->
-    withAsync (sendTicks eventChan) $ \_ -> do
-      outcome <- runTuiApp eventChan initialState `race` action handle
-      return $ either (const Nothing) Just outcome
+  -- Built before anything else starts, so that a terminal Vty can't drive
+  -- leaves the caller with nothing to clean up.
+  maybeInitialVty <- E.try buildVty
+  case (maybeInitialVty :: Either E.SomeException V.Vty) of
+    Left _ -> return TuiUnavailable
+    Right initialVty -> runWithVty initialVty
   where
+    buildVty = mkVty V.defaultConfig
+
+    runWithVty initialVty = do
+      jobMessageChan <- newChan
+      eventChan <- BChan.newBChan eventChanCapacity
+      startTime <- getCurrentTime
+
+      let handle =
+            TuiHandle
+              { tuiJobMessageChan = jobMessageChan,
+                tuiSendWaspMessage = sendWaspMessageToTui eventChan
+              }
+          initialState =
+            makeTuiState (tuiConfigProjectName config) (tuiConfigAppUrls config) startTime
+          runTuiApp =
+            void $ BrickMain.customMain initialVty buildVty (Just eventChan) tuiApp initialState
+
+      withAsync (forwardJobMessages jobMessageChan eventChan) $ \_ ->
+        withAsync (sendTicks eventChan) $ \_ -> do
+          outcome <- runTuiApp `race` action handle
+          return $ either (const TuiQuitByUser) TuiFinished outcome
+
     -- Big enough that a burst of output from a dev server doesn't block the
     -- process reading it, small enough to keep backpressure if the UI stalls.
     eventChanCapacity = 2048
-
-runTuiApp :: BChan.BChan TuiEvent -> TuiState -> IO ()
-runTuiApp eventChan initialState = do
-  let buildVty = mkVty V.defaultConfig
-  initialVty <- buildVty
-  void $ BrickMain.customMain initialVty buildVty (Just eventChan) tuiApp initialState
 
 forwardJobMessages :: Chan J.JobMessage -> BChan.BChan TuiEvent -> IO ()
 forwardJobMessages jobMessageChan eventChan =
@@ -170,6 +188,17 @@ syncTerminalSize = do
 
 handleTuiEvent :: BrickEvent TuiName TuiEvent -> EventM TuiName TuiState ()
 handleTuiEvent = \case
+  AppEvent (TuiTick now) -> do
+    stateBeforeTick <- get
+    modify $ applyTuiEvent (TuiTick now)
+    -- Ticks arrive many times a second to keep the spinners moving, but
+    -- `wasp start` spends most of its life idle. Redrawing then would be
+    -- several screenfuls of work a second for a screen that doesn't change,
+    -- so we only redraw when a spinner is running or the clock has moved on.
+    stateAfterTick <- get
+    let isAnimating = isAnyPaneBusy stateAfterTick
+        hasUptimeChanged = formatUptime stateBeforeTick /= formatUptime stateAfterTick
+    unless (isAnimating || hasUptimeChanged) BrickMain.continueWithoutRedraw
   AppEvent event -> modify (applyTuiEvent event)
   VtyEvent (V.EvResize terminalWidth terminalHeight) ->
     modify $ setTerminalSize terminalWidth terminalHeight

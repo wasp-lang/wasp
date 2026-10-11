@@ -8,7 +8,6 @@ module Wasp.Cli.Tui.Pane
     makePane,
     feedPane,
     markPaneExited,
-    setPaneStatus,
     clearPane,
     scrollPaneBy,
     scrollPaneToTop,
@@ -103,9 +102,10 @@ makePane pid =
       PaneDb -> ("Db", Theme.colorBlue)
 
 -- | Feeds a chunk of process output into the pane, updating its counters and
--- its status along the way.
-feedPane :: Bool -> T.Text -> Pane -> Pane
-feedPane isStderr chunk pane = foldl' applyNewLine pane {paneBuffer = buffer'} newLines
+-- its status along the way. Also returns the lines the chunk completed, which
+-- the caller needs to keep a paused pane looking at the same place.
+feedPane :: Bool -> T.Text -> Pane -> (Pane, [LogLine])
+feedPane isStderr chunk pane = (foldl' applyNewLine pane {paneBuffer = buffer'} newLines, newLines)
   where
     (buffer', newLines) = appendChunk isStderr chunk (paneBuffer pane)
 
@@ -154,9 +154,6 @@ nextStatus pid line current = case pid of
 
 markPaneExited :: ExitCode -> Pane -> Pane
 markPaneExited exitCode pane = pane {paneStatus = StatusExited exitCode, paneHasUnseen = True}
-
-setPaneStatus :: PaneStatus -> Pane -> Pane
-setPaneStatus status pane = pane {paneStatus = status}
 
 clearPane :: Pane -> Pane
 clearPane pane =

@@ -104,31 +104,38 @@ start = withArguments startArgsParser $ \args -> withProjectLock $ do
         -- Both of these should run forever, unless some super serious error happens.
         watchWaspProjectSource `race` startGeneratedWebApp
 
-  maybeWatchOrStartResult <-
-    liftIO $
-      if useTui
-        then Tui.withTui (makeTuiConfig waspProjectDir runConfigs) $ \tuiHandle -> do
-          -- The Wasp tab would otherwise start out empty, since compilation
-          -- already happened above, before the TUI took over the terminal.
-          reportInitialCompilationToTui (Tui.tuiSendWaspMessage tuiHandle) warnings
-          runProjectWith
-            (defaultCompileOptions waspProjectDir)
-              { sendMessage = Tui.tuiSendWaspMessage tuiHandle,
-                consumeJobMessages = forwardJobMessagesUntilExit (Tui.tuiJobMessageChan tuiHandle)
-              }
-            Wasp.Generator.StartOptions
-              { Wasp.Generator.stdinMode = ClosedStdin,
-                Wasp.Generator.consumeJobMessages =
-                  forwardJobMessagesUntilExit (Tui.tuiJobMessageChan tuiHandle)
-              }
-        else
-          Just
-            <$> runProjectWith
-              (defaultCompileOptions waspProjectDir)
-              Wasp.Generator.defaultStartOptions
+  let runProjectInTui tuiHandle = do
+        -- The Wasp tab would otherwise start out empty, since compilation
+        -- already happened above, before the TUI took over the terminal.
+        reportInitialCompilationToTui (Tui.tuiSendWaspMessage tuiHandle) warnings
+        runProjectWith
+          (defaultCompileOptions waspProjectDir)
+            { sendMessage = Tui.tuiSendWaspMessage tuiHandle,
+              consumeJobMessages = forwardJobMessagesUntilExit (Tui.tuiJobMessageChan tuiHandle)
+            }
+          Wasp.Generator.StartOptions
+            { Wasp.Generator.stdinMode = ClosedStdin,
+              Wasp.Generator.consumeJobMessages =
+                forwardJobMessagesUntilExit (Tui.tuiJobMessageChan tuiHandle)
+            }
 
-  case maybeWatchOrStartResult of
-    -- The user quit the TUI, which also stopped everything it was running.
+      runProjectPlainly =
+        runProjectWith (defaultCompileOptions waspProjectDir) Wasp.Generator.defaultStartOptions
+
+  watchOrStartResult <- liftIO $ do
+    tuiOutcome <-
+      if useTui
+        then Tui.withTui (makeTuiConfig waspProjectDir runConfigs) runProjectInTui
+        else Tui.TuiFinished <$> runProjectPlainly
+    case tuiOutcome of
+      Tui.TuiFinished result -> return (Just result)
+      -- The user quit the TUI, which also stopped everything it was running.
+      Tui.TuiQuitByUser -> return Nothing
+      -- Vty couldn't take over the terminal, but it started nothing, so we can
+      -- still run the app the plain way.
+      Tui.TuiUnavailable -> Just <$> runProjectPlainly
+
+  case watchOrStartResult of
     Nothing -> cliSendMessageC $ Msg.Success "Stopped. Run `wasp start` to pick up where you left off."
     Just (Left ()) -> error "This should never happen, listening for file changes should never end but it did."
     Just (Right startResult) -> case startResult of
