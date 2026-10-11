@@ -123,6 +123,7 @@
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",
+    "./server/errors": "./dist/server/errors.js",
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
     "./server/jobs/*": "./dist/server/jobs/*.js",

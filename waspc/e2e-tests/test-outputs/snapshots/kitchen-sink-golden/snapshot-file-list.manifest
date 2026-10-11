@@ -730,6 +730,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/env.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/errors.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.js
@@ -885,6 +889,7 @@ wasp-app/.wasp/out/sdk/wasp/server/email/core/providers/smtp.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/core/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/env.ts
+wasp-app/.wasp/out/sdk/wasp/server/errors.ts
 wasp-app/.wasp/out/sdk/wasp/server/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/job.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/index.ts
@@ -1062,6 +1067,7 @@ wasp-app/e2e-tests/tests/operations.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
 wasp-app/e2e-tests/tests/serialization.spec.ts
+wasp-app/e2e-tests/tests/server-errors.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
 wasp-app/e2e-tests/tests/user-api.spec.ts
 wasp-app/e2e-tests/tests/websocket.spec.ts
@@ -1129,6 +1135,8 @@ wasp-app/src/features/crud/pages/ListPage.tsx
 wasp-app/src/features/db/db.wasp.ts
 wasp-app/src/features/db/prisma.ts
 wasp-app/src/features/db/seeds.ts
+wasp-app/src/features/errors/apis.ts
+wasp-app/src/features/errors/errors.wasp.ts
 wasp-app/src/features/jobs/bar.js
 wasp-app/src/features/jobs/jobs.wasp.ts
 wasp-app/src/features/jobs/pages/JobsPage.tsx

@@ -31,6 +31,7 @@
 
 ### 🐞 Bug fixes
 
+- The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
@@ -42,6 +43,7 @@
 
 ### 🔧 Small improvements
 
+- The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
