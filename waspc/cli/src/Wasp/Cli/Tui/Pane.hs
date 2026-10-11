@@ -210,8 +210,9 @@ togglePaneFollow pane =
 markPaneSeen :: Pane -> Pane
 markPaneSeen pane = pane {paneHasUnseen = False}
 
--- | The Wasp tab is a compiler and a file watcher rather than a server, so its
--- states read better with their own words.
+-- | Not every tab is a server: the Wasp tab is a compiler and a file watcher,
+-- and the Db tab is a series of one-shot Prisma commands. Their states read
+-- better with their own words.
 paneStatusLabel :: Pane -> T.Text
 paneStatusLabel pane = case paneStatus pane of
   StatusIdle -> "idle"
@@ -219,10 +220,13 @@ paneStatusLabel pane = case paneStatus pane of
   StatusWorking -> if isWasp then "compiling" else "working"
   StatusReady -> if isWasp then "watching" else "ready"
   StatusFailed -> "failed"
-  StatusExited ExitSuccess -> "exited"
+  -- A Prisma command finishing is the normal course of events, so saying it
+  -- "exited" would make a healthy tab look like something went wrong.
+  StatusExited ExitSuccess -> if isShortLived then "done" else "exited"
   StatusExited (ExitFailure code) -> "exited " <> T.pack (show code)
   where
     isWasp = paneId pane == PaneWasp
+    isShortLived = paneId pane == PaneDb
 
 -- | Whether the pane should show a spinner rather than a static dot.
 paneIsBusy :: PaneStatus -> Bool
