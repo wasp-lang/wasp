@@ -1060,6 +1060,7 @@ wasp-app/e2e-tests/tests/auth-hooks.spec.ts
 wasp-app/e2e-tests/tests/auth.spec.ts
 wasp-app/e2e-tests/tests/auth.ts
 wasp-app/e2e-tests/tests/catch-all-route.spec.ts
+wasp-app/e2e-tests/tests/client-errors.spec.ts
 wasp-app/e2e-tests/tests/crud.spec.ts
 wasp-app/e2e-tests/tests/custom-apis-methods.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
@@ -1145,6 +1146,7 @@ wasp-app/src/features/db/prisma.ts
 wasp-app/src/features/db/seeds.ts
 wasp-app/src/features/errors/apis.ts
 wasp-app/src/features/errors/errors.wasp.ts
+wasp-app/src/features/errors/pages/ClientErrorsPage.tsx
 wasp-app/src/features/errors/pages/ErrorsPage.tsx
 wasp-app/src/features/errors/queries.ts
 wasp-app/src/features/jobs/bar.js

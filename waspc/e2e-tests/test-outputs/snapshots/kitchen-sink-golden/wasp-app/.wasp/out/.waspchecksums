@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/authErrorMessage.ts"
         ],
-        "cba4d6e00f0998051a5a528a70bf6b45d769ddb575e3244e4b46e6a82930afed"
+        "4297afafb5a1cd83db41f7959df45490a948d35c4893a62a17f7856778d86311"
     ],
     [
         [
@@ -396,7 +396,7 @@
             "file",
             "sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx"
         ],
-        "e55a155f26ab4db499aaed9c437c3adcf15f2c0ce5d700d9063f766318e1f9de"
+        "4118c1e0c5c2268212cfa50c9cc8e016b1590211da62afb203ab7b9bee9607dc"
     ],
     [
         [
@@ -452,7 +452,7 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "75ce7bd4e48ba850b15d32c63489f44d7e75453c3f99bbbf55b49281ac11ea45"
+        "c807ea1c8b56f8e2259d0fc4d935888e606e4425364dff0cdf2e15a9647e4fa7"
     ],
     [
         [
@@ -578,7 +578,7 @@
             "file",
             "sdk/wasp/client/errors.ts"
         ],
-        "381a8786d5e989d75cbbcccb97bac6d52cfb84cce797a33ce051096f24efa5bd"
+        "e14c018c91cd55701681a61369ad89519be50306828e32addeb26fcb2f7312f9"
     ],
     [
         [
@@ -613,7 +613,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "d4ac298d81fa415ff40b3505ad1a6e38484d655b317f0472eed12644564b31e3"
+        "e8c818349cb756ced6f31d139c99a83b4896d0088e324e199118fe239abd2191"
     ],
     [
         [
@@ -662,7 +662,7 @@
             "file",
             "sdk/wasp/client/operations/queryClient.ts"
         ],
-        "c32437fb349592ee41ab8d85aa0a92174e6eb7bf831cc63a0c3719c9cecd6343"
+        "de4d96fb7054758d4bafa9026e194b88180c52065d71fe2316db1c9fd3f07e2a"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "d09973eeb137ad27936cba26df8cdee9f0dde87a918167cabecd7687f608a77b"
+        "f9148a1385fd13548119ea6737741fb0362d4bf52ce9ed63e44ba8648c9a4c30"
     ],
     [
         [
@@ -795,14 +795,14 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "c1f5639079fdc9860463228e7a68b5a8b82db324cee5514eb5833a7226dbd343"
+        "dd0bf3fefb575bbf5149374eb4a1ae9c197256870891e6a7adbf546a983d4496"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "89866da9ecbce2356a994ff9ba08ab7a85460d48fbf087b4055853a9bccf06d5"
+        "90e00a0e434076e946cdf81dcfdf2856fea22b6f4a8f9b982610aca5412afa85"
     ],
     [
         [
@@ -907,7 +907,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "b270448b5ee811fc969f04ded39d481137409ee8d07f55cba72deaa3efff903d"
+        "c7bf7e5205eb13eece41f8b0890aa28d1f23dd03158a2a93a37ed80c8093670d"
     ],
     [
         [
@@ -1166,7 +1166,7 @@
             "file",
             "sdk/wasp/server/errors.ts"
         ],
-        "8231ba539127fd96176d39a5e1033a4760e23fbe813e0656caf65b5489ef04d7"
+        "b745cd5983d40a8001f0e58ecabae39776b523e769f7b9ccd2c28b44fba6e041"
     ],
     [
         [

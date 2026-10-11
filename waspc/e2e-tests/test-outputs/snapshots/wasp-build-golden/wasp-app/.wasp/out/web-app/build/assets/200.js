@@ -1,10 +1,10 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
-import { StrictMode, startTransition, use, useSyncExternalStore } from "react";
+import { StrictMode, startTransition, use, useEffect, useSyncExternalStore } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, isCancelledError } from "@tanstack/react-query";
 import ky from "ky";
 import * as z from "zod";
 import mitt from "mitt";
@@ -221,6 +221,27 @@ function createLocalStorageDataStore(prefix) {
 //#region .wasp/out/sdk/wasp/dist/api/events.js
 var apiEventsEmitter = mitt();
 //#endregion
+//#region .wasp/out/sdk/wasp/dist/errors/HttpError.js
+/**
+* An error with an HTTP status code that Wasp sends to the client.
+*
+* Throw it on the server to answer with a specific status code, message,
+* and data. The client receives the same fields in an `HttpError`.
+* Anything else thrown on the server reaches the client as a generic 500.
+*/
+var HttpError = class HttpError extends Error {
+	statusCode;
+	data;
+	constructor(statusCode, message, data, options) {
+		super(message, options);
+		if (Error.captureStackTrace) Error.captureStackTrace(this, HttpError);
+		this.name = "HttpError";
+		if (!(Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600)) throw new Error("statusCode has to be integer in range [400, 600).");
+		this.statusCode = statusCode;
+		if (data) this.data = data;
+	}
+};
+//#endregion
 //#region .wasp/out/sdk/wasp/dist/api/index.js
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
@@ -255,6 +276,43 @@ function getSessionIdFromAuthorizationHeader(header) {
 	else return null;
 }
 //#endregion
+//#region .wasp/out/sdk/wasp/dist/client/errors.js
+var handledErrors = /* @__PURE__ */ new WeakSet();
+/**
+* The client error handler. Wasp calls it from every place where errors
+* surface: the root error boundary, React's root, TanStack Query's caches,
+* the browser's global error events, and Wasp's own `catch` blocks.
+*
+* An `HttpError` is sent by the server on purpose, and the server already
+* reports its own unexpected errors, so we only report everything else.
+*/
+function handleClientError(error, context) {
+	if (error instanceof HttpError) return;
+	if (typeof error === "object" && error !== null) {
+		if (handledErrors.has(error)) return;
+		handledErrors.add(error);
+	}
+	reportUnexpectedClientError(error, context);
+}
+/**
+* Catches errors that nothing else caught, e.g. errors thrown in event
+* handlers and rejected promises that nobody awaited.
+*
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event
+*/
+function listenForUncaughtClientErrors() {
+	window.addEventListener("error", (event) => {
+		handleClientError(event.error ?? event.message, { source: "window" });
+	});
+	window.addEventListener("unhandledrejection", (event) => {
+		handleClientError(event.reason, { source: "window" });
+	});
+}
+function reportUnexpectedClientError(error, context) {
+	console.error(`Unexpected error in ${context.source}:`, error);
+}
+//#endregion
 //#region .wasp/out/sdk/wasp/dist/client/operations/queryClient.js
 var defaultQueryClientConfig = {};
 var resolveQueryClientInitialized;
@@ -263,12 +321,19 @@ var queryClientInitialized = new Promise((resolve) => {
 });
 function initializeQueryClient() {
 	const queryClient = new QueryClient(defaultQueryClientConfig);
+	reportQueryClientErrors(queryClient);
 	resolveQueryClientInitialized(queryClient);
 }
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/errors.js
-function reportUnexpectedClientError(error, context) {
-	console.error(`Unexpected error in ${context.source}:`, error);
+function reportQueryClientErrors(queryClient) {
+	queryClient.getQueryCache().subscribe((event) => {
+		if (event.type === "updated" && event.action.type === "error") reportUnlessCancelled(event.action.error, { source: "query" });
+	});
+	queryClient.getMutationCache().subscribe((event) => {
+		if (event.type === "updated" && event.action.type === "error") reportUnlessCancelled(event.action.error, { source: "action" });
+	});
+}
+function reportUnlessCancelled(error, context) {
+	if (!isCancelledError(error)) handleClientError(error, context);
 }
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
@@ -298,7 +363,10 @@ function FullPageWrapper({ children, className }) {
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/components/DefaultRootErrorBoundary.jsx
 function DefaultRootErrorBoundary() {
-	reportUnexpectedClientError(useRouteError(), { source: "pageRender" });
+	const error = useRouteError();
+	useEffect(() => {
+		handleClientError(error, { source: "render" });
+	}, [error]);
 	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
 }
 //#endregion
@@ -452,8 +520,11 @@ var fullAppTree = /* @__PURE__ */ jsx(Layout, {
 	isFallbackPage,
 	children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise })
 });
+listenForUncaughtClientErrors();
 startTransition(() => {
-	hydrateRoot(document, fullAppTree);
+	hydrateRoot(document, fullAppTree, { onUncaughtError: (error) => {
+		handleClientError(error, { source: "render" });
+	} });
 });
 async function waitForRouterInitialized(router) {
 	if (router.state.initialized) return;

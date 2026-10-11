@@ -60,7 +60,7 @@
             "file",
             "sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx"
         ],
-        "e55a155f26ab4db499aaed9c437c3adcf15f2c0ce5d700d9063f766318e1f9de"
+        "4118c1e0c5c2268212cfa50c9cc8e016b1590211da62afb203ab7b9bee9607dc"
     ],
     [
         [
@@ -144,7 +144,7 @@
             "file",
             "sdk/wasp/client/errors.ts"
         ],
-        "381a8786d5e989d75cbbcccb97bac6d52cfb84cce797a33ce051096f24efa5bd"
+        "e14c018c91cd55701681a61369ad89519be50306828e32addeb26fcb2f7312f9"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "d4ac298d81fa415ff40b3505ad1a6e38484d655b317f0472eed12644564b31e3"
+        "e8c818349cb756ced6f31d139c99a83b4896d0088e324e199118fe239abd2191"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "sdk/wasp/client/operations/queryClient.ts"
         ],
-        "c32437fb349592ee41ab8d85aa0a92174e6eb7bf831cc63a0c3719c9cecd6343"
+        "de4d96fb7054758d4bafa9026e194b88180c52065d71fe2316db1c9fd3f07e2a"
     ],
     [
         [
@@ -361,7 +361,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "c1f5639079fdc9860463228e7a68b5a8b82db324cee5514eb5833a7226dbd343"
+        "dd0bf3fefb575bbf5149374eb4a1ae9c197256870891e6a7adbf546a983d4496"
     ],
     [
         [
@@ -452,7 +452,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "a2a019cb92734f54fa417b8d72a67ebee4676010741670a9af47abfd6d59344e"
+        "097100386e764cd8a66c9c1bfdc32b1a49d13c3ef5958db15638d1b38eb0b344"
     ],
     [
         [
