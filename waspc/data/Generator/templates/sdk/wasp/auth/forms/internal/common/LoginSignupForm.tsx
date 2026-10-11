@@ -34,9 +34,11 @@ import { getAuthErrorMessage } from "../authErrorMessage";
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
+import type { UsernameSignupData } from "../../../username/actions/signup";
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
 {=# enabledProviders.isEmailAuthEnabled =}
 import { useEmail } from '../email/useEmail'
+import type { EmailSignupData } from "../../../email/actions/signup";
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}
@@ -62,15 +64,20 @@ const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
-{=!
-// Since we allow users to add additional fields to the signup form, we don't
-// know the exact shape of the form values. We are assuming that the form values
-// will be a flat object with string values.
-=}
 // PRIVATE API
+/**
+ * Any client-only fields users add to the form through `additionalFields`,
+ * plus the signup data.
+ */
 export type LoginSignupFormFields = {
   [key: string]: string;
 }
+{=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
+  & UsernameSignupData
+{=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+{=# enabledProviders.isEmailAuthEnabled =}
+  & EmailSignupData
+{=/ enabledProviders.isEmailAuthEnabled =}
 
 // PRIVATE API
 export const LoginSignupForm = ({
@@ -125,7 +132,7 @@ export const LoginSignupForm = ({
   });
   {=/ enabledProviders.isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
-  async function onSubmit (data) {
+  async function onSubmit(data: LoginSignupFormFields): Promise<void> {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);

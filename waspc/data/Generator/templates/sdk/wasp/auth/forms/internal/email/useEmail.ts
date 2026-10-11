@@ -1,4 +1,4 @@
-import { signup } from '../../../email/actions/signup'
+import { signup, type EmailSignupData } from '../../../email/actions/signup'
 import { login } from '../../../email/actions/login'
 
 // PRIVATE API
@@ -13,7 +13,7 @@ export function useEmail({
   onLoginSuccess: () => void
   isLogin: boolean
 }) {
-  async function handleSubmit(data) {
+  async function handleSubmit(data: EmailSignupData): Promise<void> {
     try {
       if (isLogin) {
         await login(data)

@@ -38,16 +38,10 @@ export type AuthUser = AuthUserData & {
 
 // PRIVATE API (used in SDK and server)
 /*
- * Ideally, we'd do something like this:
- * ```
- * export type AuthUserData = ReturnType<typeof createAuthUserData>
- * ```
- * to get the benefits of the createAuthUser and the AuthUserData type being in sync.
- *
- * But since we are not using strict mode, the inferred return type of createAuthUser
- * is not correct. So we have to define the AuthUserData type manually.
- *
- * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
+ * We define this type explicitly instead of inferring it with
+ * `ReturnType<typeof createAuthUserData>` so it reads well in the IDE.
+ * `createAuthUserData` declares it as its return type, so TypeScript reports
+ * a field missing from its result, but not an extra one.
  */
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
   identities: {

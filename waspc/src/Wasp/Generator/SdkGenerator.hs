@@ -61,7 +61,7 @@ import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, g
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
-import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genEmailSenderApi)
+import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, devDepsRequiredByEmail, genEmailSenderApi)
 import Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( depsRequiredByJobs,
     genJobsApi,
@@ -208,7 +208,7 @@ npmDepsForSdk spec =
             ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),
             ("ky", show kyVersionRange),
-            ("mitt", "3.0.0"),
+            ("mitt", "3.0.1"),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),
@@ -240,7 +240,8 @@ npmDepsForSdk spec =
             ("@types/express-serve-static-core", show expressTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
             ("@types/react-dom", show reactDomTypesVersionRange)
-          ],
+          ]
+          ++ devDepsRequiredByEmail spec,
       N.peerDependencies = Npm.Dependency.fromList []
     }
   where

@@ -26,6 +26,7 @@ import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
 import { getAuthErrorMessage } from "../authErrorMessage";
 import { useEmail } from '../email/useEmail'
+import type { EmailSignupData } from "../../../email/actions/signup";
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
 const discordSignInUrl = `${config.apiUrl}/auth/discord/login`
@@ -34,9 +35,14 @@ const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
 // PRIVATE API
+/**
+ * Any client-only fields users add to the form through `additionalFields`,
+ * plus the signup data.
+ */
 export type LoginSignupFormFields = {
   [key: string]: string;
 }
+  & EmailSignupData
 
 // PRIVATE API
 export const LoginSignupForm = ({
@@ -73,7 +79,7 @@ export const LoginSignupForm = ({
       navigate("/")
     },
   });
-  async function onSubmit (data) {
+  async function onSubmit(data: LoginSignupFormFields): Promise<void> {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);

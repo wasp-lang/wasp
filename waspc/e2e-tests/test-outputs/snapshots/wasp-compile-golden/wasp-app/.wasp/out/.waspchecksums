@@ -116,7 +116,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "3f8db611f300550058764b1ea3c453710828d335fb909ba7069e44f6eebda416"
+        "22f841da0a7b303bad4af4c3c2f8bf6808ec75f0a68686d76701a8e6c45617cf"
     ],
     [
         [
@@ -158,7 +158,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "02d2028c46cd470dec7be3344a94755521528135653066f99a01a338058f1805"
+        "6044a713f607711c42d7bfc4e493d53060370e113a922a6107a1d53feb67f617"
     ],
     [
         [
@@ -172,7 +172,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "9c22f453fb7abaeca08f48c7fdf7650b23610cfa16038b86851d4117bb6f46ad"
+        "0767795f14ae4a454d0e8ce504a3a0346e1a3360b450eb732e579257d83e131d"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "sdk/wasp/client/operations/queries/core.ts"
         ],
-        "cf0cbee66bea7789d5eeac5798495c7f22f15868400bf0b6bab9c95d31bfe2ff"
+        "e5a0b4e959bb17351d01fee4c1e43048f3bb8700ea515a90a1027471031d2b9c"
     ],
     [
         [
@@ -438,7 +438,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "54c2d762d1f734b3a0ddfb6c00cc056a558aa7c93e596699f9fb34a27480670a"
+        "1f7d4bb210f6a3d797fe6a6fc7011c97dc9edb5d4f83cb50355e2b6b102da2e4"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "8abf7f34b17f9f70980d3a5e61fff480299033fb346e990d094d25a1ec78b6d5"
+        "4cf39f23bb48838289a32b42e6bccd7f441ac83e7c9c9287263782e446cafe7b"
     ],
     [
         [

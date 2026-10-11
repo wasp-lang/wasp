@@ -50,7 +50,7 @@ export function throwValidationError(message: string): void {
 
 function validate(args: object, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
   for (const { validates, message, validator } of validators) {
-    if (!validator(args[validates])) {
+    if (!validator((args as Record<string, unknown>)[validates])) {
       throwValidationError(message);
     }
   }
