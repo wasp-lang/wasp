@@ -5,7 +5,7 @@ import {
   ensureValidEmail,
   ensureValidPassword,
 } from 'wasp/auth/validation'
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/errors";
 import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
 import {
   createEmailVerificationLink,

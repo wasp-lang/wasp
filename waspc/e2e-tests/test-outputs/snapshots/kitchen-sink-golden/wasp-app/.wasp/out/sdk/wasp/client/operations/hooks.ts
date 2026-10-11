@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { makeQueryCacheKey } from "./queries/core";
 import type { Action, Query } from "./rpc";
+import type { HttpError } from "../../errors/index.js";
 export { configureQueryClient } from "./queryClient";
 
 // PUBLIC API
@@ -16,7 +17,7 @@ export function useQuery<Input, Output>(
   query: Query<Input, Output>,
   queryFnArgs?: Input,
   options?: any
-): UseQueryResult<Output, Error> {
+): UseQueryResult<Output, HttpError | Error> {
   if (typeof query !== 'function') {
     throw new TypeError('useQuery requires queryFn to be a function.')
   }

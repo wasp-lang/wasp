@@ -1,8 +1,8 @@
 import type { Response } from "express";
 import { STATUS_CODES } from "node:http";
+import { HttpError, toHttpErrorBody } from "../errors/HttpError.js";
 import { getErrorMessage } from "../errors/index.js";
 import config from "./config.js";
-import { HttpError } from "./HttpError.js";
 
 // PRIVATE API (server)
 export type ServerErrorContext =
@@ -43,9 +43,7 @@ export function sendErrorResponse(response: Response, error: unknown): void {
   if (headers) {
     response.set(headers);
   }
-  response
-    .status(httpError.statusCode)
-    .json({ message: httpError.message, data: httpError.data });
+  response.status(httpError.statusCode).json(toHttpErrorBody(httpError));
 }
 
 function toHttpError(error: unknown): HttpError {

@@ -287,7 +287,7 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 ```ts title="src/queries.ts" auto-js
 import type { Task } from "wasp/entities";
 // highlight-next-line
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
@@ -310,7 +310,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 ```ts title="src/actions.ts" auto-js
 import type { Task } from "wasp/entities";
 // highlight-next-line
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 type CreateTaskPayload = Pick<Task, "description">;

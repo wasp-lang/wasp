@@ -110,7 +110,7 @@ export default app({
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/auth/hooks.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const onBeforeSignup = async ({ providerId, prisma, req }) => {
       const count = await prisma.user.count()
@@ -134,7 +134,7 @@ export default app({
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
     import type { OnBeforeSignupHook } from "wasp/server/auth"
 
     export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -412,7 +412,7 @@ export default app({
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/auth/hooks.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const onBeforeLogin = async ({ providerId, user, prisma, req }) => {
       if (
@@ -427,7 +427,7 @@ export default app({
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
     import type { OnBeforeLoginHook } from "wasp/server/auth"
 
     export const onBeforeLogin: OnBeforeLoginHook = async ({
