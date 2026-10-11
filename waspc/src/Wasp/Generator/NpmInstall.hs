@@ -4,7 +4,7 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
+import Control.Concurrent (Chan, newChan, threadDelay, writeChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
@@ -21,7 +21,7 @@ import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
+import Wasp.Job.IO (JobMessagesConsumer)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
@@ -30,10 +30,11 @@ import qualified Wasp.Util.IO as IOUtil
 -- Thanks to npm workspaces, this single install covers the user's project deps,
 -- the generated server deps, and the Wasp SDK.
 installNpmDependenciesWithInstallRecord ::
+  JobMessagesConsumer ->
   AppSpec ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO (Either GeneratorError ())
-installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
+installNpmDependenciesWithInstallRecord consumeJobMessages spec dstDir = runExceptT $ do
   messagesChan <- liftIO newChan
 
   let allNpmDeps = getAllNpmDeps spec
@@ -53,7 +54,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
-    liftIO (installProjectNpmDependencies messagesChan waspProjectDirPath)
+    liftIO (installProjectNpmDependencies consumeJobMessages messagesChan waspProjectDirPath)
       >>= onLeftThrowError
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
@@ -65,9 +66,9 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
-  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir = do
-  (_, installExitCode) <- handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
+  JobMessagesConsumer -> Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependencies consumeJobMessages messagesChan projectDir = do
+  (_, installExitCode) <- consumeJobMessages messagesChan `concurrently` installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
@@ -77,15 +78,6 @@ installProjectNpmDependencies messagesChan projectDir = do
         (runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp)
         messagesChan
         J.Wasp
-    handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
-    handleProjectInstallMessages = runPrefixedWriter . processMessages
-      where
-        processMessages :: Chan J.JobMessage -> PrefixedWriter ()
-        processMessages chan = do
-          jobMsg <- liftIO $ readChan chan
-          case J._data jobMsg of
-            J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
-            J.JobExit {} -> return ()
 
 installNpmDependenciesAndReport :: Job -> Chan JobMessage -> JobType -> IO ExitCode
 installNpmDependenciesAndReport installJob chan jobType = do

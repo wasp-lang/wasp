@@ -28,7 +28,6 @@ import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
@@ -75,7 +74,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
+      (compileOptions.consumeJobMessages chan)
       -- We invoke the script directly via `node` instead of `npx` because
       -- `npx` requires the bin file to be executable, and `cabal install`
       -- strips executable permissions from data files.

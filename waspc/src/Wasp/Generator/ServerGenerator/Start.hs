@@ -9,12 +9,13 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Job.Process (StdinMode, runNodeCommandAsJobWithExtraEnvAndStdinMode)
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job
-startServer serverRunConfig generatedAppDir = do
+startServer :: StdinMode -> ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+startServer stdinMode serverRunConfig generatedAppDir = do
   let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-  runNodeCommandAsJobWithExtraEnv
+  runNodeCommandAsJobWithExtraEnvAndStdinMode
+    stdinMode
     (getEnvVars serverRunConfig)
     serverDir
     "npm"

@@ -1,5 +1,6 @@
 module Wasp.Job.IO
-  ( readJobMessagesAndPrintThemPrefixed,
+  ( JobMessagesConsumer,
+    readJobMessagesAndPrintThemPrefixed,
     printJobMessage,
     printJobMsgsUntilExitReceived,
     collectJobTextOutputUntilExitReceived,
@@ -14,6 +15,15 @@ import System.IO (hFlush)
 import qualified Wasp.Job as J
 import Wasp.Job.Common (getJobMessageContent, getJobMessageOutHandle)
 import Wasp.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
+
+-- | Consumes the messages a job writes to its channel, until the job's exit
+-- message arrives.
+--
+-- Wasp runs plenty of processes (npm, tsc, prisma, ...) and their output has to
+-- go somewhere. Normally that is the terminal, but `wasp start`'s TUI owns the
+-- terminal while it runs and routes the output into its own panes instead. So
+-- whatever runs a job takes one of these, leaving the choice to the caller.
+type JobMessagesConsumer = Chan J.JobMessage -> IO ()
 
 printJobMsgsUntilExitReceived :: Chan J.JobMessage -> IO ()
 printJobMsgsUntilExitReceived chan = do

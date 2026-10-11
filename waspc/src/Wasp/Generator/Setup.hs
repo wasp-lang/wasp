@@ -30,7 +30,7 @@ import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.IO (JobMessagesConsumer)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 
@@ -76,10 +76,10 @@ type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
 -- | Runs the setup steps the goal needs, each after its prerequisites.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp goal spec generatedAppDir sendMessage =
+setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> JobMessagesConsumer -> Setup ()
+setUpGeneratedApp goal spec generatedAppDir sendMessage consumeJobMessages =
   forM_ (resolveSetupSteps goal) $ \step ->
-    runSetupStep step spec generatedAppDir sendMessage
+    runSetupStep step spec generatedAppDir sendMessage consumeJobMessages
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
 runSetup setupAction = do
@@ -102,23 +102,23 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
   where
     prerequisitesThenStep step = concatMap prerequisitesThenStep (prerequisites step) ++ [step]
 
-runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-runSetupStep step spec generatedAppDir sendMessage = case step of
-  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
+runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> JobMessagesConsumer -> Setup ()
+runSetupStep step spec generatedAppDir sendMessage consumeJobMessages = case step of
+  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage consumeJobMessages
   FormatPrismaSchema -> liftIO $ DbGenerator.formatPrismaSchemaFileOnDisk generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
   WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
-  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
+  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage consumeJobMessages
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
-  BuildSdk -> buildSdk generatedAppDir sendMessage
+  BuildSdk -> buildSdk generatedAppDir sendMessage consumeJobMessages
   CreateWebAppRootDir -> liftIO $ createWebAppRootDir generatedAppDir
-  TypeCheckUserCode -> typeCheckUserCode spec sendMessage
+  TypeCheckUserCode -> typeCheckUserCode spec sendMessage consumeJobMessages
 
-installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-installDependencies spec generatedAppDir sendMessage = do
-  result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir
+installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> JobMessagesConsumer -> Setup ()
+installDependencies spec generatedAppDir sendMessage consumeJobMessages = do
+  result <- liftIO $ installNpmDependenciesWithInstallRecord consumeJobMessages spec generatedAppDir
   case result of
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
@@ -128,31 +128,31 @@ warnIfDbNeedsMigration spec generatedAppDir = do
   warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
   tell $ maybeToList warning
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-generatePrismaClient spec generatedAppDir sendMessage = do
+generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> JobMessagesConsumer -> Setup ()
+generatePrismaClient spec generatedAppDir sendMessage consumeJobMessages = do
   result <- liftIO $ do
     sendMessage $ Msg.Start "Generating Prisma client..."
-    DbGenerator.generatePrismaClient spec generatedAppDir
+    DbGenerator.generatePrismaClient consumeJobMessages spec generatedAppDir
   case result of
     Just generatorError -> throwError [generatorError]
     Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
 
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-buildSdk generatedAppDir sendMessage = do
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> JobMessagesConsumer -> Setup ()
+buildSdk generatedAppDir sendMessage consumeJobMessages = do
   result <- liftIO $ do
     sendMessage $ Msg.Start "Building SDK..."
-    SdkGenerator.buildSdk generatedAppDir
+    SdkGenerator.buildSdk consumeJobMessages generatedAppDir
   case result of
     Left errorMessage -> throwError [GenericGeneratorError errorMessage]
     Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
 
-typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
-typeCheckUserCode spec sendMessage = do
+typeCheckUserCode :: AppSpec -> Msg.SendMessage -> JobMessagesConsumer -> Setup ()
+typeCheckUserCode spec sendMessage consumeJobMessages = do
   (_, exitCode) <- liftIO $ do
     sendMessage $ Msg.Start "Type-checking user code..."
     chan <- newChan
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
+      (consumeJobMessages chan)
       (runTypeCheck chan)
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."

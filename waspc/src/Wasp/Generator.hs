@@ -1,6 +1,8 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
+    Wasp.Generator.Start.StartOptions (..),
+    Wasp.Generator.Start.defaultStartOptions,
     Wasp.Generator.Test.testWebApp,
     GeneratedAppDir,
   )
@@ -34,6 +36,7 @@ import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
+import Wasp.Job.IO (JobMessagesConsumer)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
 
@@ -45,8 +48,8 @@ import Wasp.Util ((<++>))
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> SetupGoal -> IO ([GeneratorWarning], [GeneratorError])
-writeWebAppCode spec dstDir sendMessage setupGoal = do
+writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> JobMessagesConsumer -> SetupGoal -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode spec dstDir sendMessage consumeJobMessages setupGoal = do
   case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
@@ -57,7 +60,7 @@ writeWebAppCode spec dstDir sendMessage setupGoal = do
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
           WaspInfo.persist dstDir $ AS.buildType spec
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp setupGoal spec dstDir sendMessage
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp setupGoal spec dstDir sendMessage consumeJobMessages
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]

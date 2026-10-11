@@ -45,6 +45,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
+import Wasp.Job.IO (JobMessagesConsumer)
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
@@ -223,8 +224,8 @@ warnProjectDiffersFromDb generatedAppDir = do
         "Wasp was unable to verify your database is up to date."
           <> " Running `wasp db migrate-dev` may fix this and will provide more info."
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
-generatePrismaClient spec generatedAppDir = do
+generatePrismaClient :: JobMessagesConsumer -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
+generatePrismaClient consumeJobMessages spec generatedAppDir = do
   isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
   if not isGeneratedPrismaClientValid
     then generatePrismaClientIfEntitiesExist
@@ -248,7 +249,7 @@ generatePrismaClient spec generatedAppDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
+          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient consumeJobMessages generatedAppDir
       | otherwise = return Nothing
 
     entitiesExist = hasEntities spec

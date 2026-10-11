@@ -415,6 +415,7 @@ library cli-lib
     aeson-pretty,
     async,
     base,
+    brick ^>=2.8,
     bytestring,
     containers,
     cryptonite ^>=0.30,
@@ -441,6 +442,8 @@ library cli-lib
     time,
     utf8-string,
     uuid ^>=1.3.15,
+    vty ^>=6.2,
+    vty-crossplatform ^>=0.4,
     waspc,
     zlib ^>=0.7.1,
 
@@ -520,6 +523,13 @@ library cli-lib
     Wasp.Cli.ProjectLock
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
+    Wasp.Cli.Tui
+    Wasp.Cli.Tui.Ansi
+    Wasp.Cli.Tui.Draw
+    Wasp.Cli.Tui.LogBuffer
+    Wasp.Cli.Tui.Model
+    Wasp.Cli.Tui.Pane
+    Wasp.Cli.Tui.Theme
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser

@@ -5,6 +5,7 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Setup (SetupGoal)
+import Wasp.Job.IO (JobMessagesConsumer)
 import Wasp.Message (SendMessage)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
@@ -19,6 +20,9 @@ data CompileOptions = CompileOptions
     -- invokes the compiler (such as the CLI) can then implement a way
     -- to display these messages.
     sendMessage :: SendMessage,
+    -- Same for the raw output of the processes the compiler runs
+    -- (npm, tsc, prisma, ...).
+    consumeJobMessages :: JobMessagesConsumer,
     -- How far to set up the generated app after the code is generated
     -- (npm install, Prisma client, SDK build, ...).
     setupGoal :: SetupGoal

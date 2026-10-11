@@ -78,7 +78,7 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.IO (JobMessagesConsumer)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
@@ -87,12 +87,12 @@ import qualified Wasp.SemanticVersion.Version as SV
   )
 import Wasp.Util ((<++>))
 
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-buildSdk generatedAppDir = do
+buildSdk :: JobMessagesConsumer -> Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+buildSdk consumeJobMessages generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
+      (consumeJobMessages chan)
       (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
   return $ case exitCode of
     ExitSuccess -> Right ()

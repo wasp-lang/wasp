@@ -1,10 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Wasp.Job.Process
-  ( runProcessAsJob,
+  ( StdinMode (..),
+    runProcessAsJob,
     runNodeCommandAsJob,
     runNodeCommandAsJobWithExtraEnv,
     runNodeCommandAsJobWithExtraEnvAndStdin,
+    runNodeCommandAsJobWithExtraEnvAndStdinMode,
   )
 where
 
@@ -99,8 +101,22 @@ runProcessAsJobWithStdin _stdin process jobType chan =
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
+-- | What a job's process gets as its standard input.
+data StdinMode
+  = -- | The process shares Wasp's own stdin.
+    InheritStdin
+  | -- | The process gets a stream that is already at end of input. Used when
+    -- something else (the TUI) is reading the terminal and the two would
+    -- otherwise steal each other's keystrokes.
+    ClosedStdin
+
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndStdin CP.Inherited
+runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndStdinMode InheritStdin
+
+runNodeCommandAsJobWithExtraEnvAndStdinMode :: StdinMode -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithExtraEnvAndStdinMode = \case
+  InheritStdin -> runNodeCommandAsJobWithExtraEnvAndStdin CP.Inherited
+  ClosedStdin -> runNodeCommandAsJobWithExtraEnvAndStdin CP.ClosedStream
 
 runNodeCommandAsJobWithExtraEnvAndStdin :: (CP.InputSource stdin) => stdin -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir command args jobType chan = do

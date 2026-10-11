@@ -15,7 +15,8 @@ data StartArgs = StartArgs
   { clientPort :: Maybe PortNumber,
     serverPort :: Maybe PortNumber,
     clientUrl :: Maybe URI,
-    serverUrl :: Maybe URI
+    serverUrl :: Maybe URI,
+    noTui :: Bool
   }
   deriving (Eq, Show)
 
@@ -27,3 +28,7 @@ startArgsParser =
       <*> Opt.optional (portParser "server-port" "Port to run the server on")
       <*> Opt.optional (httpUrlParser "client-url" "URL at which the client is reachable")
       <*> Opt.optional (httpUrlParser "server-url" "URL at which the server is reachable")
+      <*> Opt.switch
+        ( Opt.long "no-tui"
+            <> Opt.help "Print interleaved logs instead of showing the full-screen dev UI"
+        )

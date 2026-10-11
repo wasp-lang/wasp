@@ -40,7 +40,8 @@ import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRec
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Job.IO
-  ( collectJobTextOutputUntilExitReceived,
+  ( JobMessagesConsumer,
+    collectJobTextOutputUntilExitReceived,
     printJobMsgsUntilExitReceived,
     readJobMessagesAndPrintThemPrefixed,
   )
@@ -184,12 +185,12 @@ isDbConnectionPossible DbConnectionSuccess = True
 isDbConnectionPossible DbNotCreated = True
 isDbConnectionPossible _ = False
 
-generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-generatePrismaClient generatedAppDir = do
+generatePrismaClient :: JobMessagesConsumer -> Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+generatePrismaClient consumeJobMessages generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
+      (consumeJobMessages chan)
       (DbJobs.generatePrismaClient generatedAppDir chan)
   case exitCode of
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code

@@ -37,6 +37,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
 import qualified Wasp.Generator.WaspInfo as WaspInfo
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
@@ -90,7 +91,7 @@ compileWithOptions options = do
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   (warnings, appSpecOrErrors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
 
-  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
+  liftIO $ printCompilationResult cliSendMessage (warnings, fromLeft [] appSpecOrErrors)
   case appSpecOrErrors of
     Right appSpec -> return (warnings, appSpec)
     Left errors ->
@@ -103,29 +104,32 @@ compileWithOptions options = do
 -- also shows any warnings (and errors), ... .
 -- Normally you will want to call this function after compile step is done and you want
 -- to report to user how it went.
-printCompilationResult :: ([CompileWarning], [CompileError]) -> IO ()
-printCompilationResult (warns, errs) = do
+-- Compilation results are reported through a 'Msg.SendMessage' rather than
+-- printed directly, so that `wasp start`'s TUI can show them in its Wasp tab
+-- instead of having them scribbled over the screen it is drawing.
+printCompilationResult :: Msg.SendMessage -> ([CompileWarning], [CompileError]) -> IO ()
+printCompilationResult sendMessage (warns, errs) = do
   if null errs
-    then cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
-    else printErrorsIfAny errs
-  printWarningsIfAny warns
+    then sendMessage $ Msg.Success "Your wasp project has successfully compiled."
+    else printErrorsIfAny sendMessage errs
+  printWarningsIfAny sendMessage warns
 
-printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()
-printWarningsAndErrorsIfAny (warns, errs) = do
-  printWarningsIfAny warns
-  printErrorsIfAny errs
+printWarningsAndErrorsIfAny :: Msg.SendMessage -> ([CompileWarning], [CompileError]) -> IO ()
+printWarningsAndErrorsIfAny sendMessage (warns, errs) = do
+  printWarningsIfAny sendMessage warns
+  printErrorsIfAny sendMessage errs
 
-printWarningsIfAny :: [CompileWarning] -> IO ()
-printWarningsIfAny warns = do
+printWarningsIfAny :: Msg.SendMessage -> [CompileWarning] -> IO ()
+printWarningsIfAny sendMessage warns = do
   unless (null warns)
-    $ cliSendMessage
+    $ sendMessage
     $ Msg.Warning compilationWarningsTitle
     $ formatErrorOrWarningMessages warns
 
-printErrorsIfAny :: [CompileError] -> IO ()
-printErrorsIfAny errs = do
+printErrorsIfAny :: Msg.SendMessage -> [CompileError] -> IO ()
+printErrorsIfAny sendMessage errs = do
   unless (null errs)
-    $ cliSendMessage
+    $ sendMessage
     $ Msg.Failure "Your wasp project failed to compile"
     $ formatErrorOrWarningMessages errs
 
@@ -160,6 +164,7 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
+      consumeJobMessages = readJobMessagesAndPrintThemPrefixed,
       setupGoal = GeneratedAppReady
     }
 
@@ -176,7 +181,7 @@ analyze waspProjectDir = do
 analyzeWithOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> Command AS.AppSpec
 analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
-  liftIO $ printWarningsIfAny warnings
+  liftIO $ printWarningsIfAny cliSendMessage warnings
   case appSpecOrErrors of
     Left errors ->
       throwError $

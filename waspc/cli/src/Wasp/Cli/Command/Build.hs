@@ -25,6 +25,7 @@ import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
@@ -70,7 +71,7 @@ build = withProjectLock $ do
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
-  liftIO $ printCompilationResult (warnings, errors)
+  liftIO $ printCompilationResult cliSendMessage (warnings, errors)
   unless (null errors)
     $ throwError
     $ CommandError "Building of wasp project failed"
@@ -161,5 +162,6 @@ buildIO waspProjectDir buildDir =
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
+          consumeJobMessages = readJobMessagesAndPrintThemPrefixed,
           setupGoal = GeneratedAppReady
         }

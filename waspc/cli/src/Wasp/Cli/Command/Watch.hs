@@ -15,11 +15,11 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
+import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
@@ -34,17 +34,24 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
+-- It recompiles with the given 'CompileOptions' and reports on what it is
+-- doing through their 'sendMessage', since where all of that output should go
+-- depends on the caller: `wasp start` routes it into its TUI, everything else
+-- prints it.
 watch ::
-  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
+watch compileOptions outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
   listenForEvents chan =<< getCurrentTime
   where
+    waspProjectDir = compileOptions.waspProjectDir
+    sendMessage = compileOptions.sendMessage
+
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
       FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
       where
@@ -113,17 +120,17 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
 
     recompile :: IO ([CompileWarning], [CompileError])
     recompile = do
-      cliSendMessage $ Msg.Start "Recompiling on file change..."
-      (warnings, appSpecOrErrors) <- compileIO waspProjectDir outDir
+      sendMessage $ Msg.Start "Recompiling on file change..."
+      (warnings, appSpecOrErrors) <- compileIOWithOptions compileOptions waspProjectDir outDir
       let errors = fromLeft [] appSpecOrErrors
 
-      printCompilationResult (warnings, errors)
+      printCompilationResult sendMessage (warnings, errors)
       if null errors
         then
-          cliSendMessage $
+          sendMessage $
             Msg.Success "Recompilation on file change succeeded."
         else
-          cliSendMessage
+          sendMessage
             $ Msg.Failure "Recompilation on file change failed."
             $ show (length errors) ++ " errors found"
 

@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
@@ -30,4 +31,4 @@ installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do
   ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
   messageChan <- newChan
-  installProjectNpmDependencies messageChan waspProjectDir
+  installProjectNpmDependencies readJobMessagesAndPrintThemPrefixed messageChan waspProjectDir

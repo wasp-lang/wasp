@@ -10,7 +10,7 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.Compile (compile, defaultCompileOptions)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
@@ -45,7 +45,7 @@ watchAndTest testRunner = withProjectLock $ do
 
   watchOrStartResult <- liftIO $ do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar
+    let watchWaspProjectSource = watch (defaultCompileOptions waspRoot) outDir ongoingCompilationResultMVar
 
     -- Vitest must run from the root of the project because Vite won't resolve
     -- files outside of the project root (in this case, user src/ dir which the
