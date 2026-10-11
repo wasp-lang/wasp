@@ -37,10 +37,9 @@ export type AuthUser = AuthUserData & {
 
 // PRIVATE API (used in SDK and server)
 /*
- * We define this type explicitly instead of inferring it with
- * `ReturnType<typeof createAuthUserData>` so it reads well in the IDE.
- * `createAuthUserData` declares it as its return type, so TypeScript reports
- * a field missing from its result, but not an extra one.
+ * We write this type out instead of using `ReturnType<typeof createAuthUserData>`
+ * because `Expand` makes editors show each identity's fields on hover. The
+ * inferred type would show `UserFacingProviderData<"email">` instead.
  */
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, 'auth'> & {
   identities: {
