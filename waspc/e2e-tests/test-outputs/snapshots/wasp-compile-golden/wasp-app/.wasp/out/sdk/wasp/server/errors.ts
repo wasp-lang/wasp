@@ -1,5 +1,7 @@
 import type { Response } from "express";
 import { STATUS_CODES } from "node:http";
+import { getErrorMessage } from "../errors/index.js";
+import config from "./config.js";
 import { HttpError } from "./HttpError.js";
 
 // PRIVATE API (server)
@@ -31,6 +33,9 @@ export function reportUnexpectedServerError(
  *   their message when they mark it as safe to show.
  * - We report everything else and hide it behind a generic 500, so we don't
  *   leak internal details to the client.
+ *
+ * In development, a hidden error's message and stack go into `data`, like
+ * Express's default error handler shows them on its HTML page.
  */
 export function sendErrorResponse(response: Response, error: unknown): void {
   const httpError = toHttpError(error);
@@ -48,18 +53,29 @@ function toHttpError(error: unknown): HttpError {
     return error;
   }
 
-  const statusCode = getMiddlewareErrorStatusCode(error);
-  if (statusCode === undefined || statusCode >= 500) {
+  const statusCode = getMiddlewareErrorStatusCode(error) ?? 500;
+  if (statusCode >= 500) {
     reportUnexpectedServerError(error, { source: "request" });
   }
-  if (statusCode === undefined) {
-    return new HttpError(500, STATUS_CODES[500]);
-  }
 
-  const message = isMiddlewareErrorExposed(error)
-    ? error.message
-    : STATUS_CODES[statusCode];
-  return new HttpError(statusCode, message);
+  if (isMiddlewareErrorExposed(error)) {
+    return new HttpError(statusCode, error.message);
+  }
+  return new HttpError(
+    statusCode,
+    STATUS_CODES[statusCode],
+    config.isDevelopment ? getDevelopmentErrorDetails(error) : undefined,
+  );
+}
+
+function getDevelopmentErrorDetails(error: unknown): {
+  message: string;
+  stack: string | undefined;
+} {
+  return {
+    message: getErrorMessage(error),
+    stack: error instanceof Error ? error.stack : undefined,
+  };
 }
 
 /**

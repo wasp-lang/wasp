@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { WASP_SERVER_URL } from "../playwright.config";
+import { isRunningInDevMode } from "./helpers";
 
 test.describe("server errors", () => {
   test("an unexpected error becomes a generic 500", async ({ request }) => {
@@ -8,6 +9,9 @@ test.describe("server errors", () => {
     expect(response.status()).toBe(500);
     expect(await response.json()).toEqual({
       message: "Internal Server Error",
+      ...expectedDevelopmentDetails(
+        "Internal detail that must not reach the client",
+      ),
     });
   });
 
@@ -41,14 +45,20 @@ test.describe("server errors", () => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/concealed`);
 
     expect(response.status()).toBe(401);
-    expect(await response.json()).toEqual({ message: "Unauthorized" });
+    expect(await response.json()).toEqual({
+      message: "Unauthorized",
+      ...expectedDevelopmentDetails("Internal detail of a 401"),
+    });
   });
 
   test("a middleware 5xx error keeps its status", async ({ request }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/unavailable`);
 
     expect(response.status()).toBe(503);
-    expect(await response.json()).toEqual({ message: "Service Unavailable" });
+    expect(await response.json()).toEqual({
+      message: "Service Unavailable",
+      ...expectedDevelopmentDetails("Internal detail of a 503"),
+    });
   });
 
   test("a middleware error keeps its headers", async ({ request }) => {
@@ -61,3 +71,13 @@ test.describe("server errors", () => {
     });
   });
 });
+
+// In development, the server adds a hidden error's message and stack.
+function expectedDevelopmentDetails(message: string) {
+  if (!isRunningInDevMode()) {
+    return {};
+  }
+  return {
+    data: { message, stack: expect.stringContaining(message) },
+  };
+}
