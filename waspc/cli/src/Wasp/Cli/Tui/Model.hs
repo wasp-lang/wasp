@@ -12,6 +12,12 @@ module Wasp.Cli.Tui.Model
     selectPaneByIndex,
     selectNextPane,
     selectPreviousPane,
+    scrollActivePaneBy,
+    scrollActivePaneToTop,
+    scrollActivePaneToBottom,
+    toggleActivePaneFollow,
+    setTerminalSize,
+    logBodyHeightFor,
     spinnerFrame,
     formatUptime,
   )
@@ -22,8 +28,9 @@ import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Time.Clock (UTCTime, diffUTCTime)
-import qualified Wasp.Cli.Tui.Pane as Pane
+import Wasp.Cli.Tui.Layout (logContentWidthFor, visibleLogRows)
 import Wasp.Cli.Tui.Pane (Pane (..), PaneId (..))
+import qualified Wasp.Cli.Tui.Pane as Pane
 import qualified Wasp.Job as J
 
 -- | Resource names. The log body is drawn by hand rather than with a brick
@@ -53,7 +60,9 @@ data TuiState = TuiState
     -- | Set by the first @q@, cleared by any other key. Stopping a dev server
     -- by accident is expensive enough to be worth a second keystroke.
     tuiIsQuitArmed :: !Bool,
-    -- | Height in rows of the log body as of the last draw, used for paging.
+    -- | Size of the log body as of the last known terminal size. Scrolling
+    -- needs it: how far back a pane can go depends on how its lines wrap.
+    tuiLogBodyWidth :: !Int,
     tuiLogBodyHeight :: !Int
   }
 
@@ -75,6 +84,7 @@ makeTuiState projectName appUrls startedAt =
       tuiNow = startedAt,
       tuiShowHelp = False,
       tuiIsQuitArmed = False,
+      tuiLogBodyWidth = 80,
       tuiLogBodyHeight = 20
     }
 
@@ -129,6 +139,50 @@ selectRelativePane step state = selectPane nextPaneId state
   where
     currentIndex = fromMaybe 0 $ elemIndex (tuiActivePaneId state) paneOrder
     nextPaneId = paneOrder !! ((currentIndex + step) `mod` length paneOrder)
+
+-- | Scrolls the active pane back by the given number of display rows
+-- (negative scrolls forward), stopping at the oldest line.
+scrollActivePaneBy :: Int -> TuiState -> TuiState
+scrollActivePaneBy rows = clampActivePaneScroll . withActivePane (Pane.scrollPaneBy rows)
+
+scrollActivePaneToTop :: TuiState -> TuiState
+scrollActivePaneToTop = clampActivePaneScroll . withActivePane Pane.scrollPaneToTop
+
+scrollActivePaneToBottom :: TuiState -> TuiState
+scrollActivePaneToBottom = withActivePane Pane.scrollPaneToBottom
+
+toggleActivePaneFollow :: TuiState -> TuiState
+toggleActivePaneFollow = clampActivePaneScroll . withActivePane Pane.togglePaneFollow
+
+-- | Brings the scroll position down to what the pane actually has to show at
+-- the current size. A pane can only answer that once it knows how wide it is,
+-- since a long line wraps into several rows.
+clampActivePaneScroll :: TuiState -> TuiState
+clampActivePaneScroll state = withActivePane clamp state
+  where
+    clamp pane
+      | paneIsFollowing pane = pane
+      | otherwise = Pane.setPaneScrollOffset clampedOffset pane
+      where
+        (_, clampedOffset) =
+          visibleLogRows (logContentWidthFor (tuiLogBodyWidth state)) (tuiLogBodyHeight state) pane
+
+setTerminalSize :: Int -> Int -> TuiState -> TuiState
+setTerminalSize width height state =
+  clampActivePaneScroll
+    state
+      { tuiLogBodyWidth = width,
+        tuiLogBodyHeight = logBodyHeightFor height
+      }
+
+-- | Rows of chrome above and below the log body.
+numChromeRowsAbove, numChromeRowsBelow :: Int
+numChromeRowsAbove = 5
+numChromeRowsBelow = 2
+
+-- | How tall the log body is in a terminal of the given height.
+logBodyHeightFor :: Int -> Int
+logBodyHeightFor terminalHeight = max 1 (terminalHeight - numChromeRowsAbove - numChromeRowsBelow)
 
 -- | Braille spinner, the same one the rest of the ecosystem uses.
 spinnerFrame :: Int -> T.Text

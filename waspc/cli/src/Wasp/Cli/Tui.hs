@@ -34,16 +34,21 @@ import qualified Graphics.Vty as V
 import Graphics.Vty.CrossPlatform (mkVty)
 import System.Environment (lookupEnv)
 import System.IO (hIsTerminalDevice, stdin, stdout)
-import Wasp.Cli.Tui.Draw (drawTui, logBodyHeightFor)
+import Wasp.Cli.Tui.Draw (drawTui)
 import Wasp.Cli.Tui.Model
   ( TuiEvent (..),
     TuiName,
     TuiState (..),
     applyTuiEvent,
     makeTuiState,
+    scrollActivePaneBy,
+    scrollActivePaneToBottom,
+    scrollActivePaneToTop,
     selectNextPane,
     selectPaneByIndex,
     selectPreviousPane,
+    setTerminalSize,
+    toggleActivePaneFollow,
     withActivePane,
   )
 import qualified Wasp.Cli.Tui.Pane as Pane
@@ -151,23 +156,23 @@ tuiApp =
     { appDraw = drawTui :: TuiState -> [Widget TuiName],
       appChooseCursor = neverShowCursor,
       appHandleEvent = handleTuiEvent,
-      appStartEvent = syncLogBodyHeight,
+      appStartEvent = syncTerminalSize,
       appAttrMap = const Theme.tuiAttrMap
     }
 
--- | Keeps the remembered log body height in sync with the terminal, so that
--- paging scrolls by exactly one screenful.
-syncLogBodyHeight :: EventM TuiName TuiState ()
-syncLogBodyHeight = do
+-- | Tells the model how big the terminal is, which it needs to scroll by a
+-- screenful and to know how far back a pane's wrapped lines reach.
+syncTerminalSize :: EventM TuiName TuiState ()
+syncTerminalSize = do
   vty <- BrickMain.getVtyHandle
-  (_, terminalHeight) <- liftIO $ V.displayBounds (V.outputIface vty)
-  modify $ \state -> state {tuiLogBodyHeight = logBodyHeightFor terminalHeight}
+  (terminalWidth, terminalHeight) <- liftIO $ V.displayBounds (V.outputIface vty)
+  modify $ setTerminalSize terminalWidth terminalHeight
 
 handleTuiEvent :: BrickEvent TuiName TuiEvent -> EventM TuiName TuiState ()
 handleTuiEvent = \case
   AppEvent event -> modify (applyTuiEvent event)
-  VtyEvent (V.EvResize _ terminalHeight) ->
-    modify $ \state -> state {tuiLogBodyHeight = logBodyHeightFor terminalHeight}
+  VtyEvent (V.EvResize terminalWidth terminalHeight) ->
+    modify $ setTerminalSize terminalWidth terminalHeight
   VtyEvent (V.EvKey key modifiers) -> do
     state <- get
     -- A pending quit confirmation is cleared by whatever key comes next, so
@@ -194,35 +199,36 @@ handleKeyPress key modifiers = case (key, modifiers) of
   (V.KChar 'h', []) -> modify selectPreviousPane
   (V.KChar digit, []) | isDigit digit && digit /= '0' -> modify (selectPaneByIndex (digitToInt digit - 1))
   -- Scrolling. Scrolling "up" means going back in history.
-  (V.KUp, []) -> scrollActivePaneBy 1
-  (V.KChar 'k', []) -> scrollActivePaneBy 1
-  (V.KDown, []) -> scrollActivePaneBy (-1)
-  (V.KChar 'j', []) -> scrollActivePaneBy (-1)
-  (V.KPageUp, []) -> scrollActivePaneByPage 1
-  (V.KPageDown, []) -> scrollActivePaneByPage (-1)
-  (V.KChar 'b', [V.MCtrl]) -> scrollActivePaneByPage 1
-  (V.KChar 'f', [V.MCtrl]) -> scrollActivePaneByPage (-1)
-  (V.KChar 'u', [V.MCtrl]) -> scrollActivePaneByHalfPage 1
-  (V.KChar 'd', [V.MCtrl]) -> scrollActivePaneByHalfPage (-1)
-  (V.KChar 'g', []) -> modify (withActivePane Pane.scrollPaneToTop)
-  (V.KHome, []) -> modify (withActivePane Pane.scrollPaneToTop)
-  (V.KChar 'G', []) -> modify (withActivePane Pane.scrollPaneToBottom)
-  (V.KEnd, []) -> modify (withActivePane Pane.scrollPaneToBottom)
-  (V.KChar 'f', []) -> modify (withActivePane Pane.togglePaneFollow)
+  (V.KUp, []) -> scrollBy 1
+  (V.KChar 'k', []) -> scrollBy 1
+  (V.KDown, []) -> scrollBy (-1)
+  (V.KChar 'j', []) -> scrollBy (-1)
+  (V.KPageUp, []) -> scrollByPage 1
+  (V.KPageDown, []) -> scrollByPage (-1)
+  (V.KChar 'b', [V.MCtrl]) -> scrollByPage 1
+  (V.KChar 'f', [V.MCtrl]) -> scrollByPage (-1)
+  (V.KChar 'u', [V.MCtrl]) -> scrollByHalfPage 1
+  (V.KChar 'd', [V.MCtrl]) -> scrollByHalfPage (-1)
+  (V.KChar 'g', []) -> modify scrollActivePaneToTop
+  (V.KHome, []) -> modify scrollActivePaneToTop
+  (V.KChar 'G', []) -> modify scrollActivePaneToBottom
+  (V.KEnd, []) -> modify scrollActivePaneToBottom
+  (V.KChar 'f', []) -> modify toggleActivePaneFollow
   (V.KChar 'c', []) -> modify (withActivePane Pane.clearPane)
   _ -> return ()
   where
     toggleHelp state = state {tuiShowHelp = not (tuiShowHelp state)}
 
-scrollActivePaneBy :: Int -> EventM TuiName TuiState ()
-scrollActivePaneBy rows = modify (withActivePane (Pane.scrollPaneBy rows))
+scrollBy :: Int -> EventM TuiName TuiState ()
+scrollBy rows = modify (scrollActivePaneBy rows)
 
-scrollActivePaneByPage :: Int -> EventM TuiName TuiState ()
-scrollActivePaneByPage pages = do
+-- | A page keeps one row of context from the previous screenful.
+scrollByPage :: Int -> EventM TuiName TuiState ()
+scrollByPage pages = do
   state <- get
-  scrollActivePaneBy (pages * max 1 (tuiLogBodyHeight state - 1))
+  scrollBy (pages * max 1 (tuiLogBodyHeight state - 1))
 
-scrollActivePaneByHalfPage :: Int -> EventM TuiName TuiState ()
-scrollActivePaneByHalfPage halfPages = do
+scrollByHalfPage :: Int -> EventM TuiName TuiState ()
+scrollByHalfPage halfPages = do
   state <- get
-  scrollActivePaneBy (halfPages * max 1 (tuiLogBodyHeight state `div` 2))
+  scrollBy (halfPages * max 1 (tuiLogBodyHeight state `div` 2))

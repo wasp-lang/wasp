@@ -8,6 +8,8 @@
 -- those only make sense for a terminal we are not giving the process.
 module Wasp.Cli.Tui.Ansi
   ( Segment (..),
+    AnsiState (..),
+    initialAnsiState,
     parseAnsi,
     segmentsToText,
     segmentsHaveColor,
@@ -38,38 +40,55 @@ segmentsHaveColor = any (hasForeColor . segmentAttr)
       V.SetTo _ -> True
       _ -> False
 
--- | Parses text that may contain ANSI escape sequences into styled segments.
+-- | What the parser carries from one chunk of a stream to the next.
 --
--- Takes the attribute left over from the previous chunk of the same stream
--- (escape sequences routinely straddle chunk boundaries) and returns the
--- attribute that the next chunk should start with.
+-- Processes write their output in chunks that fall wherever the pipe happens
+-- to split them, so both the current attribute and a half-delivered escape
+-- sequence have to survive the boundary.
+data AnsiState = AnsiState
+  { ansiAttr :: !V.Attr,
+    -- | The start of an escape sequence whose end has not arrived yet.
+    ansiPendingEscape :: !T.Text
+  }
+
+initialAnsiState :: AnsiState
+initialAnsiState = AnsiState {ansiAttr = V.defAttr, ansiPendingEscape = T.empty}
+
+-- | An escape sequence longer than this is not one: we give up on it rather
+-- than buffer without bound when a process writes a stray @ESC@.
+maxPendingEscapeLength :: Int
+maxPendingEscapeLength = 64
+
+-- | Parses text that may contain ANSI escape sequences into styled segments,
+-- returning the state the next chunk of the same stream should continue from.
 --
 -- The input is expected to be a single line: newlines are not treated
 -- specially.
-parseAnsi :: V.Attr -> T.Text -> (V.Attr, [Segment])
-parseAnsi startAttr = go startAttr []
+parseAnsi :: AnsiState -> T.Text -> (AnsiState, [Segment])
+parseAnsi startState chunk = go (ansiAttr startState) [] (ansiPendingEscape startState <> chunk)
   where
     go attr acc text
-      | T.null text = (attr, reverse acc)
+      | T.null text = (AnsiState attr T.empty, reverse acc)
       | otherwise =
           let (plain, rest) = T.break isControl text
               acc' = if T.null plain then acc else Segment attr plain : acc
            in case T.uncons rest of
-                Nothing -> (attr, reverse acc')
+                Nothing -> (AnsiState attr T.empty, reverse acc')
                 Just ('\ESC', _) -> case takeEscapeSequence rest of
-                  Nothing -> go attr acc' (T.drop 1 rest)
                   Just (escapeSequence, rest') -> go (applyEscapeSequence attr escapeSequence) acc' rest'
+                  -- Incomplete: hold on to it so it can be finished by the
+                  -- next chunk instead of leaking into the log as text.
+                  Nothing
+                    | T.length rest <= maxPendingEscapeLength -> (AnsiState attr rest, reverse acc')
+                    | otherwise -> (AnsiState attr T.empty, reverse acc')
                 -- Lone control characters (e.g. the backspaces npm uses for
                 -- its progress bars) would corrupt the layout, so we drop them.
                 Just (_, rest') -> go attr acc' rest'
 
     isControl c = c == '\ESC' || (c < ' ' && c /= '\t')
 
--- | Splits off the escape sequence at the start of the given text.
---
--- Returns 'Nothing' for a sequence that is cut off at the end of the text; the
--- caller then drops the lone @ESC@, which is the best we can do without
--- buffering across chunks.
+-- | Splits off the escape sequence at the start of the given text. Returns
+-- 'Nothing' for a sequence that is cut off at the end of the text.
 takeEscapeSequence :: T.Text -> Maybe (T.Text, T.Text)
 takeEscapeSequence text = case T.unpack (T.take 2 text) of
   -- CSI: ESC [ <params> <intermediates> <final byte>

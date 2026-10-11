@@ -7,24 +7,20 @@
 -- consistent to draw the chrome the same way.
 module Wasp.Cli.Tui.Draw
   ( drawTui,
-    logBodyHeightFor,
-    visibleLogRows,
   )
 where
 
 import Brick (Widget (..))
 import Brick.Types (Result (..), Size (..), availHeight, availWidth, emptyResult, getContext)
-import Data.Foldable (toList)
 import Data.List (intersperse)
-import qualified Data.Sequence as Seq
 import qualified Data.Text as T
 import qualified Graphics.Vty as V
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Tui.Ansi (Segment (..))
+import Wasp.Cli.Tui.Layout (LogRow (..), logContentWidthFor, logGutterWidth, visibleLogRows)
 import Wasp.Cli.Tui.LogBuffer
   ( LogLevel (..),
     LogLine (..),
-    bufferedLines,
     numBufferedLines,
     numDroppedLines,
   )
@@ -33,6 +29,7 @@ import Wasp.Cli.Tui.Model
     TuiState (..),
     activePane,
     formatUptime,
+    logBodyHeightFor,
     orderedPanes,
     spinnerFrame,
   )
@@ -44,16 +41,6 @@ import Wasp.Cli.Tui.Pane
     paneStatusLabel,
   )
 import qualified Wasp.Cli.Tui.Theme as Theme
-
--- | Rows of chrome above and below the log body.
-numChromeRowsAbove, numChromeRowsBelow :: Int
-numChromeRowsAbove = 5
-numChromeRowsBelow = 2
-
--- | How tall the log body is in a terminal of the given height. The event
--- handler needs this to page by a screenful.
-logBodyHeightFor :: Int -> Int
-logBodyHeightFor terminalHeight = max 1 (terminalHeight - numChromeRowsAbove - numChromeRowsBelow)
 
 drawTui :: TuiState -> [Widget TuiName]
 drawTui state = [drawHelpOverlay | tuiShowHelp state] ++ [mainLayer]
@@ -134,12 +121,13 @@ isFailureStatus = \case
 drawUrlsRow :: TuiState -> Int -> V.Image
 drawUrlsRow state width =
   fitWidth width . V.horizCat $
-    text Theme.faintAttr " " : intersperse (text Theme.faintAttr "   ") (map urlImage (tuiAppUrls state))
+    text Theme.faintAttr " " : imagesThatFit (width - 1) (map urlImage (tuiAppUrls state))
   where
     urlImage (label, url) =
       V.horizCat
-        [ text Theme.mutedAttr (" " <> label <> " "),
-          text (Theme.plainAttr Theme.colorCyan) url
+        [ text Theme.mutedAttr (" " <> label <> "  "),
+          text (Theme.plainAttr Theme.colorCyan) url,
+          text Theme.faintAttr "   "
         ]
 
 -- -----------------------------------------------------------------------------
@@ -219,30 +207,19 @@ statusGlyphImage state pane = case paneStatus pane of
 -- Log body
 -- -----------------------------------------------------------------------------
 
--- | A single display row: one wrapped piece of a log line, plus the line it
--- came from so we can color its gutter.
-data LogRow = LogRow
-  { logRowSegments :: ![Segment],
-    logRowLine :: !LogLine
-  }
-
--- | Width taken up by the gutter to the left of every log row.
-gutterWidth :: Int
-gutterWidth = 2
-
 drawLogBody :: TuiState -> Int -> Int -> V.Image
 drawLogBody state width height
   | null rows = drawEmptyPane pane width height
   | otherwise = V.vertCat $ take height $ map rowImage rows ++ repeat (blankRow width)
   where
     pane = activePane state
-    (rows, _) = visibleLogRows (width - gutterWidth) height pane
+    (rows, _) = visibleLogRows (logContentWidthFor width) height pane
 
     rowImage row =
       fitWidth width $
         V.horizCat
           [ text (gutterAttr row) "▏",
-            text Theme.faintAttr " ",
+            V.charFill Theme.defaultAttr ' ' (logGutterWidth - 1) (1 :: Int),
             V.horizCat (map segmentImage (styledSegments row))
           ]
 
@@ -266,13 +243,13 @@ drawLogBody state width height
 -- here, rather than a blank screen that looks broken.
 drawEmptyPane :: Pane -> Int -> Int -> V.Image
 drawEmptyPane pane width height =
-  V.vertCat $
-    take height $
-      concat
-        [ replicate topPadding (blankRow width),
-          [centered (text Theme.mutedAttr (paneEmptyHint pane))],
-          repeat (blankRow width)
-        ]
+  V.vertCat
+    $ take height
+    $ concat
+      [ replicate topPadding (blankRow width),
+        [centered (text Theme.mutedAttr (paneEmptyHint pane))],
+        repeat (blankRow width)
+      ]
   where
     topPadding = max 0 ((height - 1) `div` 2)
     centered content =
@@ -295,50 +272,6 @@ levelAttr = \case
   LevelInfo -> Theme.plainAttr Theme.colorCyan
   LevelNormal -> Theme.inkAttr
 
--- | The rows of the pane that are on screen, top first, along with how many
--- rows are hidden below them (zero when the pane is pinned to the latest
--- output).
-visibleLogRows :: Int -> Int -> Pane -> ([LogRow], Int)
-visibleLogRows width height pane = (reverse $ take height $ drop offset rowsNewestFirst, offset)
-  where
-    contentWidth = max 1 width
-    linesNewestFirst = toList $ Seq.reverse $ bufferedLines (paneBuffer pane)
-
-    -- Lazy: wrapping stops as soon as we have enough rows to fill the screen.
-    rowsNewestFirst =
-      take (requestedOffset + height) $
-        concatMap (reverse . wrapLine contentWidth) linesNewestFirst
-
-    requestedOffset = if paneIsFollowing pane then 0 else paneScrollOffset pane
-    -- Scrolling past the oldest line just parks us at the top.
-    offset = min requestedOffset (max 0 (length rowsNewestFirst - height))
-
--- | Splits one log line into the display rows it occupies, top first.
-wrapLine :: Int -> LogLine -> [LogRow]
-wrapLine width line = map (`LogRow` line) (wrapSegments width (expandTabs <$> logLineSegments line))
-  where
-    expandTabs segment = segment {segmentText = T.replace "\t" "    " (segmentText segment)}
-
-wrapSegments :: Int -> [Segment] -> [[Segment]]
-wrapSegments width segments = case go width [] segments of
-  ([], []) -> [[]]
-  (lastRow, rows) -> reverse (reverse lastRow : rows)
-  where
-    -- Walks the segments, filling one row at a time. 'remaining' is how many
-    -- columns are left in the row being filled, 'current' holds its segments
-    -- in reverse order, and the accumulator holds completed rows, newest
-    -- first (each also reversed, and flipped back by the caller).
-    go _ current [] = (current, [])
-    go remaining current (segment : rest)
-      | T.null (segmentText segment) = go remaining current rest
-      | T.length (segmentText segment) <= remaining =
-          go (remaining - T.length (segmentText segment)) (segment : current) rest
-      | otherwise =
-          let (fits, overflow) = T.splitAt remaining (segmentText segment)
-              finishedRow = reverse (segment {segmentText = fits} : current)
-              (lastRow, rows) = go width [] (segment {segmentText = overflow} : rest)
-           in (lastRow, rows ++ [finishedRow])
-
 -- -----------------------------------------------------------------------------
 -- Status and footer
 -- -----------------------------------------------------------------------------
@@ -349,7 +282,7 @@ drawStatusRow state width = leftRight width Theme.faintAttr '─' left right
     pane = activePane state
     totalLines = numBufferedLines (paneBuffer pane)
     dropped = numDroppedLines (paneBuffer pane)
-    (_, hiddenBelow) = visibleLogRows (width - gutterWidth) (tuiLogBodyHeight state) pane
+    (_, hiddenBelow) = visibleLogRows (logContentWidthFor width) (tuiLogBodyHeight state) pane
 
     left =
       V.horizCat
@@ -404,26 +337,27 @@ drawFooterRow state width
             text (Theme.boldAttr Theme.brandYellow) "any other key",
             text Theme.inkAttr " to keep it running"
           ]
-  | otherwise = fitWidth width $ V.horizCat (text Theme.faintAttr " " : keyImages)
+  | otherwise = fitWidth width $ V.horizCat (text Theme.faintAttr " " : imagesThatFit (width - 1) keyImages)
   where
+    -- Listed most useful first, since a narrow terminal drops the tail.
     keyImages =
-      concat
-        [ keyImage key description
-        | (key, description) <-
-            [ ("tab", "switch"),
-              ("↑↓", "scroll"),
-              ("g/G", "top/bottom"),
-              ("f", if paneIsFollowing (activePane state) then "pause" else "follow"),
-              ("c", "clear"),
-              ("?", "help"),
-              ("q", "quit")
-            ]
-        ]
+      [ keyImage key description
+      | (key, description) <-
+          [ ("tab", "switch"),
+            ("↑↓", "scroll"),
+            ("g/G", "top/bottom"),
+            ("f", if paneIsFollowing (activePane state) then "pause" else "follow"),
+            ("c", "clear"),
+            ("?", "help"),
+            ("q", "quit")
+          ]
+      ]
 
     keyImage key description =
-      [ text (Theme.boldAttr Theme.brandYellow) ("  " <> key),
-        text Theme.mutedAttr (" " <> description)
-      ]
+      V.horizCat
+        [ text (Theme.boldAttr Theme.brandYellow) ("  " <> key),
+          text Theme.mutedAttr (" " <> description)
+        ]
 
 -- -----------------------------------------------------------------------------
 -- Help overlay
@@ -507,6 +441,16 @@ helpPanelImage width =
 
 text :: V.Attr -> T.Text -> V.Image
 text = V.text'
+
+-- | As many of the images as fit in the given width, in order. Dropping a
+-- whole item reads better on a narrow terminal than cutting one in half.
+imagesThatFit :: Int -> [V.Image] -> [V.Image]
+imagesThatFit width = go width
+  where
+    go _ [] = []
+    go remaining (image : rest)
+      | V.imageWidth image <= remaining = image : go (remaining - V.imageWidth image) rest
+      | otherwise = []
 
 blankRow :: Int -> V.Image
 blankRow width = V.charFill Theme.defaultAttr ' ' width (1 :: Int)

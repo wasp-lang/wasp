@@ -14,6 +14,7 @@ module Wasp.Cli.Tui.LogBuffer
     numBufferedLines,
     numDroppedLines,
     clearLogBuffer,
+    maxBufferedLinesPerPane,
   )
 where
 
@@ -21,8 +22,7 @@ import Data.List (foldl')
 import Data.Sequence (Seq, (|>))
 import qualified Data.Sequence as Seq
 import qualified Data.Text as T
-import qualified Graphics.Vty as V
-import Wasp.Cli.Tui.Ansi (Segment (..), parseAnsi, segmentsHaveColor, segmentsToText)
+import Wasp.Cli.Tui.Ansi (AnsiState, Segment (..), initialAnsiState, parseAnsi, segmentsHaveColor, segmentsToText)
 
 -- | How important a line looks, guessed from its content. Drives the color we
 -- give lines that don't color themselves.
@@ -47,12 +47,13 @@ data LogLine = LogLine
 -- | A line that has been started but whose newline hasn't arrived yet.
 data PartialLine = PartialLine
   { partialSegments :: ![Segment],
-    -- | Attribute the next chunk of this stream continues with.
-    partialAttr :: !V.Attr
+    -- | Where the next chunk of this stream picks up: the attribute in effect,
+    -- and any escape sequence the chunk boundary cut in half.
+    partialAnsiState :: !AnsiState
   }
 
 emptyPartialLine :: PartialLine
-emptyPartialLine = PartialLine {partialSegments = [], partialAttr = V.defAttr}
+emptyPartialLine = PartialLine {partialSegments = [], partialAnsiState = initialAnsiState}
 
 data LogBuffer = LogBuffer
   { bufferLines :: !(Seq LogLine),
@@ -63,8 +64,8 @@ data LogBuffer = LogBuffer
 
 -- | How many lines we keep per pane. Dev servers can be chatty, and we'd
 -- rather bound memory than keep every line of a session that runs for days.
-maxBufferedLines :: Int
-maxBufferedLines = 5000
+maxBufferedLinesPerPane :: Int
+maxBufferedLinesPerPane = 5000
 
 emptyLogBuffer :: LogBuffer
 emptyLogBuffer =
@@ -119,10 +120,10 @@ feedPiece isStderr piece buffer =
   where
     addPart partial (index, part) =
       let partial' = if index > 0 then partial {partialSegments = []} else partial
-          (attr', segments) = parseAnsi (partialAttr partial') part
+          (ansiState', segments) = parseAnsi (partialAnsiState partial') part
        in PartialLine
             { partialSegments = partialSegments partial' ++ segments,
-              partialAttr = attr'
+              partialAnsiState = ansiState'
             }
 
 commitPartialLine :: Bool -> LogBuffer -> (LogBuffer, LogLine)
@@ -148,10 +149,10 @@ commitPartialLine isStderr buffer = (buffer', line)
 
 pushLine :: LogLine -> LogBuffer -> LogBuffer
 pushLine line buffer
-  | Seq.length lines' > maxBufferedLines =
+  | Seq.length lines' > maxBufferedLinesPerPane =
       buffer
-        { bufferLines = Seq.drop (Seq.length lines' - maxBufferedLines) lines',
-          bufferNumDropped = bufferNumDropped buffer + (Seq.length lines' - maxBufferedLines)
+        { bufferLines = Seq.drop (Seq.length lines' - maxBufferedLinesPerPane) lines',
+          bufferNumDropped = bufferNumDropped buffer + (Seq.length lines' - maxBufferedLinesPerPane)
         }
   | otherwise = buffer {bufferLines = lines'}
   where

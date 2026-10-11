@@ -526,6 +526,7 @@ library cli-lib
     Wasp.Cli.Tui
     Wasp.Cli.Tui.Ansi
     Wasp.Cli.Tui.Draw
+    Wasp.Cli.Tui.Layout
     Wasp.Cli.Tui.LogBuffer
     Wasp.Cli.Tui.Model
     Wasp.Cli.Tui.Pane
@@ -661,7 +662,9 @@ test-suite wasp-cli-tests
     QuickCheck,
     tasty,
     tasty-hspec,
+    text,
     time,
+    vty,
     waspc,
 
   other-modules:
@@ -671,6 +674,9 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
+    Wasp.Cli.Tui.AnsiTest
+    Wasp.Cli.Tui.LayoutTest
+    Wasp.Cli.Tui.LogBufferTest
     Wasp.Cli.Util.EnvVarArgumentTest
     Wasp.Cli.Util.HttpUrlArgumentTest
 

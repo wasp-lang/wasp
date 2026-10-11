@@ -13,6 +13,7 @@ module Wasp.Cli.Tui.Pane
     scrollPaneBy,
     scrollPaneToTop,
     scrollPaneToBottom,
+    setPaneScrollOffset,
     togglePaneFollow,
     markPaneSeen,
     paneStatusLabel,
@@ -24,7 +25,6 @@ import Data.List (foldl')
 import qualified Data.Text as T
 import qualified Graphics.Vty as V
 import System.Exit (ExitCode (..))
-import qualified Wasp.Cli.Tui.Theme as Theme
 import Wasp.Cli.Tui.LogBuffer
   ( LogBuffer,
     LogLevel (..),
@@ -32,8 +32,9 @@ import Wasp.Cli.Tui.LogBuffer
     appendChunk,
     clearLogBuffer,
     emptyLogBuffer,
-    numBufferedLines,
+    maxBufferedLinesPerPane,
   )
+import qualified Wasp.Cli.Tui.Theme as Theme
 import qualified Wasp.Job as J
 
 -- | The panes, in the order they appear in the tab bar.
@@ -167,28 +168,38 @@ clearPane pane =
       paneNumWarnings = 0
     }
 
--- | Scrolls by the given number of rows: positive scrolls back in history,
--- negative scrolls towards the latest output.
+-- | Scrolls back by the given number of rows (negative scrolls forward, towards
+-- the latest output).
+--
+-- How far back the pane can go depends on how its lines wrap, which depends on
+-- how wide the pane is, so only the lower bound is enforced here: callers that
+-- know the size clamp the result with 'setPaneScrollOffset'.
 scrollPaneBy :: Int -> Pane -> Pane
-scrollPaneBy rows pane =
+scrollPaneBy rows pane = setPaneScrollOffset (paneScrollOffset pane + rows) pane
+
+-- | Asks for the oldest line. The real offset is whatever the caller's clamp
+-- turns this into; a line can wrap into any number of rows, so counting lines
+-- would fall short.
+scrollPaneToTop :: Pane -> Pane
+scrollPaneToTop = setPaneScrollOffset maxScrollOffset
+
+-- | Far more rows than a bounded buffer can ever wrap into, and small enough
+-- that clamping arithmetic can't overflow.
+maxScrollOffset :: Int
+maxScrollOffset = maxBufferedLinesPerPane * maxRowsPerLine
+  where
+    maxRowsPerLine = 1000
+
+setPaneScrollOffset :: Int -> Pane -> Pane
+setPaneScrollOffset offset pane =
   pane
-    { paneScrollOffset = offset',
+    { paneScrollOffset = clampedOffset,
       -- Scrolling back detaches from the latest output; scrolling all the way
       -- down reattaches, which is what every log viewer does.
-      paneIsFollowing = offset' == 0
+      paneIsFollowing = clampedOffset == 0
     }
   where
-    offset' = max 0 $ min maxOffset (paneScrollOffset pane + rows)
-    -- An upper bound: a line can wrap to several rows, so the renderer clamps
-    -- this again once it knows the pane width.
-    maxOffset = max 0 (numBufferedLines (paneBuffer pane) - 1)
-
-scrollPaneToTop :: Pane -> Pane
-scrollPaneToTop pane =
-  pane
-    { paneScrollOffset = max 0 (numBufferedLines (paneBuffer pane) - 1),
-      paneIsFollowing = False
-    }
+    clampedOffset = max 0 (min maxScrollOffset offset)
 
 scrollPaneToBottom :: Pane -> Pane
 scrollPaneToBottom pane = pane {paneScrollOffset = 0, paneIsFollowing = True}
