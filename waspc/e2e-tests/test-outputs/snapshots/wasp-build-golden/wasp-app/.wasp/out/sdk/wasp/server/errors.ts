@@ -1,8 +1,8 @@
 import type { Response } from "express";
 import { STATUS_CODES } from "node:http";
+import { HttpError, toHttpErrorBody } from "../errors/HttpError.js";
 import { getErrorMessage } from "../errors/index.js";
 import config from "./config.js";
-import { HttpError, toHttpErrorBody } from "../errors/HttpError.js";
 
 // PRIVATE API (server)
 export type ServerErrorContext =

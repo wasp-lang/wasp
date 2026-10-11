@@ -2630,7 +2630,7 @@ For a detailed specification of the `useQuery` hook, check the [API Reference](#
 When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
 - If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`. Wasp logs the error on the server and doesn't send its details, so you don't leak sensitive information by accident.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
 
 To send error details to the client, throw an `HttpError`:
 
@@ -3087,7 +3087,7 @@ await markTaskAsDone({ id: 1 }, { user })
 When your Action's NodeJS implementation throws an error, the client sees one of two things:
 
 - If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`. Wasp logs the error on the server and doesn't send its details, so you don't leak sensitive information by accident.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
 
 To send error details to the client, throw an `HttpError`:
 
