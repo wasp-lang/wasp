@@ -49,12 +49,14 @@ genAuth spec =
             genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
-        <++> genAuthForms auth
+        <++> genAuthForms auth maybeEmailSender
         <++> genLocalAuth auth
         <++> genOAuthAuth auth
         <++> genEmailAuth auth
   where
-    maybeAuth = AS.App.auth $ getApp spec
+    maybeEmailSender = AS.App.emailSender app
+    maybeAuth = AS.App.auth app
+    app = getApp spec
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in

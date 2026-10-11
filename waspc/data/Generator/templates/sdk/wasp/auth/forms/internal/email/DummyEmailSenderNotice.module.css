@@ -1,0 +1,20 @@
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  background: #bee3f8;
+  color: #2d3748;
+}
+
+.notice p {
+  margin: 0;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+}
