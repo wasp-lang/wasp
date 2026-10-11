@@ -34,11 +34,9 @@ import { getAuthErrorMessage } from "../authErrorMessage";
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
-import type { UsernameSignupData } from "../../../username/actions/signup";
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
 {=# enabledProviders.isEmailAuthEnabled =}
 import { useEmail } from '../email/useEmail'
-import type { EmailSignupData } from "../../../email/actions/signup";
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}
@@ -66,18 +64,12 @@ const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 
 // PRIVATE API
 /**
- * Any client-only fields users add to the form through `additionalFields`,
- * plus the signup data.
+ * The raw values of the form's inputs, including the ones users add through
+ * `additionalFields`.
  */
 export type LoginSignupFormFields = {
   [key: string]: string;
-}
-{=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-  & UsernameSignupData
-{=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
-{=# enabledProviders.isEmailAuthEnabled =}
-  & EmailSignupData
-{=/ enabledProviders.isEmailAuthEnabled =}
+};
 
 // PRIVATE API
 export const LoginSignupForm = ({
@@ -137,7 +129,12 @@ export const LoginSignupForm = ({
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit(data);
+      // We assert the type because the form holds raw input strings, while the
+      // signup data type uses the return types of the user's signup field
+      // getters (e.g. `Promise<string>` for an async getter).
+      // TODO: Close the type gap between the forms and the user's signup fields,
+      // so this assertion can go away.
+      await handleSubmit(data as Parameters<typeof handleSubmit>[0]);
     } finally {
       setIsLoading(false);
     }

@@ -26,7 +26,6 @@ import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
 import { getAuthErrorMessage } from "../authErrorMessage";
 import { useEmail } from '../email/useEmail'
-import type { EmailSignupData } from "../../../email/actions/signup";
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
 const discordSignInUrl = `${config.apiUrl}/auth/discord/login`
@@ -36,13 +35,12 @@ const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
 // PRIVATE API
 /**
- * Any client-only fields users add to the form through `additionalFields`,
- * plus the signup data.
+ * The raw values of the form's inputs, including the ones users add through
+ * `additionalFields`.
  */
 export type LoginSignupFormFields = {
   [key: string]: string;
-}
-  & EmailSignupData
+};
 
 // PRIVATE API
 export const LoginSignupForm = ({
@@ -84,7 +82,12 @@ export const LoginSignupForm = ({
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit(data);
+      // We assert the type because the form holds raw input strings, while the
+      // signup data type uses the return types of the user's signup field
+      // getters (e.g. `Promise<string>` for an async getter).
+      // TODO: Close the type gap between the forms and the user's signup fields,
+      // so this assertion can go away.
+      await handleSubmit(data as Parameters<typeof handleSubmit>[0]);
     } finally {
       setIsLoading(false);
     }
