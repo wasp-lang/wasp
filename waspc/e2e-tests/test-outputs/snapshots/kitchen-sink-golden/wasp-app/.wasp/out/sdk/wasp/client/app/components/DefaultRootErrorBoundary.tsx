@@ -1,10 +1,16 @@
+import { useEffect } from "react";
 import { useRouteError } from 'react-router'
 
+import { handleClientError } from "../../errors";
 import { FullPageWrapper } from './FullPageWrapper'
 
 export function DefaultRootErrorBoundary() {
   const error = useRouteError()
-  console.error(error)
+  // React may render this more than once per failure, so we report from an
+  // effect, which only runs for the render React commits.
+  useEffect(() => {
+    handleClientError(error, { source: "render" });
+  }, [error]);
   return (
     <FullPageWrapper>
       <div>
