@@ -181,7 +181,7 @@ clampActivePaneScroll state = withActivePane clamp state
   where
     clamp pane
       | paneIsFollowing pane = pane
-      | otherwise = Pane.setPaneScrollOffset clampedOffset pane
+      | otherwise = Pane.limitPaneScrollOffset clampedOffset pane
       where
         (_, clampedOffset) =
           visibleLogRows (logContentWidthFor (tuiLogBodyWidth state)) (tuiLogBodyHeight state) pane

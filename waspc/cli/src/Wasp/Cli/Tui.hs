@@ -27,20 +27,24 @@ import Control.Concurrent.Async (race, withAsync)
 import qualified Control.Exception as E
 import Control.Monad (forever, unless, void)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.State.Strict (get, modify)
+import Control.Monad.State.Strict (get, gets, modify)
 import Data.Char (digitToInt, isDigit)
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
 import Data.Time.Clock (getCurrentTime)
 import qualified Graphics.Vty as V
 import Graphics.Vty.CrossPlatform (mkVty)
 import System.Environment (lookupEnv)
-import System.IO (hIsTerminalDevice, stdin, stdout)
+import System.IO (hClose, hIsTerminalDevice, stdin, stdout)
+import System.IO.Temp (withSystemTempFile)
+import qualified System.Process as P
 import Wasp.Cli.Tui.Draw (drawTui)
 import Wasp.Cli.Tui.Model
   ( TuiEvent (..),
     TuiName,
     TuiState (..),
+    activePane,
     applyTuiEvent,
     formatUptime,
     isAnyPaneBusy,
@@ -244,9 +248,46 @@ handleKeyPress key modifiers = case (key, modifiers) of
   (V.KEnd, []) -> modify scrollActivePaneToBottom
   (V.KChar 'f', []) -> modify toggleActivePaneFollow
   (V.KChar 'c', []) -> modify (withActivePane Pane.clearPane)
+  (V.KChar 'o', []) -> viewActivePaneInPager
   _ -> return ()
   where
     toggleHelp state = state {tuiShowHelp = not (tuiShowHelp state)}
+
+-- | Steps aside and hands the active tab's log to the pager.
+--
+-- A full-screen UI draws a grid of cells, so a line too long for the screen is
+-- split across rows that the terminal has no idea belong together: dragging a
+-- selection across a wrap gives you the pieces, not the line. That makes long
+-- URLs and stack traces, exactly the things worth copying, the things you
+-- can't. Handing the terminal back gives it its own soft wrapping, so copying,
+-- searching and piping work the way they do without the TUI.
+viewActivePaneInPager :: EventM TuiName TuiState ()
+viewActivePaneInPager = do
+  pane <- gets activePane
+  void $ BrickMain.suspendAndResume' $ showInPager (Pane.paneLabel pane) (Pane.paneLogText pane)
+
+showInPager :: T.Text -> T.Text -> IO ()
+showInPager paneLabel logText =
+  withSystemTempFile "wasp-logs.txt" $ \logFilePath logFileHandle -> do
+    T.IO.hPutStr logFileHandle $ T.unlines [header, ""] <> logText
+    hClose logFileHandle
+    runPager logFilePath
+  where
+    header = "--- " <> paneLabel <> " log, as plain text. Quit the pager to go back to wasp start. ---"
+
+    runPager logFilePath = do
+      pagerCommand <- fromMaybe "less" <$> lookupEnv "PAGER"
+      -- The pager inherits our terminal, which Brick has just given up.
+      result <- E.try $ P.callCommand $ pagerCommand <> " '" <> logFilePath <> "'"
+      case result of
+        Right () -> return ()
+        -- A missing or misconfigured PAGER shouldn't swallow the logs, so fall
+        -- back to the terminal's own scrollback.
+        Left (pagerError :: E.SomeException) -> do
+          putStrLn $ "Could not run the pager (" <> show pagerError <> "), printing instead."
+          T.IO.putStrLn logText
+          putStrLn "Press Enter to go back to wasp start."
+          void getLine
 
 scrollBy :: Int -> EventM TuiName TuiState ()
 scrollBy rows = modify (scrollActivePaneBy rows)

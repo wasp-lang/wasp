@@ -218,7 +218,9 @@ drawLogBody state width height
     rowImage row =
       fitWidth width $
         V.horizCat
-          [ text (gutterAttr row) "▏",
+          [ if logRowIsLineStart row
+              then text (gutterAttr row) "▏"
+              else V.charFill Theme.defaultAttr ' ' (1 :: Int) (1 :: Int),
             V.charFill Theme.defaultAttr ' ' (logGutterWidth - 1) (1 :: Int),
             V.horizCat (map segmentImage (styledSegments row))
           ]
@@ -347,6 +349,7 @@ drawFooterRow state width
             ("↑↓", "scroll"),
             ("g/G", "top/bottom"),
             ("f", if paneIsFollowing (activePane state) then "pause" else "follow"),
+            ("o", "raw logs"),
             ("c", "clear"),
             ("?", "help"),
             ("q", "quit")
@@ -430,6 +433,8 @@ helpPanelImage width =
         ("pgup / pgdn", "scroll a page"),
         ("g / G", "jump to oldest / latest"),
         ("f", "follow the latest output"),
+        ("o", "open this tab's log in your pager,"),
+        ("", "where you can copy and search it"),
         ("c", "clear this tab's logs"),
         ("?", "toggle this help"),
         ("q / ctrl-c", "quit wasp start")

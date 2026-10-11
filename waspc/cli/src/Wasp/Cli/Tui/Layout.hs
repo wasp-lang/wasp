@@ -32,7 +32,14 @@ logContentWidthFor terminalWidth = max 1 (terminalWidth - logGutterWidth)
 -- came from, which the renderer needs to style it.
 data LogRow = LogRow
   { logRowSegments :: ![Segment],
-    logRowLine :: !LogLine
+    logRowLine :: !LogLine,
+    -- | Whether this is the first row of its log line.
+    --
+    -- Continuation rows are drawn without the gutter bar: the terminal has no
+    -- idea the rows belong together, so a selection dragged across a wrap
+    -- would otherwise pick the gutter up into the middle of the copied text.
+    -- That is how a wrapped URL turns into an unusable one.
+    logRowIsLineStart :: !Bool
   }
 
 -- | The rows of a pane that fit on a screen of the given width and height,
@@ -62,7 +69,10 @@ visibleLogRows width height pane =
 -- | Splits one log line into the display rows it occupies, top row first.
 wrapLogLine :: Int -> LogLine -> [LogRow]
 wrapLogLine width line =
-  map (`LogRow` line) (wrapSegments width (map expandTabs (logLineSegments line)))
+  zipWith
+    (\isLineStart rowSegments -> LogRow rowSegments line isLineStart)
+    (True : repeat False)
+    (wrapSegments width (map expandTabs (logLineSegments line)))
   where
     -- A raw tab would make the renderer and our own width arithmetic disagree.
     expandTabs segment = segment {segmentText = T.replace "\t" "    " (segmentText segment)}

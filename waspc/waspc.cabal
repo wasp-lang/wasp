@@ -677,6 +677,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Tui.AnsiTest
     Wasp.Cli.Tui.LayoutTest
     Wasp.Cli.Tui.LogBufferTest
+    Wasp.Cli.Tui.ModelTest
     Wasp.Cli.Util.EnvVarArgumentTest
     Wasp.Cli.Util.HttpUrlArgumentTest
 

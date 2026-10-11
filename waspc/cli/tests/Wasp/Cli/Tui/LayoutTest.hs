@@ -5,9 +5,17 @@ import qualified Data.Text as T
 import qualified Graphics.Vty as V
 import Test.Hspec
 import Wasp.Cli.Tui.Ansi (Segment (..), segmentsToText)
-import Wasp.Cli.Tui.Layout (LogRow (..), visibleLogRows, wrapSegments)
-import Wasp.Cli.Tui.LogBuffer (appendChunk)
-import Wasp.Cli.Tui.Pane (Pane (..), PaneId (..), makePane, scrollPaneBy, scrollPaneToTop)
+import Wasp.Cli.Tui.Layout (LogRow (..), visibleLogRows, wrapLogLine, wrapSegments)
+import Wasp.Cli.Tui.LogBuffer (appendChunk, bufferedLines)
+import Wasp.Cli.Tui.Pane
+  ( Pane (..),
+    PaneId (..),
+    makePane,
+    scrollPaneBy,
+    scrollPaneToBottom,
+    scrollPaneToTop,
+    togglePaneFollow,
+  )
 
 segment :: T.Text -> Segment
 segment text = Segment {segmentAttr = V.defAttr, segmentText = text}
@@ -102,3 +110,41 @@ spec_visibleLogRows = do
 
     it "copes with a degenerate width and height" $ do
       length (fst (visibleLogRows 0 0 pane)) `shouldBe` 1
+
+spec_wrapLogLine :: Spec
+spec_wrapLogLine = do
+  describe "wrapLogLine" $ do
+    -- The renderer draws the gutter bar only on a line's first row. Repeating
+    -- it on continuation rows puts it inside anything a selection drags
+    -- across a wrap, which is how a wrapped URL becomes unusable.
+    it "marks only the first row of a line as the line's start" $ do
+      let [line] = toListOfLines "a long line that wraps"
+      map logRowIsLineStart (wrapLogLine 8 line) `shouldBe` [True, False, False]
+
+    it "marks a line that fits as a line start" $ do
+      let [line] = toListOfLines "short"
+      map logRowIsLineStart (wrapLogLine 80 line) `shouldBe` [True]
+  where
+    toListOfLines text =
+      foldr (:) [] $ bufferedLines $ fst $ appendChunk False (text <> "\n") (paneBuffer (makePane PaneServer))
+
+spec_paneFollowing :: Spec
+spec_paneFollowing = do
+  describe "pausing and following" $ do
+    let pane = paneWithLines ["one", "two", "three", "four", "five"]
+
+    -- Pausing while already at the latest output is the common case: you see
+    -- something go by and want it to stop moving.
+    it "pauses a pane that is sitting at the bottom" $ do
+      paneIsFollowing (togglePaneFollow pane) `shouldBe` False
+
+    it "keeps showing the same rows once paused at the bottom" $ do
+      rowTexts (visibleLogRows 20 2 (togglePaneFollow pane)) `shouldBe` ["four", "five"]
+
+    it "re-attaches when toggled again" $ do
+      paneIsFollowing (togglePaneFollow (togglePaneFollow pane)) `shouldBe` True
+
+    it "detaches when scrolled back and re-attaches at the bottom" $ do
+      paneIsFollowing (scrollPaneBy 2 pane) `shouldBe` False
+      paneIsFollowing (scrollPaneToBottom (scrollPaneBy 2 pane)) `shouldBe` True
+      paneIsFollowing (scrollPaneToTop pane) `shouldBe` False

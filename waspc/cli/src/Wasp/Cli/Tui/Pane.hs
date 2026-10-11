@@ -12,7 +12,8 @@ module Wasp.Cli.Tui.Pane
     scrollPaneBy,
     scrollPaneToTop,
     scrollPaneToBottom,
-    setPaneScrollOffset,
+    limitPaneScrollOffset,
+    paneLogText,
     togglePaneFollow,
     markPaneSeen,
     paneStatusLabel,
@@ -20,6 +21,7 @@ module Wasp.Cli.Tui.Pane
   )
 where
 
+import Data.Foldable (toList)
 import Data.List (foldl')
 import qualified Data.Text as T
 import qualified Graphics.Vty as V
@@ -29,6 +31,7 @@ import Wasp.Cli.Tui.LogBuffer
     LogLevel (..),
     LogLine (..),
     appendChunk,
+    bufferedLines,
     clearLogBuffer,
     emptyLogBuffer,
     maxBufferedLinesPerPane,
@@ -170,15 +173,18 @@ clearPane pane =
 --
 -- How far back the pane can go depends on how its lines wrap, which depends on
 -- how wide the pane is, so only the lower bound is enforced here: callers that
--- know the size clamp the result with 'setPaneScrollOffset'.
+-- know the size narrow the result with 'limitPaneScrollOffset'.
 scrollPaneBy :: Int -> Pane -> Pane
-scrollPaneBy rows pane = setPaneScrollOffset (paneScrollOffset pane + rows) pane
+scrollPaneBy rows pane = scrollPaneTo (paneScrollOffset pane + rows) pane
 
--- | Asks for the oldest line. The real offset is whatever the caller's clamp
+-- | Asks for the oldest line. The real offset is whatever the caller's limit
 -- turns this into; a line can wrap into any number of rows, so counting lines
 -- would fall short.
 scrollPaneToTop :: Pane -> Pane
-scrollPaneToTop = setPaneScrollOffset maxScrollOffset
+scrollPaneToTop = scrollPaneTo maxScrollOffset
+
+scrollPaneToBottom :: Pane -> Pane
+scrollPaneToBottom pane = pane {paneScrollOffset = 0, paneIsFollowing = True}
 
 -- | Far more rows than a bounded buffer can ever wrap into, and small enough
 -- that clamping arithmetic can't overflow.
@@ -187,19 +193,28 @@ maxScrollOffset = maxBufferedLinesPerPane * maxRowsPerLine
   where
     maxRowsPerLine = 1000
 
-setPaneScrollOffset :: Int -> Pane -> Pane
-setPaneScrollOffset offset pane =
+-- | Moves the view to the given offset: the user asking to be somewhere.
+-- Landing at the bottom re-attaches to the latest output, which is what every
+-- log viewer does.
+scrollPaneTo :: Int -> Pane -> Pane
+scrollPaneTo offset pane =
   pane
     { paneScrollOffset = clampedOffset,
-      -- Scrolling back detaches from the latest output; scrolling all the way
-      -- down reattaches, which is what every log viewer does.
       paneIsFollowing = clampedOffset == 0
     }
   where
     clampedOffset = max 0 (min maxScrollOffset offset)
 
-scrollPaneToBottom :: Pane -> Pane
-scrollPaneToBottom pane = pane {paneScrollOffset = 0, paneIsFollowing = True}
+-- | Narrows the offset to what the pane can actually show, leaving alone
+-- whether it is following.
+--
+-- This is the renderer correcting the model once it knows how the lines wrap,
+-- not the user moving, so it must not re-attach a pane the user has paused:
+-- pausing while already at the bottom leaves the offset at zero, and deriving
+-- "following" from that would undo the pause immediately.
+limitPaneScrollOffset :: Int -> Pane -> Pane
+limitPaneScrollOffset limit pane =
+  pane {paneScrollOffset = max 0 (min limit (paneScrollOffset pane))}
 
 togglePaneFollow :: Pane -> Pane
 togglePaneFollow pane =
@@ -209,6 +224,10 @@ togglePaneFollow pane =
 
 markPaneSeen :: Pane -> Pane
 markPaneSeen pane = pane {paneHasUnseen = False}
+
+-- | The tab's logs as plain text, which is what gets handed to the pager.
+paneLogText :: Pane -> T.Text
+paneLogText = T.unlines . map logLineText . toList . bufferedLines . paneBuffer
 
 -- | Not every tab is a server: the Wasp tab is a compiler and a file watcher,
 -- and the Db tab is a series of one-shot Prisma commands. Their states read
