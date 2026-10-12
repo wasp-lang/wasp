@@ -19,6 +19,8 @@ module Wasp.Cli.Tui.Model
     toggleActivePaneFollow,
     setTerminalSize,
     logBodyHeightFor,
+    ChromeLayout (..),
+    chromeLayoutFor,
     spinnerFrame,
     formatUptime,
   )
@@ -194,14 +196,41 @@ setTerminalSize width height state =
         tuiLogBodyHeight = logBodyHeightFor height
       }
 
--- | Rows of chrome above and below the log body.
-numChromeRowsAbove, numChromeRowsBelow :: Int
-numChromeRowsAbove = 5
-numChromeRowsBelow = 2
+-- | Which parts of the chrome a terminal of a given height has room for.
+--
+-- In a short split pane the chrome would otherwise crowd the logs out
+-- entirely, and the logs are the point. The first things to go are the ones
+-- you can do without: the blank spacer, then the URL row, whose contents are
+-- also printed to the scrollback before the TUI takes over.
+data ChromeLayout = ChromeLayout
+  { chromeShowsSpacer :: !Bool,
+    chromeShowsUrls :: !Bool
+  }
+
+chromeLayoutFor :: Int -> ChromeLayout
+chromeLayoutFor terminalHeight =
+  ChromeLayout
+    { chromeShowsSpacer = terminalHeight >= 20,
+      chromeShowsUrls = terminalHeight >= 14
+    }
+
+-- | Rows the chrome takes up: the header, the two-row tab bar, the status row
+-- and the footer, plus whatever optional rows fit.
+numChromeRows :: ChromeLayout -> Int
+numChromeRows layout =
+  sum
+    [ 1, -- header
+      if chromeShowsUrls layout then 1 else 0,
+      if chromeShowsSpacer layout then 1 else 0,
+      2, -- tab labels and the rule under them
+      1, -- status row
+      1 -- footer
+    ]
 
 -- | How tall the log body is in a terminal of the given height.
 logBodyHeightFor :: Int -> Int
-logBodyHeightFor terminalHeight = max 1 (terminalHeight - numChromeRowsAbove - numChromeRowsBelow)
+logBodyHeightFor terminalHeight =
+  max 1 (terminalHeight - numChromeRows (chromeLayoutFor terminalHeight))
 
 -- | Braille spinner, the same one the rest of the ecosystem uses.
 spinnerFrame :: Int -> T.Text

@@ -25,9 +25,11 @@ import Wasp.Cli.Tui.LogBuffer
     numDroppedLines,
   )
 import Wasp.Cli.Tui.Model
-  ( TuiName (..),
+  ( ChromeLayout (..),
+    TuiName (..),
     TuiState (..),
     activePane,
+    chromeLayoutFor,
     formatUptime,
     logBodyHeightFor,
     orderedPanes,
@@ -46,16 +48,17 @@ drawTui :: TuiState -> [Widget TuiName]
 drawTui state = [drawHelpOverlay | tuiShowHelp state] ++ [mainLayer]
   where
     mainLayer = fullScreen $ \width height ->
-      V.vertCat $
-        concat
-          [ [drawHeaderRow state width],
-            [drawUrlsRow state width],
-            [blankRow width],
-            drawTabBar state width,
-            [drawLogBody state width (logBodyHeightFor height)],
-            [drawStatusRow state width],
-            [drawFooterRow state width]
-          ]
+      let chrome = chromeLayoutFor height
+       in V.vertCat $
+            concat
+              [ [drawHeaderRow state width],
+                [drawUrlsRow state width | chromeShowsUrls chrome],
+                [blankRow width | chromeShowsSpacer chrome],
+                drawTabBar state width,
+                [drawLogBody state width (logBodyHeightFor height)],
+                [drawStatusRow state width],
+                [drawFooterRow state width]
+              ]
 
 fullScreen :: (Int -> Int -> V.Image) -> Widget TuiName
 fullScreen makeImage = Widget Greedy Greedy $ do

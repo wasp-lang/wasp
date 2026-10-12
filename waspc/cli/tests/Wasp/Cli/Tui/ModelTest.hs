@@ -8,10 +8,13 @@ import Test.Hspec
 import Wasp.Cli.Tui.Ansi (segmentsToText)
 import Wasp.Cli.Tui.Layout (LogRow (..), visibleLogRows)
 import Wasp.Cli.Tui.Model
-  ( TuiEvent (..),
+  ( ChromeLayout (..),
+    TuiEvent (..),
     TuiState,
     activePane,
     applyTuiEvent,
+    chromeLayoutFor,
+    logBodyHeightFor,
     makeTuiState,
     selectPaneByIndex,
     setTerminalSize,
@@ -76,3 +79,26 @@ spec_pausedPaneHoldsItsPlace = do
           caughtUp = toggleActivePaneFollow (feedLines ["four", "five"] paused)
       paneIsFollowing (activePane caughtUp) `shouldBe` True
       visibleTexts caughtUp `shouldBe` ["three", "four", "five"]
+
+spec_chromeFitsShortTerminals :: Spec
+spec_chromeFitsShortTerminals = do
+  describe "chrome in a short terminal" $ do
+    -- The logs are the point, so in a split pane the chrome gives way rather
+    -- than crowding them out.
+    it "keeps everything when there is room" $ do
+      let chrome = chromeLayoutFor 40
+      (chromeShowsUrls chrome, chromeShowsSpacer chrome) `shouldBe` (True, True)
+      logBodyHeightFor 40 `shouldBe` 33
+
+    it "drops the spacer first" $ do
+      let chrome = chromeLayoutFor 16
+      (chromeShowsUrls chrome, chromeShowsSpacer chrome) `shouldBe` (True, False)
+      logBodyHeightFor 16 `shouldBe` 10
+
+    it "drops the URL row too when very short" $ do
+      let chrome = chromeLayoutFor 8
+      (chromeShowsUrls chrome, chromeShowsSpacer chrome) `shouldBe` (False, False)
+      logBodyHeightFor 8 `shouldBe` 3
+
+    it "always leaves at least one row of log" $ do
+      map logBodyHeightFor [0, 1, 4, 6] `shouldBe` [1, 1, 1, 1]
