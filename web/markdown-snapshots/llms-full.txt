@@ -1900,6 +1900,16 @@ export function PhotoCard({ photoId }: { photoId: string }) {
 }
 ```
 
+To build your own component on top of `Link` and keep the type safety, use the `LinkProps` type:
+
+```tsx title="src/components/ButtonLink.tsx"
+import { Link, type LinkProps } from "wasp/client/router";
+
+export function ButtonLink({ className, ...linkProps }: LinkProps) {
+  return <Link {...linkProps} className={`button ${className ?? ""}`} />;
+}
+```
+
 When you need to navigate from your own code instead of as a link (for example after a form submits), build the URL with the `routes` object. `routes` has one entry per route name from your spec, and you can pass it to React Router's `useNavigate` hook:
 
 ```tsx title="src/NewPhotoForm.tsx"
