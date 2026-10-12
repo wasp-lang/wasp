@@ -6,13 +6,16 @@ import type { Routes } from './index'
 type RouterLinkProps = Parameters<typeof RouterLink>[0]
 
 // PUBLIC API
-export function Link(
-  { to, params, search, hash, ...restOfProps }: Omit<RouterLinkProps, "to">
+export type LinkProps = Omit<RouterLinkProps, "to">
   & {
     search?: Record<string, string>;
     hash?: string;
   }
   & Routes
+
+// PUBLIC API
+export function Link(
+  { to, params, search, hash, ...restOfProps }: LinkProps
 ): React.JSX.Element {
   const toPropWithParams = useMemo(() => {
     return interpolatePath(to, params, search, hash)

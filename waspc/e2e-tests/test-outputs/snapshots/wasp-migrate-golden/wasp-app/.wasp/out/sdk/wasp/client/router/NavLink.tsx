@@ -6,13 +6,16 @@ import type { Routes } from './index'
 type RouterNavLinkProps = Parameters<typeof RouterNavLink>[0]
 
 // PUBLIC API
-export function NavLink(
-  { to, params, search, hash, ...restOfProps }: Omit<RouterNavLinkProps, "to">
+export type NavLinkProps = Omit<RouterNavLinkProps, "to">
   & {
     search?: Record<string, string>;
     hash?: string;
   }
   & Routes
+
+// PUBLIC API
+export function NavLink(
+  { to, params, search, hash, ...restOfProps }: NavLinkProps
 ): React.JSX.Element {
   const toPropWithParams = useMemo(() => {
     return interpolatePath(to, params, search, hash)
