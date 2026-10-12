@@ -59,7 +59,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
-        ["uninstall"] -> Command.Call.Uninstall
+        ("uninstall" : uninstallArgs) -> Command.Call.Uninstall uninstallArgs
         ["version"] -> Command.Call.Version
         ["doctor"] -> Command.Call.Doctor
         ["build"] -> Command.Call.Build
@@ -91,7 +91,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
     Command.Call.Studio -> runCommand studio
-    Command.Call.Uninstall -> runCommand uninstall
+    Command.Call.Uninstall uninstallArgs -> runCommand $ uninstall uninstallArgs
     Command.Call.Build -> runCommand build
     Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
@@ -148,7 +148,7 @@ printUsage =
         cmd   "    version               Prints current version of CLI.",
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
-        cmd   "    uninstall             Removes Wasp from your system.",
+        cmd   "    uninstall [--force]   Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
