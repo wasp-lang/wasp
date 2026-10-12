@@ -2126,9 +2126,9 @@ The `Link` component accepts the following props:
   - An object with keys and values for each param in the path.
   - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
 
-- `search: Record<string, string>`
+- `search: string[][] | Record<string, string> | string | URLSearchParams`
 
-  - An object with keys and values for each search param.
+  - The search params, in any shape the [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams) constructor accepts.
   - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
 
 - `hash: string`

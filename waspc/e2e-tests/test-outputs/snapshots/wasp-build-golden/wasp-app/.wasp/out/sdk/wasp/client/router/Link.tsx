@@ -2,15 +2,13 @@ import { useMemo } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { interpolatePath } from './linkHelpers'
 import type { Routes } from './index'
+import type { OptionalRouteOptions } from './types'
 
 type RouterLinkProps = Parameters<typeof RouterLink>[0]
 
 // PUBLIC API
 export type LinkProps = Omit<RouterLinkProps, "to">
-  & {
-    search?: Record<string, string>;
-    hash?: string;
-  }
+  & OptionalRouteOptions
   & Routes
 
 // PUBLIC API
