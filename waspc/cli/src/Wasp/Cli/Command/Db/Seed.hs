@@ -57,8 +57,10 @@ seedArgsParser =
       <$> Opt.optional
         ( Opt.strArgument $
             Opt.metavar "SEED_NAME"
-              <> Opt.help "Name of the seed to run. "
-              ++ "If multiple seeds are available and you don't pick one, Wasp will prompt you to pick interactively."
+              <> Opt.help
+                ( "Name of the seed to run. "
+                    ++ "If multiple seeds are available and you don't pick one, Wasp will prompt you to pick interactively."
+                )
         )
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
