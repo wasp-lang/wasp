@@ -80,9 +80,7 @@ drawHeaderRow state width = leftRight width Theme.faintAttr ' ' left right
     right =
       V.horizCat
         [ overallStatusImage state,
-          text Theme.faintAttr "  ·  ",
-          text Theme.mutedAttr (formatUptime state),
-          text Theme.faintAttr " "
+          text Theme.mutedAttr ("   " <> formatUptime state <> " ")
         ]
 
 -- | A one-glance summary of how the whole app is doing.
@@ -99,12 +97,10 @@ overallStatusImage state
         [ text (Theme.boldAttr Theme.brandYellow) (spinnerFrame (tuiTickCount state) <> " "),
           text (Theme.plainAttr Theme.brandYellow) "starting up"
         ]
-  | numReady > 0 =
-      V.horizCat
-        [ text (Theme.boldAttr Theme.colorGreen) "● ",
-          text (Theme.plainAttr Theme.colorGreen) "all systems go"
-        ]
-  | otherwise = text Theme.faintAttr "○ waiting"
+  -- No marker when everything is fine: the words say it, and a healthy screen
+  -- should be quiet.
+  | numReady > 0 = text (Theme.plainAttr Theme.colorGreen) "all systems go"
+  | otherwise = text Theme.faintAttr "waiting"
   where
     statuses = map paneStatus (orderedPanes state)
     numFailed = length [() | s <- statuses, isFailureStatus s]
@@ -168,7 +164,7 @@ drawTabBar state width = [fitWidth width labelsRow, fitWidth width underlineRow]
                 [text (Theme.plainAttr Theme.colorFaint) (T.pack (show index) <> " ")],
                 [text labelAttr (paneLabel pane)],
                 badgeImages pane,
-                [text (Theme.plainAttr (paneAccent pane)) " •" | paneHasUnseen pane && not isActive],
+                [text (Theme.boldAttr Theme.colorAmber) " •" | paneHasUnseenProblems pane && not isActive],
                 [text Theme.faintAttr "  "]
               ]
 
@@ -191,17 +187,24 @@ drawTabBar state width = [fitWidth width labelsRow, fitWidth width underlineRow]
           | otherwise = []
 
 -- | A spinner while the process is working, a colored dot otherwise.
+-- | The glyph in front of a tab's name.
+--
+-- A tab that is simply up and serving gets no glyph: that is the state every
+-- tab is in most of the time, and marking it everywhere turns the marks into
+-- wallpaper. The column is still reserved, so tabs don't jump around as
+-- statuses change.
 statusGlyphImage :: TuiState -> Pane -> V.Image
 statusGlyphImage state pane = case paneStatus pane of
+  StatusReady -> blank
   StatusIdle -> text Theme.faintAttr "○"
   StatusStarting -> spinner (paneAccent pane)
   StatusWorking -> spinner Theme.brandYellow
-  StatusReady -> text (Theme.boldAttr Theme.colorGreen) "●"
   StatusFailed -> text (Theme.boldAttr Theme.colorRed) "■"
   StatusExited ExitSuccess -> text Theme.mutedAttr "◌"
   StatusExited (ExitFailure _) -> text (Theme.boldAttr Theme.colorRed) "■"
   where
     spinner color = text (Theme.boldAttr color) (spinnerFrame (tuiTickCount state))
+    blank = V.charFill Theme.defaultAttr ' ' (1 :: Int) (1 :: Int)
 
 -- -----------------------------------------------------------------------------
 -- Log body
@@ -290,7 +293,7 @@ drawStatusRow state width = leftRight width Theme.faintAttr '─' left right
       V.horizCat
         [ text Theme.faintAttr "─ ",
           text (Theme.boldAttr (paneAccent pane)) (T.toUpper (paneLabel pane)),
-          text Theme.faintAttr " · ",
+          text Theme.faintAttr "  ",
           text (statusAttr (paneStatus pane)) (paneStatusLabel pane),
           text Theme.faintAttr " "
         ]

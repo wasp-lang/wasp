@@ -76,8 +76,11 @@ data Pane = Pane
     paneIsFollowing :: !Bool,
     paneNumErrors :: !Int,
     paneNumWarnings :: !Int,
-    -- | Output arrived while the user was looking at another tab.
-    paneHasUnseen :: !Bool,
+    -- | An error or a warning arrived while the user was looking at another
+    -- tab. Deliberately not "any output arrived": a dev server talks
+    -- constantly, so that version of the flag would be lit permanently and
+    -- would tell you nothing.
+    paneHasUnseenProblems :: !Bool,
     paneStatus :: !PaneStatus
   }
 
@@ -92,7 +95,7 @@ makePane pid =
       paneIsFollowing = True,
       paneNumErrors = 0,
       paneNumWarnings = 0,
-      paneHasUnseen = False,
+      paneHasUnseenProblems = False,
       paneStatus = StatusIdle
     }
   where
@@ -116,11 +119,13 @@ feedPane isStderr chunk pane = (foldl' applyNewLine pane {paneBuffer = buffer'} 
       p
         { paneNumErrors = paneNumErrors p + countOf LevelError line,
           paneNumWarnings = paneNumWarnings p + countOf LevelWarn line,
-          paneHasUnseen = True,
+          paneHasUnseenProblems = paneHasUnseenProblems p || isProblem line,
           paneStatus = nextStatus (paneId p) line (paneStatus p)
         }
 
     countOf level line = if logLineLevel line == level then 1 else 0
+
+    isProblem line = logLineLevel line `elem` [LevelError, LevelWarn]
 
 -- | Status transitions driven by what a process says about itself.
 --
@@ -156,7 +161,15 @@ nextStatus pid line current = case pid of
       other -> other
 
 markPaneExited :: ExitCode -> Pane -> Pane
-markPaneExited exitCode pane = pane {paneStatus = StatusExited exitCode, paneHasUnseen = True}
+markPaneExited exitCode pane =
+  pane
+    { paneStatus = StatusExited exitCode,
+      paneHasUnseenProblems = paneHasUnseenProblems pane || isFailure exitCode
+    }
+  where
+    isFailure = \case
+      ExitSuccess -> False
+      ExitFailure _ -> True
 
 clearPane :: Pane -> Pane
 clearPane pane =
@@ -223,7 +236,7 @@ togglePaneFollow pane =
     else scrollPaneToBottom pane
 
 markPaneSeen :: Pane -> Pane
-markPaneSeen pane = pane {paneHasUnseen = False}
+markPaneSeen pane = pane {paneHasUnseenProblems = False}
 
 -- | The tab's logs as plain text, which is what gets handed to the pager.
 paneLogText :: Pane -> T.Text

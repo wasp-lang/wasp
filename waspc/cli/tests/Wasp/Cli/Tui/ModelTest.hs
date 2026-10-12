@@ -24,9 +24,9 @@ import Wasp.Cli.Tui.Pane (Pane (..))
 -- ends up 3 rows tall, which is what makes scrolling observable.
 stateWithWaspTabActive :: TuiState
 stateWithWaspTabActive =
-  setTerminalSize terminalWidth terminalHeight $
-    selectPaneByIndex 0 $
-      makeTuiState "testapp" [] someTime
+  setTerminalSize terminalWidth terminalHeight
+    $ selectPaneByIndex 0
+    $ makeTuiState "testapp" [] someTime
   where
     terminalWidth = 40
     -- Five rows of chrome above the log body and two below.
@@ -40,9 +40,9 @@ feedLines texts state = foldl' feedLine state texts
 
 visibleTexts :: TuiState -> [T.Text]
 visibleTexts state =
-  map (segmentsToText . logRowSegments) $
-    fst $
-      visibleLogRows 38 3 (activePane state)
+  map (segmentsToText . logRowSegments)
+    $ fst
+    $ visibleLogRows 38 3 (activePane state)
 
 spec_pausedPaneHoldsItsPlace :: Spec
 spec_pausedPaneHoldsItsPlace = do
