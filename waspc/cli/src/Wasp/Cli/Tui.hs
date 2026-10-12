@@ -116,7 +116,12 @@ withTui config action = do
     Left _ -> return TuiUnavailable
     Right initialVty -> runWithVty initialVty
   where
-    buildVty = mkVty V.defaultConfig
+    -- Vty's own user configuration, not 'defaultConfig', which is 'mempty' and
+    -- so quietly ignores everything the user has set up: their input mappings,
+    -- and the terminal-specific Unicode width table that is how a terminal
+    -- gets emoji and CJK glyphs to line up. Vty's built-in table is out of
+    -- date for emoji, so a user who has built one should get the benefit.
+    buildVty = mkVty =<< V.userConfig
 
     runWithVty initialVty = do
       jobMessageChan <- newChan
