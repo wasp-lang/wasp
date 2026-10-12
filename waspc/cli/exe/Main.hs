@@ -211,8 +211,7 @@ dbCli args = case args of
   -- These commands require an existing and running database.
   "reset" : resetArgs -> runCommand $ Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommand $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommand $ Command.Db.Seed.seed $ Just seedName
+  "seed" : seedArgs -> runCommand $ Command.Db.Seed.seed seedArgs
   ["studio"] -> runCommand Command.Db.Studio.studio
   _unknownDbCommand -> printDbUsage >> exitFailure
 
