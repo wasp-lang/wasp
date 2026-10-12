@@ -42,9 +42,8 @@ genAuthForms auth maybeEmailSender =
     <++> genInternalAuthComponents auth
     <++> genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled
   where
-    isDummyEmailSenderNoticeEnabled =
-      AS.Auth.isEmailAuthEnabled auth
-        && maybe False AS.EmailSender.isDummyEmailSender maybeEmailSender
+    isDummyEmailSenderNoticeEnabled = AS.Auth.isEmailAuthEnabled auth && isDummyEmailSenderUsed
+    isDummyEmailSenderUsed = maybe False AS.EmailSender.isDummyEmailSender maybeEmailSender
 
 genAuthComponent :: AS.Auth.Auth -> Bool -> Generator FileDraft
 genAuthComponent auth isDummyEmailSenderNoticeEnabled =
