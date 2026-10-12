@@ -10,12 +10,14 @@ module Wasp.Cli.Tui.Layout
     visibleLogRows,
     wrapLogLine,
     wrapSegments,
+    displayWidth,
   )
 where
 
 import Data.Foldable (toList)
 import qualified Data.Sequence as Seq
 import qualified Data.Text as T
+import qualified Graphics.Vty as V
 import Wasp.Cli.Tui.Ansi (Segment (..))
 import Wasp.Cli.Tui.LogBuffer (LogLine (..), bufferedLines)
 import Wasp.Cli.Tui.Pane (Pane (..))
@@ -77,11 +79,36 @@ wrapLogLine width line =
     -- A raw tab would make the renderer and our own width arithmetic disagree.
     expandTabs segment = segment {segmentText = T.replace "\t" "    " (segmentText segment)}
 
+-- | How many terminal columns a piece of text occupies.
+--
+-- Not the same as how many characters it has: an emoji or a CJK glyph takes
+-- two columns and a combining mark takes none. Vty measures the images it
+-- draws this way, so the wrapping has to agree with it, or a row it believes
+-- fits gets drawn wider than the pane and silently cropped. Wasp's own server
+-- output has emoji in it, so this is not hypothetical.
+displayWidth :: T.Text -> Int
+displayWidth = V.safeWcswidth . T.unpack
+
+-- | Splits off the longest prefix that fits in the given number of columns.
+splitAtDisplayWidth :: Int -> T.Text -> (T.Text, T.Text)
+splitAtDisplayWidth maxWidth text = T.splitAt numCharsThatFit text
+  where
+    numCharsThatFit = countCharsThatFit 0 0 text
+    countCharsThatFit numChars usedWidth remaining = case T.uncons remaining of
+      Nothing -> numChars
+      Just (character, rest)
+        | usedWidth + V.safeWcwidth character > maxWidth -> numChars
+        | otherwise ->
+            countCharsThatFit (numChars + 1) (usedWidth + V.safeWcwidth character) rest
+
 -- | Wraps a line's styled segments into rows at most @width@ columns wide.
 -- Always returns at least one row, so that an empty line still takes up a row.
 wrapSegments :: Int -> [Segment] -> [[Segment]]
 wrapSegments width segments = case fillRow width [] segments of
   ([], []) -> [[]]
+  -- The text ended exactly on a row boundary, so there is no partial row to
+  -- add. Adding one anyway would draw a blank row after the line.
+  ([], fullRows) -> reverse fullRows
   (lastRow, fullRows) -> reverse (reverse lastRow : fullRows)
   where
     -- Walks the segments filling one row at a time. 'remaining' is how many
@@ -91,10 +118,18 @@ wrapSegments width segments = case fillRow width [] segments of
     fillRow _ current [] = (current, [])
     fillRow remaining current (segment : rest)
       | T.null (segmentText segment) = fillRow remaining current rest
-      | T.length (segmentText segment) <= remaining =
-          fillRow (remaining - T.length (segmentText segment)) (segment : current) rest
+      | displayWidth (segmentText segment) <= remaining =
+          fillRow (remaining - displayWidth (segmentText segment)) (segment : current) rest
       | otherwise =
-          let (fits, overflow) = T.splitAt remaining (segmentText segment)
-              filledRow = reverse (segment {segmentText = fits} : current)
-              (lastRow, fullRows) = fillRow width [] (segment {segmentText = overflow} : rest)
+          let (fits, overflow) = splitAtDisplayWidth remaining (segmentText segment)
+              (fitsOrFirstCharacter, remainder)
+                | not (T.null fits) = (fits, overflow)
+                -- A character too wide for an empty row fits nowhere, so take
+                -- it anyway: it gets cropped, but the wrapping terminates.
+                | null current = T.splitAt 1 (segmentText segment)
+                -- Nothing more fits on this row but it isn't empty, so flush
+                -- it and let the character start the next one.
+                | otherwise = (T.empty, segmentText segment)
+              filledRow = reverse (segment {segmentText = fitsOrFirstCharacter} : current)
+              (lastRow, fullRows) = fillRow width [] (segment {segmentText = remainder} : rest)
            in (lastRow, fullRows ++ [filledRow])

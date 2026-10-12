@@ -5,7 +5,7 @@ import qualified Data.Text as T
 import qualified Graphics.Vty as V
 import Test.Hspec
 import Wasp.Cli.Tui.Ansi (Segment (..), segmentsToText)
-import Wasp.Cli.Tui.Layout (LogRow (..), visibleLogRows, wrapLogLine, wrapSegments)
+import Wasp.Cli.Tui.Layout (LogRow (..), displayWidth, visibleLogRows, wrapLogLine, wrapSegments)
 import Wasp.Cli.Tui.LogBuffer (appendChunk, bufferedLines)
 import Wasp.Cli.Tui.Pane
   ( Pane (..),
@@ -16,6 +16,14 @@ import Wasp.Cli.Tui.Pane
     scrollPaneToTop,
     togglePaneFollow,
   )
+
+-- | Characters vty's width table treats as two columns wide (CJK ideographs).
+--
+-- Note that vty's built-in table is out of date for emoji: it calls a rocket
+-- one column even though terminals draw it as two. Agreeing with vty is what
+-- keeps it from cropping our rows, so that is the measure we wrap by.
+wideChars :: T.Text
+wideChars = "\26085\26412\35486\28450"
 
 segment :: T.Text -> Segment
 segment text = Segment {segmentAttr = V.defAttr, segmentText = text}
@@ -54,6 +62,28 @@ spec_wrapSegments = do
     it "never produces a row wider than the width" $ do
       let rows = wrapSegments 7 (map segment ["one ", "two ", "three ", "four"])
       all ((<= 7) . T.length . segmentsToText) rows `shouldBe` True
+
+    -- Vty measures the images it draws in terminal columns, so wrapping that
+    -- counts characters hands it rows that are drawn wider than the pane and
+    -- get cropped, losing text off the right edge.
+    it "wraps by terminal columns, not by characters" $ do
+      -- Each of these takes two columns, so only three fit in a six-column row.
+      displayWidth wideChars `shouldBe` 8
+      wrappedTexts 6 [wideChars] `shouldBe` [T.take 3 wideChars, T.drop 3 wideChars]
+
+    it "keeps a wide character whole rather than splitting it across rows" $ do
+      -- Five columns hold two of them; a third would straddle the edge.
+      wrappedTexts 5 ["\26085\26412\35486"] `shouldBe` ["\26085\26412", "\35486"]
+
+    it "makes progress even when a character is wider than the row" $ do
+      wrappedTexts 1 ["\26085\26412"] `shouldBe` ["\26085", "\26412"]
+
+    -- The property that actually matters: vty never gets a row it has to crop.
+    it "never hands vty a row wider than the pane" $ do
+      let rows = wrapSegments 8 (map segment ["sent ", T.take 2 wideChars, " to ", T.take 3 wideChars, " now"])
+      all ((<= 8) . displayWidth . segmentsToText) rows `shouldBe` True
+      T.concat (map segmentsToText rows)
+        `shouldBe` T.concat ["sent ", T.take 2 wideChars, " to ", T.take 3 wideChars, " now"]
 
     it "loses no text" $ do
       let pieces = ["alpha ", "beta ", "gamma delta"]
