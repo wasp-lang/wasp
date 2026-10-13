@@ -56,10 +56,6 @@ test.describe(
           email: "sample@example.com",
           password: "password123",
         });
-        // Logging in completes the first step, so the walkthrough moves on.
-        await page
-          .getByRole("button", { name: "Create a user and log in" })
-          .click();
         await expect(page.getByText("Logged in as sampleuser")).toBeVisible();
       });
     });

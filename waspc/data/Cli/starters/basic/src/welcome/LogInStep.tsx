@@ -1,13 +1,16 @@
 import { twJoin } from "tailwind-merge";
 import { type AuthUser } from "wasp/auth";
+import { useAuth } from "wasp/client/auth";
 import { ButtonLink } from "../shared/components/Button";
 import { InlineCode } from "./components/InlineCode";
 import { SampleUserButton } from "./sampleUser/SampleUserButton";
 
-export function LogInStep({ user }: { user: AuthUser | null }) {
+export function LogInStep() {
+  const { data: user } = useAuth();
+
   return (
     <>
-      <AuthStatus user={user} />
+      <AuthStatus user={user ?? null} />
       <p>
         This app uses email and password auth. In development, Wasp doesn&apos;t
         send real emails: the verification link is printed in the terminal where{" "}
@@ -17,9 +20,7 @@ export function LogInStep({ user }: { user: AuthUser | null }) {
         <ButtonLink to="/signup" size="sm">
           Sign up
         </ButtonLink>
-        {/* Vite replaces `import.meta.env.DEV` at build time, so the button is
-            dropped from production builds. */}
-        {import.meta.env.DEV && <SampleUserButton />}
+        <SampleUserButton />
       </div>
     </>
   );

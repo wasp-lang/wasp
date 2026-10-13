@@ -20,12 +20,5 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/no-require-imports": ["off"]
     }
-  },
-  {
-    // Lets you mark intentionally unused arguments with a leading underscore,
-    // e.g. when a function must match a signature but doesn't use every argument.
-    rules: {
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }]
-    }
   }
 ]);
