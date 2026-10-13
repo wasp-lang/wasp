@@ -30,19 +30,19 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
-    localAuthProvider,
     microsoftAuthProvider,
     slackAuthProvider,
+    usernameAndPasswordAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
-import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
+import qualified Wasp.Generator.AuthProviders.UsernameAndPassword as UsernameAndPasswordProvider
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
-import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
+import Wasp.Generator.ServerGenerator.Auth.UsernameAndPasswordAuthG (genUsernameAndPasswordAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToAliasedImportJson)
 import qualified Wasp.JsImport as JI
@@ -59,7 +59,7 @@ genAuth spec = case maybeAuth of
         genProvidersIndex auth,
         genAuthHooks auth
       ]
-      <++> genLocalAuth auth
+      <++> genUsernameAndPasswordAuth auth
       <++> genOAuthAuth auth
       <++> genEmailAuth spec auth
   where
@@ -95,7 +95,7 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
             [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
             [OAuthProvider.providerId microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth],
-            [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
+            [UsernameAndPasswordProvider.providerId usernameAndPasswordAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
             [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
           ]
 

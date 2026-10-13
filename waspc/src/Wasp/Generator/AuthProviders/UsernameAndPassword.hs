@@ -1,29 +1,29 @@
-module Wasp.Generator.AuthProviders.Local
+module Wasp.Generator.AuthProviders.UsernameAndPassword
   ( providerId,
     displayName,
     serverLoginUrl,
     serverSignupUrl,
-    LocalAuthProvider (..),
+    UsernameAndPasswordAuthProvider (..),
   )
 where
 
 import Wasp.Generator.AuthProviders.Common (ProviderId, fromProviderId)
 
-data LocalAuthProvider = LocalAuthProvider
+data UsernameAndPasswordAuthProvider = UsernameAndPasswordAuthProvider
   { -- Unique identifier of the auth provider
     _providerId :: ProviderId,
     -- Used for pretty printing
     _displayName :: String
   }
 
-providerId :: LocalAuthProvider -> String
+providerId :: UsernameAndPasswordAuthProvider -> String
 providerId = fromProviderId . _providerId
 
-displayName :: LocalAuthProvider -> String
+displayName :: UsernameAndPasswordAuthProvider -> String
 displayName = _displayName
 
-serverLoginUrl :: LocalAuthProvider -> String
+serverLoginUrl :: UsernameAndPasswordAuthProvider -> String
 serverLoginUrl provider = "/auth/" ++ providerId provider ++ "/login"
 
-serverSignupUrl :: LocalAuthProvider -> String
+serverSignupUrl :: UsernameAndPasswordAuthProvider -> String
 serverSignupUrl provider = "/auth/" ++ providerId provider ++ "/signup"

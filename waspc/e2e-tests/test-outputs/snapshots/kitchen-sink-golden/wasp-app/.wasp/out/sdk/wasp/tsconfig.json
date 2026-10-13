@@ -15,17 +15,14 @@
     "outDir": "dist",
 
     /* Strictness and type checking */
-    /*
-       We keep the SDK strict, but override some of strict's options
-       because parts of the SDK code don't respect them.
-       Reference: https://github.com/wasp-lang/wasp/issues/1938
-    */
     "strict": true,
-    "useUnknownInCatchVariables": false,
-    "noImplicitAny": false,
-    "strictPropertyInitialization": false,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
 
     /* DX */
     "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
