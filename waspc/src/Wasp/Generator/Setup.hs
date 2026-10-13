@@ -29,7 +29,6 @@ import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
-import Wasp.Node.Bin (findNpmBin)
 
 -- | What a command needs the generated app set up for, after code generation.
 data SetupGoal
@@ -154,12 +153,11 @@ typeCheckUserCode spec sendMessage = do
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where
     typeCheck :: J.Job ExitCode
-    typeCheck = do
-      Just tsc <- liftIO $ findNpmBin (AS.waspProjectDir spec) "tsc"
+    typeCheck =
       J.fromProc
-        $ J.setCwd (AS.waspProjectDir spec)
-        $ J.proc
-          tsc
+        =<< J.npmBinProc
+          (AS.waspProjectDir spec)
+          "tsc"
           [ "--project",
             SP.fromRelFile $ AS.srcTsConfigPath spec,
             "--noEmit"
