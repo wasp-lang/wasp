@@ -7,7 +7,6 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
@@ -76,7 +75,6 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as Job
-import Wasp.Node.Bin (findNpmBin)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
@@ -86,19 +84,12 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Job.run . Job.prefixWith Job.Wasp $
-      runNpmBinInSdkDir "tsc" []
-        `Job.andThen` runInSdkDir "node" ["./scripts/copy-assets.js"]
+      (Job.fromProc =<< Job.npmBinProc sdkRootDir "tsc" [])
+        `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
 
   return $ exitCodeToEither "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
-    runNpmBinInSdkDir binName args = do
-      Just binPath <- liftIO $ findNpmBin sdkRootDir binName
-      runInSdkDir binPath args
-    runInSdkDir bin args =
-      Job.fromProc
-        $ Job.setCwd sdkRootDir
-        $ Job.proc bin args
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
