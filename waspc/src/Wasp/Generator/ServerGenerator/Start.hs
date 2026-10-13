@@ -81,7 +81,13 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     bundleAndRun done =
       bundle >>= \case
         ExitSuccess -> running done
-        ExitFailure _ -> mapM_ acknowledge done >> notRunning
+        ExitFailure _ -> mapM_ acknowledge done >> waitForChanges
+
+    -- Tells the user that the server is down until the next successful compile.
+    waitForChanges :: J.Job Void
+    waitForChanges = do
+      J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
+      notRunning
 
     -- Runs the server until it exits, or a command needs it stopped.
     running :: Maybe (MVar ()) -> J.Job Void
@@ -104,7 +110,7 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     handleCommandsWhileRunning :: TMVar ExitCode -> J.Job (J.Job Void)
     handleCommandsWhileRunning serverExit =
       liftIO (atomically $ (Left <$> takeTMVar serverExit) `orElse` (Right <$> readTQueue commands)) >>= \case
-        Left exitCode -> return $ reportServerExit exitCode >> notRunning
+        Left exitCode -> return $ reportServerExit exitCode >> waitForChanges
         Right (SuccessfulCompile NoServerEffect done) ->
           acknowledge done >> handleCommandsWhileRunning serverExit
         Right (SuccessfulCompile RestartServer done) -> do
@@ -118,8 +124,8 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
           mapM_ reportServerExit =<< liftIO (atomically $ tryTakeTMVar serverExit)
           return $ case bundleExitCode of
             ExitSuccess -> running $ Just done
-            ExitFailure _ -> acknowledge done >> notRunning
-        Right (FailedCompile done) -> return $ acknowledge done >> notRunning
+            ExitFailure _ -> acknowledge done >> waitForChanges
+        Right (FailedCompile done) -> return $ acknowledge done >> waitForChanges
 
     acknowledge :: MVar () -> J.Job ()
     acknowledge done = liftIO $ putMVar done ()
@@ -143,7 +149,5 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
 
 reportServerExit :: ExitCode -> J.Job ()
 reportServerExit = \case
-  ExitSuccess -> J.emitOutput J.Stdout $ "Server process exited. " <> waitingForChanges
-  ExitFailure code -> J.emitOutput J.Stderr $ T.pack ("Server process exited with code " <> show code <> ". ") <> waitingForChanges
-  where
-    waitingForChanges = "Waiting for file changes before starting it again...\n"
+  ExitSuccess -> J.emitOutput J.Stdout "Server process exited.\n"
+  ExitFailure code -> J.emitOutput J.Stderr $ T.pack $ "Server process exited with code " <> show code <> ".\n"

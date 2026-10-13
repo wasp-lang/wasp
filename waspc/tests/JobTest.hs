@@ -52,37 +52,41 @@ spec_Job = do
       reverse <$> readIORef tappedOutputs `shouldReturn` [(Job.Stdout, "first"), (Job.Stderr, "second")]
 
   describe "onProcessExit" $ do
-    it "calls the action as soon as the process exits, before all of its output is emitted" $ do
-      childPidPath <- makeTempPath "wasp-child-pid"
-      processExit <- newEmptyMVar
-      -- The process exits right away, but leaves behind a child that keeps its
-      -- output open.
-      let process =
-            nodeWithArgs
-              ( unlines
-                  [ "const fs = require('node:fs');",
-                    "const { spawn } = require('node:child_process');",
-                    "const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'inherit' });",
-                    "fs.writeFileSync(process.argv[1], String(child.pid));",
-                    "process.exit(3);"
-                  ]
-              )
-              [childPidPath]
-      Async.withAsync
-        (Job.run $ Job.onProcessExit (putMVar processExit) $ Job.fromProc process)
-        ( \running -> do
-            timeout (secondsToMicroSeconds 5) (takeMVar processExit) `shouldReturn` Just (ExitFailure 3)
-            childPid <- readProcessId childPidPath
-            ( do
-                Async.poll running >>= \case
-                  Nothing -> return ()
-                  Just _ -> expectationFailure "The job finished while the process's output was still open"
-                killProcess childPid
-                timeout (secondsToMicroSeconds 5) (Async.wait running) `shouldReturn` Just (ExitFailure 3)
-              )
-              `finally` killProcess childPid
-        )
-        `finally` removeIfExists childPidPath
+    -- On Windows, the job doesn't keep running after the process exits, even
+    -- if a child it left behind inherited its output, so this scenario can't
+    -- be set up there.
+    unless (System.Info.os == "mingw32") $
+      it "calls the action as soon as the process exits, before all of its output is emitted" $ do
+        childPidPath <- makeTempPath "wasp-child-pid"
+        processExit <- newEmptyMVar
+        -- The process exits right away, but leaves behind a child that keeps its
+        -- output open.
+        let process =
+              nodeWithArgs
+                ( unlines
+                    [ "const fs = require('node:fs');",
+                      "const { spawn } = require('node:child_process');",
+                      "const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'inherit' });",
+                      "fs.writeFileSync(process.argv[1], String(child.pid));",
+                      "process.exit(3);"
+                    ]
+                )
+                [childPidPath]
+        Async.withAsync
+          (Job.run $ Job.onProcessExit (putMVar processExit) $ Job.fromProc process)
+          ( \running -> do
+              timeout (secondsToMicroSeconds 5) (takeMVar processExit) `shouldReturn` Just (ExitFailure 3)
+              childPid <- readProcessId childPidPath
+              ( do
+                  Async.poll running >>= \case
+                    Nothing -> return ()
+                    Just _ -> expectationFailure "The job finished while the process's output was still open"
+                  killProcess childPid
+                  timeout (secondsToMicroSeconds 5) (Async.wait running) `shouldReturn` Just (ExitFailure 3)
+                )
+                `finally` killProcess childPid
+          )
+          `finally` removeIfExists childPidPath
 
     it "emits all the output of a process that exited, even if the job is stopped right after" $ do
       processExited <- newEmptyMVar
