@@ -27,6 +27,7 @@ import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Install (waspInstallIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -50,12 +51,14 @@ compileCommand :: Command ([CompileWarning], AS.AppSpec)
 compileCommand = ProjectLock.acquireExclusive compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
+-- Installs missing dependencies first, so the caller must hold the project lock.
 compile :: Command ([CompileWarning], AS.AppSpec)
 compile = do
   -- TODO: Consider a way to remove the redundancy of finding the project root
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
+  waspInstallIfNeeded
   WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 

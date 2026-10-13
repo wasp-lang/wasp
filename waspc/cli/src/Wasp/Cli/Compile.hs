@@ -7,9 +7,11 @@ where
 import Control.Monad.Except (throwError)
 import Data.Functor ((<&>))
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (analyzeWithOptions, compileWithOptions)
+import Wasp.Cli.Command.Install (waspInstallIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WaspProcessId, WatcherStatus (..))
 import Wasp.CompileOptions (CompileOptions (..))
@@ -19,8 +21,8 @@ import Wasp.Util.IO.Retry (constPause, retryWithCallback)
 
 -- | Makes sure the generated app is up to date with the project's source, for
 -- commands that need it.
---   - If no other Wasp command is working on the project, it compiles the
---     project while holding the lock.
+--   - If no other Wasp command is working on the project, it installs missing
+--     dependencies and compiles the project while holding the lock.
 --   - If a watcher (e.g. `wasp start`) is keeping the generated app up to date,
 --     it trusts it and only analyzes the project to get the 'AS.AppSpec'.
 --     Watchers fully set up the generated app, which covers any setup goal.
@@ -73,9 +75,13 @@ data EnsureCompileResult
 attemptEnsureCompile :: CompileOptions -> Command EnsureCompileResult
 attemptEnsureCompile options =
   ProjectLock.acquire Nothing $ \case
-    Right _ -> GeneratedAppUpToDate . snd <$> compileWithOptions options
+    Right _ -> do
+      waspInstallIfNeeded
+      WaspSpecAvailable <- require
+      GeneratedAppUpToDate . snd <$> compileWithOptions options
     Left (Just ProjectLockData {pid, watcherStatus = Just UpToDate}) -> do
       cliSendMessageC $ makeCompilationSkippedInfo pid
+      WaspSpecAvailable <- require
       GeneratedAppUpToDate <$> analyzeWithOptions options.waspProjectDir options
     Left (Just ProjectLockData {pid, watcherStatus = Just CompilationFailed}) ->
       throwError $ makeCompilationFailedError pid
