@@ -17,6 +17,7 @@ import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Text as CT
 import Data.Maybe (isJust)
 import Data.Text (Text)
+import qualified Data.Text as T
 import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
@@ -40,7 +41,9 @@ instance Exception ProcessDidNotStop where
 --
 -- If the job is stopped before the process finishes, this stops the process
 -- and waits for it to exit. If it doesn't exit in time, this kills it, and if
--- it still doesn't exit, this throws 'ProcessDidNotStop'.
+-- it still doesn't exit, this emits a message saying so as the job's output
+-- and throws 'ProcessDidNotStop'. The message is there because
+-- 'Control.Concurrent.Async.race' drops the exception of the job it stops.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
@@ -69,27 +72,30 @@ run emit process = mask $ \restore -> do
       )
       -- The process has to stop before the output forwarding is cancelled: on
       -- Windows, reading the output can't be interrupted until its pipes close.
-      `onException` ( (stopProcess processHandle processExit `finally` Async.cancel outputForwarding)
+      `onException` ( (stopProcess emit processHandle processExit `finally` Async.cancel outputForwarding)
                         `finally` closeHandles resources
                     )
   closeHandles resources
   return exitCode
 
 -- | Interrupts the process, and waits for it to exit. If it doesn't exit in
--- time, kills it, and if it still doesn't exit, throws 'ProcessDidNotStop'.
+-- time, kills it, and if it still doesn't exit, emits a message saying so and
+-- throws 'ProcessDidNotStop'.
 --
 -- We only signal the process itself, and rely on it to stop the processes it
 -- started. We don't signal its process group: it's Wasp's own, so that would
 -- also stop Wasp, its other jobs, and whatever started Wasp (e.g. an npm script
 -- or a CI shell).
-stopProcess :: P.ProcessHandle -> Async.Async ExitCode -> IO ()
-stopProcess processHandle processExit = do
+stopProcess :: (OutputType -> Text -> IO ()) -> P.ProcessHandle -> Async.Async ExitCode -> IO ()
+stopProcess emit processHandle processExit = do
   interruptProcess processHandle
   stoppedInTime <- waitForExit gracefulStopTimeoutMicroseconds
   unless stoppedInTime $ do
     killProcess processHandle
     stoppedAfterKill <- waitForExit killTimeoutMicroseconds
-    unless stoppedAfterKill $ throwIO ProcessDidNotStop
+    unless stoppedAfterKill $ do
+      emit Stderr $ T.pack (displayException ProcessDidNotStop) <> "\n"
+      throwIO ProcessDidNotStop
   where
     waitForExit timeoutMicroseconds = isJust <$> timeout timeoutMicroseconds (Async.waitCatch processExit)
 
