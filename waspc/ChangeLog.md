@@ -36,6 +36,8 @@
 
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
 
+- Wasp now runs Vite, Vitest, Prisma and the other Node tools it uses directly, instead of through `npm` or `npx`, so stopping a Wasp command stops them too. The generated server's `package.json` no longer has a `prisma.seed` field, so running `prisma migrate reset` yourself no longer tries to seed the database (which failed anyway, since Wasp's seed script needs a seed name); use `wasp db seed` instead. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
+
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))

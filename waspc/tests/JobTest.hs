@@ -6,13 +6,18 @@ import Control.Exception (finally)
 import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
+import Data.List (isInfixOf)
+import Data.Maybe (fromJust)
 import qualified Data.Text as T
+import qualified StrongPath as SP
 import System.Directory (doesFileExist, removeFile)
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
+import System.IO.Error (ioeGetErrorString, isUserError)
+import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
+import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
@@ -147,6 +152,12 @@ spec_Job = do
           Async.poll second >>= \case
             Nothing -> isProcessAlive secondPid `shouldReturn` True
             Just _ -> expectationFailure "Stopping one job stopped another job's process"
+
+  describe "npmBinProc" $
+    it "fails, naming the executable, if it isn't in any node_modules/.bin directory" $
+      withSystemTempDirectory "wasp-job-test" $ \tempDir ->
+        Job.run (Job.npmBinProc (fromJust $ SP.parseAbsDir tempDir) "missing-tool" [])
+          `shouldThrow` (\e -> isUserError e && "`missing-tool`" `isInfixOf` ioeGetErrorString e)
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)
