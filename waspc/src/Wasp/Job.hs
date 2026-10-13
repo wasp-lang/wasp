@@ -30,7 +30,7 @@ import System.Exit (ExitCode (..))
 import UnliftIO.Exception (throwIO)
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
-import qualified Wasp.Job.Printer as Printer
+import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
 import Wasp.Node.Bin (findNpmBin)
 
@@ -38,8 +38,8 @@ import Wasp.Node.Bin (findNpmBin)
 -- returns once it has finished.
 run :: (MonadIO m) => Job a -> m a
 run job = liftIO $ do
-  printer <- Printer.newPrinter
-  runWithSink (Printer.printOutput printer) job
+  prefixedWriter <- PrefixedWriter.newPrefixedWriter
+  runWithSink (PrefixedWriter.printOutput prefixedWriter) job
 
 -- | Runs both jobs at the same time, until one of them finishes. Then it stops
 -- the other one and returns the result of the first one.
