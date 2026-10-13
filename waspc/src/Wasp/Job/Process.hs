@@ -71,13 +71,20 @@ run emit onExit process = mask $ \restore -> do
           Async.wait outputForwarding
           return exitCode
       )
-      -- The process has to stop before the output forwarding is cancelled: on
-      -- Windows, reading the output can't be interrupted until its pipes close.
-      `onException` ( (stopProcess processHandle processExit `finally` Async.cancel outputForwarding)
-                        `finally` closeHandles resources
-                    )
+      `onException` (stop resources processExit outputForwarding `finally` closeHandles resources)
   closeHandles resources
   return exitCode
+  where
+    -- The process has to stop before the output forwarding is cancelled: on
+    -- Windows, reading the output can't be interrupted until its pipes close.
+    stop (_, _, _, processHandle) processExit outputForwarding =
+      ( Async.poll processExit >>= \case
+          -- The process exited by itself, so the rest of its output, e.g. a
+          -- crash's stack trace, is about to be emitted.
+          Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
+          Nothing -> stopProcess processHandle processExit
+      )
+        `finally` Async.cancel outputForwarding
 
 -- | Interrupts the process, and waits for it to exit. If it doesn't exit in
 -- time, kills it, and if it still doesn't exit, throws 'ProcessDidNotStop'.
@@ -125,6 +132,12 @@ gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 2
 
 killTimeoutMicroseconds :: Int
 killTimeoutMicroseconds = secondsToMicroSeconds 2
+
+-- | How long a job that is stopped after its process exited still emits the
+-- process's output for. It's bounded because the process's children can keep
+-- its output open.
+outputDrainTimeoutMicroseconds :: Int
+outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
 
 forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
 forwardOutput _ Nothing = return ()

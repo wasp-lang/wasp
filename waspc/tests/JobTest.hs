@@ -17,7 +17,7 @@ import System.IO.Error (ioeGetErrorString, isUserError)
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn, shouldThrow)
+import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
@@ -53,7 +53,7 @@ spec_Job = do
       Job.run job `shouldReturn` ((), "firstsecond")
       reverse <$> readIORef tappedOutputs `shouldReturn` [(Job.Stdout, "first"), (Job.Stderr, "second")]
 
-  describe "onProcessExit" $
+  describe "onProcessExit" $ do
     it "calls the action as soon as the process exits, before all of its output is emitted" $ do
       childPidPath <- makeTempPath "wasp-child-pid"
       processExit <- newEmptyMVar
@@ -85,6 +85,23 @@ spec_Job = do
               `finally` killProcess childPid
         )
         `finally` removeIfExists childPidPath
+
+    it "emits all the output of a process that exited, even if the job is stopped right after" $ do
+      processExited <- newEmptyMVar
+      let process = node "process.stdout.write('x'.repeat(200000));"
+          -- Passing the output on slowly leaves some of it unread when the
+          -- process exits.
+          passOutputOnSlowly = Job.tapOutput (\_ _ -> threadDelay 10000)
+          job =
+            Job.onProcessExit (\_ -> void $ tryPutMVar processExited ())
+              $ passOutputOnSlowly
+              $ Job.fromProc process
+      result <-
+        timeout (secondsToMicroSeconds 10)
+          $ Job.run
+          $ Job.captureOutput
+          $ Job.race job (liftIO $ takeMVar processExited)
+      T.length . snd <$> result `shouldBe` Just 200000
 
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do

@@ -14,6 +14,7 @@ import Data.List (isPrefixOf, isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
@@ -55,11 +56,15 @@ watch ::
   MVar ([CompileWarning], [CompileError]) ->
   WatchCompileHooks ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN.withManager $ \mgr -> do
-  chan <- newChan
-  _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
-  _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
-  listenForEvents chan =<< getCurrentTime
+watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
+  -- fsnotify reports paths under the canonical path of the watched dirs, which
+  -- differs from the project dir's path if that goes through a symlink.
+  canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
+  FSN.withManager $ \mgr -> do
+    chan <- newChan
+    _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
+    _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
+    listenForEvents canonicalWaspProjectDir chan =<< getCurrentTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
       FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
@@ -80,18 +85,18 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
       not (isEditorTmpFile filename)
         && filename /= ".DS_Store"
 
-    listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
-    listenForEvents chan lastCompileTime = do
+    listenForEvents :: FilePath -> Chan FSN.Event -> UTCTime -> IO ()
+    listenForEvents canonicalWaspProjectDir chan lastCompileTime = do
       event <- readChan chan
       if isStaleEvent event lastCompileTime
         then -- Ignore delayed/stale events older than our last compile time.
-          listenForEvents chan lastCompileTime
+          listenForEvents canonicalWaspProjectDir chan lastCompileTime
         else do
           -- Recompile, but only after a 1s period of no new events.
-          fileChanges <- collectFileChangesUntilQuiet chan lastCompileTime 1 event
+          events <- collectEventsUntilQuiet chan lastCompileTime 1 event
           currentTime <- getCurrentTime
-          recompile fileChanges
-          listenForEvents chan currentTime
+          recompile $ eventToProjectFileChange canonicalWaspProjectDir <$> events
+          listenForEvents canonicalWaspProjectDir chan currentTime
 
     updateOngoingCompilationResultMVar :: ([CompileWarning], [CompileError]) -> IO ()
     updateOngoingCompilationResultMVar (warnings, errors) =
@@ -108,23 +113,23 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
     -- Collects events until no new events are received for a duration of `secondsToDelay`.
     -- If a stale event arrives during an active timer window, we immediately
     -- return control to the caller.
-    collectFileChangesUntilQuiet :: Chan FSN.Event -> UTCTime -> Int -> FSN.Event -> IO [ProjectFileChange]
-    collectFileChangesUntilQuiet chan lastCompileTime secondsToDelay firstEvent =
+    collectEventsUntilQuiet :: Chan FSN.Event -> UTCTime -> Int -> FSN.Event -> IO [FSN.Event]
+    collectEventsUntilQuiet chan lastCompileTime secondsToDelay firstEvent =
       collectEvents [firstEvent]
       where
         collectEvents events = do
           eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
           case eventOrDelay of
             Left event
-              | isStaleEvent event lastCompileTime -> return $ eventToProjectFileChange <$> events
+              | isStaleEvent event lastCompileTime -> return events
               | otherwise ->
                   -- We have a new event, restart waiting process.
                   collectEvents $ event : events
-            Right () -> return $ eventToProjectFileChange <$> events
+            Right () -> return events
 
-    eventToProjectFileChange :: FSN.Event -> ProjectFileChange
-    eventToProjectFileChange event =
-      ProjectFileChange $ FP.normalise $ FP.makeRelative (SP.fromAbsDir waspProjectDir) (FSN.eventPath event)
+    eventToProjectFileChange :: FilePath -> FSN.Event -> ProjectFileChange
+    eventToProjectFileChange canonicalWaspProjectDir event =
+      ProjectFileChange $ FP.normalise $ FP.makeRelative canonicalWaspProjectDir (FSN.eventPath event)
 
     isStaleEvent :: FSN.Event -> UTCTime -> Bool
     isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
@@ -147,6 +152,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
               }
       case _compileOutcome compileResult of
         Right _ -> do
+          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
           updateOngoingCompilationResultMVar (warnings, errors)
           _onSuccessfulCompile watchCompileHooks watchCompileResult
         Left _ -> do

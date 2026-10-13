@@ -5,7 +5,6 @@ where
 
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
-import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
@@ -26,7 +25,6 @@ import Wasp.Cli.Command.Start.ServerRuntimeInputChange (classifyServerEffect)
 import Wasp.Cli.Command.Watch (WatchCompileHooks (..), WatchCompileResult (..), watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
-import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
@@ -81,14 +79,11 @@ start = withArguments startArgsParser $ \args -> withProjectLock $ do
     serverProcessController <- ServerGenerator.Start.newServerProcessController
     let watchCompileHooks =
           WatchCompileHooks
-            { _onSuccessfulCompile = \watchCompileResult -> do
-                let serverEffect =
-                      classifyServerEffect
-                        (_watchProjectFileChanges watchCompileResult)
-                        (_compileChangedGeneratedAppPaths $ _watchCompileResult watchCompileResult)
-                when (serverEffect /= ServerGenerator.Start.NoServerEffect) $
-                  cliSendMessage (Msg.Start "Updating server...")
-                ServerGenerator.Start.notifySuccessfulCompile serverProcessController serverEffect,
+            { _onSuccessfulCompile = \watchCompileResult ->
+                ServerGenerator.Start.notifySuccessfulCompile serverProcessController $
+                  classifyServerEffect
+                    (_watchProjectFileChanges watchCompileResult)
+                    (_compileChangedGeneratedAppPaths $ _watchCompileResult watchCompileResult),
               _onFailedCompile = const $ ServerGenerator.Start.notifyFailedCompile serverProcessController
             }
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks

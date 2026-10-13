@@ -55,6 +55,19 @@ spec_classifyServerEffect =
       classifyServerEffect [] [Right [SP.reldir|sdk/wasp/server/email|]]
         `shouldBe` RebundleAndRestartServer
 
+    it "detects generated SDK changes outside the SDK's client code" $ do
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/auth/session.ts|]] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/core/serialization/index.ts|]] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/entities/index.ts|]] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/auth|]] `shouldBe` RebundleAndRestartServer
+
+    it "ignores generated SDK client code" $ do
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client|]] `shouldBe` NoServerEffect
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client/router|]] `shouldBe` NoServerEffect
+
+    it "restarts the server when the Prisma schema changes" $ do
+      classifyServerEffect [] [Left [SP.relfile|db/schema.prisma|]] `shouldBe` RestartServer
+
     it "ignores generated paths outside server runtime inputs" $ do
       classifyServerEffect [] [Left [SP.relfile|server/README.md|]] `shouldBe` NoServerEffect
       classifyServerEffect [] [Left [SP.relfile|sdk/wasp/client/index.ts|]] `shouldBe` NoServerEffect

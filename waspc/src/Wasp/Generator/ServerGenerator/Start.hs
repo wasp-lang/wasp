@@ -9,10 +9,9 @@ module Wasp.Generator.ServerGenerator.Start
 where
 
 import Control.Concurrent (MVar, newEmptyMVar, putMVar, takeMVar, threadDelay)
-import Control.Concurrent.STM (TMVar, TQueue, atomically, newEmptyTMVarIO, newTQueueIO, orElse, putTMVar, readTQueue, takeTMVar, writeTQueue)
+import Control.Concurrent.STM (TMVar, TQueue, atomically, newEmptyTMVarIO, newTQueueIO, orElse, putTMVar, readTQueue, takeTMVar, tryTakeTMVar, writeTQueue)
 import Control.Monad (forever)
 import Control.Monad.IO.Class (liftIO)
-import Data.Functor ((<&>))
 import qualified Data.Text as T
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path', (</>))
@@ -22,7 +21,6 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Node.Bin (findNpmBin)
 
 newtype ServerProcessController = ServerProcessController (TQueue ServerControllerCommand)
 
@@ -32,13 +30,11 @@ data ServerEffect
   = NoServerEffect
   | RestartServer
   | RebundleAndRestartServer
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
+-- | The stronger of the two effects.
 instance Semigroup ServerEffect where
-  NoServerEffect <> effect = effect
-  effect <> NoServerEffect = effect
-  RestartServer <> RestartServer = RestartServer
-  _ <> _ = RebundleAndRestartServer
+  (<>) = max
 
 instance Monoid ServerEffect where
   mempty = NoServerEffect
@@ -78,7 +74,7 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     notRunning :: J.Job Void
     notRunning =
       liftIO (atomically $ readTQueue commands) >>= \case
-        SuccessfulCompile _ done -> bundleAndRun $ Just done
+        SuccessfulCompile _ done -> announceUpdate >> bundleAndRun (Just done)
         FailedCompile done -> acknowledge done >> notRunning
 
     bundleAndRun :: Maybe (MVar ()) -> J.Job Void
@@ -111,10 +107,16 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
         Left exitCode -> return $ reportServerExit exitCode >> notRunning
         Right (SuccessfulCompile NoServerEffect done) ->
           acknowledge done >> handleCommandsWhileRunning serverExit
-        Right (SuccessfulCompile RestartServer done) -> return $ running $ Just done
-        Right (SuccessfulCompile RebundleAndRestartServer done) ->
+        Right (SuccessfulCompile RestartServer done) -> do
+          announceUpdate
+          return $ running $ Just done
+        Right (SuccessfulCompile RebundleAndRestartServer done) -> do
+          announceUpdate
           -- The current server keeps running while the new one is bundled.
-          bundle <&> \case
+          bundleExitCode <- bundle
+          -- The server might have exited while it was being bundled.
+          mapM_ reportServerExit =<< liftIO (atomically $ tryTakeTMVar serverExit)
+          return $ case bundleExitCode of
             ExitSuccess -> running $ Just done
             ExitFailure _ -> acknowledge done >> notRunning
         Right (FailedCompile done) -> return $ acknowledge done >> notRunning
@@ -122,16 +124,14 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
     acknowledge :: MVar () -> J.Job ()
     acknowledge done = liftIO $ putMVar done ()
 
+    announceUpdate :: J.Job ()
+    announceUpdate = J.emitOutput J.Stdout "Updating server...\n"
+
     -- Same as the `bundle` script in the server's `package.json`.
     bundle :: J.Job ExitCode
     bundle =
-      runNpmBinInServerDir "tsc" ["--build"]
-        `J.andThen` runNpmBinInServerDir "rollup" ["--config", "--silent"]
-
-    runNpmBinInServerDir :: String -> [String] -> J.Job ExitCode
-    runNpmBinInServerDir binName args = do
-      Just binPath <- liftIO $ findNpmBin serverDir binName
-      J.fromProc $ J.setCwd serverDir $ J.proc binPath args
+      (J.fromProc =<< J.npmBinProc serverDir "tsc" ["--build"])
+        `J.andThen` (J.fromProc =<< J.npmBinProc serverDir "rollup" ["--config", "--silent"])
 
     serverProcess :: J.CreateJobProcess
     serverProcess =
@@ -143,5 +143,7 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
 
 reportServerExit :: ExitCode -> J.Job ()
 reportServerExit = \case
-  ExitSuccess -> J.emitOutput J.Stdout "Server process exited.\n"
-  ExitFailure code -> J.emitOutput J.Stderr $ T.pack $ "Server process exited with code " <> show code <> ".\n"
+  ExitSuccess -> J.emitOutput J.Stdout $ "Server process exited. " <> waitingForChanges
+  ExitFailure code -> J.emitOutput J.Stderr $ T.pack ("Server process exited with code " <> show code <> ". ") <> waitingForChanges
+  where
+    waitingForChanges = "Waiting for file changes before starting it again...\n"

@@ -7,7 +7,9 @@ import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Watch (ProjectFileChange (..))
 import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Generator.DbGenerator.Common (dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.Start (ServerEffect (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir)
@@ -26,11 +28,18 @@ classifyServerEffect projectFileChanges changedGeneratedAppPaths =
     generatedAppPathServerEffect (Left file)
       | file == generatedServerPackageFile = RebundleAndRestartServer
       | file == generatedServerEnvFile = RestartServer
-      | generatedServerInputPatterns `matchesAny` SP.fromRelFile file = RebundleAndRestartServer
+      -- The server loads the Prisma client, which is regenerated from the
+      -- schema, at runtime.
+      | file == SP.castFile dbSchemaFileInGeneratedAppDir = RestartServer
+      | isGeneratedServerInput $ SP.fromRelFile file = RebundleAndRestartServer
       | otherwise = NoServerEffect
     generatedAppPathServerEffect (Right dir)
-      | generatedServerInputPatterns `matchesAny` FP.dropTrailingPathSeparator (SP.fromRelDir dir) = RebundleAndRestartServer
+      | isGeneratedServerInput $ FP.dropTrailingPathSeparator $ SP.fromRelDir dir = RebundleAndRestartServer
       | otherwise = NoServerEffect
+
+    isGeneratedServerInput path =
+      generatedServerInputPatterns `matchesAny` path
+        && not (generatedSdkClientPatterns `matchesAny` path)
 
     projectServerInputPatterns =
       map compile $ recursiveFileGlobsWithExtensions projectSrcDir serverRuntimeInputFileExtensions
@@ -38,12 +47,16 @@ classifyServerEffect projectFileChanges changedGeneratedAppPaths =
     generatedServerInputPatterns =
       map compile $
         dirAndDescendantsGlobs generatedServerSrcDir
-          -- The server bundles SDK code, which can change independently.
-          ++ dirAndDescendantsGlobs "sdk/wasp/server"
+          -- The server bundles SDK code, which can change independently. All of
+          -- the SDK except its client code can end up in the server's bundle.
+          ++ dirAndDescendantsGlobs generatedSdkDir
+
+    generatedSdkClientPatterns = map compile $ dirAndDescendantsGlobs $ generatedSdkDir FP.</> "client"
 
     patterns `matchesAny` path = any (`match` path) patterns
 
     projectSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir srcDirInWaspProjectDir
+    generatedSdkDir = FP.dropTrailingPathSeparator $ SP.fromRelDir sdkRootDirInGeneratedAppDir
     generatedServerSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir ServerGenerator.Common.serverSrcDirInGeneratedAppDir
     generatedServerEnvFile = ServerGenerator.Common.serverRootDirInGeneratedAppDir SP.</> [SP.relfile|.env|]
     generatedServerPackageFile = ServerGenerator.Common.serverRootDirInGeneratedAppDir SP.</> [SP.relfile|package.json|]

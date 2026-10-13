@@ -4,7 +4,9 @@ import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (cancel, withAsync)
 import Control.Exception (SomeException, finally, try)
 import Control.Monad (unless, void, when)
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Void (Void)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
@@ -177,6 +179,31 @@ spec_ServerProcessController =
 
           cancel controllerJob
           isPortAvailable newPort `shouldReturn` True
+          clearServerPid fixture
+
+    it "reports a server crash that happens while the server is being rebundled" $
+      withGeneratedAppDirFixture $ \fixture -> do
+        controller <- newServerProcessController
+        generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
+        output <- newIORef ""
+        let bundleScriptPath = serverDirPath fixture </> "bundle.js"
+            runControllerCollectingOutput =
+              Job.run
+                $ Job.captureOutput
+                $ Job.tapOutput (\_ chunk -> modifyIORef' output (<> chunk))
+                $ startServer serverRunConfig generatedAppDir controller
+        withAsync runControllerCollectingOutput $ \controllerJob -> do
+          waitForServerStart fixture
+          -- The bundle kills the server, and gives Wasp a moment to notice.
+          appendFile bundleScriptPath $
+            unlines
+              [ "process.kill(Number(require('node:fs').readFileSync('server.pid', 'utf8')), 'SIGKILL');",
+                "setTimeout(() => {}, 500);"
+              ]
+          notifySuccessfulCompileOrFail controller RebundleAndRestartServer
+          waitUntil "server crash report" $ ("Server process exited" `T.isInfixOf`) <$> readIORef output
+
+          cancel controllerJob
           clearServerPid fixture
 
 -- | Runs the controller until it's cancelled, discarding its output.
