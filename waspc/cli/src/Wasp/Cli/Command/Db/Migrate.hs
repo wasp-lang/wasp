@@ -8,12 +8,14 @@ import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwErr
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
+import Wasp.Generator.Setup (SetupGoal (PrismaCliReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProjectDir)
@@ -22,7 +24,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
 migrateDev :: [String] -> Command ()
-migrateDev optionalMigrateArgs = do
+migrateDev optionalMigrateArgs = makeDbCommand PrismaCliReady $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir

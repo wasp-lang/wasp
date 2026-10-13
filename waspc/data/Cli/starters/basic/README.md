@@ -37,8 +37,6 @@ The welcome page in `src/welcome/` walks you through the app on your first run. 
 1. Delete the `src/welcome/` folder.
 2. Remove `welcomeSpec` and its import from `main.wasp.ts`.
 
-To improve your Wasp development experience, we recommend installing the [Wasp extension for VSCode](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
-
 ## Learn more
 
 To find out more about Wasp, visit out [docs](https://wasp.sh/docs).

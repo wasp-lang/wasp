@@ -22,7 +22,7 @@ data WebAppRunConfig = WebAppRunConfig
 
 instance HasEnvVars WebAppRunConfig where
   getEnvVars = envVars
-  setEnvVars config newEnvVars = config {envVars = newEnvVars}
+  setEnvVars newEnvVars config = config {envVars = newEnvVars}
 
 makeWebAppRunConfig :: AppComponentUrl -> String -> WebAppRunConfig
 makeWebAppRunConfig expectedUrl serverUrl =

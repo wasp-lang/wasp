@@ -1,7 +1,8 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
-    postWriteDbGeneratorActions,
+    formatPrismaSchemaFileOnDisk,
     warnIfDbNeedsMigration,
+    generatePrismaClient,
     getEntitiesForPrismaSchema,
   )
 where
@@ -134,22 +135,6 @@ genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir <$> AS.migrationsDir spec
   where
     genProjectMigrationsDir = Wasp.Generator.DbGenerator.Common.dbRootDirInGeneratedAppDir </> Wasp.Generator.DbGenerator.Common.dbMigrationsDirInDbRootDir
-
--- | This function operates on generated app, and thus assumes the file drafts were written to disk
-postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO ([GeneratorWarning], [GeneratorError])
-postWriteDbGeneratorActions spec dstDir = do
-  formatPrismaSchemaFileOnDisk dstDir
-
-  dbGeneratorWarnings <-
-    -- It makes sense to check if db needs migration only if the db is known at this moment, for
-    -- example if we are in development (`wasp start`).
-    -- However if we are in build (`wasp build`), then there is no database to check against right
-    -- now.
-    if not (AS.isProduction spec)
-      then maybeToList <$> warnIfDbNeedsMigration spec dstDir
-      else pure []
-  dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir
-  pure (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | One of the checks we perform is to compare the Wasp generated schema.prisma file
 -- and the schema.prisma file in the node_modules. Prisma formats the schema in node_modules

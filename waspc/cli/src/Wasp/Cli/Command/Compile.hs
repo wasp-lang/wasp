@@ -7,6 +7,7 @@ module Wasp.Cli.Command.Compile
     compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
+    withSetupGoal,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
     analyze,
@@ -34,6 +35,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
+import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -158,8 +160,11 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      generatorWarningsFilter = id
+      setupGoal = GeneratedAppReady
     }
+
+withSetupGoal :: SetupGoal -> CompileOptions -> CompileOptions
+withSetupGoal goal options = options {setupGoal = goal}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do

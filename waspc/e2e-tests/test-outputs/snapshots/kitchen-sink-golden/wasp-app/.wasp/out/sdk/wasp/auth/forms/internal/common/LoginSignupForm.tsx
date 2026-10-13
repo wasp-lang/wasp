@@ -24,6 +24,7 @@ import type {
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
+import { getAuthErrorMessage } from "../authErrorMessage";
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -33,9 +34,13 @@ const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
 // PRIVATE API
+/**
+ * The raw values of the form's inputs, including the ones users add through
+ * `additionalFields`.
+ */
 export type LoginSignupFormFields = {
   [key: string]: string;
-}
+};
 
 // PRIVATE API
 export const LoginSignupForm = ({
@@ -56,8 +61,8 @@ export const LoginSignupForm = ({
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
+  const onErrorHandler = (error: unknown) => {
+    setErrorMessage(getAuthErrorMessage(error));
   };
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
@@ -72,12 +77,17 @@ export const LoginSignupForm = ({
       navigate("/")
     },
   });
-  async function onSubmit (data) {
+  async function onSubmit(data: LoginSignupFormFields): Promise<void> {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit(data);
+      // We assert the type because the form holds raw input strings, while the
+      // signup data type uses the return types of the user's signup field
+      // getters (e.g. `Promise<string>` for an async getter).
+      // TODO: Close the type gap between the forms and the user's signup fields,
+      // so this assertion can go away.
+      await handleSubmit(data as Parameters<typeof handleSubmit>[0]);
     } finally {
       setIsLoading(false);
     }

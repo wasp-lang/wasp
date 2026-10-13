@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 -- | This modules implements general concepts regarding env vars.
 -- It is not specific to Wasp in any way.
 module Wasp.Env
@@ -67,14 +69,18 @@ findDuplicateEnvVars existing incoming =
 
 class HasEnvVars a where
   getEnvVars :: a -> [EnvVar]
-  setEnvVars :: a -> [EnvVar] -> a
+  setEnvVars :: [EnvVar] -> a -> a
+
+instance HasEnvVars [EnvVar] where
+  getEnvVars = id
+  setEnvVars newEnvVars _ = newEnvVars
 
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, returns a @Left@ of the duplicate env var
 -- names.
-addEnvVarsUnique :: (HasEnvVars a) => a -> [EnvVar] -> Either (Set EnvVarName) a
-addEnvVarsUnique x incoming
-  | Set.null duplicateNames = Right $ addEnvVarsOverride x incoming
+addEnvVarsUnique :: (HasEnvVars a) => [EnvVar] -> a -> Either (Set EnvVarName) a
+addEnvVarsUnique incoming x
+  | Set.null duplicateNames = Right $ addEnvVarsOverride incoming x
   | otherwise = Left duplicateNames
   where
     duplicateNames = findDuplicateEnvVars existing incoming
@@ -83,8 +89,8 @@ addEnvVarsUnique x incoming
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, the new env vars will override the existing
 -- ones.
-addEnvVarsOverride :: (HasEnvVars a) => a -> [EnvVar] -> a
-addEnvVarsOverride x incoming = setEnvVars x $ nubEnvVars merged
+addEnvVarsOverride :: (HasEnvVars a) => [EnvVar] -> a -> a
+addEnvVarsOverride incoming x = setEnvVars (nubEnvVars merged) x
   where
     merged =
       -- Incoming first so that they take priority over existing.

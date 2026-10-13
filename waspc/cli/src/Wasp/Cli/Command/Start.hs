@@ -130,8 +130,8 @@ assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, se
   -- We only use this to check for env vars being overriden. We throw away the
   -- merged env vars, because the generated apps will read the .env files and
   -- inherited environment themselves.
-  _ <- clientRunConfig `addEnvVarsUniqueC` implicitClientEnvVars
-  _ <- serverRunConfig `addEnvVarsUniqueC` implicitServerEnvVars
+  _ <- implicitClientEnvVars `addEnvVarsUniqueC` clientRunConfig
+  _ <- implicitServerEnvVars `addEnvVarsUniqueC` serverRunConfig
 
   return ()
   where

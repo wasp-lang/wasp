@@ -5,7 +5,8 @@ import { SuccessResponseSchema } from '../../responseSchemas';
 import type { UserEmailSignupFields } from '../../providers'
 {=/ isEmailUserSignupFieldsDefined =}
 
-type EmailSignupData = {
+// PRIVATE API
+export type EmailSignupData = {
   email: string
   password: string
 }{=# isEmailUserSignupFieldsDefined =} & UserEmailSignupFields{=/ isEmailUserSignupFieldsDefined =}

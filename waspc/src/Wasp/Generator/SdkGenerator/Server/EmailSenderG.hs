@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.Server.EmailSenderG
   ( genEmailSenderApi,
     depsRequiredByEmail,
+    devDepsRequiredByEmail,
   )
 where
 
@@ -104,11 +105,13 @@ genEmailSenderProviderSetupFn emailSender =
     setupFnFromProvidersDir = Providers.setupFnFile . Providers.getEmailSenderProvider $ emailSender
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByEmail spec = maybeToList maybeNpmDepedency
-  where
-    maybeProvider :: Maybe Providers.EmailSenderProvider
-    maybeProvider = Providers.getEmailSenderProvider <$> (AS.App.emailSender . getApp $ spec)
-    maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
+depsRequiredByEmail spec = maybeToList $ getEmailSenderProvider spec >>= Providers.npmDependency
+
+devDepsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
+devDepsRequiredByEmail spec = maybeToList $ getEmailSenderProvider spec >>= Providers.npmDevDependency
+
+getEmailSenderProvider :: AppSpec -> Maybe Providers.EmailSenderProvider
+getEmailSenderProvider spec = Providers.getEmailSenderProvider <$> (AS.App.emailSender . getApp $ spec)
 
 serverEmailDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverEmailDirInSdkTemplatesDir = [reldir|server/email|]
