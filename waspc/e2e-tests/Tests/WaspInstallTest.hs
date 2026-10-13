@@ -30,6 +30,21 @@ waspInstallTest =
                   waspCliCompile
                 ]
             ]
+        ),
+      TestCase
+        "install-keeps-package-lock-unchanged-after-clean"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ waspCliCompile,
+                  return "cp package-lock.json package-lock.json.before",
+                  waspCliClean,
+                  waspCliInstall,
+                  return "cmp package-lock.json.before package-lock.json",
+                  waspCliCompile,
+                  return "cmp package-lock.json.before package-lock.json"
+                ]
+            ]
         )
     ]
   where
