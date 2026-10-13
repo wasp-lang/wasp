@@ -1397,21 +1397,14 @@
             "file",
             "server/README.md"
         ],
-        "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
-    ],
-    [
-        [
-            "file",
-            "server/nodemon.json"
-        ],
-        "d82c05c39211a6de1702747bc379a82e2230255873a6f335203e19e68491c16f"
+        "21cc62fbd5283f0e140d73854a35a714a618bd2c89765fb9f173e841040d8ed5"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "f437fdcbb901c0199793be013254b77816eb81b622f2c573039f0c051ed21998"
+        "d86568748e222755a65f661a64c9c11f431df1aca13568f40847f6670e1dfe9e"
     ],
     [
         [
