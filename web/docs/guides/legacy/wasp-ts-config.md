@@ -396,7 +396,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 6.  Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
 :::note
-At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
+After upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder, the Spec needs to be set up again. `wasp start` does it on its own, but some commands, like `wasp start db`, will tell you to run `wasp install` first.
 :::
 
 See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

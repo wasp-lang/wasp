@@ -93,9 +93,6 @@ Here's an example configuration file to help you get started. This example workf
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
 
-        - name: Wasp Install
-          run: wasp install
-
         - name: Wasp Build
           run: wasp build
 

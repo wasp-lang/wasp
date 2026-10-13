@@ -147,9 +147,6 @@ jobs:
         shell: bash
         run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
 
-      - name: Install Wasp app dependencies
-        run: wasp install
-
       - name: Build Wasp app
         run: wasp build
 
