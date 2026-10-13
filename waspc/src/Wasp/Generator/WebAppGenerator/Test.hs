@@ -18,4 +18,6 @@ testWebApp clientRunConfig args waspProjectDir = do
   J.fromProc
     $ setEnvVars (getEnvVars clientRunConfig)
     $ J.setCwd waspProjectDir
+    -- Vitest only runs in watch mode when its stdin is a TTY.
+    $ J.markInteractive
     $ J.proc vitest args
