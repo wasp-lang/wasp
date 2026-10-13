@@ -320,7 +320,7 @@ library
     Wasp.Job
     Wasp.Job.Common
     Wasp.Job.CreateProcess
-    Wasp.Job.Printer
+    Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
@@ -664,6 +664,7 @@ test-suite wasp-cli-tests
     async,
     base,
     cli-lib,
+    directory,
     hspec,
     network,
     network-uri,
