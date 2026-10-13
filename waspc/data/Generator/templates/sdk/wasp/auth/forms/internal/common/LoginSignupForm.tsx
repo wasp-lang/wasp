@@ -30,6 +30,7 @@ import { SocialButton } from '../social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
+import { getAuthErrorMessage } from "../authErrorMessage";
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -61,21 +62,24 @@ const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
-{=!
-// Since we allow users to add additional fields to the signup form, we don't
-// know the exact shape of the form values. We are assuming that the form values
-// will be a flat object with string values.
-=}
 // PRIVATE API
+/**
+ * The raw values of the form's inputs, including the ones users add through
+ * `additionalFields`.
+ */
 export type LoginSignupFormFields = {
   [key: string]: string;
-}
+};
 
 // PRIVATE API
 export const LoginSignupForm = ({
     state,
+    {=# isSocialAuthEnabled =}
     socialButtonsDirection = 'horizontal',
+    {=/ isSocialAuthEnabled =}
+    {=# isAnyPasswordBasedAuthEnabled =}
     additionalSignupFields,
+    {=/ isAnyPasswordBasedAuthEnabled =}
 }: {
     state: 'login' | 'signup'
     socialButtonsDirection?: 'horizontal' | 'vertical'
@@ -91,8 +95,8 @@ export const LoginSignupForm = ({
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}
   const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
+  const onErrorHandler = (error: unknown) => {
+    setErrorMessage(getAuthErrorMessage(error));
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
   const hookForm = useForm<LoginSignupFormFields>()
@@ -120,12 +124,17 @@ export const LoginSignupForm = ({
   });
   {=/ enabledProviders.isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
-  async function onSubmit (data) {
+  async function onSubmit(data: LoginSignupFormFields): Promise<void> {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit(data);
+      // We assert the type because the form holds raw input strings, while the
+      // signup data type uses the return types of the user's signup field
+      // getters (e.g. `Promise<string>` for an async getter).
+      // TODO: Close the type gap between the forms and the user's signup fields,
+      // so this assertion can go away.
+      await handleSubmit(data as Parameters<typeof handleSubmit>[0]);
     } finally {
       setIsLoading(false);
     }

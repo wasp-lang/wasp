@@ -10,7 +10,7 @@ module Wasp.Job
     OutputType (..),
     emitOutput,
     captureOutput,
-    onOutput,
+    tapOutput,
     fromProc,
     JobType (..),
     prefixWith,
@@ -57,10 +57,11 @@ captureOutput job = do
   chunks <- liftIO $ readIORef chunksRef
   return (result, T.concat $ reverse chunks)
 
--- | Calls the given action every time the job emits output.
-onOutput :: IO () -> Job a -> Job a
-onOutput action = withSink $ \sink jobType outputType output ->
-  action >> sink jobType outputType output
+-- | Calls the given action with every output the job emits, and then passes
+-- the output on.
+tapOutput :: (OutputType -> Text -> IO ()) -> Job a -> Job a
+tapOutput action = withSink $ \sink jobType outputType output ->
+  action outputType output >> sink jobType outputType output
 
 -- | Runs the second job only if the first one succeeds (like @&&@ in a shell),
 -- and returns the exit code of the last one that ran.

@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "aa06f20bfd37ead40b5d143458a0cf7d2c0acb9a28d5eac4a0ed1c503f67a0ef"
+        "1f6f48cf099a63ebdb85f1e6bd9486abc4854fe25725cd18ee50053f20417325"
     ],
     [
         [
@@ -116,7 +116,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "3f8db611f300550058764b1ea3c453710828d335fb909ba7069e44f6eebda416"
+        "22f841da0a7b303bad4af4c3c2f8bf6808ec75f0a68686d76701a8e6c45617cf"
     ],
     [
         [
@@ -158,7 +158,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "02d2028c46cd470dec7be3344a94755521528135653066f99a01a338058f1805"
+        "6044a713f607711c42d7bfc4e493d53060370e113a922a6107a1d53feb67f617"
     ],
     [
         [
@@ -172,7 +172,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "9c22f453fb7abaeca08f48c7fdf7650b23610cfa16038b86851d4117bb6f46ad"
+        "0767795f14ae4a454d0e8ce504a3a0346e1a3360b450eb732e579257d83e131d"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "sdk/wasp/client/operations/queries/core.ts"
         ],
-        "cf0cbee66bea7789d5eeac5798495c7f22f15868400bf0b6bab9c95d31bfe2ff"
+        "e5a0b4e959bb17351d01fee4c1e43048f3bb8700ea515a90a1027471031d2b9c"
     ],
     [
         [
@@ -235,21 +235,21 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "504c73de9596bcf394d91b5bf3fc9078af5e461713b716a3155a918c9da03069"
+        "cf8d7c5fa8f264fdf4840768c3eb129d776500a6c1455a89ec0a3e86b1ea5c45"
     ],
     [
         [
             "file",
             "sdk/wasp/client/router/NavLink.tsx"
         ],
-        "bcedb44395e0dced4009e5e4a8dffa18660b4bb81dec106a33407c454dedb991"
+        "5ce070494107df876bfd932d283dfdfe5de743f27914ad0d012419cfad42018f"
     ],
     [
         [
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
+        "b3232d596f170e271d55d4e8dc6f852ecbef5bc69f123cfd533b1a1872417579"
     ],
     [
         [
@@ -263,7 +263,7 @@
             "file",
             "sdk/wasp/client/router/types.ts"
         ],
-        "ffbce0f351b849dfe04f00421a31844836cbd5a80ab97445f6ed8859e6b94928"
+        "22365ae9523337b86f917d4ce0ecbdfae4ff115a3cf01d1b1ffbcd3a6b608911"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "sdk/wasp/core/storage.ts"
         ],
-        "f94fa2c6090a41621a2c45ed156001ad1e85893f134561e459cd206a2532a5ec"
+        "32cc5f86521069272e6d7104b29fab80e6ec83e4da510978d5f18a26bd866e14"
     ],
     [
         [
@@ -429,9 +429,16 @@
     [
         [
             "file",
+            "sdk/wasp/errors/index.ts"
+        ],
+        "030cb2f5e557074fd5069bf09acdad6ea21710fd03a798e6f0d24e00599c21d5"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/package.json"
         ],
-        "3b13dc6d5b46dc3c0a151ab96e027bcf5652d98896239cd3747b488c4195ab9f"
+        "1f7d4bb210f6a3d797fe6a6fc7011c97dc9edb5d4f83cb50355e2b6b102da2e4"
     ],
     [
         [
@@ -578,7 +585,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "4da3a72edc3cf3f967aa7148ab59b690cde5931a0f15b5106137d0d49bea3f12"
+        "4cf39f23bb48838289a32b42e6bccd7f441ac83e7c9c9287263782e446cafe7b"
     ],
     [
         [
@@ -676,14 +683,14 @@
             "file",
             "server/nodemon.json"
         ],
-        "02c3ff62d58fbb953b199dccfa4c0e8d8721a59a3295a907690102253a599d18"
+        "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "5f43b367b3eca6ae6d0f006ea818d6fdda4f1dfa18a423a4d0de0fb43eea17ca"
+        "269e7d07f2343dd56152a5bb4a38f79288246e85084bf9d6bef2573048af87e7"
     ],
     [
         [
@@ -760,7 +767,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "09f5563c093b52b6c9ab99a4def30a2ac3febde3904a48f8413c23aaf8907eea"
+        "09ae9bcde379c54456481290933e8101a72f5bb84198c86a684ca89fe8956320"
     ],
     [
         [
