@@ -31,7 +31,7 @@
 
 ### 🐞 Bug fixes
 
-- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). Wasp now also waits for the command to exit, and kills it if it doesn't stop in time.
+- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). Wasp now also waits for the command to exit, and kills it if it doesn't stop in time. ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
