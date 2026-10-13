@@ -5,13 +5,11 @@ import Control.Exception (finally)
 import Control.Monad (unless, void)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
-import Data.List (isInfixOf)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified StrongPath as SP
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
-import System.IO.Error (ioeGetErrorString, isUserError)
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import qualified System.Process as P
@@ -125,10 +123,11 @@ spec_Job = do
         `shouldReturn` Just (ExitFailure 3)
 
   describe "npmBinProc" $
-    it "fails, naming the executable, if it isn't in any node_modules/.bin directory" $
-      withSystemTempDirectory "wasp-job-test" $ \tempDir ->
-        Job.run (Job.npmBinProc (fromJust $ SP.parseAbsDir tempDir) "missing-tool" [])
-          `shouldThrow` (\e -> isUserError e && "`missing-tool`" `isInfixOf` ioeGetErrorString e)
+    it "throws NpmBinNotFound if the executable isn't in any node_modules/.bin directory" $
+      withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
+        let dir = fromJust $ SP.parseAbsDir tempDir
+        Job.run (Job.npmBinProc dir "missing-tool" [])
+          `shouldThrow` (== Job.NpmBinNotFound "missing-tool" dir)
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)
