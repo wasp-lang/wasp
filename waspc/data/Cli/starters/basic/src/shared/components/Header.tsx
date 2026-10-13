@@ -14,11 +14,18 @@ export function Header() {
           <h1 className="text-2xl font-semibold">ToDo App</h1>
         </Link>
         <nav>
-          <ul className="flex gap-4 font-semibold">
+          <ul className="flex items-center gap-4 font-semibold">
             {user ? (
-              <li>
-                <Button onClick={logout}>Log out</Button>
-              </li>
+              <>
+                <li>
+                  <ButtonLink to="/tasks" variant="ghost">
+                    My tasks
+                  </ButtonLink>
+                </li>
+                <li>
+                  <Button onClick={logout}>Log out</Button>
+                </li>
+              </>
             ) : (
               <>
                 <li>

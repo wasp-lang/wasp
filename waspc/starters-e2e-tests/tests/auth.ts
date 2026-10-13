@@ -78,7 +78,7 @@ async function performEmailVerification(page: Page, email: string) {
   await page.waitForSelector("text=Your email has been verified");
 }
 
-function isRunningInDevMode() {
+export function isRunningInDevMode() {
   const testMode = process.env.WASP_RUN_MODE ?? "dev";
   return testMode === "dev";
 }

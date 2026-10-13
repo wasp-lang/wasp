@@ -28,7 +28,16 @@ To start the application locally for development or preview purposes:
 
 1. Run `wasp db migrate-dev` to migrate the database to the latest migration
 2. Run `wasp start` to start the Wasp application.
-3. The application should be running on `localhost:3000`. Open in it your browser to access the client.
+3. The application should be running on `localhost:3000`. Open it in your browser, and the welcome page will walk you through your next steps.
+
+### Removing the welcome page
+
+The welcome page in `src/welcome/` walks you through the app on your first run. When you no longer need it:
+
+1. Delete the `src/welcome/` folder.
+2. Remove `welcomeSpec` and its import from `main.wasp.ts`.
+3. Change the `TasksRoute` path in `src/tasks/task.wasp.ts` from `"/tasks"` to `"/"`, so the tasks page becomes your home page.
+4. Change the "My tasks" link in `src/shared/components/Header.tsx` from `"/tasks"` to `"/"`.
 
 To improve your Wasp development experience, we recommend installing the [Wasp extension for VSCode](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
 

@@ -4,7 +4,7 @@
 
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { randomUUID } from "crypto";
-import { performLogin, setupTestUser } from "../auth.js";
+import { isRunningInDevMode, performLogin, setupTestUser } from "../auth.js";
 
 test.describe(
   "basic only",
@@ -28,6 +28,42 @@ test.describe(
       return page.getByRole("dialog");
     }
 
+    test.describe("welcome page", () => {
+      test("should show the walkthrough", async ({ page }) => {
+        await page.goto("/");
+
+        await expect(
+          page.getByText("Your app is up and running"),
+        ).toBeVisible();
+        await expect(page.getByText("Not logged in")).toBeVisible();
+      });
+
+      test("should create a sample user and log in with it", async ({
+        page,
+      }) => {
+        test.skip(
+          !isRunningInDevMode(),
+          "The sample user is only available in development.",
+        );
+        await page.goto("/");
+
+        await page
+          .getByRole("button", { name: "Create a sample user" })
+          .click();
+        await expect(page.getByText("sample@example.com")).toBeVisible();
+
+        await performLogin(page, {
+          email: "sample@example.com",
+          password: "password123",
+        });
+        // Logging in completes the first step, so the walkthrough moves on.
+        await page
+          .getByRole("button", { name: "Create a user and log in" })
+          .click();
+        await expect(page.getByText("Logged in as sampleuser")).toBeVisible();
+      });
+    });
+
     test.describe("tasks", () => {
       test.describe.configure({ mode: "serial" });
 
@@ -36,8 +72,12 @@ test.describe(
       });
       const tagName = `Test tag: ${randomUUID()}`;
 
-      test("should have state for no tasks", async ({ page }) => {
+      test.beforeEach(async ({ page }) => {
         await performLogin(page, credentials);
+        await page.goto("/tasks");
+      });
+
+      test("should have state for no tasks", async ({ page }) => {
         const tasksSection = getTasksSection(page);
 
         await expect(tasksSection.getByText("No tasks found.")).toBeVisible();
@@ -45,7 +85,6 @@ test.describe(
 
       test("should be able to create a task without tags", async ({ page }) => {
         const taskWithoutTagDescription = `Test task without tags: ${randomUUID()}`;
-        await performLogin(page, credentials);
         const taskForm = getTaskForm(page);
         const tasksSection = getTasksSection(page);
 
@@ -63,7 +102,6 @@ test.describe(
       });
 
       test("should be able to create a tag", async ({ page }) => {
-        await performLogin(page, credentials);
         const taskForm = getTaskForm(page);
         const tagForm = getTagDialog(page);
 
@@ -79,7 +117,6 @@ test.describe(
 
       test("should be able to create task with a tag", async ({ page }) => {
         const taskWithTagDescription = `Test task with tag: ${randomUUID()}`;
-        await performLogin(page, credentials);
         const taskForm = getTaskForm(page);
         const tasksSection = getTasksSection(page);
 
@@ -96,8 +133,9 @@ test.describe(
       });
 
       test("should be able to check tasks", async ({ page }) => {
-        await performLogin(page, credentials);
         const tasksSection = getTasksSection(page);
+        // Wait for the list to load, since `.all()` below doesn't auto-wait.
+        await expect(tasksSection.getByText("2 tasks")).toBeVisible();
 
         const taskCheckboxes = await tasksSection.getByRole("checkbox").all();
         for (const checkbox of taskCheckboxes) {
@@ -115,7 +153,6 @@ test.describe(
       });
 
       test("should be able to clear completed tasks", async ({ page }) => {
-        await performLogin(page, credentials);
         const tasksSection = getTasksSection(page);
 
         await tasksSection
