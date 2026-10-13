@@ -1,8 +1,6 @@
-{-# LANGUAGE GADTs #-}
-
 module Wasp.Job.CreateProcess
   ( proc,
-    CreateJobProcess (..),
+    CreateJobProcess,
     setCwd,
     asCreateProcess,
     markInteractive,
@@ -20,7 +18,6 @@ data CreateJobProcess
   { bin :: String,
     args :: [String],
     cwd :: Maybe (Path' Abs (Dir ())),
-    inheritEnv :: Bool,
     envVars :: [EnvVar],
     interactive :: Bool
   }
@@ -35,7 +32,6 @@ proc bin args =
     { bin = bin,
       args = args,
       cwd = Nothing,
-      inheritEnv = True,
       envVars = [],
       interactive = False
     }
@@ -48,7 +44,7 @@ markInteractive cjp = cjp {interactive = True}
 
 asCreateProcess :: CreateJobProcess -> IO P.CreateProcess
 asCreateProcess cjp = do
-  inheritedEnv <- if cjp.inheritEnv then getEnvironment else pure []
+  inheritedEnv <- getEnvironment
   let fullEnv = addEnvVarsOverride cjp.envVars inheritedEnv
   pure $
     (P.proc cjp.bin cjp.args)

@@ -11,7 +11,6 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
@@ -22,7 +21,6 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Node.Bin (findNpmBin)
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
@@ -114,18 +112,19 @@ reset generatedAppDir resetArgs =
 -- | Bundles the server's db seed script and runs the seed with the given name.
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
 seed serverRunConfig generatedAppDir seedName =
-  runNpmBinInServerDir "tsc" ["--build"]
-    `J.andThen` runNpmBinInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
-    `J.andThen` runInServerDir "node" ["--enable-source-maps", "-r", "dotenv/config", "bundle/dbSeed.js"]
+  runInServerDir "tsc" ["--build"]
+    `J.andThen` runInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
+    `J.andThen` runSeed
   where
-    runNpmBinInServerDir binName args = do
-      Just binPath <- liftIO $ findNpmBin serverDir binName
-      runInServerDir binPath args
-    runInServerDir bin args =
+    runInServerDir binName args =
+      J.fromProc . setEnvVars envVars =<< J.npmBinProc serverDir binName args
+    runSeed =
       J.fromProc
         $ setEnvVars envVars
         $ J.setCwd serverDir
-        $ J.proc bin args
+        -- The user's seed function can ask for input.
+        $ J.markInteractive
+        $ J.proc "node" ["--enable-source-maps", "-r", "dotenv/config", "bundle/dbSeed.js"]
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 
@@ -173,11 +172,8 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag = "--no-hints"
 
 prismaProc :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job J.CreateJobProcess
-prismaProc generatedAppDir cmdArgs = do
-  Just prisma <- liftIO $ findNpmBin waspProjectDir "prisma"
-  return
-    $ J.setCwd serverDir
-    $ J.proc prisma cmdArgs
+prismaProc generatedAppDir cmdArgs =
+  J.setCwd serverDir <$> J.npmBinProc waspProjectDir "prisma" cmdArgs
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
     -- We must run our Prisma commands from the server dir for Prisma

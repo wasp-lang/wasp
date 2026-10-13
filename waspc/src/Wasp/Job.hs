@@ -1,7 +1,7 @@
 module Wasp.Job
   ( Job,
     proc,
-    CreateJobProcess (..),
+    CreateJobProcess,
     setCwd,
     markInteractive,
     run,
@@ -14,6 +14,7 @@ module Wasp.Job
     onProcessExit,
     fromProc,
     ProcessDidNotStop (..),
+    npmBinProc,
     JobType (..),
     prefixWith,
   )
@@ -25,11 +26,15 @@ import Control.Monad.Reader (ReaderT (..), ask, local)
 import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
+import StrongPath (Abs, Dir, Path')
+import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
+import UnliftIO.Exception (throwIO)
 import Wasp.Job.Common (Job (..), JobEnv (..), JobType (..), OutputType (..), runWithEnv, withSink)
-import Wasp.Job.CreateProcess (CreateJobProcess (..), cwd, markInteractive, proc, setCwd)
+import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
 import qualified Wasp.Job.Printer as Printer
 import Wasp.Job.Process (ProcessDidNotStop (..), fromProc)
+import Wasp.Node.Bin (findNpmBin)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.
@@ -79,6 +84,18 @@ onProcessExit :: (ExitCode -> IO ()) -> Job a -> Job a
 onProcessExit action (Job job) = Job $ local addHook job
   where
     addHook env = env {_processExitHook = \exitCode -> action exitCode >> _processExitHook env exitCode}
+
+-- | A process that runs the npm package executable with the given name, found
+-- with 'findNpmBin', in the given directory. Fails if there is no such
+-- executable.
+npmBinProc :: Path' Abs (Dir d) -> String -> [String] -> Job CreateJobProcess
+npmBinProc dir binName args =
+  liftIO (findNpmBin dir binName) >>= \case
+    Just bin -> return $ setCwd dir $ proc bin args
+    Nothing ->
+      throwIO
+        $ userError
+        $ "Could not find `" <> binName <> "` in node_modules/.bin of " <> SP.fromAbsDir dir <> " or its parents."
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.
