@@ -9,7 +9,7 @@ module Wasp.Job
     OutputType (..),
     emitOutput,
     captureOutput,
-    onOutput,
+    tapOutput,
     fromProc,
     JobType (..),
     prefixWith,
@@ -55,10 +55,11 @@ captureOutput job = do
   chunks <- liftIO $ readIORef chunksRef
   return (result, T.concat $ reverse chunks)
 
--- | Calls the given action every time the job emits output.
-onOutput :: IO () -> Job a -> Job a
-onOutput action = withSink $ \sink jobType outputType output ->
-  action >> sink jobType outputType output
+-- | Calls the given action with every output the job emits, and then passes
+-- the output on.
+tapOutput :: (OutputType -> Text -> IO ()) -> Job a -> Job a
+tapOutput action = withSink $ \sink jobType outputType output ->
+  action outputType output >> sink jobType outputType output
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.
