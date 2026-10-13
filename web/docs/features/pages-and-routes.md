@@ -159,6 +159,16 @@ export function PhotoCard({ photoId }: { photoId: string }) {
 }
 ```
 
+To build your own component on top of `Link` and keep the type safety, use the `LinkProps` type:
+
+```tsx title="src/components/ButtonLink.tsx" auto-js
+import { Link, type LinkProps } from "wasp/client/router"
+
+export function ButtonLink({ className, ...linkProps }: LinkProps) {
+  return <Link {...linkProps} className={`button ${className ?? ""}`} />
+}
+```
+
 When you need to navigate from your own code instead of as a link (for example after a form submits), build the URL with the `routes` object. `routes` has one entry per route name from your spec, and you can pass it to React Router's `useNavigate` hook:
 
 ```tsx title="src/NewPhotoForm.tsx" auto-js
@@ -377,9 +387,9 @@ The `Link` component accepts the following props:
   - An object with keys and values for each param in the path.
   - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
 
-- `search: Record<string, string>`
+- `search: string[][] | Record<string, string> | string | URLSearchParams`
 
-  - An object with keys and values for each search param.
+  - The search params, in any shape the [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams) constructor accepts.
   - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
 
 - `hash: string`

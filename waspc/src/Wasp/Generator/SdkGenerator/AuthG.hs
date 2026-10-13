@@ -18,8 +18,8 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
 import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
-import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
+import Wasp.Generator.SdkGenerator.Auth.UsernameAndPasswordAuthG (genUsernameAndPasswordAuth)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -50,7 +50,7 @@ genAuth spec =
             genUseAuth auth
           ]
         <++> genAuthForms auth
-        <++> genLocalAuth auth
+        <++> genUsernameAndPasswordAuth auth
         <++> genOAuthAuth auth
         <++> genEmailAuth auth
   where
@@ -97,10 +97,10 @@ genIndexTs auth =
     tmplData =
       object
         [ "isEmailAuthEnabled" .= isEmailAuthEnabled,
-          "isLocalAuthEnabled" .= isLocalAuthEnabled
+          "isUsernameAndPasswordAuthEnabled" .= isUsernameAndPasswordAuthEnabled
         ]
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvdersIndex auth =
