@@ -120,6 +120,8 @@ seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job Ex
 seed serverRunConfig generatedAppDir seedName =
   J.fromProc
     $ setEnvVars envVars
+    -- The user's seed function can ask for input.
+    $ J.markInteractive
     $ prismaCommandInServerDir generatedAppDir ["db", "seed"]
   where
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig

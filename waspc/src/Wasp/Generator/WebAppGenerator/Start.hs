@@ -15,4 +15,6 @@ startWebApp webAppRunConfig waspProjectDir = do
   J.fromProc
     $ setEnvVars (getEnvVars webAppRunConfig)
     $ J.setCwd waspProjectDir
+    -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
+    $ J.markInteractive
     $ J.proc "npx" ["vite"]

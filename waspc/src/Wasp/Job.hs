@@ -1,7 +1,7 @@
 module Wasp.Job
   ( Job,
     proc,
-    CreateJobProcess (..),
+    CreateJobProcess,
     setCwd,
     markInteractive,
     run,
@@ -23,7 +23,7 @@ import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
-import Wasp.Job.CreateProcess (CreateJobProcess (..), cwd, markInteractive, proc, setCwd)
+import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
 import qualified Wasp.Job.Printer as Printer
 import Wasp.Job.Process (fromProc)
 

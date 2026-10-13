@@ -1,5 +1,3 @@
-{-# LANGUAGE GADTs #-}
-
 module Wasp.Job.Process
   ( fromProc,
   )
