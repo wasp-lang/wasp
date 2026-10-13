@@ -17,6 +17,8 @@ import Data.Either (fromLeft)
 import Data.List (nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
+import qualified StrongPath as SP
+import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -25,7 +27,9 @@ import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
+import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
+import Wasp.Node.Bin (findNpmBin)
 
 -- | What a command needs the generated app set up for, after code generation.
 data SetupGoal
@@ -43,6 +47,7 @@ data SetupStep
   | GeneratePrismaClient
   | BuildSdk
   | CreateWebAppRootDir
+  | TypeCheckUserCode
   deriving (Eq, Show, Enum, Bounded)
 
 allSetupSteps :: [SetupStep]
@@ -61,6 +66,8 @@ prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
 prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
 prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
+-- Runs `tsc`, and the user code imports the SDK.
+prerequisites TypeCheckUserCode = [InstallNpmDeps, BuildSdk]
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
@@ -104,6 +111,7 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   -- todo(filip): Avoid building on each setup if we don't need to.
   BuildSdk -> buildSdk generatedAppDir sendMessage
   CreateWebAppRootDir -> liftIO $ createWebAppRootDir generatedAppDir
+  TypeCheckUserCode -> typeCheckUserCode spec sendMessage
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 installDependencies spec generatedAppDir sendMessage = do
@@ -134,3 +142,25 @@ buildSdk generatedAppDir sendMessage = do
   case result of
     Left errorMessage -> throwError [GenericGeneratorError errorMessage]
     Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
+
+typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
+typeCheckUserCode spec sendMessage = do
+  exitCode <- liftIO $ do
+    sendMessage $ Msg.Start "Type-checking user code..."
+    J.run $ J.prefixWith J.Wasp typeCheck
+  case exitCode of
+    ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
+    ExitFailure code ->
+      throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
+  where
+    typeCheck :: J.Job ExitCode
+    typeCheck = do
+      Just tsc <- liftIO $ findNpmBin (AS.waspProjectDir spec) "tsc"
+      J.fromProc
+        $ J.setCwd (AS.waspProjectDir spec)
+        $ J.proc
+          tsc
+          [ "--project",
+            SP.fromRelFile $ AS.srcTsConfigPath spec,
+            "--noEmit"
+          ]

@@ -31,22 +31,22 @@ spec_Job = do
     it "doesn't pass the output on" $ do
       outputCount <- newIORef (0 :: Int)
       let job =
-            Job.onOutput (modifyIORef' outputCount (+ 1))
+            Job.tapOutput (\_ _ -> modifyIORef' outputCount (+ 1))
               $ Job.captureOutput
               $ Job.emitOutput Job.Stdout "captured"
       _ <- Job.run job
       readIORef outputCount `shouldReturn` 0
 
-  describe "onOutput" $ do
-    it "calls the action for every output" $ do
-      outputCount <- newIORef (0 :: Int)
+  describe "tapOutput" $ do
+    it "calls the action with every output, and passes it on" $ do
+      tappedOutputs <- newIORef []
       let job =
             Job.captureOutput $
-              Job.onOutput (modifyIORef' outputCount (+ 1)) $ do
+              Job.tapOutput (\outputType output -> modifyIORef' tappedOutputs ((outputType, output) :)) $ do
                 Job.emitOutput Job.Stdout "first"
                 Job.emitOutput Job.Stderr "second"
-      _ <- Job.run job
-      readIORef outputCount `shouldReturn` 2
+      Job.run job `shouldReturn` ((), "firstsecond")
+      reverse <$> readIORef tappedOutputs `shouldReturn` [(Job.Stdout, "first"), (Job.Stderr, "second")]
 
   describe "onProcessExit" $
     it "calls the action as soon as the process exits, before all of its output is emitted" $ do
@@ -92,7 +92,7 @@ spec_Job = do
       -- The process exits by itself after a while, so that the test fails
       -- instead of hanging if stopping it doesn't work.
       let slowProcess = node "console.log(process.pid); setTimeout(() => {}, 10000)"
-          slowJob = Job.onOutput (void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
+          slowJob = Job.tapOutput (\_ _ -> void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
           jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
       result <-
         timeout (secondsToMicroSeconds 5)
