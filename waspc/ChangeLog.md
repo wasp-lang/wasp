@@ -28,6 +28,7 @@
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 - Custom `api`s can now use the `PATCH` and `HEAD` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860), [#4867](https://github.com/wasp-lang/wasp/pull/4867))
+- `wasp uninstall` now accepts `--force` to skip the confirmation prompt. ([#5003](https://github.com/wasp-lang/wasp/pull/5003))
 
 ### 🐞 Bug fixes
 
@@ -39,12 +40,13 @@
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
 - Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4941](https://github.com/wasp-lang/wasp/pull/4941))
+- If an optimistic update’s `getQuerySpecifier` throws, `useAction` now rejects with that error instead of an unrelated `TypeError`. ([#5024](https://github.com/wasp-lang/wasp/pull/5024))
 
 ### 🔧 Small improvements
 
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
-- Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
+- Upgraded internal `morgan` to 1.12, which fixes [CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078), [CVE-2026-15603](https://www.cve.org/CVERecord?id=CVE-2026-15603) and [CVE-2026-87859](https://www.cve.org/CVERecord?id=CVE-2026-87859). Wasp's usage was unaffected by the vulnerabilities. ([#4573](https://github.com/wasp-lang/wasp/pull/4573), [#5032](https://github.com/wasp-lang/wasp/pull/5032))
 - The `<region>` argument of `wasp deploy fly` is now case-insensitive, so e.g. `MIA` is accepted instead of being rejected as an invalid region. ([#4588](https://github.com/wasp-lang/wasp/pull/4588))
 - Fixed the throttle on resending the email verification email, which checked when the last password reset email was sent instead of the last verification email. ([#4651](https://github.com/wasp-lang/wasp/pull/4651))
 - Verifying an email now returns an "invalid credentials" error instead of crashing the server when the account behind the verification link no longer exists. ([#4652](https://github.com/wasp-lang/wasp/pull/4652))
@@ -56,6 +58,10 @@
 - Email validation now accepts internationalized addresses such as `jürgen@münchen.de`, accepts addresses typed in uppercase, and no longer accepts a string that merely contains an address somewhere inside it. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
+- The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
+- `Link` and `NavLink` now accept the same `search` values as `routes.X.build`, including `URLSearchParams`, query strings, and key/value arrays. ([#5029](https://github.com/wasp-lang/wasp/pull/5029))
+- `wasp/client/router` now exports the `LinkProps` and `NavLinkProps` types, so you can build type-safe wrappers around `Link` and `NavLink`. ([#5027](https://github.com/wasp-lang/wasp/pull/5027))
+- `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
 
 ## 0.25.0
 

@@ -326,6 +326,6 @@ export const routes = {
 export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 // PUBLIC API
-export { Link } from './Link'
+export { Link, type LinkProps } from './Link'
 // PUBLIC API
-export { NavLink } from './NavLink'
+export { NavLink, type NavLinkProps } from './NavLink'

@@ -49,9 +49,9 @@ showEnvVarWithCtx :: EnvVarWithCtx -> String
 showEnvVarWithCtx (EnvVarCtx {sourceDescription}, (envVarName, _)) =
   envVarName ++ " (received from " ++ sourceDescription ++ ")"
 
-addEnvVarsUniqueC :: (HasEnvVars a) => a -> [EnvVarWithCtx] -> Command a
-addEnvVarsUniqueC x incomingEnvVarSources =
-  addEnvVarsUnique x incomingEnvVars
+addEnvVarsUniqueC :: (HasEnvVars a) => [EnvVarWithCtx] -> a -> Command a
+addEnvVarsUniqueC incomingEnvVarSources x =
+  addEnvVarsUnique incomingEnvVars x
     & either (throwOverriddenVarsError incomingEnvVarSources) return
   where
     incomingEnvVars = snd <$> incomingEnvVarSources

@@ -9,7 +9,6 @@ wasp-app/.wasp/out/db/dev.db-journal
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/migrations/no-date-foo/migration.sql
 wasp-app/.wasp/out/db/schema.prisma
-wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
 wasp-app/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 wasp-app/.wasp/out/installedNpmDepsLog.json
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
@@ -255,10 +254,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.js
-wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/prisma.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.js
@@ -275,6 +270,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/env/validation.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/env/validation.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/env/validation.js
 wasp-app/.wasp/out/sdk/wasp/dist/env/validation.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
@@ -383,6 +382,7 @@ wasp-app/.wasp/out/sdk/wasp/dist/universal/validators.js.map
 wasp-app/.wasp/out/sdk/wasp/entities/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/validation.ts
+wasp-app/.wasp/out/sdk/wasp/errors/index.ts
 wasp-app/.wasp/out/sdk/wasp/package.json
 wasp-app/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 wasp-app/.wasp/out/sdk/wasp/scripts/copy-assets.js
@@ -422,6 +422,7 @@ wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/app.js
+wasp-app/.wasp/out/server/src/createRollupBundle.js
 wasp-app/.wasp/out/server/src/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/server/src/middleware/index.ts
 wasp-app/.wasp/out/server/src/middleware/operations.ts
@@ -433,6 +434,7 @@ wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/types/spec/register.ts
+wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
 wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
 wasp-app/.wasproot

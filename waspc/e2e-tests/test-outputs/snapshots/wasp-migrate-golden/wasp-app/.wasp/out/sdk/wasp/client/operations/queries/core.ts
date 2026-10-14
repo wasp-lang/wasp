@@ -23,14 +23,14 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
   const queryRoute = makeOperationRoute(relativeQueryPath)
   const queryCacheKey = [relativeQueryPath]
 
-  const queryFn = (async (queryArgs) => {
+  const queryFn = (async (queryArgs: Parameters<BackendQuery>[0]) => {
     const serverResult = await callOperation(queryRoute, queryArgs)
     // todo: The full queryCacheKey is constructed in two places, both here and
     // inside the useQuery hook. See
     // https://github.com/wasp-lang/wasp/issues/2017
     const queryCacheKey = makeQueryCacheKey(queryFn as QueryFor<BackendQuery>, queryArgs)
     return getActiveOptimisticUpdates(queryCacheKey).reduce(
-      (result, update) => update(result),
+      (result: unknown, update: (data: unknown) => unknown) => update(result),
       serverResult,
     )
     // This assertion is necessary because, when the Input is void, we want to

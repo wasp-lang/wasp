@@ -1,4 +1,5 @@
 import { isHTTPError } from "ky";
+import { WaspHttpError } from "../../WaspHttpError.js";
 import { storage } from "../storage.js";
 import { apiEventsEmitter } from "./events.js";
 
@@ -70,18 +71,6 @@ export function handleApiError(error: unknown): unknown {
   } else {
     // If any other error, we just propagate it.
     return error;
-  }
-}
-
-class WaspHttpError extends Error {
-  statusCode: number;
-
-  data: unknown;
-
-  constructor(statusCode: number, message: string, data: unknown) {
-    super(message);
-    this.statusCode = statusCode;
-    this.data = data;
   }
 }
 

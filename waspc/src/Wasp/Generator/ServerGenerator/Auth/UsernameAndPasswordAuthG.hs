@@ -1,5 +1,5 @@
-module Wasp.Generator.ServerGenerator.Auth.LocalAuthG
-  ( genLocalAuth,
+module Wasp.Generator.ServerGenerator.Auth.UsernameAndPasswordAuthG
+  ( genUsernameAndPasswordAuth,
   )
 where
 
@@ -19,19 +19,19 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (localAuthProvider)
-import qualified Wasp.Generator.AuthProviders.Local as Local
+import Wasp.Generator.AuthProviders (usernameAndPasswordAuthProvider)
+import qualified Wasp.Generator.AuthProviders.UsernameAndPassword as UsernameAndPassword
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Util as Util
 
-genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genLocalAuth auth = case usernameAndPasswordAuth of
+genUsernameAndPasswordAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genUsernameAndPasswordAuth auth = case usernameAndPasswordAuth of
   Just usernameAndPasswordAuthConfig ->
     sequence
-      [ genLocalAuthConfig usernameAndPasswordAuthConfig,
+      [ genUsernameAndPasswordAuthConfig usernameAndPasswordAuthConfig,
         genLoginRoute auth,
         genSignupRoute auth
       ]
@@ -39,16 +39,16 @@ genLocalAuth auth = case usernameAndPasswordAuth of
   where
     usernameAndPasswordAuth = AS.Auth.usernameAndPassword $ AS.Auth.methods auth
 
-genLocalAuthConfig :: AS.Auth.UsernameAndPasswordConfig -> Generator FileDraft
-genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genUsernameAndPasswordAuthConfig :: AS.Auth.UsernameAndPasswordConfig -> Generator FileDraft
+genUsernameAndPasswordAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
 
     tmplData =
       object
-        [ "providerId" .= Local.providerId localAuthProvider,
-          "displayName" .= Local.displayName localAuthProvider,
+        [ "providerId" .= UsernameAndPassword.providerId usernameAndPasswordAuthProvider,
+          "displayName" .= UsernameAndPassword.displayName usernameAndPasswordAuthProvider,
           "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
         ]
 
