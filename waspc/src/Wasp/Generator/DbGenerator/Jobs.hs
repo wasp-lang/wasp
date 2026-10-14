@@ -17,7 +17,7 @@ import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import System.Exit (ExitCode)
-import Wasp.Env (getEnvVars, setEnvVars)
+import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
@@ -119,7 +119,7 @@ seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job Ex
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
   J.fromProc
-    $ setEnvVars envVars
+    $ addEnvVarsOverride envVars
     -- The user's seed function can ask for input.
     $ J.markInteractive
     $ prismaCommandInServerDir generatedAppDir ["db", "seed"]
