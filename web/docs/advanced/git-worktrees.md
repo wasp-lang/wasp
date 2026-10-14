@@ -24,13 +24,13 @@ Creating the worktree is only the first step. Each worktree is a fresh copy of t
 
 ### Installing dependencies
 
-After you create a new worktree for your Wasp app, you must first run:
+After you create a new worktree for your Wasp app, install its dependencies:
 
 ```bash
 wasp install
 ```
 
-It installs the Wasp app dependencies. When creating a new project, `wasp new` installs them for you, but in a fresh clone or worktree you need to run it manually.
+`wasp start` and the `wasp db` commands also install the dependencies for you, but `wasp start db` doesn't. If your app uses PostgreSQL, run `wasp install` before `wasp start db`.
 
 ### Setting up environment variables {#setting-up-environment-variables}
 

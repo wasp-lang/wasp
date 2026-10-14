@@ -6,6 +6,7 @@ where
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions, withSetupGoal)
+import Wasp.Cli.Command.Install (waspInstallIfNeeded)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -19,6 +20,7 @@ import Wasp.Generator.Setup (SetupGoal)
 makeDbCommand :: SetupGoal -> (AS.AppSpec -> Command a) -> Command a
 makeDbCommand setupGoal cmd = withProjectLock $ do
   InWaspProject waspProjectDir <- require
+  waspInstallIfNeeded
   WaspSpecAvailable <- require
   (_, appSpec) <- compileWithOptions $ withSetupGoal setupGoal $ defaultCompileOptions waspProjectDir
   DbConnectionEstablished <- require
