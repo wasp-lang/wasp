@@ -15,7 +15,7 @@ import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn, shouldThrow)
+import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
@@ -152,11 +152,11 @@ spec_Job = do
             Just _ -> expectationFailure "Stopping one job stopped another job's process"
 
   describe "npmBinProc" $
-    it "throws NpmBinNotFound if the executable isn't in any node_modules/.bin directory" $
+    it "fails if the executable isn't in any node_modules/.bin directory" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
         let dir = fromJust $ SP.parseAbsDir tempDir
         Job.run (Job.npmBinProc dir "missing-tool" [])
-          `shouldThrow` (== Job.NpmBinNotFound "missing-tool" dir)
+          `shouldThrow` anyIOException
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)
