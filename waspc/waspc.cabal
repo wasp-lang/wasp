@@ -127,6 +127,7 @@ library
     conduit-extra ^>=1.3.7,
     containers ^>=0.7,
     cryptohash-sha256 ^>=0.11.102,
+    cryptonite ^>=0.30,
     directory ^>=1.3.8,
     dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
@@ -137,6 +138,7 @@ library
     http-conduit ^>=2.3.9,
     http-types ^>=0.12.4,
     megaparsec ^>=9.5.0,
+    memory ^>=0.18.0,
     mtl ^>=2.3.1,
     mustache ^>=2.4.2,
     neat-interpolation ^>=0.5.1,
@@ -234,6 +236,7 @@ library
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
+    Wasp.Generator.NpmInstall.PackageLock
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
@@ -589,6 +592,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.NpmInstall.PackageLockTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
     Generator.VirtualUserModulesTest

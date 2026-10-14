@@ -93,6 +93,19 @@ waspSpecAvailableTest =
             ]
         ),
       TestCase
+        "compile-keeps-package-lock-unchanged-when-installing"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ waspCliCompile,
+                  return "cp package-lock.json package-lock.json.before",
+                  return "rm -rf node_modules .wasp",
+                  assertCommandOutputContains waspCliCompile installingDependenciesMessage,
+                  return "cmp package-lock.json.before package-lock.json"
+                ]
+            ]
+        ),
+      TestCase
         "compile-skips-install-when-wasp-spec-is-available"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,

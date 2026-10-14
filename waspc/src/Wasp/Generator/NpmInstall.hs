@@ -1,6 +1,7 @@
 module Wasp.Generator.NpmInstall
   ( installNpmDependenciesWithInstallRecord,
     installProjectNpmDependencies,
+    installProjectNpmDependenciesWithoutSavingLockfile,
   )
 where
 
@@ -19,6 +20,7 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
+import Wasp.Generator.NpmInstall.PackageLock (removeStaleWaspLibIntegritiesFromPackageLock)
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
@@ -53,6 +55,9 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
+    liftIO (removeStaleWaspLibIntegritiesFromPackageLock waspProjectDirPath)
+      >>= either (\e -> throwError $ GenericGeneratorError $ "Couldn't update package-lock.json: " ++ e) pure
+
     liftIO (installProjectNpmDependencies messagesChan waspProjectDirPath)
       >>= onLeftThrowError
 
@@ -66,7 +71,18 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
   Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir = do
+installProjectNpmDependencies = runProjectNpmInstall []
+
+-- | Like 'installProjectNpmDependencies', but leaves `package-lock.json` as is.
+-- Before Wasp generates `.wasp/out`, a plain install prunes the workspaces'
+-- entries from the lockfile (https://github.com/wasp-lang/wasp/issues/4482).
+installProjectNpmDependenciesWithoutSavingLockfile ::
+  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependenciesWithoutSavingLockfile = runProjectNpmInstall ["--no-save"]
+
+runProjectNpmInstall ::
+  [String] -> Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+runProjectNpmInstall extraNpmInstallArgs messagesChan projectDir = do
   (_, installExitCode) <- handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
@@ -74,7 +90,7 @@ installProjectNpmDependencies messagesChan projectDir = do
   where
     installProjectDepsJob =
       installNpmDependenciesAndReport
-        (runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp)
+        (runNodeCommandAsJob projectDir "npm" ("install" : extraNpmInstallArgs) J.Wasp)
         messagesChan
         J.Wasp
     handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
