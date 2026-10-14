@@ -34,9 +34,7 @@
 ### 🐞 Bug fixes
 
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
-
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
-
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
@@ -61,6 +59,7 @@
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
 - The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
 - `Link` and `NavLink` now accept the same `search` values as `routes.X.build`, including `URLSearchParams`, query strings, and key/value arrays. ([#5029](https://github.com/wasp-lang/wasp/pull/5029))
+- Refreshed the look of the `basic` starter to match the wasp.sh website. Older projects are unaffected. ([#5042](https://github.com/wasp-lang/wasp/pull/5042))
 - `wasp/client/router` now exports the `LinkProps` and `NavLinkProps` types, so you can build type-safe wrappers around `Link` and `NavLink`. ([#5027](https://github.com/wasp-lang/wasp/pull/5027))
 - `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
 

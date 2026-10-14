@@ -27,8 +27,8 @@ export function SampleUserButton() {
     <>
       <Button
         size="sm"
-        variant="ghost"
-        className="border border-neutral-900 disabled:cursor-not-allowed disabled:opacity-40"
+        variant="secondary"
+        className="disabled:cursor-not-allowed disabled:opacity-40"
         onClick={createSampleUser}
         disabled={isLoading}
       >

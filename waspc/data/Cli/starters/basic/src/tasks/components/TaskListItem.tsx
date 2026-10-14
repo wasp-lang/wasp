@@ -26,8 +26,8 @@ export function TaskListItem({ task }: TaskListItemProps) {
     <li>
       <label
         className={twJoin(
-          "card flex w-full flex-wrap items-center justify-between gap-4 rounded-lg px-6 py-3",
-          task.isDone ? "bg-primary-50" : "bg-neutral-50",
+          "card flex w-full flex-wrap items-center justify-between gap-4 px-4 py-3",
+          task.isDone && "bg-primary-50",
         )}
       >
         <div className="flex min-w-0 items-center gap-4">
@@ -39,7 +39,7 @@ export function TaskListItem({ task }: TaskListItemProps) {
           />
           <div className="flex min-w-0 flex-col wrap-break-word">
             <p>{task.description}</p>
-            <span className="text-xs text-neutral-500">
+            <span className="font-mono text-xs text-neutral-500">
               {task.createdAt.toLocaleDateString()}
             </span>
           </div>

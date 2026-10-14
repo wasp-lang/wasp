@@ -24,9 +24,9 @@ body {
 }
 
 @utility card {
-  @apply rounded-xl border border-neutral-200 bg-white shadow-xs transition-all duration-200;
+  @apply border border-neutral-900 bg-white;
 }
 
 @utility label {
-  @apply text-sm font-medium text-neutral-700;
+  @apply font-mono text-xs font-bold tracking-wide text-neutral-700 uppercase;
 }
