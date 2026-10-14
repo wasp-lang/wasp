@@ -44,7 +44,10 @@ jobs:
       - name: Install Wasp CLI from pkg.pr.new
         env:
           COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
+        run:
+          # We are testing the published package itself, so there is no lockfile.
+          # zizmor: ignore[adhoc-packages]
+          |
           set -eux
 
           # Create a test project to install into
