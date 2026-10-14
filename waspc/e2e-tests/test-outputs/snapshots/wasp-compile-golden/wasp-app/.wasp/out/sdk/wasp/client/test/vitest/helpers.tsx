@@ -1,5 +1,4 @@
 import type { MockQuery, MockApi } from '@wasp.sh/lib-sdk-core/browser/test'
-export { renderInContext, type MockQuery, type MockApi } from '@wasp.sh/lib-sdk-core/browser/test'
 import { http, type HttpResponseResolver, type RequestHandler } from 'msw'
 import { setupServer, type SetupServer } from 'msw/node'
 import { cleanup } from '@testing-library/react'

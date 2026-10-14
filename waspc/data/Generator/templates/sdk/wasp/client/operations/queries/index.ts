@@ -1,5 +1,6 @@
 {{={= =}=}}
-import { type QueryFor, createQuery } from "./core";
+import type { QueryFor } from '@wasp.sh/lib-sdk-core/browser'
+import { createQuery } from "./core";
 import type {
 {=# queries =}
   {= registeredOperationTypeName =},

@@ -36,12 +36,9 @@ genVitePlugins spec =
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
       genValidateEnvPlugin,
-      genFileCopy [relfile|typescriptCheck.ts|],
       genVirtualUserModulesPlugin spec
     ]
     <++> genVirtualWaspModulesPlugin spec
-  where
-    genFileCopy = return . C.mkTmplFd . (C.vitePluginsDirInSdkTemplatesDir </>)
 
 genViteIndex :: Generator FileDraft
 genViteIndex = return $ C.mkTmplFd tmplPath

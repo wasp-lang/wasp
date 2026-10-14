@@ -1,5 +1,4 @@
-import { type OperationRoute, makeOperationRoute } from '@wasp.sh/lib-sdk-core'
-export { type OperationRoute, makeOperationRoute } from '@wasp.sh/lib-sdk-core'
+import type { OperationRoute } from '@wasp.sh/lib-sdk-core'
 import { api, handleApiError } from '../../../api/index.js'
 import { HttpMethod } from '../../index.js'
 import { serialize, deserialize } from '../../../core/serialization/index.js'

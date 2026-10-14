@@ -1,13 +1,15 @@
-import { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
-export { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
-import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
-import type { SpecificOptimisticUpdateDefinition } from "../hooks.js";
-import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
+  type ActionFor,
+  type SpecificOptimisticUpdateDefinition,
   registerActionInProgress,
   registerActionDone,
-} from '../internal/resources.js'
+} from '@wasp.sh/lib-sdk-core/browser'
+import {
+  makeOperationRoute,
+  type OperationRpcFor,
+  type GenericBackendOperation,
+} from '@wasp.sh/lib-sdk-core'
+import { callOperation } from '../internal/index.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(

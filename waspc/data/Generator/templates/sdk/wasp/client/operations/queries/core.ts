@@ -1,21 +1,19 @@
-import { makeQueryCacheKey, buildAndRegisterQuery, type QueryFor } from '@wasp.sh/lib-sdk-core/browser'
-export { makeQueryCacheKey, buildAndRegisterQuery, type QueryFor } from '@wasp.sh/lib-sdk-core/browser'
-import type { Route } from '../../index.js'
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
-import type {
-  GenericBackendOperation,
-  GenericOperationRpc,
-  OperationRpcFor,
-  Query,
-  QueryMetadata,
-} from '../rpc.js'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
+  makeQueryCacheKey,
+  buildAndRegisterQuery,
+  type QueryFor,
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '../internal/resources'
+} from '@wasp.sh/lib-sdk-core/browser'
+export { buildAndRegisterQuery } from '@wasp.sh/lib-sdk-core/browser'
+import {
+  makeOperationRoute,
+  type GenericBackendOperation,
+  type OperationRpcFor,
+} from '@wasp.sh/lib-sdk-core'
+import { callOperation } from '../internal/index.js'
 
-// PRIVATE API (unsed in SDK)
+// PRIVATE API (used in SDK)
 export function createQuery<BackendQuery extends GenericBackendOperation>(
   relativeQueryPath: string,
   entitiesUsed: string[]
