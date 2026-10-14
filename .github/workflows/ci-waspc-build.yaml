@@ -106,12 +106,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
         with:
           haskell: true
 
       - name: Compute artifact names
-        uses: ./.github/actions/compute-artifact-names
+        uses: $/.github/actions/compute-artifact-names
         id: compute-artifact-names
         with:
           build-name: ${{ env.BUILD_NAME }}

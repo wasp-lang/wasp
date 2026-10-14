@@ -16,9 +16,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
+      - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install node dependencies
         working-directory: waspc/starters-e2e-tests
