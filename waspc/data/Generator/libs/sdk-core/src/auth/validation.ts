@@ -7,14 +7,10 @@ const EMAIL_FIELD = "email";
 const TOKEN_FIELD = "token";
 
 export function ensureValidEmail(args: object): void {
-  validate(args, [
+  const email = EMAIL_FIELD in args ? args[EMAIL_FIELD] : undefined;
+  validate(email, [
+    { message: "email must be present", validator: (email) => !!email },
     {
-      validates: EMAIL_FIELD,
-      message: "email must be present",
-      validator: (email) => !!email,
-    },
-    {
-      validates: EMAIL_FIELD,
       message: "email must be a valid email",
       validator: (email) => isValidEmail(email),
     },
@@ -22,9 +18,9 @@ export function ensureValidEmail(args: object): void {
 }
 
 export function ensureValidUsername(args: object): void {
-  validate(args, [
+  const username = USERNAME_FIELD in args ? args[USERNAME_FIELD] : undefined;
+  validate(username, [
     {
-      validates: USERNAME_FIELD,
       message: "username must be present",
       validator: (username) => !!username,
     },
@@ -32,9 +28,9 @@ export function ensureValidUsername(args: object): void {
 }
 
 export function ensurePasswordIsPresent(args: object): void {
-  validate(args, [
+  const password = PASSWORD_FIELD in args ? args[PASSWORD_FIELD] : undefined;
+  validate(password, [
     {
-      validates: PASSWORD_FIELD,
       message: "password must be present",
       validator: (password) => !!password,
     },
@@ -42,14 +38,13 @@ export function ensurePasswordIsPresent(args: object): void {
 }
 
 export function ensureValidPassword(args: object): void {
-  validate(args, [
+  const password = PASSWORD_FIELD in args ? args[PASSWORD_FIELD] : undefined;
+  validate(password, [
     {
-      validates: PASSWORD_FIELD,
       message: "password must be at least 8 characters",
       validator: (password) => isMinLength(password, 8),
     },
     {
-      validates: PASSWORD_FIELD,
       message: "password must contain a number",
       validator: (password) => containsNumber(password),
     },
@@ -57,12 +52,9 @@ export function ensureValidPassword(args: object): void {
 }
 
 export function ensureTokenIsPresent(args: object): void {
-  validate(args, [
-    {
-      validates: TOKEN_FIELD,
-      message: "token must be present",
-      validator: (token) => !!token,
-    },
+  const token = TOKEN_FIELD in args ? args[TOKEN_FIELD] : undefined;
+  validate(token, [
+    { message: "token must be present", validator: (token) => !!token },
   ]);
 }
 
@@ -71,15 +63,11 @@ export function throwValidationError(message: string): void {
 }
 
 function validate(
-  args: object,
-  validators: {
-    validates: string;
-    message: string;
-    validator: (value: unknown) => boolean;
-  }[],
+  value: unknown,
+  validators: { message: string; validator: (value: unknown) => boolean }[],
 ): void {
-  for (const { validates, message, validator } of validators) {
-    if (!validator((args as Record<string, unknown>)[validates])) {
+  for (const { message, validator } of validators) {
+    if (!validator(value)) {
       throwValidationError(message);
     }
   }

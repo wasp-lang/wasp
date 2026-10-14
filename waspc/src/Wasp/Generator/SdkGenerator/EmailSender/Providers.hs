@@ -16,6 +16,7 @@ import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
+    npmDevDependency :: Maybe Npm.Dependency.Dependency,
     setupFnFile :: Path' (Rel ProvidersDir) File'
   }
   deriving (Show, Eq)
@@ -26,6 +27,7 @@ smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
+      npmDevDependency = Just nodeMailerTypesDependency,
       setupFnFile = [relfile|smtp.ts|]
     }
   where
@@ -35,10 +37,17 @@ smtp =
     nodeMailerDependency :: Npm.Dependency.Dependency
     nodeMailerDependency = Npm.Dependency.make ("nodemailer", show nodeMailerVersionRange)
 
+    nodeMailerTypesVersionRange :: SV.Range
+    nodeMailerTypesVersionRange = [SV.r|^8.0.0|]
+
+    nodeMailerTypesDependency :: Npm.Dependency.Dependency
+    nodeMailerTypesDependency = Npm.Dependency.make ("@types/nodemailer", show nodeMailerTypesVersionRange)
+
 sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
+      npmDevDependency = Nothing,
       setupFnFile = [relfile|sendgrid.ts|]
     }
   where
@@ -52,6 +61,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
+      npmDevDependency = Nothing,
       setupFnFile = [relfile|mailgun.ts|]
     }
   where
@@ -65,6 +75,7 @@ resend :: EmailSenderProvider
 resend =
   EmailSenderProvider
     { npmDependency = Just resendDependency,
+      npmDevDependency = Nothing,
       setupFnFile = [relfile|resend.ts|]
     }
   where
@@ -78,6 +89,7 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
+      npmDevDependency = Nothing,
       setupFnFile = [relfile|dummy.ts|]
     }
 

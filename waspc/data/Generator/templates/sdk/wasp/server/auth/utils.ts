@@ -1,5 +1,6 @@
 {{={= =}=}}
 import {
+  getErrorMessage,
   throwValidationError,
   type ProviderId,
   type ProviderName,
@@ -219,21 +220,9 @@ export async function validateAndGetUserFields(
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
-    } catch (error: unknown) {
-      if (hasStringMessage(error)) {
-        throwValidationError(error.message)
-      } else {
-        console.warn('Unknown validation error happened', error)
-        throwValidationError('Unknown validation error happened')
-      }
+    } catch (e: unknown) {
+      throwValidationError(getErrorMessage(e));
     }
   }
   return result;
-}
-
-function hasStringMessage(value: unknown): value is { message: string } {
-  return typeof value === 'object'
-    && value !== null
-    && 'message' in value
-    && typeof value.message === 'string'
 }

@@ -15,7 +15,7 @@ export function getRouteObjects({
   routesMapping: RouteMapping,
   rootElement: ReactNode,
 }): RouteObject[] {
-  const waspDefinedRoutes = [
+  const waspDefinedRoutes: RouteObject[] = [
   ]
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     return {

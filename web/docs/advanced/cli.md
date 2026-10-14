@@ -22,7 +22,7 @@ COMMANDS
     version               Prints current version of CLI.
     doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).
     completion            Prints help on bash completion.
-    uninstall             Removes Wasp from your system.
+    uninstall [--force]   Removes Wasp from your system.
   IN PROJECT
     start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]
                           Runs Wasp app in development mode, watching for file changes.
@@ -211,26 +211,25 @@ Running Wasp doctor...
 [✓] Docker: running
 ```
 
-- `wasp uninstall` removes Wasp from your system.
+- `wasp uninstall` removes Wasp from your system. It asks for confirmation before deleting anything. Use `--force` to skip the confirmation prompt, for example in a script.
 
 ```
-
 $ wasp uninstall
 
-🐝 --- Uninstalling Wasp ... ------------------------------------------------------
+🐝 --- Removing Wasp data... ------------------------------------------------------
 
-We will remove the following directories:
-{home}/.local/share/wasp-lang/
-{home}/.cache/wasp/
+We will remove the following files and directories:
+  {home}/.local/share/wasp-lang/
+  {home}/.cache/wasp/
 
-We will also remove the following files:
-{home}/.local/bin/wasp
+Are you sure you want to continue? [y/N] ▸ y
 
-Are you sure you want to continue? \[y/N]
-y
+✅ --- Removed Wasp data. ---------------------------------------------------------
 
-✅ --- Uninstalled Wasp -----------------------------------------------------------
+To uninstall the Wasp CLI, please run:
+  npm uninstall -g @wasp.sh/wasp-cli
 
+If you have used Wasp to run dev database for you, you might want to make sure you also deleted all the docker volumes it might have created. You can easily list them by doing `docker volume ls | grep wasp-dev-db`.
 ```
 
 - `wasp news` displays the latest Wasp-related news and announcements. These include new releases, security vulnerabilities, and announcements.

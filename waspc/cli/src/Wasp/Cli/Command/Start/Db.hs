@@ -25,7 +25,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Port (resolvePort)
-import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import qualified Wasp.Message as Msg
@@ -40,7 +40,7 @@ import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: Arguments -> Command ()
-start = withArguments "wasp start db" startDbArgsParser $ \args -> do
+start = withArguments startDbArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir
@@ -63,24 +63,25 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
 
-startDbArgsParser :: Opt.Parser StartDbArgs
+startDbArgsParser :: ArgsParser StartDbArgs
 startDbArgsParser =
-  StartDbArgs
-    <$> Opt.optional (portParser "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")"))
-    <*> Opt.strOption
-      ( Opt.long "db-image"
-          <> Opt.metavar "IMAGE"
-          <> Opt.help "Docker image to use for the database"
-          <> Opt.showDefault
-          <> Opt.value (fst defaultPostgresDockerImageSpec)
-      )
-    <*> Opt.strOption
-      ( Opt.long "db-volume-mount-path"
-          <> Opt.metavar "PATH"
-          <> Opt.help "Path inside Docker container where database files are stored"
-          <> Opt.showDefault
-          <> Opt.value (snd defaultPostgresDockerImageSpec)
-      )
+  ArgsParser "wasp start db" $
+    StartDbArgs
+      <$> Opt.optional (portParser "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")"))
+      <*> Opt.strOption
+        ( Opt.long "db-image"
+            <> Opt.metavar "IMAGE"
+            <> Opt.help "Docker image to use for the database"
+            <> Opt.showDefault
+            <> Opt.value (fst defaultPostgresDockerImageSpec)
+        )
+      <*> Opt.strOption
+        ( Opt.long "db-volume-mount-path"
+            <> Opt.metavar "PATH"
+            <> Opt.help "Path inside Docker container where database files are stored"
+            <> Opt.showDefault
+            <> Opt.value (snd defaultPostgresDockerImageSpec)
+        )
 
 data StartDbArgs = StartDbArgs
   { dbPort :: Maybe PortNumber,

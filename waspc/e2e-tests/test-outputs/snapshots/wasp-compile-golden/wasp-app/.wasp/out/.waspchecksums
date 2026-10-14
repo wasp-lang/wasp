@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
         ],
-        "ef2b8c619ba9ec5f79b74ab06275c99f7bdd1091cf53a41df7a0cbe4d8d49cb8"
+        "7d65d6cd78c16bb03deee65876f3104718c583bb83c6d93edca30cee9f18fe1b"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "5472c2d90e7b8f796b73a3de27dce77b0da2ca9209ecb28df1d44bbbfef471ba"
+        "aa1c59e3f98c2fbb80b4ed09f7e53d2b29c219efd167272f6f796de3dbae63b5"
     ],
     [
         [
@@ -74,7 +74,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "77e86148e5111add4110172f9a624e413159de0d651c209c4fbdb82944fc8aed"
+        "bfb61f13c75d3d6fddd9673f23b3d2c22e9dd6c31694a77a3a32f5873e25d5a3"
     ],
     [
         [
@@ -109,7 +109,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "c47c5e664f17e67007b39d51cb3143e299c58d173128f891153299e2eeeb189e"
+        "5a0087a39395dac1ca7b498d87d5d5680de1daad79ff7abc28225f29793a1007"
     ],
     [
         [
@@ -137,7 +137,7 @@
             "file",
             "sdk/wasp/client/operations/queries/core.ts"
         ],
-        "8613e556f0107e26f9c72f94c35a9e7707ef582fc2fb80784bdfb4ddae5ab232"
+        "40310c28e81d13c6407e5c00e43a95a4d305c0450fdfa1de9a9420bb9626467f"
     ],
     [
         [
@@ -151,21 +151,21 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "790ce60191683deb987e6240081c56a341e100cc9df2b26cd88f75cf2357462b"
+        "562614a7e7abe71bd6d84fc26bae26b2132a3498ceb660c6d9eb3f5e75f067c2"
     ],
     [
         [
             "file",
             "sdk/wasp/client/router/NavLink.tsx"
         ],
-        "39880f64c74ca19e86e6a654ea42d67520147d6da08d0e1bd1f0cec586cd2d2e"
+        "b82f573804a1e3f349c56aa9dbbf9f646047f81eebf1cd7d868f1249acb5be0b"
     ],
     [
         [
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "980c9aaba4e8d121c24b0dbe80eca7c05075ee5fae59f9d717f8c51b933f1f6f"
+        "b8424d93978969ccce424ebdc4c83a91b81858e7dee52cc99263c96374fa92c8"
     ],
     [
         [
@@ -431,7 +431,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "4da3a72edc3cf3f967aa7148ab59b690cde5931a0f15b5106137d0d49bea3f12"
+        "4cf39f23bb48838289a32b42e6bccd7f441ac83e7c9c9287263782e446cafe7b"
     ],
     [
         [
@@ -501,21 +501,28 @@
             "file",
             "server/package.json"
         ],
-        "ea35732ed3bec819d9c19091993bc2464e7df8b6be0b77755ca0268b8867047b"
+        "269e7d07f2343dd56152a5bb4a38f79288246e85084bf9d6bef2573048af87e7"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "ad3308f02976dc31d660543bf2840c2d71ecc611eded594d4530aeb9946e8c97"
+        "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
+        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
+    ],
+    [
+        [
+            "file",
+            "server/src/createRollupBundle.js"
+        ],
+        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
     ],
     [
         [
@@ -543,7 +550,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "c54b770823bcfad9bea0df4d4fabd12af7b58cab67b462972cad829c472a011e"
+        "ad88273aa0e3a0cc0853faace8c1236f352d0e1865ceeba1f21b2d712e9e6484"
     ],
     [
         [
@@ -578,7 +585,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9acba4a5ce9c3e21a9794485c8e26f152747e1fa670776fbc111d85253669aa7"
+        "09ae9bcde379c54456481290933e8101a72f5bb84198c86a684ca89fe8956320"
     ],
     [
         [

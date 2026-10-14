@@ -711,6 +711,7 @@ wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
+wasp-app/.wasp/out/server/rollup.dbSeed.config.js
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToVoidAuth.ts
@@ -750,6 +751,7 @@ wasp-app/.wasp/out/server/src/auth/providers/oauth/oneTimeCode.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/state.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/types.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/user.ts
+wasp-app/.wasp/out/server/src/createRollupBundle.js
 wasp-app/.wasp/out/server/src/crud/taskVotes.ts
 wasp-app/.wasp/out/server/src/crud/tasks.ts
 wasp-app/.wasp/out/server/src/dbSeed.ts
@@ -820,6 +822,7 @@ wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/types/spec/register.ts
+wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
 wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
 wasp-app/.wasproot
