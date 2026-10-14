@@ -28,11 +28,13 @@ import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
+import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
+import Wasp.Util (exitCodeToEither)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -157,7 +159,9 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
           : additionalInfoLines devDbSpec
             <> dockerRunInfoLines
       cliSendMessageC $ Msg.Info "..."
-      liftIO $ Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath
+      Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
+        >>= either (E.throwError . CommandError "Dev database failed") return
+          . exitCodeToEither "Running the PostgreSQL dev database"
 
     additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
     additionalInfoLines devDbSpec =
