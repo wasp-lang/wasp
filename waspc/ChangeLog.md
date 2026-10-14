@@ -35,11 +35,8 @@
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). Wasp now also waits for the command to exit, and kills it if it doesn't stop in time. ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 
 - Wasp now runs Vite, Vitest, Prisma and the other Node tools it uses directly, instead of through `npm` or `npx`, so stopping a Wasp command stops them too. The generated server's `package.json` no longer has a `prisma.seed` field, so running `prisma migrate reset` yourself no longer tries to seed the database (which failed anyway, since Wasp's seed script needs a seed name); use `wasp db seed` instead. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
-
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
-
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
-
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
