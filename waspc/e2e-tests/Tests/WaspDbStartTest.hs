@@ -9,8 +9,10 @@ import ShellCommands
     inTestWaspProjectDir,
     setWaspDbToPSQL,
     skipIfDockerDisabled,
+    waitUntil,
     waspCliDbMigrateDev,
     waspCliDbStart,
+    (~&&),
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -64,21 +66,22 @@ waspDbStartTest =
                   assertCommandOutputContains
                     (return waspCliDbStartFails)
                     "already running on port",
-                  -- Test 4:
-                  --   - Does SIGINT stop the database and delete the container?
-                  --     If it didn't delete the container, the next `wasp db start` would fail
-                  --     with a container name conflict.
+                  -- Test 4: Does SIGINT stop the database and delete the container?
+                  stopWaspCliDbStartWithSignal "INT",
+                  -- Test 5:
+                  --   - Does `wasp db start` work when an earlier one left its container
+                  --     behind, e.g. when it was stopped while creating it?
                   --   - Does `wasp db start` find a new port when the default one is taken?
-                  stopWaspCliDbStartWithSigint,
+                  leaveStoppedDevDbContainerBehind,
                   occupyDefaultDevDbPort,
                   waspCliDbStartInBackground,
                   waitUntilDevDbReportsItIsReady,
-                  -- Test 5: Does a Wasp command find and connect to the database
+                  -- Test 6: Does a Wasp command find and connect to the database
                   -- even when it's running on a non-default port?
                   waspCliDbMigrateDev "no_new_migration",
                   removeDefaultDevDbPortHolder,
-                  stopWaspCliDbStartWithSigint,
-                  -- Test 6: Can the user remove the volume reported by `wasp db start`?
+                  stopWaspCliDbStartWithSignal "INT",
+                  -- Test 7: Can the user remove the volume reported by `wasp db start`?
                   removeReportedDevDbVolume
                 ]
             ]
@@ -98,22 +101,38 @@ waspCliDbStartInBackground =
   return $
     "rm -f " ++ devDbOutputFile ++ " && { $WASP_CLI_CMD db start > " ++ devDbOutputFile ++ " 2>&1 & echo $! > db-start.pid ; }"
 
--- | Stops the dev db the way Ctrl+C on `wasp db start` would - Postgres
--- receives SIGINT and shuts down.
+-- | Stops `wasp db start` with the given signal (e.g. @INT@), and checks that
+-- Wasp exits and that the database container is gone.
 --
--- We send the signal directly the container instead of `wasp db start` because
--- Wasp ignores SIGINT when it has a child process. Wasp expects the child to
--- handle the signal and exits after the child exits.
+-- We send the signal only to Wasp, and not to its whole process group like
+-- Ctrl+C in a terminal would, so that it's Wasp's job to stop the database.
 --
--- In a terminal, Ctrl+C sends SIGINT to the entire process group, which means
--- both Wasp and the container get it. Wasp ignores it, the container handles it
--- and exists, which then causes Wasp to exit.
-stopWaspCliDbStartWithSigint :: ShellCommandBuilder WaspProjectContext ShellCommand
-stopWaspCliDbStartWithSigint =
+-- `db-start.pid` might not be Wasp's own PID (e.g. when `$WASP_CLI_CMD` is a
+-- wrapper script), so we signal the parent of the `docker run` client instead,
+-- which is Wasp.
+stopWaspCliDbStartWithSignal :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+stopWaspCliDbStartWithSignal signal =
   return $
-    "{ docker kill --signal INT \"$(docker ps -q --filter volume="
-      ++ reportedDevDbVolumeName
-      ++ ")\" && wait \"$(cat db-start.pid)\" || true ; }"
+    ("docker ps --format '{{.Names}}' --filter volume=" ++ reportedDevDbVolumeName ++ " > " ++ devDbContainerNameFile)
+      ~&& ("kill -" ++ signal ++ " $(ps -o ppid= -p \"$(pgrep -f \"docker run --name $(cat " ++ devDbContainerNameFile ++ ") \")\")")
+      ~&& waitUntil
+        60
+        "! kill -0 \"$(cat db-start.pid)\" 2>/dev/null"
+        ("Wasp didn't stop after SIG" ++ signal ++ ".")
+      ~&& waitUntil
+        30
+        ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\" ]")
+        ("The dev database container was left behind after SIG" ++ signal ++ ".")
+
+-- | Creates a stopped container with the name of the dev db container that
+-- 'stopWaspCliDbStartWithSignal' stopped, like the one that `docker run` leaves
+-- behind when it's stopped while creating the container.
+leaveStoppedDevDbContainerBehind :: ShellCommandBuilder WaspProjectContext ShellCommand
+leaveStoppedDevDbContainerBehind =
+  return $ "docker create --name \"$(cat " ++ devDbContainerNameFile ++ ")\" alpine > /dev/null"
+
+devDbContainerNameFile :: FilePath
+devDbContainerNameFile = "db-container-name.txt"
 
 waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
 waitUntilDevDbReportsItIsReady =
