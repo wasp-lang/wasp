@@ -17,6 +17,9 @@ import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
 {=/ isEmailAuthEnabled =}
+{=# isDummyEmailSenderNoticeEnabled =}
+import { DummyEmailSenderNotice } from './internal/email/DummyEmailSenderNotice'
+{=/ isDummyEmailSenderNoticeEnabled =}
 
 const logoStyle = {
   height: '3rem'
@@ -57,6 +60,9 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
         <h2 className={styles.headerText}>{title}</h2>
       </div>
 
+      {=# isDummyEmailSenderNoticeEnabled =}
+      {(state === 'signup' || state === 'forgot-password') && <DummyEmailSenderNotice />}
+      {=/ isDummyEmailSenderNoticeEnabled =}
       {errorMessage && (
         <MessageError>
           {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
