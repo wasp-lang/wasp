@@ -93,6 +93,3 @@ export const getAnyToNumberSpecified: QueryFor<RegisteredGetAnyToNumberSpecified
   "operations/get-any-to-number-specified",
   [],
 )
-
-// PRIVATE API (used in SDK)
-export { buildAndRegisterQuery } from "./core"

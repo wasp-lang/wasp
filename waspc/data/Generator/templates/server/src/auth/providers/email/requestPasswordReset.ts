@@ -6,13 +6,13 @@ import {
     getProviderDataWithPassword,
 } from 'wasp/server/auth/utils';
 import {
+    GetPasswordResetEmailContentFn,
     createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
-} from "wasp/server/auth/email/utils";
+} from "wasp/server/auth";
 import { ensureValidEmail } from 'wasp/auth/validation';
 import type { EmailFromField } from 'wasp/server/email/core/types';
-import { GetPasswordResetEmailContentFn } from 'wasp/server/auth/email';
 import { HttpError } from 'wasp/server';
 
 export function getRequestPasswordResetRoute({

@@ -5,7 +5,6 @@ import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
 } from '@wasp.sh/lib-sdk-core/browser'
-export { buildAndRegisterQuery } from '@wasp.sh/lib-sdk-core/browser'
 import {
   makeOperationRoute,
   type GenericBackendOperation,
