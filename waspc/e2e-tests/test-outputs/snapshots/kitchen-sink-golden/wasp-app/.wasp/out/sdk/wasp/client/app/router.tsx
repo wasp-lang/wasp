@@ -16,7 +16,7 @@ export function getRouteObjects({
   routesMapping: RouteMapping,
   rootElement: ReactNode,
 }): RouteObject[] {
-  const waspDefinedRoutes = [
+  const waspDefinedRoutes: RouteObject[] = [
     {
       path: "/oauth/callback",
       Component: OAuthCallbackPage,

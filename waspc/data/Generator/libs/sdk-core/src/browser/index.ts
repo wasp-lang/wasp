@@ -3,6 +3,7 @@ export { FullPageWrapper } from "./app/FullPageWrapper.js";
 export { Loader } from "./app/Loader.js";
 export { MessageError, MessageLoading } from "./app/Message.js";
 export { apiEventsEmitter } from "./auth/events.js";
+export { getAuthErrorMessage } from "./auth/forms/authErrorMessage.js";
 export { emailFieldRules, emailInputProps } from "./auth/forms/emailField.js";
 export {
   Form,
@@ -59,6 +60,7 @@ export {
   useQuery,
   type ActionOptions,
   type OptimisticUpdateDefinition,
+  type SpecificOptimisticUpdateDefinition,
 } from "./operations/hooks.js";
 export {
   addResourcesUsedByQuery,

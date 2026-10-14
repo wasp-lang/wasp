@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.Auth.LocalAuthG
-  ( genLocalAuth,
+module Wasp.Generator.SdkGenerator.Auth.UsernameAndPasswordAuthG
+  ( genUsernameAndPasswordAuth,
   )
 where
 
@@ -7,8 +7,8 @@ import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
 import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (localAuthProvider)
-import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
+import Wasp.Generator.AuthProviders (usernameAndPasswordAuthProvider)
+import Wasp.Generator.AuthProviders.UsernameAndPassword (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -16,8 +16,8 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 
-genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genLocalAuth auth
+genUsernameAndPasswordAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genUsernameAndPasswordAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
       genActions auth
   | otherwise = return []
@@ -33,25 +33,25 @@ genLoginAction :: Generator FileDraft
 genLoginAction =
   return $
     mkTmplFdWithData
-      (localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
+      (usernameAndPasswordAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
       tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
+    tmplData = object ["loginPath" .= serverLoginUrl usernameAndPasswordAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
   return $
     mkTmplFdWithData
-      (localAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|])
+      (usernameAndPasswordAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|])
       tmplData
   where
     tmplData =
       object
-        [ "signupPath" .= serverSignupUrl localAuthProvider,
+        [ "signupPath" .= serverSignupUrl usernameAndPasswordAuthProvider,
           "isUsernameAndPasswordUserSignupFieldsDefined" .= isJust usernameAndPasswordUserSignupFields
         ]
     usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
-localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-localAuthDirInSdkTemplatesDir = [reldir|auth/username|]
+usernameAndPasswordAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+usernameAndPasswordAuthDirInSdkTemplatesDir = [reldir|auth/username|]

@@ -4,7 +4,8 @@ import { api, handleApiError } from '../../../api/index.js'
 import type { UserUsernameAndPasswordSignupFields } from '../../providers'
 {=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
-type UsernameSignupData = {
+// PRIVATE API
+export type UsernameSignupData = {
   username: string
   password: string
 }{=# isUsernameAndPasswordUserSignupFieldsDefined =} & UserUsernameAndPasswordSignupFields{=/ isUsernameAndPasswordUserSignupFieldsDefined =}

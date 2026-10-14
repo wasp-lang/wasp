@@ -1,5 +1,6 @@
 import {
   type ActionFor,
+  type SpecificOptimisticUpdateDefinition,
   registerActionInProgress,
   registerActionDone,
 } from '@wasp.sh/lib-sdk-core/browser'
@@ -17,7 +18,10 @@ export function createAction<BackendAction extends GenericBackendOperation>(
 ): ActionFor<BackendAction> {
   const actionRoute = makeOperationRoute(relativeActionRoute)
 
-  async function internalAction(args, specificOptimisticUpdateDefinitions) {
+  async function internalAction<CachedData>(
+    args: unknown,
+    specificOptimisticUpdateDefinitions: SpecificOptimisticUpdateDefinition<CachedData>[]
+  ): Promise<unknown> {
     registerActionInProgress(specificOptimisticUpdateDefinitions)
     try {
       // The `return await` is not redundant here. If we removed the await, the
@@ -38,7 +42,7 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   // While it does technically allow our users to access the interal API, it
   // shouldn't be a problem in practice. Still, if it turns out to be a problem,
   // we can always hide it using a Symbol.
-  const action = (args) => internalAction(args, [])
+  const action = (args: unknown) => internalAction(args, [])
   action.internal = internalAction
 
   // NOTE: I'm not sure why unknown is necessary here,

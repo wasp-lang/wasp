@@ -1,5 +1,9 @@
 import type { RegisterOptions, UseFormReturn } from "react-hook-form";
 
+/**
+ * The raw values of the form's inputs, including the ones users add through
+ * `additionalFields`.
+ */
 export type LoginSignupFormFields = {
   [key: string]: string;
 };

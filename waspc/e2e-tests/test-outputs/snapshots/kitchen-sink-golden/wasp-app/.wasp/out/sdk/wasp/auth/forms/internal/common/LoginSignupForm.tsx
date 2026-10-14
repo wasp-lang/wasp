@@ -21,6 +21,7 @@ import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
 import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
 import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
 import { useNavigate } from 'react-router'
+import { getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -51,8 +52,8 @@ export const LoginSignupForm = ({
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
+  const onErrorHandler = (error: unknown) => {
+    setErrorMessage(getAuthErrorMessage(error));
   };
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
@@ -67,12 +68,17 @@ export const LoginSignupForm = ({
       navigate("/")
     },
   });
-  async function onSubmit (data) {
+  async function onSubmit(data: LoginSignupFormFields): Promise<void> {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit(data);
+      // We assert the type because the form holds raw input strings, while the
+      // signup data type uses the return types of the user's signup field
+      // getters (e.g. `Promise<string>` for an async getter).
+      // TODO: Close the type gap between the forms and the user's signup fields,
+      // so this assertion can go away.
+      await handleSubmit(data as Parameters<typeof handleSubmit>[0]);
     } finally {
       setIsLoading(false);
     }

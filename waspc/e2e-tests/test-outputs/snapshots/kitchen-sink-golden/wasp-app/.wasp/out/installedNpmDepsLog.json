@@ -90,7 +90,7 @@
                 },
                 {
                     "name": "@wasp.sh/wasp-app-runner",
-                    "version": "^0.0.17"
+                    "version": "^0.0.18"
                 },
                 {
                     "name": "prisma",
@@ -247,6 +247,10 @@
             {
                 "name": "@types/react-dom",
                 "version": "^19.2.3"
+            },
+            {
+                "name": "@types/nodemailer",
+                "version": "^8.0.0"
             }
         ],
         "peerDependencies": []
@@ -291,7 +295,7 @@
             },
             {
                 "name": "morgan",
-                "version": "~1.11.0"
+                "version": "~1.12.1"
             },
             {
                 "name": "socket.io",

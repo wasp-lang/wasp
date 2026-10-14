@@ -149,9 +149,17 @@ type SpecificUpdateQuery<CachedData> = (
  * A specific, "instantiated" optimistic update definition which contains a
  * fully-constructed query key and a specific update function.
  */
-type SpecificOptimisticUpdateDefinition<Item> = {
+export type SpecificOptimisticUpdateDefinition<Item> = {
   queryKey: QueryKey;
   updateQuery: SpecificUpdateQuery<Item>;
+};
+
+/**
+ * The cache snapshot taken before applying optimistic updates, used for
+ * rolling them back when the Action fails.
+ */
+type OptimisticUpdateContext<CachedData> = {
+  previousData: Map<QueryKey, CachedData | undefined>;
 };
 
 type InternalAction<Input, Output> = Action<Input, Output> & {
@@ -254,11 +262,13 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
     unknown,
     unknown,
     ActionInput,
-    { previousData: Map<QueryKey, CachedData | undefined> }
+    OptimisticUpdateContext<CachedData>
   >,
   "onMutate" | "onError"
 > {
-  async function onMutate(item: ActionInput) {
+  async function onMutate(
+    item: ActionInput,
+  ): Promise<OptimisticUpdateContext<CachedData>> {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       (generalDefinition) =>
         getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item),
@@ -301,18 +311,14 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
   function onError(
     _err: unknown,
     _item: ActionInput,
-    context:
-      | { previousData: Map<QueryKey, CachedData | undefined> }
-      | undefined,
-  ) {
-    if (!context) return;
-
+    context: OptimisticUpdateContext<CachedData> | undefined,
+  ): void {
     // All we do in case of an error is roll back all optimistic updates. We ensure
     // not to do anything else because React Query rethrows the error. This allows
     // the programmer to handle the error as they usually would (i.e., we want the
     // error handling to work as it would if the programmer wasn't using optimistic
     // updates).
-    context.previousData.forEach(async (data, queryKey) => {
+    context?.previousData.forEach(async (data, queryKey) => {
       await queryClient.cancelQueries(queryKey);
       queryClient.setQueryData(queryKey, data);
     });
