@@ -16,7 +16,7 @@ import qualified Data.Text as T
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path', (</>))
 import System.Exit (ExitCode (..))
-import Wasp.Env (getEnvVars, setEnvVars)
+import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -141,7 +141,7 @@ startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
 
     serverProcess :: J.CreateJobProcess
     serverProcess =
-      setEnvVars (("NODE_ENV", "development") : getEnvVars serverRunConfig)
+      addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
         $ J.setCwd serverDir
         $ J.proc Common.devServerStartExecutable Common.devServerStartArgs
 

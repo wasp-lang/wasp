@@ -6,15 +6,14 @@ where
 import qualified Control.Exception as E
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Job (NpmBinNotFound, ProcessDidNotStop)
+import Wasp.Job (ProcessDidNotStop)
 import qualified Wasp.Message as Msg
 
 withExceptionReporting :: IO () -> IO ()
 withExceptionReporting action =
   action
     `E.catches` [ E.Handler reportInternalError,
-                  E.Handler reportProcessStopFailure,
-                  E.Handler reportMissingNpmBin
+                  E.Handler reportProcessStopFailure
                 ]
   where
     reportInternalError :: E.ErrorCall -> IO ()
@@ -22,9 +21,6 @@ withExceptionReporting action =
 
     reportProcessStopFailure :: ProcessDidNotStop -> IO ()
     reportProcessStopFailure = reportFailure "Process cleanup failed" . E.displayException
-
-    reportMissingNpmBin :: NpmBinNotFound -> IO ()
-    reportMissingNpmBin = reportFailure "Missing npm package executable" . E.displayException
 
     reportFailure title message = do
       cliSendMessage $ Msg.Failure title message
