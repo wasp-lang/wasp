@@ -13,7 +13,6 @@ module Wasp.Job
     tapOutput,
     fromProc,
     npmBinProc,
-    NpmBinNotFound (..),
     JobType (..),
     prefixWith,
   )
@@ -28,12 +27,12 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import UnliftIO.Exception (throwIO)
+import Wasp.Env (addEnvVarsOverride)
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
-import Wasp.Node.Bin (NpmBinNotFound (..), findNpmBin)
+import Wasp.Node.NpmBin (findNpmBin, getNpmBinEnvVars)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.
@@ -78,13 +77,20 @@ andThen firstJob secondJob =
     exitCode -> return exitCode
 
 -- | A process that runs the npm package executable with the given name, found
--- with 'findNpmBin', in the given directory. Throws 'NpmBinNotFound' if there
--- is no such executable.
+-- with 'getNpmBin', in the given directory.
 npmBinProc :: Path' Abs (Dir d) -> String -> [String] -> Job CreateJobProcess
 npmBinProc dir binName args =
   liftIO (findNpmBin dir binName) >>= \case
-    Just bin -> return $ setCwd dir $ proc bin args
-    Nothing -> throwIO $ NpmBinNotFound binName (SP.castDir dir)
+    Nothing ->
+      fail $
+        "Could not find `" <> binName <> "` in node_modules/.bin of " <> SP.fromAbsDir dir <> " or its parents."
+    Just bin -> do
+      npmBinEnvVars <- liftIO $ getNpmBinEnvVars dir
+
+      return
+        $ addEnvVarsOverride npmBinEnvVars
+        $ setCwd dir
+        $ proc bin args
 
 -- | Prints the job's output with the job kind's prefix, e.g. "[Server]". If
 -- 'prefixWith' calls are nested, the outermost one decides the prefix.

@@ -321,8 +321,8 @@ library
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
-    Wasp.Node.Bin
     Wasp.Node.Internal
+    Wasp.Node.NpmBin
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
@@ -598,8 +598,8 @@ test-suite waspc-tests
     Generator.WriteFileDraftsTest
     JobTest
     JsImportTest
-    Node.BinTest
     Node.InternalTest
+    Node.NpmBinTest
     Paths_waspc
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
