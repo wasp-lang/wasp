@@ -1,7 +1,6 @@
 {{={= =}=}}
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
-import '../auth-styles.css'
 import { config } from '../../../../client/index.js'
 import { clsx } from '../util'
 
@@ -63,13 +62,9 @@ const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
 // PRIVATE API
-/**
- * The raw values of the form's inputs, including the ones users add through
- * `additionalFields`.
- */
-export type LoginSignupFormFields = {
-  [key: string]: string;
-};
+import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+export { type LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+
 
 // PRIVATE API
 export const LoginSignupForm = ({
