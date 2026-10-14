@@ -86,7 +86,8 @@ onProcessExit action (Job job) = Job $ local addHook job
     addHook env = env {_processExitHook = \exitCode -> action exitCode >> _processExitHook env exitCode}
 
 -- | A process that runs the npm package executable with the given name, found
--- with 'getNpmBin', in the given directory.
+-- with 'findNpmBin', in the given directory, with the env vars from
+-- 'getNpmBinEnvVars'. Fails if there is no such executable.
 npmBinProc :: Path' Abs (Dir d) -> String -> [String] -> Job CreateJobProcess
 npmBinProc dir binName args =
   liftIO (findNpmBin dir binName) >>= \case
