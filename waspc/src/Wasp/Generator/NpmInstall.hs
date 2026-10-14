@@ -8,6 +8,7 @@ import Control.Concurrent (threadDelay)
 import Control.Monad (forever, when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
+import Data.Functor ((<&>))
 import qualified Data.Text as T
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
@@ -62,8 +63,8 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir =
-  checkExitSuccess "Project setup"
-    <$> Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
+  Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
+    <&> checkExitSuccess "Project setup"
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
