@@ -13,6 +13,7 @@ export function CreateTagDialog() {
         className="flex items-center gap-2"
         type="button"
         size="sm"
+        variant="secondary"
         onClick={() => setTagDialogOpen(true)}
       >
         <span>Add a Tag</span>
@@ -21,8 +22,10 @@ export function CreateTagDialog() {
       {tagDialogOpen && (
         <Dialog open={tagDialogOpen} onClose={() => setTagDialogOpen(false)}>
           <section className="card relative flex flex-col">
-            <header className="px-4 py-6 lg:px-6 lg:py-8">
-              <h2 className="text-xl font-semibold">Create a new tag</h2>
+            <header className="border-b border-neutral-900 px-4 py-4 lg:px-6">
+              <h2 className="font-mono text-sm font-bold tracking-wide uppercase">
+                Create a new tag
+              </h2>
             </header>
             <div className="overflow-y-auto p-4 lg:p-6">
               <CreateTagForm
@@ -30,14 +33,14 @@ export function CreateTagDialog() {
                 onTagCreated={() => setTagDialogOpen(false)}
               />
             </div>
-            <footer className="flex justify-end gap-2 px-4 py-6 lg:px-6 lg:py-8">
+            <footer className="flex justify-end gap-2 border-t border-neutral-900 px-4 py-4 lg:px-6">
               <Button form={formId} type="submit">
                 Create
               </Button>
               <Button
                 type="button"
                 onClick={() => setTagDialogOpen(false)}
-                variant="ghost"
+                variant="secondary"
               >
                 Cancel
               </Button>
