@@ -41,7 +41,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import qualified Wasp.Job as Job
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
-import Wasp.Util (checksumFromFilePath, exitCodeToEither, hexToString)
+import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -55,7 +55,7 @@ data DbConnectionTestResult
 -- up to the wasp project dir to ensure they remain in sync.
 migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> IO (Either String ())
 migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = runExceptT $ do
-  ExceptT $ exitCodeToEither "Migrate (dev)" <$> Job.run (DbJobs.migrateDev generatedAppDirAbs migrateArgs)
+  ExceptT $ checkExitSuccess "Migrate (dev)" <$> Job.run (DbJobs.migrateDev generatedAppDirAbs migrateArgs)
   ExceptT $ finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
 
 finalizeMigration :: Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> RefreshOnLastDbConcurrenceChecksumFile -> IO (Either String ())
@@ -126,7 +126,7 @@ dbReset generatedAppDir resetArgs = do
   -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
-  exitCodeToEither "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset generatedAppDir resetArgs)
+  checkExitSuccess "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset generatedAppDir resetArgs)
 
 dbSeed ::
   ServerRunConfig ->
@@ -134,7 +134,7 @@ dbSeed ::
   String ->
   IO (Either String ())
 dbSeed serverRunConfig generatedAppDir seedName =
-  exitCodeToEither "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed serverRunConfig generatedAppDir seedName)
+  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed serverRunConfig generatedAppDir seedName)
 
 testDbConnection ::
   Path' Abs (Dir GeneratedAppDir) ->
@@ -163,7 +163,7 @@ isDbConnectionPossible _ = False
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 generatePrismaClient generatedAppDir = runExceptT $ do
-  ExceptT $ exitCodeToEither "Prisma client generation" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.generatePrismaClient generatedAppDir)
+  ExceptT $ checkExitSuccess "Prisma client generation" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.generatePrismaClient generatedAppDir)
   liftIO updateDbSchemaChecksumOnLastGenerate
   where
     updateDbSchemaChecksumOnLastGenerate =

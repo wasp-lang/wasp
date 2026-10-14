@@ -215,13 +215,13 @@ spec_findDuplicateElems = do
   it "Returns empty list for empty list" $ do
     findDuplicateElems ([] :: [Int]) `shouldBe` []
 
-spec_exitCodeToEither :: Spec
-spec_exitCodeToEither = do
+spec_checkExitSuccess :: Spec
+spec_checkExitSuccess = do
   it "Returns Right for a successful exit" $ do
-    exitCodeToEither "Build" ExitSuccess `shouldBe` Right ()
+    checkExitSuccess "Build" ExitSuccess `shouldBe` Right ()
 
   it "Returns an error naming the failed step and its exit code" $ do
-    exitCodeToEither "Build" (ExitFailure 2) `shouldBe` Left "Build failed with exit code: 2"
+    checkExitSuccess "Build" (ExitFailure 2) `shouldBe` Left "Build failed with exit code: 2"
 
 spec_checkIfEnvValueIsTruthy :: Spec
 spec_checkIfEnvValueIsTruthy = do

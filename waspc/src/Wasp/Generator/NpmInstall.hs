@@ -20,7 +20,7 @@ import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
-import Wasp.Util (exitCodeToEither, secondsToMicroSeconds)
+import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
@@ -62,7 +62,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir =
-  exitCodeToEither "Project setup"
+  checkExitSuccess "Project setup"
     <$> Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode

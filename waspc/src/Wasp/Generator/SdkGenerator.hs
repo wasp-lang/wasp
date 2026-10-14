@@ -80,7 +80,7 @@ import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
-import Wasp.Util (exitCodeToEither, (<++>))
+import Wasp.Util (checkExitSuccess, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
@@ -91,7 +91,7 @@ buildSdk generatedAppDir = do
       $ Job.setCwd sdkRootDir
       $ Job.proc "npm" ["run", "build"]
 
-  return $ exitCodeToEither "SDK build" exitCode
+  return $ checkExitSuccess "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 

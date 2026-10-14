@@ -34,7 +34,7 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
-import Wasp.Util (exitCodeToEither)
+import Wasp.Util (checkExitSuccess)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -161,7 +161,7 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
       cliSendMessageC $ Msg.Info "..."
       exitCode <- Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
       either (E.throwError . CommandError "Dev database failed") return $
-        exitCodeToEither "Running the PostgreSQL dev database" exitCode
+        checkExitSuccess "Running the PostgreSQL dev database" exitCode
 
     additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
     additionalInfoLines devDbSpec =
