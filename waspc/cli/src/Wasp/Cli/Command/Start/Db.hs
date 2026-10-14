@@ -159,9 +159,9 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
           : additionalInfoLines devDbSpec
             <> dockerRunInfoLines
       cliSendMessageC $ Msg.Info "..."
-      Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
-        >>= either (E.throwError . CommandError "Dev database failed") return
-          . exitCodeToEither "Running the PostgreSQL dev database"
+      exitCode <- Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
+      either (E.throwError . CommandError "Dev database failed") return $
+        exitCodeToEither "Running the PostgreSQL dev database" exitCode
 
     additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
     additionalInfoLines devDbSpec =
