@@ -45,7 +45,15 @@ getDevConnectionUrl devDbSpec =
 
 -- | Runs the dev database in the foreground, until it's stopped.
 runDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> Job ExitCode
-runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath =
+runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath = do
+  -- If `docker run` is stopped while it's creating the container, the
+  -- container is left behind without being started, so `--rm` never removes
+  -- it, and its name would conflict with the one we're about to create.
+  -- `docker rm` without `--force` doesn't remove running containers, so this
+  -- never stops a database that is in use. Its output (e.g. that there is no
+  -- such container) isn't useful to the user, so we drop it.
+  _ <- Job.captureOutput $ Job.fromProc $ Job.proc "docker" ["rm", devDbSpec.dockerContainerName]
+
   -- We run `docker` directly, without a shell in between, so that stopping the
   -- job signals the `docker run` client, which passes the signal on to the
   -- database.
