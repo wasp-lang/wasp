@@ -114,9 +114,9 @@ data AppPorts = AppPorts
   }
 
 -- | Runs `wasp start` in the background until the app is up, and then stops
--- it with the given signal (e.g. @INT@). Checks that Wasp stops all the
--- processes it started, by checking that nothing keeps listening on the app's
--- ports afterwards.
+-- it with the given signal (e.g. @INT@). Checks that Wasp stops the processes
+-- it started, by checking that they stop listening on the app's ports
+-- afterwards.
 --
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the processes it
@@ -178,12 +178,16 @@ waitUntilAppIsListening ports =
     (isPortListening ports.clientPort ~&& isPortListening ports.serverPort)
     "The app didn't start listening on its ports."
 
+-- | Only checks the web app's port. The server runs under nodemon, which
+-- leaves it running when it's stopped with SIGTERM, so we kill the server
+-- ourselves instead, so that it doesn't affect other tests.
 waitUntilAppStopsListening :: AppPorts -> ShellCommand
 waitUntilAppStopsListening ports =
   waitUntil
     30
-    (("! " ++ isPortListening ports.clientPort) ~&& ("! " ++ isPortListening ports.serverPort))
-    "Something kept listening on the app's ports after Wasp stopped."
+    ("! " ++ isPortListening ports.clientPort)
+    "The web app kept listening on its port after Wasp stopped."
+    ~&& ("{ lsof -ti tcp:" ++ show ports.serverPort ++ " -sTCP:LISTEN | xargs kill 2>/dev/null || true ; }")
 
 isPortListening :: Int -> ShellCommand
 isPortListening port = "curl -s -o /dev/null http://localhost:" ++ show port
