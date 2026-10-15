@@ -6,7 +6,7 @@ module Wasp.Job.Process
 where
 
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (IOException, finally, mask, onException, try)
+import Control.Exception (IOException, bracket, finally, try)
 import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
@@ -41,41 +41,40 @@ fromProc jobProcess = Job $ do
 -- and returns its exit code once all of its output has been passed on. Calls
 -- the given exit hook as soon as the process exits by itself.
 run :: (OutputType -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
-run emit onExit process = mask $ \restore -> do
-  resources@(stdinHandle, stdoutHandle, stderrHandle, processHandle) <-
-    P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
-  -- Also reaps the process if this is stopped, so it's never cancelled.
-  processExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
-  outputForwarding <-
-    Async.asyncWithUnmask $ \unmask ->
-      unmask $
-        Async.concurrently_
-          (forwardOutput (emit Stdout) stdoutHandle)
-          (forwardOutput (emit Stderr) stderrHandle)
-  exitCode <-
-    restore
-      ( do
-          mapM_ hClose stdinHandle
-          exitCode <- Async.wait processExit
-          onExit exitCode
-          Async.wait outputForwarding
-          return exitCode
-      )
-      `onException` (stop resources processExit outputForwarding `finally` closeHandles resources)
-  closeHandles resources
-  return exitCode
+run emit onExit process = bracket start stop waitForExit
   where
-    -- The process has to be interrupted before the output forwarding is
-    -- cancelled: on Windows, reading the output can't be interrupted until its
-    -- pipes close.
-    stop (_, _, _, processHandle) processExit outputForwarding =
+    start = do
+      resources@(_, stdoutHandle, stderrHandle, processHandle) <-
+        P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
+      -- Also reaps the process if the job is stopped, so it's never cancelled.
+      processExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
+      -- Runs outside of 'waitForExit', so that it's only cancelled once the
+      -- process is interrupted: on Windows, reading the output can't be
+      -- interrupted until its pipes close.
+      outputForwarding <-
+        Async.asyncWithUnmask $ \unmask ->
+          unmask $
+            Async.concurrently_
+              (forwardOutput (emit Stdout) stdoutHandle)
+              (forwardOutput (emit Stderr) stderrHandle)
+      return (resources, processExit, outputForwarding)
+
+    waitForExit ((stdinHandle, _, _, _), processExit, outputForwarding) = do
+      mapM_ hClose stdinHandle
+      exitCode <- Async.wait processExit
+      onExit exitCode
+      Async.wait outputForwarding
+      return exitCode
+
+    stop (resources@(_, _, _, processHandle), processExit, outputForwarding) =
       ( Async.poll processExit >>= \case
           -- The process exited by itself, so the rest of its output, e.g. a
-          -- crash's stack trace, is about to be emitted.
+          -- crash's stack trace, is about to be emitted, if it wasn't already.
           Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
           Nothing -> interruptProcess processHandle
       )
         `finally` Async.cancel outputForwarding
+        `finally` closeHandles resources
 
 -- | Sends SIGINT to the process, like Ctrl+C does, which is what the tools we
 -- run expect to be stopped with.
