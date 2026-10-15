@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (usernameAndPasswordAuthProvider)
 import Wasp.Generator.AuthProviders.UsernameAndPassword (serverLoginUrl, serverSignupUrl)
@@ -13,18 +13,13 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
-    genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Util ((<++>))
 
 genUsernameAndPasswordAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genUsernameAndPasswordAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
-      sequence
-        [ genFileCopyInUsernameAndPasswordAuthDir [relfile|index.ts|]
-        ]
-        <++> genActions auth
+      genActions auth
   | otherwise = return []
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
@@ -60,7 +55,3 @@ genSignupAction auth =
 
 usernameAndPasswordAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 usernameAndPasswordAuthDirInSdkTemplatesDir = [reldir|auth/username|]
-
-genFileCopyInUsernameAndPasswordAuthDir :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInUsernameAndPasswordAuthDir =
-  genFileCopy . (usernameAndPasswordAuthDirInSdkTemplatesDir </>)

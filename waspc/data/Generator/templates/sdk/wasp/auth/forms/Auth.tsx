@@ -2,21 +2,24 @@
 import { useState, useMemo } from 'react'
 import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/browser'
 import styles from './Auth.module.css'
-import './internal/auth-styles.css'
-import { tokenObjToCSSVars } from "./internal/util"
+import {
+  FormMessageError as MessageError,
+  MessageSuccess,
+  tokenObjToCSSVars,
+  type CustomizationOptions,
+  type AdditionalSignupFields,
+} from '@wasp.sh/lib-sdk-core/browser'
 
-import type {
-  State,
-  CustomizationOptions,
-  AdditionalSignupFields,
-} from './types'
+import type { State } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
-import { MessageError, MessageSuccess } from './internal/Message'
 {=# isEmailAuthEnabled =}
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
 {=/ isEmailAuthEnabled =}
+{=# isDummyEmailSenderNoticeEnabled =}
+import { DummyEmailSenderNotice } from './internal/email/DummyEmailSenderNotice'
+{=/ isDummyEmailSenderNoticeEnabled =}
 
 const logoStyle = {
   height: '3rem'
@@ -57,6 +60,9 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
         <h2 className={styles.headerText}>{title}</h2>
       </div>
 
+      {=# isDummyEmailSenderNoticeEnabled =}
+      {(state === 'signup' || state === 'forgot-password') && <DummyEmailSenderNotice />}
+      {=/ isDummyEmailSenderNoticeEnabled =}
       {errorMessage && (
         <MessageError>
           {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
