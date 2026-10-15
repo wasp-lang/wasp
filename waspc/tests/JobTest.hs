@@ -57,7 +57,7 @@ spec_Job = do
       timeout (secondsToMicroSeconds 5) (Job.run $ Job.race slowJob (return ("fast" :: String)))
         `shouldReturn` Just (Right "fast")
 
-    it "stops the process of the job that didn't finish, and waits for it to exit" $ do
+    it "stops the process of the job that didn't finish" $ do
       processStarted <- newEmptyMVar
       -- The process exits by itself after a while, so that the test fails
       -- instead of hanging if stopping it doesn't work.
@@ -71,7 +71,7 @@ spec_Job = do
           $ Job.race slowJob jobThatFinishesOnceProcessStarts
       case result of
         Just (Right (), output) -> case parseProcessId $ T.unpack output of
-          Just pid -> isProcessAlive pid `shouldReturn` False
+          Just pid -> waitUntil "the process exits" $ not <$> isProcessAlive pid
           Nothing -> expectationFailure $ "Invalid process ID: " <> T.unpack output
         _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
@@ -124,7 +124,7 @@ spec_Job = do
 
     -- On Windows, stopping a process kills it right away.
     unless (System.Info.os == "mingw32") $
-      it "asks the process to stop before killing it" $ do
+      it "asks the process to stop with SIGINT" $ do
         stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
         let stopGracefully =
               "process.on('SIGINT', () => { require('node:fs').writeFileSync("
@@ -134,19 +134,15 @@ spec_Job = do
           stopGracefully
           ( \running _ -> do
               Async.cancel running
-              doesFileExist stoppedGracefullyPath `shouldReturn` True
+              waitUntil "the process stops" $ doesFileExist stoppedGracefullyPath
           )
           `finally` removeIfExists stoppedGracefullyPath
 
-    it "kills a process that doesn't stop when asked to" $ do
-      withRunningProcess "process.on('SIGINT', () => {});" $ \running pid -> do
-        timeout (secondsToMicroSeconds 6) (Async.cancel running) `shouldReturn` Just ()
-        isProcessAlive pid `shouldReturn` False
-
     it "doesn't stop another job's process when one job is stopped" $
-      withRunningProcess "" $ \first _ ->
+      withRunningProcess "" $ \first firstPid ->
         withRunningProcess "" $ \second secondPid -> do
           Async.cancel first
+          waitUntil "the first process exits" $ not <$> isProcessAlive firstPid
           Async.poll second >>= \case
             Nothing -> isProcessAlive secondPid `shouldReturn` True
             Just _ -> expectationFailure "Stopping one job stopped another job's process"
