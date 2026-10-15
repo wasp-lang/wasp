@@ -1,5 +1,6 @@
 import Auth from './Auth'
-import { type CustomizationOptions, State } from './types'
+import type { CustomizationOptions } from '@wasp.sh/lib-sdk-core/browser'
+import { State } from './types'
 
 // PUBLIC API
 export function ResetPasswordForm({
