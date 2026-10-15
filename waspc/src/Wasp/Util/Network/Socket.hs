@@ -2,6 +2,7 @@ module Wasp.Util.Network.Socket
   ( checkIfPortIsAcceptingConnections,
     checkIfPortIsInUse,
     checkIfPortCanBeOpened,
+    createIPv4TCPSocket,
     makeSocketAddress,
     makeLocalHostSocketAddress,
     IPv4,
@@ -87,7 +88,15 @@ checkIfPortCanBeOpened sockAddr = do
         || any (`isInfixOf` ioe_description e) ["WSAEADDRINUSE", "WSAEACCES"]
 
 createIPv4TCPSocket :: IO S.Socket
-createIPv4TCPSocket = S.socket S.AF_INET S.Stream S.defaultProtocol
+createIPv4TCPSocket =
+  -- On Windows, the network package only initializes WinSock after a socket
+  -- call fails because it wasn't initialized yet. If two threads create their
+  -- first sockets at the same time, one of them can call into WinSock while the
+  -- other is still initializing it, and fail with a different error (10107)
+  -- that the package doesn't recover from. 'S.withSocketsDo' makes sure WinSock
+  -- is fully initialized before we create the socket. It does nothing on other
+  -- platforms.
+  S.withSocketsDo $ S.socket S.AF_INET S.Stream S.defaultProtocol
 
 -- | Creates a socket address from host IP and port number.
 -- > makeSocketAddress (127,0,0,1) 8000
