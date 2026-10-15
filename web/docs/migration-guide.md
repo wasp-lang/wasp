@@ -271,6 +271,12 @@ Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both local
 
 `wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
 
-### 10. Enjoy your updated Wasp app
+### 10. Update selectors for email auth fields
+
+Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
+
+Update tests and CSS selectors from `input[type="email"]` to `input[name="email"]`.
+
+### 11. Enjoy your updated Wasp app
 
 That's it!
