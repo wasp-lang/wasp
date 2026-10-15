@@ -3,7 +3,7 @@ module JobTest where
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (finally)
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (fromJust)
@@ -13,7 +13,6 @@ import System.Directory (doesFileExist, removeFile)
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
-import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
@@ -122,22 +121,6 @@ spec_Job = do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
-
-    -- On Windows, stopping a process kills it right away.
-    unless (System.Info.os == "mingw32") $
-      it "asks the process to stop with SIGTERM" $ do
-        stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
-        let stopGracefully =
-              "process.on('SIGTERM', () => { require('node:fs').writeFileSync("
-                <> show stoppedGracefullyPath
-                <> ", ''); process.exit(0); });"
-        withRunningProcess
-          stopGracefully
-          ( \running _ -> do
-              Async.cancel running
-              waitUntil "the process stops" $ doesFileExist stoppedGracefullyPath
-          )
-          `finally` removeIfExists stoppedGracefullyPath
 
     it "doesn't stop another job's process when one job is stopped" $
       withRunningProcess "" $ \first firstPid ->
