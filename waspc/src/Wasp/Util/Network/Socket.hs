@@ -89,13 +89,9 @@ checkIfPortCanBeOpened sockAddr = do
 
 createIPv4TCPSocket :: IO S.Socket
 createIPv4TCPSocket =
-  -- On Windows, the network package only initializes WinSock after a socket
-  -- call fails because it wasn't initialized yet. If two threads create their
-  -- first sockets at the same time, one of them can call into WinSock while the
-  -- other is still initializing it, and fail with a different error (10107)
-  -- that the package doesn't recover from. 'S.withSocketsDo' makes sure WinSock
-  -- is fully initialized before we create the socket. It does nothing on other
-  -- platforms.
+  -- On Windows, the network package initializes WinSock lazily, so concurrent
+  -- first sockets can fail with WinSock error 10107. 'S.withSocketsDo'
+  -- initializes it upfront (no-op elsewhere).
   S.withSocketsDo $ S.socket S.AF_INET S.Stream S.defaultProtocol
 
 -- | Creates a socket address from host IP and port number.
