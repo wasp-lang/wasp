@@ -6,12 +6,12 @@ import {
   ensureValidPassword,
 } from 'wasp/auth/validation'
 import { HttpError } from 'wasp/server'
-import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
 import {
+  GetVerificationEmailContentFn,
   createEmailVerificationLink,
   isEmailResendAllowed,
   sendEmailVerificationEmail,
-} from 'wasp/server/auth/email/utils'
+} from 'wasp/server/auth'
 import {
   createProviderId,
   createUser,

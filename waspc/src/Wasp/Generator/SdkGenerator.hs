@@ -28,8 +28,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( dotenvVersionRange,
-    expressTypesVersionRange,
+  ( expressTypesVersionRange,
     expressVersionRange,
     kyVersionRange,
     prismaVersionRange,
@@ -78,7 +77,7 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
-import Wasp.Util (exitCodeToEither, (<++>))
+import Wasp.Util (checkExitSuccess, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
@@ -87,7 +86,7 @@ buildSdk generatedAppDir = do
       (Job.fromProc =<< Job.npmBinProc sdkRootDir "tsc" [])
         `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
 
-  return $ exitCodeToEither "SDK build" exitCode
+  return $ checkExitSuccess "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
@@ -101,16 +100,11 @@ genSdk spec =
       C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|types/register.ts|],
       C.genFileCopy [relfile|api/index.ts|],
-      C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
-      C.genFileCopy [relfile|errors/index.ts|],
-      C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
-      C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
-      C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
@@ -124,7 +118,6 @@ genSdk spec =
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> genUniversalDir
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -195,11 +188,8 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersionRange),
             ("prisma", show prismaVersionRange),
-            ("dotenv", show dotenvVersionRange),
-            ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),
             ("ky", show kyVersionRange),
-            ("mitt", "3.0.1"),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),
@@ -260,9 +250,7 @@ genClientConfigFile =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
-      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
-    ]
+    [C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData]
       ++ maybeToList prismaSerializationFile
   where
     tmplData =
@@ -302,16 +290,6 @@ genTsConfigJson = do
 
 -- todo(filip): consider reorganizing/splitting the file.
 
-genUniversalDir :: Generator [FileDraft]
-genUniversalDir =
-  sequence
-    [ C.genFileCopy [relfile|universal/url.ts|],
-      C.genFileCopy [relfile|universal/types.ts|],
-      C.genFileCopy [relfile|universal/validators.ts|],
-      C.genFileCopy [relfile|universal/predicates.ts|],
-      C.genFileCopy [relfile|universal/ansiColors.ts|]
-    ]
-
 genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec =
   return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
@@ -324,9 +302,7 @@ genServerExportedTypesDir = C.genFileCopy [relfile|server/types/index.ts|]
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ C.genFileCopy [relfile|server/middleware/index.ts|],
-      C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
-    ]
+    [C.genFileCopy [relfile|server/middleware/index.ts|]]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
 genServerDbClient spec = do

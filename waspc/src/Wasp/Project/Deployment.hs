@@ -12,7 +12,7 @@ import System.Directory (doesFileExist)
 import qualified System.Process as P
 import Wasp.NodePackageFFI (RunnablePackage (DeployPackage), getPackageProcessOptions)
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Util (exitCodeToEither)
+import Wasp.Util (checkExitSuccess)
 
 loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
 loadUserDockerfileContents waspDir = do
@@ -42,4 +42,4 @@ deploy waspExe waspDir cmdArgs = do
             P.delegate_ctlc = True
           }
   exitCode <- P.withCreateProcess cpInheritHandles $ \_ _ _ ph -> P.waitForProcess ph
-  return $ exitCodeToEither "Deploy command" exitCode
+  return $ checkExitSuccess "Deploy command" exitCode

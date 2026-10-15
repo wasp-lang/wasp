@@ -190,7 +190,7 @@ spec_ServerProcessController =
             runControllerCollectingOutput =
               Job.run
                 $ Job.captureOutput
-                $ Job.tapOutput (\_ chunk -> modifyIORef' output (<> chunk))
+                $ Job.observeOutput (\_ chunk -> modifyIORef' output (<> chunk))
                 $ startServer serverRunConfig generatedAppDir controller
         withAsync runControllerCollectingOutput $ \controllerJob -> do
           waitForServerStart fixture

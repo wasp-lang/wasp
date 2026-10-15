@@ -5,9 +5,9 @@ import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import mitt from "mitt";
 import ky from "ky";
 import * as z from "zod";
-import mitt from "mitt";
 import "superjson";
 //#region \0vite/modulepreload-polyfill.js
 (function polyfill() {
@@ -73,100 +73,32 @@ function emptySubscribe() {
 	return emptyUnsubscribe;
 }
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/universal/url.js
-function stripTrailingSlash(url) {
-	return url?.replace(/\/$/, "");
-}
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/universal/ansiColors.js
-/**
-* Wraps each line of text with ANSI color codes.
-* Only works in Node.js (server-side), not in the browser.
-*
-* Each line is individually wrapped because Wasp reads child process
-* output line-by-line and re-prints it with a prefix (e.g. `[ Server ]`).
-* A single color code spanning multiple lines would only color the first line.
-*
-* @example
-* ```typescript
-* console.log(colorize('red', 'This is red text'));
-* ```
-*
-* @internal This is a private API for: SDK, client.
-*/
-function colorize(color, text) {
-	if (!supportsAnsiFormatting()) return text;
-	const ansiColorCode = ansiColorCodes[color];
-	return text.split("\n").map((line) => `${ansiColorCode}${line}${ansiResetCode}`).join("\n");
-}
-function supportsAnsiFormatting() {
-	const isBrowser = !!globalThis.window;
-	const isNode = !!globalThis.process;
-	if (isBrowser && "chrome" in window) return true;
-	if (isNode) {
-		if ("NO_COLOR" in {}) return false;
-		return true;
-	}
-	return false;
-}
-var ansiColorCodes = {
-	red: "\x1B[31m",
-	yellow: "\x1B[33m"
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
+var wrapperStyles = {
+	display: "flex",
+	minHeight: "80vh",
+	justifyContent: "center",
+	alignItems: "center"
 };
-var ansiResetCode = "\x1B[0m";
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/env/validation.js
-function ensureEnvSchema(data, schema) {
-	const result = getValidatedEnvOrError(data, schema);
-	if (result.success) return result.data;
-	else {
-		console.error(colorize("red", formatZodEnvError(result.error)));
-		throw new Error("Error parsing environment variables");
-	}
-}
-function getValidatedEnvOrError(env, schema) {
-	return schema.safeParse(env);
-}
-function formatZodEnvError(error) {
-	const flattenedIssues = z.flattenError(error);
-	return [
-		"══ Env vars validation failed ══",
-		"",
-		...flattenedIssues.formErrors,
-		"",
-		...Object.entries(flattenedIssues.fieldErrors).map(([prop, error]) => `${prop} - ${error}`),
-		"",
-		"════════════════════════════════"
-	].join("\n");
+function FullPageWrapper({ children, className }) {
+	return /* @__PURE__ */ jsx("div", {
+		className: ["wasp-full-page-wrapper", className].filter(Boolean).join(" "),
+		style: wrapperStyles,
+		children
+	});
 }
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/client/env/schema.js
-var userClientEnvSchema = z.object({});
-var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
-z.object({ "REACT_APP_API_URL": serverUrlSchema });
-var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
-var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
-	"BASE_URL": "/",
-	"DEV": false,
-	"MODE": "production",
-	"PROD": true,
-	"REACT_APP_API_URL": "http://localhost:3001",
-	"SSR": false
-}, z.object({
-	...userClientEnvSchema.shape,
-	...waspClientEnvSchema.shape
-}))["REACT_APP_API_URL"]) };
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
+function DefaultRootErrorBoundary() {
+	const error = useRouteError();
+	console.error(error);
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+}
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/client/index.js
-var HttpMethod;
-(function(HttpMethod) {
-	HttpMethod["Get"] = "GET";
-	HttpMethod["Post"] = "POST";
-	HttpMethod["Put"] = "PUT";
-	HttpMethod["Patch"] = "PATCH";
-	HttpMethod["Delete"] = "DELETE";
-	HttpMethod["Head"] = "HEAD";
-})(HttpMethod || (HttpMethod = {}));
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
+var apiEventsEmitter = mitt();
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -218,44 +150,7 @@ function createLocalStorageDataStore(prefix) {
 	};
 }
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/api/events.js
-var apiEventsEmitter = mitt();
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/api/index.js
-var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
-function getSessionId() {
-	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
-}
-function clearSessionId() {
-	storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
-	apiEventsEmitter.emit("sessionId.clear");
-}
-ky.extend({
-	prefix: config.apiUrl,
-	hooks: {
-		beforeRequest: [({ request }) => {
-			const sessionId = getSessionId();
-			if (sessionId !== null) request.headers.set("Authorization", `Bearer ${sessionId}`);
-		}],
-		afterResponse: [({ request, response }) => {
-			if (response.status === 401) {
-				if (getSessionIdFromAuthorizationHeader(request.headers.get("Authorization")) === getSessionId()) clearSessionId();
-			}
-		}]
-	}
-});
-if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
-	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
-		if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
-		else apiEventsEmitter.emit("sessionId.clear");
-	}
-});
-function getSessionIdFromAuthorizationHeader(header) {
-	if (header && header.startsWith("Bearer ")) return header.substring(7);
-	else return null;
-}
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/operations/queryClient.js
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
 var defaultQueryClientConfig = {};
 var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
@@ -266,39 +161,81 @@ function initializeQueryClient() {
 	resolveQueryClientInitialized(queryClient);
 }
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
-function WaspApp({ children }) {
-	const queryClient = use(queryClientInitialized);
-	return /* @__PURE__ */ jsx(QueryClientProvider, {
-		client: queryClient,
-		children
-	});
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs
+var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
+function getSessionId() {
+	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
 }
+function clearSessionId() {
+	storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
+	apiEventsEmitter.emit("sessionId.clear");
+}
+if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
+	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
+	else apiEventsEmitter.emit("sessionId.clear");
+});
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/client/app/components/FullPageWrapper.jsx
-var wrapperStyles = {
-	display: "flex",
-	minHeight: "80vh",
-	justifyContent: "center",
-	alignItems: "center"
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/ansiColors.mjs
+/**
+* Wraps each line of text with ANSI color codes.
+* Only works in Node.js (server-side), not in the browser.
+*
+* Each line is individually wrapped because Wasp reads child process
+* output line-by-line and re-prints it with a prefix (e.g. `[ Server ]`).
+* A single color code spanning multiple lines would only color the first line.
+*
+* @example
+* ```typescript
+* console.log(colorize('red', 'This is red text'));
+* ```
+*/
+function colorize(color, text) {
+	if (!supportsAnsiFormatting()) return text;
+	const ansiColorCode = ansiColorCodes[color];
+	return text.split("\n").map((line) => `${ansiColorCode}${line}${ansiResetCode}`).join("\n");
+}
+function supportsAnsiFormatting() {
+	const isBrowser = !!globalThis.window;
+	const isNode = !!globalThis.process;
+	if (isBrowser && "chrome" in window) return true;
+	if (isNode) {
+		if ("NO_COLOR" in {}) return false;
+		return true;
+	}
+	return false;
+}
+var ansiColorCodes = {
+	red: "\x1B[31m",
+	yellow: "\x1B[33m"
 };
-function FullPageWrapper({ children, className }) {
-	const classNameWithDefaults = ["wasp-full-page-wrapper", className].filter(Boolean).join(" ");
-	return /* @__PURE__ */ jsx("div", {
-		className: classNameWithDefaults,
-		style: wrapperStyles,
-		children
-	});
+var ansiResetCode = "\x1B[0m";
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/env/validation.mjs
+function ensureEnvSchema(data, schema) {
+	const result = getValidatedEnvOrError(data, schema);
+	if (result.success) return result.data;
+	else {
+		console.error(colorize("red", formatZodEnvError(result.error)));
+		throw new Error("Error parsing environment variables");
+	}
+}
+function getValidatedEnvOrError(env, schema) {
+	return schema.safeParse(env);
+}
+function formatZodEnvError(error) {
+	const flattenedIssues = z.flattenError(error);
+	return [
+		"══ Env vars validation failed ══",
+		"",
+		...flattenedIssues.formErrors,
+		"",
+		...Object.entries(flattenedIssues.fieldErrors).map(([prop, error]) => `${prop} - ${error}`),
+		"",
+		"════════════════════════════════"
+	].join("\n");
 }
 //#endregion
-//#region .wasp/out/sdk/wasp/dist/client/app/components/DefaultRootErrorBoundary.jsx
-function DefaultRootErrorBoundary() {
-	const error = useRouteError();
-	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
-}
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/router/linkHelpers.js
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
 	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
@@ -320,6 +257,55 @@ function isValidPathPart(part) {
 function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
 	return paramString.slice(1);
+}
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/url.mjs
+function stripTrailingSlash(url) {
+	return url?.replace(/\/$/, "");
+}
+//#endregion
+//#region .wasp/out/sdk/wasp/dist/client/env/schema.js
+var userClientEnvSchema = z.object({});
+var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
+z.object({ "REACT_APP_API_URL": serverUrlSchema });
+var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
+var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
+	"BASE_URL": "/",
+	"DEV": false,
+	"MODE": "production",
+	"PROD": true,
+	"REACT_APP_API_URL": "http://localhost:3001",
+	"SSR": false
+}, z.object({
+	...userClientEnvSchema.shape,
+	...waspClientEnvSchema.shape
+}))["REACT_APP_API_URL"]) };
+ky.extend({
+	prefix: config.apiUrl,
+	hooks: {
+		beforeRequest: [({ request }) => {
+			const sessionId = getSessionId();
+			if (sessionId !== null) request.headers.set("Authorization", `Bearer ${sessionId}`);
+		}],
+		afterResponse: [({ request, response }) => {
+			if (response.status === 401) {
+				if (getSessionIdFromAuthorizationHeader(request.headers.get("Authorization")) === getSessionId()) clearSessionId();
+			}
+		}]
+	}
+});
+function getSessionIdFromAuthorizationHeader(header) {
+	if (header && header.startsWith("Bearer ")) return header.substring(7);
+	else return null;
+}
+//#endregion
+//#region .wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
+function WaspApp({ children }) {
+	const queryClient = use(queryClientInitialized);
+	return /* @__PURE__ */ jsx(QueryClientProvider, {
+		client: queryClient,
+		children
+	});
 }
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/router/index.js

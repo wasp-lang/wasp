@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { createContext, useState, useEffect, type Context, type ReactNode } from 'react'
 import { io, type Socket } from 'socket.io-client'
+import { apiEventsEmitter } from '@wasp.sh/lib-sdk-core/browser'
 
 import { getSessionId } from '../../api/index.js'
-import { apiEventsEmitter } from '../../api/events.js'
 import { config } from '../index.js'
 
 import type { ClientToServerEvents, ServerToClientEvents } from '../../server/webSocket/index.js';

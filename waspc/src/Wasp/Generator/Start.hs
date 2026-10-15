@@ -44,7 +44,7 @@ withJobsQuietDownListener onJobsQuietDown job = do
   jobOutputSignal <- liftIO newEmptyMVar
   either id absurd
     <$> J.race
-      (J.tapOutput (\_ _ -> void $ tryPutMVar jobOutputSignal ()) job)
+      (J.observeOutput (\_ _ -> void $ tryPutMVar jobOutputSignal ()) job)
       (liftIO $ listenForJobsQuietDown jobOutputSignal onJobsQuietDown)
 
 listenForJobsQuietDown :: MVar () -> IO () -> IO Void
