@@ -7,7 +7,7 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-guide) for step-by-step documentation on how to upgrade.
 
 - Wasp now type-checks application code during compilation. ([#4942](https://github.com/wasp-lang/wasp/pull/4942))
-- Email fields in Wasp's auth forms now use `type="text"` to support internationalized addresses. Update tests and CSS selectors from `input[type="email"]` to `input[name="email"]`. ([#4695](https://github.com/wasp-lang/wasp/pull/4695))
+- Email fields in Wasp's auth forms now use `type="text"` to support internationalized addresses. ([#4695](https://github.com/wasp-lang/wasp/pull/4695))
 - SDK changes require updating `tsconfig.src.json` and copying the generated `types` directory in custom Dockerfiles. ([#4049](https://github.com/wasp-lang/wasp/pull/4049), [#4067](https://github.com/wasp-lang/wasp/pull/4067))
 - Renamed the `wasp deploy fly` flags `--vm-size`, `--initial-cluster-size`, and `--volume-size` to `--db-vm-size`, `--db-initial-cluster-size`, and `--db-volume-size`, respectively. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))

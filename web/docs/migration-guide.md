@@ -273,9 +273,9 @@ Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both local
 
 ### 10. Update selectors for email auth fields
 
-Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
+If you are running e2e tests on your app, update selectors from `input[type="email"]` to `input[name="email"]`.
 
-Update tests and CSS selectors from `input[type="email"]` to `input[name="email"]`.
+Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
 
 ### 11. Enjoy your updated Wasp app
 
