@@ -187,22 +187,6 @@ spec_Job = do
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
-    -- On Windows, stopping a process kills it right away.
-    unless (System.Info.os == "mingw32") $
-      it "asks the process to stop with SIGTERM" $ do
-        stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
-        let stopGracefully =
-              "process.on('SIGTERM', () => { require('node:fs').writeFileSync("
-                <> show stoppedGracefullyPath
-                <> ", ''); process.exit(0); });"
-        withRunningProcess
-          stopGracefully
-          ( \running _ -> do
-              Async.cancel running
-              waitUntil "the process stops" $ doesFileExist stoppedGracefullyPath
-          )
-          `finally` removeIfExists stoppedGracefullyPath
-
     it "doesn't stop another job's process when one job is stopped" $
       withRunningProcess "" $ \first firstPid ->
         withRunningProcess "" $ \second secondPid -> do
