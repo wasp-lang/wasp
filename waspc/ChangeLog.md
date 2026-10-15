@@ -33,7 +33,7 @@
 ### 🐞 Bug fixes
 
 - `wasp start` now manages the development server process directly instead of relying on the generated server's `nodemon`, improving restart behavior. ([#4976](https://github.com/wasp-lang/wasp/pull/4976))
-- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). Wasp now also waits for the command to exit, and kills it if it doesn't stop in time. ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
+- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
 - Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))

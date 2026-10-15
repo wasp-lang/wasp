@@ -13,7 +13,6 @@ module Wasp.Job
     observeOutput,
     onProcessExit,
     fromProc,
-    ProcessDidNotStop (..),
     npmBinProc,
     JobType (..),
     prefixWith,
@@ -33,7 +32,7 @@ import Wasp.Env (addEnvVarsOverride)
 import Wasp.Job.Common (Job (..), JobEnv (..), JobType (..), OutputType (..), runWithEnv, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
-import Wasp.Job.Process (ProcessDidNotStop (..), fromProc)
+import Wasp.Job.Process (fromProc)
 import Wasp.Node.NpmBin (findNpmBin, getNpmBinEnvVars)
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and

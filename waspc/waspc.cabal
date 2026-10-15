@@ -519,7 +519,6 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.EnvVarWithCtx
-    Wasp.Cli.ExceptionHandling
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
@@ -661,7 +660,6 @@ test-suite wasp-cli-tests
     tasty-discover:tasty-discover
 
   build-depends:
-    async,
     base,
     cli-lib,
     hspec,
@@ -676,7 +674,6 @@ test-suite wasp-cli-tests
 
   other-modules:
     DbMigrateTest
-    ExceptionHandlingTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.News.ListingTest

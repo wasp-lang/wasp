@@ -81,7 +81,7 @@ spec_ServerProcessController =
           waitForServerStart fixture
           restartOnlyPid <- readServerPid fixture
           restartOnlyPid `shouldNotBe` initialPid
-          isProcessAlive initialPid `shouldReturn` False
+          waitUntil "the server exits" $ not <$> isProcessAlive initialPid
           readBundleCount fixture `shouldReturn` 1
 
           -- Server source change: bundle + restart.
@@ -90,7 +90,7 @@ spec_ServerProcessController =
           waitForServerStart fixture
           restartedPid <- readServerPid fixture
           restartedPid `shouldNotBe` restartOnlyPid
-          isProcessAlive restartOnlyPid `shouldReturn` False
+          waitUntil "the server exits" $ not <$> isProcessAlive restartOnlyPid
           readBundleCount fixture `shouldReturn` 2
 
           -- Stale exit notification from the stopped process must not
@@ -101,10 +101,10 @@ spec_ServerProcessController =
           readServerPid fixture `shouldReturn` restartedPid
           isProcessAlive restartedPid `shouldReturn` True
 
-          -- Failed compile stops the server and releases its port before returning.
+          -- Failed compile stops the server and releases its port.
           notifyFailedCompileOrFail controller
-          isProcessAlive restartedPid `shouldReturn` False
-          isPortAvailable serverPort `shouldReturn` True
+          waitUntil "the server exits" $ not <$> isProcessAlive restartedPid
+          waitUntil "the server port is released" $ isPortAvailable serverPort
 
           -- Next successful compile brings the server back even without
           -- server-related changes.
@@ -116,7 +116,7 @@ spec_ServerProcessController =
 
           -- Restart-only also rebundles when there is no known-good server.
           notifyFailedCompileOrFail controller
-          isProcessAlive recoveredPid `shouldReturn` False
+          waitUntil "the server exits" $ not <$> isProcessAlive recoveredPid
           clearServerPid fixture
           notifySuccessfulCompileOrFail controller RestartServer
           waitForServerStart fixture
@@ -125,8 +125,8 @@ spec_ServerProcessController =
 
           -- Cancelling the controller job stops the server and releases its port.
           cancel controllerJob
-          isProcessAlive restartRecoveredPid `shouldReturn` False
-          isPortAvailable serverPort `shouldReturn` True
+          waitUntil "the server exits" $ not <$> isProcessAlive restartRecoveredPid
+          waitUntil "the server port is released" $ isPortAvailable serverPort
           clearServerPid fixture
 
     it "stops the server after a failed bundle and recovers on the next successful compile" $
@@ -142,8 +142,8 @@ spec_ServerProcessController =
 
           writeFile bundleScriptPath "process.exit(1);\n"
           notifySuccessfulCompileOrFail controller RebundleAndRestartServer
-          isProcessAlive initialPid `shouldReturn` False
-          isPortAvailable serverPort `shouldReturn` True
+          waitUntil "the server exits" $ not <$> isProcessAlive initialPid
+          waitUntil "the server port is released" $ isPortAvailable serverPort
 
           writeFile bundleScriptPath originalBundleScript
           clearServerPid fixture
@@ -154,8 +154,8 @@ spec_ServerProcessController =
           readBundleCount fixture `shouldReturn` 2
 
           cancel controllerJob
-          isProcessAlive recoveredPid `shouldReturn` False
-          isPortAvailable serverPort `shouldReturn` True
+          waitUntil "the server exits" $ not <$> isProcessAlive recoveredPid
+          waitUntil "the server port is released" $ isPortAvailable serverPort
           clearServerPid fixture
 
     it "starts the server again after it crashes, on the next successful compile" $
@@ -178,7 +178,7 @@ spec_ServerProcessController =
           newPort <- readServerPort fixture
 
           cancel controllerJob
-          isPortAvailable newPort `shouldReturn` True
+          waitUntil "the server port is released" $ isPortAvailable newPort
           clearServerPid fixture
 
     it "reports a server crash that happens while the server is being rebundled" $
