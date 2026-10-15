@@ -1,12 +1,10 @@
-{-# LANGUAGE CPP #-}
-
 module Wasp.Job.Process
   ( fromProc,
   )
 where
 
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (IOException, bracket, finally, try)
+import Control.Exception (onException)
 import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
@@ -22,15 +20,13 @@ import System.Timeout (timeout)
 import Wasp.Job.Common (Job (..), JobEnv (..), OutputType (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 import Wasp.Util (secondsToMicroSeconds)
-#if !mingw32_HOST_OS
-import System.IO.Error (tryIOError)
-import qualified System.Posix.Signals as Signals
-#endif
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code once all of it has been emitted.
--- If the job is stopped before the process finishes, this interrupts the
--- process.
+--
+-- If the job is stopped before the process finishes, this terminates the
+-- process (SIGTERM on *nix) without waiting for it to exit. We only signal the
+-- process itself, and rely on it to stop the processes it started.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
@@ -41,58 +37,30 @@ fromProc jobProcess = Job $ do
 -- and returns its exit code once all of its output has been passed on. Calls
 -- the given exit hook as soon as the process exits by itself.
 run :: (OutputType -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
-run emit onExit process = bracket start stop waitForExit
+run emit onExit process =
+  P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
+    \stdinHandle stdoutHandle stderrHandle processHandle ->
+      Async.withAsync
+        ( Async.concurrently_
+            (forwardOutput (emit Stdout) stdoutHandle)
+            (forwardOutput (emit Stderr) stderrHandle)
+        )
+        $ \outputForwarding ->
+          ( do
+              mapM_ hClose stdinHandle
+              exitCode <- P.waitForProcess processHandle
+              onExit exitCode
+              Async.wait outputForwarding
+              return exitCode
+          )
+            `onException` drainOutputIfProcessExited processHandle outputForwarding
   where
-    start = do
-      resources@(_, stdoutHandle, stderrHandle, processHandle) <-
-        P.createProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe}
-      -- Also reaps the process if the job is stopped, so it's never cancelled.
-      processExit <- Async.asyncWithUnmask $ \unmask -> unmask $ P.waitForProcess processHandle
-      -- Runs outside of 'waitForExit', so that it's only cancelled once the
-      -- process is interrupted: on Windows, reading the output can't be
-      -- interrupted until its pipes close.
-      outputForwarding <-
-        Async.asyncWithUnmask $ \unmask ->
-          unmask $
-            Async.concurrently_
-              (forwardOutput (emit Stdout) stdoutHandle)
-              (forwardOutput (emit Stderr) stderrHandle)
-      return (resources, processExit, outputForwarding)
-
-    waitForExit ((stdinHandle, _, _, _), processExit, outputForwarding) = do
-      mapM_ hClose stdinHandle
-      exitCode <- Async.wait processExit
-      onExit exitCode
-      Async.wait outputForwarding
-      return exitCode
-
-    stop (resources@(_, _, _, processHandle), processExit, outputForwarding) =
-      ( Async.poll processExit >>= \case
-          -- The process exited by itself, so the rest of its output, e.g. a
-          -- crash's stack trace, is about to be emitted, if it wasn't already.
-          Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
-          Nothing -> interruptProcess processHandle
-      )
-        `finally` Async.cancel outputForwarding
-        `finally` closeHandles resources
-
--- | Sends SIGINT to the process, like Ctrl+C does, which is what the tools we
--- run expect to be stopped with.
---
--- We only signal the process itself, and rely on it to stop the processes it
--- started. We don't signal its process group: it's Wasp's own, so that would
--- also stop Wasp, its other jobs, and whatever started Wasp (e.g. an npm script
--- or a CI shell).
---
--- Windows has no signals, so there we terminate the process instead.
-interruptProcess :: P.ProcessHandle -> IO ()
-#if mingw32_HOST_OS
-interruptProcess = P.terminateProcess
-#else
-interruptProcess processHandle =
-  -- The process might have exited in the meantime, so we ignore errors.
-  P.getPid processHandle >>= mapM_ (tryIOError . Signals.signalProcess Signals.sigINT)
-#endif
+    -- If the process exited by itself, the rest of its output, e.g. a crash's
+    -- stack trace, is about to be emitted.
+    drainOutputIfProcessExited processHandle outputForwarding =
+      P.getProcessExitCode processHandle >>= \case
+        Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
+        Nothing -> return ()
 
 -- | How long a job that is stopped after its process exited still emits the
 -- process's output for. It's bounded because the process's children can keep
@@ -105,10 +73,3 @@ forwardOutput _ Nothing = return ()
 forwardOutput emit (Just handle) =
   runConduit $
     CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit
-
-closeHandles :: (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
-closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =
-  mapM_ closeHandle [stdinHandle, stdoutHandle, stderrHandle]
-  where
-    closeHandle Nothing = return ()
-    closeHandle (Just handle) = void (try (hClose handle) :: IO (Either IOException ()))

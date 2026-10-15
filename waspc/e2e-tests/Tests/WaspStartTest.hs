@@ -114,9 +114,9 @@ data AppPorts = AppPorts
   }
 
 -- | Runs `wasp start` in the background until the app is up, and then stops
--- it with the given signal (e.g. @INT@). Checks that Wasp stops all the
--- processes it started, by checking that nothing keeps listening on the app's
--- ports afterwards.
+-- it with the given signal (e.g. @INT@). Checks that Wasp stops the processes
+-- it started, by checking that they stop listening on the app's ports
+-- afterwards.
 --
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the processes it

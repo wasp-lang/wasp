@@ -188,10 +188,10 @@ spec_Job = do
 
     -- On Windows, stopping a process kills it right away.
     unless (System.Info.os == "mingw32") $
-      it "asks the process to stop with SIGINT" $ do
+      it "asks the process to stop with SIGTERM" $ do
         stoppedGracefullyPath <- makeTempPath "wasp-stopped-gracefully"
         let stopGracefully =
-              "process.on('SIGINT', () => { require('node:fs').writeFileSync("
+              "process.on('SIGTERM', () => { require('node:fs').writeFileSync("
                 <> show stoppedGracefullyPath
                 <> ", ''); process.exit(0); });"
         withRunningProcess
