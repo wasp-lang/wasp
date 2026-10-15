@@ -82,9 +82,7 @@
                 "type": "doc",
                 "id": "features/auth/username-and-pass/overview"
               },
-              "items": [
-                "features/auth/username-and-pass/create-your-own-ui"
-              ]
+              "items": ["features/auth/username-and-pass/create-your-own-ui"]
             },
             {
               "type": "category",
@@ -94,9 +92,7 @@
                 "type": "doc",
                 "id": "features/auth/email/overview"
               },
-              "items": [
-                "features/auth/email/create-your-own-ui"
-              ]
+              "items": ["features/auth/email/create-your-own-ui"]
             },
             {
               "type": "category",
@@ -122,9 +118,7 @@
               "type": "category",
               "label": "Advanced",
               "collapsed": true,
-              "items": [
-                "features/auth/advanced/custom-auth-actions"
-              ]
+              "items": ["features/auth/advanced/custom-auth-actions"]
             }
           ]
         },
