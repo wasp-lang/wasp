@@ -1,4 +1,4 @@
-import type { Expand } from '../../universal/types.js'
+import type { Expand } from '@wasp.sh/lib-sdk-core'
 import type { Request, Response } from 'express'
 import type {
   ParamsDictionary as ExpressParams,

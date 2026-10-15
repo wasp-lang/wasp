@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { ensureEnvSchema } from "../env/validation"
+import { ensureEnvSchema } from "@wasp.sh/lib-sdk-core"
 import type { FromRegister } from "../types/register";
 import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from "virtual:wasp/user/env"
 

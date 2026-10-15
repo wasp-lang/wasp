@@ -41,7 +41,7 @@ module Wasp.Util
     textToLazyBS,
     secondsToMicroSeconds,
     findDuplicateElems,
-    exitCodeToEither,
+    checkExitSuccess,
     isOlderThanNHours,
     checkIfOnCi,
     -- NOTE: Exported only for testing purposes
@@ -313,11 +313,11 @@ secondsToMicroSeconds = (* 1000000)
 findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map NE.head . filter ((> 1) . length) . NE.group . sort
 
--- | Turns a process exit code into an error message naming the step that failed.
--- E.g. @exitCodeToEither "SDK build" (ExitFailure 1)@ is @Left "SDK build failed with exit code: 1"@.
-exitCodeToEither :: String -> ExitCode -> Either String ()
-exitCodeToEither _ ExitSuccess = Right ()
-exitCodeToEither failedStep (ExitFailure code) = Left $ failedStep <> " failed with exit code: " <> show code
+-- | Checks that a process exited successfully, or returns an error message naming the step that failed.
+-- E.g. @checkExitSuccess "SDK build" (ExitFailure 1)@ is @Left "SDK build failed with exit code: 1"@.
+checkExitSuccess :: String -> ExitCode -> Either String ()
+checkExitSuccess _ ExitSuccess = Right ()
+checkExitSuccess failedStep (ExitFailure code) = Left $ failedStep <> " failed with exit code: " <> show code
 
 isOlderThanNHours :: Natural -> T.UTCTime -> IO Bool
 isOlderThanNHours nHours time = do

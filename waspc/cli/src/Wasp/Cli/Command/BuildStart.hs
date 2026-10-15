@@ -21,7 +21,7 @@ import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
-import Wasp.Util (exitCodeToEither)
+import Wasp.Util (checkExitSuccess)
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments buildStartArgsParser $ \args -> do
@@ -74,4 +74,4 @@ buildAndStartServerAndClient config = do
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
     throwOnExitFailure errorTitle failedStep =
-      either (throwError . CommandError errorTitle) return . exitCodeToEither failedStep
+      either (throwError . CommandError errorTitle) return . checkExitSuccess failedStep

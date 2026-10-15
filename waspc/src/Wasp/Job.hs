@@ -10,7 +10,7 @@ module Wasp.Job
     OutputType (..),
     emitOutput,
     captureOutput,
-    tapOutput,
+    observeOutput,
     fromProc,
     ProcessDidNotStop (..),
     npmBinProc,
@@ -63,11 +63,15 @@ captureOutput job = do
   chunks <- liftIO $ readIORef chunksRef
   return (result, T.concat $ reverse chunks)
 
--- | Calls the given action with every output the job emits, and then passes
--- the output on.
-tapOutput :: (OutputType -> Text -> IO ()) -> Job a -> Job a
-tapOutput action = withSink $ \sink jobType outputType output ->
-  action outputType output >> sink jobType outputType output
+-- | Calls @onOutput@ with every output the job emits, and then passes the
+-- output on unchanged.
+observeOutput :: (OutputType -> Text -> IO ()) -> Job a -> Job a
+observeOutput onOutput job = withSink wrapOutputSink job
+  where
+    wrapOutputSink forwardOutput =
+      \jobType outputType outputChunk -> do
+        onOutput outputType outputChunk
+        forwardOutput jobType outputType outputChunk
 
 -- | Runs the second job only if the first one succeeds (like @&&@ in a shell),
 -- and returns the exit code of the last one that ran.

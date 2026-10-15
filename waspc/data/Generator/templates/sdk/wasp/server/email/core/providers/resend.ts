@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
-import { formatFromField, getDefaultFromField } from "../helpers.js";
+import { formatFromField } from '@wasp.sh/lib-sdk-core/node'
+import { getDefaultFromField } from "../helpers.js";
 import type { ResendEmailProvider, EmailSender } from "../types";
 
 // PRIVATE API
