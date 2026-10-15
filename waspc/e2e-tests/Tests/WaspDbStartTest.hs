@@ -66,7 +66,9 @@ waspDbStartTest =
                   assertCommandOutputContains
                     (return waspCliDbStartFails)
                     "already running on port",
-                  -- Test 4: Does SIGINT stop the database and delete the container?
+                  -- Test 4: Does SIGINT stop the database and delete the container,
+                  -- even while a client is still connected to it?
+                  holdDevDbSessionOpen,
                   stopWaspCliDbStartWithSignal "INT",
                   -- Test 5:
                   --   - Does `wasp db start` work when an earlier one left its container
@@ -123,6 +125,24 @@ stopWaspCliDbStartWithSignal signal =
         30
         ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\" ]")
         ("The dev database container was left behind after SIG" ++ signal ++ ".")
+
+-- | Opens a database session that stays open, like the app's server's.
+holdDevDbSessionOpen :: ShellCommandBuilder WaspProjectContext ShellCommand
+holdDevDbSessionOpen =
+  return $
+    ("docker exec -d " ++ devDbContainerId ++ " " ++ psqlInDevDbContainer "select pg_sleep(600)")
+      ~&& waitUntil
+        30
+        ( "[ \"$(docker exec "
+            ++ devDbContainerId
+            ++ " "
+            ++ psqlInDevDbContainer "select count(*) from pg_stat_activity where pid <> pg_backend_pid() and datname = current_database()"
+            ++ ")\" != 0 ]"
+        )
+        "The database session didn't open."
+  where
+    devDbContainerId = "\"$(docker ps -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\""
+    psqlInDevDbContainer sql = "sh -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"" ++ sql ++ "\"'"
 
 -- | Creates a stopped container with the name of the dev db container that
 -- 'stopWaspCliDbStartWithSignal' stopped, like the one that `docker run` leaves
