@@ -3,8 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
-import { getAuthErrorMessage } from "../authErrorMessage.js";
+import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError, getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
 
 type ResetPasswordFormFields = { password: string; passwordConfirmation: string };
 

@@ -23,7 +23,6 @@ genVirtualWaspModulesPlugin :: AppSpec -> Generator [FileDraft]
 genVirtualWaspModulesPlugin spec =
   sequence
     [ genVirtualWaspModulesTs,
-      genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
       genVirtualSsrEntryTsx spec,
@@ -36,13 +35,6 @@ genVirtualFilesIndexTs =
     C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
-
-genVirtualFilesResolverTs :: Generator FileDraft
-genVirtualFilesResolverTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
 genVirtualWaspModulesTs :: Generator FileDraft
 genVirtualWaspModulesTs =

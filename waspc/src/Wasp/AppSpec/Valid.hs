@@ -194,7 +194,7 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
     then [GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
     else []
   where
-    isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
+    isDummyEmailSenderUsed = maybe False AS.EmailSender.isDummyEmailSender (App.emailSender app)
     app = getApp spec
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
