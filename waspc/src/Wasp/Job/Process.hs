@@ -21,8 +21,9 @@ import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 -- output, and returns its exit code once all of it has been emitted.
 --
 -- If the job is stopped before the process finishes, this terminates the
--- process (SIGTERM on *nix) without waiting for it to exit. We only signal the
--- process itself, and rely on it to stop the processes it started.
+-- process (SIGTERM on *nix) without waiting for it to exit. The same happens if
+-- emitting the output fails. We only signal the process itself, and rely on it
+-- to stop the processes it started.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
@@ -32,17 +33,15 @@ fromProc jobProcess = Job $ do
 run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
-    \stdinHandle stdoutHandle stderrHandle processHandle ->
-      Async.withAsync
-        ( Async.concurrently_
-            (forwardOutput (emit Stdout) stdoutHandle)
-            (forwardOutput (emit Stderr) stderrHandle)
-        )
-        $ \outputForwarding -> do
-          mapM_ hClose stdinHandle
-          exitCode <- P.waitForProcess processHandle
-          Async.wait outputForwarding
-          return exitCode
+    \stdinHandle stdoutHandle stderrHandle processHandle -> do
+      mapM_ hClose stdinHandle
+      fst
+        <$> Async.concurrently
+          (P.waitForProcess processHandle)
+          ( Async.concurrently_
+              (forwardOutput (emit Stdout) stdoutHandle)
+              (forwardOutput (emit Stderr) stderrHandle)
+          )
 
 forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
 forwardOutput _ Nothing = return ()
