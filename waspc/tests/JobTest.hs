@@ -16,7 +16,7 @@ import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
-import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
+import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
@@ -112,22 +112,23 @@ spec_Job = do
         `shouldReturn` Just (Right "fast")
 
     it "stops the process of the job that didn't finish" $ do
-      processStarted <- newEmptyMVar
+      pidPath <- makeTempPath "wasp-race-process"
       -- The process exits by itself after a while, so that the test fails
       -- instead of hanging if stopping it doesn't work.
-      let slowProcess = node "console.log(process.pid); setTimeout(() => {}, 10000)"
-          slowJob = Job.observeOutput (\_ _ -> void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
-          jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
-      result <-
-        timeout (secondsToMicroSeconds 5)
-          $ Job.run
-          $ Job.captureOutput
-          $ Job.race slowJob jobThatFinishesOnceProcessStarts
-      case result of
-        Just (Right (), output) -> case parseProcessId $ T.unpack output of
-          Just pid -> waitUntil "the process exits" $ not <$> isProcessAlive pid
-          Nothing -> expectationFailure $ "Invalid process ID: " <> T.unpack output
-        _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
+      let slowProcess = nodeWithArgs (writePidFileScript <> "setTimeout(() => {}, 10000);") [pidPath]
+          jobThatFinishesOnceProcessStarts = liftIO $ waitUntil "the process starts" $ doesFileExist pidPath
+      ( do
+          result <-
+            timeout (secondsToMicroSeconds 5)
+              $ Job.run
+              $ Job.race (Job.fromProc slowProcess) jobThatFinishesOnceProcessStarts
+          case result of
+            Just (Right ()) -> do
+              pid <- readProcessId pidPath
+              waitUntil "the process exits" $ not <$> isProcessAlive pid
+            _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
+        )
+        `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
 
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do
@@ -238,10 +239,7 @@ withRunningProcess script action = do
         nodeWithArgs
           ( unlines
               [ script,
-                "const fs = require('node:fs');",
-                "const pidPath = process.argv[1];",
-                "fs.writeFileSync(pidPath + '.tmp', String(process.pid));",
-                "fs.renameSync(pidPath + '.tmp', pidPath);",
+                writePidFileScript,
                 "setInterval(() => {}, 1000);"
               ]
           )
@@ -254,6 +252,16 @@ withRunningProcess script action = do
         action running pid `finally` killProcess pid
     )
     `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+
+-- | Writes the process's ID to the file at the path given as its first
+-- argument, all at once, so that it's never read half-written.
+writePidFileScript :: String
+writePidFileScript =
+  unlines
+    [ "const pidPath = process.argv[1];",
+      "require('node:fs').writeFileSync(pidPath + '.tmp', String(process.pid));",
+      "require('node:fs').renameSync(pidPath + '.tmp', pidPath);"
+    ]
 
 removeIfExists :: FilePath -> IO ()
 removeIfExists path = do
