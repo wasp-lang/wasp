@@ -60,6 +60,7 @@
 - The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
 - `Link` and `NavLink` now accept the same `search` values as `routes.X.build`, including `URLSearchParams`, query strings, and key/value arrays. ([#5029](https://github.com/wasp-lang/wasp/pull/5029))
 - `wasp/client/router` now exports the `LinkProps` and `NavLinkProps` types, so you can build type-safe wrappers around `Link` and `NavLink`. ([#5027](https://github.com/wasp-lang/wasp/pull/5027))
+- When an app uses the Dummy email sender, Wasp's signup and forgot password forms now point to the `wasp start` terminal for the sent emails. ([#5026](https://github.com/wasp-lang/wasp/pull/5026))
 - `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
 
 ## 0.25.0
