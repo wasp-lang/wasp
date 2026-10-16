@@ -143,7 +143,8 @@ obtainAvailableTemplateOutputDirPath projectName = do
         throwError err = throwProjectCreationError $ "Failed to get absolute path to template output dir: " ++ show err
 
     ensureTemplateOutputDirDoesNotExist :: String -> Path' Abs (Dir TemplateOutputDir) -> Command ()
-    ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir = do
+    ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir =
+      do
         whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir)
         $ throwProjectCreationError
         $ "Directory `"
