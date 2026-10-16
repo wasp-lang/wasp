@@ -66,6 +66,8 @@ installProjectNpmDependencies projectDir =
   Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
     <&> checkExitSuccess "Project setup"
 
+{- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}
+
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
   Job.emitOutput Job.Stdout "Starting npm install\n"

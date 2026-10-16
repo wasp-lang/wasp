@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "8f53d00482a60be164da6e353eb05f39d92fd37d1016d8ec68a015e8209c6101"
+        "6250ff9a1d05feec3ca9a192fb2cec1b7c6448f06bb4186a24c4cd0326c96fe1"
     ],
     [
         [
@@ -1054,14 +1054,14 @@
             "file",
             "server/nodemon.json"
         ],
-        "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
+        "02c3ff62d58fbb953b199dccfa4c0e8d8721a59a3295a907690102253a599d18"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "65a067852276b50dfd28d25b96023065b27c4267852e9225410f064b890e72f5"
+        "f437fdcbb901c0199793be013254b77816eb81b622f2c573039f0c051ed21998"
     ],
     [
         [

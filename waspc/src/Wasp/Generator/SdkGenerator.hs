@@ -77,18 +77,14 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
-  ( Version (major),
-  )
 import Wasp.Util (checkExitSuccess, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
-    Job.run
-      $ Job.prefixWith Job.Wasp
-      $ Job.fromProc
-      $ Job.setCwd sdkRootDir
-      $ Job.proc "npm" ["run", "build"]
+    Job.run . Job.prefixWith Job.Wasp $
+      (Job.fromProc =<< Job.npmBinProc sdkRootDir "tsc" [])
+        `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
 
   return $ checkExitSuccess "SDK build" exitCode
   where
