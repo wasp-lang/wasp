@@ -7,6 +7,7 @@
 ## Documentation Maps by Version
 *IMPORTANT:* You should run `wasp version` to get the installed Wasp CLI version before choosing the correct link.
 - [Next (latest)](https://wasp.sh/llms-current.txt)
+- [0.26](https://wasp.sh/llms-0.26.txt)
 - [0.25](https://wasp.sh/llms-0.25.txt)
 - [0.24](https://wasp.sh/llms-0.24.txt)
 - [0.23](https://wasp.sh/llms-0.23.txt)
