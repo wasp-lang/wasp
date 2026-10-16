@@ -109,14 +109,8 @@ parseWaspProjectNameIntoAppName projectName
   where
     appName = kebabToCamelCase projectName
 
--- | Checks the raw project name against the format rules shown to the user:
--- it must start with a letter or an underscore and contain only letters,
--- numbers, dashes, or underscores.
---
--- We validate the raw project name (and not just the app name derived from it)
--- because converting the name to an app name can repair invalid names
--- (e.g. "-app" becomes "App"), while the project directory is still created
--- from the raw name.
+-- We validate the raw project name because it does not undergo the conversion
+-- to app name, but the project directory is still created from it.
 isValidProjectName :: String -> Bool
 isValidProjectName [] = False
 isValidProjectName (c : cs) = isStartChar c && all isNameChar cs
@@ -150,7 +144,7 @@ obtainAvailableTemplateOutputDirPath projectName = do
 
     ensureTemplateOutputDirDoesNotExist :: String -> Path' Abs (Dir TemplateOutputDir) -> Command ()
     ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir = do
-      whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir)
+        whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir)
         $ throwProjectCreationError
         $ "Directory `"
           ++ projectDirName

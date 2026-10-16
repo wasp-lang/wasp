@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
+
 ## 0.26.0
 
 ### ⚠️ Breaking Changes
@@ -41,7 +45,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
-- `wasp new` no longer accepts invalid project names like `-app` or `app'`: the raw project name is now validated against the printed name rules, instead of only validating the app name derived from it (the conversion to an app name could repair invalid names, while the project directory was still created from the raw name). ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
 - Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4941](https://github.com/wasp-lang/wasp/pull/4941))
 - If an optimistic update’s `getQuerySpecifier` throws, `useAction` now rejects with that error instead of an unrelated `TypeError`. ([#5024](https://github.com/wasp-lang/wasp/pull/5024))

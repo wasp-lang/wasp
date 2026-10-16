@@ -29,7 +29,7 @@ spec_parseWaspProjectNameIntoAppName = do
     describe "invalid project names" $ do
       -- Regression test for https://github.com/wasp-lang/wasp/issues/4763:
       -- these names used to pass validation because the check ran on the
-      -- converted app name ("-app" becomes "App"), while the project
+      -- converted app name ("-app" becomes "app"), while the project
       -- directory is created from the raw name.
       it "rejects a name starting with a dash" $ do
         parseWaspProjectNameIntoAppName "-app" `shouldSatisfy` isLeft
