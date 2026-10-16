@@ -3,9 +3,7 @@ module Wasp.Job.Process
   )
 where
 
-import Control.Concurrent (forkIO)
 import qualified Control.Concurrent.Async as Async
-import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
 import Data.Conduit (runConduit, (.|))
@@ -15,47 +13,35 @@ import qualified Data.Conduit.Text as CT
 import Data.Text (Text)
 import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
-import qualified System.Info
 import qualified System.Process as P
-import UnliftIO.Exception (bracket)
 import Wasp.Job.Common (Job (..), OutputType (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
--- output, and returns its exit code.
--- Makes sure to terminate the process (or process group on *nix) if the job is
--- stopped before the process finishes.
+-- output, and returns its exit code once all of it has been emitted.
+--
+-- If the job is stopped before the process finishes, this terminates the
+-- process (SIGTERM on *nix) without waiting for it to exit. The same happens if
+-- emitting the output fails. We only signal the process itself, and rely on it
+-- to stop the processes it started.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
   sink <- ask
-  liftIO $ bracket (start process) cleanUp (waitForExit $ sink Nothing)
-  where
-    start process = P.createProcess (process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe})
+  liftIO $ run (sink Nothing) process
 
-    waitForExit emit (stdinHandle, stdoutHandle, stderrHandle, processHandle) = do
+run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
+run emit process =
+  P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
+    \stdinHandle stdoutHandle stderrHandle processHandle -> do
       mapM_ hClose stdinHandle
-      Async.runConcurrently $
-        Async.Concurrently (forwardOutput (emit Stdout) stdoutHandle)
-          *> Async.Concurrently (forwardOutput (emit Stderr) stderrHandle)
-          *> Async.Concurrently (P.waitForProcess processHandle)
-
-    cleanUp (_, _, _, processHandle) = do
-      terminate processHandle
-      -- Reaps the process once it exits, without making the job wait for it.
-      void $ forkIO $ void $ P.waitForProcess processHandle
-
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
-    terminate processHandle =
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
+      fst
+        <$> Async.concurrently
+          (P.waitForProcess processHandle)
+          ( Async.concurrently_
+              (forwardOutput (emit Stdout) stdoutHandle)
+              (forwardOutput (emit Stderr) stderrHandle)
+          )
 
 forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
 forwardOutput _ Nothing = return ()

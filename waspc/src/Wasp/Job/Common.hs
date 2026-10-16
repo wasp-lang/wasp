@@ -13,10 +13,11 @@ where
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (..), local)
 import Data.Text (Text)
+import UnliftIO (MonadUnliftIO)
 
 -- | An action that runs processes and emits their output.
 newtype Job a = Job (ReaderT Sink IO a)
-  deriving (Functor, Applicative, Monad, MonadFail, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadFail, MonadIO, MonadUnliftIO)
 
 -- | Labels the output of a job, e.g. "[Server]".
 data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
