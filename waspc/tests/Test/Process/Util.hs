@@ -1,9 +1,11 @@
 module Test.Process.Util
   ( ProcessId,
     readProcessId,
+    isPortAvailable,
     isProcessAlive,
     killProcess,
     makeTempPath,
+    trim,
     waitUntil,
   )
 where
@@ -54,6 +56,25 @@ isProcessAlive (ProcessId pid) = do
 killProcess :: ProcessId -> IO ()
 killProcess (ProcessId pid) =
   P.callProcess "node" ["-e", "try { process.kill(Number(process.argv[1]), 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }", show pid]
+
+isPortAvailable :: String -> IO Bool
+isPortAvailable port = do
+  (exitCode, _, _) <-
+    P.readCreateProcessWithExitCode
+      (P.proc "node" ["-e", portProbeScript, trim port])
+      ""
+  return $ exitCode == ExitSuccess
+  where
+    portProbeScript =
+      unlines
+        [ "const net = require('node:net');",
+          "const server = net.createServer();",
+          "server.once('error', () => process.exit(1));",
+          "server.listen(Number(process.argv[1]), '127.0.0.1', () => server.close(() => process.exit(0)));"
+        ]
+
+trim :: String -> String
+trim = unwords . words
 
 waitUntil :: String -> IO Bool -> IO ()
 waitUntil label condition = go (50 :: Int)

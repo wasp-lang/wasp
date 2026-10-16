@@ -1,9 +1,9 @@
 module JobTest where
 
-import Control.Concurrent (threadDelay)
+import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (IOException, finally, throwIO, try)
-import Control.Monad (when)
+import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (fromJust)
@@ -13,8 +13,9 @@ import System.Directory (doesFileExist, removeFile)
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
+import qualified System.Info
 import System.Timeout (timeout)
-import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldReturn, shouldThrow)
+import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
@@ -49,6 +50,60 @@ spec_Job = do
                 Job.emitOutput Job.Stderr "second"
       Job.run job `shouldReturn` ((), "firstsecond")
       reverse <$> readIORef tappedOutputs `shouldReturn` [(Job.Stdout, "first"), (Job.Stderr, "second")]
+
+  describe "onProcessExit" $ do
+    -- On Windows, the job doesn't keep running after the process exits, even
+    -- if a child it left behind inherited its output, so this scenario can't
+    -- be set up there.
+    unless (System.Info.os == "mingw32") $
+      it "calls the action as soon as the process exits, before all of its output is emitted" $ do
+        childPidPath <- makeTempPath "wasp-child-pid"
+        processExit <- newEmptyMVar
+        -- The process exits right away, but leaves behind a child that keeps its
+        -- output open.
+        let process =
+              nodeWithArgs
+                ( unlines
+                    [ "const fs = require('node:fs');",
+                      "const { spawn } = require('node:child_process');",
+                      "const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'inherit' });",
+                      "fs.writeFileSync(process.argv[1], String(child.pid));",
+                      "process.exit(3);"
+                    ]
+                )
+                [childPidPath]
+        Async.withAsync
+          (Job.run $ Job.onProcessExit (putMVar processExit) $ Job.fromProc process)
+          ( \running -> do
+              timeout (secondsToMicroSeconds 5) (takeMVar processExit) `shouldReturn` Just (ExitFailure 3)
+              childPid <- readProcessId childPidPath
+              ( do
+                  Async.poll running >>= \case
+                    Nothing -> return ()
+                    Just _ -> expectationFailure "The job finished while the process's output was still open"
+                  killProcess childPid
+                  timeout (secondsToMicroSeconds 5) (Async.wait running) `shouldReturn` Just (ExitFailure 3)
+                )
+                `finally` killProcess childPid
+          )
+          `finally` removeIfExists childPidPath
+
+    it "emits all the output of a process that exited, even if the job is stopped right after" $ do
+      processExited <- newEmptyMVar
+      let process = node "process.stdout.write('x'.repeat(200000));"
+          -- Passing the output on slowly leaves some of it unread when the
+          -- process exits.
+          passOutputOnSlowly = Job.observeOutput (\_ _ -> threadDelay 10000)
+          job =
+            Job.onProcessExit (\_ -> void $ tryPutMVar processExited ())
+              $ passOutputOnSlowly
+              $ Job.fromProc process
+      result <-
+        timeout (secondsToMicroSeconds 10)
+          $ Job.run
+          $ Job.captureOutput
+          $ Job.race job (liftIO $ takeMVar processExited)
+      T.length . snd <$> result `shouldBe` Just 200000
 
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do
@@ -101,6 +156,16 @@ spec_Job = do
       let process = node "process.stdout.write('x'.repeat(200000)); process.exitCode = 7;"
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitFailure 7, T.replicate 200000 "x")
+
+    it "decodes UTF-8 output split across chunks, replacing incomplete characters" $ do
+      let euroSignCount = 40000 :: Int
+          process =
+            node $
+              "process.stdout.write(Buffer.concat([Buffer.from('\8364'.repeat("
+                <> show euroSignCount
+                <> ")), Buffer.from([0xe2])]));"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533")
 
     it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"

@@ -178,16 +178,12 @@ waitUntilAppIsListening ports =
     (isPortListening ports.clientPort ~&& isPortListening ports.serverPort)
     "The app didn't start listening on its ports."
 
--- | Only checks the web app's port. The server runs under nodemon, which
--- leaves it running when it's stopped with SIGTERM, so we kill the server
--- ourselves instead, so that it doesn't affect other tests.
 waitUntilAppStopsListening :: AppPorts -> ShellCommand
 waitUntilAppStopsListening ports =
   waitUntil
     30
-    ("! " ++ isPortListening ports.clientPort)
-    "The web app kept listening on its port after Wasp stopped."
-    ~&& ("{ lsof -ti tcp:" ++ show ports.serverPort ++ " -sTCP:LISTEN | xargs kill 2>/dev/null || true ; }")
+    (("! " ++ isPortListening ports.clientPort) ~&& ("! " ++ isPortListening ports.serverPort))
+    "Something kept listening on the app's ports after Wasp stopped."
 
 isPortListening :: Int -> ShellCommand
 isPortListening port = "curl -s -o /dev/null http://localhost:" ++ show port

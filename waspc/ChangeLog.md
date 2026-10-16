@@ -9,6 +9,7 @@
 - Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
+- `wasp start` now manages the development server process directly instead of relying on the generated server's `nodemon`, improving restart behavior. ([#4976](https://github.com/wasp-lang/wasp/pull/4976))
 
 ## 0.26.0
 

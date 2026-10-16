@@ -15,6 +15,9 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
+    devServerStartExecutable,
+    devServerStartArgs,
+    devServerStartCommand,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     serverPortEnvVarName,
@@ -123,6 +126,15 @@ serverPortEnvVarName :: String
 serverPortEnvVarName =
   -- Not prefixed with `WASP_` because many deployment platforms use this env.
   "PORT"
+
+devServerStartExecutable :: String
+devServerStartExecutable = "node"
+
+devServerStartArgs :: [String]
+devServerStartArgs = ["--enable-source-maps", "-r", "dotenv/config", "bundle/server.js"]
+
+devServerStartCommand :: String
+devServerStartCommand = unwords $ devServerStartExecutable : devServerStartArgs
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

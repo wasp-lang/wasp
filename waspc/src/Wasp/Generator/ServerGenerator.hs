@@ -24,7 +24,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    fromRelDir,
     reldirP,
     relfile,
     (</>),
@@ -67,7 +66,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -81,8 +80,7 @@ genServer spec =
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
-      genGitignore,
-      genNodemon
+      genGitignore
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -142,6 +140,7 @@ genPackageJson spec waspDependencies =
             [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
+              "devServerStartCommand" .= C.devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
@@ -172,8 +171,7 @@ npmDepsFromWasp spec =
             ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
-            [ ("nodemon", "^2.0.19"),
-              -- TODO: Allow users to choose whether they want to use TypeScript
+            [ -- TODO: Allow users to choose whether they want to use TypeScript
               -- in their projects and install these dependencies accordingly.
               ("typescript", show typescriptVersionRange),
               ("@types/express", show expressTypesVersionRange),
@@ -218,16 +216,6 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asServerFile [relfile|.gitignore|])
       Nothing
-
-genNodemon :: Generator FileDraft
-genNodemon =
-  return $
-    C.mkTmplFdWithData
-      [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
-  where
-    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
-      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
