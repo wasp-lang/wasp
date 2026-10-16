@@ -32,7 +32,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
@@ -47,7 +47,7 @@ import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
 compileCommand :: Command ([CompileWarning], AS.AppSpec)
-compileCommand = withProjectLock compile
+compileCommand = ProjectLock.acquireExclusive compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
