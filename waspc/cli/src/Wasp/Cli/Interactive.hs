@@ -1,7 +1,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Wasp.Cli.Interactive
-  ( askForInput,
+  ( InteractiveTerminal,
+    getInteractiveTerminal,
+    askForInput,
     askToChoose,
     askForRequiredInput,
     tryGettingConfirmation,
@@ -10,14 +12,13 @@ module Wasp.Cli.Interactive
     IsOption (..),
     ConfirmationError (..),
     Option (..),
-    NonInteractiveHint (..),
-    PromptError (..),
+    PromptCancelled (..),
   )
 where
 
 import Control.Applicative ((<|>))
 import qualified Control.Exception as E
-import Control.Monad (guard, unless)
+import Control.Monad (guard)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
@@ -27,7 +28,7 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import System.IO (hFlush, hIsTerminalDevice, stdin, stdout)
+import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrLn, stdin, stdout)
 import System.IO.Error (isEOFError)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
@@ -73,42 +74,51 @@ instance IsOption (Option o) where
   showOption = oDisplayName
   showOptionDescription = oDescription
 
--- | Tells the user how to run the command without prompts: its usage, with
--- every argument and flag it needs. Shown when we can't prompt because stdin
--- is not an interactive terminal. Every prompt must have one, since we never
--- want to require interactive input: https://clig.dev/#interactivity
+-- | Proof that stdin is an interactive terminal, so we may prompt the user,
+-- together with the handles the prompts talk through. The only way to get
+-- one is 'getInteractiveTerminal'. Every prompt takes one, so a command
+-- can't prompt without having checked first, and the check happens before
+-- anything belonging to the prompt is printed.
 --
--- Build it from the command's argument parser (see
--- 'Wasp.Cli.Util.Parser.getParserHelpMessage') so it can't drift from `--help`.
-newtype NonInteractiveHint = NonInteractiveHint String
+-- We never want to require interactive input (https://clig.dev/#interactivity),
+-- so the caller decides what to do without a terminal: fail with a way to
+-- pass the answers as arguments, or skip the question.
+data InteractiveTerminal = InteractiveTerminal
+  { inputHandle :: Handle,
+    outputHandle :: Handle
+  }
 
--- | Thrown when a prompt can't get an answer from the user.
-data PromptError
-  = -- | Stdin is not an interactive terminal (e.g. it is a pipe, a file or
-    -- /dev/null), so we didn't prompt. Carries the command's 'NonInteractiveHint'.
-    StdinNotInteractive String
-  | -- | The user ended the input (Ctrl+D) while we were waiting for an answer.
-    PromptCancelled
+-- | Returns 'Nothing' when stdin is not an interactive terminal (e.g. it is
+-- a pipe, a file or /dev/null).
+getInteractiveTerminal :: IO (Maybe InteractiveTerminal)
+getInteractiveTerminal = do
+  isTerminal <- hIsTerminalDevice stdin
+  return $
+    if isTerminal
+      then Just InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
+      else Nothing
+
+-- | Thrown when the user ends the input (Ctrl+D) while we are waiting for an answer.
+data PromptCancelled = PromptCancelled
   deriving (Show)
 
-instance E.Exception PromptError
+instance E.Exception PromptCancelled
 
-askForRequiredInput :: String -> NonInteractiveHint -> IO String
-askForRequiredInput question hint = repeatIfNull $ askForInput question hint
+askForRequiredInput :: InteractiveTerminal -> String -> IO String
+askForRequiredInput terminal question = repeatIfNull terminal $ askForInput terminal question
 
 -- | Asks a yes/no question. Only "y" or "yes" (case-insensitive) count as yes.
-askForConfirmation :: String -> NonInteractiveHint -> IO Bool
-askForConfirmation question hint = do
-  answer <- askForInput (question <> " [y/N]") hint
+askForConfirmation :: InteractiveTerminal -> String -> IO Bool
+askForConfirmation terminal question = do
+  answer <- askForInput terminal (question <> " [y/N]")
   return $ map toLower answer `elem` ["y", "yes"]
 
-askToChoose :: forall o. (IsOption o) => String -> NonInteractiveHint -> NonEmpty o -> IO o
+askToChoose :: forall o. (IsOption o) => InteractiveTerminal -> String -> NonEmpty o -> IO o
 askToChoose _ _ (singleOption :| []) = return singleOption
-askToChoose question hint options = do
-  ensureStdinIsInteractive hint
-  putStrLn $ Term.applyStyles [Term.Bold] question
-  putStrLn showIndexedOptions
-  answer <- prompt
+askToChoose terminal question options = do
+  hPutStrLn (outputHandle terminal) $ Term.applyStyles [Term.Bold] question
+  hPutStrLn (outputHandle terminal) showIndexedOptions
+  answer <- prompt terminal
   getOptionMatchingAnswer answer & maybe printErrorAndAskAgain return
   where
     getOptionMatchingAnswer :: String -> Maybe o
@@ -127,8 +137,8 @@ askToChoose question hint options = do
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
-      putStrLn $ Term.applyStyles [Term.Red] "Invalid selection. Type the name or the index of the option."
-      askToChoose question hint options
+      hPutStrLn (outputHandle terminal) $ Term.applyStyles [Term.Red] "Invalid selection. Type the name or the index of the option."
+      askToChoose terminal question options
 
     showIndexedOptions :: String
     showIndexedOptions = intercalate "\n" $ showIndexedOption <$> zip [1 ..] (NE.toList options)
@@ -161,64 +171,48 @@ askToChoose question hint options = do
     isDefaultOption :: o -> Bool
     isDefaultOption option = showOption option == showOption defaultOption
 
-askForInput :: String -> NonInteractiveHint -> IO String
-askForInput question hint = do
-  ensureStdinIsInteractive hint
-  putStr $ Term.applyStyles [Term.Bold] question
-  prompt
+askForInput :: InteractiveTerminal -> String -> IO String
+askForInput terminal question = do
+  hPutStr (outputHandle terminal) $ Term.applyStyles [Term.Bold] question
+  prompt terminal
 
-tryGettingConfirmation :: String -> String -> IO (Either ConfirmationError ())
-tryGettingConfirmation message requiredAnswer =
-  E.try (askForInput message hint) <&> \case
-    Left (StdinNotInteractive _) -> Left NonInteractiveShell
+tryGettingConfirmation :: InteractiveTerminal -> String -> String -> IO (Either ConfirmationError ())
+tryGettingConfirmation terminal message requiredAnswer =
+  E.try (askForInput terminal message) <&> \case
     Left PromptCancelled -> Left Cancelled
     Right actualAnswer
       | actualAnswer == requiredAnswer -> Right ()
       | otherwise -> Left $ WrongAnswer actualAnswer
-  where
-    -- Never shown: the caller handles 'NonInteractiveShell' itself.
-    hint = NonInteractiveHint "Confirmation can't be given non-interactively."
 
-tryGettingConfirmationWithTimeout :: String -> String -> Int -> IO (Either ConfirmationError ())
-tryGettingConfirmationWithTimeout message requiredAnswer timeoutSeconds =
-  timeout timeoutMicroseconds (tryGettingConfirmation message requiredAnswer)
+tryGettingConfirmationWithTimeout :: InteractiveTerminal -> String -> String -> Int -> IO (Either ConfirmationError ())
+tryGettingConfirmationWithTimeout terminal message requiredAnswer timeoutSeconds =
+  timeout timeoutMicroseconds (tryGettingConfirmation terminal message requiredAnswer)
     <&> fromMaybe (Left Timeout)
   where
     timeoutMicroseconds = timeoutSeconds * 10 ^ (6 :: Int)
 
-data ConfirmationError = Timeout | NonInteractiveShell | Cancelled | WrongAnswer String
+data ConfirmationError = Timeout | Cancelled | WrongAnswer String
 
-repeatIfNull :: (Foldable t) => IO (t a) -> IO (t a)
-repeatIfNull action = repeatUntil null "This field cannot be empty." action
+repeatIfNull :: (Foldable t) => InteractiveTerminal -> IO (t a) -> IO (t a)
+repeatIfNull terminal action = repeatUntil terminal null "This field cannot be empty." action
 
-repeatUntil :: (a -> Bool) -> String -> IO a -> IO a
-repeatUntil predicate errorMessage action = do
+repeatUntil :: InteractiveTerminal -> (a -> Bool) -> String -> IO a -> IO a
+repeatUntil terminal predicate errorMessage action = do
   result <- action
   if predicate result
     then do
-      putStrLn $ Term.applyStyles [Term.Red] errorMessage
-      repeatUntil predicate errorMessage action
+      hPutStrLn (outputHandle terminal) $ Term.applyStyles [Term.Red] errorMessage
+      repeatUntil terminal predicate errorMessage action
     else return result
 
--- | We only prompt if stdin is an interactive terminal. Otherwise we throw
--- 'StdinNotInteractive' so the user is told how to pass the answer instead.
--- Must be called before printing anything that belongs to the prompt.
-ensureStdinIsInteractive :: NonInteractiveHint -> IO ()
-ensureStdinIsInteractive (NonInteractiveHint hint) = do
-  isInteractive <- hIsTerminalDevice stdin
-  unless isInteractive $ E.throwIO $ StdinNotInteractive hint
-
--- | Reads the user's answer from stdin. Reaching the end of input while
--- waiting for an answer (Ctrl+D) throws 'PromptCancelled'.
-prompt :: IO String
-prompt = do
-  putStrFlush $ Term.applyStyles [Term.Yellow] " ▸ "
+-- | Reads the user's answer. Reaching the end of input while waiting for an
+-- answer (Ctrl+D) throws 'PromptCancelled'.
+prompt :: InteractiveTerminal -> IO String
+prompt terminal = do
+  hPutStr (outputHandle terminal) $ Term.applyStyles [Term.Yellow] " ▸ "
+  -- Explicit flush ensures the prompt marker is shown immediately on all systems.
+  hFlush (outputHandle terminal)
   T.unpack . T.strip . T.pack <$> getLineOrCancel
   where
-    getLineOrCancel = E.catchJust (guard . isEOFError) getLine (const $ E.throwIO PromptCancelled)
-
--- Explicit flush ensures prompt messages are printed immediately on all systems.
-putStrFlush :: String -> IO ()
-putStrFlush msg = do
-  putStr msg
-  hFlush stdout
+    getLineOrCancel =
+      E.catchJust (guard . isEOFError) (hGetLine $ inputHandle terminal) (const $ E.throwIO PromptCancelled)

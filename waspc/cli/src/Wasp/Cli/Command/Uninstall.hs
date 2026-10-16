@@ -19,9 +19,8 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
-import Wasp.Cli.Interactive (NonInteractiveHint (NonInteractiveHint))
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage, withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -42,8 +41,13 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
   if null $ toFilePaths waspPathsToRemove
     then cliSendMessageC $ Msg.Info "No Wasp data was found on this system."
     else do
+      liftIO $ printPathsToRemove waspPathsToRemove
+      unless skipConfirmation $ do
+        terminal <- requireInteractiveTerminal uninstallArgsParser
+        confirmed <- liftIO $ Interactive.askForConfirmation terminal "Are you sure you want to continue?"
+        unless confirmed $ liftIO $ die "Aborted."
       cliSendMessageC $ Msg.Start "Removing Wasp data..."
-      liftIO $ removeWaspPaths skipConfirmation waspPathsToRemove
+      liftIO $ removeWaspPaths waspPathsToRemove
       cliSendMessageC $ Msg.Success "Removed Wasp data."
 
   cliSendMessageC $ Msg.Info ""
@@ -55,9 +59,6 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
 newtype UninstallArgs = UninstallArgs
   { force :: Bool
   }
-
-nonInteractiveHint :: NonInteractiveHint
-nonInteractiveHint = NonInteractiveHint $ getParserHelpMessage uninstallArgsParser
 
 uninstallArgsParser :: ArgsParser UninstallArgs
 uninstallArgsParser =
@@ -97,20 +98,18 @@ findWaspPathsToRemove =
         [ homeDir </> waspExecutableInHomeDir
         ]
 
-removeWaspPaths :: Bool -> PathsToRemove -> IO ()
-removeWaspPaths skipConfirmation pathsToRemove = do
+printPathsToRemove :: PathsToRemove -> IO ()
+printPathsToRemove pathsToRemove =
   putStr $
     unlines
       [ "We will remove the following files and directories:",
         indent 2 $ unlines $ toFilePaths pathsToRemove
       ]
 
-  unless skipConfirmation $ do
-    confirmed <- Interactive.askForConfirmation "Are you sure you want to continue?" nonInteractiveHint
-    unless confirmed $ die "Aborted."
-
-  mapM_ deleteDirectoryIfExists $ fst pathsToRemove
-  mapM_ deleteFileIfExists $ snd pathsToRemove
+removeWaspPaths :: PathsToRemove -> IO ()
+removeWaspPaths (dirs, files) = do
+  mapM_ deleteDirectoryIfExists dirs
+  mapM_ deleteFileIfExists files
 
 toFilePaths :: PathsToRemove -> [FilePath]
 toFilePaths (dirs, files) =
