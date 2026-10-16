@@ -1,41 +1,25 @@
 module Wasp.Cli.Command.Db
-  ( runCommandThatRequiresDbRunning,
+  ( makeDbCommand,
   )
 where
 
-import Wasp.Cli.Command (Command, require, runCommand)
-import Wasp.Cli.Command.Compile (defaultCompileOptions)
+import qualified Wasp.AppSpec as AS
+import Wasp.Cli.Command (Command, require)
+import Wasp.Cli.Command.Compile (defaultCompileOptions, withSetupGoal)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Compile (waitEnsureCompile)
-import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
-import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Generator.Setup (SetupGoal)
 
-runCommandThatRequiresDbRunning :: Command a -> IO ()
-runCommandThatRequiresDbRunning = runCommand . makeDbCommand
-
--- | This function makes sure that all the prerequisites which db commands
---   need are set up (e.g. makes sure Prisma CLI is installed).
+-- | Prepares what a db command needs before it runs: a compile,
+--   post-compile setup, and a reachable database.
 --
---   All the commands that operate on db should be created using this function.
-makeDbCommand :: Command a -> Command a
-makeDbCommand cmd = do
-  -- Ensure code is generated and npm dependencies are installed.
+--   All the commands that operate on the db should be created using this function.
+makeDbCommand :: SetupGoal -> (AS.AppSpec -> Command a) -> Command a
+makeDbCommand setupGoal cmd = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  waitEnsureCompile $ compileOptions waspProjectDir
+  appSpec <- waitEnsureCompile $ withSetupGoal setupGoal $ defaultCompileOptions waspProjectDir
   DbConnectionEstablished <- require
-  cmd
-  where
-    compileOptions waspProjectDir =
-      (defaultCompileOptions waspProjectDir)
-        { -- Ignore "DB needs migration warnings" during database commands, as that is redundant
-          -- for `db migrate-dev` and not helpful for `db studio`.
-          generatorWarningsFilter =
-            filter
-              ( \case
-                  GeneratorNeedsMigrationWarning _ -> False
-                  _ -> True
-              )
-        }
+  cmd appSpec

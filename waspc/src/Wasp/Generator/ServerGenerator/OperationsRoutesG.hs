@@ -76,10 +76,10 @@ genOperationRoute operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFil
         </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
 
     operationImportPath =
-      fromJust $
-        SP.parseRelFileP $
-          C.toESModulesImportPath $
-            SP.fromRelFileP pathToOperationFile
+      fromJust
+        $ SP.parseRelFileP
+        $ C.toESModulesImportPath
+        $ SP.fromRelFileP pathToOperationFile
 
 data OperationsRoutesDir
 

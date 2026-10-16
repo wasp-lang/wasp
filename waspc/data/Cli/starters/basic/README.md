@@ -30,8 +30,6 @@ To start the application locally for development or preview purposes:
 2. Run `wasp start` to start the Wasp application.
 3. The application should be running on `localhost:3000`. Open in it your browser to access the client.
 
-To improve your Wasp development experience, we recommend installing the [Wasp extension for VSCode](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
-
 ## Learn more
 
 To find out more about Wasp, visit out [docs](https://wasp.sh/docs).

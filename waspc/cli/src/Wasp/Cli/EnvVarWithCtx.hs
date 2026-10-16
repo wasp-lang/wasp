@@ -49,19 +49,19 @@ showEnvVarWithCtx :: EnvVarWithCtx -> String
 showEnvVarWithCtx (EnvVarCtx {sourceDescription}, (envVarName, _)) =
   envVarName ++ " (received from " ++ sourceDescription ++ ")"
 
-addEnvVarsUniqueC :: (HasEnvVars a) => a -> [EnvVarWithCtx] -> Command a
-addEnvVarsUniqueC x incomingEnvVarSources =
-  addEnvVarsUnique x incomingEnvVars
+addEnvVarsUniqueC :: (HasEnvVars a) => [EnvVarWithCtx] -> a -> Command a
+addEnvVarsUniqueC incomingEnvVarSources x =
+  addEnvVarsUnique incomingEnvVars x
     & either (throwOverriddenVarsError incomingEnvVarSources) return
   where
     incomingEnvVars = snd <$> incomingEnvVarSources
 
 throwOverriddenVarsError :: [EnvVarWithCtx] -> Set EnvVarName -> Command a
 throwOverriddenVarsError envVarsWithCtx overriddenNames =
-  throwError $
-    CommandError "Can't override managed environment variables" $
-      "You specified the following environment variables, but Wasp sets them: "
-        ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
-        ++ ". Please remove them so they don't cause conflicts when running."
+  throwError
+    $ CommandError "Can't override managed environment variables"
+    $ "You specified the following environment variables, but Wasp sets them: "
+      ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
+      ++ ". Please remove them so they don't cause conflicts when running."
   where
     overriddenEnvVars = filter (\(_, (name, _)) -> name `Set.member` overriddenNames) envVarsWithCtx

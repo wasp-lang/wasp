@@ -20,12 +20,12 @@ forbiddenWorkspaces = [".wasp/build/*"]
 
 workspacesValidator :: V.Validator P.PackageJson
 workspacesValidator =
-  V.inField ("workspaces", P.workspaces) $
-    maybe noWorkspacesDefinedError $
-      V.all
-        [ requiredWorkspaceValidator,
-          forbiddenWorkspaceValidator
-        ]
+  V.inField ("workspaces", P.workspaces)
+    $ maybe noWorkspacesDefinedError
+    $ V.all
+      [ requiredWorkspaceValidator,
+        forbiddenWorkspaceValidator
+      ]
   where
     requiredWorkspaceValidator :: V.Validator [WorkspaceName]
     requiredWorkspaceValidator =

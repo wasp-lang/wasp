@@ -6,6 +6,7 @@ For other versions, see the links below.
 ## Full Documentation by Version
 - [latest (currently Next)](https://wasp.sh/llms-full.txt)
 - [Next](https://wasp.sh/llms-full-current.txt)
+- [0.26](https://wasp.sh/llms-full-0.26.txt)
 - [0.25](https://wasp.sh/llms-full-0.25.txt)
 - [0.24](https://wasp.sh/llms-full-0.24.txt)
 - [0.23](https://wasp.sh/llms-full-0.23.txt)
@@ -79,7 +80,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "RecipeApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My Recipes",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -263,7 +264,7 @@ Let's create and run our first Wasp app in 3 short steps:
    wasp start
    ```
 
-That's it 🎉 You have successfully created a new full-stack web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
+That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>, unless it's taken) to see it.
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
 
@@ -545,7 +546,7 @@ wasp start
 
 `wasp start` will take a bit of time to start the server the first time you run it in a new project.
 
-You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
+You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
 ![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/wasp-new-screenshot.png)
 
@@ -622,7 +623,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 export default app({
   name: "TodoApp",
   // Pins the version of Wasp to use.
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "TodoApp", // Used as the browser tab title.
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // Add your specs here so Wasp knows to register them.
@@ -770,7 +771,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "TodoApp",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -1577,7 +1578,7 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -1696,7 +1697,7 @@ import { authSpec } from "./src/auth/auth.wasp";
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -1897,6 +1898,16 @@ export function PhotoCard({ photoId }: { photoId: string }) {
       Photo {photoId}
     </Link>
   );
+}
+```
+
+To build your own component on top of `Link` and keep the type safety, use the `LinkProps` type:
+
+```tsx title="src/components/ButtonLink.tsx"
+import { Link, type LinkProps } from "wasp/client/router";
+
+export function ButtonLink({ className, ...linkProps }: LinkProps) {
+  return <Link {...linkProps} className={`button ${className ?? ""}`} />;
 }
 ```
 
@@ -2116,9 +2127,9 @@ The `Link` component accepts the following props:
   - An object with keys and values for each param in the path.
   - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
 
-- `search: Record<string, string>`
+- `search: string[][] | Record<string, string> | string | URLSearchParams`
 
-  - An object with keys and values for each search param.
+  - The search params, in any shape the [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams) constructor accepts.
   - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
 
 - `hash: string`
@@ -3436,7 +3447,7 @@ import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
   name: "tasksCrudApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "Tasks Crud App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
 
@@ -3787,10 +3798,13 @@ If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 
 The command `wasp start db` will start a default PostgreSQL dev database for you.
 
-Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background. Also, make sure that:
+Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background. Also, make sure that you have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
 
-- You have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
-- The port `5432` isn't taken.
+By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
+
+```bash
+wasp start db --db-port 8080
+```
 
 :::tip
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
@@ -4331,7 +4345,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5420,7 +5434,7 @@ import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring e-mail authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5443,7 +5457,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5776,7 +5790,7 @@ import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring e-mail authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5802,7 +5816,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6522,7 +6536,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6584,7 +6598,7 @@ import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6732,7 +6746,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6754,7 +6768,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6890,7 +6904,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6973,7 +6987,7 @@ import { getConfig, userSignupFields } from "./src/auth/github" with { type: "re
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7070,7 +7084,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7092,7 +7106,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7280,7 +7294,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7350,7 +7364,7 @@ import { getConfig, userSignupFields } from "./src/auth/google" with { type: "re
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7447,7 +7461,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7469,7 +7483,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7610,7 +7624,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7673,7 +7687,7 @@ import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7770,7 +7784,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7792,7 +7806,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7955,7 +7969,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8041,7 +8055,7 @@ import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8139,7 +8153,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8161,7 +8175,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8291,7 +8305,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8363,7 +8377,7 @@ import { getConfig, userSignupFields } from "./src/auth/discord" with { type: "r
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8475,7 +8489,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8497,7 +8511,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8654,7 +8668,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8718,7 +8732,7 @@ import { getConfig, userSignupFields } from "./src/auth/microsoft" with { type: 
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -9141,7 +9155,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -9439,7 +9453,7 @@ import {
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -9800,7 +9814,7 @@ import {
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -10079,7 +10093,7 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -10221,7 +10235,7 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   auth: {
     // ...
@@ -11616,11 +11630,7 @@ wasp start
 
 `wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](https://wasp.sh/docs/advanced/cli#project-commands).
 
-Wasp's dev PostgreSQL database still requires port `5432`, so to run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
-
-:::note
-We are working on automatic port selection for [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
-:::
+`wasp start db` does the same for the dev database: it starts on port `5432` or the first free port after it, and `wasp start` finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](https://wasp.sh/docs/advanced/cli#project-commands).
 
 ### Extra resources
 
@@ -12568,7 +12578,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "ToDo App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
@@ -12589,7 +12599,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "BookFace",
   // ...
 })
@@ -12606,7 +12616,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: [ // optional
     "<link rel='icon' href='/favicon.ico' />",
@@ -13341,9 +13351,9 @@ COMMANDS
            Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
-    doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
+    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).
     completion            Prints help on bash completion.
-    uninstall             Removes Wasp from your system.
+    uninstall [--force]   Removes Wasp from your system.
   IN PROJECT
     start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]
                           Runs Wasp app in development mode, watching for file changes.
@@ -13351,9 +13361,10 @@ COMMANDS
                           If not specified, Wasp picks the first free port when the default one is taken.
                           Optionally specify the URLs the client and the server are reachable at,
                           if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).
-    start db [--db-image <image>] [--db-volume-mount-path <path>]
+    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
-                          Optionally specify a custom Docker image or Docker volume mount path.
+                          Optionally specify a custom port, Docker image, or Docker volume mount path.
+                          If the port is not specified, Wasp picks the first free port when the default one is taken.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
@@ -13430,8 +13441,8 @@ wasp db start
 
 #### Project Commands
 
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
-- `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
+- `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
+- `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app. By default, it runs on port 5432, or the next free port if that one is taken. Use `--db-port <port>` to choose the port yourself; if you do, Wasp won't look for an alternative when it's taken.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
 ```
@@ -13515,7 +13526,7 @@ npm i -g @wasp.sh/wasp-cli@x.y.z
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 ```
 
-- `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, whether Docker is installed and running, and whether the ports Wasp uses (the web client, server, and dev database) are free. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
+- `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 
 ```
 
@@ -13527,31 +13538,28 @@ Running Wasp doctor...
 [✓] System: darwin 25.5.0 aarch64
 [✓] Node.js: 24.14.1
 [✓] npm: 11.16.0
-[✓] Docker: installed and running
-[✓] Port 3000 (web client): free
-[✓] Port 3001 (server): free
-[✓] Port 5432 (dev database): free
+[✓] Docker: running
 ```
 
-- `wasp uninstall` removes Wasp from your system.
+- `wasp uninstall` removes Wasp from your system. It asks for confirmation before deleting anything. Use `--force` to skip the confirmation prompt, for example in a script.
 
 ```
-
 $ wasp uninstall
 
-🐝 --- Uninstalling Wasp ... ------------------------------------------------------
+🐝 --- Removing Wasp data... ------------------------------------------------------
 
-We will remove the following directories:
-{home}/.local/share/wasp-lang/
-{home}/.cache/wasp/
+We will remove the following files and directories:
+  {home}/.local/share/wasp-lang/
+  {home}/.cache/wasp/
 
-We will also remove the following files:
-{home}/.local/bin/wasp
+Are you sure you want to continue? [y/N] ▸ y
 
-Are you sure you want to continue? \[y/N]
-y
+✅ --- Removed Wasp data. ---------------------------------------------------------
 
-✅ --- Uninstalled Wasp -----------------------------------------------------------
+To uninstall the Wasp CLI, please run:
+  npm uninstall -g @wasp.sh/wasp-cli
+
+If you have used Wasp to run dev database for you, you might want to make sure you also deleted all the docker volumes it might have created. You can easily list them by doing `docker volume ls | grep wasp-dev-db`.
 ```
 
 - `wasp news` displays the latest Wasp-related news and announcements. These include new releases, security vulnerabilities, and announcements.
@@ -14716,7 +14724,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: "0.25"
+      WASP_VERSION: "0.26"
 
     steps:
       - uses: actions/checkout@v6
@@ -14758,7 +14766,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: "0.25"
+      WASP_VERSION: "0.26"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
@@ -15205,6 +15213,57 @@ For the server, we are using Node.js and the battle-tested Express.js framework.
 Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
 
 
+## Migration guides / From 0.26 to 0.27
+
+To install the latest Wasp version, open your terminal and run:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+You can install Wasp 0.27 specifically by passing the version to the install script:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.27
+```
+
+### What's new in 0.27?
+
+### How to migrate?
+
+#### 1. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.27.0`.
+
+**Before**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.26.0" },
+  // ...
+});
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.27.0" },
+  // ...
+});
+```
+
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
+
+#### 2. Enjoy your updated Wasp app
+
+That's it!
+
+
 ## Migration guides / From 0.25 to 0.26
 
 To install the latest Wasp version, open your terminal and run:
@@ -15385,7 +15444,7 @@ PORT=3001
 
 #### 5. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
+If you are using a [custom Dockerfile](https://wasp.sh/docs/0.26/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
 **Before**
 
@@ -15427,7 +15486,7 @@ Wasp used `/` for the liveness check before, but it behaved differently per envi
 
 We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it. In production, `GET /` is no longer set by Wasp.
 
-This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
+This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/0.26/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
 
 **Before**
 
@@ -15453,7 +15512,21 @@ api.myapp.com {
 
 If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
 
-#### 8. Enjoy your updated Wasp app
+#### 8. Update deployment CLIs
+
+Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both locally and in CI, if you use them.
+
+#### 9. Replace `wasp info` with `wasp show`
+
+`wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
+
+#### 10. Update selectors for email auth fields
+
+If you are running e2e tests on your app, update selectors from `input[type="email"]` to `input[name="email"]`.
+
+Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
+
+#### 11. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19857,7 +19930,7 @@ jobs:
           node-version: "24.14.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.25 # Change to your Wasp version
+        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
 
       - name: Install Wasp app dependencies
         run: cd ./app && wasp install
@@ -20228,7 +20301,7 @@ jobs:
           node-version: "24.14.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.25 # Change to your Wasp version
+        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
 
       - name: Wasp Install
         run: wasp install
@@ -20959,7 +21032,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.25"
+  WASP_VERSION: "0.26"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -21200,7 +21273,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.25"
+  WASP_VERSION: "0.26"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"

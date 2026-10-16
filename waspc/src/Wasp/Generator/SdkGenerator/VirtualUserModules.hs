@@ -1,17 +1,21 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Wasp.Generator.SdkGenerator.VirtualUserModules
-  ( VirtualUserModule,
+  ( VirtualUserModule (..),
+    Runtime (..),
     getClientVirtualUserModules,
     getServerVirtualUserModules,
     extImportToVirtualUserModuleJsImportPath,
     mkVirtualUserModulePluginData,
     mkVirtualUserModulesDeclarationData,
+    nubByModuleId, -- Exported for testing.
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.Function (on)
+import Data.List (nubBy)
 import Data.Maybe (maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
@@ -139,11 +143,16 @@ getVirtualUserModules spec =
 
 -- | Virtual user modules that end up in the client bundle.
 getClientVirtualUserModules :: AppSpec -> [VirtualUserModule]
-getClientVirtualUserModules = filter ((== ClientRuntime) . runtime) . getVirtualUserModules
+getClientVirtualUserModules = nubByModuleId . filter ((== ClientRuntime) . runtime) . getVirtualUserModules
 
 -- | Virtual user modules that end up in the server bundle.
 getServerVirtualUserModules :: AppSpec -> [VirtualUserModule]
-getServerVirtualUserModules = filter ((== ServerRuntime) . runtime) . getVirtualUserModules
+getServerVirtualUserModules = nubByModuleId . filter ((== ServerRuntime) . runtime) . getVirtualUserModules
+
+-- | Several ext imports can point at the same user file (e.g. two queries
+-- from @queries.ts@), but a bundler maps a module id to a file only once.
+nubByModuleId :: [VirtualUserModule] -> [VirtualUserModule]
+nubByModuleId = nubBy ((==) `on` getVirtualUserModuleId)
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
 extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath

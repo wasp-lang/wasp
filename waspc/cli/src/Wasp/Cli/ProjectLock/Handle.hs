@@ -86,9 +86,9 @@ writeProjectLockData (ProjectLock lockFileHandle) watcherStatus = do
   processId <- getCurrentPid
   hSetFileSize lockFileHandle 0
   hSeek lockFileHandle AbsoluteSeek 0
-  BL.hPut lockFileHandle $
-    Aeson.encode $
-      ProjectLockData {pid = fromIntegral processId, watcherStatus}
+  BL.hPut lockFileHandle
+    $ Aeson.encode
+    $ ProjectLockData {pid = fromIntegral processId, watcherStatus}
   hFlush lockFileHandle
 
 releaseProjectLock :: ProjectLock -> IO ()

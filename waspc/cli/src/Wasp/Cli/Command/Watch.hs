@@ -133,9 +133,9 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar = FSN.withM
           cliSendMessage $
             Msg.Success "Recompilation on file change succeeded."
         else
-          cliSendMessage $
-            Msg.Failure "Recompilation on file change failed." $
-              show (length errors) ++ " errors found"
+          cliSendMessage
+            $ Msg.Failure "Recompilation on file change failed."
+            $ show (length errors) ++ " errors found"
 
       return (warnings, errors)
 

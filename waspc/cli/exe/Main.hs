@@ -20,7 +20,6 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
-import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -60,7 +59,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
-        ["uninstall"] -> Command.Call.Uninstall
+        ("uninstall" : uninstallArgs) -> Command.Call.Uninstall uninstallArgs
         ["version"] -> Command.Call.Version
         ["doctor"] -> Command.Call.Doctor
         ["build"] -> Command.Call.Build
@@ -92,7 +91,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
     Command.Call.Studio -> runCommand studio
-    Command.Call.Uninstall -> runCommand uninstall
+    Command.Call.Uninstall uninstallArgs -> runCommand $ uninstall uninstallArgs
     Command.Call.Build -> runCommand build
     Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
@@ -147,9 +146,9 @@ printUsage =
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
         cmd   "    version               Prints current version of CLI.",
-        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
+        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
-        cmd   "    uninstall             Removes Wasp from your system.",
+        cmd   "    uninstall [--force]   Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
@@ -157,9 +156,10 @@ printUsage =
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
               "                          Optionally specify the URLs the client and the server are reachable at,",
               "                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).",
-        cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
+        cmd   "    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
-              "                          Optionally specify a custom Docker image or Docker volume mount path.",
+              "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
+              "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -209,11 +209,10 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  "reset" : resetArgs -> runCommand $ Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
+  "seed" : seedArgs -> runCommand $ Command.Db.Seed.seed seedArgs
+  ["studio"] -> runCommand Command.Db.Studio.studio
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
@@ -226,10 +225,11 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd $ intercalate "\n" [
-              "  start [--db-image <image>] [--db-volume-mount-path <path>]",
+              "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
               "                               Starts managed development database for you.",
-              "                               Optionally specify a custom Docker image or Docker volume mount path."
+              "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
+              "                               If the port is not specified, Wasp picks the first free port when the default one is taken."
         ],
         cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
@@ -250,7 +250,8 @@ printDbUsage =
               "  wasp db migrate-dev",
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
-              "  wasp db studio"
+              "  wasp db studio",
+              "  wasp db start --db-port 8080"
       ]
 {- ORMOLU_ENABLE -}
 
