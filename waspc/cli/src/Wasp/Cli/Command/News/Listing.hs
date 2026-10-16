@@ -86,10 +86,10 @@ listNews localState listing = do
     newsListingStr = showNewsListing localState listing
     messageForUser = showMessageForUser localState listing
 
-    -- Without an interactive terminal we can't ask, so we don't assume the
-    -- user has seen the news.
     getConfirmationFromUser =
       Interactive.getInteractiveTerminal >>= \case
+        -- Without an interactive terminal we can't ask, so we don't assume the
+        -- user has seen the news.
         Nothing -> return False
         Just terminal ->
           Interactive.tryGettingConfirmationWithTimeout
