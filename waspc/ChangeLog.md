@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+### 🐞 Bug fixes
+
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 
 ## 0.26.0
