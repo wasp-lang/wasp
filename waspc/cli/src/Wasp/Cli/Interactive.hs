@@ -116,8 +116,8 @@ askForConfirmation terminal question = do
 askToChoose :: forall o. (IsOption o) => InteractiveTerminal -> String -> NonEmpty o -> IO o
 askToChoose _ _ (singleOption :| []) = return singleOption
 askToChoose terminal question options = do
-  hPutStrLn (outputHandle terminal) $ Term.applyStyles [Term.Bold] question
-  hPutStrLn (outputHandle terminal) showIndexedOptions
+  hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Bold] question
+  hPutStrLn terminal.outputHandle showIndexedOptions
   answer <- prompt terminal
   getOptionMatchingAnswer answer & maybe printErrorAndAskAgain return
   where
@@ -137,7 +137,7 @@ askToChoose terminal question options = do
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
-      hPutStrLn (outputHandle terminal) $ Term.applyStyles [Term.Red] "Invalid selection. Type the name or the index of the option."
+      hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] "Invalid selection. Type the name or the index of the option."
       askToChoose terminal question options
 
     showIndexedOptions :: String
@@ -173,7 +173,7 @@ askToChoose terminal question options = do
 
 askForInput :: InteractiveTerminal -> String -> IO String
 askForInput terminal question = do
-  hPutStr (outputHandle terminal) $ Term.applyStyles [Term.Bold] question
+  hPutStr terminal.outputHandle $ Term.applyStyles [Term.Bold] question
   prompt terminal
 
 tryGettingConfirmation :: InteractiveTerminal -> String -> String -> IO (Either ConfirmationError ())
@@ -201,7 +201,7 @@ repeatUntil terminal predicate errorMessage action = do
   result <- action
   if predicate result
     then do
-      hPutStrLn (outputHandle terminal) $ Term.applyStyles [Term.Red] errorMessage
+      hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] errorMessage
       repeatUntil terminal predicate errorMessage action
     else return result
 
@@ -209,10 +209,10 @@ repeatUntil terminal predicate errorMessage action = do
 -- answer (Ctrl+D) throws 'PromptCancelled'.
 prompt :: InteractiveTerminal -> IO String
 prompt terminal = do
-  hPutStr (outputHandle terminal) $ Term.applyStyles [Term.Yellow] " ▸ "
+  hPutStr terminal.outputHandle $ Term.applyStyles [Term.Yellow] " ▸ "
   -- Explicit flush ensures the prompt marker is shown immediately on all systems.
-  hFlush (outputHandle terminal)
+  hFlush terminal.outputHandle
   T.unpack . T.strip . T.pack <$> getLineOrCancel
   where
     getLineOrCancel =
-      E.catchJust (guard . isEOFError) (hGetLine $ inputHandle terminal) (const $ E.throwIO PromptCancelled)
+      E.catchJust (guard . isEOFError) (hGetLine terminal.inputHandle) (const $ E.throwIO PromptCancelled)
