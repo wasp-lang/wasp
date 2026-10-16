@@ -26,8 +26,17 @@ handleTerminationSignalsLikeInterrupt = return ()
 #else
 handleTerminationSignalsLikeInterrupt = do
   mainThreadId <- myThreadId
-  let interruptMainThread = Signals.CatchOnce $ throwTo mainThreadId UserInterrupt
+
   mapM_
-    (\signal -> Signals.installHandler signal interruptMainThread Nothing)
-    [Signals.sigTERM, Signals.sigHUP]
+    (throwInterruptIntoThread mainThreadId)
+    [ -- SIGINT is not here because it is already handled in this way by GHC
+      Signals.sigTERM,
+      Signals.sigHUP
+    ]
+  where
+    throwInterruptIntoThread threadId signal =
+      Signals.installHandler
+        signal
+        (Signals.CatchOnce $ throwTo threadId UserInterrupt)
+        Nothing
 #endif
