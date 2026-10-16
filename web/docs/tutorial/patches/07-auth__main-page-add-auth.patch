@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 54da50f..e81b0cc 100644
+index 0669bf2..68ead61 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,8 +1,9 @@
