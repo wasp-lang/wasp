@@ -39,6 +39,12 @@ Update the version field in your Wasp config to `^0.27.0`.
   </TabItem>
 </Tabs>
 
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
+
 ### 2. Enjoy your updated Wasp app
 
 That's it!
