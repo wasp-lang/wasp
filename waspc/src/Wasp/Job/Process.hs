@@ -25,8 +25,9 @@ import Wasp.Util (secondsToMicroSeconds)
 -- output, and returns its exit code once all of it has been emitted.
 --
 -- If the job is stopped before the process finishes, this terminates the
--- process (SIGTERM on *nix) without waiting for it to exit. We only signal the
--- process itself, and rely on it to stop the processes it started.
+-- process (SIGTERM on *nix) without waiting for it to exit. The same happens if
+-- emitting the output fails. We only signal the process itself, and rely on it
+-- to stop the processes it started.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
@@ -48,7 +49,12 @@ run emit onExit process =
         $ \outputForwarding ->
           ( do
               mapM_ hClose stdinHandle
-              exitCode <- P.waitForProcess processHandle
+              -- Waiting on the output forwarding too makes a failure to emit
+              -- the output stop the process, instead of waiting for it to exit.
+              exitCode <-
+                Async.withAsync (P.waitForProcess processHandle) $ \processExit ->
+                  Async.waitEither outputForwarding processExit
+                    >>= either (const $ Async.wait processExit) return
               onExit exitCode
               Async.wait outputForwarding
               return exitCode

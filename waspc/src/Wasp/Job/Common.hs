@@ -15,10 +15,11 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (..), local)
 import Data.Text (Text)
 import System.Exit (ExitCode)
+import UnliftIO (MonadUnliftIO)
 
 -- | An action that runs processes and emits their output.
 newtype Job a = Job (ReaderT JobEnv IO a)
-  deriving (Functor, Applicative, Monad, MonadFail, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadFail, MonadIO, MonadUnliftIO)
 
 data JobEnv = JobEnv
   { _sink :: Sink,

@@ -2,7 +2,7 @@ module JobTest where
 
 import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (finally)
+import Control.Exception (IOException, finally, throwIO, try)
 import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
@@ -187,6 +187,22 @@ spec_Job = do
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
+    it "stops the process and fails if emitting its output fails" $ do
+      pidPath <- makeTempPath "wasp-failing-output-process"
+      -- The process exits by itself after a while, so that the test fails
+      -- instead of hanging if stopping it doesn't work.
+      let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('out'); setTimeout(() => {}, 10000);") [pidPath]
+          failOnOutput = Job.observeOutput $ \_ _ -> throwIO $ userError "Emitting output failed"
+      ( do
+          result <- timeout (secondsToMicroSeconds 5) $ tryIOException $ Job.run $ failOnOutput $ Job.fromProc process
+          case result of
+            Just (Left _) -> do
+              pid <- readProcessId pidPath
+              waitUntil "the process exits" $ not <$> isProcessAlive pid
+            _ -> expectationFailure $ "Expected the job to fail, but got: " <> show result
+        )
+        `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+
     it "doesn't stop another job's process when one job is stopped" $
       withRunningProcess "" $ \first firstPid ->
         withRunningProcess "" $ \second secondPid -> do
@@ -246,6 +262,9 @@ writePidFileScript =
       "require('node:fs').writeFileSync(pidPath + '.tmp', String(process.pid));",
       "require('node:fs').renameSync(pidPath + '.tmp', pidPath);"
     ]
+
+tryIOException :: IO a -> IO (Either IOException a)
+tryIOException = try
 
 removeIfExists :: FilePath -> IO ()
 removeIfExists path = do

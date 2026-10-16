@@ -1,5 +1,5 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index 52438c9..6a71803 100644
+index f8ca9ec..55707d4 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -18,7 +18,13 @@ export default app({
