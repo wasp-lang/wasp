@@ -44,7 +44,7 @@ wasp start
 
 `wasp start` will take a bit of time to start the server the first time you run it in a new project.
 
-You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
+You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
 <img alt="Screenshot of the Wasp minimal starter app" src={useBaseUrl('img/wasp-new-screenshot.png')} className="tutorial-image" />
 

@@ -25,6 +25,6 @@ clean = withProjectLock $ do
   -- it's gone, other Wasp commands can't start working on this project.
   deleteDirectoryIfExistsVerbosely dotWaspDir
 
-  cliSendMessageC $
-    Msg.Info $
-      "\nRun " ++ styleCode "wasp install" ++ " to reinstall dependencies."
+  cliSendMessageC
+    $ Msg.Info
+    $ "\nRun " ++ styleCode "wasp install" ++ " to reinstall dependencies."

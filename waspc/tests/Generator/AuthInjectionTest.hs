@@ -41,29 +41,29 @@ spec_GeneratorAuthInjectionTest = do
           _nativeDbType = maybeUserEntityIdFieldNativeDbType
         } = do
         let userEntityIdField =
-              Psl.WithCtx.empty $
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "id"
-                    userEntityIdFieldType
-                    []
-                    (Psl.Attribute.Attribute "id" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
+              Psl.WithCtx.empty
+                $ Psl.Model.ElementField
+                $ Psl.Model.Field
+                  "id"
+                  userEntityIdFieldType
+                  []
+                  (Psl.Attribute.Attribute "id" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
         let userEntity =
-              AS.Entity.makeEntity $
-                Psl.Model.Model "User" $
-                  Psl.Model.Body [userEntityIdField]
+              AS.Entity.makeEntity
+                $ Psl.Model.Model "User"
+                $ Psl.Model.Body [userEntityIdField]
         let authEntityRelation =
-              Psl.WithCtx.empty $
-                Psl.Model.ElementField $
-                  Psl.Model.Field
-                    "auth"
-                    (Psl.Model.UserType "Auth")
-                    [Psl.Model.Optional]
-                    []
+              Psl.WithCtx.empty
+                $ Psl.Model.ElementField
+                $ Psl.Model.Field
+                  "auth"
+                  (Psl.Model.UserType "Auth")
+                  [Psl.Model.Optional]
+                  []
         let userEntityWithInjectedRelationship =
-              AS.Entity.makeEntity $
-                Psl.Model.Model "User" $
-                  Psl.Model.Body [userEntityIdField, authEntityRelation]
+              AS.Entity.makeEntity
+                $ Psl.Model.Model "User"
+                $ Psl.Model.Body [userEntityIdField, authEntityRelation]
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]

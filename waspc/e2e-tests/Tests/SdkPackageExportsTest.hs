@@ -28,10 +28,10 @@ sdkPackageExportsSpec = do
     packageExports <- readPackageExports sdkPackageDir
     missingExportTargets <- filterM (fmap not . exportTargetExists sdkPackageDir) packageExports
 
-    unless (null missingExportTargets) $
-      expectationFailure $
-        "Broken SDK package exports:\n"
-          ++ unlines (map formatPackageExport missingExportTargets)
+    unless (null missingExportTargets)
+      $ expectationFailure
+      $ "Broken SDK package exports:\n"
+        ++ unlines (map formatPackageExport missingExportTargets)
 
 data PackageExport = PackageExport
   { exportName :: String,

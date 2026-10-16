@@ -63,24 +63,12 @@
                 "version": "5.19.1"
             },
             {
-                "name": "dotenv",
-                "version": "^16.6.1"
-            },
-            {
-                "name": "dotenv-expand",
-                "version": "^12.0.3"
-            },
-            {
                 "name": "express",
                 "version": "~5.1.0"
             },
             {
                 "name": "ky",
                 "version": "^2.0.0"
-            },
-            {
-                "name": "mitt",
-                "version": "3.0.0"
             },
             {
                 "name": "react",
@@ -135,6 +123,10 @@
                 "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
+                "name": "@wasp.sh/lib-sdk-core",
+                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+            },
+            {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             }
@@ -174,6 +166,10 @@
                 "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
+                "name": "@wasp.sh/lib-sdk-core",
+                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+            },
+            {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             },
@@ -199,7 +195,7 @@
             },
             {
                 "name": "morgan",
-                "version": "~1.11.0"
+                "version": "~1.12.1"
             },
             {
                 "name": "superjson",

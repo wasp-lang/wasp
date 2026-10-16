@@ -1,15 +1,9 @@
 {{={= =}=}}
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
-import '../auth-styles.css'
 import { config } from '../../../../client/index.js'
-import { clsx } from '../util'
-
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
-{=# enabledProviders.isEmailAuthEnabled =}
-import { emailFieldRules, emailInputProps } from '../emailField'
-{=/ enabledProviders.isEmailAuthEnabled =}
 import {
+  clsx,
   Form,
   FormInput,
   FormItemGroup,
@@ -17,19 +11,23 @@ import {
   FormError,
   FormTextarea,
   SubmitButton,
-} from '../Form'
-import type {
-  AdditionalSignupFields,
-  AdditionalSignupField,
-  AdditionalSignupFieldRenderFn,
-  FormState,
-} from '../../types'
+  type AdditionalSignupFields,
+  type AdditionalSignupField,
+  type AdditionalSignupFieldRenderFn,
+  type FormState,
+} from '@wasp.sh/lib-sdk-core/browser'
+
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+{=# enabledProviders.isEmailAuthEnabled =}
+import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
+{=/ enabledProviders.isEmailAuthEnabled =}
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '../social/SocialIcons'
-import { SocialButton } from '../social/SocialButton'
+import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
+import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
+import { getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -61,21 +59,18 @@ const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
-{=!
-// Since we allow users to add additional fields to the signup form, we don't
-// know the exact shape of the form values. We are assuming that the form values
-// will be a flat object with string values.
-=}
-// PRIVATE API
-export type LoginSignupFormFields = {
-  [key: string]: string;
-}
+import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+
 
 // PRIVATE API
 export const LoginSignupForm = ({
     state,
+    {=# isSocialAuthEnabled =}
     socialButtonsDirection = 'horizontal',
+    {=/ isSocialAuthEnabled =}
+    {=# isAnyPasswordBasedAuthEnabled =}
     additionalSignupFields,
+    {=/ isAnyPasswordBasedAuthEnabled =}
 }: {
     state: 'login' | 'signup'
     socialButtonsDirection?: 'horizontal' | 'vertical'
@@ -91,8 +86,8 @@ export const LoginSignupForm = ({
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}
   const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
+  const onErrorHandler = (error: unknown) => {
+    setErrorMessage(getAuthErrorMessage(error));
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
   const hookForm = useForm<LoginSignupFormFields>()
@@ -120,12 +115,17 @@ export const LoginSignupForm = ({
   });
   {=/ enabledProviders.isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
-  async function onSubmit (data) {
+  async function onSubmit(data: LoginSignupFormFields): Promise<void> {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
     try {
-      await handleSubmit(data);
+      // We assert the type because the form holds raw input strings, while the
+      // signup data type uses the return types of the user's signup field
+      // getters (e.g. `Promise<string>` for an async getter).
+      // TODO: Close the type gap between the forms and the user's signup fields,
+      // so this assertion can go away.
+      await handleSubmit(data as Parameters<typeof handleSubmit>[0]);
     } finally {
       setIsLoading(false);
     }

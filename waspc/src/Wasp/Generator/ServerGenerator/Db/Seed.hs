@@ -8,8 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Functor ((<&>))
-import Data.Maybe (maybeToList)
 import StrongPath (Dir, File, Path, Path', Posix, Rel, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -23,13 +21,12 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
-  return $ maybeToList dbSeedFd
-  where
-    dbSeedFd =
-      dbSeedsToTemplateData (getDbSeeds spec) <&> \tmplData ->
-        C.mkTmplFdWithData
-          (C.srcDirInServerTemplatesDir </> dbSeedScriptInServerTmplSrcDir)
-          (Just tmplData)
+  return $ case dbSeedsToTemplateData (getDbSeeds spec) of
+    Nothing -> []
+    Just tmplData ->
+      [ C.mkTmplFdWithData (C.srcDirInServerTemplatesDir </> dbSeedScriptInServerTmplSrcDir) (Just tmplData),
+        C.mkTmplFd [relfile|rollup.dbSeed.config.js|]
+      ]
 
 dbSeedScriptInServerTmplSrcDir :: Path' (Rel C.ServerTemplatesSrcDir) (File ())
 dbSeedScriptInServerTmplSrcDir = [relfile|dbSeed.ts|]

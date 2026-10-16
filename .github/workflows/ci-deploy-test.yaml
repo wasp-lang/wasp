@@ -34,9 +34,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
+      - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -119,16 +119,16 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
+      - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: mise use -g github:railwayapp/cli@5.28.0
+        run: mise use -g railway@5.28.0
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -202,7 +202,11 @@ jobs:
         # NOTE: We pinned the Railway version because we don't want the changes in the
         # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
         # of Wasp, we're just incidentally using the same tool Wasp uses.
-        run: npm install -g @railway/cli@4.23.0
+        run:
+          # The version is pinned, see the note above.
+          # zizmor: ignore[adhoc-packages]
+          |
+          npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
         run: railway delete --yes --project "$APP_PREFIX" || true

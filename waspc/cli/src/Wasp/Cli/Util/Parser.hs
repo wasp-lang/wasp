@@ -1,5 +1,6 @@
 module Wasp.Cli.Util.Parser
-  ( withArguments,
+  ( ArgsParser (..),
+    withArguments,
     getParserHelpMessage,
   )
 where
@@ -15,24 +16,29 @@ import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
 
-withArguments :: String -> Opt.Parser a -> (a -> Command ()) -> Arguments -> Command ()
-withArguments cmdName parser onSuccess args =
-  case parseArguments cmdName parser args of
+data ArgsParser a = ArgsParser
+  { commandName :: String,
+    optParser :: Opt.Parser a
+  }
+
+withArguments :: ArgsParser a -> (a -> Command ()) -> Arguments -> Command ()
+withArguments argsParser onSuccess args =
+  case parseArguments argsParser args of
     (ArgsParsed result) -> onSuccess result
     (ParseFailure helpMessage) -> throwError $ CommandError "Parsing arguments failed" helpMessage
     (ShowHelp helpMessage) -> cliSendMessageC $ Msg.Info helpMessage
 
-getParserHelpMessage :: Opt.Parser a -> String
+getParserHelpMessage :: ArgsParser a -> String
 getParserHelpMessage =
-  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp parserPreferences
+  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp parserPreferences . optParser
 
 data ArgsParseResult args
   = ArgsParsed args
   | ParseFailure String
   | ShowHelp String
 
-parseArguments :: String -> Opt.Parser a -> Arguments -> ArgsParseResult a
-parseArguments cmdName parser args =
+parseArguments :: ArgsParser a -> Arguments -> ArgsParseResult a
+parseArguments ArgsParser {commandName = cmdName, optParser = optParser'} args =
   case Opt.execParserPure parserPreferences parserInfo args of
     (Opt.Success success) -> ArgsParsed success
     (Opt.CompletionInvoked _) ->
@@ -42,7 +48,7 @@ parseArguments cmdName parser args =
         (help, EC.ExitSuccess, _) -> ShowHelp $ show help
         (help, EC.ExitFailure _, _) -> ParseFailure $ show help
   where
-    parserInfo = Opt.info (parser <**> Opt.helper) Opt.fullDesc
+    parserInfo = Opt.info (optParser' <**> Opt.helper) Opt.fullDesc
 
 parserPreferences :: Opt.ParserPrefs
 parserPreferences = Opt.defaultPrefs

@@ -12,45 +12,45 @@ spec_WaspTsConfig = do
     it "returns no errors for a valid tsconfig" $
       validate validTsConfig `shouldBe` []
 
-    it "returns an error when a compilerOption has a wrong value" $
-      assertReturnsValidationErrorMentioningField "strict" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
+    it "returns an error when a compilerOption has a wrong value"
+      $ assertReturnsValidationErrorMentioningField "strict"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
 
-    it "returns an error when allowJs has a wrong value" $
-      assertReturnsValidationErrorMentioningField "allowJs" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Just False})}
+    it "returns an error when allowJs has a wrong value"
+      $ assertReturnsValidationErrorMentioningField "allowJs"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Just False})}
 
-    it "returns an error when a compilerOption is missing" $
-      assertReturnsValidationErrorMentioningField "noEmit" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Nothing})}
+    it "returns an error when a compilerOption is missing"
+      $ assertReturnsValidationErrorMentioningField "noEmit"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Nothing})}
 
-    it "returns an error when allowJs is missing" $
-      assertReturnsValidationErrorMentioningField "allowJs" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Nothing})}
+    it "returns an error when allowJs is missing"
+      $ assertReturnsValidationErrorMentioningField "allowJs"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Nothing})}
 
-    it "returns an error when compilerOptions is missing" $
-      assertReturnsValidationErrorMentioningField "compilerOptions" $
-        validTsConfig {T.compilerOptions = Nothing}
+    it "returns an error when compilerOptions is missing"
+      $ assertReturnsValidationErrorMentioningField "compilerOptions"
+      $ validTsConfig {T.compilerOptions = Nothing}
 
-    it "returns an error when include is missing a required glob" $
-      assertReturnsValidationErrorMentioningField "include" $
-        validTsConfig {T.include = Just ["**/*.wasp.ts"]}
+    it "returns an error when include is missing a required glob"
+      $ assertReturnsValidationErrorMentioningField "include"
+      $ validTsConfig {T.include = Just ["**/*.wasp.ts"]}
 
-    it "returns an error when include is wrong" $
-      assertReturnsValidationErrorMentioningField "include" $
-        validTsConfig {T.include = Just ["src"]}
+    it "returns an error when include is wrong"
+      $ assertReturnsValidationErrorMentioningField "include"
+      $ validTsConfig {T.include = Just ["src"]}
 
     it "returns no errors when include has the required globs plus extra ones" $
       validate (validTsConfig {T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec", "lib/**/*.ts"]})
         `shouldBe` []
 
-    it "returns an error when types is missing the required node entry" $
-      assertReturnsValidationErrorMentioningField "types" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react"]})}
+    it "returns an error when types is missing the required node entry"
+      $ assertReturnsValidationErrorMentioningField "types"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react"]})}
 
-    it "returns an error when types is missing" $
-      assertReturnsValidationErrorMentioningField "types" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Nothing})}
+    it "returns an error when types is missing"
+      $ assertReturnsValidationErrorMentioningField "types"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Nothing})}
 
     it "accepts extra entries in types as long as node is present" $
       validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["node", "vitest/globals"]})})

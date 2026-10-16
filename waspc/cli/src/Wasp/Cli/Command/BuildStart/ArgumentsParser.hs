@@ -11,6 +11,7 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
 import Wasp.Cli.Util.HttpUrlArgument (httpUrlParser)
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Cli.Util.PortArgument (portParser)
 
 data BuildStartArgs = BuildStartArgs
@@ -22,15 +23,16 @@ data BuildStartArgs = BuildStartArgs
     serverEnvVars :: [EnvVarArgument]
   }
 
-buildStartArgsParser :: Opt.Parser BuildStartArgs
+buildStartArgsParser :: ArgsParser BuildStartArgs
 buildStartArgsParser =
-  BuildStartArgs
-    <$> portParserForComponent "client" defaultDevClientPort
-    <*> portParserForComponent "server" defaultDevServerPort
-    <*> urlParserForComponent "client"
-    <*> urlParserForComponent "server"
-    <*> environmentVariableParsersForComponent 'c' "client"
-    <*> environmentVariableParsersForComponent 's' "server"
+  ArgsParser "wasp build start" $
+    BuildStartArgs
+      <$> portParserForComponent "client" defaultDevClientPort
+      <*> portParserForComponent "server" defaultDevServerPort
+      <*> urlParserForComponent "client"
+      <*> urlParserForComponent "server"
+      <*> environmentVariableParsersForComponent 'c' "client"
+      <*> environmentVariableParsersForComponent 's' "server"
   where
     portParserForComponent name defaultPort =
       fromMaybe defaultPort

@@ -103,21 +103,21 @@ genJob job =
 
 getImportJsonForJobDefinition :: String -> Aeson.Value
 getImportJsonForJobDefinition jobName =
-  GJI.jsImportToImportJson $
-    Just $
-      JI.JsImport
-        { JI._kind = JI.ValueImport,
-          JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
-          JI._name = JI.JsImportField jobName,
-          -- NOTE: We are using alias to avoid name conflicts with user defined imports.
-          JI._importAlias = Just "_waspJobDefinition"
-        }
+  GJI.jsImportToImportJson
+    $ Just
+    $ JI.JsImport
+      { JI._kind = JI.ValueImport,
+        JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
+        JI._name = JI.JsImportField jobName,
+        -- NOTE: We are using alias to avoid name conflicts with user defined imports.
+        JI._importAlias = Just "_waspJobDefinition"
+      }
 
 genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    sequence $ genFileCopyInServerJob [relfile|core/job.ts|] : genAllJobExecutors
+    sequence genAllJobExecutors
     where
       genAllJobExecutors = concatMap genJobExecutor jobExecutors
 
