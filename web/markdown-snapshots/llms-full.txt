@@ -15213,6 +15213,51 @@ For the server, we are using Node.js and the battle-tested Express.js framework.
 Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
 
 
+## Migration guides / From 0.26 to 0.27
+
+To install the latest Wasp version, open your terminal and run:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+You can install Wasp 0.27 specifically by passing the version to the install script:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.27
+```
+
+### What's new in 0.27?
+
+### How to migrate?
+
+#### 1. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.27.0`.
+
+**Before**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.26.0" },
+  // ...
+});
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.27.0" },
+  // ...
+});
+```
+
+#### 2. Enjoy your updated Wasp app
+
+That's it!
+
+
 ## Migration guides / From 0.25 to 0.26
 
 To install the latest Wasp version, open your terminal and run:
@@ -15393,7 +15438,7 @@ PORT=3001
 
 #### 5. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
+If you are using a [custom Dockerfile](https://wasp.sh/docs/0.26/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
 **Before**
 
@@ -15435,7 +15480,7 @@ Wasp used `/` for the liveness check before, but it behaved differently per envi
 
 We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it. In production, `GET /` is no longer set by Wasp.
 
-This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
+This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/0.26/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
 
 **Before**
 
