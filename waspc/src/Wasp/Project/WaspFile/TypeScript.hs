@@ -22,9 +22,9 @@ import StrongPath
     (</>),
   )
 import System.Exit (ExitCode (..))
-import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
+import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
@@ -58,15 +58,9 @@ analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
     Left errs -> Left errs
     Right (SpecAnalysisError specErrorMessage) ->
       Left [formatSpecAnalysisError specErrorMessage]
-    Right (SpecAnalysisOk specDecls) ->
-      (++ specDecls) <$> entityDeclsOrErrors
+    Right (SpecAnalysisOk specDecls) -> Right $ Entity.makeEntityDecls prismaSchemaAst ++ specDecls
   where
     waspTsConfigFile = fromJust tsConfigPaths.waspTsConfig
-
-    entityDeclsOrErrors =
-      left (map fst) $
-        left (map Analyzer.getErrorMessageAndCtx) $
-          Analyzer.getEntityDecls prismaSchemaAst
 
     formatSpecAnalysisError specErrorMessage =
       "Error while analyzing spec (*.wasp.ts) files:\n\n" ++ specErrorMessage
@@ -124,9 +118,9 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
     readSpecResultFile = do
       contents <- IOUtil.readFileBytes absSpecResultFile
-      return $
-        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
-          Aeson.eitherDecode contents
+      return
+        $ left (\err -> ["Error while reading the spec result from JSON: " ++ err])
+        $ Aeson.eitherDecode contents
 
 -- | The result handed back by the spec analyzer subprocess. Mirrors the
 -- @SpecResult@ type in @waspc.sh/spec; keep them in sync.

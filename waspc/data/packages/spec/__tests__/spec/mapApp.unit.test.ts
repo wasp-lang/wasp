@@ -50,7 +50,7 @@ function makeMapperContext({
 
 function getSpecElementDeclName(specElement: WaspSpec.SpecElement): string {
   return SpecElementMapper.mapSpecElement(specElement, makeMapperContext())
-    .declName;
+    .declValue.name;
 }
 
 function mapMockApp(app: WaspSpec.App, entityNames: string[]) {
@@ -70,10 +70,11 @@ describe("convertWaspSpecToAppSpec", () => {
     expect(decls).toStrictEqual([
       {
         declType: "App",
-        declName: app.name,
         declValue: {
+          name: app.name,
           wasp: app.wasp,
           title: app.title,
+          deployment: undefined,
           head: app.head,
           auth: undefined,
           server: undefined,
@@ -104,12 +105,14 @@ describe("convertWaspSpecToAppSpec", () => {
     const db = Fixtures.getDbConfig("full");
     const emailSender = Fixtures.getEmailSenderConfig("full");
     const webSocket = Fixtures.getWebSocketConfig("full");
+    const deployment = {};
     const entityNames = Fixtures.getEntities("full");
 
     const inputApp = app({
       name: "FullApp",
       wasp: { version: "^0.16.3" },
       title: "Mock App",
+      deployment,
       head: ['<link rel="icon" href="/favicon.ico" />'],
       auth: authConfig,
       server,
@@ -142,10 +145,11 @@ describe("convertWaspSpecToAppSpec", () => {
     expect(result).toStrictEqual([
       {
         declType: "App",
-        declName: inputApp.name,
         declValue: {
+          name: inputApp.name,
           wasp: inputApp.wasp,
           title: inputApp.title,
+          deployment: { mode: undefined },
           head: inputApp.head,
           auth: AppSpecMapper.mapAuth(authConfig, ctx),
           server: AppSpecMapper.mapServer(server, ctx),
@@ -180,7 +184,7 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
-      .map((d) => d.declName);
+      .map((d) => d.declValue.name);
     expect(pageNames).toEqual([pageName]);
   });
 
@@ -197,7 +201,7 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
-      .map((d) => d.declName);
+      .map((d) => d.declValue.name);
     expect(pageNames).toEqual([pageName]);
   });
 
@@ -213,7 +217,7 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
-      .map((d) => d.declName);
+      .map((d) => d.declValue.name);
     expect(pageNames).toEqual([pageName]);
   });
 
@@ -282,7 +286,7 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const queryNames = decls
       .filter((d) => d.declType === "Query")
-      .map((d) => d.declName);
+      .map((d) => d.declValue.name);
     expect(queryNames).toEqual([getSpecElementDeclName(query1)]);
   });
 
@@ -314,8 +318,8 @@ describe("mapPage", () => {
 
     expect(result).toStrictEqual({
       declType: "Page",
-      declName: getRefObjectDeclarationName(page.component),
       declValue: {
+        name: getRefObjectDeclarationName(page.component),
         component: mapRefObjectForMockProjectDir(page.component),
         authRequired: page.authRequired,
       },
@@ -348,8 +352,8 @@ describe("mapRoute", () => {
 
     expect(result).toStrictEqual({
       declType: "Route",
-      declName: route.name,
       declValue: {
+        name: route.name,
         path: route.path,
         to: {
           name: getRefObjectDeclarationName(route.page.component),
@@ -385,8 +389,8 @@ describe("mapQuery", () => {
 
     expect(result).toStrictEqual({
       declType: "Query",
-      declName: getRefObjectDeclarationName(query.fn),
       declValue: {
+        name: getRefObjectDeclarationName(query.fn),
         fn: mapRefObjectForMockProjectDir(query.fn),
         entities: query.entities?.map(ctx.resolveEntityRef),
         auth: query.auth,
@@ -418,8 +422,8 @@ describe("mapAction", () => {
 
     expect(result).toStrictEqual({
       declType: "Action",
-      declName: getRefObjectDeclarationName(action.fn),
       declValue: {
+        name: getRefObjectDeclarationName(action.fn),
         fn: mapRefObjectForMockProjectDir(action.fn),
         entities: action.entities?.map(ctx.resolveEntityRef),
         auth: action.auth,
@@ -803,8 +807,8 @@ describe("mapApi", () => {
 
     expect(result).toStrictEqual({
       declType: "Api",
-      declName: getRefObjectDeclarationName(api.fn),
       declValue: {
+        name: getRefObjectDeclarationName(api.fn),
         fn: mapRefObjectForMockProjectDir(api.fn),
         middlewareConfigFn:
           api.middlewareConfigFn &&
@@ -832,8 +836,8 @@ describe("mapApiNamespace", () => {
 
     expect(result).toStrictEqual({
       declType: "ApiNamespace",
-      declName: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
       declValue: {
+        name: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
         middlewareConfigFn: mapRefObjectForMockProjectDir(
           apiNamespace.middlewareConfigFn,
         ),
@@ -1000,8 +1004,8 @@ describe("mapJob", () => {
 
     expect(result).toStrictEqual({
       declType: "Job",
-      declName: getRefObjectDeclarationName(job.fn),
       declValue: {
+        name: getRefObjectDeclarationName(job.fn),
         executor: job.executor,
         perform: {
           fn: mapRefObjectForMockProjectDir(job.fn),
@@ -1037,8 +1041,8 @@ describe("mapCrud", () => {
 
     expect(result).toStrictEqual({
       declType: "Crud",
-      declName: crudDecl.name,
       declValue: {
+        name: crudDecl.name,
         entity: ctx.resolveEntityRef(crudDecl.entity),
         operations: SpecElementMapper.mapCrudOperations(
           crudDecl.operations,

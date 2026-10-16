@@ -16,13 +16,13 @@ export {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-} from '../../auth/utils.js'
+} from './utils.js'
 
 export {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureTokenIsPresent,
-} from '../../auth/validation.js'
+} from '@wasp.sh/lib-sdk-core'
 
 export type {
   OnBeforeSignupHook,

@@ -1,10 +1,10 @@
 
-import {
-  type _Task,
-  type _UppercaseTextRequest,
-  type UnauthenticatedQueryDefinition,
-  type AuthenticatedQueryDefinition,
-  type Payload,
+import type {
+  _Task,
+  _UppercaseTextRequest,
+  UnauthenticatedQueryDefinition,
+  AuthenticatedQueryDefinition,
+  Payload,
 } from '../../_types/index.js'
 
 // PUBLIC API
@@ -29,6 +29,16 @@ export type GetNumTasks<Input extends Payload = never, Output extends Payload = 
 
 // PUBLIC API
 export type GetTask<Input extends Payload = never, Output extends Payload = Payload> = 
+  AuthenticatedQueryDefinition<
+    [
+      _Task,
+    ],
+    Input,
+    Output
+  >
+
+// PUBLIC API
+export type GetOldestTask<Input extends Payload = never, Output extends Payload = Payload> = 
   AuthenticatedQueryDefinition<
     [
       _Task,

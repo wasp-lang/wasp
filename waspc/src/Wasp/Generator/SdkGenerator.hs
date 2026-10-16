@@ -2,7 +2,6 @@
 
 module Wasp.Generator.SdkGenerator
   ( genSdk,
-    genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
   )
@@ -12,18 +11,17 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
+import Data.Maybe (isJust, maybeToList)
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import System.Exit (ExitCode (..))
-import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.ExternalFiles as EF
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -33,8 +31,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( dotenvVersionRange,
-    expressTypesVersionRange,
+  ( expressTypesVersionRange,
     expressVersionRange,
     kyVersionRange,
     prismaVersionRange,
@@ -47,7 +44,7 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
   )
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -63,11 +60,15 @@ import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, g
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
-import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genEmailSenderApi)
-import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genJobsApi)
+import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, devDepsRequiredByEmail, genEmailSenderApi)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator
+  ( depsRequiredByJobs,
+    genJobsApi,
+  )
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
+import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -101,19 +102,18 @@ buildSdk generatedAppDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ C.genFileCopy [relfile|vite-env.d.ts|],
+    [ C.genFileCopy [relfile|wasp-ssr.d.ts|],
+      C.genFileCopy [relfile|vite-env.d.ts|],
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
       C.genFileCopy [relfile|scripts/copy-assets.js|],
+      C.genFileCopy [relfile|types/index.ts|],
+      C.genFileCopy [relfile|types/register.ts|],
       C.genFileCopy [relfile|api/index.ts|],
-      C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
-      C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
-      C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
-      C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
@@ -121,13 +121,12 @@ genSdk spec =
       genServerUtils spec,
       genServerExportedTypesDir,
       genPackageJson spec,
-      genServerDbClient spec
+      genServerDbClient spec,
+      genVirtualUserModulesDeclaration spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> genUniversalDir
-    <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -175,8 +174,8 @@ genEntitiesAndServerTypesDirs spec =
               "isAuthEnabled" .= isJust maybeUserEntityName
             ]
         )
-    allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
-    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
+    allEntities = map (makeJsonWithEntityData . AS.Entity.getName) $ AS.getEntities spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec = do
@@ -198,11 +197,8 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersionRange),
             ("prisma", show prismaVersionRange),
-            ("dotenv", show dotenvVersionRange),
-            ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),
             ("ky", show kyVersionRange),
-            ("mitt", "3.0.0"),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),
@@ -234,7 +230,8 @@ npmDepsForSdk spec =
             ("@types/express-serve-static-core", show expressTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
             ("@types/react-dom", show reactDomTypesVersionRange)
-          ],
+          ]
+          ++ devDepsRequiredByEmail spec,
       N.peerDependencies = Npm.Dependency.fromList []
     }
   where
@@ -262,9 +259,7 @@ genClientConfigFile =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
-      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
-    ]
+    [C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData]
       ++ maybeToList prismaSerializationFile
   where
     tmplData =
@@ -304,35 +299,6 @@ genTsConfigJson = do
 
 -- todo(filip): consider reorganizing/splitting the file.
 
--- | Takes external code files from Wasp,
--- and generates them in a new location as part of the generated project.
--- It might not just copy them but also do some changes on them, as needed.
-genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
-genExternalCodeDir = sequence . mapMaybe genExternalFile
-
-genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
-genExternalFile file
-  | fileName == "tsconfig.json" = Nothing
-  | otherwise = Just . return . createCopyFileDraft destFile . EF.fileAbsPath $ file
-  where
-    fileName = FP.takeFileName . fromRelFile $ externalFilePath
-    destFile =
-      C.sdkRootDirInGeneratedAppDir
-        </> C.extSrcDirInSdkRootDir
-        </> castRel externalFilePath
-
-    externalFilePath = EF.filePathInExtCodeDir file
-
-genUniversalDir :: Generator [FileDraft]
-genUniversalDir =
-  sequence
-    [ C.genFileCopy [relfile|universal/url.ts|],
-      C.genFileCopy [relfile|universal/types.ts|],
-      C.genFileCopy [relfile|universal/validators.ts|],
-      C.genFileCopy [relfile|universal/predicates.ts|],
-      C.genFileCopy [relfile|universal/ansiColors.ts|]
-    ]
-
 genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec =
   return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
@@ -345,9 +311,7 @@ genServerExportedTypesDir = C.genFileCopy [relfile|server/types/index.ts|]
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ C.genFileCopy [relfile|server/middleware/index.ts|],
-      C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
-    ]
+    [C.genFileCopy [relfile|server/middleware/index.ts|]]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
 genServerDbClient spec = do
@@ -363,4 +327,13 @@ genServerDbClient spec = do
       [relfile|server/dbClient.ts|]
       tmplData
   where
-    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    app = getApp spec
+
+-- | Declares only those virtual user modules that are used by the SDK.
+genVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
+genVirtualUserModulesDeclaration spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|wasp-user-virtual-modules.d.ts|]
+      (VUM.mkVirtualUserModulesDeclarationData spec)

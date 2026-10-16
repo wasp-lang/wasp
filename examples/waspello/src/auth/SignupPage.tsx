@@ -16,7 +16,7 @@ const SignupPage = () => {
   const [passwordFieldVal, setPasswordFieldVal] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
 

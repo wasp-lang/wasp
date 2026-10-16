@@ -1,7 +1,9 @@
-import type { Router, Request } from 'express'
+import { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
+export { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
+
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types.js'
-import type { ProviderName } from '../utils'
+import type { Exact, Expand, ProviderName } from '@wasp.sh/lib-sdk-core'
+import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -10,10 +12,10 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-import { emailUserSignupFields as emailUserSignupFields_ext } from 'wasp/src/features/auth/providers/email'
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof emailUserSignupFields_ext>;
+export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
 
+type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 
 /**
  * Extracts the result types from a UserSignupFields object.
@@ -29,19 +31,6 @@ type InferUserSignupFields<T extends UserSignupFields> = {
 }
 
 type UserEntityCreateInput = Prisma.UserCreateInput
-
-// PRIVATE API
-export type ProviderConfig = {
-    // Unique provider identifier, used as part of URL paths
-    id: ProviderName;
-    displayName: string;
-    // Every provider must have a setupRouter method which returns the Express router.
-    // In this function we are flexibile to do what ever is necessary to make the provider work.
-    createRouter(provider: ProviderConfig): Router;
-};
-
-// PRIVATE API
-export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
 export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>

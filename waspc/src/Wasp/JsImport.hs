@@ -11,7 +11,7 @@ module Wasp.JsImport
     makeTypeJsImport,
     makeValueJsImport,
     applyJsImportAlias,
-    getImportIdentifier,
+    getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
     getJsImportPathStringFromPath,
@@ -23,6 +23,7 @@ import Data.Data (Data)
 import Data.List (isPrefixOf)
 import StrongPath (Dir', File', Path, Posix, Rel)
 import qualified StrongPath as SP
+import Wasp.Util.Js (makeJsStringLiteral)
 
 -- | Represents a JS import data type that can be used to generate import statements
 --   in generated app. It doesn't fully support all types of JS imports (multiple imports)
@@ -72,8 +73,8 @@ type JsImportClause = String
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
 
-getImportIdentifier :: JsImport -> JsImportIdentifier
-getImportIdentifier JsImport {_name = name} = case name of
+getJsImportIdentifier :: JsImport -> JsImportIdentifier
+getJsImportIdentifier JsImport {_name = name} = case name of
   JsImportModule identifier -> identifier
   JsImportField identifier -> identifier
 
@@ -102,7 +103,7 @@ getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifi
 getJsImportStmtAndIdentifier jsImport =
   (importStatement, importIdentifier)
   where
-    importStatement = importKeyword ++ " " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
+    importStatement = importKeyword ++ " " ++ importClause ++ " from " ++ makeJsStringLiteral (getJsImportPathString jsImport)
     importKeyword = case jsImport._kind of
       TypeImport -> "import type"
       ValueImport -> "import"
@@ -126,11 +127,11 @@ getJsImportPathStringFromPath = \case
 --   * named value export: @import('./path').then(m => m.Name)@
 getJsDynamicImportExpression :: JsImport -> String
 getJsDynamicImportExpression jsImport = case jsImport._kind of
-  TypeImport -> "import('" ++ importPath ++ "')." ++ memberName
-  ValueImport -> "import('" ++ importPath ++ "').then(m => m." ++ memberName ++ ")"
+  TypeImport -> "import(" ++ importPath ++ ")." ++ importName
+  ValueImport -> "import(" ++ importPath ++ ").then(m => m." ++ importName ++ ")"
   where
-    importPath = getJsImportPathString jsImport
-    memberName = case jsImport._name of
+    importPath = makeJsStringLiteral (getJsImportPathString jsImport)
+    importName = case jsImport._name of
       JsImportModule _ -> "default"
       JsImportField name -> name
 

@@ -1,8 +1,15 @@
 {{={= =}=}}
-import type { Router, Request } from 'express'
+import { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
+export { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
+
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types.js'
-import type { ProviderName } from '../utils'
+import type { Exact, Expand, ProviderName } from '@wasp.sh/lib-sdk-core'
+{=# isEmailUserSignupFieldsDefined =}
+import type { FromRegister } from '../../types/register'
+{=/ isEmailUserSignupFieldsDefined =}
+{=# isUsernameAndPasswordUserSignupFieldsDefined =}
+import type { FromRegister } from '../../types/register'
+{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -10,18 +17,20 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 ): T {
   return fields
 }
+{=# isEmailUserSignupFieldsDefined =}
 
-{=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
-{=/ emailUserSignupFields.isDefined =}
+export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
 
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
+type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
+{=/ isEmailUserSignupFieldsDefined =}
+{=# isUsernameAndPasswordUserSignupFieldsDefined =}
+
 // PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
+
+type RegisteredUsernameAndPasswordSignupFields = FromRegister<"usernameAndPasswordUserSignupFields", {}>
+{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 /**
  * Extracts the result types from a UserSignupFields object.
@@ -37,19 +46,6 @@ type InferUserSignupFields<T extends UserSignupFields> = {
 }
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
-
-// PRIVATE API
-export type ProviderConfig = {
-    // Unique provider identifier, used as part of URL paths
-    id: ProviderName;
-    displayName: string;
-    // Every provider must have a setupRouter method which returns the Express router.
-    // In this function we are flexibile to do what ever is necessary to make the provider work.
-    createRouter(provider: ProviderConfig): Router;
-};
-
-// PRIVATE API
-export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
 export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>

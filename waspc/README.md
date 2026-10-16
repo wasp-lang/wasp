@@ -48,32 +48,13 @@ Running `./run` without any arguments will print help/usage, which is a good way
 > alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 > ```
 
-### Setup
-
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> **On Windows**, develop Wasp using the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt.
->
-> If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux setup instructions instead.
+> The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt in Windows.
 
-#### Dev tooling
+### Dev tooling
 
-We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
-
-Run `mise install` from the root of the repo to install all the required tools. Then, you can access the mise-managed tools in different ways:
-
-- **(Recommended for local development)** You can set up your shell to automatically call the `mise activate` script. This will make sure that the specified tools and versions are in your `PATH` when you go into the repo. Check their installation instructions at https://mise.jdx.dev/installing-mise.html#shells.
-
-- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into an one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
-
-- If you don't want to add a shell hook, you can use the [Shims mode](https://mise.jdx.dev/dev-tools/shims.html), which lets you just add a single directory to your `PATH`, which will get populated with intelligent redirectors to the correct versions of the tools for the current working directory.
-
-- For one-off commands, you can use [the `mise exec` command](https://mise.jdx.dev/cli/exec.html) (or `mise x`) to run a specific command with the repo tools available, e.g. `mise x -- ghc --version`, `mise x -- node --version`, `mise x -- ./run build`, etc.
-
-You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
-
-> [!NOTE]
-> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](../mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+Follow repo-wide [Dev tooling](../CONTRIBUTING.md#dev-tooling) instructions.
 
 ### Build
 
@@ -93,6 +74,10 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ```
 
 to ensure all the tests are passing.
+
+#### Playwright on unsupported Linux distros (e.g. Arch)
+
+If `./run test` fails for you when installing Playwright browsers and their system deps, check [Playwright tests on unsupported Linux distributions (e.g. Arch)](#playwright-tests-on-unsupported-linux-distributions-eg-arch) below.
 
 ### Run the `wasp` CLI
 
@@ -193,12 +178,11 @@ Wasp is implemented in Haskell.
 Codebase is split into library (`src/`) and CLI (which itself has a library `cli/src/` and thin executable wrapper `cli/exe/`).
 CLI is actually `wasp` executable, and it uses the library, where most of the logic is.
 
-Wasp compiler takes .wasp files + everything in the `src/` dir (JS, HTML, ...) and generates a web app that consists of a client, server, and database.
+Wasp compiler takes `main.wasp.ts`, `schema.prisma`, and everything in the `src/` dir and generates a web app that consists of a client, server, and database.
 
-Wasp compiler code is split into 2 basic layers: Analyzer (frontend) and Generator (backend).
+The compiler has two basic layers: Analyzer (frontend) and Generator (backend).
 
-Wasp file(s) are analyzed by Analyzer, where they are first parsed, then typechecked, and then evaluated into a central IR (Intermediate Representation), which is `AppSpec` (`src/Wasp/AppSpec.hs`).
-Check `src/Wasp/Analyzer.hs` for more details.
+Analyzer reads the TypeScript config and Prisma schema, collects application code and configuration, and constructs and validates [`AppSpec`](src/Wasp/AppSpec.hs), the compiler's central intermediate representation (IR). See [`Wasp.Project.Analyze`](src/Wasp/Project/Analyze.hs) for its implementation.
 
 AppSpec is passed to the Generator, which based on it decides how to generate a web app.
 Output of Generator is a list of FileDrafts, where each FileDraft explains how to create a file on the disk.
@@ -207,11 +191,72 @@ FileDrafts are using mustache templates a lot (they can be found in `data/Genera
 generated apps use internal npm packages (WaspLibs) that contain core logic and are unit tested. WaspLibs are bundled with Wasp
 and installed into generated apps (see [WaspLibs](#wasplibs) for more details).
 
-Generator is split into three generators, for the three main parts of the web app: WebAppGenerator, ServerGenerator and DbGenerator.
+Generator is split into multiple generators: ServerGenerator for server code, SdkGenerator for the client and server SDK, and DbGenerator for database setup.
 
 After Generator provides us with FileDrafts, web app is generated by writing the FileDrafts to the disk.
 
-![Waspc implementation diagram](images/waspc-implementation-diagram.png)
+```mermaid
+flowchart TB
+    prisma["schema.prisma"]
+    config["main.wasp.ts"]
+    source["src/ + configuration"]
+
+    subgraph analyzer["Analyzer"]
+        parse["Parse + validate Prisma schema"]
+        schema(["Prisma AST"])
+        entities["Construct entity declarations"]
+        analyze["Analyze TypeScript config"]
+        validate["Construct + validate AppSpec"]
+
+        parse --> schema
+        schema --> entities --> validate
+        schema -->|Model names| analyze
+        analyze --> validate
+    end
+
+    prisma --> parse
+    config ----> analyze
+    source -----> validate
+    validate ==> spec(["AppSpec"])
+
+    subgraph generator["Generator"]
+        generate["Generate file drafts"]
+        server["Server"]
+        sdk["Client + server SDK"]
+        db["Database"]
+        other["Deployment files,<br/>types + libraries"]
+        serverDrafts["FileDrafts"]
+        sdkDrafts["FileDrafts"]
+        dbDrafts["FileDrafts"]
+        otherDrafts["FileDrafts"]
+
+        generate --> server & sdk & db & other
+        server --> serverDrafts
+        sdk --> sdkDrafts
+        db --> dbDrafts
+        other --> otherDrafts
+    end
+
+    spec ==> generate
+    templates["Templates + bundled libraries"] -.-> generate
+    drafts(["Combined FileDrafts"])
+    serverDrafts --> drafts
+    sdkDrafts --> drafts
+    dbDrafts --> drafts
+    otherDrafts --> drafts
+    drafts ==> write["Write to disk"] ==> app["Full-stack app"]
+
+    classDef phase fill:#f6f6f1,stroke:#333,stroke-width:2px
+    classDef input fill:#fff0b3,stroke:#333,color:#111
+    classDef representation fill:#ccdef5,stroke:#333,color:#111
+    classDef keyRepresentation fill:#ccdef5,stroke:#333,stroke-width:2px,color:#111,font-weight:bold
+    classDef output fill:#b9d8a8,stroke:#333,stroke-width:2px,color:#111,font-weight:bold
+    class analyzer,generator phase
+    class prisma,config,source,templates input
+    class schema,serverDrafts,sdkDrafts,dbDrafts,otherDrafts,drafts representation
+    class spec keyRepresentation
+    class app output
+```
 
 Generated web app consists of a client, server and database.
 
@@ -302,6 +347,30 @@ Easiest way to do this is to use the convenient command from the `./run` script:
 
 ```sh
 ./run test:waspc:e2e:accept-all
+```
+
+### Playwright tests on unsupported Linux distributions (e.g. Arch)
+
+Some of the test suites (examples, starters) test Wasp apps via Playwright.
+
+These test suites do `playwright install --with-deps`, which installs the exact browsers Playwright expects, and then also the system libraries these browsers need (that is the `--with-deps` part).
+Automatic installation of the system libraries is however supported only on apt-based distros (Debian, Ubuntu), so on other distros (e.g. Arch) it fails with an error message from Playwright.
+
+To go around this, we provide `WASP_PLAYWRIGHT_INSTALL_FLAGS` which allows customizing flags passed to `playwright install`.
+What you will most likely want to do is set this env var to empty, removing the default `--with-deps` so Playwright doesn't try to install deps on its own, and then ensure on your own that correct system deps are installed on your system. In most of the cases, these deps will already be installed on your system and you don't really have to do anything (despite the warning message that Playwright might still print about deps missing, can be silenced with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`).
+
+Block of code you can easily just add to your `.bashrc`:
+
+```sh
+# We set install flags to none so default --with-deps is not set, because
+# Playwright doesn't know how to install system deps on Arch and errors.
+# Instead, it is up to us to ensure system deps are installed, which is usually
+# a no-op since they are usually all already present on the typical system.
+export WASP_PLAYWRIGHT_INSTALL_FLAGS=
+# After skipping --with-deps (check above), even when system does have all the
+# deps, Playwright is not aware and will print a nasty looking warning. This
+# prevents that.
+export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
 ```
 
 ## Code analysis

@@ -1,17 +1,17 @@
 {{={= =}=}}
 {=! TODO: This template is exactly the same at the moment as one for query
           types, consider whether it makes sense to address this in the future. =}
-import {
+import type {
   {=# allEntities =}
-  type {= internalTypeName =},
+  {= internalTypeName =},
   {=/ allEntities =}
   {=# shouldImportNonAuthenticatedOperation =}
-  type UnauthenticatedActionDefinition,
+  UnauthenticatedActionDefinition,
   {=/ shouldImportNonAuthenticatedOperation =}
   {=# shouldImportAuthenticatedOperation =}
-  type AuthenticatedActionDefinition,
+  AuthenticatedActionDefinition,
   {=/ shouldImportAuthenticatedOperation =}
-  type Payload,
+  Payload,
 } from '../../_types/index.js'
 
 {=# operations =}

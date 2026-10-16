@@ -45,7 +45,7 @@ Here's the list of possible exports you can have in a lib:
 
 | Export Path | Node.js | Browser | Description                  |
 | ----------- | ------- | ------- | ---------------------------- |
-| `./index`   | ✅      | ✅      | Code used in both runtimes   |
+| `.`         | ✅      | ✅      | Code used in both runtimes   |
 | `./node`    | ✅      | ❌      | Code used in Node.js runtime |
 | `./browser` | ❌      | ✅      | Code used in browser runtime |
 
@@ -53,7 +53,7 @@ For example, if you have an `auth` lib that has code that's for both runtimes, b
 
 ```json
 "exports": {
-  "./index": {
+  ".": {
     "types": "./dist/index.d.ts",
     "default": "./dist/index.js"
   },

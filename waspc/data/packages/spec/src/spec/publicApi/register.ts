@@ -1,5 +1,5 @@
 /**
- * Registry for type augmentation via declaration merging.
+ * Register for type augmentation via declaration merging.
  *
  * @internal
  */

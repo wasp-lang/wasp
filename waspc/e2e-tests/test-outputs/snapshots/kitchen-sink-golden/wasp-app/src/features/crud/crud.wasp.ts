@@ -16,6 +16,11 @@ export const crudSpec: Spec = [
     update: {},
     delete: {},
   }),
+  // Intentionally partial: only `getAll` is declared. Covers the case where the
+  // generated CRUD must not mention the operations the user didn't ask for.
+  crud("taskVotes", "TaskVote", {
+    getAll: {},
+  }),
   route("CrudListRoute", "/crud", page(ListPage, { authRequired: true })),
   route(
     "CrudDetailRoute",

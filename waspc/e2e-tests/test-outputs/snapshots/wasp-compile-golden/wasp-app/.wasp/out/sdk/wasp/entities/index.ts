@@ -1,7 +1,7 @@
-import {
+import type {
 } from "@prisma/client"
 
-export {
+export type {
 } from "@prisma/client"
 
 export type Entity = 

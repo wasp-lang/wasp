@@ -4,7 +4,7 @@
 
 module Wasp.AppSpec.App.Auth.EmailVerification where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.Ref (Ref)
@@ -15,4 +15,4 @@ data EmailVerificationConfig = EmailVerificationConfig
   { getEmailContentFn :: Maybe ExtImport,
     clientRoute :: Ref Route
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)

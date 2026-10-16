@@ -10,7 +10,7 @@ export async function assertValidWaspProject(
   waspExe: WaspCliExe,
 ): Promise<void> {
   const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
-  const result = await waspCli(["info"], {
+  const result = await waspCli(["show", "spec", "--json"], {
     quiet: true,
     nothrow: true,
   });

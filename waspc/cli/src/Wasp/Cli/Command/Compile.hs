@@ -2,23 +2,29 @@
 
 module Wasp.Cli.Command.Compile
   ( compileIO,
+    compileCommand,
     compile,
     compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
+    withSetupGoal,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
     analyze,
     analyzeWithOptions,
+    analyzeWithDiagnosticsOnStderr,
   )
 where
 
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Either (fromLeft)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -26,8 +32,10 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
+import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -36,8 +44,13 @@ import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
+-- | Meant for the standalone `wasp compile` command: commands that hold the
+-- project lock themselves should call 'compile' instead.
+compileCommand :: Command ([CompileWarning], AS.AppSpec)
+compileCommand = withProjectLock compile
+
 -- | Same like 'compileWithOptions', but with default compile options.
-compile :: Command [CompileWarning]
+compile :: Command ([CompileWarning], AS.AppSpec)
 compile = do
   -- TODO: Consider a way to remove the redundancy of finding the project root
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
@@ -51,8 +64,9 @@ compile = do
 -- to the disk, to the .wasp dir.
 -- At the end, prints a report on how compilation went (by printing warnings, errors,
 -- success/failure message, ...).
--- Finally, throws if there was a compile error, otherwise returns any compile warnings.
-compileWithOptions :: CompileOptions -> Command [CompileWarning]
+-- Finally, throws if there was a compile error, otherwise returns any compile warnings
+-- along with the AppSpec it compiled.
+compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
@@ -65,24 +79,24 @@ compileWithOptions options = do
   outDirExists <- liftIO $ doesDirectoryExist outDir
 
   when (outDirExists && not generatedAppIsCompatible) $ do
-    cliSendMessageC $
-      Msg.Start $
-        "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
+    cliSendMessageC
+      $ Msg.Start
+      $ "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory outDir
-    cliSendMessageC $
-      Msg.Success $
-        "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+    cliSendMessageC
+      $ Msg.Success
+      $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  (warnings, appSpecOrErrors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
 
-  liftIO $ printCompilationResult (warnings, errors)
-  if null errors
-    then return warnings
-    else
-      throwError $
-        CommandError "Compilation of wasp project failed" $
-          show (length errors) ++ " errors found"
+  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
+  case appSpecOrErrors of
+    Right appSpec -> return (warnings, appSpec)
+    Left errors ->
+      throwError
+        $ CommandError "Compilation of wasp project failed"
+        $ show (length errors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,
@@ -103,35 +117,40 @@ printWarningsAndErrorsIfAny (warns, errs) = do
 
 printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
-  unless (null warns) $
-    cliSendMessage $
-      Msg.Warning "Your wasp project reported following warnings during compilation" $
-        formatErrorOrWarningMessages warns
+  unless (null warns)
+    $ cliSendMessage
+    $ Msg.Warning compilationWarningsTitle
+    $ formatErrorOrWarningMessages warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
 printErrorsIfAny errs = do
-  unless (null errs) $
-    cliSendMessage $
-      Msg.Failure "Your wasp project failed to compile" $
-        formatErrorOrWarningMessages errs
+  unless (null errs)
+    $ cliSendMessage
+    $ Msg.Failure "Your wasp project failed to compile"
+    $ formatErrorOrWarningMessages errs
 
 formatErrorOrWarningMessages :: [String] -> String
 formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
+
+compilationWarningsTitle :: String
+compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
+
+analysisErrorsTitle :: [CompileError] -> String
+analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
-compileIO waspProjectDir outDir =
-  compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
+compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
 
 compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 
@@ -141,8 +160,11 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      generatorWarningsFilter = id
+      setupGoal = GeneratedAppReady
     }
+
+withSetupGoal :: SetupGoal -> CompileOptions -> CompileOptions
+withSetupGoal goal options = options {setupGoal = goal}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do
@@ -158,6 +180,26 @@ analyzeWithOptions waspProjectDir options = do
   case appSpecOrErrors of
     Left errors ->
       throwError $
-        CommandError "Analyzing wasp project failed" $
-          show (length errors) <> " errors found:\n" <> formatErrorOrWarningMessages errors
+        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
     Right spec -> return spec
+
+-- | Like 'analyze', but keeps stdout free for machine-readable output:
+-- compile warnings and errors go to stderr instead ('analyze' prints
+-- everything to stdout, via 'cliSendMessage'). Exits with a failure code on
+-- compile errors, bypassing 'CommandError' for the same reason.
+analyzeWithDiagnosticsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
+analyzeWithDiagnosticsOnStderr waspProjectDir = do
+  (appSpecOrErrors, warnings) <-
+    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
+  liftIO
+    $ unless (null warnings)
+    $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
+  case appSpecOrErrors of
+    Right spec -> return spec
+    Left errors ->
+      liftIO $ do
+        printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+        exitFailure
+
+printDiagnosticToStderr :: String -> String -> IO ()
+printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body

@@ -33,9 +33,6 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
         // highlight-next-line
         tailwindcss()
       ],
-      server: {
-        open: true,
-      },
     })
     ```
 

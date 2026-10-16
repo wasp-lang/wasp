@@ -4,17 +4,14 @@
     "target": "ES2025",
     "isolatedModules": true,
     "moduleDetection": "force",
-
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "allowJs": true,
     "noEmit": true,
-
     "lib": ["ES2025"],
     "types": ["node"]
   },

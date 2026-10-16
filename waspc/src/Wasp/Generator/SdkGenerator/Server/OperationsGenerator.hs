@@ -1,8 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( serverOperationIndexJsFileInSdkRootDir,
-    genOperations,
+  ( genOperations,
   )
 where
 
@@ -14,7 +13,6 @@ import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -24,17 +22,11 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
-    getOperationTypeName,
+    getGenericOperationDefinitionTypeName,
+    getRegisteredOperationTypeName,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
-import Wasp.Util (toUpperFirst)
-
-serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
-serverOperationIndexJsFileInSdkRootDir operation =
-  serverOpsDirInSdkRootDir </> case operation of
-    (AS.Operation.QueryOp _ _) -> [relfile|queries/index.js|]
-    (AS.Operation.ActionOp _ _) -> [relfile|actions/index.js|]
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -105,7 +97,7 @@ genQueryTypesFile spec =
     operations
     isAuthEnabledGlobally
   where
-    operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
+    operations = map AS.Operation.QueryOp $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
@@ -115,21 +107,21 @@ genActionTypesFile spec =
     operations
     isAuthEnabledGlobally
   where
-    operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
+    operations = map AS.Operation.ActionOp $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
-getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData isAuthEnabledGlobally operation
+getQueryData :: Bool -> AS.Query.Query -> Aeson.Value
+getQueryData isAuthEnabledGlobally query = getOperationTmplData isAuthEnabledGlobally operation
   where
-    operation = AS.Operation.QueryOp queryName query
+    operation = AS.Operation.QueryOp query
 
-getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
-getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData isAuthEnabledGlobally operation
+getActionData :: Bool -> AS.Action.Action -> Aeson.Value
+getActionData isAuthEnabledGlobally action = getOperationTmplData isAuthEnabledGlobally operation
   where
-    operation = AS.Operation.ActionOp actionName action
+    operation = AS.Operation.ActionOp action
 
 genOperationTypesFile ::
   Path' (Rel SdkTemplatesDir) File' ->
@@ -148,7 +140,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (getName operation),
+        [ "typeName" .= getGenericOperationDefinitionTypeName operation,
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -158,9 +150,10 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
-      "operationName" .= getName operation,
-      "operationTypeName" .= getOperationTypeName operation,
+    [ "jsFn" .= extImportToImportJson (Just $ AS.Operation.getFn operation),
+      "operationName" .= AS.Operation.getName operation,
+      "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
+      "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)

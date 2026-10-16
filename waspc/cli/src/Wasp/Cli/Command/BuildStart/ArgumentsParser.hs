@@ -4,48 +4,62 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
   )
 where
 
+import Data.Maybe (fromMaybe)
+import Network.Socket (PortNumber)
+import Network.URI (URI)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.EnvVarArgument (envVarReader)
-import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
-import Wasp.Env (EnvVar)
+import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
+import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
+import Wasp.Cli.Util.HttpUrlArgument (httpUrlParser)
+import Wasp.Cli.Util.Parser (ArgsParser (..))
+import Wasp.Cli.Util.PortArgument (portParser)
 
 data BuildStartArgs = BuildStartArgs
-  { clientEnvironmentVariables :: [EnvVar],
-    clientEnvironmentFiles :: [FilePathArgument],
-    serverEnvironmentVariables :: [EnvVar],
-    serverEnvironmentFiles :: [FilePathArgument]
+  { clientPort :: PortNumber,
+    serverPort :: PortNumber,
+    clientUrl :: Maybe URI,
+    serverUrl :: Maybe URI,
+    clientEnvVars :: [EnvVarArgument],
+    serverEnvVars :: [EnvVarArgument]
   }
 
-buildStartArgsParser :: Opt.Parser BuildStartArgs
+buildStartArgsParser :: ArgsParser BuildStartArgs
 buildStartArgsParser =
-  BuildStartArgs
-    <$> Opt.many clientEnvironmentVariableParser
-    <*> Opt.many clientEnvironmentFileParser
-    <*> Opt.many serverEnvironmentVariableParser
-    <*> Opt.many serverEnvironmentFileParser
+  ArgsParser "wasp build start" $
+    BuildStartArgs
+      <$> portParserForComponent "client" defaultDevClientPort
+      <*> portParserForComponent "server" defaultDevServerPort
+      <*> urlParserForComponent "client"
+      <*> urlParserForComponent "server"
+      <*> environmentVariableParsersForComponent 'c' "client"
+      <*> environmentVariableParsersForComponent 's' "server"
   where
-    clientEnvironmentVariableParser =
-      makeEnvironmentVariableParser "client" "client-env" 'c'
-    clientEnvironmentFileParser =
-      makeEnvironmentFileParser "client" "client-env-file"
+    portParserForComponent name defaultPort =
+      fromMaybe defaultPort
+        <$> Opt.optional
+          ( portParser
+              (name ++ "-port")
+              ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
+          )
 
-    serverEnvironmentVariableParser =
-      makeEnvironmentVariableParser "server" "server-env" 's'
-    serverEnvironmentFileParser =
-      makeEnvironmentFileParser "server" "server-env-file"
+    urlParserForComponent name =
+      Opt.optional $ httpUrlParser (name ++ "-url") ("URL at which the " ++ name ++ " is reachable")
 
-    makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser EnvVar
-    makeEnvironmentVariableParser targetName longOptionName shortOptionName =
-      Opt.option envVarReader $
-        Opt.long longOptionName
-          <> Opt.short shortOptionName
-          <> Opt.metavar "NAME=VALUE"
-          <> Opt.help ("Set an environment variable for the " <> targetName <> " (can be used multiple times)")
+    environmentVariableParsersForComponent shortOptionName name =
+      liftA2
+        (<>)
+        (envVarInlinesParserForComponent shortOptionName name)
+        (envVarFilesParserForComponent name)
 
-    makeEnvironmentFileParser :: String -> String -> Opt.Parser FilePathArgument
-    makeEnvironmentFileParser targetName longOptionName =
-      Opt.option filePathReader $
-        Opt.long longOptionName
-          <> Opt.metavar "FILE_PATH"
-          <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")
-          <> Opt.action "file"
+    envVarInlinesParserForComponent shortOptionName name =
+      Opt.many $
+        envVarArgumentLiteralParser
+          shortOptionName -- e.g. 'c', for "-c"
+          (name ++ "-env") -- e.g. "--client-env"
+          ("Set an environment variable for the " ++ name ++ " (can be used multiple times)")
+
+    envVarFilesParserForComponent name =
+      Opt.many $
+        envVarArgumentFileParser
+          (name ++ "-env-file") -- e.g. "--client-env-file"
+          ("Load environment variables for the " ++ name ++ " from a file (can be used multiple times)")

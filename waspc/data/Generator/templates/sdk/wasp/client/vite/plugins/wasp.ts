@@ -1,17 +1,19 @@
 {{={= =}=}}
-import { type PluginOption } from "vite";
-import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
+import type { PluginOption } from "vite";
+import react from "@vitejs/plugin-react";
+import {
+  detectServerImports,
+  envFile,
+  typescriptCheck,
+  validateEnv,
+  type WaspPluginOptions,
+} from "@wasp.sh/lib-sdk-core/node/vite";
 import ssr from "@wasp.sh/lib-vite-ssr";
-import { validateEnv } from "./validateEnv.js";
-import { envFile } from "./envFile.js";
-import { detectServerImports } from "./detectServerImports.js";
-import { waspVirtualModules } from "./virtualModules.js";
-import { typescriptCheck } from "./typescriptCheck.js";
+import { virtualWaspModules } from "./virtualWaspModules.js";
+import { virtualUserModules } from "./virtualUserModules.js";
 import { waspConfig } from "./waspConfig.js";
 
-export interface WaspPluginOptions {
-  reactOptions?: ReactOptions;
-}
+
 
 export function wasp(options?: WaspPluginOptions): PluginOption {
   return [
@@ -21,14 +23,15 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     // The `wasp:config` plugin must come first because
     // other plugins may depend on its configuration.
     waspConfig(),
-    waspVirtualModules(),
-    envFile(),
-    detectServerImports(),
+    virtualUserModules(),
+    virtualWaspModules(),
+    envFile("{= clientEnvFileName =}"),
+    detectServerImports("{= srcDirInWaspProjectDir =}"),
     /**
      * Plugins running after core Vite plugins.
      */
     typescriptCheck({ srcTsConfigPath: "{= srcTsConfigPath =}" }),
-    validateEnv(),
+    validateEnv("{= clientEnvSchemaValidationModulePath =}"),
     react(options?.reactOptions),
     ssr({
       clientEntrySrc: "{= clientEntryPointPath =}",

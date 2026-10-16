@@ -1,43 +1,10 @@
-import { ReactElement, ReactNode } from 'react'
+import type { MockQuery, MockApi } from '@wasp.sh/lib-sdk-core/browser/test'
 import { http, type HttpResponseResolver, type RequestHandler } from 'msw'
 import { setupServer, type SetupServer } from 'msw/node'
-import { BrowserRouter as Router } from 'react-router'
-import { render, RenderResult, cleanup } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { cleanup } from '@testing-library/react'
 import { beforeAll, afterEach, afterAll } from 'vitest'
-import { Query } from '../../operations/rpc.js'
-import { config, HttpMethod, Route } from '../../index.js'
+import { config, HttpMethod, type Route } from '../../index.js'
 import { serialize } from '../../../core/serialization/index.js'
-
-// PRIVATE API
-export type MockQuery = <Input, Output, MockOutput extends Output>(
-  query: Query<Input, Output>,
-  resJson: MockOutput
-) => void
-
-// PRIVATE API
-export type MockApi = (route: Route, resJson: unknown) => void
-
-// PUBLIC API
-// Inspired by the Tanstack React Query helper:
-// https://github.com/TanStack/query/blob/4ae99561ca3383d6de3f4aad656a49ba4a17b57a/packages/react-query/src/__tests__/utils.tsx#L7-L26
-export function renderInContext(ui: ReactElement): RenderResult {
-  const client = new QueryClient()
-  const { rerender, ...result } = render(
-    <QueryClientProvider client={client}>
-      <Router>{ui}</Router>
-    </QueryClientProvider>
-  )
-  return {
-    ...result,
-    rerender: (rerenderUi: ReactNode) =>
-      rerender(
-        <QueryClientProvider client={client}>
-          <Router>{rerenderUi}</Router>
-        </QueryClientProvider>
-      ),
-  }
-}
 
 // PUBLIC API
 export function mockServer(): {
@@ -85,7 +52,9 @@ function mockRoute(
     [HttpMethod.Get]: http.get(url, responseHandler),
     [HttpMethod.Post]: http.post(url, responseHandler),
     [HttpMethod.Put]: http.put(url, responseHandler),
+    [HttpMethod.Patch]: http.patch(url, responseHandler),
     [HttpMethod.Delete]: http.delete(url, responseHandler),
+    [HttpMethod.Head]: http.head(url, responseHandler),
   }
 
   server.use(handlers[route.method])

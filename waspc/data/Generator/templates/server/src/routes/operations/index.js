@@ -2,7 +2,7 @@
 import express from 'express'
 
 {=# isAuthEnabled =}
-import auth from 'wasp/core/auth'
+import auth from 'wasp/server/core/auth'
 {=/ isAuthEnabled =}
 
 {=# operationRoutes =}

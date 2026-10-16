@@ -7,8 +7,8 @@
 
 import { prisma, DbSeedFn } from 'wasp/server'
 
-import { devSeedSimple } from '../../../../src/features/db/seeds'
-import { prodSeed } from '../../../../src/features/db/seeds'
+import { devSeedSimple } from "../../../../src/features/db/seeds"
+import { prodSeed } from "../../../../src/features/db/seeds"
 
 const seeds = {
   devSeedSimple,

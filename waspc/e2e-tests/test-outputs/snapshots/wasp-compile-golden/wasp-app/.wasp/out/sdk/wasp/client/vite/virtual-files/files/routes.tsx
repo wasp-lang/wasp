@@ -1,5 +1,5 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
+import { initializeQueryClient } from "@wasp.sh/lib-sdk-core/browser";
 import { Outlet } from "react-router"
 
 
@@ -9,7 +9,7 @@ import { Outlet } from "react-router"
 const routesMapping = {
   RootRoute: {
     lazy: async () => {
-      const Component = await import('./src/MainPage').then(m => m.MainPage);
+      const Component = await import("./src/MainPage").then(m => m.MainPage);
 
       return {
         Component:

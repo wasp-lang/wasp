@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { getNumTasks } from '../../../../../src/features/operations/queries'
+import { getNumTasks } from "../../../../../src/features/operations/queries"
 
 
 export default async function (args, context) {

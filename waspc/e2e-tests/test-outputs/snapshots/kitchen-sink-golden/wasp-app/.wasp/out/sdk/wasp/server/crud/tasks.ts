@@ -4,12 +4,11 @@ import type {
   _Task,
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload, SuperJSONObject } from "../../core/serialization/index.js";
+import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   Task,
-} from "../../entities/index.js";
-import { crudGetAllTasks as crudGetAllTasks_ext } from 'wasp/src/features/crud/crud'
-import { crudCreateTask as crudCreateTask_ext } from 'wasp/src/features/crud/crud'
+} from "wasp/entities";
+import type { FromRegisterPath } from '../../types/register'
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task
@@ -31,19 +30,21 @@ export declare namespace tasks {
 
 /**
  * PRIVATE API
- *
- * The types with the `Resolved` suffix are the types that are used internally by the Wasp client
- * to implement full-stack type safety.
  */
-const _waspGetAllQuery = crudGetAllTasks_ext
-export type GetAllQueryResolved = typeof _waspGetAllQuery
+type GetAllInput = {}
+type GetAllOutput = _WaspEntity[]
+export type RegisteredGetAllQuery = FromRegisterPath<['crudOverrides', 'tasks', 'GetAll'], tasks.GetAllQuery<GetAllInput, GetAllOutput>>
 
 type GetInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
-export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>
+export type RegisteredGetQuery = FromRegisterPath<['crudOverrides', 'tasks', 'Get'], tasks.GetQuery<GetInput, GetOutput>>
 
-const _waspCreateAction = crudCreateTask_ext
-export type CreateActionResolved = typeof _waspCreateAction
+type CreateInput = SuperJSONObject & Prisma.XOR<
+  Prisma.TaskCreateInput,
+  Prisma.TaskUncheckedCreateInput
+>
+type CreateOutput = _WaspEntity
+export type RegisteredCreateAction = FromRegisterPath<['crudOverrides', 'tasks', 'Create'], tasks.CreateAction<CreateInput, CreateOutput>>
 
 type UpdateInput = SuperJSONObject & Prisma.XOR<
     Prisma.TaskUpdateInput,
@@ -52,8 +53,8 @@ type UpdateInput = SuperJSONObject & Prisma.XOR<
   & Prisma.TaskWhereUniqueInput
 
 type UpdateOutput = _WaspEntity
-export type UpdateActionResolved = tasks.UpdateAction<UpdateInput, UpdateOutput>
+export type RegisteredUpdateAction = FromRegisterPath<['crudOverrides', 'tasks', 'Update'], tasks.UpdateAction<UpdateInput, UpdateOutput>>
 
 type DeleteInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type DeleteOutput = _WaspEntity
-export type DeleteActionResolved = tasks.DeleteAction<DeleteInput, DeleteOutput>
+export type RegisteredDeleteAction = FromRegisterPath<['crudOverrides', 'tasks', 'Delete'], tasks.DeleteAction<DeleteInput, DeleteOutput>>

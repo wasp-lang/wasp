@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.21" }} />
 
-Starting from Wasp 0.21, installation is done [through npm](../../introduction/quick-start.md#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
+Starting from Wasp 0.21, installation is done [through npm](../../getting-started/quick-start.md#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
 
 ## How to migrate off the legacy installer {#migrate}
 
@@ -19,7 +19,7 @@ To switch to the new installation method, you can run our migration tool:
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 ```
 
-Afterwards, you can use [the regular installation instructions](../../introduction/quick-start.md#detailed-installation) to install Wasp through npm:
+Afterwards, you can use [the regular installation instructions](../../getting-started/quick-start.md#detailed-installation) to install Wasp through npm:
 
 ```shell
 npm i -g @wasp.sh/wasp-cli@latest

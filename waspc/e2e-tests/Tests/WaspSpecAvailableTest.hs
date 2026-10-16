@@ -18,9 +18,10 @@ import ShellCommands
     waspCliDeploy,
     waspCliDeps,
     waspCliDockerfile,
-    waspCliInfo,
     waspCliInstall,
     waspCliNews,
+    waspCliShowBuild,
+    waspCliShowSpec,
     waspCliStart,
     waspCliStartDb,
     waspCliStudio,
@@ -47,7 +48,7 @@ waspSpecAvailableTest =
                     assertCommandFailsWithInstallHint
                     [ waspCliCompile,
                       waspCliBuild,
-                      waspCliInfo,
+                      waspCliShowSpec,
                       waspCliDeps,
                       waspCliDockerfile,
                       waspCliStudio,
@@ -94,6 +95,7 @@ waspSpecAvailableTest =
                   -- Project-scoped commands that don't require wasp-spec to be installed.
                   [ waspCliClean,
                     waspCliInstall,
+                    waspCliShowBuild,
                     -- Project-agnostic commands. They don't read the project,
                     -- so they should be unaffected by wasp-spec presence.
                     waspCliVersion,

@@ -1,6 +1,18 @@
 import { Request, Response } from 'express'
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
+  ensurePasswordIsPresent,
+  ensureValidEmail,
+  ensureValidPassword,
+} from 'wasp/auth/validation'
+import { HttpError } from 'wasp/server'
+import {
+  GetVerificationEmailContentFn,
+  createEmailVerificationLink,
+  isEmailResendAllowed,
+  sendEmailVerificationEmail,
+} from 'wasp/server/auth'
+import {
   createProviderId,
   createUser,
   deleteUserByAuthId,
@@ -10,19 +22,7 @@ import {
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
-} from 'wasp/auth/utils'
-import {
-  ensurePasswordIsPresent,
-  ensureValidEmail,
-  ensureValidPassword,
-} from 'wasp/auth/validation'
-import { HttpError } from 'wasp/server'
-import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
-import {
-  createEmailVerificationLink,
-  isEmailResendAllowed,
-  sendEmailVerificationEmail,
-} from 'wasp/server/auth/email/utils'
+} from 'wasp/server/auth/utils'
 import { EmailFromField } from 'wasp/server/email/core/types'
 import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
@@ -91,7 +91,7 @@ export function getSignupRoute({
       // we are not checking if the email was sent or not!
       const { isResendAllowed, timeLeft } = isEmailResendAllowed(
         providerData,
-        'passwordResetSentAt',
+        'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
         throw new HttpError(
@@ -107,6 +107,14 @@ export function getSignupRoute({
       }
     }
 
+    // The hook runs first so it can veto the signup (by throwing) before the
+    // developer's `userSignupFields` getters run.
+    try {
+      await onBeforeSignupHook({ req, providerId })
+    } catch (e: unknown) {
+      rethrowPossibleAuthError(e)
+    }
+
     const userFields = await validateAndGetUserFields(fields, userSignupFields)
 
     const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>(
@@ -119,7 +127,6 @@ export function getSignupRoute({
     )
 
     try {
-      await onBeforeSignupHook({ req, providerId })
       const user = await createUser(
         providerId,
         newUserProviderData,
@@ -139,14 +146,18 @@ export function getSignupRoute({
       return
     }
 
+    // We send the verification link to the normalized address that we stored.
+    // This way the address that proves ownership is the same one password reset later
+    // sends the reset link to.
+    const email = providerId.providerUserId
     const verificationLink = await createEmailVerificationLink(
-      fields.email,
+      email,
       clientRoute,
     )
     try {
-      await sendEmailVerificationEmail(fields.email, {
+      await sendEmailVerificationEmail(email, {
         from: fromField,
-        to: fields.email,
+        to: email,
         ...getVerificationEmailContent({ verificationLink }),
       })
     } catch (e: unknown) {

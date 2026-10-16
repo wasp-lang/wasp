@@ -9,6 +9,8 @@ export { getNumTasks } from './queries/index.js'
 
 export { getTask } from './queries/index.js'
 
+export { getOldestTask } from './queries/index.js'
+
 export { getSerializedObjects } from './queries/index.js'
 
 export { getTextUppercaseRequests } from './queries/index.js'

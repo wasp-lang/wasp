@@ -7,16 +7,29 @@ module Wasp.AppSpec.ApiNamespace
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
+import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data ApiNamespace = ApiNamespace
-  { middlewareConfigFn :: ExtImport,
+  { name :: String,
+    middlewareConfigFn :: ExtImport,
     path :: String
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
-instance IsDecl ApiNamespace
+instance IsDecl ApiNamespace where
+  declName = name
+
+instance Inspectable ApiNamespace where
+  inspect apiNamespace =
+    [ InspectionEntry
+        "API namespaces"
+        [ ("Name", apiNamespace.name),
+          ("Path", apiNamespace.path),
+          ("Import", showExtImportFromProjectDir apiNamespace.middlewareConfigFn)
+        ]
+    ]

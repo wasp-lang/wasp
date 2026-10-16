@@ -1,10 +1,16 @@
 - arguments:
     # NOTE: List of extensions below should reflect the list
-    #   of default extensions from package.yaml.
+    #   of default extensions from waspc.cabal.
+    - -XDisambiguateRecordFields
+    - -XFlexibleContexts
+    - -XLambdaCase
+    - -XMultiParamTypeClasses
+    - -XNamedFieldPuns
+    - -XOverloadedRecordDot
     - -XOverloadedStrings
-    - -XTemplateHaskell
     - -XQuasiQuotes
     - -XScopedTypeVariables
+    - -XTemplateHaskell
 
 - ignore: { name: Use camelCase } # We can decide this on our own.
 - ignore: { name: Eta reduce } # We can decide this on our own.

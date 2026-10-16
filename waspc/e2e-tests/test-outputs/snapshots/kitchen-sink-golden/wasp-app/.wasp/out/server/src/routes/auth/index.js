@@ -1,6 +1,6 @@
 import express from 'express'
 
-import auth from 'wasp/core/auth'
+import auth from 'wasp/server/core/auth'
 import me from './me.js'
 import logout from './logout.js'
 

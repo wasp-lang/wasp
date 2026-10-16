@@ -13,14 +13,33 @@ runs:
   using: composite
 
   steps:
-    - name: Install GNU tar on Alpine
+    - name: Install Mise and cache pre-dependencies
       if: ${{ runner.os == 'Linux' }}
       shell: sh
-      # Alpine's default `tar` and `bash` don't support GitHub's caches:
-      # https://github.com/actions/toolkit/issues/634
+      # Bare container images lack some tools that the steps below need. They
+      # must be installed before Mise, because it restores its cache first.
+      # - `curl` is needed to download Mise.
+      # - Alpine's default `tar` and `bash` (which are just BusyBox) don't
+      #   support GitHub's caches:
+      #   https://github.com/actions/toolkit/issues/634
+      # - We install `zstd` so caches can use a better, faster compression
+      #   method.
       run: |
-        if [ -f /etc/alpine-release ]; then
-          apk add --no-cache tar bash
+        tools="curl tar bash zstd"
+
+        missing=false
+        for package in $tools; do
+          command -v "$package" >/dev/null || missing=true
+        done
+
+        if [ "$missing" = true ]; then
+          if [ -f /etc/alpine-release ]; then
+            apk add --no-cache $tools
+          else
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -y
+            apt-get install -y $tools
+          fi
         fi
 
     - name: Select Mise environment
@@ -35,12 +54,9 @@ runs:
         echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
 
     - name: Install Mise
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@v5
       with:
-        # Mise `2026.7.17` broke aqua version-override matching, which makes it
-        # install a broken `cabal` binary on Linux ("Exec format error").
-        # Unpin once fixed upstream: https://github.com/jdx/mise/discussions/11494
-        version: 2026.7.16
+        version: 2026.9.15
         bootstrap: true
         bootstrap_args: --update --yes
 
@@ -56,6 +72,44 @@ runs:
     # GitHub Actions bug with how caches interact with nested composite actions:
     # https://github.com/actions/runner/issues/2030
 
+    ##### Caching Cabal index #####
+    # The Cabal index is the biggest part of our Cabal cache, and it can be
+    # cached once between all OS and shared, so we cache it separately from the
+    # store. `actions/cache` only shares entries if the `path` is constant, so
+    # we move it inside our workspace.
+    - name: Move Cabal index into the workspace
+      if: ${{ inputs.haskell == 'true' }}
+      shell: bash
+      run: |
+        set -euxo pipefail
+        mkdir -p .cabal-index
+        echo '*' > .cabal-index/.gitignore
+        cabal user-config update -a "remote-repo-cache: $GITHUB_WORKSPACE/.cabal-index"
+
+    - name: Cache Hackage index
+      if: ${{ inputs.haskell == 'true' }}
+      id: cache-hackage-index
+      uses: actions/cache@v5
+      with:
+        # We skip the downloaded package sources, as they're only needed when
+        # building dependencies, which are already cached in the Cabal store.
+        path: |
+          .cabal-index/hackage.haskell.org/01-index.*
+          .cabal-index/hackage.haskell.org/*.json
+        # The `index-state` in `cabal.project` decides which part of the index
+        # we need. When it changes, we fall back to an older index, and `cabal
+        # update` just downloads the missing part.
+        key: cabal-index-v1-${{ hashFiles('waspc/cabal.project') }}
+        restore-keys: cabal-index-v1-
+        enableCrossOsArchive: true
+
+    - name: Update Cabal package index
+      if: ${{ inputs.haskell == 'true' && steps.cache-hackage-index.outputs.cache-hit != 'true' }}
+      shell: bash
+      working-directory: waspc
+      run: cabal update
+
+    ##### Caching Cabal store #####
     - name: Probe GHC and Cabal
       if: ${{ inputs.haskell == 'true' }}
       id: probe-ghc-cabal
@@ -64,7 +118,6 @@ runs:
         set -euxo pipefail
         echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
         echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
-        echo "CABAL_INDEX=$(cabal path -v0 --remote-repo-cache)" >> $GITHUB_OUTPUT
 
     - name: Probe system libc
       id: probe-libc
@@ -83,30 +136,23 @@ runs:
 
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
-    - name: Cache Cabal dependencies
+    - name: Cache Cabal store
       if: ${{ inputs.haskell == 'true' }}
       uses: actions/cache@v5
       with:
-        path:
-          # While commonly cached, we've decided not to cache:
-          #
-          # - `./dist-newstyle`: Our internal code builds quite fast, and
-          #   changes often enough that a cache would need to be invalidated on
-          #   every run, and make our cache much bigger.
-          #
-          # We do cache the Cabal store and index files, which is where the
-          # actual built packages are stored, as it is the most expensive part
-          # of the build, and easily reusable.
-          |
-          ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
-          ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}
+        # While commonly cached, we've decided not to cache:
+        #
+        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
+        #   often enough that a cache would need to be invalidated on every run,
+        #   and make our cache much bigger.
+        path: ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
         key:
-          # The `v2` prefix is used so we don't mix with an older cache that
-          # didn't have a good glibc/musl detection.
+          # The `v3` prefix is used so we don't restore older entries, which
+          # also had the Hackage index inside.
           >
           ${{
             format(
-              'cabal-v2-{0}-{1}-{2}-{3}-{4}-{5}',
+              'cabal-v3-{0}-{1}-{2}-{3}-{4}-{5}',
               'waspc',
               runner.os,
               runner.arch,
@@ -122,7 +168,7 @@ runs:
         restore-keys: >
           ${{
             format(
-              'cabal-v2-{0}-{1}-{2}-{3}-{4}-',
+              'cabal-v3-{0}-{1}-{2}-{3}-{4}-',
               'waspc',
               runner.os,
               runner.arch,
@@ -130,9 +176,3 @@ runs:
               steps.probe-ghc-cabal.outputs.GHC_VERSION
             )
           }}
-
-    - name: Update Cabal package index
-      if: ${{ inputs.haskell == 'true' }}
-      shell: bash
-      working-directory: waspc
-      run: cabal update

@@ -4,7 +4,7 @@ import { prisma } from 'wasp/server'
 import { defineHandler } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
-import auth from 'wasp/core/auth'
+import auth from 'wasp/server/core/auth'
 import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 {=/ isAuthEnabled =}
 
@@ -30,13 +30,13 @@ const {=& routeMiddlewareConfigFn.importAlias =} = idFn
 const router = express.Router()
 
 {=# apiNamespaces =}
-router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
+router.use({=& namespacePath =}, globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
 {=/ apiNamespaces =}
 
 {=# apiRoutes =}
 const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importAlias =})
 router.{= routeMethod =}(
-  '{= routePath =}',
+  {=& routePath =},
   {=# usesAuth =}
   [auth, ...{= apiName =}Middleware],
   {=/ usesAuth =}
