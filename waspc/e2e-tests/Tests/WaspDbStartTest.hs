@@ -82,8 +82,10 @@ waspDbStartTest =
                   -- even when it's running on a non-default port?
                   waspCliDbMigrateDev "no_new_migration",
                   removeDefaultDevDbPortHolder,
-                  stopWaspCliDbStartWithSignal "INT",
-                  -- Test 7: Can the user remove the volume reported by `wasp db start`?
+                  -- Test 7: Does SIGTERM (e.g. from a process manager) also stop the
+                  -- database and delete the container?
+                  stopWaspCliDbStartWithSignal "TERM",
+                  -- Test 8: Can the user remove the volume reported by `wasp db start`?
                   removeReportedDevDbVolume
                 ]
             ]
