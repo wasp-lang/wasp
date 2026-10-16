@@ -49,13 +49,6 @@ instance MonadRetry Command where
 runCommand :: Command a -> IO ()
 runCommand cmd =
   E.try (runExceptT (flip evalStateT [] $ _runCommand cmd)) >>= \case
-    Left (Interactive.StdinNotInteractive usage) -> do
-      cliSendMessage
-        $ Msg.Failure "Interactive terminal required"
-        $ "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
-          <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
-          <> usage
-      exitFailure
     Left Interactive.PromptCancelled -> do
       putStrLn "Aborted."
       exitFailure
