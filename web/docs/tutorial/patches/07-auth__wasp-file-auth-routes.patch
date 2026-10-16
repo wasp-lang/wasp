@@ -1,5 +1,5 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index 894c99a..52438c9 100644
+index 788c52d..f8ca9ec 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -1,5 +1,7 @@

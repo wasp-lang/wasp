@@ -13,6 +13,7 @@ import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode)
 import Text.Printf (printf)
+import UnliftIO.Exception (onException)
 import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Job (Job)
 import qualified Wasp.Job as Job
@@ -54,32 +55,36 @@ runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath = do
   -- such container) isn't useful to the user, so we drop it.
   _ <- Job.captureOutput $ Job.fromProc $ Job.proc "docker" ["rm", devDbSpec.dockerContainerName]
 
-  -- We run `docker` directly, without a shell in between, so that stopping the
-  -- job signals the `docker run` client, which passes the signal on to the
-  -- database.
-  Job.fromProc $
-    Job.proc
-      "docker"
-      -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
-      --   only when initializing the database -> if the volume was created previously, they will be ignored.
-      --   This is how the postgres Docker image works.
-      [ "run",
-        "--name",
-        devDbSpec.dockerContainerName,
-        "--rm",
-        "--publish",
-        printf "%s:%s" (show devDbSpec.port) (show postgresImageInternalPort),
-        "-v",
-        printf "%s:%s" devDbSpec.dockerVolumeName dbDockerVolumeMountPath,
-        "--env",
-        "POSTGRES_PASSWORD=" <> devDbSpec.password,
-        "--env",
-        "POSTGRES_USER=" <> devDbSpec.user,
-        "--env",
-        "POSTGRES_DB=" <> devDbSpec.dbName,
-        dbDockerImage
-      ]
+  -- We use `docker stop` to be good citizens, ensuring the database is properly
+  -- stopped (with the image's defined STOPSIGNAL) when the job is interrupted.
+  runDbContainer `onException` Job.captureOutput stopDbContainer
   where
+    runDbContainer =
+      Job.fromProc $
+        Job.proc
+          "docker"
+          -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
+          --   only when initializing the database -> if the volume was created previously, they will be ignored.
+          --   This is how the postgres Docker image works.
+          [ "run",
+            "--name",
+            devDbSpec.dockerContainerName,
+            "--rm",
+            "--publish",
+            printf "%s:%s" (show devDbSpec.port) (show postgresImageInternalPort),
+            "-v",
+            printf "%s:%s" devDbSpec.dockerVolumeName dbDockerVolumeMountPath,
+            "--env",
+            "POSTGRES_PASSWORD=" <> devDbSpec.password,
+            "--env",
+            "POSTGRES_USER=" <> devDbSpec.user,
+            "--env",
+            "POSTGRES_DB=" <> devDbSpec.dbName,
+            dbDockerImage
+          ]
+
+    stopDbContainer = Job.fromProc $ Job.proc "docker" ["stop", devDbSpec.dockerContainerName]
+
     postgresImageInternalPort = defaultPostgresPort
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its

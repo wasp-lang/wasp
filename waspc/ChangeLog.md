@@ -4,6 +4,11 @@
 
 ### ⚠️ Breaking Changes
 
+Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-guide) for step-by-step documentation on how to upgrade.
+
+- Wasp now type-checks application code during compilation. ([#4942](https://github.com/wasp-lang/wasp/pull/4942))
+- Email fields in Wasp's auth forms now use `type="text"` to support internationalized addresses. ([#4695](https://github.com/wasp-lang/wasp/pull/4695))
+- SDK changes require updating `tsconfig.src.json` and copying the generated `types` directory in custom Dockerfiles. ([#4049](https://github.com/wasp-lang/wasp/pull/4049), [#4067](https://github.com/wasp-lang/wasp/pull/4067))
 - Renamed the `wasp deploy fly` flags `--vm-size`, `--initial-cluster-size`, and `--volume-size` to `--db-vm-size`, `--db-initial-cluster-size`, and `--db-volume-size`, respectively. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Wasp Deploy for Railway now requires Railway CLI 5.28.0 or newer. ([#4712](https://github.com/wasp-lang/wasp/pull/4712))
