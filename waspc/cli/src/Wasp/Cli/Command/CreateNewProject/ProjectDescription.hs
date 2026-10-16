@@ -21,6 +21,7 @@ import Wasp.AppSpec.Identifier (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
+    newProjectArgsParser,
   )
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir, throwProjectCreationError)
@@ -31,6 +32,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Cli.Util.Parser (requireInteractiveTerminal)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
 
@@ -89,12 +91,14 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
   return $ mkNewProjectDescription projectName appName absTemplateOutputDir template
 
 askForName :: Command String
-askForName =
-  liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
+askForName = do
+  terminal <- requireInteractiveTerminal newProjectArgsParser
+  liftIO $ Interactive.askForRequiredInput terminal "Enter the project name (e.g. my-project)"
 
 askForTemplate :: [StarterTemplate] -> Command StarterTemplate
-askForTemplate starterTemplates =
-  liftIO $ Interactive.askToChoose "Choose a starter template" $ fromList starterTemplates
+askForTemplate starterTemplates = do
+  terminal <- requireInteractiveTerminal newProjectArgsParser
+  liftIO $ Interactive.askToChoose terminal "Choose a starter template" $ fromList starterTemplates
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName

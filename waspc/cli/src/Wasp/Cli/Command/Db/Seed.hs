@@ -23,7 +23,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import Wasp.Generator.Setup (SetupGoal (SdkReady))
 import qualified Wasp.Message as Msg
@@ -59,7 +59,8 @@ seedArgsParser =
             Opt.metavar "SEED_NAME"
               <> Opt.help
                 ( "Name of the seed to run. "
-                    ++ "If multiple seeds are available and you don't pick one, Wasp will prompt you to pick interactively."
+                    ++ "If multiple seeds are available and you don't pick one, Wasp will prompt you to pick interactively. "
+                    ++ "Required when running non-interactively with more than one seed defined."
                 )
         )
 
@@ -70,7 +71,9 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     Just name -> parseUserProvidedSeedName name seedNames
     Nothing -> case seedNames of
       seedName :| [] -> return seedName
-      _seedNames -> liftIO $ Interactive.askToChoose "Choose a seed to run" seedNames
+      _seedNames -> do
+        terminal <- requireInteractiveTerminal seedArgsParser
+        liftIO $ Interactive.askToChoose terminal "Choose a seed to run" seedNames
   where
     parseUserProvidedSeedName :: String -> NE.NonEmpty String -> Command String
     parseUserProvidedSeedName userProvidedSeedName seedNames =
