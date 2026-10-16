@@ -18,9 +18,16 @@ export function Header() {
         <nav>
           <ul className="flex items-center gap-3">
             {user ? (
-              <li>
-                <Button onClick={logout}>Log out</Button>
-              </li>
+              <>
+                <li>
+                  <ButtonLink to="/tasks" variant="secondary">
+                    My tasks
+                  </ButtonLink>
+                </li>
+                <li>
+                  <Button onClick={logout}>Log out</Button>
+                </li>
+              </>
             ) : (
               <>
                 <li>

@@ -33,6 +33,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 - Custom `api`s can now use the `PATCH` and `HEAD` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860), [#4867](https://github.com/wasp-lang/wasp/pull/4867))
+- New projects created with `wasp new -t basic` now open on a welcome page that walks you through creating a user, managing tasks, inspecting your data, and deploying. The tasks page moved to `/tasks`. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `wasp uninstall` now accepts `--force` to skip the confirmation prompt. ([#5003](https://github.com/wasp-lang/wasp/pull/5003))
 
 ### 🐞 Bug fixes
