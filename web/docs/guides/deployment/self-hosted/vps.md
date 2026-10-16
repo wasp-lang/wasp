@@ -142,10 +142,9 @@ wasp version
 
 ### Step 9: Build the Application
 
-In your project directory, install dependencies and build the app:
+In your project directory, build the app:
 
 ```bash
-wasp install
 wasp build
 ```
 
