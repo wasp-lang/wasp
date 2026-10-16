@@ -13,6 +13,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Char (isAlpha, isAlphaNum)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
+import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path', (</>))
 import StrongPath.Path (toPathAbsDir)
@@ -30,7 +31,6 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
     waspProjectDirFromTemplateOutputDir,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
-import Wasp.Cli.Interactive (InteractiveTerminal)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Util.Parser (requireInteractiveTerminal)
 import Wasp.Project.Common (WaspProjectDir)
@@ -74,31 +74,30 @@ instance Show NewProjectAppName where
 -}
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
-  (projectName, template) <- case projectNameArg of
-    Just projectName -> do
-      template <- maybe (return defaultStarterTemplate) findTemplateOrThrow' templateNameArg
-      return (projectName, template)
-    Nothing -> do
-      terminal <- requireInteractiveTerminal newProjectArgsParser
-      projectName <- askForName terminal
-      template <- maybe (askForTemplate terminal starterTemplates) findTemplateOrThrow' templateNameArg
-      return (projectName, template)
-
+  projectName <- maybe askForName return projectNameArg
   appName <-
     either throwProjectCreationError pure $
       parseWaspProjectNameIntoAppName projectName
 
+  let prefersInteractive = isNothing projectNameArg
+      getFallbackTemplate =
+        if prefersInteractive
+          then askForTemplate starterTemplates
+          else return defaultStarterTemplate
+
+  template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateNameArg
+
   absTemplateOutputDir <- obtainAvailableTemplateOutputDirPath projectName
   return $ mkNewProjectDescription projectName appName absTemplateOutputDir template
-  where
-    findTemplateOrThrow' = findTemplateOrThrow starterTemplates
 
-askForName :: InteractiveTerminal -> Command String
-askForName terminal =
+askForName :: Command String
+askForName = do
+  terminal <- requireInteractiveTerminal newProjectArgsParser
   liftIO $ Interactive.askForRequiredInput terminal "Enter the project name (e.g. my-project)"
 
-askForTemplate :: InteractiveTerminal -> [StarterTemplate] -> Command StarterTemplate
-askForTemplate terminal starterTemplates =
+askForTemplate :: [StarterTemplate] -> Command StarterTemplate
+askForTemplate starterTemplates = do
+  terminal <- requireInteractiveTerminal newProjectArgsParser
   liftIO $ Interactive.askToChoose terminal "Choose a starter template" $ fromList starterTemplates
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
