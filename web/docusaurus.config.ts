@@ -268,6 +268,7 @@ const config: Config = {
     ],
   ],
   scripts: getScripts(),
+  clientModules: ["./src/clientModules/track.ts"],
   plugins: [
     "plugin-image-zoom",
 
@@ -363,6 +364,10 @@ function getScripts() {
   const devOnlyScripts: ScriptWithConsent[] = [];
 
   const prodOnlyScripts: ScriptWithConsent[] = [
+    {
+      src: "/scripts/plausible-queue.js",
+      requiresConsent: false,
+    },
     {
       // We are using Cloudflare Workers to proxy the Plausible script.
       src: "/waspara/wasp/script.js",

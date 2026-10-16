@@ -30,7 +30,7 @@ const Newsletter = () => {
   useBrokenLinks().collectAnchor(NEWSLETTER_ID);
 
   return (
-    <div className="bg-wasp-yellow">
+    <div className="bg-wasp-yellow" data-track-placement="newsletter">
       <SectionContainer id={NEWSLETTER_ID}>
         {/* NOTE(matija): Three flow items (intro, preview, form). On mobile they stack in
             this DOM order: intro -> preview -> form (see the feature, then sign up).
