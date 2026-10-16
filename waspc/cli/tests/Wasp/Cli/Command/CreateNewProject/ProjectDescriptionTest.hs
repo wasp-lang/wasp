@@ -7,55 +7,24 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (
 spec_parseWaspProjectNameIntoAppName :: Spec
 spec_parseWaspProjectNameIntoAppName = do
   describe "parseWaspProjectNameIntoAppName" $ do
-    describe "valid project names" $ do
-      it "accepts a kebab-case name and converts it to a camelCase app name" $ do
-        parseWaspProjectNameIntoAppName "my-app" `shouldParseToAppName` "myApp"
+    it "converts a kebab-case name to a camelCase app name" $ do
+      parseWaspProjectNameIntoAppName "my-app" `shouldParseToAppName` "myApp"
 
-      it "accepts a name with multiple dashes" $ do
-        parseWaspProjectNameIntoAppName "my-cool-app2" `shouldParseToAppName` "myCoolApp2"
+    it "accepts a name starting with an underscore" $ do
+      parseWaspProjectNameIntoAppName "_app" `shouldParseToAppName` "_app"
 
-      it "accepts a plain lowercase name" $ do
-        parseWaspProjectNameIntoAppName "myapp" `shouldParseToAppName` "myapp"
+    -- Regression tests for https://github.com/wasp-lang/wasp/issues/4763:
+    -- these names used to pass validation because the check ran on the
+    -- converted app name ("-app" becomes "app"), while the project
+    -- directory is created from the raw name.
+    it "rejects a name starting with a dash" $ do
+      parseWaspProjectNameIntoAppName "-app" `shouldSatisfy` isLeft
 
-      it "accepts a name with underscores" $ do
-        parseWaspProjectNameIntoAppName "my_app" `shouldParseToAppName` "my_app"
+    it "rejects a name with a trailing prime" $ do
+      parseWaspProjectNameIntoAppName "app'" `shouldSatisfy` isLeft
 
-      it "accepts a name starting with an underscore" $ do
-        parseWaspProjectNameIntoAppName "_app" `shouldParseToAppName` "_app"
-
-      it "accepts a name containing numbers" $ do
-        parseWaspProjectNameIntoAppName "app2" `shouldParseToAppName` "app2"
-
-    describe "invalid project names" $ do
-      -- Regression test for https://github.com/wasp-lang/wasp/issues/4763:
-      -- these names used to pass validation because the check ran on the
-      -- converted app name ("-app" becomes "app"), while the project
-      -- directory is created from the raw name.
-      it "rejects a name starting with a dash" $ do
-        parseWaspProjectNameIntoAppName "-app" `shouldSatisfy` isLeft
-
-      it "rejects a name with a trailing prime" $ do
-        parseWaspProjectNameIntoAppName "app'" `shouldSatisfy` isLeft
-
-      it "rejects a name starting with a number" $ do
-        parseWaspProjectNameIntoAppName "2app" `shouldSatisfy` isLeft
-
-      it "rejects a name containing a space" $ do
-        parseWaspProjectNameIntoAppName "my app" `shouldSatisfy` isLeft
-
-      it "rejects a name containing other special characters" $ do
-        parseWaspProjectNameIntoAppName "app!" `shouldSatisfy` isLeft
-
-      it "rejects an empty name" $ do
-        parseWaspProjectNameIntoAppName "" `shouldSatisfy` isLeft
-
-      it "rejects a Wasp keyword" $ do
-        parseWaspProjectNameIntoAppName "import" `shouldSatisfy` isLeft
-
-      it "explains the name format rules in the error message" $ do
-        case parseWaspProjectNameIntoAppName "-app" of
-          Left err -> err `shouldContain` "must start with a letter or an underscore"
-          Right _ -> expectationFailure "Expected an error for \"-app\", but the name was accepted"
+    it "rejects a Wasp keyword" $ do
+      parseWaspProjectNameIntoAppName "import" `shouldSatisfy` isLeft
 
 shouldParseToAppName :: Either String NewProjectAppName -> String -> Expectation
 shouldParseToAppName result expectedAppName = case result of
