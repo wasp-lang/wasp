@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { boolToStringNoAuth } from '../../../../../src/rpcTests/operations/definitions'
+import { boolToStringNoAuth } from "../../../../../src/rpcTests/operations/definitions"
 
 
 export default async function (args, context) {

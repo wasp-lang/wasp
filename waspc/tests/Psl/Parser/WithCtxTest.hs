@@ -38,24 +38,24 @@ spec_parsePslWithCtx = do
                         Psl.Model.Model
                           "MyModel"
                           ( Psl.Model.Body
-                              [ commentedNode [" Doc comment attached to `prop1`"] $
-                                  Psl.Model.ElementField $
-                                    Psl.Model.Field
-                                      "prop1"
-                                      Psl.Model.Int
-                                      []
-                                      [ Psl.Attribute.Attribute "id" [],
-                                        Psl.Attribute.Attribute
-                                          "default"
-                                          [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
-                                      ],
-                                Psl.WithCtx.empty $
-                                  Psl.Model.ElementField $
-                                    Psl.Model.Field
-                                      "prop2"
-                                      Psl.Model.String
-                                      []
-                                      [Psl.Attribute.Attribute "unique" []],
+                              [ commentedNode [" Doc comment attached to `prop1`"]
+                                  $ Psl.Model.ElementField
+                                  $ Psl.Model.Field
+                                    "prop1"
+                                    Psl.Model.Int
+                                    []
+                                    [ Psl.Attribute.Attribute "id" [],
+                                      Psl.Attribute.Attribute
+                                        "default"
+                                        [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
+                                    ],
+                                Psl.WithCtx.empty
+                                  $ Psl.Model.ElementField
+                                  $ Psl.Model.Field
+                                    "prop2"
+                                    Psl.Model.String
+                                    []
+                                    [Psl.Attribute.Attribute "unique" []],
                                 commentedNode
                                   [ " Multiline comments",
                                     " For prop3"
@@ -120,13 +120,13 @@ spec_parsePslWithCtx = do
                                     Psl.Model.String
                                     []
                                     [],
-                                commentedNode [" @zod.max(10240)"] $
-                                  Psl.Model.ElementField $
-                                    Psl.Model.Field
-                                      "contents"
-                                      Psl.Model.String
-                                      []
-                                      []
+                                commentedNode [" @zod.max(10240)"]
+                                  $ Psl.Model.ElementField
+                                  $ Psl.Model.Field
+                                    "contents"
+                                    Psl.Model.String
+                                    []
+                                    []
                               ]
                           )
                     ]

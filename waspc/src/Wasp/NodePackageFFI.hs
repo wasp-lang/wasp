@@ -52,7 +52,6 @@ import qualified Wasp.Util.IO as IOUtil
 -- their global installation path.
 data RunnablePackage
   = DeployPackage
-  | TsInspectPackage
   | -- | TODO(martin): I implemented this ts package because I planned to use prisma's TS sdk
     --   (@prisma/internals) inside it, but I ended up calling `prisma format` cli cmd directly,
     --   which means I could have really done it from Haskell!
@@ -80,7 +79,6 @@ packagesDirInDataDir = [reldir|packages|]
 runnablePackageDirInPackagesDir :: RunnablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
 runnablePackageDirInPackagesDir = \case
   DeployPackage -> [reldir|deploy|]
-  TsInspectPackage -> [reldir|ts-inspect|]
   PrismaPackage -> [reldir|prisma|]
   WaspStudioPackage -> [reldir|studio|]
 
@@ -102,10 +100,10 @@ scriptInPackageDir = [relfile|dist/index.js|]
 getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
   NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> do
+    Left errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
-    NodeVersion.VersionCheckSuccess -> pure ()
+    Right () -> pure ()
 
   packageDir <- getRunnablePackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
@@ -139,9 +137,9 @@ tryGettingInstalledPackageVersion ::
   InstallablePackage ->
   IO (Either String SV.Version)
 tryGettingInstalledPackageVersion projectDir package = runExceptT $ do
-  unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath) $
-    throwError $
-      "Couldn't find " ++ fromAbsFile packageJsonPath
+  unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath)
+    $ throwError
+    $ "Couldn't find " ++ fromAbsFile packageJsonPath
   packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
   ExceptT $ return $ case PJ.version packageJson of
     Just versionString -> first show $ SV.parseVersion versionString

@@ -1,13 +1,14 @@
 {{={= =}=}}
 import { api, handleApiError } from '../../../api/index.js'
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-import { type UserUsernameAndPasswordSignupFields } from '../../providers'
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+{=# isUsernameAndPasswordUserSignupFieldsDefined =}
+import type { UserUsernameAndPasswordSignupFields } from '../../providers'
+{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
-type UsernameSignupData = {
+// PRIVATE API
+export type UsernameSignupData = {
   username: string
   password: string
-}{=# usernameAndPasswordUserSignupFields.isDefined =} & UserUsernameAndPasswordSignupFields{=/ usernameAndPasswordUserSignupFields.isDefined =}
+}{=# isUsernameAndPasswordUserSignupFieldsDefined =} & UserUsernameAndPasswordSignupFields{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {

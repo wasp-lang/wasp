@@ -1,20 +1,28 @@
-import semver, { SemVer } from "semver";
+import { SemVer } from "semver";
 import { $ } from "zx";
 
 import { confirm } from "@inquirer/prompts";
+import {
+  assertCliVersionMeetsMinimum,
+  parseCliVersion,
+} from "../../common/cliVersion.js";
 import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
 import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
-// Railway CLI version 4.0.1 includes a change that is needed for
-// Wasp deploy command to work with Railway properly:
-// https://github.com/railwayapp/cli/pull/596
-const minSupportedRailwayCliVersion = new SemVer("4.6.3");
+// Wasp relies on the `railway api` command added in Railway CLI 5.28.0.
+const minSupportedRailwayCliVersion = new SemVer("5.28.0");
 
 export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,
 ): Promise<void> {
   const railwayCliVersion = await getRailwayCliVersion(railwayExe);
-  assertUsingMinimumSupportedRailwayCliVersion(railwayCliVersion);
+  assertCliVersionMeetsMinimum({
+    cliName: "Railway CLI",
+    currentVersion: railwayCliVersion,
+    minimumVersion: minSupportedRailwayCliVersion,
+    updateInstructions:
+      "Read how to update the Railway CLI here: https://docs.railway.com/guides/cli",
+  });
   await ensureUserLoggedIn(railwayExe);
 }
 
@@ -72,25 +80,7 @@ async function getRailwayCliVersion(
     );
   }
 
-  const version = semver.parse(match[1]);
-
-  if (version === null) {
-    throw new Error(`Unable to parse Railway CLI version "${match[1]}".`);
-  }
-
-  return version;
-}
-
-function assertUsingMinimumSupportedRailwayCliVersion(
-  railwayCliVersion: SemVer,
-): void {
-  if (!semver.gte(railwayCliVersion, minSupportedRailwayCliVersion)) {
-    const message = [
-      `Wasp expects at least Railway CLI version ${minSupportedRailwayCliVersion}.`,
-      "Read how to update the Railway CLI here: https://docs.railway.com/guides/cli",
-    ].join("\n");
-    throw new Error(message);
-  }
+  return parseCliVersion("Railway CLI", match[1]);
 }
 
 export function assertRailwayProjectNameIsValid(

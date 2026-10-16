@@ -34,9 +34,7 @@ genEnvValidation spec =
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
   sequence
-    [ genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|]
-    ]
+    [genFileCopy [relfile|env/index.ts|]]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec = sequence [genServerEnv spec]
@@ -58,9 +56,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "defaultServerPort" .= Server.defaultServerPort,
+          "serverPortEnvVarName" .= Server.serverPortEnvVarName,
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
@@ -69,7 +65,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-    app = snd $ getApp spec
+    app = getApp spec
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
@@ -78,11 +74,10 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    app = snd $ getApp spec
+    app = getApp spec
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

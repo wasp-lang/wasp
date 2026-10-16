@@ -17,7 +17,7 @@ const LoginPage = () => {
   const [passwordFieldVal, setPasswordFieldVal] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
 

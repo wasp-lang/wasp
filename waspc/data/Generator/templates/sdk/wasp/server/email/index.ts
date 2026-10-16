@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { env } from '../env.js';
 import { initEmailSender } from "./core/index.js";
-import { EmailSender } from "./core/types.js";
+import type { EmailSender } from "./core/types.js";
 
 {=# isSmtpProviderEnabled =}
 const emailProvider = { 

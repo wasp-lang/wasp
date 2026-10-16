@@ -67,14 +67,14 @@ SPOTIFY_CLIENT_SECRET=your_client_secret
 # just to get the arctic package installed
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
-
-# Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
-WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
 ```
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
+Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
+
+```bash
+wasp start \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
 ```
 
 :::note
@@ -144,7 +144,7 @@ export async function getSpotifyUser(accessToken: string): Promise<SpotifyUser> 
 }
 ```
 
-`src/auth.ts` wires the route handlers and uses `wasp/server/auth` helpers (`findAuthIdentity`, `createUser`) to connect the OAuth identity to a Wasp session (see [Custom Auth Actions](../../auth/advanced/custom-auth-actions.md) for details). This is similar to what Wasp does internally for [Google, GitHub and other supported providers](../../auth/social-auth/overview.md):
+`src/auth.ts` wires the route handlers and uses `wasp/server/auth` helpers (`findAuthIdentity`, `createUser`) to connect the OAuth identity to a Wasp session (see [Custom Auth Actions](../../features/auth/advanced/custom-auth-actions.md) for details). This is similar to what Wasp does internally for [Google, GitHub and other supported providers](../../features/auth/social-auth/overview.md):
 
 ```ts title="src/auth.ts" auto-js
 import * as arctic from "arctic";
@@ -211,7 +211,7 @@ The `tokenStore` and `getRedirectUriForOneTimeCode` are internal Wasp APIs that 
 
 ### 5. Create the login page
 
-Add a login button that redirects to your OAuth endpoint. This follows the same pattern as Wasp's [custom social auth UI](../../auth/social-auth/create-your-own-ui.md):
+Add a login button that redirects to your OAuth endpoint. This follows the same pattern as Wasp's [custom social auth UI](../../features/auth/social-auth/create-your-own-ui.md):
 
 ```tsx title="src/MainPage.tsx" auto-js
 import { logout, useAuth } from "wasp/client/auth";

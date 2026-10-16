@@ -22,23 +22,13 @@ waspSpecEntityTypesTest =
   Test
     "wasp-spec-entity-types"
     [ TestCase
-        "typescript-compiles-when-a-valid-entity-name-is-provided-before-compile"
+        "accepts-valid-entity-before-and-after-compile"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
                   replaceMainWaspTsFile $ mainWaspTs validEntityName,
-                  compileWaspMainTsFiles
-                ]
-            ]
-        ),
-      TestCase
-        "typescript-compiles-when-a-valid-entity-name-is-provided-after-compile"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ appendToPrismaFile prismaUserModel,
-                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  compileWaspMainTsFiles,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   compileWaspMainTsFiles
                 ]
@@ -59,7 +49,7 @@ waspSpecEntityTypesTest =
       --       ]
       --   ),
       TestCase
-        "typescript-errors-when-an-invalid-entity-name-is-provided-after-compile"
+        "rejects-invalid-entity-after-compile"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir

@@ -23,6 +23,12 @@ export function createRailwayServerServiceName(
   ) as ServerServiceName;
 }
 
+export function createRailwayDbServiceName(): DbServiceName {
+  // Kept as "Postgres" for compatibility with databases created by earlier
+  // Wasp versions.
+  return "Postgres" as DbServiceName;
+}
+
 function createRailwayServiceName(
   projectName: RailwayProjectName,
   service: ServiceWithSuffixedName,
@@ -40,8 +46,3 @@ export const serviceNameSuffixes: Record<ServiceWithSuffixedName, string> = {
   [ServiceWithSuffixedName.Client]: "-client",
   [ServiceWithSuffixedName.Server]: "-server",
 };
-
-export function createRailwayDbServiceName(): DbServiceName {
-  // Railway doesn't allow us to choose the database service name.
-  return "Postgres" as DbServiceName;
-}

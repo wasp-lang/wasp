@@ -3,9 +3,7 @@ module Wasp.Generator.SdkGenerator.Client.OperationsGenerator (genOperations) wh
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (Pair)
-import Data.Maybe (fromJust)
-import StrongPath (Dir, File', Path, Path', Posix, Rel, castRel, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -15,32 +13,22 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkRootDir,
-    SdkTemplatesDir,
+  ( SdkTemplatesDir,
     clientTemplatesDirInSdkTemplatesDir,
     genFileCopy,
-    getOperationTypeName,
+    getGenericOperationDefinitionTypeName,
+    getRegisteredOperationTypeName,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationIndexJsFileInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
-import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RelativeImportPath), getJsImportStmtAndIdentifier, makeTypeJsImport)
 import Wasp.Util ((<++>))
-import Wasp.Util.StrongPath (invertRelDir)
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
-    [ -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/resources.js|],
-      genFileCopyInClientOps [relfile|internal/index.ts|],
-      -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/updateHandlersMap.js|],
-      genFileCopyInClientOps [relfile|rpc.ts|],
-      genFileCopyInClientOps [relfile|hooks.ts|],
-      genFileCopyInClientOps [relfile|index.ts|],
-      genFileCopyInClientOps [relfile|queryClient.ts|]
+    [ genFileCopyInClientOps [relfile|internal/index.ts|],
+      genFileCopyInClientOps [relfile|index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -83,8 +71,8 @@ genActionsIndex spec =
         [ "actions" .= map getActionData (AS.getActions spec)
         ]
 
-getQueryData :: (String, AS.Query.Query) -> Aeson.Value
-getQueryData (queryName, query) =
+getQueryData :: AS.Query.Query -> Aeson.Value
+getQueryData query =
   object $
     [ "queryRoute"
         .= ( ServerGenerator.operationsRouteInRootRouter
@@ -95,10 +83,10 @@ getQueryData (queryName, query) =
     ]
       ++ getOperationTypeData operation
   where
-    operation = AS.Operation.QueryOp queryName query
+    operation = AS.Operation.QueryOp query
 
-getActionData :: (String, AS.Action.Action) -> Aeson.Value
-getActionData (actionName, action) =
+getActionData :: AS.Action.Action -> Aeson.Value
+getActionData action =
   object $
     [ "actionRoute"
         .= ( ServerGenerator.operationsRouteInRootRouter
@@ -109,10 +97,10 @@ getActionData (actionName, action) =
     ]
       ++ getOperationTypeData operation
   where
-    operation = AS.Operation.ActionOp actionName action
+    operation = AS.Operation.ActionOp action
 
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
---   E.g. "['Task', 'Project']"
+--   E.g. "[\"Task\", \"Project\"]"
 makeJsArrayOfEntityNames :: AS.Operation.Operation -> String
 makeJsArrayOfEntityNames operation = makeJsArrayFromHaskellList entityNames
   where
@@ -122,32 +110,11 @@ getOperationTypeData :: AS.Operation.Operation -> [Pair]
 getOperationTypeData operation = tmplData
   where
     tmplData =
-      [ "operationTypeImportStmt" .= operationTypeImportStmt,
-        "operationTypeName" .= operationTypeImportIdentifier,
+      [ "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
+        "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
         "operationName" .= operationName
       ]
-
     operationName = AS.Operation.getName operation
-
-    (operationTypeImportStmt, operationTypeImportIdentifier) =
-      getJsImportStmtAndIdentifier $
-        makeTypeJsImport (RelativeImportPath $ castRel serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
-    serverOpsImportPath = serverOperationTypeImportPathFromClientOperationIndexDir operation
-
-serverOperationTypeImportPathFromClientOperationIndexDir :: AS.Operation.Operation -> Path Posix (Rel ClientOperationIndexDir) File'
-serverOperationTypeImportPathFromClientOperationIndexDir operation =
-  fromJust . SP.relFileToPosix $
-    invertRelDir (clientOperationIndexDirInSdkRootDir operation)
-      </> serverOperationIndexJsFileInSdkRootDir operation
-
-data ClientOperationIndexDir
-
-clientOperationIndexDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) (Dir ClientOperationIndexDir)
-clientOperationIndexDirInSdkRootDir operation =
-  castRel $
-    clientOpsDirInSdkTemplatesDir </> case operation of
-      (AS.Operation.QueryOp _ _) -> [reldir|queries|]
-      (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
 data ClientOpsTemplatesDir
 

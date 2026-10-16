@@ -26,10 +26,10 @@ import Wasp.Generator.Monad
   )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
-import Wasp.Generator.Setup (runSetup)
-import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
+import Wasp.Generator.Setup (SetupGoal, runSetup, setUpGeneratedApp)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
+import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
@@ -45,8 +45,8 @@ import Wasp.Util ((<++>))
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
-writeWebAppCode spec dstDir sendMessage = do
+writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> SetupGoal -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode spec dstDir sendMessage setupGoal = do
   case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
@@ -57,7 +57,7 @@ writeWebAppCode spec dstDir sendMessage = do
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
           WaspInfo.persist dstDir $ AS.buildType spec
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp setupGoal spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
@@ -66,19 +66,19 @@ genApp spec = do
 
   genServer spec
     <++> genSdk spec
-    <++> genSpecTypes spec
     <++> genDb spec
     <++> genDockerFiles spec
+    <++> genTypeAugmentation spec
     <++> genWaspLibs
 
 warnOverriddenDeps :: AppSpec -> Generator ()
 warnOverriddenDeps spec =
   forM_ overriddenDepNames $ \pkgName ->
-    logGeneratorWarning $
-      GenericGeneratorWarning $
-        "Dependency override active for \""
-          ++ pkgName
-          ++ "\". You are using an unsupported version. "
-          ++ "Wasp cannot guarantee compatibility."
+    logGeneratorWarning
+      $ GenericGeneratorWarning
+      $ "Dependency override active for \""
+        ++ pkgName
+        ++ "\". You are using an unsupported version. "
+        ++ "Wasp cannot guarantee compatibility."
   where
     overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)

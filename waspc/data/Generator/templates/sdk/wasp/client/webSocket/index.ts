@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import { WebSocketContext, WebSocketContextValue } from './WebSocketProvider'
+import { WebSocketContext, type WebSocketContextValue } from './WebSocketProvider'
 import type {
   ClientToServerEvents,
   ServerToClientEvents,

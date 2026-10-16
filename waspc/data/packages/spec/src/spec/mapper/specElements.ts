@@ -25,7 +25,7 @@ export type AppSpecDeclTypeForWaspSpecElement<
 export function declToRef<SpecElement extends WaspSpec.SpecElement>(
   decl: AppSpec.Decl,
 ): AppSpec.Ref<AppSpecDeclTypeForWaspSpecElement<SpecElement>> {
-  return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
+  return { declType: decl.declType, name: decl.declValue.name } as AppSpec.Ref<
     AppSpecDeclTypeForWaspSpecElement<SpecElement>
   >;
 }
@@ -63,8 +63,8 @@ export function mapPageSpec(
   const { component, authRequired } = page;
   return {
     declType: "Page",
-    declName: getRefObjectDeclarationName(page.component),
     declValue: {
+      name: getRefObjectDeclarationName(page.component),
       component: ctx.parseRefObject(component),
       authRequired,
     },
@@ -78,8 +78,8 @@ export function mapRouteSpec(
   const { path, prerender, lazy } = route;
   return {
     declType: "Route",
-    declName: route.name,
     declValue: {
+      name: route.name,
       path,
       to: ctx.collectSpecElement(route.page),
       prerender: normalizePrerender(prerender, path),
@@ -95,8 +95,8 @@ export function mapQuerySpec(
   const { fn, entities, auth } = query;
   return {
     declType: "Query",
-    declName: getRefObjectDeclarationName(query.fn),
     declValue: {
+      name: getRefObjectDeclarationName(query.fn),
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
       auth,
@@ -111,8 +111,8 @@ export function mapActionSpec(
   const { fn, entities, auth } = action;
   return {
     declType: "Action",
-    declName: getRefObjectDeclarationName(action.fn),
     declValue: {
+      name: getRefObjectDeclarationName(action.fn),
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
       auth,
@@ -127,8 +127,8 @@ export function mapApiSpec(
   const { method, path, fn, middlewareConfigFn, entities, auth } = api;
   return {
     declType: "Api",
-    declName: getRefObjectDeclarationName(api.fn),
     declValue: {
+      name: getRefObjectDeclarationName(api.fn),
       fn: ctx.parseRefObject(fn),
       middlewareConfigFn:
         middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
@@ -146,8 +146,8 @@ export function mapApiNamespaceSpec(
   const { middlewareConfigFn, path } = apiNamespace;
   return {
     declType: "ApiNamespace",
-    declName: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
     declValue: {
+      name: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
       middlewareConfigFn: ctx.parseRefObject(middlewareConfigFn),
       path,
     },
@@ -161,8 +161,8 @@ export function mapJobSpec(
   const { fn, executor, schedule, entities, performExecutorOptions } = job;
   return {
     declType: "Job",
-    declName: getRefObjectDeclarationName(job.fn),
     declValue: {
+      name: getRefObjectDeclarationName(job.fn),
       executor,
       perform: {
         fn: ctx.parseRefObject(fn),
@@ -190,8 +190,8 @@ export function mapCrudSpec(
   const { entity, operations } = crud;
   return {
     declType: "Crud",
-    declName: crud.name,
     declValue: {
+      name: crud.name,
       entity: ctx.resolveEntityRef(entity),
       operations: mapCrudOperations(operations, ctx),
     },

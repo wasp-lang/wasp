@@ -35,21 +35,20 @@ genIndexTsWithApiRoutes :: AppSpec -> Generator FileDraft
 genIndexTsWithApiRoutes spec =
   return $ mkTmplFdWithData [relfile|server/api/index.ts|] tmplData
   where
-    namedApis = AS.getApis spec
-    apis = snd <$> namedApis
+    apis = AS.getApis spec
     tmplData =
       object
-        [ "apiRoutes" .= map getTmplData namedApis,
+        [ "apiRoutes" .= map getTmplData apis,
           "shouldImportAuthenticatedApi" .= any usesAuth apis,
           "shouldImportNonAuthenticatedApi" .= not (all usesAuth apis),
           "allEntities" .= nub (concatMap getApiEntitiesObject apis)
         ]
     usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
 
-    getTmplData :: (String, Api.Api) -> Aeson.Value
-    getTmplData (name, api) =
+    getTmplData :: Api.Api -> Aeson.Value
+    getTmplData api =
       object
-        [ "typeName" .= toUpperFirst name,
+        [ "typeName" .= toUpperFirst api.name,
           "entities" .= getApiEntitiesObject api,
           "usesAuth" .= isAuthEnabledForApi spec api
         ]

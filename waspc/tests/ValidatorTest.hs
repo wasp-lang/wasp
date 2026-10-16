@@ -62,10 +62,16 @@ spec_Validator = do
       V.eqJust True <-- Nothing ~> ["Missing value, expected True."]
 
     specify "containsAll" $ do
-      V.containsAll ["a", "b"] <-- ["a", "b"] ~> []
-      V.containsAll ["a", "b"] <-- ["a", "b", "c"] ~> []
-      V.containsAll ["a", "b"] <-- ["b", "a"] ~> []
-      V.containsAll ["a", "b"]
+      V.containsAll (["a", "b"] :: [String])
+        <-- ["a", "b"]
+        ~> []
+      V.containsAll (["a", "b"] :: [String])
+        <-- ["a", "b", "c"]
+        ~> []
+      V.containsAll (["a", "b"] :: [String])
+        <-- ["b", "a"]
+        ~> []
+      V.containsAll (["a", "b"] :: [String])
         <-- ["a"]
         ~> ["Expected to contain all of [\"a\",\"b\"] but got [\"a\"]."]
 

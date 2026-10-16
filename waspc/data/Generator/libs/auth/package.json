@@ -1,10 +1,10 @@
 {
   "name": "@wasp.sh/lib-auth",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "type": "module",
   "license": "MIT",
   "exports": {
-    "./index": {
+    ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },

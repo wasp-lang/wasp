@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 -- | This modules implements general concepts regarding env vars.
 -- It is not specific to Wasp in any way.
 module Wasp.Env
@@ -7,8 +9,11 @@ module Wasp.Env
     parseDotEnvFile,
     envVarsToDotEnvContent,
     nubEnvVars,
-    overrideEnvVars,
     formatEnvVarValue,
+    findDuplicateEnvVars,
+    HasEnvVars (..),
+    addEnvVarsUnique,
+    addEnvVarsOverride,
   )
 where
 
@@ -16,6 +21,7 @@ import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
@@ -54,21 +60,39 @@ formatEnvVarValue rawValue
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
 
--- | If any of the first env vars already exist in the second list, returns
--- `Left` of the list of duplicated env var names. Otherwise returns `Right` of
--- the combined list.
---
--- This function is useful to add internal environment variables to a list of
--- user-defined ones. If the user has already defined an environment variable
--- with the same name, we'll want to inform them so that the user doesn't get
--- confused about which value is being used. If the user has not defined that
--- environment variable, we just prepend it to the list and continue.
-overrideEnvVars :: [EnvVar] -> [EnvVar] -> Either [EnvVarName] [EnvVar]
-left `overrideEnvVars` right =
-  if null duplicateNames
-    then Right (left <> right)
-    else Left duplicateNames
+findDuplicateEnvVars :: [EnvVar] -> [EnvVar] -> Set EnvVarName
+findDuplicateEnvVars existing incoming =
+  existingNames `Set.intersection` incomingNames
   where
-    duplicateNames = filter (`Set.member` leftNames) rightNames
-    leftNames = Set.fromList $ map fst left
-    rightNames = map fst right
+    existingNames = Set.fromList $ fst <$> existing
+    incomingNames = Set.fromList $ fst <$> incoming
+
+class HasEnvVars a where
+  getEnvVars :: a -> [EnvVar]
+  setEnvVars :: [EnvVar] -> a -> a
+
+instance HasEnvVars [EnvVar] where
+  getEnvVars = id
+  setEnvVars newEnvVars _ = newEnvVars
+
+-- | Combines the existing env vars of a type with new env vars. If there are
+-- duplicates in the new env vars, returns a @Left@ of the duplicate env var
+-- names.
+addEnvVarsUnique :: (HasEnvVars a) => [EnvVar] -> a -> Either (Set EnvVarName) a
+addEnvVarsUnique incoming x
+  | Set.null duplicateNames = Right $ addEnvVarsOverride incoming x
+  | otherwise = Left duplicateNames
+  where
+    duplicateNames = findDuplicateEnvVars existing incoming
+    existing = getEnvVars x
+
+-- | Combines the existing env vars of a type with new env vars. If there are
+-- duplicates in the new env vars, the new env vars will override the existing
+-- ones.
+addEnvVarsOverride :: (HasEnvVars a) => [EnvVar] -> a -> a
+addEnvVarsOverride incoming x = setEnvVars (nubEnvVars merged) x
+  where
+    merged =
+      -- Incoming first so that they take priority over existing.
+      incoming <> existing
+    existing = getEnvVars x

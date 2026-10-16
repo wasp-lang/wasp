@@ -1,6 +1,9 @@
 
-import { prisma } from '../../index.js'
+import { prisma } from '../../index'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
-} from '../wrappers.js'
+} from '../wrappers'
+import type { FromRegisterPath } from '../../../types/register'
+import type {
+} from './types'

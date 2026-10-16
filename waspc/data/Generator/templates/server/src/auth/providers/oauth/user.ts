@@ -7,7 +7,7 @@ import {
   validateAndGetUserFields,
   createProviderId,
   findAuthWithUserBy,
-} from 'wasp/auth/utils'
+} from 'wasp/server/auth/utils'
 import { type {= authEntityUpper =} } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
@@ -111,6 +111,10 @@ async function getAuthIdFromProviderDetails({
 
     return authId
   } else {
+    // The hook runs first so it can veto the signup (by throwing) before the
+    // developer's `userSignupFields` getters run.
+    await onBeforeSignupHook({ req, providerId })
+
     const userFields = await validateAndGetUserFields(
       { profile: providerProfile },
       userSignupFields,
@@ -118,8 +122,7 @@ async function getAuthIdFromProviderDetails({
 
     // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
     const providerData = await sanitizeAndSerializeProviderData({})
-  
-    await onBeforeSignupHook({ req, providerId })
+
     const user = await createUser(
       providerId,
       providerData,

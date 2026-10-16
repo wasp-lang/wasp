@@ -8,7 +8,8 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
 import Control.Monad (unless)
-import Data.List (isSuffixOf)
+import Data.Either (fromLeft)
+import Data.List (isPrefixOf, isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -113,7 +114,8 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     recompile :: IO ([CompileWarning], [CompileError])
     recompile = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      (warnings, errors) <- compileIO waspProjectDir outDir
+      (warnings, appSpecOrErrors) <- compileIO waspProjectDir outDir
+      let errors = fromLeft [] appSpecOrErrors
 
       printCompilationResult (warnings, errors)
       if null errors
@@ -121,9 +123,9 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
           cliSendMessage $
             Msg.Success "Recompilation on file change succeeded."
         else
-          cliSendMessage $
-            Msg.Failure "Recompilation on file change failed." $
-              show (length errors) ++ " errors found"
+          cliSendMessage
+            $ Msg.Failure "Recompilation on file change failed."
+            $ show (length errors) ++ " errors found"
 
       return (warnings, errors)
 
@@ -132,12 +134,11 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     --   so better approach would be probably to use information from .gitignore instead, or
     --   maybe combining the two somehow.
     isEditorTmpFile :: String -> Bool
-    isEditorTmpFile "" = False
     isEditorTmpFile filename =
       or
-        [ take 2 filename == ".#", -- Emacs lock files.
-          head filename == '#' && last filename == '#', -- Emacs auto-save files.
-          last filename == '~', -- Emacs and vim backup files.
-          head filename == '.' && ".swp" `isSuffixOf` filename, -- Vim swp files.
-          head filename == '.' && ".un~" `isSuffixOf` filename -- Vim undo files.
+        [ ".#" `isPrefixOf` filename, -- Emacs lock files.
+          "#" `isPrefixOf` filename && "#" `isSuffixOf` filename, -- Emacs auto-save files.
+          "~" `isSuffixOf` filename, -- Emacs and vim backup files.
+          "." `isPrefixOf` filename && ".swp" `isSuffixOf` filename, -- Vim swp files.
+          "." `isPrefixOf` filename && ".un~" `isSuffixOf` filename -- Vim undo files.
         ]

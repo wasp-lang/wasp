@@ -25,7 +25,7 @@ In addition to applications, we also cover secondary outputs, such as the instal
 We test Wasp CLI commands whose outputs we can discard.
 
 Tests execute their test cases in the `TestCaseDir`s.
-The `TestCaseDir`s are created in the `waspc/e2e-tests/test-outputs/` diectory.
+The `TestCaseDir`s are created in the `waspc/e2e-tests/test-outputs/` directory.
 While the exact files within a `TestCaseDir` aren't strictly defined, they usually have the following structure:
 
 ```
@@ -34,7 +34,7 @@ While the exact files within a `TestCaseDir` aren't strictly defined, they usual
 
 e2e-tests/
 └── test-outputs/
-    └── <test-name>/<test-case-name>/  # test case dirctory
+    └── <test-name>/<test-case-name>/  # test case directory
         ├── wasp-app/ # contains the Wasp app for that test
         └── ...
 ```
@@ -63,7 +63,7 @@ While the exact files within a snapshot aren't strictly defined, they usually ha
 e2e-tests/
 └── test-outputs/
     └── snapshots/
-        └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
+        └── <name>-<snapshot-type>/  # snapshot directory, e.g. `wasp-build-current`, `wasp-build-golden`
             ├── wasp-app/ # contains the Wasp app for that snapshot test
             ├── ...
             └── snapshot-file-list.manifest # lists the files that should exist in the snapshot directory

@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.Server.EmailSenderG
   ( genEmailSenderApi,
     depsRequiredByEmail,
+    devDepsRequiredByEmail,
   )
 where
 
@@ -23,6 +24,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genEmailSenderApi :: AppSpec -> Generator [FileDraft]
 genEmailSenderApi spec = case maybeEmailSender of
@@ -33,7 +35,7 @@ genEmailSenderApi spec = case maybeEmailSender of
       <++> genCore emailSender
   Nothing -> return []
   where
-    maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
+    maybeEmailSender = AS.App.emailSender $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex emailSender =
@@ -85,8 +87,8 @@ genCoreHelpers emailSender =
       object
         [ "defaultFromField"
             .= object
-              [ "email" .= fromMaybe "" maybeEmail,
-                "name" .= fromMaybe "" maybeName,
+              [ "email" .= makeJsStringLiteral (fromMaybe "" maybeEmail),
+                "name" .= makeJsStringLiteral (fromMaybe "" maybeName),
                 "isNameDefined" .= isJust maybeName
               ],
           "isDefaultFromFieldDefined" .= isDefaultFromFieldDefined
@@ -103,11 +105,13 @@ genEmailSenderProviderSetupFn emailSender =
     setupFnFromProvidersDir = Providers.setupFnFile . Providers.getEmailSenderProvider $ emailSender
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByEmail spec = maybeToList maybeNpmDepedency
-  where
-    maybeProvider :: Maybe Providers.EmailSenderProvider
-    maybeProvider = Providers.getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
-    maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
+depsRequiredByEmail spec = maybeToList $ getEmailSenderProvider spec >>= Providers.npmDependency
+
+devDepsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
+devDepsRequiredByEmail spec = maybeToList $ getEmailSenderProvider spec >>= Providers.npmDevDependency
+
+getEmailSenderProvider :: AppSpec -> Maybe Providers.EmailSenderProvider
+getEmailSenderProvider spec = Providers.getEmailSenderProvider <$> (AS.App.emailSender . getApp $ spec)
 
 serverEmailDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverEmailDirInSdkTemplatesDir = [reldir|server/email|]

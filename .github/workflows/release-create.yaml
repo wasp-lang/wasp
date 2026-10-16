@@ -15,7 +15,7 @@ jobs:
     # job. The workflow itself is already checked by zizmor too, so we can
     # safely ignore this warning here.
     # zizmor: ignore[excessive-permissions]
-    uses: ./.github/workflows/ci.yaml
+    uses: $/.github/workflows/ci.yaml
     secrets:
       # (Same comment as above)
       # zizmor: ignore[secrets-inherit]

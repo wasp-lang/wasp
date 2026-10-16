@@ -21,10 +21,10 @@ import qualified Wasp.Generator.Crud.Routes as Routes
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Util as Util
 
-getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Model.Field -> Aeson.Value
-getCrudOperationJson crudOperationName crud idField =
+getCrudOperationJson :: AS.Crud.Crud -> Psl.Model.Field -> Aeson.Value
+getCrudOperationJson crud idField =
   object
-    [ "name" .= crudOperationName,
+    [ "name" .= crud.name,
       "operations" .= object (map getDataForOperation crudOperations),
       "entityUpper" .= crudEntityName,
       "entityLower" .= Util.toLowerFirst crudEntityName,
@@ -42,7 +42,7 @@ getCrudOperationJson crudOperationName crud idField =
         operation
         ( object
             [ "route" .= Routes.getRoute operation,
-              "fullPath" .= Routes.makeFullPath crudOperationName operation,
+              "fullPath" .= Routes.makeFullPath crud.name operation,
               "isPublic" .= fromMaybe False (AS.Crud.isPublic options)
             ]
         )
