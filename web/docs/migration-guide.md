@@ -263,6 +263,20 @@ This breaks the Caddy setup from the [VPS deployment guide](./guides/deployment/
 
 If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
 
-### 8. Enjoy your updated Wasp app
+### 8. Update deployment CLIs
+
+Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both locally and in CI, if you use them.
+
+### 9. Replace `wasp info` with `wasp show`
+
+`wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
+
+### 10. Update selectors for email auth fields
+
+If you are running e2e tests on your app, update selectors from `input[type="email"]` to `input[name="email"]`.
+
+Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
+
+### 11. Enjoy your updated Wasp app
 
 That's it!
