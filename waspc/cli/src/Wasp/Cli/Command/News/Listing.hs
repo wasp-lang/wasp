@@ -32,7 +32,7 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Interactive (tryGettingConfirmationWithTimeout)
+import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Util.Terminal (styleCode)
 
 shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
@@ -86,12 +86,18 @@ listNews localState listing = do
     newsListingStr = showNewsListing localState listing
     messageForUser = showMessageForUser localState listing
 
+    -- Without an interactive terminal we can't ask, so we don't assume the
+    -- user has seen the news.
     getConfirmationFromUser =
-      tryGettingConfirmationWithTimeout
-        "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
-        "y"
-        10
-        <&> either (const False) (const True)
+      Interactive.getInteractiveTerminal >>= \case
+        Nothing -> return False
+        Just terminal ->
+          Interactive.tryGettingConfirmationWithTimeout
+            terminal
+            "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
+            "y"
+            10
+            <&> either (const False) (const True)
 
     updateTimestampAndMarkAsSeen newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
