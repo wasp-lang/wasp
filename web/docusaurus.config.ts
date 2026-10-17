@@ -187,7 +187,10 @@ const config: Config = {
       contextualSearch: true,
     },
     image: "img/wasp_twitter_cover.png",
-    metadata: [{ name: "twitter:card", content: "summary_large_image" }],
+    metadata: [
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:site_name", content: "Wasp" },
+    ],
   } as Preset.ThemeConfig,
   presets: [
     [
@@ -249,9 +252,9 @@ const config: Config = {
           id: "blog",
           path: "./blog",
           routeBasePath: "blog",
-          blogTitle: "Blog",
+          blogTitle: "Wasp Blog: tutorials, updates and case studies",
           blogDescription:
-            "The latest updates, tutorials, and deep-dives from the Wasp team.",
+            "The Wasp team writes tutorials, launch updates, case studies and engineering posts about Wasp and full-stack web development with React and Node.js.",
           showReadingTime: true,
           showLastUpdateTime: true,
           blogSidebarCount: "ALL",
@@ -283,8 +286,9 @@ const config: Config = {
         id: "resources",
         path: "./resources",
         routeBasePath: "resources",
-        blogTitle: "Resources",
-        blogDescription: "Guides, comparisons, and other resources.",
+        blogTitle: "Wasp Resources: guides, comparisons and opinions",
+        blogDescription:
+          "Guides, comparisons, research and opinions on full-stack web frameworks, to help you pick and use the right one.",
         authorsMapPath: "../blog/authors.yml",
         showReadingTime: true,
         showLastUpdateTime: true,
