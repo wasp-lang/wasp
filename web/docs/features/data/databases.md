@@ -88,7 +88,7 @@ Stop `wasp start` before running `wasp db migrate-dev`, `wasp db reset`, `wasp d
 
 To keep the database running across commands, run `wasp db start` in a separate terminal. This command fails if the development database is already running. It prints connection credentials for tools such as `psql` or [pgAdmin](https://www.pgadmin.org/).
 
-By default, Wasp uses port `5432`, or the next free port if `5432` is taken. With `--db-port <port>`, it fails if the requested port is unavailable:
+When starting a new database, Wasp uses port `5432` by default, or the next free port if `5432` is taken. With `--db-port <port>`, it fails if the requested port is unavailable:
 
 ```bash
 wasp start --db-port 8080

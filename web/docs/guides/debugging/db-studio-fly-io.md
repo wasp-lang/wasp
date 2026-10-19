@@ -65,12 +65,9 @@ Copy this password and type `exit` to leave the SSH session.
 
 ## Step 3: Open a Database Tunnel
 
-Before opening the tunnel, make sure nothing else is running on port 5432:
+Stop `wasp start` before running Studio because they use the same project lock.
 
-- Stop `wasp start` and any local database started with `wasp db start`
-- Check for Docker containers that might be using the port
-
-Wasp stops the database it started when the command exits. If it used an existing database, that database stays running. Stop it separately if it occupies port 5432.
+The tunnel below needs local port `5432` to be free. Stop any database or other process using that port.
 
 Open the tunnel:
 
