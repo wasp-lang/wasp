@@ -20,7 +20,6 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
-import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -39,7 +38,7 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
-import Wasp.Cli.Util.Parser (ArgsParser (..))
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
@@ -211,10 +210,10 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
-  "seed" : seedArgs -> runCommandThatRequiresDbRunning Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
-  "studio" : studioArgs -> runCommandThatRequiresDbRunning (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
+  "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
+  "seed" : seedArgs -> runCommand $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
+  "studio" : studioArgs -> runCommand $ withArguments (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
