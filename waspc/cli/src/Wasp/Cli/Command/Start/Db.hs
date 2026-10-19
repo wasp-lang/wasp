@@ -6,22 +6,20 @@ module Wasp.Cli.Command.Start.Db
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan)
-import Control.Concurrent.Async (Async, async, cancel, concurrently, race, wait)
+import Control.Concurrent.Async (Async, async, cancel, race, wait)
 import Control.Exception (IOException, try)
-import Control.Monad (forM_, unless, when)
+import Control.Monad (unless, when)
 import Control.Monad.Catch (bracket, bracketOnError, finally)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.List (intercalate, isInfixOf)
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode)
 import System.IO.Error (ioeGetErrorString)
-import System.Process (CreateProcess (create_group), proc, readCreateProcessWithExitCode, readProcessWithExitCode)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -29,8 +27,8 @@ import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
+import qualified Wasp.Cli.Command.Db.Docker as Docker
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -38,9 +36,6 @@ import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
-import qualified Wasp.Job as Job
-import Wasp.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Job.Process (runProcessAsJob)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -187,14 +182,9 @@ withPostgresSession waspProjectDir appName options policy action = do
     acquire (CreateDatabase db image mountPath) =
       bracketOnError
         (withDatabaseError "Could not start PostgreSQL" $ Dev.Postgres.createDevPostgresContainer db image mountPath)
-        removeContainer
+        Docker.removeContainer
         ( \containerId -> do
-            databaseJob <- liftIO $ async $ do
-              channel <- newChan
-              fst
-                <$> concurrently
-                  (runProcessAsJob (proc "docker" ["start", "--attach", containerId]) Job.Db channel)
-                  (printDbMessages channel)
+            databaseJob <- liftIO $ async $ Docker.runDockerCommand ["start", "--attach", containerId]
             return $ StartedDatabase db containerId databaseJob
         )
 
@@ -212,12 +202,12 @@ withPostgresSession waspProjectDir appName options policy action = do
       action session
 
     release (StartedDatabase _ containerId databaseJob) =
-      stopDatabase containerId `finally` (liftIO (cancel databaseJob) `finally` removeContainer containerId)
+      Docker.stopDatabase containerId `finally` (liftIO (cancel databaseJob) `finally` Docker.removeContainer containerId)
     release _ = return ()
 
 preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> Command PreparedDatabase
 preparePostgresDevDb waspProjectDir appName options policy = do
-  ensureDockerDaemonAvailable
+  Docker.ensureDockerDaemonAvailable
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> case policy of
@@ -256,7 +246,7 @@ preparePostgresDevDb waspProjectDir appName options policy = do
     prepareDbOnPort :: PortNumber -> Command PreparedDatabase
     prepareDbOnPort port = do
       let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
-      ensureImageAvailable
+      Docker.ensureImageAvailable dbDockerImage
       cliSendMessageC $ Msg.Start "Starting PostgreSQL..."
       cliSendMessageC $ Msg.Info $ unlines dockerRunInfoLines
       return $ CreateDatabase devDbSpec dbDockerImage dbDockerVolumeMountPath
@@ -270,16 +260,6 @@ preparePostgresDevDb waspProjectDir appName options policy = do
       [ " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath
       ]
-
-    ensureImageAvailable :: Command ()
-    ensureImageAvailable = do
-      (imageStatus, _, _) <- liftIO $ readProcessWithExitCode "docker" ["image", "inspect", dbDockerImage] ""
-      when (imageStatus /= ExitSuccess) $ do
-        cliSendMessageC $ Msg.Start $ printf "Pulling PostgreSQL image %s..." dbDockerImage
-        pullStatus <- liftIO $ do
-          channel <- newChan
-          fst <$> concurrently (runProcessAsJob (proc "docker" ["pull", dbDockerImage]) Job.Db channel) (printDbMessages channel)
-        when (pullStatus /= ExitSuccess) $ E.throwError $ CommandError "Could not pull PostgreSQL image" (printf "Check the image name, registry access, and network connection. Image: %s" dbDockerImage)
 
 findDatabaseUrlSource :: AS.AppSpec -> IO (Maybe DatabaseUrlSource)
 findDatabaseUrlSource appSpec = do
@@ -307,47 +287,6 @@ suppliedOptionNames options =
 getDatabaseForSession :: DatabaseSession -> Dev.Postgres.DevDbSpec
 getDatabaseForSession (ReusedDatabase db) = db
 getDatabaseForSession (StartedDatabase db _ _) = db
-
-ensureDockerDaemonAvailable :: Command ()
-ensureDockerDaemonAvailable = do
-  throwIfExeIsNotAvailable
-    "docker"
-    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
-  (exitCode, _, stderr) <- liftIO $ readProcessWithExitCode "docker" ["info", "--format", "{{.ServerVersion}}"] ""
-  when (exitCode /= ExitSuccess) $ E.throwError $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
-
-stopDatabase :: String -> Command ()
-stopDatabase containerId = do
-  cliSendMessageC $ Msg.Start "Stopping database..."
-  failure <- runDockerCleanup ["stop", containerId]
-  forM_ failure $ \errors ->
-    cliSendMessageC $ Msg.Warning "Could not stop PostgreSQL" (printf "Wasp will try to remove the container. %s" errors)
-
-removeContainer :: String -> Command ()
-removeContainer containerId = do
-  failure <- runDockerCleanup ["rm", "--force", containerId]
-  forM_ failure $ \errors ->
-    cliSendMessageC $ Msg.Warning "Could not remove PostgreSQL container" (printf "Try `docker rm --force %s`. %s" containerId errors)
-
-runDockerCleanup :: [String] -> Command (Maybe String)
-runDockerCleanup args = do
-  -- create_group keeps terminal Ctrl+C from interrupting Docker's cleanup command.
-  (status, _, errors) <- liftIO $ readCreateProcessWithExitCode ((proc "docker" args) {create_group = True}) ""
-  return $
-    if status == ExitSuccess || "No such container" `isInfixOf` errors
-      then Nothing
-      else Just errors
-
-printDbMessages :: Chan Job.JobMessage -> IO ()
-printDbMessages channel = runPrefixedWriter go
-  where
-    go = do
-      message <- liftIO $ readChan channel
-      case Job._data message of
-        Job.JobOutput output _ -> do
-          printJobMessagePrefixed $ Job.JobMessage (Job.JobOutput output Job.Stdout) Job.Db
-          go
-        Job.JobExit _ -> return ()
 
 additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
 additionalInfoLines devDbSpec =
