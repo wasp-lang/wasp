@@ -74,7 +74,6 @@ instance IsOption (Option o) where
   showOption = oDisplayName
   showOptionDescription = oDescription
 
--- | Proof that stdin is an interactive terminal, so we may prompt the user.
 data InteractiveTerminal = InteractiveTerminal
   { inputHandle :: Handle,
     outputHandle :: Handle
