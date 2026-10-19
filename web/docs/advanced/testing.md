@@ -1,10 +1,12 @@
 # Testing
 
-Wasp doesn't come with a test runner. Your Wasp app is a Vite app, so any testing tool that works with Vite works with Wasp too.
+Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/), the test runner built for Vite. The helpers in `wasp/client/test` render your components and mock your queries and APIs.
 
-This page shows how to set up [Vitest](https://vitest.dev/), the test runner built for Vite, and how to test your client code with it. It also covers the helpers in `wasp/client/test`, which render your components and mock your queries and APIs.
+Wasp doesn't install or configure Vitest for you, so this page starts with setting it up in your project. Then it shows how to test your client code.
 
-## Setting up Vitest
+This page covers client code only. Code that imports from `wasp/server` doesn't run in Vitest yet, so you can't test your queries, actions, and other server code this way. You can track the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/110).
+
+## Setting up Vitest for client tests
 
 ### Installing the packages
 
@@ -216,10 +218,6 @@ test("shows the stats", async () => {
   await screen.findByText("3 tasks done");
 });
 ```
-
-## Testing your server code
-
-Code that imports from `wasp/server` doesn't run in Vitest yet, so you can't test your queries, actions, and other server code this way. You can track the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/110).
 
 ## API reference
 
