@@ -4,19 +4,6 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 import type { Route } from "../../http.js";
 import type { Query } from "../../operations/rpc.js";
 
-export type MockQuery = <Input, Output, MockOutput extends Output>(
-  query: Query<Input, Output>,
-  mockData: MockOutput,
-) => void;
-
-export type MockApi = (route: Route, mockData: unknown) => void;
-
-export type MockServer = {
-  server: SetupServer;
-  mockQuery: MockQuery;
-  mockApi: MockApi;
-};
-
 /**
  * Starts an MSW server for the current test file and returns helpers for
  * mocking Wasp queries and APIs. Mocks are reset after each test.
@@ -49,6 +36,19 @@ export function createMockServer({
       mockRoute(route, () => Response.json(mockData)),
   };
 }
+
+export type MockServer = {
+  server: SetupServer;
+  mockQuery: MockQuery;
+  mockApi: MockApi;
+};
+
+export type MockQuery = <Input, Output, MockOutput extends Output>(
+  query: Query<Input, Output>,
+  mockData: MockOutput,
+) => void;
+
+export type MockApi = (route: Route, mockData: unknown) => void;
 
 const httpHandlerByMethod = {
   GET: http.get,

@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "0b00f6c03965c54098dbdd9ee89cd6ff0e0d1e128800254cde11d9fd1482a08f"
+        "ec621962fa8be53ffe998b2d7a6d83adcfc3341f024786bfeb50df3e888a33de"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "sdk/wasp/client/test/index.ts"
         ],
-        "2d37d5cef1a9054ff152b338b43d24f313559f90f64c044c53d348c4b3238e6f"
+        "3999408321a3db0619fddb92c703b43b7146bf3d7eaa5ece865808f7a1c3f76d"
     ],
     [
         [

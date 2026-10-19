@@ -11,13 +11,13 @@ export {
   WaspTestWrapper,
 } from "@wasp.sh/lib-sdk-core/browser/test";
 
+// PUBLIC API
 /**
  * Starts an MSW server for the current test file and returns helpers for
  * mocking Wasp queries and APIs. Mocks are reset after each test.
  *
  * Call it once, at the top level of a test file.
  */
-// PUBLIC API
 export function mockServer(): MockServer {
   return createMockServer({ apiUrl: config.apiUrl, serialize });
 }

@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Removed the `wasp test` command. Wasp no longer installs or configures Vitest and the testing libraries for your app, so install, configure, and run them yourself.
+- Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts`, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same.
 
 ### 🐞 Bug fixes
 
