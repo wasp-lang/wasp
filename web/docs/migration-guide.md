@@ -51,7 +51,11 @@ wasp install
 
 ### 2. Set up Vitest yourself
 
-**If you don't have any tests, you can skip this step.** Wasp no longer needs `vitest`, so you can remove it from your `devDependencies`. You can also remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`.
+**If you don't have any tests, you can skip this step.** Wasp no longer needs `vitest`, so you can remove it from your project:
+
+- If your `vite.config.ts` imports `defineConfig` from `vitest/config`, import it from `vite` instead, and remove the `test` section. Otherwise, Vite can't load your config once `vitest` is gone.
+- Remove `vitest` from your `devDependencies`.
+- Remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`.
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now use the testing libraries you install.
 
@@ -87,7 +91,7 @@ The `wasp test` command is gone, and Wasp no longer installs testing libraries o
            globals: true,
            environment: "jsdom",
            setupFiles: ["./src/test/setup.ts"],
-           include: ["src/**/*.test.{ts,tsx}"],
+           include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
          },
          // highlight-end
        });

@@ -37,13 +37,13 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
   },
   // highlight-end
 });
 ```
 
-With this config, Vitest runs every `*.test.ts` and `*.test.tsx` file in your `src` folder in jsdom, a simulated browser.
+With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in jsdom, a simulated browser. These are Vitest's default file names, limited to `src` so Vitest skips files elsewhere, like Wasp's generated code in `.wasp` or your end-to-end tests.
 
 Then create the setup file. It adds the DOM matchers and removes the rendered components after each test:
 

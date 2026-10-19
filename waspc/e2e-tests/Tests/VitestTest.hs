@@ -141,7 +141,7 @@ vitestTest =
           plugins: [wasp()],
           test: {
             environment: "jsdom",
-            include: ["src/**/*.test.{ts,tsx}"],
+            include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
           },
         });
       |]
