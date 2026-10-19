@@ -7,9 +7,6 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
-
-    -- * Exported for testing only
-    genDotEnv,
   )
 where
 
@@ -23,7 +20,6 @@ import Data.Maybe
 import StrongPath
   ( Dir,
     File,
-    File',
     Path,
     Path',
     Posix,
@@ -41,9 +37,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
-import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
@@ -52,7 +46,7 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
   )
-import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
@@ -89,29 +83,12 @@ genServer spec =
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
-    <++> genDotEnv spec
     <++> genJobs spec
     <++> genApis spec
     <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
     npmDeps = npmDepsFromWasp spec
-
-genDotEnv :: AppSpec -> Generator [FileDraft]
--- Don't generate .env if we are building for production, since .env is to be used only for
--- development.
-genDotEnv spec | AS.isProduction spec = return []
-genDotEnv spec =
-  return
-    [ createTextFileDraft
-        (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
-        (envVarsToDotEnvContent envVars)
-    ]
-  where
-    envVars = spec.devEnvVarsServer
-
-dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
-dotEnvInServerRootDir = [relfile|.env|]
 
 genTsConfigJson :: AppSpec -> Generator FileDraft
 genTsConfigJson spec = do

@@ -18,7 +18,7 @@ import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
-import Wasp.Cli.Command.Require.DbConnectionEstablished (ensureDbConnectionEstablished)
+import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
@@ -27,14 +27,12 @@ import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Env (addEnvVarsOverride)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
-import Wasp.Project.Db.Runtime (resolveDevDbEnvVars)
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
@@ -60,12 +58,10 @@ start = withArguments startArgsParser $ \args -> withProjectLock $ do
   (warnings, appSpec) <- compile
 
   appComponentUrls <- makeDevAppComponentUrls appSpec args
-  dbEnvVars <- liftIO $ resolveDevDbEnvVars appSpec
-  let (clientRunConfig, serverRunConfig) = makeRunConfigs appComponentUrls
-      runConfigs = (clientRunConfig, addEnvVarsOverride dbEnvVars serverRunConfig)
+  let runConfigs = makeRunConfigs appComponentUrls
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
-  ensureDbConnectionEstablished dbEnvVars
+  DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."

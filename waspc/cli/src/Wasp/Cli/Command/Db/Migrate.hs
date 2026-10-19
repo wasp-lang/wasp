@@ -14,7 +14,6 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Util.Parser (ArgsParser (..))
-import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..))
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
@@ -27,7 +26,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
 migrateDev :: MigrateArgs -> Command ()
-migrateDev migrateArgs = makeDbCommand PrismaCliReady $ \_appSpec dbEnvVars -> do
+migrateDev migrateArgs = makeDbCommand PrismaCliReady $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
@@ -36,12 +35,12 @@ migrateDev migrateArgs = makeDbCommand PrismaCliReady $ \_appSpec dbEnvVars -> d
           </> dotWaspDirInWaspProjectDir
           </> generatedAppDirInDotWaspDir
 
-  migrateDatabase dbEnvVars migrateArgs generatedAppDir waspDbMigrationsDir
+  migrateDatabase migrateArgs generatedAppDir waspDbMigrationsDir
 
-migrateDatabase :: [EnvVar] -> MigrateArgs -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
-migrateDatabase dbEnvVars migrateArgs generatedAppDir dbMigrationsDir = do
+migrateDatabase :: MigrateArgs -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
+migrateDatabase migrateArgs generatedAppDir dbMigrationsDir = do
   cliSendMessageC $ Msg.Start "Starting database migration..."
-  liftIO (DbOps.migrateDevAndCopyToSource dbEnvVars dbMigrationsDir generatedAppDir migrateArgs) >>= \case
+  liftIO (DbOps.migrateDevAndCopyToSource dbMigrationsDir generatedAppDir migrateArgs) >>= \case
     Left err -> throwError $ CommandError "Migrate dev failed" err
     Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
 

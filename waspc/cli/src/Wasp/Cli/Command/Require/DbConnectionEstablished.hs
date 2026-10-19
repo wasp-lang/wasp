@@ -1,28 +1,40 @@
 module Wasp.Cli.Command.Require.DbConnectionEstablished
-  ( ensureDbConnectionEstablished,
+  ( DbConnectionEstablished (DbConnectionEstablished),
   )
 where
 
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Data.Data (Typeable)
+import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsDevelopment (GeneratedAppIsDevelopment))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Env (EnvVar)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 
-ensureDbConnectionEstablished :: [EnvVar] -> Command ()
-ensureDbConnectionEstablished dbEnvVars = do
-  GeneratedAppIsDevelopment outDir <- require
-  ValidNodeAndNpm <- require
-  dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection dbEnvVars outDir
-  if dbIsRunning
-    then return ()
-    else throwError noDbError
-  where
-    noDbError =
-      CommandError
-        "Can not connect to database"
-        ( "The database needs to be running in order to execute this command."
-            ++ " You can easily start a managed dev database with `wasp start db`."
-        )
+data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
+
+instance Requirable DbConnectionEstablished where
+  checkRequirement = do
+    -- TODO: Remove `GeneratedAppIsDevelopment` requirement:
+    -- https://github.com/wasp-lang/wasp/issues/2858.
+    -- The reason why we need it is because a Production build by design does
+    -- not have some files like `.env` or `prisma.schema`, which makes it tricky
+    -- to determine the database location. See the linked issue for more
+    -- details.
+    GeneratedAppIsDevelopment outDir <- require
+    -- Testing the connection runs Prisma, so it requires Node.js and npm to be
+    -- present.
+    ValidNodeAndNpm <- require
+
+    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
+
+    if dbIsRunning
+      then return DbConnectionEstablished
+      else throwError noDbError
+    where
+      noDbError =
+        CommandError
+          "Can not connect to database"
+          ( "The database needs to be running in order to execute this command."
+              ++ " You can easily start a managed dev database with `wasp start db`."
+          )

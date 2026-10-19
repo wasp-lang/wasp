@@ -275,6 +275,7 @@ library
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.ServerGenerator.Db.Seed
+    Wasp.Generator.ServerGenerator.DevEnv
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
@@ -333,7 +334,6 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Db.Migrations
-    Wasp.Project.Db.Runtime
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
@@ -590,7 +590,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
-    Generator.ServerGeneratorTest
+    Generator.ServerGenerator.DevEnvTest
     Generator.SetupTest
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest

@@ -19,7 +19,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 studio :: Command ()
-studio = makeDbCommand PrismaCliReady $ \_appSpec dbEnvVars -> do
+studio = makeDbCommand PrismaCliReady $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -27,6 +27,6 @@ studio = makeDbCommand PrismaCliReady $ \_appSpec dbEnvVars -> do
   cliSendMessageC $ Msg.Start "Running studio..."
 
   chan <- liftIO newChan
-  _ <- liftIO $ readJobMessagesAndPrintThemPrefixed chan `concurrently` runStudio dbEnvVars genProjectDir chan
+  _ <- liftIO $ readJobMessagesAndPrintThemPrefixed chan `concurrently` runStudio genProjectDir chan
 
   error "This should never happen, studio should never stop."

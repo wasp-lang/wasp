@@ -3,6 +3,7 @@
 module Wasp.Project
   ( WaspProjectDir,
     compile,
+    compileAppSpec,
     CompileError,
     CompileWarning,
     analyzeWaspProject,
@@ -34,7 +35,7 @@ compile waspDir outDir options = do
       (Left analyzerErrors, analyzerWarnings) ->
         return (analyzerWarnings, Left analyzerErrors)
       (Right appSpec, analyzerWarnings) -> do
-        (generatorWarnings, generatorErrors) <- generateCode appSpec outDir options
+        (generatorWarnings, generatorErrors) <- compileAppSpec appSpec outDir options
         return
           ( generatorWarnings <> analyzerWarnings,
             if null generatorErrors then Right appSpec else Left generatorErrors
@@ -42,12 +43,12 @@ compile waspDir outDir options = do
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
   return (compileWarnings <> dotEnvWarnings, appSpecOrCompileErrors)
 
-generateCode ::
+compileAppSpec ::
   AS.AppSpec ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
-generateCode appSpec outDir options = do
+compileAppSpec appSpec outDir options = do
   (generatorWarnings, generatorErrors) <-
     Generator.writeWebAppCode appSpec outDir (sendMessage options) (setupGoal options)
   return (show <$> generatorWarnings, show <$> generatorErrors)

@@ -22,7 +22,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: ResetArgs -> Command ()
-reset resetArgs = makeDbCommand PrismaCliReady $ \_appSpec dbEnvVars -> do
+reset resetArgs = makeDbCommand PrismaCliReady $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir =
@@ -31,7 +31,7 @@ reset resetArgs = makeDbCommand PrismaCliReady $ \_appSpec dbEnvVars -> do
           </> generatedAppDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Resetting the database..."
-  liftIO (dbReset dbEnvVars genProjectDir resetArgs) >>= \case
+  liftIO (dbReset genProjectDir resetArgs) >>= \case
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database reset successfully!"
 
