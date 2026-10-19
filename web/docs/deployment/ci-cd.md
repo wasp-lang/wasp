@@ -59,7 +59,7 @@ We'll show you how to run end-to-end tests in CI using the [Github Actions](http
 
 Unit tests test pieces of your code logic in isolation. They are much simpler and faster than e2e tests, but they don't simulate the real user interaction with your app.
 
-Wasp doesn't come with a test runner, so you can pick any testing framework. The [testing docs](../advanced/testing.md) show how to set up Vitest.
+Wasp provides helpers for testing your client code with Vitest. The [testing docs](../advanced/testing.md) show how to set up Vitest and use them. You can also use any other testing framework.
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 
