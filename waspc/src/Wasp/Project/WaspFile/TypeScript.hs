@@ -82,7 +82,9 @@ withSpecResultFile compileOptions action =
     (fromAbsDir dotWaspDir)
     (fromRelFile specResultFileTemplate)
     $ \specResultFilePath' specResultFileHandle -> do
-      hClose specResultFileHandle -- We don't use the file anymore.
+      -- We don't use the handle anymore, the given action will open the file
+      -- itself when it needs it.
+      hClose specResultFileHandle
       specResultFilePath <- SP.parseAbsFile specResultFilePath'
       action specResultFilePath
   where
