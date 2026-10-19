@@ -1,19 +1,21 @@
 module Wasp.Cli.Command.Db.Migrate
   ( migrateDev,
-    parseMigrateArgs,
+    migrateArgsParser,
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, throwError)
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..))
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady))
 import qualified Wasp.Message as Msg
@@ -23,8 +25,8 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
-migrateDev :: [String] -> Command ()
-migrateDev optionalMigrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
+migrateDev :: MigrateArgs -> Command ()
+migrateDev migrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
@@ -33,27 +35,18 @@ migrateDev optionalMigrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec -> d
           </> dotWaspDirInWaspProjectDir
           </> generatedAppDirInDotWaspDir
 
-  migrateDatabase optionalMigrateArgs generatedAppDir waspDbMigrationsDir
+  migrateDatabase migrateArgs generatedAppDir waspDbMigrationsDir
 
-migrateDatabase :: [String] -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
-migrateDatabase optionalMigrateArgs generatedAppDir dbMigrationsDir = do
+migrateDatabase :: MigrateArgs -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
+migrateDatabase migrateArgs generatedAppDir dbMigrationsDir = do
   cliSendMessageC $ Msg.Start "Starting database migration..."
-  liftIO tryMigrate >>= \case
+  liftIO (DbOps.migrateDevAndCopyToSource dbMigrationsDir generatedAppDir migrateArgs) >>= \case
     Left err -> throwError $ CommandError "Migrate dev failed" err
     Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
-  where
-    tryMigrate = runExceptT $ do
-      migrateArgs <- liftEither $ parseMigrateArgs optionalMigrateArgs
-      ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir generatedAppDir migrateArgs
 
--- | Basic parsing of db-migrate args. In the future, we could use a smarter parser
--- for this (and all other CLI arg parsing).
-parseMigrateArgs :: [String] -> Either String MigrateArgs
-parseMigrateArgs migrateArgs = do
-  go migrateArgs defaultMigrateArgs
-  where
-    go :: [String] -> MigrateArgs -> Either String MigrateArgs
-    go [] mArgs = Right mArgs
-    go ("--create-only" : rest) mArgs = go rest $ mArgs {_isCreateOnlyMigration = True}
-    go ("--name" : name : rest) mArgs = go rest $ mArgs {_migrationName = Just name}
-    go unknown _ = Left $ "Unknown migrate arg(s): " ++ unwords unknown
+migrateArgsParser :: ArgsParser MigrateArgs
+migrateArgsParser =
+  ArgsParser "wasp db migrate-dev" $
+    MigrateArgs
+      <$> Opt.optional (Opt.strOption (Opt.long "name" <> Opt.metavar "NAME" <> Opt.help "Migration name"))
+      <*> Opt.switch (Opt.long "create-only" <> Opt.help "Create the migration without applying it")
