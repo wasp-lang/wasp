@@ -1,3 +1,9 @@
+---
+title: "Databases: PostgreSQL, SQLite and seeding in Wasp"
+sidebar_label: Databases
+description: Wasp uses SQLite by default and needs PostgreSQL in production. Run a dev database with wasp start db, move from SQLite to PostgreSQL and seed your data.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 
 # Databases
