@@ -49,15 +49,53 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Set up Vitest yourself
-
-**If you don't have any tests, you can skip this step.** Wasp no longer needs `vitest`, so you can remove it from your project:
-
-- If your `vite.config.ts` imports `defineConfig` from `vitest/config`, import it from `vite` instead, and remove the `test` section. Otherwise, Vite can't load your config once `vitest` is gone.
-- Remove `vitest` from your `devDependencies`.
-- Remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`.
+### 2. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now use the testing libraries you install.
+
+Follow the part that matches your app.
+
+#### If you don't use Vitest
+
+Wasp no longer needs `vitest`, so you can remove it from your project:
+
+1. If your `vite.config.ts` imports `defineConfig` from `vitest/config`, import it from `vite` instead, and remove the `test` section. Otherwise, Vite can't load your config after you remove `vitest`.
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="vite.config.ts"
+       // highlight-next-line
+       import { defineConfig } from "vitest/config";
+       import { wasp } from "wasp/client/vite";
+
+       export default defineConfig({
+         plugins: [wasp()],
+         // highlight-start
+         test: {
+           exclude: ["./e2e-tests/**"],
+         },
+         // highlight-end
+       });
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="vite.config.ts"
+       // highlight-next-line
+       import { defineConfig } from "vite";
+       import { wasp } from "wasp/client/vite";
+
+       export default defineConfig({
+         plugins: [wasp()],
+       });
+       ```
+     </TabItem>
+   </Tabs>
+
+2. Remove `vitest` from your `devDependencies`.
+
+3. Remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`, if you have them.
+
+#### If you use Vitest
 
 1. Install Vitest and the testing libraries your tests use:
 
