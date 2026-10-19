@@ -6,6 +6,7 @@ module Wasp.Generator.FileDraft
     createCopyFileDraftIfExists,
     createTextFileDraft,
     createCopyDirFileDraft,
+    createEmptyDirFileDraft,
     createCopyAndModifyTextFileDraft,
     createCopyLibFileDraft,
   )
@@ -21,6 +22,7 @@ import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.CopyLibDraft as CopyLibFD
+import qualified Wasp.Generator.FileDraft.EmptyDirFileDraft as EmptyDirFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.FileDraft.Writeable
@@ -38,6 +40,7 @@ data FileDraft
   = FileDraftTemplateFd TmplFD.TemplateFileDraft
   | FileDraftCopyFd CopyFD.CopyFileDraft
   | FileDraftCopyDirFd CopyDirFD.CopyDirFileDraft
+  | FileDraftEmptyDirFd EmptyDirFD.EmptyDirFileDraft
   | FileDraftTextFd TextFD.TextFileDraft
   | FileDraftCopyAndModifyTextFd CMTextFD.CopyAndModifyTextFileDraft
   | FileDraftCopyLibFd CopyLibFD.CopyLibDraft
@@ -46,6 +49,7 @@ instance Writeable FileDraft where
   write dstDir (FileDraftTemplateFd draft) = write dstDir draft
   write dstDir (FileDraftCopyFd draft) = write dstDir draft
   write dstDir (FileDraftCopyDirFd draft) = write dstDir draft
+  write dstDir (FileDraftEmptyDirFd draft) = write dstDir draft
   write dstDir (FileDraftTextFd draft) = write dstDir draft
   write dstDir (FileDraftCopyAndModifyTextFd draft) = write dstDir draft
   write dstDir (FileDraftCopyLibFd draft) = write dstDir draft
@@ -53,6 +57,7 @@ instance Writeable FileDraft where
   getChecksum (FileDraftTemplateFd draft) = getChecksum draft
   getChecksum (FileDraftCopyFd draft) = getChecksum draft
   getChecksum (FileDraftCopyDirFd draft) = getChecksum draft
+  getChecksum (FileDraftEmptyDirFd draft) = getChecksum draft
   getChecksum (FileDraftTextFd draft) = getChecksum draft
   getChecksum (FileDraftCopyAndModifyTextFd draft) = getChecksum draft
   getChecksum (FileDraftCopyLibFd draft) = getChecksum draft
@@ -60,6 +65,7 @@ instance Writeable FileDraft where
   getDstPath (FileDraftTemplateFd draft) = getDstPath draft
   getDstPath (FileDraftCopyFd draft) = getDstPath draft
   getDstPath (FileDraftCopyDirFd draft) = getDstPath draft
+  getDstPath (FileDraftEmptyDirFd draft) = getDstPath draft
   getDstPath (FileDraftTextFd draft) = getDstPath draft
   getDstPath (FileDraftCopyAndModifyTextFd draft) = getDstPath draft
   getDstPath (FileDraftCopyLibFd draft) = getDstPath draft
@@ -118,6 +124,10 @@ createCopyDirFileDraft dstDirStrategy dstPath srcPath =
         CopyDirFD._srcPath = SP.castDir srcPath,
         CopyDirFD._dstDirStrategy = dstDirStrategy
       }
+
+createEmptyDirFileDraft :: Path' (Rel GeneratedAppDir) (Dir a) -> FileDraft
+createEmptyDirFileDraft dstPath =
+  FileDraftEmptyDirFd $ EmptyDirFD.EmptyDirFileDraft {EmptyDirFD._dstPath = SP.castDir dstPath}
 
 createTextFileDraft :: Path' (Rel GeneratedAppDir) (File a) -> Text -> FileDraft
 createTextFileDraft dstPath content =

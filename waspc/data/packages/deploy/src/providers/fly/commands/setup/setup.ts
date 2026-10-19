@@ -1,10 +1,13 @@
-import { $, cd, chalk, question, tmpdir } from "zx";
+import { $, cd, chalk, question } from "zx";
 
 import { getFullCommandName } from "../../../../common/commander.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
-import { getServerDeploymentDir } from "../../../../common/waspProject.js";
+import {
+  getClientDeploymentDir,
+  getServerDeploymentDir,
+} from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
   DeploymentInstructions,
@@ -158,9 +161,8 @@ async function setupClient(
     `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
   );
 
-  // The client has nothing to deploy until it's built, so we only need
-  // the fly.toml that `flyctl launch` writes into the current dir.
-  cd(tmpdir());
+  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  deleteLocalToml();
 
   const launchArgs = [
     "--name",

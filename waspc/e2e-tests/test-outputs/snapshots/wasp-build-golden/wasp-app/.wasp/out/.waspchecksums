@@ -565,5 +565,12 @@
             "types/app/sdk/register.ts"
         ],
         "670e891604d8b6a65bb3b5e9d901afc14b18aa12a5eb316cc860fecaec6cc4ec"
+    ],
+    [
+        [
+            "dir",
+            "web-app/"
+        ],
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ]
 ]

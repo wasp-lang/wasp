@@ -1,12 +1,17 @@
 module Wasp.Generator.WebAppGenerator
-  ( webAppRootDirInGeneratedAppDir,
+  ( genWebApp,
+    webAppRootDirInGeneratedAppDir,
     viteBuildDirPath,
     WebAppViteBuildDir,
   )
 where
 
 import StrongPath (Dir, Path', Rel, reldir, (</>))
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Generator.FileDraft (FileDraft, createEmptyDirFileDraft)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
@@ -22,6 +27,16 @@ data WebAppViteBuildDir
 -- static server can be created.
 webAppRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir WebAppRootDir)
 webAppRootDirInGeneratedAppDir = [reldir|web-app|]
+
+-- | A production build deploys the client separately from the server, so it
+-- comes with the dir that the client deployment lives in.
+--
+-- NOTE: Once Wasp can serve the client from the server, only builds that
+-- deploy them separately should generate this dir.
+genWebApp :: AppSpec -> Generator [FileDraft]
+genWebApp spec
+  | AS.isProduction spec = return [createEmptyDirFileDraft webAppRootDirInGeneratedAppDir]
+  | otherwise = return []
 
 viteBuildDirPath :: Path' (Rel WaspProjectDir) (Dir WebAppViteBuildDir)
 viteBuildDirPath =

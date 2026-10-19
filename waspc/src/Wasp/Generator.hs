@@ -33,6 +33,7 @@ import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
+import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -68,6 +69,7 @@ genApp spec = do
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
+    <++> genWebApp spec
     <++> genTypeAugmentation spec
     <++> genWaspLibs
 

@@ -1,6 +1,9 @@
-import { cd, tmpdir } from "zx";
+import { cd } from "zx";
 import { WaspProjectDir } from "../../common/brandedTypes.js";
-import { getServerDeploymentDir } from "../../common/waspProject.js";
+import {
+  getClientDeploymentDir,
+  getServerDeploymentDir,
+} from "../../common/waspProject.js";
 import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
@@ -14,7 +17,7 @@ import {
 export type CommonOps = Readonly<{
   waspProjectDir: string;
   paths: TomlFilePaths;
-  cdToFlyctlWorkingDir: () => void;
+  cdToDeploymentDir: () => void;
   tomlExistsInProject: () => boolean;
   copyLocalTomlToProject: () => void;
   copyProjectTomlLocally: () => void;
@@ -44,9 +47,7 @@ function createClientCommonOps(
   return {
     waspProjectDir,
     paths,
-    // The client deployment dir only exists after a deploy builds the client,
-    // and flyctl only needs the fly.toml we copy there.
-    cdToFlyctlWorkingDir: () => cd(tmpdir()),
+    cdToDeploymentDir: () => cd(getClientDeploymentDir(waspProjectDir)),
     tomlExistsInProject: () => clientTomlExistsInProject(paths),
     copyLocalTomlToProject: () => copyLocalClientTomlToProject(paths),
     copyProjectTomlLocally: () => copyProjectClientTomlLocally(paths),
@@ -60,7 +61,7 @@ function createServerCommonOps(
   return {
     waspProjectDir,
     paths,
-    cdToFlyctlWorkingDir: () => cd(getServerDeploymentDir(waspProjectDir)),
+    cdToDeploymentDir: () => cd(getServerDeploymentDir(waspProjectDir)),
     tomlExistsInProject: () => serverTomlExistsInProject(paths),
     copyLocalTomlToProject: () => copyLocalServerTomlToProject(paths),
     copyProjectTomlLocally: () => copyProjectServerTomlLocally(paths),

@@ -40,7 +40,7 @@ async function runFlyctlCommand(
   commonOps: CommonOps,
   flyctlArgs: string[],
 ): Promise<void> {
-  commonOps.cdToFlyctlWorkingDir();
+  commonOps.cdToDeploymentDir();
   deleteLocalToml();
   if (commonOps.tomlExistsInProject()) {
     commonOps.copyProjectTomlLocally();
