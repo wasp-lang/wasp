@@ -39,19 +39,19 @@ getParserHelpMessage argsParser =
     -- Must match the flag 'Opt.helper' defines.
     helpFlag = "--help"
 
--- | Call this before prompting the user. If stdin is not an interactive
--- terminal, the command fails with its full usage, so the user sees every
--- argument and flag they need to run it without prompts.
+-- | Call this before prompting the user.
+-- If stdin is not an interactive terminal, the command fails with its full
+-- usage, showing how to call it non-interactively.
 requireInteractiveTerminal :: ArgsParser a -> Command InteractiveTerminal
 requireInteractiveTerminal argsParser =
   liftIO Interactive.getInteractiveTerminal >>= \case
     Just terminal -> return terminal
     Nothing ->
-      throwError
-        $ CommandError "Interactive terminal required"
-        $ "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
-          <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
-          <> getParserHelpMessage argsParser
+      throwError $
+        CommandError "Interactive terminal required" $
+          "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
+            <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
+            <> getParserHelpMessage argsParser
 
 data ArgsParseResult args
   = ArgsParsed args
