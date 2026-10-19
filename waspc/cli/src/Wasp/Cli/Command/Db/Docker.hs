@@ -46,6 +46,17 @@ runDockerCommand args = do
   channel <- newChan
   fst <$> concurrently (runProcessAsJob (proc "docker" args) Job.Db channel) (printDbMessages channel)
 
+printDbMessages :: Chan Job.JobMessage -> IO ()
+printDbMessages channel = runPrefixedWriter go
+  where
+    go = do
+      message <- liftIO $ readChan channel
+      case Job._data message of
+        Job.JobOutput output _ -> do
+          printJobMessagePrefixed $ Job.JobMessage (Job.JobOutput output Job.Stdout) Job.Db
+          go
+        Job.JobExit _ -> return ()
+
 stopDatabase :: String -> Command ()
 stopDatabase containerId = do
   cliSendMessageC $ Msg.Start "Stopping database..."
@@ -67,14 +78,3 @@ runDockerCleanup args = do
     if status == ExitSuccess || "No such container" `isInfixOf` errors
       then Nothing
       else Just errors
-
-printDbMessages :: Chan Job.JobMessage -> IO ()
-printDbMessages channel = runPrefixedWriter go
-  where
-    go = do
-      message <- liftIO $ readChan channel
-      case Job._data message of
-        Job.JobOutput output _ -> do
-          printJobMessagePrefixed $ Job.JobMessage (Job.JobOutput output Job.Stdout) Job.Db
-          go
-        Job.JobExit _ -> return ()

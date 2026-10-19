@@ -142,19 +142,6 @@ startPostgresDevDb waspProjectDir appName options =
     ReusedDatabase _ ->
       E.throwError $ CommandError "Database not started" "No managed PostgreSQL database was started."
 
-data DatabaseStartPolicy = StartNewDatabase | StartOrReuseDatabase
-  deriving (Eq)
-
-data DatabaseSession
-  = ReusedDatabase Dev.Postgres.DevDbSpec
-  | StartedDatabase Dev.Postgres.DevDbSpec String (Async ExitCode)
-
-data PreparedDatabase
-  = ReuseDatabase DatabaseSession
-  | CreateDatabase Dev.Postgres.DevDbSpec DockerImageName DockerVolumeMountPath
-
-data DatabaseUrlSource = Environment | ServerDotEnv
-
 withDevDb :: DbStartOptions -> (Maybe Dev.Postgres.DevDbSpec -> Command a) -> Command a
 withDevDb options action = do
   InWaspProject waspProjectDir <- require
@@ -172,6 +159,13 @@ withDevDb options action = do
       AS.App.Db.PostgreSQL ->
         withPostgresSession waspProjectDir (ASV.getApp appSpec).name options StartOrReuseDatabase $
           action . Just . getDatabaseForSession
+
+data DatabaseStartPolicy = StartNewDatabase | StartOrReuseDatabase
+  deriving (Eq)
+
+data DatabaseSession
+  = ReusedDatabase Dev.Postgres.DevDbSpec
+  | StartedDatabase Dev.Postgres.DevDbSpec String (Async ExitCode)
 
 withPostgresSession :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> (DatabaseSession -> Command a) -> Command a
 withPostgresSession waspProjectDir appName options policy action = do
@@ -204,6 +198,10 @@ withPostgresSession waspProjectDir appName options policy action = do
     release (StartedDatabase _ containerId databaseJob) =
       Docker.stopDatabase containerId `finally` (liftIO (cancel databaseJob) `finally` Docker.removeContainer containerId)
     release _ = return ()
+
+data PreparedDatabase
+  = ReuseDatabase DatabaseSession
+  | CreateDatabase Dev.Postgres.DevDbSpec DockerImageName DockerVolumeMountPath
 
 preparePostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DbStartOptions -> DatabaseStartPolicy -> Command PreparedDatabase
 preparePostgresDevDb waspProjectDir appName options policy = do
@@ -261,6 +259,12 @@ preparePostgresDevDb waspProjectDir appName options policy = do
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath
       ]
 
+getDatabaseForSession :: DatabaseSession -> Dev.Postgres.DevDbSpec
+getDatabaseForSession (ReusedDatabase db) = db
+getDatabaseForSession (StartedDatabase db _ _) = db
+
+data DatabaseUrlSource = Environment | ServerDotEnv
+
 findDatabaseUrlSource :: AS.AppSpec -> IO (Maybe DatabaseUrlSource)
 findDatabaseUrlSource appSpec = do
   envUrl <- lookupEnv databaseUrlEnvVarName
@@ -283,10 +287,6 @@ suppliedOptionNames options =
   ["--db-port" | isJust options.dbPort]
     ++ ["--db-image" | isJust options.dbImage]
     ++ ["--db-volume-mount-path" | isJust options.dbVolumeMountPath]
-
-getDatabaseForSession :: DatabaseSession -> Dev.Postgres.DevDbSpec
-getDatabaseForSession (ReusedDatabase db) = db
-getDatabaseForSession (StartedDatabase db _ _) = db
 
 additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
 additionalInfoLines devDbSpec =
