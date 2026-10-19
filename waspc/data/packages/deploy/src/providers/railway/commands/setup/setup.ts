@@ -5,7 +5,7 @@ import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  ensureClientDeploymentDirExists,
+  getClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
@@ -212,9 +212,7 @@ async function setupClient({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up client app with name ${clientServiceName}`);
 
-  const clientDeploymentDir = ensureClientDeploymentDirExists(
-    options.waspProjectDir,
-  );
+  const clientDeploymentDir = getClientDeploymentDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
     clientDeploymentDir,
