@@ -26,7 +26,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
 migrateDev :: MigrateArgs -> Command ()
-migrateDev migrateArgs = makeDbCommand PrismaCliReady $ \_appSpec -> do
+migrateDev migrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
