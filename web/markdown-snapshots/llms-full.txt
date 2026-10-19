@@ -12045,11 +12045,7 @@ You can use `process.env.SOME_SECRET` directly in your code. We don't recommend 
 
 ## Advanced / Testing
 
-Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/), the test runner built for Vite. The helpers in `wasp/client/test` render your components and mock your queries and APIs.
-
-Wasp doesn't install or configure Vitest for you, so this page starts with setting it up in your project. Then it shows how to test your client code.
-
-This page covers client code only. Code that imports from `wasp/server` doesn't run in Vitest yet, so you can't test your queries, actions, and other server code this way. You can track the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/110).
+Currently, Wasp only provides helpers for testing your client code with [Vitest](https://vitest.dev/). Server-side testing is not yet supported, but you can track its progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
 
 ### Setting up Vitest for client tests
 
@@ -12069,7 +12065,7 @@ npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
 
 #### Configuring Vitest
 
-Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app, including the `wasp()` plugin. Add a `test` section to it:
+Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it:
 
 ```ts title="vite.config.ts"
 import { defineConfig } from "vitest/config";
@@ -12085,9 +12081,9 @@ export default defineConfig({
 });
 ```
 
-With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in jsdom, a simulated browser. These are Vitest's default file names, limited to `src` so Vitest skips files elsewhere, like Wasp's generated code in `.wasp` or your end-to-end tests.
+With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in `jsdom`, a simulated browser.
 
-Then create the setup file. It adds the DOM matchers and removes the rendered components after each test:
+Next, if you plan to test React components, create a setup file that adds the DOM matchers and removes the rendered components after each test:
 
 ```ts title="src/test/setup.ts"
 import "@testing-library/jest-dom/vitest";
@@ -12101,19 +12097,16 @@ afterEach(() => {
 
 #### Running your tests
 
-Your tests import code from the Wasp SDK (e.g., `wasp/client/operations`), which Wasp generates when it compiles your app. Keep `wasp start` running in one terminal, and run Vitest in another:
+Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app. Keep `wasp start` running in one terminal, and run Vitest in another:
 
-```bash
-npx vitest
+```sh
+npx vitest run
 ```
 
-Vitest runs your tests in watch mode, and `wasp start` keeps the SDK up to date while you change your app.
+Alternatively, you can run Vitest in watch mode to follow your app's changes:
 
-To run the tests once, for example in CI, compile your app first:
-
-```bash
-wasp compile
-npx vitest run
+```sh
+npx vitest
 ```
 
 If you prefer a UI for your test results, install [`@vitest/ui`](https://vitest.dev/guide/ui) and run `npx vitest --ui`.
@@ -12141,7 +12134,7 @@ test("areThereAnyTasks", () => {
 });
 ```
 
-#### Rendering components that use Wasp
+#### Testing components
 
 Wasp wraps every page of your app in providers: React Query for queries and actions, and React Router for links. A component that uses queries, actions, or links fails to render without them.
 
