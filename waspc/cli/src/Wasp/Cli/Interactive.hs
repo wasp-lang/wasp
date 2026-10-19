@@ -202,10 +202,14 @@ repeatUntil terminal predicate errorMessage action = do
 -- answer (Ctrl+D) throws 'PromptCancelled'.
 prompt :: InteractiveTerminal -> IO String
 prompt terminal = do
-  hPutStr terminal.outputHandle $ Term.applyStyles [Term.Yellow] " ▸ "
-  -- Explicit flush ensures the prompt marker is shown immediately on all systems.
-  hFlush terminal.outputHandle
+  putStrFlush terminal $ Term.applyStyles [Term.Yellow] " ▸ "
   T.unpack . T.strip . T.pack <$> getLineOrCancel
   where
     getLineOrCancel =
       E.catchJust (guard . isEOFError) (hGetLine terminal.inputHandle) (const $ E.throwIO PromptCancelled)
+
+-- Explicit flush ensures prompt messages are printed immediately on all systems.
+putStrFlush :: InteractiveTerminal -> String -> IO ()
+putStrFlush terminal msg = do
+  hPutStr terminal.outputHandle msg
+  hFlush terminal.outputHandle
