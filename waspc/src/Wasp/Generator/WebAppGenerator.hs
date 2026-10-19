@@ -9,6 +9,9 @@ where
 import StrongPath (Dir, Path', Rel, reldir, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.App (getDeploymentMode)
+import qualified Wasp.AppSpec.App.Deployment as Deployment
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createEmptyDirFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -28,15 +31,15 @@ data WebAppViteBuildDir
 webAppRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir WebAppRootDir)
 webAppRootDirInGeneratedAppDir = [reldir|web-app|]
 
--- | A production build deploys the client separately from the server, so it
+-- | A production build that deploys the client separately from the server
 -- comes with the dir that the client deployment lives in.
---
--- NOTE: Once Wasp can serve the client from the server, only builds that
--- deploy them separately should generate this dir.
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec
-  | AS.isProduction spec = return [createEmptyDirFileDraft webAppRootDirInGeneratedAppDir]
+  | AS.isProduction spec && isSplitDeployment =
+      return [createEmptyDirFileDraft webAppRootDirInGeneratedAppDir]
   | otherwise = return []
+  where
+    isSplitDeployment = getDeploymentMode (getApp spec) == Deployment.Split
 
 viteBuildDirPath :: Path' (Rel WaspProjectDir) (Dir WebAppViteBuildDir)
 viteBuildDirPath =
