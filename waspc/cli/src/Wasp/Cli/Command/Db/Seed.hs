@@ -25,13 +25,13 @@ import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
-import Wasp.Generator.Setup (SetupGoal (SdkReady))
+import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | Seed functions import the SDK.
 seed :: Arguments -> Command ()
-seed = withArguments seedArgsParser $ \SeedArgs {_seedName = maybeUserProvidedSeedName} -> makeDbCommand SdkReady $ \appSpec -> do
+seed = withArguments seedArgsParser $ \SeedArgs {_seedName = maybeUserProvidedSeedName} -> makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir

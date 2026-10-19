@@ -62,6 +62,16 @@ export function getClientDeploymentDir(waspProjectDir: WaspProjectDir): string {
   return path.join(getWaspBuildDir(waspProjectDir), "web-app");
 }
 
+// Wasp doesn't generate anything into the client deployment dir before the
+// client is built, but the providers need it earlier (e.g. for their configs).
+export function ensureClientDeploymentDirExists(
+  waspProjectDir: WaspProjectDir,
+): string {
+  const clientDeploymentDir = getClientDeploymentDir(waspProjectDir);
+  fs.mkdirSync(clientDeploymentDir, { recursive: true });
+  return clientDeploymentDir;
+}
+
 export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
   // The client is built from the project root dir.
   return path.join(waspProjectDir, ".");

@@ -1,5 +1,6 @@
 module Wasp.Generator.Setup
   ( SetupGoal (..),
+    allSetupGoals,
     setUpGeneratedApp,
     runSetup,
     SetupStep (..), -- Exported for testing.
@@ -28,19 +29,22 @@ import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
-import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 
--- | What a command needs the generated app set up for, after code generation.
+-- | Something a command needs from the generated app, after code generation.
 data SetupGoal
   = PrismaCliReady
+  | DbMigrationsChecked
   | SdkReady
-  | -- | The generated app has everything it needs to run or be built.
-    GeneratedAppReady
-  deriving (Eq, Show)
+  | UserCodeTypeChecked
+  deriving (Eq, Show, Enum, Bounded)
+
+-- | What running or building the generated app needs.
+allSetupGoals :: [SetupGoal]
+allSetupGoals = [minBound .. maxBound]
 
 -- | Setup steps that a goal might need post code generation.
 data SetupStep
@@ -49,7 +53,6 @@ data SetupStep
   | WarnIfDbNeedsMigration
   | GeneratePrismaClient
   | BuildSdk
-  | CreateWebAppRootDir
   | TypeCheckUserCode
   deriving (Eq, Show, Enum, Bounded)
 
@@ -64,7 +67,6 @@ allSetupSteps = [minBound .. maxBound]
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
 prerequisites FormatPrismaSchema = []
-prerequisites CreateWebAppRootDir = []
 prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
 prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
@@ -74,11 +76,11 @@ prerequisites TypeCheckUserCode = [InstallNpmDeps, BuildSdk]
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
--- | Runs the setup steps the goal needs, each after its prerequisites.
+-- | Runs the setup steps the goals need, each after its prerequisites.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp goal spec generatedAppDir sendMessage =
-  forM_ (resolveSetupSteps goal) $ \step ->
+setUpGeneratedApp :: [SetupGoal] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+setUpGeneratedApp goals spec generatedAppDir sendMessage =
+  forM_ (resolveSetupSteps goals) $ \step ->
     runSetupStep step spec generatedAppDir sendMessage
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
@@ -86,14 +88,15 @@ runSetup setupAction = do
   (result, warnings) <- runWriterT $ runExceptT setupAction
   return (warnings, fromLeft [] result)
 
--- | The steps a goal needs, in correct execution order.
-resolveSetupSteps :: SetupGoal -> [SetupStep]
-resolveSetupSteps = withPrerequisites . stepsForGoal
+-- | The steps the goals need, in correct execution order.
+resolveSetupSteps :: [SetupGoal] -> [SetupStep]
+resolveSetupSteps = withPrerequisites . concatMap stepsForGoal
 
 stepsForGoal :: SetupGoal -> [SetupStep]
 stepsForGoal PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
+stepsForGoal DbMigrationsChecked = [WarnIfDbNeedsMigration]
 stepsForGoal SdkReady = [BuildSdk]
-stepsForGoal GeneratedAppReady = allSetupSteps
+stepsForGoal UserCodeTypeChecked = [TypeCheckUserCode]
 
 -- | The steps with all their prerequisites. Each step comes after its
 -- prerequisites, and appears once.
@@ -113,7 +116,6 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
   BuildSdk -> buildSdk generatedAppDir sendMessage
-  CreateWebAppRootDir -> liftIO $ createWebAppRootDir generatedAppDir
   TypeCheckUserCode -> typeCheckUserCode spec sendMessage
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()

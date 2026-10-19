@@ -1,7 +1,7 @@
 import { cd } from "zx";
 import { WaspProjectDir } from "../../common/brandedTypes.js";
 import {
-  getClientDeploymentDir,
+  ensureClientDeploymentDirExists,
   getServerDeploymentDir,
 } from "../../common/waspProject.js";
 import {
@@ -47,7 +47,8 @@ function createClientCommonOps(
   return {
     waspProjectDir,
     paths,
-    cdToDeploymentDir: () => cd(getClientDeploymentDir(waspProjectDir)),
+    cdToDeploymentDir: () =>
+      cd(ensureClientDeploymentDirExists(waspProjectDir)),
     tomlExistsInProject: () => clientTomlExistsInProject(paths),
     copyLocalTomlToProject: () => copyLocalClientTomlToProject(paths),
     copyProjectTomlLocally: () => copyProjectClientTomlLocally(paths),
