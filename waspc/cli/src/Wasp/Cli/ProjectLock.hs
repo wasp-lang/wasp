@@ -3,6 +3,7 @@ module Wasp.Cli.ProjectLock
     acquireWatcher,
     acquire,
     WaspProcessId,
+    describeLockHolder,
     WaspProjectLockfile,
     projectLockFileInWaspProjectDir,
   )
@@ -42,10 +43,8 @@ acquireWatcher action =
     Left maybeProjectLockData -> throwError $ makeLockedProjectError maybeProjectLockData
     Right projectLock -> action projectLock
 
--- | Tries to take the project lock, with the given watcher status in the lock
--- file, and runs the given action with the result: the 'ProjectLock' if we got
--- it, or what the process holding it wrote into the lock file if we didn't. If
--- we got the lock, we hold it until the action finishes.
+-- | Runs the given action with the result of 'acquireProjectLock'. If we got
+-- the lock, it's released once the action finishes.
 acquire ::
   Maybe WatcherStatus ->
   (Either (Maybe ProjectLockData) ProjectLock -> Command b) ->
@@ -61,6 +60,13 @@ acquire initialWatcherStatus action = do
 makeLockedProjectError :: Maybe ProjectLockData -> CommandError
 makeLockedProjectError maybeProjectLockData =
   CommandError "Wasp project is already in use" $
-    "Another Wasp command"
-      ++ maybe "" (\projectLockData -> " (PID " ++ show projectLockData.pid ++ ")") maybeProjectLockData
+    describeLockHolder ((.pid) <$> maybeProjectLockData)
       ++ " is already running for this project. Wait for it, or stop it and try again."
+
+-- | Names the Wasp process holding the project lock, for messages to the user.
+-- In the future, this function might provide more detailed information about
+-- the lock holder, such as the command being run or the time it acquired the
+-- lock.
+describeLockHolder :: Maybe WaspProcessId -> String
+describeLockHolder (Just pid) = "A Wasp command (PID " ++ show pid ++ ")"
+describeLockHolder Nothing = "A Wasp command"

@@ -79,6 +79,9 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar = FSN.withM
         then -- Ignore delayed/stale events older than our last compile time.
           listenForEvents chan lastCompileTime
         else do
+          -- Even though we wait for 1s before triggering the recompile, the app
+          -- is already out of date, so we set the status to Compiling
+          -- immediately.
           setWatcherStatus projectLock Compiling
           -- Recompile, but only after a 1s period of no new events.
           waitUntilNoNewEvents chan lastCompileTime 1

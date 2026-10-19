@@ -1,5 +1,3 @@
-{-# LANGUAGE NumericUnderscores #-}
-
 module Wasp.Cli.Compile
   ( ensureCompile,
     waitEnsureCompile,
@@ -16,7 +14,8 @@ import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WaspProcessId, WatcherStatus (..))
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Message as Msg
-import Wasp.Util.IO.Retry (Microseconds, constPause, retryWithCallback)
+import Wasp.Util (secondsToMicroSeconds)
+import Wasp.Util.IO.Retry (constPause, retryWithCallback)
 
 -- | Makes sure the generated app is up to date with the project's source, for
 -- commands that need it.
@@ -59,13 +58,12 @@ waitEnsureCompile options =
           ++ ")"
 
     maxNumRetries = 10
-    oneSecond = 1_000_000 :: Microseconds
+    oneSecond = fromIntegral $ secondsToMicroSeconds 1
 
 makeProjectBusyError :: Maybe WaspProcessId -> CommandError
 makeProjectBusyError maybeProcessId =
   CommandError "Wasp project is busy" $
-    "Another Wasp command"
-      ++ maybe "" (\pid -> " (PID " ++ show pid ++ ")") maybeProcessId
+    ProjectLock.describeLockHolder maybeProcessId
       ++ " is working on this project right now. Run this command again once it finishes."
 
 data EnsureCompileResult
@@ -85,12 +83,10 @@ attemptEnsureCompile options =
   where
     makeCompilationSkippedInfo pid =
       Msg.Info $
-        "Skipping compilation, another Wasp command (PID "
-          ++ show pid
-          ++ ") is already watching this project."
+        ProjectLock.describeLockHolder (Just pid)
+          ++ " is already watching this project, skipping compilation."
 
     makeCompilationFailedError pid =
       CommandError "Wasp project failed to compile" $
-        "Another Wasp command (PID "
-          ++ show pid
-          ++ ") is running for this project, but it failed to compile it. Fix its compilation errors first."
+        ProjectLock.describeLockHolder (Just pid)
+          ++ " is running for this project, but it failed to compile it. Fix its compilation errors first."

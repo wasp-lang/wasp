@@ -1,5 +1,7 @@
 module Tests.WaspProjectLockTest (waspProjectLockTest) where
 
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.Char8 as BLC
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -13,6 +15,7 @@ import ShellCommands
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
 
 waspProjectLockTest :: Test
 waspProjectLockTest =
@@ -51,7 +54,9 @@ waspProjectLockTest =
                   -- process holds the OS-level lock on it.
                   -- Even if that owner was a watcher that had the generated app
                   -- up to date, nobody is keeping it up to date anymore.
-                  return $ "mkdir -p .wasp" ~&& writeLockFileAsWatcher "999999999" "UpToDate",
+                  return $
+                    "mkdir -p .wasp"
+                      ~&& writeLockFile ProjectLockData {pid = 999999999, watcherStatus = Just UpToDate},
                   waspCliClean
                 ]
             ]
@@ -75,16 +80,16 @@ waspProjectLockTest =
                   -- it to finish, and gives up after a while.
                   return $ assertWaspDbMigrateDevFailsWith "is working on this project right now.",
                   return $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
-                  return $ writeLockFileAsWatcher lockOwnerPid "CompilationFailed",
+                  return $ setLockFileWatcherStatus CompilationFailed,
                   return $ assertWaspDbMigrateDevFailsWith "is running for this project, but it failed to compile it.",
                   -- While the watcher compiles, the db command waits for it, and
                   -- goes on without compiling once the watcher is done.
-                  return $ writeLockFileAsWatcher lockOwnerPid "Compiling",
+                  return $ setLockFileWatcherStatus Compiling,
                   return startWaspDbMigrateDevInBackground,
                   return $ waitUntil $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
-                  return $ writeLockFileAsWatcher lockOwnerPid "UpToDate",
+                  return $ setLockFileWatcherStatus UpToDate,
                   return "wait \"$WASP_E2E_DB_PID\"",
-                  return "grep -qF 'Skipping compilation' .wasp-e2e-db.log",
+                  return "grep -qF 'is already watching this project, skipping compilation.' .wasp-e2e-db.log",
                   return releaseLockAndAwaitWaspInstall
                 ]
             ]
@@ -139,23 +144,28 @@ waspProjectLockTest =
 
     assertLogMentionsLockHolder :: FilePath -> String -> ShellCommand
     assertLogMentionsLockHolder logFile messageAfterLockHolder =
-      "grep -qF \"Another Wasp command (PID " ++ lockOwnerPid ++ ") " ++ messageAfterLockHolder ++ "\" " ++ logFile
+      "grep -qF \"A Wasp command (PID " ++ lockOwnerPid ++ ") " ++ messageAfterLockHolder ++ "\" " ++ logFile
 
     -- Shell expression for the PID that the lock holder wrote into the lock file.
     lockOwnerPid :: String
-    lockOwnerPid = "$(sed -E 's/.*\"pid\":([0-9]+).*/\\1/' .wasp/.projectlock)"
+    lockOwnerPid = "$(jq .pid .wasp/.projectlock)"
 
+    writeLockFile :: ProjectLockData -> ShellCommand
+    writeLockFile projectLockData =
+      "printf %s '" ++ BLC.unpack (Aeson.encode projectLockData) ++ "' > .wasp/.projectlock"
+
+    -- Rewrites the lock file on behalf of the process holding the lock, keeping
+    -- its PID.
     -- NOTE: The redirection rewrites the lock file in place. That's important
     -- because the OS-level lock is tied to the file itself, so replacing the
     -- file with a new one would leave us with an unlocked lock file.
-    writeLockFileAsWatcher :: String -> String -> ShellCommand
-    writeLockFileAsWatcher pid watcherStatus =
-      "WASP_E2E_LOCK_FILE_CONTENTS=\"{\\\"pid\\\":"
-        ++ pid
-        ++ ",\\\"watcherStatus\\\":\\\""
-        ++ watcherStatus
-        ++ "\\\"}\""
-          ~&& "printf %s \"$WASP_E2E_LOCK_FILE_CONTENTS\" > .wasp/.projectlock"
+    setLockFileWatcherStatus :: WatcherStatus -> ShellCommand
+    setLockFileWatcherStatus watcherStatus =
+      ( "WASP_E2E_LOCK_FILE_CONTENTS=$(jq -c --argjson watcherStatus '"
+          ++ BLC.unpack (Aeson.encode watcherStatus)
+          ++ "' '.watcherStatus = $watcherStatus' .wasp/.projectlock)"
+      )
+        ~&& "printf %s \"$WASP_E2E_LOCK_FILE_CONTENTS\" > .wasp/.projectlock"
 
     startWaspDbMigrateDevInBackground :: ShellCommand
     startWaspDbMigrateDevInBackground =
