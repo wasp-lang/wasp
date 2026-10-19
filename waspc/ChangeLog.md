@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
+
+- Removed the `wasp test` command. Wasp no longer installs or configures Vitest and the testing libraries for your app, so install, configure, and run them yourself.
+
 ### 🐞 Bug fixes
 
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))

@@ -1,6 +1,6 @@
 {
   "name": "wasp-prisma",
-  "version": "0.26.1",
+  "version": "0.27.0",
   "type": "module",
   "author": "Wasp Team",
   "license": "MIT",

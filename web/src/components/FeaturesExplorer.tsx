@@ -708,7 +708,6 @@ $ wasp start           # run client + server in dev
 $ wasp start db        # spin up a local dev database
 $ wasp db migrate-dev  # run migrations, and more under \`wasp db ...\`
 $ wasp studio          # visualize your app's structure
-$ wasp test client     # run your tests
 $ wasp build           # generate production-ready code
 $ wasp deploy          # ship it to your provider`,
       },

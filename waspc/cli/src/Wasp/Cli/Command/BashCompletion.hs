@@ -46,7 +46,6 @@ bashCompletion = do
         "deps",
         "dockerfile",
         "show",
-        "test",
         "studio"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]

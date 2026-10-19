@@ -1,7 +1,6 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
-    Wasp.Generator.Test.testWebApp,
     GeneratedAppDir,
   )
 where
@@ -28,7 +27,6 @@ import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (SetupGoal, runSetup, setUpGeneratedApp)
 import qualified Wasp.Generator.Start
-import qualified Wasp.Generator.Test
 import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo

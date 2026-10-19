@@ -64,7 +64,7 @@ By default, Vite blocks requests from hostnames other than `localhost`. Since we
 Add `allowedHosts` to the `server` section in your `vite.config.ts`:
 
 ```ts title="vite.config.ts"
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 import { wasp } from "wasp/client/vite";
 
 export default defineConfig({

@@ -1,7 +1,5 @@
 {{={= =}=}}
-/// <reference types="vitest/config" />
 import type { PluginOption } from "vite";
-import { defaultExclude } from "vitest/config";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -37,11 +35,18 @@ const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
     "To run the client on a different port, use `wasp build start --client-port <port>`.",
 };
 
+// `wasp start` provides these env vars, but tests run without it. A test can't
+// reach the server anyway (requests are usually mocked), so placeholder values
+// are enough to pass the client env validation.
+const testModeEnvVarDefaults = {
+  "{= serverUrlEnvVarName =}": "http://localhost:3001",
+};
+
 export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
     enforce: "pre",
-    config(config) {
+    config(config, env) {
       throwIfOverridingForcedOptions(config);
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
@@ -59,6 +64,10 @@ export function waspConfig(): PluginOption {
           port: forcedOptions["preview.port"],
         },
         envPrefix: forcedOptions["envPrefix"],
+        define:
+          env.mode === "test"
+            ? defineMissingClientEnvVars(testModeEnvVarDefaults)
+            : {},
         build: {
           outDir: forcedOptions["build.outDir"],
         },
@@ -90,18 +99,19 @@ export function waspConfig(): PluginOption {
             },
           ],
         },
-        test: {
-          globals: useUserValue(config.test?.globals, true),
-          environment: useUserValue(config.test?.environment, "jsdom"),
-          setupFiles: {=& vitest.setupFilesArray =},
-          exclude: [
-            ...defaultExclude,
-            "{= vitest.excludeWaspArtefactsPattern =}",
-          ],
-        },
       };
     },
   };
+}
+
+function defineMissingClientEnvVars(
+  envVars: Record<string, string>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(envVars)
+      .filter(([name]) => process.env[name] === undefined)
+      .map(([name, value]) => [`import.meta.env.${name}`, JSON.stringify(value)]),
+  );
 }
 
 function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {

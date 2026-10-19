@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/lib-sdk-core",
-  "version": "0.26.1",
+  "version": "0.27.0",
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -39,14 +39,16 @@
     "@testing-library/react": "^16.3.1",
     "@types/express": "^5.0.0",
     "@vitejs/plugin-react": "^6.0.3",
-    "@wasp.sh/lib-auth": "^0.26.1",
+    "@wasp.sh/lib-auth": "^0.27.0",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
+    "msw": "^2.12.0 || ^3.0.0",
     "react": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router": "^8.0.1",
     "superjson": "^2.2.1",
     "vite": "^8.1.0",
+    "vitest": "^4.1.0 || ^5.0.0",
     "zod": "^4.3.6"
   },
   "peerDependenciesMeta": {
@@ -56,7 +58,13 @@
     "@vitejs/plugin-react": {
       "optional": true
     },
+    "msw": {
+      "optional": true
+    },
     "vite": {
+      "optional": true
+    },
+    "vitest": {
       "optional": true
     }
   },
@@ -78,6 +86,7 @@
     "@wasp.sh/lib-auth": "file:../auth",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
+    "msw": "^2.12.7",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",
@@ -86,6 +95,7 @@
     "tsdown": "^0.21.5",
     "typescript": "^6.0.3",
     "vite": "^8.1.0",
+    "vitest": "^4.1.9",
     "zod": "^4.3.6"
   },
   "sideEffects": [

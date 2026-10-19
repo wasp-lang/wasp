@@ -17,6 +17,7 @@ import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.ViteBuildTest (viteBuildTest)
 import Tests.ViteConfigTest (viteConfigTest)
+import Tests.VitestTest (vitestTest)
 import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
@@ -106,6 +107,7 @@ e2eTests = do
         waspTsSpecNodeEnvTest,
         viteBuildTest,
         viteConfigTest,
+        vitestTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspProjectLockTest,
