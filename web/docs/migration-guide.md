@@ -91,9 +91,49 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-2. Remove `vitest` from your `devDependencies`.
+2. Remove `vitest` from your `devDependencies`:
 
-3. Remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`, if you have them.
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```json title="package.json"
+       {
+         "devDependencies": {
+           // highlight-next-line
+           "vitest": "^4.1.9",
+           "vite": "^8.1.0"
+         }
+       }
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```json title="package.json"
+       {
+         "devDependencies": {
+           "vite": "^8.1.0"
+         }
+       }
+       ```
+     </TabItem>
+   </Tabs>
+
+3. Remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`, if you have them:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="src/vite-env.d.ts"
+       /// <reference types="vite/client" />
+       // highlight-start
+       /// <reference types="vitest/globals" />
+       /// <reference types="@testing-library/jest-dom" />
+       // highlight-end
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="src/vite-env.d.ts"
+       /// <reference types="vite/client" />
+       ```
+     </TabItem>
+   </Tabs>
 
 #### If you use Vitest
 
