@@ -84,6 +84,21 @@ jobs:
         id: app-info
         working-directory: ${{ matrix.app-dir }}
         run: |
-          echo "url=https://$(flyctl status -c fly-client.toml --json | jq -r .Hostname)" >> $GITHUB_OUTPUT
+          client_hostname=$(flyctl status -c fly-client.toml --json | jq -er .Hostname)
+          server_hostname=$(flyctl status -c fly-server.toml --json | jq -er .Hostname)
+          echo "url=https://${client_hostname}" >> "$GITHUB_OUTPUT"
+          echo "server-url=https://${server_hostname}" >> "$GITHUB_OUTPUT"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_PRODUCTION_TOKEN }}
+
+      - name: Verify deployed app URLs
+        env:
+          SERVER_URL: ${{ steps.app-info.outputs.server-url }}
+          CLIENT_URL: ${{ steps.app-info.outputs.url }}
+        run: |
+          for url in "${SERVER_URL}/up" "${CLIENT_URL}/"; do
+            echo "Checking $url"
+            curl --fail --silent --show-error --location \
+              --retry 12 --retry-all-errors --retry-delay 5 --retry-max-time 120 \
+              --max-time 10 --output /dev/null "$url"
+          done
