@@ -29,7 +29,6 @@ import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
-import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -40,8 +39,6 @@ data SetupGoal
   = PrismaCliReady
   | DbMigrationsChecked
   | SdkReady
-  | -- | Our deployment tooling expects the web app dir to exist.
-    WebAppRootDirReady
   | UserCodeTypeChecked
   deriving (Eq, Show, Enum, Bounded)
 
@@ -56,7 +53,6 @@ data SetupStep
   | WarnIfDbNeedsMigration
   | GeneratePrismaClient
   | BuildSdk
-  | CreateWebAppRootDir
   | TypeCheckUserCode
   deriving (Eq, Show, Enum, Bounded)
 
@@ -71,7 +67,6 @@ allSetupSteps = [minBound .. maxBound]
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
 prerequisites FormatPrismaSchema = []
-prerequisites CreateWebAppRootDir = []
 prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
 prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
@@ -101,7 +96,6 @@ stepsForGoal :: SetupGoal -> [SetupStep]
 stepsForGoal PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
 stepsForGoal DbMigrationsChecked = [WarnIfDbNeedsMigration]
 stepsForGoal SdkReady = [BuildSdk]
-stepsForGoal WebAppRootDirReady = [CreateWebAppRootDir]
 stepsForGoal UserCodeTypeChecked = [TypeCheckUserCode]
 
 -- | The steps with all their prerequisites. Each step comes after its
@@ -122,7 +116,6 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
   BuildSdk -> buildSdk generatedAppDir sendMessage
-  CreateWebAppRootDir -> liftIO $ createWebAppRootDir generatedAppDir
   TypeCheckUserCode -> typeCheckUserCode spec sendMessage
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
