@@ -27,6 +27,7 @@ where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Exception as E
+import Control.Monad (guard)
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
@@ -48,8 +49,9 @@ instance MonadRetry Command where
 
 runCommand :: Command a -> IO ()
 runCommand cmd =
-  E.try (runExceptT (flip evalStateT [] $ _runCommand cmd)) >>= \case
-    Left Interactive.PromptCancelled -> do
+  E.tryJust (guard . Interactive.isPromptInputEOF) (runExceptT (flip evalStateT [] $ _runCommand cmd)) >>= \case
+    Left () -> do
+      -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
       putStrLn "Aborted."
       exitFailure
     Right (Left cmdError) -> do

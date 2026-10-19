@@ -3,6 +3,7 @@
 module Wasp.Cli.Interactive
   ( InteractiveTerminal,
     getInteractiveTerminal,
+    isPromptInputEOF,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -12,13 +13,10 @@ module Wasp.Cli.Interactive
     IsOption (..),
     ConfirmationError (..),
     Option (..),
-    PromptCancelled (..),
   )
 where
 
 import Control.Applicative ((<|>))
-import qualified Control.Exception as E
-import Control.Monad (guard)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
@@ -29,7 +27,7 @@ import qualified Data.List.NonEmpty as NE
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrLn, stdin, stdout)
-import System.IO.Error (isEOFError)
+import System.IO.Error (ioeGetHandle, isEOFError)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
@@ -84,17 +82,19 @@ data InteractiveTerminal = InteractiveTerminal
 -- pass the answers as arguments, skip the question, etc.
 getInteractiveTerminal :: IO (Maybe InteractiveTerminal)
 getInteractiveTerminal = do
-  isTerminal <- hIsTerminalDevice stdin
+  isTerminal <- hIsTerminalDevice stdioTerminal.inputHandle
   return $
     if isTerminal
-      then Just InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
+      then Just stdioTerminal
       else Nothing
 
--- | Thrown when the user ends the input (Ctrl+D) while we are waiting for an answer.
-data PromptCancelled = PromptCancelled
-  deriving (Show)
+stdioTerminal :: InteractiveTerminal
+stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
 
-instance E.Exception PromptCancelled
+-- | True for an error caused by the user ending an input (Ctrl+D) while a
+-- prompt is waiting for an answer.
+isPromptInputEOF :: IOError -> Bool
+isPromptInputEOF e = isEOFError e && ioeGetHandle e == Just stdioTerminal.inputHandle
 
 askForRequiredInput :: InteractiveTerminal -> String -> IO String
 askForRequiredInput terminal question = repeatIfNull terminal $ askForInput terminal question
@@ -170,11 +170,10 @@ askForInput terminal question = do
 
 tryGettingConfirmation :: InteractiveTerminal -> String -> String -> IO (Either ConfirmationError ())
 tryGettingConfirmation terminal message requiredAnswer =
-  E.try (askForInput terminal message) <&> \case
-    Left PromptCancelled -> Left Cancelled
-    Right actualAnswer
-      | actualAnswer == requiredAnswer -> Right ()
-      | otherwise -> Left $ WrongAnswer actualAnswer
+  askForInput terminal message <&> \actualAnswer ->
+    if actualAnswer == requiredAnswer
+      then Right ()
+      else Left $ WrongAnswer actualAnswer
 
 tryGettingConfirmationWithTimeout :: InteractiveTerminal -> String -> String -> Int -> IO (Either ConfirmationError ())
 tryGettingConfirmationWithTimeout terminal message requiredAnswer timeoutSeconds =
@@ -183,7 +182,7 @@ tryGettingConfirmationWithTimeout terminal message requiredAnswer timeoutSeconds
   where
     timeoutMicroseconds = timeoutSeconds * 10 ^ (6 :: Int)
 
-data ConfirmationError = Timeout | Cancelled | WrongAnswer String
+data ConfirmationError = Timeout | WrongAnswer String
 
 repeatIfNull :: (Foldable t) => InteractiveTerminal -> IO (t a) -> IO (t a)
 repeatIfNull terminal action = repeatUntil terminal null "This field cannot be empty." action
@@ -198,14 +197,11 @@ repeatUntil terminal predicate errorMessage action = do
     else return result
 
 -- | Reads the user's answer. Reaching the end of input while waiting for an
--- answer (Ctrl+D) throws 'PromptCancelled'.
+-- answer (Ctrl+D) throws an error 'isPromptInputEOF' recognizes.
 prompt :: InteractiveTerminal -> IO String
 prompt terminal = do
   putStrFlush terminal $ Term.applyStyles [Term.Yellow] " ▸ "
-  T.unpack . T.strip . T.pack <$> getLineOrCancel
-  where
-    getLineOrCancel =
-      E.catchJust (guard . isEOFError) (hGetLine terminal.inputHandle) (const $ E.throwIO PromptCancelled)
+  T.unpack . T.strip . T.pack <$> hGetLine terminal.inputHandle
 
 -- Explicit flush ensures prompt messages are printed immediately on all systems.
 putStrFlush :: InteractiveTerminal -> String -> IO ()
