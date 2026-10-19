@@ -60,7 +60,7 @@ start = withArguments startDbArgsParser $ \args -> do
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
 
 startDbArgsParser :: ArgsParser DbStartOptions
-startDbArgsParser = ArgsParser "wasp start db" dbStartOptionsParser
+startDbArgsParser = ArgsParser "wasp db start" dbStartOptionsParser
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse appSpec = do
