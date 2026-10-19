@@ -9,8 +9,6 @@ module Wasp.Generator.Setup
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import Control.Monad (forM_, when)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -30,8 +28,6 @@ import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 
 -- | What a command needs the generated app set up for, after code generation.
@@ -148,25 +144,21 @@ buildSdk generatedAppDir sendMessage = do
 
 typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage = do
-  (_, exitCode) <- liftIO $ do
+  exitCode <- liftIO $ do
     sendMessage $ Msg.Start "Type-checking user code..."
-    chan <- newChan
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (runTypeCheck chan)
+    J.run $ J.prefixWith J.Wasp $ J.fromProc typeCheckProcess
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where
-    runTypeCheck :: J.Job
-    runTypeCheck =
-      runNodeCommandAsJob
-        (AS.waspProjectDir spec)
-        "npx"
-        [ "tsc",
-          "--project",
-          SP.fromRelFile $ AS.srcTsConfigPath spec,
-          "--noEmit"
-        ]
-        J.Wasp
+    typeCheckProcess :: J.CreateJobProcess
+    typeCheckProcess =
+      J.setCwd (AS.waspProjectDir spec) $
+        J.proc
+          "npx"
+          [ "tsc",
+            "--project",
+            SP.fromRelFile $ AS.srcTsConfigPath spec,
+            "--noEmit"
+          ]

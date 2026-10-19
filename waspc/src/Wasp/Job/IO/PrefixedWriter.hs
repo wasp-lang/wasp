@@ -2,25 +2,39 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Job.IO.PrefixedWriter
-  ( printJobMessagePrefixed,
-    runPrefixedWriter,
-    PrefixedWriter,
+  ( PrefixedWriter,
+    newPrefixedWriter,
+    printOutput,
   )
 where
 
+import Control.Concurrent (MVar, modifyMVar_, newMVar)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.State (get, put)
-import Control.Monad.State.Strict (MonadState, StateT, runStateT)
+import Control.Monad.State.Strict (MonadState, StateT, execStateT)
 import Data.List (maximumBy)
 import Data.Ord (comparing)
 import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import System.IO (hFlush, stderr)
-import Wasp.Job (JobType)
-import qualified Wasp.Job as J
-import Wasp.Job.Common (getJobMessageContent, getJobMessageOutHandle)
+import System.IO (Handle, hFlush, stderr, stdout)
+import qualified Wasp.Job.Common as J
 import qualified Wasp.Util.Terminal as Term
+
+-- | Prints job output to Wasp's own stdout and stderr. Jobs can print from
+-- several threads at once, so it prints one message at a time.
+newtype PrefixedWriter = PrefixedWriter (MVar PrefixedWriterState)
+
+newPrefixedWriter :: IO PrefixedWriter
+newPrefixedWriter = PrefixedWriter <$> newMVar initPrefixedWriterState
+
+-- | Prints the output as is if it has no job type, or prefixed with the job
+-- type otherwise.
+printOutput :: PrefixedWriter -> Maybe J.JobType -> J.OutputType -> T.Text -> IO ()
+printOutput (PrefixedWriter stateVar) maybeJobType outputType content =
+  modifyMVar_ stateVar $ execStateT $ _runPrefixedWriterM $ case maybeJobType of
+    Nothing -> liftIO $ printMessageContent outputType content
+    Just jobType -> printJobMessagePrefixed (Output jobType outputType) content
 
 -- |
 -- Imagine you have a job sending following two messages:
@@ -67,27 +81,22 @@ import qualified Wasp.Util.Terminal as Term
 -- If not, or there was no previous message, then we ensure there is prefix at the start of
 -- the message. This helps with situations where output from one job was interrupted by the
 -- output from another job, or when message is the very first message.
-printJobMessagePrefixed :: J.JobMessage -> PrefixedWriter ()
-printJobMessagePrefixed jobMessage = do
-  (PrefixedWriterState outputsWithPendingNewline lastJobMessage) <- get
+printJobMessagePrefixed :: Output -> T.Text -> PrefixedWriterM ()
+printJobMessagePrefixed output content = do
+  (PrefixedWriterState outputsWithPendingNewline lastOutput) <- get
 
   let (outputsWithPendingNewline', messageContent) =
-        applyPendingNewline outputsWithPendingNewline jobMessage
-  let prefixedMessageContent = addPrefixWhereNeeded lastJobMessage messageContent
+        applyPendingNewline outputsWithPendingNewline output content
+  let prefixedMessageContent = addPrefixWhereNeeded lastOutput messageContent
 
-  put $ PrefixedWriterState outputsWithPendingNewline' (Just jobMessage)
+  put $ PrefixedWriterState outputsWithPendingNewline' (Just output)
 
-  liftIO $ printPrefixedMessageContent prefixedMessageContent
+  liftIO $ printMessageContent (_outputType output) prefixedMessageContent
   where
-    printPrefixedMessageContent :: T.Text -> IO ()
-    printPrefixedMessageContent content = T.IO.hPutStr outHandle content >> hFlush outHandle
-      where
-        outHandle = getJobMessageOutHandle jobMessage
-
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
-    addPrefixWhereNeeded :: Maybe J.JobMessage -> T.Text -> T.Text
-    addPrefixWhereNeeded lastJobMessage =
+    addPrefixWhereNeeded :: Maybe Output -> T.Text -> T.Text
+    addPrefixWhereNeeded lastOutput =
       ensureNewlineAtStartIfInterruptingAnotherOutput
         . ensurePrefixAtStartIfNotContinuingOnSameOutput
         . addPrefixAfterSubstr "\r"
@@ -98,43 +107,39 @@ printJobMessagePrefixed jobMessage = do
 
         ensurePrefixAtStartIfNotContinuingOnSameOutput :: T.Text -> T.Text
         ensurePrefixAtStartIfNotContinuingOnSameOutput text =
-          let continuingOnSameOutput =
-                (getJobMessageOutput <$> lastJobMessage) == Just (getJobMessageOutput jobMessage)
+          let continuingOnSameOutput = lastOutput == Just output
               prefixAtStart =
                 or [(delimiter <> prefix) `T.isPrefixOf` text | delimiter <- ["\r", "\n", ""]]
            in if not continuingOnSameOutput && not prefixAtStart then prefix <> text else text
 
         ensureNewlineAtStartIfInterruptingAnotherOutput :: T.Text -> T.Text
         ensureNewlineAtStartIfInterruptingAnotherOutput text =
-          let interruptingAnotherOutput =
-                (getJobMessageOutput <$> lastJobMessage) /= Just (getJobMessageOutput jobMessage)
+          let interruptingAnotherOutput = lastOutput /= Just output
               newlineAtStart = "\n" `T.isPrefixOf` text
            in if interruptingAnotherOutput && not newlineAtStart then "\n" <> text else text
 
         prefix :: T.Text
-        prefix = makeJobMessagePrefix jobMessage
+        prefix = makeJobMessagePrefix output
 
-newtype PrefixedWriter a = PrefixedWriter {_runPrefixedWriter :: StateT PrefixedWriterState IO a}
+newtype PrefixedWriterM a = PrefixedWriterM {_runPrefixedWriterM :: StateT PrefixedWriterState IO a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadState PrefixedWriterState)
 
 data PrefixedWriterState = PrefixedWriterState
   { _outputsWithPendingNewline :: !OutputsWithPendingNewline,
-    _lastJobMessage :: !(Maybe J.JobMessage)
+    _lastOutput :: !(Maybe Output)
   }
 
-runPrefixedWriter :: PrefixedWriter a -> IO a
-runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initState
-  where
-    initState =
-      PrefixedWriterState
-        { _outputsWithPendingNewline = S.empty,
-          _lastJobMessage = Nothing
-        }
+initPrefixedWriterState :: PrefixedWriterState
+initPrefixedWriterState =
+  PrefixedWriterState
+    { _outputsWithPendingNewline = S.empty,
+      _lastOutput = Nothing
+    }
 
 -- Job message output type.
 data Output = Output
   { _outputJobType :: !J.JobType,
-    _outputIsStderr :: !Bool
+    _outputType :: !J.OutputType
   }
   deriving (Eq, Ord)
 
@@ -146,14 +151,14 @@ type OutputsWithPendingNewline = S.Set Output
 -- and in that case adds it to the set of pending newlines (while removing used pending newline).
 -- It returns this updated content and updated set of pending newlines.
 applyPendingNewline ::
-  OutputsWithPendingNewline -> J.JobMessage -> (OutputsWithPendingNewline, T.Text)
-applyPendingNewline outputsWithPendingNewline jobMessage = (outputsWithPendingNewline', content')
+  OutputsWithPendingNewline -> Output -> T.Text -> (OutputsWithPendingNewline, T.Text)
+applyPendingNewline outputsWithPendingNewline output content = (outputsWithPendingNewline', content')
   where
     content' = addPendingNewlineToStartIfAny $ removeTrailingNewlineIfAny content
       where
         removeTrailingNewlineIfAny = if contentEndsWithNewline then T.init else id
         addPendingNewlineToStartIfAny =
-          if getJobMessageOutput jobMessage `S.member` outputsWithPendingNewline then ("\n" <>) else id
+          if output `S.member` outputsWithPendingNewline then ("\n" <>) else id
 
     outputsWithPendingNewline' = updateOp output outputsWithPendingNewline
       where
@@ -161,18 +166,8 @@ applyPendingNewline outputsWithPendingNewline jobMessage = (outputsWithPendingNe
 
     contentEndsWithNewline = "\n" `T.isSuffixOf` content
 
-    output = getJobMessageOutput jobMessage
-    content = getJobMessageContent jobMessage
-
-getJobMessageOutput :: J.JobMessage -> Output
-getJobMessageOutput jm =
-  Output
-    { _outputJobType = J._jobType jm,
-      _outputIsStderr = getJobMessageOutHandle jm == stderr
-    }
-
-makeJobMessagePrefix :: J.JobMessage -> T.Text
-makeJobMessagePrefix jobMsg =
+makeJobMessagePrefix :: Output -> T.Text
+makeJobMessagePrefix output =
   T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
     [ [(startDelimiter, jobStyles)],
       [unstyled namePaddingFront],
@@ -195,15 +190,15 @@ makeJobMessagePrefix jobMsg =
         minPrefixLength = length $ startDelimiter <> " " <> longestJobName <> " " <> endDelimiter
         longestJobName =
           maximumBy (comparing length) $
-            fst . getJobNameAndStyles <$> [(minBound :: JobType) .. maxBound]
+            fst . getJobNameAndStyles <$> [(minBound :: J.JobType) .. maxBound]
 
     (startDelimiter, endDelimiter) = ("[", "]")
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | getJobMessageOutHandle jobMsg == stderr]
+      [("!", [Term.Red, Term.Bold]) | _outputType output == J.Stderr]
 
-    (jobName, jobStyles) = getJobNameAndStyles $ J._jobType jobMsg
+    (jobName, jobStyles) = getJobNameAndStyles $ _outputJobType output
 
     getJobNameAndStyles = \case
       J.Wasp -> ("Wasp", [Term.Yellow])
@@ -214,3 +209,12 @@ makeJobMessagePrefix jobMsg =
     unstyled = (,[])
 
 type StyledText = (String, [Term.Style])
+
+printMessageContent :: J.OutputType -> T.Text -> IO ()
+printMessageContent outputType content = T.IO.hPutStr outHandle content >> hFlush outHandle
+  where
+    outHandle = getOutputTypeHandle outputType
+
+getOutputTypeHandle :: J.OutputType -> Handle
+getOutputTypeHandle J.Stdout = stdout
+getOutputTypeHandle J.Stderr = stderr
