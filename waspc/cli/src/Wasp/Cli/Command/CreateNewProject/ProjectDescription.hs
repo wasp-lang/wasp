@@ -75,13 +75,13 @@ instance Show NewProjectAppName where
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
   (projectName, appName, template) <- case projectNameArg of
-    Just projectName -> obtainArgumentsFromCli projectName
+    Just projectName -> obtainArgumentsFromCliCall projectName
     Nothing -> obtainArgumentsInteractively
 
   absTemplateOutputDir <- obtainAvailableTemplateOutputDirPath projectName
   return $ mkNewProjectDescription projectName appName absTemplateOutputDir template
   where
-    obtainArgumentsFromCli projectName = do
+    obtainArgumentsFromCliCall projectName = do
       appName <- either throwProjectCreationError pure $ parseWaspProjectNameIntoAppName projectName
       template <- maybe (return defaultStarterTemplate) (findTemplateOrThrow starterTemplates) templateNameArg
       return (projectName, appName, template)
