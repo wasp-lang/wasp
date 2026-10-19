@@ -1,26 +1,24 @@
-module Wasp.Cli.Command.Start.ServerRuntimeInputChangeTest where
+module Generator.ServerGenerator.ServerEffectTest where
 
 import qualified StrongPath as SP
 import Test.Hspec (Spec, describe, it, shouldBe)
-import Wasp.Cli.Command.Start.ServerRuntimeInputChange (classifyServerEffect)
-import Wasp.Cli.Command.Watch (ProjectFileChange (..))
-import Wasp.Generator.ServerGenerator.Start (ServerEffect (..))
+import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
 
 spec_classifyServerEffect :: Spec
 spec_classifyServerEffect =
   describe "classifyServerEffect" $ do
     it "detects watched project src runtime-input extensions" $ do
-      classifyServerEffect [ProjectFileChange "src/actions/foo.ts"] [] `shouldBe` RebundleAndRestartServer
-      classifyServerEffect [ProjectFileChange "src/actions/foo.mts"] [] `shouldBe` RebundleAndRestartServer
-      classifyServerEffect [ProjectFileChange "src/actions/foo.js"] [] `shouldBe` RebundleAndRestartServer
-      classifyServerEffect [ProjectFileChange "src/actions/foo.mjs"] [] `shouldBe` RebundleAndRestartServer
-      classifyServerEffect [ProjectFileChange "src/actions/foo.json"] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.ts|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.mts|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.js|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.mjs|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.json|]] [] `shouldBe` RebundleAndRestartServer
 
     it "ignores project src files that are not server runtime inputs" $ do
-      classifyServerEffect [ProjectFileChange "src/styles/foo.css"] [] `shouldBe` NoServerEffect
+      classifyServerEffect [[SP.relfile|src/styles/foo.css|]] [] `shouldBe` NoChange
 
     it "ignores top-level project changes unless generated server runtime inputs changed" $ do
-      classifyServerEffect [ProjectFileChange "main.wasp.ts"] [] `shouldBe` NoServerEffect
+      classifyServerEffect [[SP.relfile|main.wasp.ts|]] [] `shouldBe` NoChange
 
     it "detects generated server src runtime-input changes" $ do
       classifyServerEffect [] [Left [SP.relfile|server/src/foo.ts|]] `shouldBe` RebundleAndRestartServer
@@ -41,13 +39,13 @@ spec_classifyServerEffect =
       classifyServerEffect [] [sourceChange, envChange] `shouldBe` RebundleAndRestartServer
 
     it "does not mix project and generated-app path namespaces" $ do
-      classifyServerEffect [ProjectFileChange "server/.env"] [] `shouldBe` NoServerEffect
-      classifyServerEffect [] [Left [SP.relfile|src/actions/foo.ts|]] `shouldBe` NoServerEffect
-      classifyServerEffect [] [Right [SP.reldir|server/.env|]] `shouldBe` NoServerEffect
+      classifyServerEffect [[SP.relfile|server/.env|]] [] `shouldBe` NoChange
+      classifyServerEffect [] [Left [SP.relfile|src/actions/foo.ts|]] `shouldBe` NoChange
+      classifyServerEffect [] [Right [SP.reldir|server/.env|]] `shouldBe` NoChange
 
     it "rebundles when email configuration changes only generated SDK code" $ do
       classifyServerEffect
-        [ProjectFileChange "main.wasp.ts"]
+        [[SP.relfile|main.wasp.ts|]]
         [Left [SP.relfile|sdk/wasp/server/email/core/helpers.ts|]]
         `shouldBe` RebundleAndRestartServer
 
@@ -62,12 +60,12 @@ spec_classifyServerEffect =
       classifyServerEffect [] [Right [SP.reldir|sdk/wasp/auth|]] `shouldBe` RebundleAndRestartServer
 
     it "ignores generated SDK client code" $ do
-      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client|]] `shouldBe` NoServerEffect
-      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client/router|]] `shouldBe` NoServerEffect
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client|]] `shouldBe` NoChange
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client/router|]] `shouldBe` NoChange
 
     it "restarts the server when the Prisma schema changes" $ do
       classifyServerEffect [] [Left [SP.relfile|db/schema.prisma|]] `shouldBe` RestartServer
 
     it "ignores generated paths outside server runtime inputs" $ do
-      classifyServerEffect [] [Left [SP.relfile|server/README.md|]] `shouldBe` NoServerEffect
-      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/client/index.ts|]] `shouldBe` NoServerEffect
+      classifyServerEffect [] [Left [SP.relfile|server/README.md|]] `shouldBe` NoChange
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/client/index.ts|]] `shouldBe` NoChange

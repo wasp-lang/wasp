@@ -1,137 +1,145 @@
 module Wasp.Generator.ServerGenerator.Start
-  ( ServerEffect (..),
+  ( ServerEvent (..),
+    CompileOutcome (..),
+    CompileChanges (..),
     ServerProcessController,
     newServerProcessController,
-    notifyFailedCompile,
-    notifySuccessfulCompile,
+    notifyServer,
     startServer,
   )
 where
 
-import Control.Concurrent (MVar, newEmptyMVar, putMVar, takeMVar, threadDelay)
-import Control.Concurrent.STM (TMVar, TQueue, atomically, newEmptyTMVarIO, newTQueueIO, orElse, putTMVar, readTQueue, takeTMVar, tryTakeTMVar, writeTQueue)
-import Control.Monad (forever)
+import Control.Concurrent (MVar, newEmptyMVar, putMVar, takeMVar)
+import Control.Concurrent.STM (TVar, atomically, check, modifyTVar', newTVarIO, readTVar, readTVarIO, writeTVar)
 import Control.Monad.IO.Class (liftIO)
+import Data.Functor (($>))
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import Data.Void (Void, absurd)
-import StrongPath (Abs, Dir, Path', (</>))
+import Data.Time.Clock (UTCTime, getCurrentTime)
+import Data.Void (Void)
+import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import System.Exit (ExitCode (..))
 import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
 import qualified Wasp.Job as J
+import Wasp.Project.Common (WaspProjectDir)
 
-newtype ServerProcessController = ServerProcessController (TQueue ServerControllerCommand)
+data ServerProcessController = ServerProcessController
+  { -- | The compile waiting to be handled, with an @MVar@ that the controller
+    -- fills once it has handled it. Senders wait for that, so there's never
+    -- more than one.
+    _pendingCompile :: MVar (CompileOutcome, MVar ()),
+    -- | Whether the server is running from an up-to-date bundle. Server jobs
+    -- set it before acknowledging their compile, so the next one sees it.
+    _isServerUpToDate :: TVar Bool,
+    -- | Bundles of compiles that started before it are out of date.
+    _lastFileChange :: TVar (Maybe UTCTime)
+  }
 
--- Effect of a successful compile on a healthy, running server.
--- Without one, the controller conservatively rebundles before starting.
-data ServerEffect
-  = NoServerEffect
-  | RestartServer
-  | RebundleAndRestartServer
-  deriving (Eq, Ord, Show)
+data CompileOutcome
+  = SuccessfulCompile CompileChanges
+  | FailedCompile
 
--- | The stronger of the two effects.
-instance Semigroup ServerEffect where
-  (<>) = max
+data CompileChanges = CompileChanges
+  { -- | Changes from this time on aren't part of the compile.
+    _compileStartTime :: UTCTime,
+    _changedProjectFiles :: [Path' (Rel WaspProjectDir) File'],
+    _changedGeneratedAppPaths :: [FileOrDirPathRelativeTo GeneratedAppDir]
+  }
 
-instance Monoid ServerEffect where
-  mempty = NoServerEffect
-
--- | Each command carries an @MVar@ that the controller fills once it has
--- handled the command.
-data ServerControllerCommand
-  = SuccessfulCompile ServerEffect (MVar ())
-  | FailedCompile (MVar ())
+data ServerEvent
+  = -- | Interrupts the bundling for any compile that started before the change.
+    FilesChanged UTCTime
+  | -- | Returns once the controller has handled the compile.
+    Compiled CompileOutcome
 
 newServerProcessController :: IO ServerProcessController
-newServerProcessController = ServerProcessController <$> newTQueueIO
+newServerProcessController = ServerProcessController <$> newEmptyMVar <*> newTVarIO False <*> newTVarIO Nothing
 
-notifySuccessfulCompile :: ServerProcessController -> ServerEffect -> IO ()
-notifySuccessfulCompile controller serverEffect =
-  sendCommand controller $ SuccessfulCompile serverEffect
-
-notifyFailedCompile :: ServerProcessController -> IO ()
-notifyFailedCompile controller =
-  sendCommand controller FailedCompile
-
--- | Returns once the controller has handled the command.
-sendCommand :: ServerProcessController -> (MVar () -> ServerControllerCommand) -> IO ()
-sendCommand (ServerProcessController commands) makeCommand = do
-  done <- newEmptyMVar
-  atomically $ writeTQueue commands $ makeCommand done
-  takeMVar done
+notifyServer :: ServerProcessController -> ServerEvent -> IO ()
+notifyServer controller = \case
+  FilesChanged changeTime ->
+    atomically $ modifyTVar' (_lastFileChange controller) (max $ Just changeTime)
+  Compiled compileOutcome -> do
+    done <- newEmptyMVar
+    putMVar (_pendingCompile controller) (compileOutcome, done)
+    takeMVar done
 
 -- | Bundles and runs the development server, and then keeps it up to date with
 -- the compiles the controller is notified about. Never finishes by itself.
 startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> J.Job Void
-startServer serverRunConfig generatedAppDir (ServerProcessController commands) =
-  bundleAndRun Nothing
+startServer serverRunConfig generatedAppDir controller = do
+  startTime <- liftIO getCurrentTime
+  initialServerJob <- bundleAndRun startTime noAcknowledgement
+  J.keepReplacing nextServerJob $ fromMaybe noServer initialServerJob
   where
-    -- There is no known-good bundle while the server isn't running, so any
-    -- successful compile rebundles it before starting it.
-    notRunning :: J.Job Void
-    notRunning =
-      liftIO (atomically $ readTQueue commands) >>= \case
-        SuccessfulCompile _ done -> announceUpdate >> bundleAndRun (Just done)
-        FailedCompile done -> acknowledge done >> notRunning
+    -- Runs alongside the current server job, and returns the one replacing
+    -- it, if any.
+    nextServerJob :: J.Job (Maybe (J.Job ()))
+    nextServerJob = do
+      (compileOutcome, done) <- liftIO $ takeMVar $ _pendingCompile controller
+      serverUpToDate <- liftIO $ readTVarIO $ _isServerUpToDate controller
+      let acknowledge = liftIO $ putMVar done ()
+      case (compileOutcome, serverUpToDate) of
+        (FailedCompile, _) -> return $ Just $ stopServer acknowledge
+        (SuccessfulCompile changes, False) -> announceUpdate >> bundleAndRun (_compileStartTime changes) acknowledge
+        (SuccessfulCompile changes, True) -> case serverEffect changes of
+          NoChange -> acknowledge $> Nothing
+          RestartServer -> announceUpdate $> Just (runServer acknowledge)
+          RebundleAndRestartServer -> announceUpdate >> bundleAndRun (_compileStartTime changes) acknowledge
 
-    bundleAndRun :: Maybe (MVar ()) -> J.Job Void
-    bundleAndRun done =
-      bundle >>= \case
-        ExitSuccess -> running done
-        ExitFailure _ -> mapM_ acknowledge done >> waitForChanges
+    serverEffect :: CompileChanges -> ServerEffect
+    serverEffect changes = classifyServerEffect (_changedProjectFiles changes) (_changedGeneratedAppPaths changes)
 
-    -- Tells the user that the server is down until the next successful compile.
-    waitForChanges :: J.Job Void
-    waitForChanges = do
-      J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
-      notRunning
+    -- If files change while bundling, the bundle is out of date, so it's
+    -- interrupted, and the next compile bundles again. The current server
+    -- keeps running in the meantime.
+    bundleAndRun :: UTCTime -> J.Job () -> J.Job (Maybe (J.Job ()))
+    bundleAndRun compileStartTime acknowledge =
+      J.race (liftIO $ waitForFileChangeSince compileStartTime) bundle >>= \case
+        Right ExitSuccess -> return $ Just $ runServer acknowledge
+        Right (ExitFailure _) -> return $ Just $ stopServer acknowledge
+        Left () -> do
+          liftIO $ setServerUpToDate False
+          acknowledge
+          return Nothing
 
-    -- Runs the server until it exits, or a command needs it stopped.
-    running :: Maybe (MVar ()) -> J.Job Void
-    running done = do
-      serverExit <- liftIO newEmptyTMVarIO
-      either absurd id
-        =<< J.race
-          (runServer serverExit)
-          (mapM_ acknowledge done >> handleCommandsWhileRunning serverExit)
+    waitForFileChangeSince :: UTCTime -> IO ()
+    waitForFileChangeSince time =
+      atomically $ readTVar (_lastFileChange controller) >>= check . (>= Just time)
 
-    -- Reports the server's exit instead of finishing, so that a command that
-    -- is being handled doesn't get cancelled. It reports it as soon as the
-    -- server exits, so that a compile right after a crash restarts it.
-    runServer :: TMVar ExitCode -> J.Job Void
-    runServer serverExit = do
-      _ <- J.onProcessExit (atomically . putTMVar serverExit) $ J.fromProc serverProcess
-      liftIO $ forever $ threadDelay maxBound
+    runServer :: J.Job () -> J.Job ()
+    runServer acknowledge = do
+      liftIO $ setServerUpToDate True
+      acknowledge
+      exitCode <- J.onProcessExit (const $ setServerUpToDate False) $ J.fromProc serverProcess
+      reportServerExit exitCode
+      announceWaitingForChanges
 
-    -- Returns what to do once the server is stopped.
-    handleCommandsWhileRunning :: TMVar ExitCode -> J.Job (J.Job Void)
-    handleCommandsWhileRunning serverExit =
-      liftIO (atomically $ (Left <$> takeTMVar serverExit) `orElse` (Right <$> readTQueue commands)) >>= \case
-        Left exitCode -> return $ reportServerExit exitCode >> waitForChanges
-        Right (SuccessfulCompile NoServerEffect done) ->
-          acknowledge done >> handleCommandsWhileRunning serverExit
-        Right (SuccessfulCompile RestartServer done) -> do
-          announceUpdate
-          return $ running $ Just done
-        Right (SuccessfulCompile RebundleAndRestartServer done) -> do
-          announceUpdate
-          -- The current server keeps running while the new one is bundled.
-          bundleExitCode <- bundle
-          -- The server might have exited while it was being bundled.
-          mapM_ reportServerExit =<< liftIO (atomically $ tryTakeTMVar serverExit)
-          return $ case bundleExitCode of
-            ExitSuccess -> running $ Just done
-            ExitFailure _ -> acknowledge done >> waitForChanges
-        Right (FailedCompile done) -> return $ acknowledge done >> waitForChanges
+    stopServer :: J.Job () -> J.Job ()
+    stopServer acknowledge = do
+      liftIO $ setServerUpToDate False
+      acknowledge
+      announceWaitingForChanges
 
-    acknowledge :: MVar () -> J.Job ()
-    acknowledge done = liftIO $ putMVar done ()
+    setServerUpToDate :: Bool -> IO ()
+    setServerUpToDate = atomically . writeTVar (_isServerUpToDate controller)
+
+    noAcknowledgement :: J.Job ()
+    noAcknowledgement = return ()
+
+    noServer :: J.Job ()
+    noServer = return ()
 
     announceUpdate :: J.Job ()
     announceUpdate = J.emitOutput J.Stdout "Updating server...\n"
+
+    announceWaitingForChanges :: J.Job ()
+    announceWaitingForChanges = J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
 
     -- Same as the `bundle` script in the server's `package.json`.
     bundle :: J.Job ExitCode

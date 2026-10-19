@@ -1,18 +1,18 @@
 module Wasp.Cli.Command.Watch
-  ( ProjectFileChange (..),
-    WatchCompileResult (..),
-    WatchCompileHooks (..),
+  ( WatchCompileResult (..),
+    WatchEvent (..),
     watch,
   )
 where
 
 import Control.Concurrent (MVar, threadDelay)
 import Control.Concurrent.Async (race)
-import Control.Concurrent.Chan (Chan, newChan, readChan)
+import Control.Concurrent.Chan (Chan, newChan, readChan, writeChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
 import Data.List (isPrefixOf, isSuffixOf)
+import Data.Maybe (mapMaybe)
 import Data.Time.Clock (UTCTime, getCurrentTime)
-import StrongPath (Abs, Dir, Path', (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
@@ -24,18 +24,17 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
-newtype ProjectFileChange = ProjectFileChange
-  { _projectFileChangePath :: FilePath
-  }
-
-data WatchCompileHooks = WatchCompileHooks
-  { _onSuccessfulCompile :: WatchCompileResult -> IO (),
-    _onFailedCompile :: WatchCompileResult -> IO ()
-  }
+data WatchEvent
+  = -- | As soon as a watched file changes, with the time of the change.
+    FileChanged UTCTime
+  | -- | Once a compile has finished, whether it succeeded or not.
+    Recompiled WatchCompileResult
 
 data WatchCompileResult = WatchCompileResult
-  { _watchProjectFileChanges :: [ProjectFileChange],
-    _watchCompileResult :: CompileResult
+  { _watchChangedProjectFiles :: [Path' (Rel WaspProjectDir) File'],
+    _watchCompileResult :: CompileResult,
+    -- | Changes from this time on aren't part of the compile.
+    _watchCompileStartTime :: UTCTime
   }
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
@@ -50,13 +49,14 @@ data WatchCompileResult = WatchCompileResult
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
+-- It reports what happens to 'onWatchEvent'.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
-  WatchCompileHooks ->
+  (WatchEvent -> IO ()) ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
+watch waspProjectDir outDir ongoingCompilationResultMVar onWatchEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -67,7 +67,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
     listenForEvents canonicalWaspProjectDir chan =<< getCurrentTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
-      FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
+      FSN.watchDir mgr (SP.fromAbsDir waspProjectDir) eventFilter (onEvent chan)
       where
         eventFilter event =
           isWatchedFile filename && filename /= "package-lock.json"
@@ -75,9 +75,14 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
             filename = FP.takeFileName $ FSN.eventPath event
 
     watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan dirInWaspProjectDir =
-      FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> dirInWaspProjectDir) eventFilter chan
+      FSN.watchTree mgr (SP.fromAbsDir $ waspProjectDir </> dirInWaspProjectDir) eventFilter (onEvent chan)
       where
         eventFilter = isWatchedFile . FP.takeFileName . FSN.eventPath
+
+    onEvent :: Chan FSN.Event -> FSN.Event -> IO ()
+    onEvent chan event = do
+      onWatchEvent $ FileChanged $ FSN.eventTime event
+      writeChan chan event
 
     -- TODO: Might be valuable to also filter out files from .gitignore.
     isWatchedFile :: String -> Bool
@@ -95,7 +100,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
           -- Recompile, but only after a 1s period of no new events.
           events <- collectEventsUntilQuiet chan lastCompileTime 1 event
           currentTime <- getCurrentTime
-          recompile $ eventToProjectFileChange canonicalWaspProjectDir <$> events
+          recompile currentTime $ mapMaybe (eventToProjectFile canonicalWaspProjectDir) events
           listenForEvents canonicalWaspProjectDir chan currentTime
 
     updateOngoingCompilationResultMVar :: ([CompileWarning], [CompileError]) -> IO ()
@@ -127,9 +132,9 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
                   collectEvents $ event : events
             Right () -> return events
 
-    eventToProjectFileChange :: FilePath -> FSN.Event -> ProjectFileChange
-    eventToProjectFileChange canonicalWaspProjectDir event =
-      ProjectFileChange $ FP.normalise $ FP.makeRelative canonicalWaspProjectDir (FSN.eventPath event)
+    eventToProjectFile :: FilePath -> FSN.Event -> Maybe (Path' (Rel WaspProjectDir) File')
+    eventToProjectFile canonicalWaspProjectDir event =
+      SP.parseRelFile $ FP.normalise $ FP.makeRelative canonicalWaspProjectDir (FSN.eventPath event)
 
     isStaleEvent :: FSN.Event -> UTCTime -> Bool
     isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
@@ -138,8 +143,8 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
-    recompile :: [ProjectFileChange] -> IO ()
-    recompile fileChanges = do
+    recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
+    recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
       compileResult <- compileIO waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
@@ -147,18 +152,15 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = do
       printCompilationResult (warnings, errors)
       let watchCompileResult =
             WatchCompileResult
-              { _watchProjectFileChanges = fileChanges,
-                _watchCompileResult = compileResult
+              { _watchChangedProjectFiles = changedProjectFiles,
+                _watchCompileResult = compileResult,
+                _watchCompileStartTime = compileStartTime
               }
       case _compileOutcome compileResult of
-        Right _ -> do
-          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
-          updateOngoingCompilationResultMVar (warnings, errors)
-          _onSuccessfulCompile watchCompileHooks watchCompileResult
-        Left _ -> do
-          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
-          updateOngoingCompilationResultMVar (warnings, errors)
-          _onFailedCompile watchCompileHooks watchCompileResult
+        Right _ -> cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
+        Left _ -> cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+      updateOngoingCompilationResultMVar (warnings, errors)
+      onWatchEvent $ Recompiled watchCompileResult
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,

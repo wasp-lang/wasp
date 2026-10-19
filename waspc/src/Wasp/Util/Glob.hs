@@ -1,21 +1,18 @@
 module Wasp.Util.Glob
-  ( Pattern,
-    compile,
-    match,
-    recursiveFileGlobsWithExtensions,
-    dirAndDescendantsGlobs,
+  ( dirGlob,
+    descendantsGlob,
   )
 where
 
-import qualified System.FilePath as FP
-import System.FilePath.Glob (Pattern, compile, match)
+import StrongPath (Dir, Path', toFilePath)
+import System.FilePath.Glob (Pattern)
+import System.FilePath.Glob.Primitive (literal, recursiveWildcard, wildcard)
 
-recursiveFileGlobsWithExtensions :: FilePath -> [String] -> [String]
-recursiveFileGlobsWithExtensions dir extensions =
-  (\ext -> dir FP.</> "**" FP.</> "*" ++ ext) <$> extensions
+-- | Matches the directory itself. Like the paths of directories, it ends with
+-- a path separator.
+dirGlob :: Path' b (Dir d) -> Pattern
+dirGlob = literal . toFilePath
 
-dirAndDescendantsGlobs :: FilePath -> [String]
-dirAndDescendantsGlobs dir =
-  [ dir,
-    dir FP.</> "**" FP.</> "*"
-  ]
+-- | Matches anything inside the directory, at any depth.
+descendantsGlob :: Path' b (Dir d) -> Pattern
+descendantsGlob dir = dirGlob dir <> recursiveWildcard <> wildcard

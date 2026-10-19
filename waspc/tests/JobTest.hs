@@ -2,10 +2,10 @@ module JobTest where
 
 import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (IOException, finally, throwIO, try)
-import Control.Monad (unless, void, when)
+import Control.Exception (IOException, finally, onException, throwIO, try)
+import Control.Monad (forever, unless, void, when)
 import Control.Monad.IO.Class (liftIO)
-import Data.IORef (modifyIORef', newIORef, readIORef)
+import Data.IORef (atomicModifyIORef', modifyIORef', newIORef, readIORef)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified StrongPath as SP
@@ -129,6 +129,64 @@ spec_Job = do
             _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
         )
         `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+
+  describe "keepReplacing" $ do
+    it "keeps each job running until the next one is produced, then stops it" $ do
+      events <- newIORef []
+      nextJobNumber <- newEmptyMVar
+      let record event = atomicModifyIORef' events $ \recorded -> (recorded <> [event], ())
+          numberedJob :: Int -> Job.Job ()
+          numberedJob n = liftIO $ do
+            record $ "start " <> show n
+            forever (threadDelay maxBound) `finally` record ("stop " <> show n)
+          next = do
+            n <- liftIO $ takeMVar nextJobNumber
+            liftIO $ record $ "produce " <> show n
+            return $ Just $ numberedJob n
+      Async.withAsync (Job.run $ Job.keepReplacing next $ numberedJob 0) $ \_ -> do
+        waitUntil "the first job starts" $ elem "start 0" <$> readIORef events
+        putMVar nextJobNumber 1
+        waitUntil "the second job starts" $ elem "start 1" <$> readIORef events
+        putMVar nextJobNumber 2
+        waitUntil "the last job starts" $ elem "start 2" <$> readIORef events
+      readIORef events
+        `shouldReturn` ["start 0", "produce 1", "stop 0", "start 1", "produce 2", "stop 1", "start 2", "stop 2"]
+
+    it "keeps the current job when the next one is nothing" $ do
+      events <- newIORef []
+      nextJobNumber <- newEmptyMVar
+      let record event = atomicModifyIORef' events $ \recorded -> (recorded <> [event], ())
+          numberedJob :: Int -> Job.Job ()
+          numberedJob n = liftIO $ do
+            record $ "start " <> show n
+            forever (threadDelay maxBound) `finally` record ("stop " <> show n)
+          next = do
+            n <- liftIO $ takeMVar nextJobNumber
+            liftIO $ record $ "produce " <> maybe "nothing" show n
+            return $ numberedJob <$> n
+      Async.withAsync (Job.run $ Job.keepReplacing next $ numberedJob 0) $ \_ -> do
+        waitUntil "the first job starts" $ elem "start 0" <$> readIORef events
+        putMVar nextJobNumber Nothing
+        waitUntil "nothing is produced" $ elem "produce nothing" <$> readIORef events
+        putMVar nextJobNumber $ Just 1
+        waitUntil "the second job starts" $ elem "start 1" <$> readIORef events
+      readIORef events
+        `shouldReturn` ["start 0", "produce nothing", "produce 1", "stop 0", "start 1", "stop 1"]
+
+    it "keeps waiting for the next job when the current one finishes" $ do
+      events <- newIORef []
+      nextJobNumber <- newEmptyMVar
+      let record event = atomicModifyIORef' events $ \recorded -> (recorded <> [event], ())
+          numberedJob :: Int -> Job.Job ()
+          numberedJob n = liftIO $ record $ "run " <> show n
+          next = do
+            n <- liftIO $ takeMVar nextJobNumber `onException` record "next stopped"
+            return $ Just $ numberedJob n
+      Async.withAsync (Job.run $ Job.keepReplacing next $ numberedJob 0) $ \_ -> do
+        waitUntil "the first job finishes" $ elem "run 0" <$> readIORef events
+        putMVar nextJobNumber 1
+        waitUntil "the second job finishes" $ elem "run 1" <$> readIORef events
+      readIORef events `shouldReturn` ["run 0", "run 1", "next stopped"]
 
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do

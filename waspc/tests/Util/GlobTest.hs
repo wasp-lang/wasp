@@ -1,17 +1,27 @@
 module Util.GlobTest where
 
-import qualified System.FilePath as FP
+import qualified StrongPath as SP
+import System.FilePath.Glob (match)
 import Test.Hspec (Spec, describe, it, shouldBe)
-import Wasp.Util.Glob (dirAndDescendantsGlobs, recursiveFileGlobsWithExtensions)
+import Wasp.Util.Glob (descendantsGlob, dirGlob)
 
 spec_globConstruction :: Spec
 spec_globConstruction =
   describe "glob construction" $ do
-    it "builds recursive file globs for extensions" $ do
-      recursiveFileGlobsWithExtensions "src" [".ts", ".js"]
-        `shouldBe` ["src" FP.</> "**" FP.</> "*.ts", "src" FP.</> "**" FP.</> "*.js"]
+    it "matches only the directory itself with dirGlob" $ do
+      let serverSrcGlob = dirGlob [SP.reldir|server/src|]
+      match serverSrcGlob (SP.fromRelDir [SP.reldir|server/src|]) `shouldBe` True
+      match serverSrcGlob "server/src/a.ts" `shouldBe` False
 
-    it "builds exact and nested directory globs" $ do
-      let serverSrc = "server" FP.</> "src"
-      dirAndDescendantsGlobs serverSrc
-        `shouldBe` [serverSrc, serverSrc FP.</> "**" FP.</> "*"]
+    it "matches anything at any depth inside the directory with descendantsGlob" $ do
+      let serverSrcDescendantsGlob = descendantsGlob [SP.reldir|server/src|]
+      match serverSrcDescendantsGlob "server/src/a.ts" `shouldBe` True
+      match serverSrcDescendantsGlob "server/src/a/b.ts" `shouldBe` True
+      match serverSrcDescendantsGlob (SP.fromRelDir [SP.reldir|server/src/a|]) `shouldBe` True
+      match serverSrcDescendantsGlob "server/srcfoo/a.ts" `shouldBe` False
+
+    it "can extend descendantsGlob with a file extension" $ do
+      let tsFilesGlob = descendantsGlob [SP.reldir|src|] <> ".ts"
+      match tsFilesGlob "src/a.ts" `shouldBe` True
+      match tsFilesGlob "src/a/b.ts" `shouldBe` True
+      match tsFilesGlob "src/a.css" `shouldBe` False

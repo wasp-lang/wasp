@@ -1,12 +1,13 @@
 module Generator.ServerGenerator.StartTest where
 
 import Control.Concurrent (threadDelay)
-import Control.Concurrent.Async (cancel, withAsync)
+import Control.Concurrent.Async (cancel, wait, withAsync)
 import Control.Exception (SomeException, finally, try)
 import Control.Monad (unless, void, when)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Void (Void)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
@@ -15,41 +16,24 @@ import System.FilePath ((<.>), (</>))
 import System.IO (readFile')
 import System.Info (os)
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldNotBe, shouldReturn)
+import Test.Hspec (Spec, describe, expectationFailure, it, shouldNotBe, shouldReturn)
 import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
 import Wasp.AppComponentUrl (makeAppComponentUrl)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
+import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..))
 import Wasp.Generator.ServerGenerator.Start
-  ( ServerEffect (..),
+  ( CompileChanges (..),
+    CompileOutcome (..),
+    ServerEvent (..),
     ServerProcessController,
     newServerProcessController,
-    notifyFailedCompile,
-    notifySuccessfulCompile,
+    notifyServer,
     startServer,
   )
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
-
-spec_ServerEffect :: Spec
-spec_ServerEffect =
-  describe "ServerEffect"
-    $ it "combines effects by choosing the strongest"
-    $ [ mconcat [],
-        NoServerEffect <> RestartServer,
-        RestartServer <> NoServerEffect,
-        RestartServer <> RestartServer,
-        RestartServer <> RebundleAndRestartServer,
-        RebundleAndRestartServer <> RestartServer
-      ]
-      `shouldBe` [ NoServerEffect,
-                   RestartServer,
-                   RestartServer,
-                   RestartServer,
-                   RebundleAndRestartServer,
-                   RebundleAndRestartServer
-                 ]
 
 spec_ServerProcessController :: Spec
 spec_ServerProcessController =
@@ -70,7 +54,7 @@ spec_ServerProcessController =
           isPortAvailable serverPort `shouldReturn` False
 
           -- Client-only change: no bundle, no restart.
-          notifySuccessfulCompileOrFail controller NoServerEffect
+          notifySuccessfulCompileOrFail controller NoChange
           readBundleCount fixture `shouldReturn` 1
           readServerPid fixture `shouldReturn` initialPid
           isProcessAlive initialPid `shouldReturn` True
@@ -96,7 +80,7 @@ spec_ServerProcessController =
           -- Stale exit notification from the stopped process must not
           -- trigger a restart of its replacement.
           threadDelay $ secondsToMicroSeconds 1 `div` 2
-          notifySuccessfulCompileOrFail controller NoServerEffect
+          notifySuccessfulCompileOrFail controller NoChange
           readBundleCount fixture `shouldReturn` 2
           readServerPid fixture `shouldReturn` restartedPid
           isProcessAlive restartedPid `shouldReturn` True
@@ -109,7 +93,7 @@ spec_ServerProcessController =
           -- Next successful compile brings the server back even without
           -- server-related changes.
           clearServerPid fixture
-          notifySuccessfulCompileOrFail controller NoServerEffect
+          notifySuccessfulCompileOrFail controller NoChange
           waitForServerStart fixture
           recoveredPid <- readServerPid fixture
           readBundleCount fixture `shouldReturn` 3
@@ -147,7 +131,7 @@ spec_ServerProcessController =
 
           writeFile bundleScriptPath originalBundleScript
           clearServerPid fixture
-          notifySuccessfulCompileOrFail controller NoServerEffect
+          notifySuccessfulCompileOrFail controller NoChange
           waitForServerStart fixture
           recoveredPid <- readServerPid fixture
           recoveredPid `shouldNotBe` initialPid
@@ -156,6 +140,40 @@ spec_ServerProcessController =
           cancel controllerJob
           waitUntil "the server exits" $ not <$> isProcessAlive recoveredPid
           waitUntil "the server port is released" $ isPortAvailable serverPort
+          clearServerPid fixture
+
+    it "interrupts bundling when files change, and bundles again on the next compile" $
+      withGeneratedAppDirFixture $ \fixture -> do
+        controller <- newServerProcessController
+        generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
+        let bundleScriptPath = serverDirPath fixture </> "bundle.js"
+        originalBundleScript <- readFile' bundleScriptPath
+        withAsync (runController controller generatedAppDir) $ \controllerJob -> do
+          waitForServerStart fixture
+          initialPid <- readServerPid fixture
+
+          -- The bundle only finishes in time if it's interrupted.
+          appendFile bundleScriptPath "setTimeout(() => {}, 60000);\n"
+          compileStartTime <- getCurrentTime
+          withAsync (notifyServer controller $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime RebundleAndRestartServer) $ \compileHandling -> do
+            waitUntil "the bundle starts" $ (== 2) <$> readBundleCount fixture
+            notifyServer controller . FilesChanged =<< getCurrentTime
+            timeout (secondsToMicroSeconds 10) (wait compileHandling) `shouldReturn` Just ()
+          readServerPid fixture `shouldReturn` initialPid
+          isProcessAlive initialPid `shouldReturn` True
+
+          -- The server is out of date, so even a compile without server
+          -- changes bundles it again.
+          writeFile bundleScriptPath originalBundleScript
+          clearServerPid fixture
+          notifySuccessfulCompileOrFail controller NoChange
+          waitForServerStart fixture
+          newPid <- readServerPid fixture
+          newPid `shouldNotBe` initialPid
+          readBundleCount fixture `shouldReturn` 3
+
+          cancel controllerJob
+          waitUntil "the server exits" $ not <$> isProcessAlive newPid
           clearServerPid fixture
 
     it "starts the server again after it crashes, on the next successful compile" $
@@ -170,7 +188,7 @@ spec_ServerProcessController =
 
           writeServerStartScript fixture loopingServerScript
           clearServerPid fixture
-          notifySuccessfulCompileOrFail controller NoServerEffect
+          notifySuccessfulCompileOrFail controller NoChange
           waitForServerStart fixture
           newPid <- readServerPid fixture
           newPid `shouldNotBe` crashedPid
@@ -338,11 +356,25 @@ readBundleCount fixture = do
     else return 0
 
 notifySuccessfulCompileOrFail :: ServerProcessController -> ServerEffect -> IO ()
-notifySuccessfulCompileOrFail controller serverEffect =
-  failUnlessHandledInTime $ notifySuccessfulCompile controller serverEffect
+notifySuccessfulCompileOrFail controller serverEffect = do
+  compileStartTime <- getCurrentTime
+  failUnlessHandledInTime $ notifyServer controller $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime serverEffect
+
+-- | The changes of a compile that started at the given time, that have the
+-- given effect on the server.
+compileChangesWithEffect :: UTCTime -> ServerEffect -> CompileChanges
+compileChangesWithEffect compileStartTime serverEffect =
+  CompileChanges
+    { _compileStartTime = compileStartTime,
+      _changedProjectFiles = [],
+      _changedGeneratedAppPaths = case serverEffect of
+        NoChange -> []
+        RestartServer -> [Left [SP.relfile|server/.env|]]
+        RebundleAndRestartServer -> [Left [SP.relfile|server/src/server.ts|]]
+    }
 
 notifyFailedCompileOrFail :: ServerProcessController -> IO ()
-notifyFailedCompileOrFail = failUnlessHandledInTime . notifyFailedCompile
+notifyFailedCompileOrFail controller = failUnlessHandledInTime $ notifyServer controller $ Compiled FailedCompile
 
 failUnlessHandledInTime :: IO () -> IO ()
 failUnlessHandledInTime notify =
