@@ -10,6 +10,7 @@
 
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
+- `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 
 ## 0.26.0
 
@@ -55,7 +56,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 - Fixed `wasp start` and `wasp db` commands hanging in some edge cases. ([#4930](https://github.com/wasp-lang/wasp/pull/4930))
 - Failed OAuth logins now tell users when they cancelled the login or it expired, instead of showing an unknown error. ([#4941](https://github.com/wasp-lang/wasp/pull/4941))
 - If an optimistic update’s `getQuerySpecifier` throws, `useAction` now rejects with that error instead of an unrelated `TypeError`. ([#5024](https://github.com/wasp-lang/wasp/pull/5024))
-- `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 
 ### 🔧 Small improvements
 

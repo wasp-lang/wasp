@@ -50,8 +50,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "mise-cabal:stan" = "0.2.1.0"
 
 [plugins]
-"vfox-backend:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
-"vfox-backend:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git"
+"vfox-backend:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git#v1.0.0"
+"vfox-backend:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git#v1.0.0"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
@@ -63,6 +63,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apt:libncurses-dev" = "latest"
 # Cabal dependencies
 "apt:zlib1g-dev" = "latest"
+# mise plugin dependencies
+"apt:git" = "latest"
 
 # Dependencies for Alpine
 # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-alpine)
@@ -88,6 +90,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apk:zlib-static" = "latest"
 # Prisma dependencies
 "apk:openssl" = "latest"
+# mise plugin dependencies
+"apk:git" = "latest"
 
 [settings]
 lockfile = true
