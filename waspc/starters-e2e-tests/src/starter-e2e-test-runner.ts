@@ -43,9 +43,6 @@ async function initializeTestEnvironment({
   await initializeClientEnvironment(waspProjectPath);
   await setupWaspMailCrabConfiguration(waspProjectPath);
 
-  await fs.remove(path.join(waspProjectPath, "node_modules"));
-  await fs.remove(path.join(waspProjectPath, ".wasp"));
-
   return waspProjectPath;
 }
 
