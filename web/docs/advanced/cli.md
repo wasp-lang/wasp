@@ -154,11 +154,13 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 ### Database Commands
 Wasp provides a suite of commands for managing the database. These commands all begin with `db` and primarily execute Prisma commands behind the scenes.
 
-- `wasp db start` starts the development database in the foreground and fails if it is already running. Keep it running in a separate terminal to use it across commands. It accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](../features/data/databases.md#using-the-dev-database-provided-by-wasp).
-- `wasp db migrate-dev` synchronizes the development database with the current schema (entities), generates a migration for schema changes, and applies pending migrations. Use `--name foo` to name the migration or `--create-only` to create a migration without applying it. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](../features/data/databases.md#using-the-dev-database-provided-by-wasp).
-- `wasp db reset` deletes all data and reapplies migrations. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](../features/data/databases.md#using-the-dev-database-provided-by-wasp).
-- `wasp db seed [seed-name]` runs a seed function. If you omit the name and have several seed functions, Wasp asks you to choose one. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](../features/data/databases.md#using-the-dev-database-provided-by-wasp).
-- `wasp db studio` opens the GUI for inspecting your database. It starts the development database if needed and accepts `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>`. See [development database behavior and options](../features/data/databases.md#using-the-dev-database-provided-by-wasp).
+- `wasp db start` starts the development database in the foreground and fails if it is already running. Keep it running in a separate terminal to use it across commands.
+- `wasp db migrate-dev` synchronizes the development database with the current schema (entities), generates a migration for schema changes, and applies pending migrations. Use `--name foo` to name the migration or `--create-only` to create a migration without applying it.
+- `wasp db reset` deletes all data and reapplies migrations.
+- `wasp db seed [seed-name]` runs a seed function. If you omit the name and have several seed functions, Wasp asks you to choose one.
+- `wasp db studio` opens the GUI for inspecting your database.
+
+`migrate-dev`, `reset`, `seed`, and `studio` start the development database if needed. All commands above accept `--db-port <port>`, `--db-image <image>`, and `--db-volume-mount-path <path>` when starting a development database. See [development database behavior and options](../features/data/databases.md#using-the-dev-database-provided-by-wasp).
 
 :::caution using `prisma` CLI directly
 

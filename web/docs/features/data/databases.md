@@ -62,7 +62,7 @@ We cover all supported ways of connecting to a database in [the next section](#c
 
 ### SQLite
 
-If you are using SQLite, you don't need to do anything special to connect to the database. Wasp will take care of it for you without starting a Docker database.
+If you are using SQLite, you don't need to do anything special to connect to the database. Wasp will take care of it for you.
 
 ### PostgreSQL
 
@@ -112,7 +112,7 @@ All the commands above accept these options when starting a development database
   
   If the volume mount path is incorrect, the data won't be persisted in your development database.
 
-Options apply only to the current invocation and are not remembered. Wasp rejects these options for SQLite or when `DATABASE_URL` is set. When a command uses an already running development database, Wasp warns and ignores the options.
+Pass these options each time you start the database. Wasp rejects these options for SQLite or when `DATABASE_URL` is set. When a command uses an already running development database, Wasp warns and ignores the options.
 
 Here are some examples of customising the development database:
 
