@@ -1,4 +1,7 @@
 ---
+title: "Heroku: deploy a Wasp app's server and database"
+sidebar_label: Heroku
+description: Deploy the server of a Wasp app to Heroku as a Docker container, attach a PostgreSQL database on Heroku and set the env vars, with a note for pg-boss jobs.
 comments: true
 ---
 
