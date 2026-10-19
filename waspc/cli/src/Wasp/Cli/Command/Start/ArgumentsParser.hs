@@ -7,7 +7,7 @@ where
 import Network.Socket (PortNumber)
 import Network.URI (URI)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Command.Db.StartOptions (DbStartOptions, dbStartOptionsParser)
+import Wasp.Cli.Command.Start.Db (DbStartOptions, dbStartOptionsParser)
 import Wasp.Cli.Util.HttpUrlArgument (httpUrlParser)
 import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Cli.Util.PortArgument (portParser)
