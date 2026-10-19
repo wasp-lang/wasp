@@ -23,6 +23,7 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
@@ -33,6 +34,7 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Runtime (resolveDevDbEnvVars)
 
 -- | What a command needs the generated app set up for, after code generation.
 data SetupGoal
@@ -77,9 +79,10 @@ type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 -- | Runs the setup steps the goal needs, each after its prerequisites.
 -- Stops at the first step that fails.
 setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp goal spec generatedAppDir sendMessage =
+setUpGeneratedApp goal spec generatedAppDir sendMessage = do
+  dbEnvVars <- liftIO $ resolveDevDbEnvVars spec
   forM_ (resolveSetupSteps goal) $ \step ->
-    runSetupStep step spec generatedAppDir sendMessage
+    runSetupStep dbEnvVars step spec generatedAppDir sendMessage
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
 runSetup setupAction = do
@@ -102,14 +105,14 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
   where
     prerequisitesThenStep step = concatMap prerequisitesThenStep (prerequisites step) ++ [step]
 
-runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-runSetupStep step spec generatedAppDir sendMessage = case step of
+runSetupStep :: [EnvVar] -> SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+runSetupStep dbEnvVars step spec generatedAppDir sendMessage = case step of
   InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
   FormatPrismaSchema -> liftIO $ DbGenerator.formatPrismaSchemaFileOnDisk generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
-  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration dbEnvVars spec generatedAppDir
+  GeneratePrismaClient -> generatePrismaClient dbEnvVars spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
   BuildSdk -> buildSdk generatedAppDir sendMessage
@@ -123,16 +126,16 @@ installDependencies spec generatedAppDir sendMessage = do
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
 
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir = do
-  warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
+warnIfDbNeedsMigration :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
+warnIfDbNeedsMigration dbEnvVars spec generatedAppDir = do
+  warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration dbEnvVars spec generatedAppDir
   tell $ maybeToList warning
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-generatePrismaClient spec generatedAppDir sendMessage = do
+generatePrismaClient :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+generatePrismaClient dbEnvVars spec generatedAppDir sendMessage = do
   result <- liftIO $ do
     sendMessage $ Msg.Start "Generating Prisma client..."
-    DbGenerator.generatePrismaClient spec generatedAppDir
+    DbGenerator.generatePrismaClient dbEnvVars spec generatedAppDir
   case result of
     Just generatorError -> throwError [generatorError]
     Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."

@@ -14,28 +14,18 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 spec_genDotEnv :: Spec
 spec_genDotEnv = do
   describe "genDotEnv" $ do
-    it ("writes " <> databaseUrlEnvVarName <> " when the dev database url is known") $ do
-      genDotEnvContent basicAppSpec {AS.devDatabaseUrl = Just devDbUrl}
-        `shouldBe` Just (T.pack $ databaseUrlEnvVarName <> "=" <> devDbUrl)
+    it ("does not generate a managed " <> databaseUrlEnvVarName) $ do
+      genDotEnvContent basicAppSpec `shouldBe` Just ""
 
-    it ("omits " <> databaseUrlEnvVarName <> " when the dev database url is not known") $ do
-      genDotEnvContent basicAppSpec {AS.devDatabaseUrl = Nothing}
-        `shouldBe` Just ""
-
-    it ("prefers the user-provided " <> databaseUrlEnvVarName <> " over the dev database one") $ do
-      genDotEnvContent
-        basicAppSpec
-          { AS.devDatabaseUrl = Just devDbUrl,
-            AS.devEnvVarsServer = [(databaseUrlEnvVarName, userDbUrl)]
-          }
+    it ("keeps the user-provided " <> databaseUrlEnvVarName) $ do
+      genDotEnvContent basicAppSpec {AS.devEnvVarsServer = [(databaseUrlEnvVarName, userDbUrl)]}
         `shouldBe` Just (T.pack $ databaseUrlEnvVarName <> "=" <> userDbUrl)
 
     it "generates no .env for production builds" $ do
-      case runGenerator $ genDotEnv basicAppSpec {AS.buildType = BuildType.Production, AS.devDatabaseUrl = Just devDbUrl} of
+      case runGenerator $ genDotEnv basicAppSpec {AS.buildType = BuildType.Production} of
         (_, Right drafts) -> length drafts `shouldBe` 0
         (_, Left _) -> expectationFailure "genDotEnv failed"
   where
-    devDbUrl = "postgresql://devUser:devPass@localhost:5432/devDb"
     userDbUrl = "postgresql://userUser:userPass@localhost:9999/userDb"
 
     genDotEnvContent :: AS.AppSpec -> Maybe T.Text

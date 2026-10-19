@@ -17,7 +17,7 @@ import qualified Data.Conduit.Process as CP
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import Wasp.Env (getEnvVars)
+import Wasp.Env (EnvVar, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
@@ -27,11 +27,12 @@ import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnvAndStdin)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
-migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job
-migrateDev generatedAppDir migrateArgs =
+migrateDev :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job
+migrateDev dbEnvVars generatedAppDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
   runPrismaCommandAsJobFromWaspServerDir
+    dbEnvVars
     generatedAppDir
     prismaArgs
   where
@@ -61,9 +62,10 @@ asPrismaCliArgs migrateArgs = do
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
 -- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
-migrateDiff :: Path' Abs (Dir GeneratedAppDir) -> J.Job
-migrateDiff generatedAppDir =
+migrateDiff :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+migrateDiff dbEnvVars generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir
+    dbEnvVars
     generatedAppDir
     [ "migrate",
       "diff",
@@ -81,9 +83,10 @@ migrateDiff generatedAppDir =
 -- An exit code of 1 could mean either: (a) there was a DB connection error,
 -- or (b) there are pending migrations to apply.
 -- Therefore, this should be checked **after** a command that ensures connectivity.
-migrateStatus :: Path' Abs (Dir GeneratedAppDir) -> J.Job
-migrateStatus generatedAppDir =
+migrateStatus :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+migrateStatus dbEnvVars generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir
+    dbEnvVars
     generatedAppDir
     ["migrate", "status", "--schema", SP.fromAbsFile schema]
   where
@@ -91,9 +94,10 @@ migrateStatus generatedAppDir =
 
 -- | Runs `prisma migrate reset`, which drops the tables (so schemas and data is lost) and then
 -- reapplies all the migrations.
-reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job
-reset generatedAppDir resetArgs =
+reset :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job
+reset dbEnvVars generatedAppDir resetArgs =
   runPrismaCommandAsJobFromWaspServerDir
+    dbEnvVars
     generatedAppDir
     ( [ "migrate",
         "reset",
@@ -132,12 +136,12 @@ seed serverRunConfig generatedAppDir seedName =
 --
 -- We give it an explicit empty stdin, so `prisma db execute` just runs an empty
 -- SQL command, which works perfectly for checking if the database is running.
-dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job
-dbExecuteTest generatedAppDir =
+dbExecuteTest :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+dbExecuteTest dbEnvVars generatedAppDir =
   runPrismaCommandAsJobWithExtraEnvAndStdin
     CP.ClosedStream
     serverDir
-    []
+    dbEnvVars
     generatedAppDir
     ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
@@ -145,15 +149,16 @@ dbExecuteTest generatedAppDir =
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
-runStudio :: Path' Abs (Dir GeneratedAppDir) -> J.Job
-runStudio generatedAppDir =
-  runPrismaCommandAsJobFromWaspServerDir generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
+runStudio :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+runStudio dbEnvVars generatedAppDir =
+  runPrismaCommandAsJobFromWaspServerDir dbEnvVars generatedAppDir ["studio", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
-generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> J.Job
-generatePrismaClient generatedAppDir =
+generatePrismaClient :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+generatePrismaClient dbEnvVars generatedAppDir =
   runPrismaCommandAsJobFromWaspServerDir
+    dbEnvVars
     generatedAppDir
     [ "generate",
       "--schema",
@@ -168,9 +173,9 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag :: String
     disablePrismaPromotionsFlag = "--no-hints"
 
-runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job
-runPrismaCommandAsJobFromWaspServerDir generatedAppDir cmdArgs =
-  runPrismaCommandAsJobWithExtraEnvAndStdin CP.Inherited serverDir [] generatedAppDir cmdArgs
+runPrismaCommandAsJobFromWaspServerDir :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job
+runPrismaCommandAsJobFromWaspServerDir dbEnvVars generatedAppDir cmdArgs =
+  runPrismaCommandAsJobWithExtraEnvAndStdin CP.Inherited serverDir dbEnvVars generatedAppDir cmdArgs
   where
     -- We must run our Prisma commands from the server dir for Prisma
     -- to pick up our .env file there like before.  In the future, we might want

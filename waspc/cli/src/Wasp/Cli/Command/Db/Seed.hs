@@ -24,6 +24,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Cli.Util.Parser (ArgsParser (..))
+import Wasp.Env (addEnvVarsOverride)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import Wasp.Generator.Setup (SetupGoal (SdkReady))
 import qualified Wasp.Message as Msg
@@ -31,7 +32,7 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | Seed functions import the SDK.
 seed :: SeedArgs -> Command ()
-seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand SdkReady $ \appSpec -> do
+seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand SdkReady $ \appSpec dbEnvVars -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -42,7 +43,7 @@ seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand SdkReady $
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  liftIO (dbSeed serverRunConfig genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed (addEnvVarsOverride dbEnvVars serverRunConfig) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 

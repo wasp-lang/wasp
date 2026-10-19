@@ -21,6 +21,7 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DbGenerator.Common
@@ -167,14 +168,14 @@ formatPrismaSchemaFileOnDisk dstDir = do
 --
 --     NOTE: As one final optimization, if they do not have a schema.prisma.wasp-last-db-concurrence-checksum but the schema is
 --     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnIfDbNeedsMigration spec generatedAppDir = do
+warnIfDbNeedsMigration :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnIfDbNeedsMigration dbEnvVars spec generatedAppDir = do
   dbSchemaChecksumFileExists <- IOUtil.doesFileExist dbSchemaChecksumFp
   if dbSchemaChecksumFileExists
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
       if entitiesExist
-        then warnProjectDiffersFromDb generatedAppDir
+        then warnProjectDiffersFromDb dbEnvVars generatedAppDir
         else return Nothing
   where
     dbSchemaFp = generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
@@ -196,12 +197,12 @@ warnIfSchemaDiffersFromChecksum dbSchemaFileAbs dbschemachecksumfile =
 
 -- | Checks if the project's Prisma schema file and migrations dir matches the DB state.
 -- Issues a warning if it cannot connect, or if either check fails.
-warnProjectDiffersFromDb :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnProjectDiffersFromDb generatedAppDir = do
-  schemaMatchesDb <- DbOps.doesSchemaMatchDb generatedAppDir
+warnProjectDiffersFromDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnProjectDiffersFromDb dbEnvVars generatedAppDir = do
+  schemaMatchesDb <- DbOps.doesSchemaMatchDb dbEnvVars generatedAppDir
   case schemaMatchesDb of
     Just True -> do
-      allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb generatedAppDir
+      allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb dbEnvVars generatedAppDir
       if allMigrationsAppliedToDb == Just True
         then do
           -- NOTE: Since we know schema == db and all migrations are applied,
@@ -223,8 +224,8 @@ warnProjectDiffersFromDb generatedAppDir = do
         "Wasp was unable to verify your database is up to date."
           <> " Running `wasp db migrate-dev` may fix this and will provide more info."
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
-generatePrismaClient spec generatedAppDir = do
+generatePrismaClient :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
+generatePrismaClient dbEnvVars spec generatedAppDir = do
   isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
   if not isGeneratedPrismaClientValid
     then generatePrismaClientIfEntitiesExist
@@ -248,7 +249,7 @@ generatePrismaClient spec generatedAppDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
+          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient dbEnvVars generatedAppDir
       | otherwise = return Nothing
 
     entitiesExist = hasEntities spec
