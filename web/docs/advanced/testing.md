@@ -1,8 +1,8 @@
 # Testing
 
-Wasp doesn't run your tests for you. Your Wasp app is a Vite app, so you can use any testing tool that works with Vite. This page shows how to set up [Vitest](https://vitest.dev/), the test runner built for Vite, and how to test your client code with it.
+Wasp doesn't come with a test runner. Your Wasp app is a Vite app, so any testing tool that works with Vite works with Wasp too.
 
-Wasp also exports helpers for Vitest from `wasp/client/test`, for rendering your components and mocking your queries and APIs.
+This page shows how to set up [Vitest](https://vitest.dev/), the test runner built for Vite, and how to test your client code with it. It also covers the helpers in `wasp/client/test`, which render your components and mock your queries and APIs.
 
 ## Setting up Vitest
 
@@ -18,13 +18,13 @@ npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
 - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds DOM matchers like `toBeInTheDocument()`.
-- [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#helpers-reference) use it to mock your queries and APIs.
+- [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
 
 ### Configuring Vitest
 
-Vitest reads its configuration from your `vite.config.ts`, so your tests get the `wasp()` plugin and everything else your app needs to build. Add a `test` section to it:
+Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app, including the `wasp()` plugin. Add a `test` section to it:
 
-```ts title="vite.config.ts"
+```ts title="vite.config.ts" auto-js
 // highlight-next-line
 import { defineConfig } from "vitest/config";
 import { wasp } from "wasp/client/vite";
@@ -41,11 +41,11 @@ export default defineConfig({
 });
 ```
 
-This runs every `*.test.ts` and `*.test.tsx` file in your `src` folder in a browser environment.
+With this config, Vitest runs every `*.test.ts` and `*.test.tsx` file in your `src` folder in jsdom, a simulated browser.
 
-Then, create the setup file. It adds the DOM matchers and cleans up the rendered components after each test:
+Then create the setup file. It adds the DOM matchers and removes the rendered components after each test:
 
-```ts title="src/test/setup.ts"
+```ts title="src/test/setup.ts" auto-js
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
@@ -78,7 +78,7 @@ If you prefer a UI for your test results, install [`@vitest/ui`](https://vitest.
 
 ### Testing plain functions
 
-You test functions that don't use React or Wasp like in any other project:
+Functions that don't use React or Wasp need no setup. Import them and test them like in any other project:
 
 ```ts title="src/tasks/helpers.ts" auto-js
 import type { Task } from "wasp/entities";
@@ -99,14 +99,14 @@ test("areThereAnyTasks", () => {
 
 ### Rendering components that use Wasp
 
-Your app wraps every page in the providers Wasp's client code needs: React Query for queries and actions, and React Router for links. A component that uses them won't render without those providers.
+Wasp wraps every page of your app in providers: React Query for queries and actions, and React Router for links. A component that uses queries, actions, or links fails to render without them.
 
-`renderInContext` from `wasp/client/test` renders a component inside them:
+`renderInContext` from `wasp/client/test` renders a component inside the same providers:
 
-```tsx title="src/tasks/TaskList.tsx" auto-js
+```tsx title="src/tasks/TasksHeader.tsx" auto-js
 import { Link } from "wasp/client/router";
 
-export function TaskList() {
+export function TasksHeader() {
   return (
     <div>
       <h1>Your tasks</h1>
@@ -116,14 +116,14 @@ export function TaskList() {
 }
 ```
 
-```tsx title="src/tasks/TaskList.test.tsx" auto-js
+```tsx title="src/tasks/TasksHeader.test.tsx" auto-js
 import { screen } from "@testing-library/react";
 import { expect, test } from "vitest";
 import { renderInContext } from "wasp/client/test";
-import { TaskList } from "./TaskList";
+import { TasksHeader } from "./TasksHeader";
 
 test("links back home", () => {
-  renderInContext(<TaskList />);
+  renderInContext(<TasksHeader />);
 
   expect(screen.getByRole("link", { name: "Back home" })).toBeInTheDocument();
 });
@@ -131,9 +131,9 @@ test("links back home", () => {
 
 ### Mocking your queries
 
-When a component calls `useQuery`, it sends a request to your server. Your tests shouldn't depend on a running server, so mock the query's response instead.
+A component that calls `useQuery` sends a request to your server. To test the component without running the server, mock the query's response.
 
-Call `mockServer` once at the top of your test file. It starts a mock server for the file and gives you `mockQuery`, which takes a query and the data it should return:
+Call `mockServer` once at the top of your test file. It starts a mock server for the file and returns `mockQuery`, which takes a query and the data it should return:
 
 ```tsx title="src/tasks/TaskList.tsx" auto-js
 import { getTasks, useQuery } from "wasp/client/operations";
@@ -175,11 +175,11 @@ test("shows the tasks", async () => {
 });
 ```
 
-`mockServer` resets the mocks after each test, so each test mocks the data it needs.
+`mockServer` resets the mocks after each test, so every test mocks the data it needs.
 
 ### Mocking your APIs
 
-If your component calls one of your [APIs](../features/apis.md), mock it with `mockApi`. It takes the API's HTTP method and path, and the JSON it should respond with:
+If your component calls one of your [APIs](../features/apis.md), mock the API with `mockApi`. It takes the API's HTTP method and path, and the JSON it should respond with:
 
 ```tsx title="src/tasks/TaskStats.tsx" auto-js
 import { useEffect, useState } from "react";
@@ -217,9 +217,13 @@ test("shows the stats", async () => {
 });
 ```
 
-## Helpers reference
+## Testing your server code
 
-`wasp/client/test` exports these helpers. They need `vitest`, `msw`, and `@testing-library/react` installed in your project.
+Code that imports from `wasp/server` doesn't run in Vitest yet, so you can't test your queries, actions, and other server code this way. You can track the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/110).
+
+## API reference
+
+`wasp/client/test` exports these helpers. They need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
 - `renderInContext(ui, options?)`
 

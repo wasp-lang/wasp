@@ -12,7 +12,7 @@ import InstallInstructions from './_install-instructions.md'
 
 ### Testing with your own Vitest setup
 
-Wasp no longer runs your tests itself. You install and run [Vitest](https://vitest.dev/) like in any other Vite app, so you pick its version and the testing libraries you use.
+Wasp no longer installs and runs [Vitest](https://vitest.dev/) for you. You set it up like in any other Vite app, so you choose the versions of Vitest and the testing libraries.
 
 The `wasp/client/test` helpers for rendering components and mocking queries and APIs still work. Read more in the [testing docs](./advanced/testing.md).
 
@@ -51,9 +51,9 @@ wasp install
 
 ### 2. Set up Vitest yourself
 
-**If you don't have any tests, you can skip this step.** You can also remove `vitest` from your `devDependencies`, Wasp no longer needs it.
+**If you don't have any tests, you can skip this step.** Wasp no longer needs `vitest`, so you can remove it from your `devDependencies`. You can also remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`.
 
-Wasp no longer runs your tests or installs testing libraries. The `wasp test` command is gone, and the `wasp/client/test` helpers (`renderInContext` and `mockServer`) now use the testing libraries you install. Wasp also no longer sets up Vitest for you, so you configure it yourself.
+The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now use the testing libraries you install.
 
 1. Install Vitest and the testing libraries your tests use:
 
@@ -61,7 +61,7 @@ Wasp no longer runs your tests or installs testing libraries. The `wasp test` co
    npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
    ```
 
-2. Configure Vitest in your `vite.config.ts`. Wasp used to set these options for you:
+2. Add the options Wasp used to set for you to your `vite.config.ts`:
 
    <Tabs sideBySide>
      <TabItem value="before" label="Before">
@@ -107,7 +107,7 @@ Wasp no longer runs your tests or installs testing libraries. The `wasp test` co
    });
    ```
 
-4. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile` (or keep `wasp start` running in another terminal):
+4. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
 
    ```bash
    wasp compile
