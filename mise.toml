@@ -50,8 +50,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "mise-cabal:stan" = "0.2.1.0"
 
 [plugins]
-"vfox-backend:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
-"vfox-backend:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git"
+"vfox-backend:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git#v1.0.0"
+"vfox-backend:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git#v1.0.0"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
