@@ -74,22 +74,15 @@ instance IsOption (Option o) where
   showOption = oDisplayName
   showOptionDescription = oDescription
 
--- | Proof that stdin is an interactive terminal, so we may prompt the user,
--- together with the handles the prompts talk through. The only way to get
--- one is 'getInteractiveTerminal'. Every prompt takes one, so a command
--- can't prompt without having checked first, and the check happens before
--- anything belonging to the prompt is printed.
---
--- We never want to require interactive input (https://clig.dev/#interactivity),
--- so the caller decides what to do without a terminal: fail with a way to
--- pass the answers as arguments, or skip the question.
+-- | Proof that stdin is an interactive terminal, so we may prompt the user.
 data InteractiveTerminal = InteractiveTerminal
   { inputHandle :: Handle,
     outputHandle :: Handle
   }
 
--- | Returns 'Nothing' when stdin is not an interactive terminal (e.g. it is
--- a pipe, a file or /dev/null).
+-- This is the only way to get an interactive terminal.
+-- The caller can decide what to do if they can't get one: fail with a way to
+-- pass the answers as arguments, skip the question, etc.
 getInteractiveTerminal :: IO (Maybe InteractiveTerminal)
 getInteractiveTerminal = do
   isTerminal <- hIsTerminalDevice stdin
