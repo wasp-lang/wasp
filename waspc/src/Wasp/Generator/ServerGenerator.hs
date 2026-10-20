@@ -7,6 +7,9 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
+
+    -- * Exported for testing only
+    genDotEnv,
   )
 where
 
@@ -20,6 +23,7 @@ import Data.Maybe
 import StrongPath
   ( Dir,
     File,
+    File',
     Path,
     Path',
     Posix,
@@ -37,7 +41,10 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.DevEnvironment (DevEnvironment (managedDatabaseUrl))
+import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
@@ -46,7 +53,7 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
   )
-import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
@@ -66,11 +73,12 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> Generator [FileDraft]
-genServer spec =
+genServer :: AppSpec -> DevEnvironment -> Generator [FileDraft]
+genServer spec devEnvironment =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
@@ -83,12 +91,34 @@ genServer spec =
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
+    <++> genDotEnv spec devEnvironment
     <++> genJobs spec
     <++> genApis spec
     <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
     npmDeps = npmDepsFromWasp spec
+
+genDotEnv :: AppSpec -> DevEnvironment -> Generator [FileDraft]
+-- Don't generate .env if we are building for production, since .env is to be used only for
+-- development.
+genDotEnv spec _ | AS.isProduction spec = return []
+genDotEnv spec devEnvironment =
+  return
+    [ createTextFileDraft
+        (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
+        (envVarsToDotEnvContent envVars)
+    ]
+  where
+    envVars = waspEnvVars ++ userEnvVars
+    userEnvVars = spec.devEnvVarsServer
+    waspEnvVars = case devEnvironment.managedDatabaseUrl of
+      Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
+      _ -> []
+    isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
+
+dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
+dotEnvInServerRootDir = [relfile|.env|]
 
 genTsConfigJson :: AppSpec -> Generator FileDraft
 genTsConfigJson spec = do

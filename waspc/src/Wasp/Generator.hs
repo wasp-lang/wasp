@@ -11,6 +11,7 @@ import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.DevEnvironment (DevEnvironment)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -26,7 +27,6 @@ import Wasp.Generator.Monad
   )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
-import Wasp.Generator.ServerGenerator.DevEnv (prepareDevEnv)
 import Wasp.Generator.Setup (SetupGoal, runSetup, setUpGeneratedApp)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
@@ -46,27 +46,26 @@ import Wasp.Util ((<++>))
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> SetupGoal -> IO ([GeneratorWarning], [GeneratorError])
-writeWebAppCode spec dstDir sendMessage setupGoal = do
+writeWebAppCode :: AppSpec -> DevEnvironment -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> SetupGoal -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode spec devEnvironment dstDir sendMessage setupGoal = do
   case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
-      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
+      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec devEnvironment
 
       case generatorResult of
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
         Right fileDrafts -> do
-          devEnvFileDrafts <- prepareDevEnv spec
-          synchronizeFileDraftsWithDisk dstDir (fileDrafts ++ devEnvFileDrafts)
+          synchronizeFileDraftsWithDisk dstDir fileDrafts
           WaspInfo.persist dstDir $ AS.buildType spec
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp setupGoal spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
-genApp :: AppSpec -> Generator [FileDraft]
-genApp spec = do
+genApp :: AppSpec -> DevEnvironment -> Generator [FileDraft]
+genApp spec devEnvironment = do
   warnOverriddenDeps spec
 
-  genServer spec
+  genServer spec devEnvironment
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec

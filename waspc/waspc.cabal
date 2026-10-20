@@ -196,6 +196,7 @@ library
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
+    Wasp.DevEnvironment
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
@@ -275,7 +276,6 @@ library
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.ServerGenerator.Db.Seed
-    Wasp.Generator.ServerGenerator.DevEnv
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
@@ -590,7 +590,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
-    Generator.ServerGenerator.DevEnvTest
+    Generator.ServerGeneratorTest
     Generator.SetupTest
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
