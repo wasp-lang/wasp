@@ -20,7 +20,6 @@ import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNa
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 import qualified Wasp.Util.IO.Retry as Retry
-import qualified Wasp.Util.Network.Socket as Socket
 
 data DevDbSpec = DevDbSpec
   { dockerVolumeName :: String,
@@ -71,17 +70,10 @@ createDevPostgresContainer db image mountPath = do
 
 waitForDevDbReady :: DevDbSpec -> IO ()
 waitForDevDbReady devDbSpec = do
-  ready <- Retry.retryUntil (Retry.constPause 1000000) 59 $ isDevDbReachable devDbSpec
+  ready <- Retry.retryUntil (Retry.constPause 1000000) 59 $ isPostgresAcceptingConnections devDbSpec
   unless ready $ do
     (_, output, errors) <- readProcessWithExitCode "docker" ["logs", "--tail", "30", devDbSpec.dockerContainerName] ""
     ioError $ userError $ printf "PostgreSQL did not become ready. Check the logs below, then try again.\n%s%s" output errors
-
-isDevDbReachable :: DevDbSpec -> IO Bool
-isDevDbReachable devDbSpec = do
-  postgresAcceptsConnections <- isPostgresAcceptingConnections devDbSpec
-  if postgresAcceptsConnections
-    then Socket.checkIfPortIsAcceptingConnections $ Socket.makeLocalHostSocketAddress devDbSpec.port
-    else return False
 
 isPostgresAcceptingConnections :: DevDbSpec -> IO Bool
 isPostgresAcceptingConnections devDbSpec = do
