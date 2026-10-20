@@ -47,11 +47,11 @@ requireInteractiveTerminal argsParser =
   liftIO Interactive.getInteractiveTerminal >>= \case
     Just terminal -> return terminal
     Nothing ->
-      throwError $
-        CommandError "Interactive terminal required" $
-          "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
-            <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
-            <> getParserHelpMessage argsParser
+      throwError
+        $ CommandError "Interactive terminal required"
+        $ "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
+          <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
+          <> getParserHelpMessage argsParser
 
 data ArgsParseResult args
   = ArgsParsed args
