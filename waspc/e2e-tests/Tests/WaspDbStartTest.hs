@@ -116,7 +116,9 @@ waspCliDbStartInBackground port =
   where
     portOption = maybe "" ((" --db-port " ++) . show) port
 
--- Stop PostgreSQL directly so this test does not depend on terminal signal forwarding.
+-- Signal PostgreSQL directly to avoid relying on terminal signal forwarding.
+-- Wait for Wasp to finish cleanup before checking the container or volume.
+-- Wasp reports the stopped database as an error, so a nonzero exit is expected.
 stopDevDbAndWait :: ShellCommandBuilder WaspProjectContext ShellCommand
 stopDevDbAndWait =
   return $
