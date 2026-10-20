@@ -39,7 +39,6 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
-import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
@@ -214,7 +213,7 @@ dbCli args = case args of
   "reset" : resetArgs -> runCommandThatRequiresDbRunning Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
   "seed" : seedArgs -> runCommandThatRequiresDbRunning Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
-  "studio" : studioArgs -> runCommandThatRequiresDbRunning (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
+  "studio" : studioArgs -> runCommandThatRequiresDbRunning Command.Db.Studio.studioArgsParser (const Command.Db.Studio.studio) studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
