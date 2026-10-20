@@ -58,7 +58,7 @@ export function getServerDeploymentDir(waspProjectDir: WaspProjectDir): string {
 }
 
 // Deployment tooling needs a dir outside of the user project dir where it can
-// create files like a Dockerfile for the static server or a Staticfile.
+// create files like a Dockerfile for the static server.
 export function ensureClientDeploymentDir(
   waspProjectDir: WaspProjectDir,
 ): string {
