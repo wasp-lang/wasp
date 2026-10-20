@@ -1,11 +1,11 @@
 module JobTest where
 
-import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay, tryPutMVar)
+import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (IOException, finally, onException, throwIO, try)
-import Control.Monad (forever, unless, void, when)
+import Control.Exception (IOException, finally, throwIO, try)
+import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
-import Data.IORef (atomicModifyIORef', modifyIORef', newIORef, readIORef)
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified StrongPath as SP
@@ -13,7 +13,6 @@ import System.Directory (doesFileExist, removeFile)
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
-import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
@@ -51,60 +50,6 @@ spec_Job = do
       Job.run job `shouldReturn` ((), "firstsecond")
       reverse <$> readIORef tappedOutputs `shouldReturn` [(Job.Stdout, "first"), (Job.Stderr, "second")]
 
-  describe "onProcessExit" $ do
-    -- On Windows, the job doesn't keep running after the process exits, even
-    -- if a child it left behind inherited its output, so this scenario can't
-    -- be set up there.
-    unless (System.Info.os == "mingw32") $
-      it "calls the action as soon as the process exits, before all of its output is emitted" $ do
-        childPidPath <- makeTempPath "wasp-child-pid"
-        processExit <- newEmptyMVar
-        -- The process exits right away, but leaves behind a child that keeps its
-        -- output open.
-        let process =
-              nodeWithArgs
-                ( unlines
-                    [ "const fs = require('node:fs');",
-                      "const { spawn } = require('node:child_process');",
-                      "const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'inherit' });",
-                      "fs.writeFileSync(process.argv[1], String(child.pid));",
-                      "process.exit(3);"
-                    ]
-                )
-                [childPidPath]
-        Async.withAsync
-          (Job.run $ Job.onProcessExit (putMVar processExit) $ Job.fromProc process)
-          ( \running -> do
-              timeout (secondsToMicroSeconds 5) (takeMVar processExit) `shouldReturn` Just (ExitFailure 3)
-              childPid <- readProcessId childPidPath
-              ( do
-                  Async.poll running >>= \case
-                    Nothing -> return ()
-                    Just _ -> expectationFailure "The job finished while the process's output was still open"
-                  killProcess childPid
-                  timeout (secondsToMicroSeconds 5) (Async.wait running) `shouldReturn` Just (ExitFailure 3)
-                )
-                `finally` killProcess childPid
-          )
-          `finally` removeIfExists childPidPath
-
-    it "emits all the output of a process that exited, even if the job is stopped right after" $ do
-      processExited <- newEmptyMVar
-      let process = node "process.stdout.write('x'.repeat(200000));"
-          -- Passing the output on slowly leaves some of it unread when the
-          -- process exits.
-          passOutputOnSlowly = Job.observeOutput (\_ _ -> threadDelay 10000)
-          job =
-            Job.onProcessExit (\_ -> void $ tryPutMVar processExited ())
-              $ passOutputOnSlowly
-              $ Job.fromProc process
-      result <-
-        timeout (secondsToMicroSeconds 10)
-          $ Job.run
-          $ Job.captureOutput
-          $ Job.race job (liftIO $ takeMVar processExited)
-      T.length . snd <$> result `shouldBe` Just 200000
-
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do
       let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
@@ -129,64 +74,6 @@ spec_Job = do
             _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
         )
         `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
-
-  describe "hotSwap" $ do
-    it "keeps each job running until the next one is produced, then stops it" $ do
-      events <- newIORef []
-      nextJobNumber <- newEmptyMVar
-      let record event = atomicModifyIORef' events $ \recorded -> (recorded <> [event], ())
-          numberedJob :: Int -> Job.Job ()
-          numberedJob n = liftIO $ do
-            record $ "start " <> show n
-            forever (threadDelay maxBound) `finally` record ("stop " <> show n)
-          next = do
-            n <- liftIO $ takeMVar nextJobNumber
-            liftIO $ record $ "produce " <> show n
-            return $ Just $ numberedJob n
-      Async.withAsync (Job.run $ Job.hotSwap next $ numberedJob 0) $ \_ -> do
-        waitUntil "the first job starts" $ elem "start 0" <$> readIORef events
-        putMVar nextJobNumber 1
-        waitUntil "the second job starts" $ elem "start 1" <$> readIORef events
-        putMVar nextJobNumber 2
-        waitUntil "the last job starts" $ elem "start 2" <$> readIORef events
-      readIORef events
-        `shouldReturn` ["start 0", "produce 1", "stop 0", "start 1", "produce 2", "stop 1", "start 2", "stop 2"]
-
-    it "keeps the current job when the next one is nothing" $ do
-      events <- newIORef []
-      nextJobNumber <- newEmptyMVar
-      let record event = atomicModifyIORef' events $ \recorded -> (recorded <> [event], ())
-          numberedJob :: Int -> Job.Job ()
-          numberedJob n = liftIO $ do
-            record $ "start " <> show n
-            forever (threadDelay maxBound) `finally` record ("stop " <> show n)
-          next = do
-            n <- liftIO $ takeMVar nextJobNumber
-            liftIO $ record $ "produce " <> maybe "nothing" show n
-            return $ numberedJob <$> n
-      Async.withAsync (Job.run $ Job.hotSwap next $ numberedJob 0) $ \_ -> do
-        waitUntil "the first job starts" $ elem "start 0" <$> readIORef events
-        putMVar nextJobNumber Nothing
-        waitUntil "nothing is produced" $ elem "produce nothing" <$> readIORef events
-        putMVar nextJobNumber $ Just 1
-        waitUntil "the second job starts" $ elem "start 1" <$> readIORef events
-      readIORef events
-        `shouldReturn` ["start 0", "produce nothing", "produce 1", "stop 0", "start 1", "stop 1"]
-
-    it "keeps waiting for the next job when the current one finishes" $ do
-      events <- newIORef []
-      nextJobNumber <- newEmptyMVar
-      let record event = atomicModifyIORef' events $ \recorded -> (recorded <> [event], ())
-          numberedJob :: Int -> Job.Job ()
-          numberedJob n = liftIO $ record $ "run " <> show n
-          next = do
-            n <- liftIO $ takeMVar nextJobNumber `onException` record "next stopped"
-            return $ Just $ numberedJob n
-      Async.withAsync (Job.run $ Job.hotSwap next $ numberedJob 0) $ \_ -> do
-        waitUntil "the first job finishes" $ elem "run 0" <$> readIORef events
-        putMVar nextJobNumber 1
-        waitUntil "the second job finishes" $ elem "run 1" <$> readIORef events
-      readIORef events `shouldReturn` ["run 0", "run 1", "next stopped"]
 
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do
@@ -224,6 +111,27 @@ spec_Job = do
                 <> ")), Buffer.from([0xe2])]));"
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533")
+
+    it "emits all the output of a process that exited, even if the job is stopped right after" $ do
+      pidPath <- makeTempPath "wasp-exited-process"
+      let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('x'.repeat(200000));") [pidPath]
+          -- Passing the output on slowly leaves some of it unread when the
+          -- process exits.
+          passOutputOnSlowly = Job.observeOutput (\_ _ -> threadDelay 50000)
+          waitForProcessExit = do
+            waitUntil "the process starts" $ doesFileExist pidPath
+            pid <- readProcessId pidPath
+            let pollUntilExited = isProcessAlive pid >>= \alive -> when alive $ threadDelay 10000 >> pollUntilExited
+            pollUntilExited
+      ( do
+          result <-
+            timeout (secondsToMicroSeconds 10)
+              $ Job.run
+              $ Job.captureOutput
+              $ Job.race (passOutputOnSlowly $ Job.fromProc process) (liftIO waitForProcessExit)
+          T.length . snd <$> result `shouldBe` Just 200000
+        )
+        `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
 
     it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"

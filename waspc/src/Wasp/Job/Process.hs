@@ -17,7 +17,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Common (Job (..), JobEnv (..), OutputType (..))
+import Wasp.Job.Common (Job (..), OutputType (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -31,14 +31,13 @@ import Wasp.Util (secondsToMicroSeconds)
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
-  env <- ask
-  liftIO $ run (_sink env Nothing) (_processExitHook env) process
+  sink <- ask
+  liftIO $ run (sink Nothing) process
 
 -- | Runs the process to completion, passing its output to the given function,
--- and returns its exit code once all of its output has been passed on. Calls
--- the given exit hook as soon as the process exits by itself.
-run :: (OutputType -> Text -> IO ()) -> (ExitCode -> IO ()) -> P.CreateProcess -> IO ExitCode
-run emit onExit process =
+-- and returns its exit code once all of its output has been passed on.
+run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
+run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
     \stdinHandle stdoutHandle stderrHandle processHandle ->
       Async.withAsync
@@ -55,7 +54,6 @@ run emit onExit process =
                 Async.withAsync (P.waitForProcess processHandle) $ \processExit ->
                   Async.waitEither outputForwarding processExit
                     >>= either (const $ Async.wait processExit) return
-              onExit exitCode
               Async.wait outputForwarding
               return exitCode
           )
