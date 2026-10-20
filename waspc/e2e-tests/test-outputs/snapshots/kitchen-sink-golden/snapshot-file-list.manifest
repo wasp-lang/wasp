@@ -85,6 +85,8 @@ wasp-app/.wasp/out/sdk/wasp/client/router/Link.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/NavLink.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/test/setup.ts
+wasp-app/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualUserModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualWaspModules.ts
@@ -340,6 +342,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.js
@@ -923,7 +933,6 @@ wasp-app/src/rpcTests/operations/jsDefinitions.js
 wasp-app/src/rpcTests/operations/server.ts
 wasp-app/src/rpcTests/rpcTests.wasp.ts
 wasp-app/src/serverSetup.ts
-wasp-app/src/test/setup.ts
 wasp-app/src/vite-env.d.ts
 wasp-app/tsconfig.json
 wasp-app/tsconfig.src.json
