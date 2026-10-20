@@ -40,23 +40,16 @@ run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
     \stdinHandle stdoutHandle stderrHandle processHandle ->
+      -- Forwarded outside of `concurrently`, so that it keeps going if the job
+      -- is stopped, and the output can be drained.
       Async.withAsync
         ( Async.concurrently_
             (forwardOutput (emit Stdout) stdoutHandle)
             (forwardOutput (emit Stderr) stderrHandle)
         )
-        $ \outputForwarding ->
-          ( do
-              mapM_ hClose stdinHandle
-              -- Waiting on the output forwarding too makes a failure to emit
-              -- the output stop the process, instead of waiting for it to exit.
-              exitCode <-
-                Async.withAsync (P.waitForProcess processHandle) $ \processExit ->
-                  Async.waitEither outputForwarding processExit
-                    >>= either (const $ Async.wait processExit) return
-              Async.wait outputForwarding
-              return exitCode
-          )
+        $ \outputForwarding -> do
+          mapM_ hClose stdinHandle
+          (fst <$> Async.concurrently (P.waitForProcess processHandle) (Async.wait outputForwarding))
             `onException` drainOutputIfProcessExited processHandle outputForwarding
   where
     -- If the process exited by itself, the rest of its output, e.g. a crash's
