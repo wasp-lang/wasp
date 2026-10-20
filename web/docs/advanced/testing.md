@@ -33,7 +33,6 @@ export default defineConfig({
   // highlight-start
   test: {
     environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
   },
   // highlight-end
@@ -41,7 +40,7 @@ export default defineConfig({
 ```
 With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in `jsdom`, a simulated browser.
 
-Next, if you plan to test React components, create a setup file that adds the DOM matchers and removes the rendered components after each test:
+If you plan to test React components, also create a setup file that adds the DOM matchers and removes the rendered components after each test:
 
 ```ts title="src/test/setup.ts" auto-js
 import "@testing-library/jest-dom/vitest";
@@ -50,6 +49,23 @@ import { afterEach } from "vitest";
 
 afterEach(() => {
   cleanup();
+});
+```
+
+And tell Vitest to run it before your tests:
+
+```ts title="vite.config.ts" auto-js
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  plugins: [wasp()],
+  test: {
+    environment: "jsdom",
+    // highlight-next-line
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
+  },
 });
 ```
 
@@ -216,7 +232,7 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`wasp/client/test` exports these helpers. They need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
+`wasp/client/test` exports these helpers. Importing any of them needs `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`, even if you only use `renderInContext` or `WaspTestWrapper`.
 
 - `renderInContext(ui, options?)`
 

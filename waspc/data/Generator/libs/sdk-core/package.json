@@ -95,7 +95,7 @@
     "tsdown": "^0.21.5",
     "typescript": "^6.0.3",
     "vite": "^8.1.0",
-    "vitest": "^4.1.9",
+    "vitest": "^5.0.4",
     "zod": "^4.3.6"
   },
   "sideEffects": [
