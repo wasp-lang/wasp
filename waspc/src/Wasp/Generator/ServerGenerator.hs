@@ -41,7 +41,6 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
-import Wasp.DevEnvironment (DevEnvironment (managedDatabaseUrl))
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
@@ -53,6 +52,7 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
   )
+import Wasp.Generator.DevEnvironment (DevEnvironment (managedDatabaseUrl))
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))

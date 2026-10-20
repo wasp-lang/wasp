@@ -1,4 +1,4 @@
-module Wasp.DevEnvironment
+module Wasp.Generator.DevEnvironment
   ( DevEnvironment (..),
   )
 where

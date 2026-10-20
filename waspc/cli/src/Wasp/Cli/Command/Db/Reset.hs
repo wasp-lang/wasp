@@ -22,7 +22,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: ResetArgs -> Command ()
-reset resetArgs = makeDbCommand PrismaCliReady $ \_appSpec -> do
+reset resetArgs = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir =

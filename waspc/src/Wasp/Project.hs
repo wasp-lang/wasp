@@ -3,7 +3,7 @@
 module Wasp.Project
   ( WaspProjectDir,
     compile,
-    compileAppSpec,
+    generateCode,
     CompileError,
     CompileWarning,
     analyzeWaspProject,
@@ -18,9 +18,9 @@ import Data.Text (Text)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoal))
-import Wasp.DevEnvironment (DevEnvironment (..))
+import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
+import Wasp.Generator.DevEnvironment (DevEnvironment (..))
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
@@ -38,7 +38,7 @@ compile waspDir outDir options = do
       (Left analyzerErrors, analyzerWarnings) ->
         return (analyzerWarnings, Left analyzerErrors)
       (Right appSpec, analyzerWarnings) -> do
-        (generatorWarnings, generatorErrors) <- compileAppSpec appSpec outDir options
+        (generatorWarnings, generatorErrors) <- generateCode appSpec outDir options
         return
           ( generatorWarnings <> analyzerWarnings,
             if null generatorErrors then Right appSpec else Left generatorErrors
@@ -46,15 +46,15 @@ compile waspDir outDir options = do
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
   return (compileWarnings <> dotEnvWarnings, appSpecOrCompileErrors)
 
-compileAppSpec ::
+generateCode ::
   AS.AppSpec ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
-compileAppSpec appSpec outDir options = do
+generateCode appSpec outDir options = do
   devEnvironment <- resolveDevEnvironment appSpec
   (generatorWarnings, generatorErrors) <-
-    Generator.writeWebAppCode appSpec devEnvironment outDir (sendMessage options) (setupGoal options)
+    Generator.writeWebAppCode appSpec devEnvironment outDir (sendMessage options) (setupGoals options)
   return (show <$> generatorWarnings, show <$> generatorErrors)
 
 resolveDevEnvironment :: AS.AppSpec -> IO DevEnvironment
