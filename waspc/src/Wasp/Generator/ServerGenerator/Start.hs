@@ -139,7 +139,8 @@ reportServerExit = \case
 data ServerEvent
   = -- | Interrupts the bundling for any compile that started before the change.
     FilesChanged UTCTime
-  | -- | Returns once the controller has handled the compile.
+  | -- | Returns once the controller has handled the compile, which can
+    -- include bundling the server. A 'FilesChanged' interrupts the bundling.
     Compiled CompileOutcome
 
 data CompileOutcome
