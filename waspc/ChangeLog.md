@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 🎉 New Features
+
+- When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
+
 ### 🐞 Bug fixes
 
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
