@@ -1,7 +1,5 @@
 module Wasp.Cli.Command.Watch
-  ( WatchCompileResult (..),
-    WatchEvent (..),
-    watch,
+  ( watch,
   )
 where
 
@@ -20,22 +18,10 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
+import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
-
-data WatchEvent
-  = -- | As soon as a watched file changes, with the time of the change.
-    FileChanged UTCTime
-  | -- | Once a compile has finished, whether it succeeded or not.
-    Recompiled WatchCompileResult
-
-data WatchCompileResult = WatchCompileResult
-  { _watchChangedProjectFiles :: [Path' (Rel WaspProjectDir) File'],
-    _watchCompileResult :: CompileResult,
-    -- | Changes from this time on aren't part of the compile.
-    _watchCompileStartTime :: UTCTime
-  }
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -49,14 +35,15 @@ data WatchCompileResult = WatchCompileResult
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
--- It reports what happens to 'onWatchEvent'.
+-- It reports file changes as they happen, and compiles once they finish, to
+-- 'onServerEvent'.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
-  (WatchEvent -> IO ()) ->
+  (ServerEvent -> IO ()) ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar onWatchEvent = do
+watch waspProjectDir outDir ongoingCompilationResultMVar onServerEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -81,7 +68,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar onWatchEvent = do
 
     onEvent :: Chan FSN.Event -> FSN.Event -> IO ()
     onEvent chan event = do
-      onWatchEvent $ FileChanged $ FSN.eventTime event
+      onServerEvent $ FilesChanged $ FSN.eventTime event
       writeChan chan event
 
     -- TODO: Might be valuable to also filter out files from .gitignore.
@@ -150,17 +137,21 @@ watch waspProjectDir outDir ongoingCompilationResultMVar onWatchEvent = do
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
-      let watchCompileResult =
-            WatchCompileResult
-              { _watchChangedProjectFiles = changedProjectFiles,
-                _watchCompileResult = compileResult,
-                _watchCompileStartTime = compileStartTime
-              }
-      case _compileOutcome compileResult of
-        Right _ -> cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
-        Left _ -> cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+      compileOutcome <- case _compileOutcome compileResult of
+        Right _ -> do
+          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
+          return $
+            SuccessfulCompile
+              CompileChanges
+                { _compileStartTime = compileStartTime,
+                  _changedProjectFiles = changedProjectFiles,
+                  _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
+                }
+        Left _ -> do
+          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+          return FailedCompile
       updateOngoingCompilationResultMVar (warnings, errors)
-      onWatchEvent $ Recompiled watchCompileResult
+      onServerEvent $ Compiled compileOutcome
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,

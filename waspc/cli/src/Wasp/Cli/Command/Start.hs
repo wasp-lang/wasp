@@ -21,7 +21,7 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
-import Wasp.Cli.Command.Watch (WatchCompileResult (..), WatchEvent (..), watch)
+import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
@@ -32,7 +32,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileResult (..), CompileWarning)
+import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
@@ -76,7 +76,7 @@ start = withArguments startArgsParser $ \args -> withProjectLock $ do
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     serverProcessController <- ServerGenerator.Start.newServerProcessController
-    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar $ ServerGenerator.Start.notifyServer serverProcessController . toServerEvent
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar $ ServerGenerator.Start.notifyServer serverProcessController
     let startGeneratedWebApp = Wasp.Generator.start runConfigs waspProjectDir outDir serverProcessController (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
@@ -107,21 +107,6 @@ start = withArguments startArgsParser $ \args -> withProjectLock $ do
           putStrLn ""
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
-
-toServerEvent :: WatchEvent -> ServerGenerator.Start.ServerEvent
-toServerEvent = \case
-  FileChanged changeTime -> ServerGenerator.Start.FilesChanged changeTime
-  Recompiled watchCompileResult -> ServerGenerator.Start.Compiled $ case _compileOutcome compileResult of
-    Right _ ->
-      ServerGenerator.Start.SuccessfulCompile $
-        ServerGenerator.Start.CompileChanges
-          { ServerGenerator.Start._compileStartTime = _watchCompileStartTime watchCompileResult,
-            ServerGenerator.Start._changedProjectFiles = _watchChangedProjectFiles watchCompileResult,
-            ServerGenerator.Start._changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
-          }
-    Left _ -> ServerGenerator.Start.FailedCompile
-    where
-      compileResult = _watchCompileResult watchCompileResult
 
 makeDevAppComponentUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
 makeDevAppComponentUrls appSpec args = do
