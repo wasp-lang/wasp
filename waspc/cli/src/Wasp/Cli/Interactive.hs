@@ -32,6 +32,22 @@ import System.Timeout (timeout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
 
+-- This is the only way to get an interactive terminal.
+-- The caller can decide what to do if they can't get one: fail with a way to
+-- pass the answers as arguments, skip the question, etc.
+getInteractiveTerminal :: IO (Maybe InteractiveTerminal)
+getInteractiveTerminal = do
+  isTerminal <- hIsTerminalDevice stdioTerminal.inputHandle
+  return $
+    if isTerminal
+      then Just stdioTerminal
+      else Nothing
+
+-- | True for an error caused by the user ending an input (Ctrl+D) while a
+-- prompt is waiting for an answer.
+isPromptInputEOF :: IOError -> Bool
+isPromptInputEOF e = isEOFError e && ioeGetHandle e == Just stdioTerminal.inputHandle
+
 {-
   Why are we doing this?
   Using a list of Strings for options results in the Strings being wrapped in quotes
@@ -76,25 +92,6 @@ data InteractiveTerminal = InteractiveTerminal
   { inputHandle :: Handle,
     outputHandle :: Handle
   }
-
--- This is the only way to get an interactive terminal.
--- The caller can decide what to do if they can't get one: fail with a way to
--- pass the answers as arguments, skip the question, etc.
-getInteractiveTerminal :: IO (Maybe InteractiveTerminal)
-getInteractiveTerminal = do
-  isTerminal <- hIsTerminalDevice stdioTerminal.inputHandle
-  return $
-    if isTerminal
-      then Just stdioTerminal
-      else Nothing
-
-stdioTerminal :: InteractiveTerminal
-stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
-
--- | True for an error caused by the user ending an input (Ctrl+D) while a
--- prompt is waiting for an answer.
-isPromptInputEOF :: IOError -> Bool
-isPromptInputEOF e = isEOFError e && ioeGetHandle e == Just stdioTerminal.inputHandle
 
 askForRequiredInput :: InteractiveTerminal -> String -> IO String
 askForRequiredInput terminal question = repeatIfNull terminal $ askForInput terminal question
@@ -196,8 +193,9 @@ repeatUntil terminal predicate errorMessage action = do
       repeatUntil terminal predicate errorMessage action
     else return result
 
--- | Reads the user's answer. Reaching the end of input while waiting for an
--- answer (Ctrl+D) throws an error 'isPromptInputEOF' recognizes.
+-- | Prompts for the user's answer and reads it.. Reaching the end of input
+-- while waiting for an answer (Ctrl+D) throws an error 'isPromptInputEOF'
+-- recognizes.
 prompt :: InteractiveTerminal -> IO String
 prompt terminal = do
   putStrFlush terminal $ Term.applyStyles [Term.Yellow] " ▸ "
@@ -208,3 +206,6 @@ putStrFlush :: InteractiveTerminal -> String -> IO ()
 putStrFlush terminal msg = do
   hPutStr terminal.outputHandle msg
   hFlush terminal.outputHandle
+
+stdioTerminal :: InteractiveTerminal
+stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
