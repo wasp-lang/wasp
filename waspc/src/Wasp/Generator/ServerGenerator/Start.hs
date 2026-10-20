@@ -43,23 +43,19 @@ startServer serverRunConfig generatedAppDir controller = do
     nextServerJob = do
       (compileOutcome, done) <- liftIO $ takeMVar $ _pendingCompile controller
       serverUpToDate <- liftIO $ readTVarIO $ _isServerUpToDate controller
-      (upToDate, replacementServerJob) <- handleCompile compileOutcome serverUpToDate
-      liftIO $ do
-        setServerUpToDate upToDate
-        putMVar done ()
-      return replacementServerJob
-
-    -- Returns whether the server will be up to date, and the job replacing
-    -- the current one, if any.
-    handleCompile :: CompileOutcome -> Bool -> J.Job (Bool, Maybe (J.Job ()))
-    handleCompile compileOutcome serverUpToDate =
+      let markCompileHandled = putMVar done ()
+          updateServer (upToDate, replacementServerJob) = do
+            liftIO $ setServerUpToDate upToDate >> markCompileHandled
+            return replacementServerJob
       case (compileOutcome, serverUpToDate) of
-        (FailedCompile, _) -> return stoppedServer
-        (SuccessfulCompile changes, False) -> printUpdatingServer >> bundleAndRun (_compileStartTime changes)
+        (FailedCompile, _) -> updateServer stoppedServer
+        (SuccessfulCompile changes, False) -> printUpdatingServer >> bundleAndRun (_compileStartTime changes) >>= updateServer
         (SuccessfulCompile changes, True) -> case serverEffect changes of
-          NoChange -> return unchangedServer
-          RestartServer -> printUpdatingServer $> runningServer
-          RebundleAndRestartServer -> printUpdatingServer >> bundleAndRun (_compileStartTime changes)
+          -- Leaves '_isServerUpToDate' as it is: if the server crashed after
+          -- it was read, setting it would hide the crash.
+          NoChange -> liftIO markCompileHandled $> Nothing
+          RestartServer -> printUpdatingServer >> updateServer runningServer
+          RebundleAndRestartServer -> printUpdatingServer >> bundleAndRun (_compileStartTime changes) >>= updateServer
 
     serverEffect :: CompileChanges -> ServerEffect
     serverEffect changes = classifyServerEffect (_changedProjectFiles changes) (_changedGeneratedAppPaths changes)
@@ -78,11 +74,12 @@ startServer serverRunConfig generatedAppDir controller = do
     waitForFileChangeSince time =
       atomically $ readTVar (_lastFileChange controller) >>= check . (>= Just time)
 
-    runningServer, stoppedServer, unchangedServer, outOfDateServer :: (Bool, Maybe (J.Job ()))
+    -- Whether the server will be up to date, and the job replacing the current
+    -- one, if any.
+    runningServer, stoppedServer, outOfDateServer :: (Bool, Maybe (J.Job ()))
     runningServer = (True, Just runServer)
     -- Replacing the current job stops the server.
     stoppedServer = (False, Just printWaitingForChanges)
-    unchangedServer = (True, Nothing)
     -- The current server keeps running, but the next compile has to bundle it
     -- again.
     outOfDateServer = (False, Nothing)
