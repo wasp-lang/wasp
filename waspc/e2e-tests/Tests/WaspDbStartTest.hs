@@ -59,6 +59,19 @@ waspDbStartTest =
           removeReportedDevDbVolume
         ],
       postgresTestCase
+        "migration-and-reset-recreate-missing-database"
+        [ waspCliDbStartInBackground (Just 15435),
+          waitUntilDevDbReportsItIsReady,
+          dropDevDb,
+          waspCliDbMigrateDev "first_migration",
+          dropDevDb,
+          return "$WASP_CLI_CMD db reset --force",
+          assertDevDbRunning,
+          stopDevDbAndWait,
+          assertDevDbRemoved,
+          removeReportedDevDbVolume
+        ],
+      postgresTestCase
         "startup-uses-another-port-when-default-is-occupied"
         [ occupyDefaultDevDbPort,
           waspCliDbStartInBackground Nothing,
@@ -164,6 +177,11 @@ testDevDb = do
 assertDevDbRunning :: ShellCommandBuilder WaspProjectContext ShellCommand
 assertDevDbRunning =
   return $ "test -n \"$(docker ps -q --filter \"volume=" ++ reportedDevDbVolumeName ++ "\")\""
+
+dropDevDb :: ShellCommandBuilder WaspProjectContext ShellCommand
+dropDevDb = do
+  db <- testDevDb
+  return $ unwords ["docker", "exec", db.dockerContainerName, "dropdb", "--username", db.user, "--force", db.dbName]
 
 assertDevDbRemoved :: ShellCommandBuilder WaspProjectContext ShellCommand
 assertDevDbRemoved = do

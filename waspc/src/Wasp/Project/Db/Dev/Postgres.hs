@@ -85,17 +85,15 @@ isDevDbReady devDbSpec = do
 
 isDevDbConnectionReady :: DevDbSpec -> IO Bool
 isDevDbConnectionReady devDbSpec = do
-  (exitCode, output, _) <- readProcessWithExitCode "docker" args ""
-  return $ exitCode == ExitSuccess && output == "1\n"
+  (exitCode, _, _) <- readProcessWithExitCode "docker" args ""
+  return $ exitCode == ExitSuccess
   where
     args =
       concat
-        [ ["exec", "--env", printf "PGPASSWORD=%s" devDbSpec.password],
-          [devDbSpec.dockerContainerName, "psql"],
+        [ ["exec", devDbSpec.dockerContainerName, "pg_isready"],
           ["-h", "127.0.0.1"],
           ["-U", devDbSpec.user],
-          ["-d", devDbSpec.dbName],
-          ["-t", "-A", "-c", "SELECT 1"]
+          ["-d", "postgres", "-q"]
         ]
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its
