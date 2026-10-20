@@ -25,14 +25,15 @@ import Wasp.Util (secondsToMicroSeconds)
 --   produced some output.
 start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> IO () -> IO (Either String ())
 start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverProcessController onJobsQuietDown = do
+  -- `Left` (the server) is `Void`, because it always gets restarted and never
+  -- exits. Only web app can exit normally.
   webAppExitCode <-
-    either absurd id
-      <$> J.run
-        ( withJobsQuietDownListener onJobsQuietDown $
-            J.race
-              (J.prefixWith J.Server $ startServer serverRunConfig outDir serverProcessController)
-              (J.prefixWith J.WebApp $ startWebApp webAppRunConfig waspProjectDir)
-        )
+    fmap (either absurd id)
+      $ J.run
+      $ withJobsQuietDownListener onJobsQuietDown
+      $ J.race
+        (J.prefixWith J.Server $ startServer serverRunConfig outDir serverProcessController)
+        (J.prefixWith J.WebApp $ startWebApp webAppRunConfig waspProjectDir)
 
   return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 
