@@ -40,12 +40,14 @@ getInteractiveTerminal = do
   isTerminal <- hIsTerminalDevice stdioTerminal.inputHandle
   return $
     if isTerminal
+      -- If you change the terminal here, change it in `isPromptInputEOF` too.
       then Just stdioTerminal
       else Nothing
 
 -- | True for an error caused by the user ending an input (Ctrl+D) while a
 -- prompt is waiting for an answer.
 isPromptInputEOF :: IOError -> Bool
+-- If you change the terminal here, change it in `getInteractiveTerminal` too.
 isPromptInputEOF e = isEOFError e && ioeGetHandle e == Just stdioTerminal.inputHandle
 
 {-

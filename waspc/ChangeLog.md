@@ -11,6 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
+- Piping answers into prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, commands now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 
 ### 🎉 New Features
 
@@ -28,6 +29,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 - The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - `routes.<name>.build()` no longer crashes at runtime when called without arguments on a route with an optional static segment (e.g. `/about/details?`). TypeScript now reports the missing `path` option instead. ([#5153](https://github.com/wasp-lang/wasp/pull/5153))
+- Wasp commands no longer crash with `hGetLine: end of file` when they need to ask a question but stdin isn't an interactive terminal (e.g. in CI, scripts, or AI agents). They now fail with the command's `--help` text telling you how to pass the arguments non-interactively. Pressing Ctrl+D at a prompt now prints `Aborted.` and exits. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 
 ### 🔧 Small improvements
 
