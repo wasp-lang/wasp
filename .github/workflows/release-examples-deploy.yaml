@@ -84,6 +84,30 @@ jobs:
         id: app-info
         working-directory: ${{ matrix.app-dir }}
         run: |
-          echo "url=https://$(flyctl status -c fly-client.toml --json | jq -r .Hostname)" >> $GITHUB_OUTPUT
+          client_hostname=$(flyctl status -c fly-client.toml --json | jq -er .Hostname)
+          server_hostname=$(flyctl status -c fly-server.toml --json | jq -er .Hostname)
+          echo "url=https://${client_hostname}" >> "$GITHUB_OUTPUT"
+          echo "server-url=https://${server_hostname}" >> "$GITHUB_OUTPUT"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_PRODUCTION_TOKEN }}
+
+      - name: Verify deployed app URLs
+        env:
+          SERVER_URL: ${{ steps.app-info.outputs.server-url }}
+          CLIENT_URL: ${{ steps.app-info.outputs.url }}
+        run: |
+          function wait_for_url() {
+            url="$1"
+            for attempt in $(seq 1 30); do
+              if curl -fsS -o /dev/null --max-time 10 "$url"; then
+                echo "$url is ready"
+                return 0
+              fi
+              echo "Attempt $attempt/30: $url not ready, retrying in 10s"
+              sleep 10
+            done
+            echo "Timed out waiting for $url"
+            return 1
+          }
+          wait_for_url "${SERVER_URL}/up"
+          wait_for_url "${CLIENT_URL}/"

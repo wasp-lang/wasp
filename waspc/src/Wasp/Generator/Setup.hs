@@ -1,5 +1,6 @@
 module Wasp.Generator.Setup
   ( SetupGoal (..),
+    allSetupGoals,
     setUpGeneratedApp,
     runSetup,
     SetupStep (..), -- Exported for testing.
@@ -34,13 +35,19 @@ import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 
--- | What a command needs the generated app set up for, after code generation.
+-- | Something a command needs from the generated app, after code generation.
 data SetupGoal
   = PrismaCliReady
+  | DbMigrationsChecked
   | SdkReady
-  | -- | The generated app has everything it needs to run or be built.
-    GeneratedAppReady
-  deriving (Eq, Show)
+  | -- | Our deployment tooling expects the web app dir to exist.
+    WebAppRootDirReady
+  | UserCodeTypeChecked
+  deriving (Eq, Show, Enum, Bounded)
+
+-- | What running or building the generated app needs.
+allSetupGoals :: [SetupGoal]
+allSetupGoals = [minBound .. maxBound]
 
 -- | Setup steps that a goal might need post code generation.
 data SetupStep
@@ -74,11 +81,11 @@ prerequisites TypeCheckUserCode = [InstallNpmDeps, BuildSdk]
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
--- | Runs the setup steps the goal needs, each after its prerequisites.
+-- | Runs the setup steps the goals need, each after its prerequisites.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: SetupGoal -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp goal spec generatedAppDir sendMessage =
-  forM_ (resolveSetupSteps goal) $ \step ->
+setUpGeneratedApp :: [SetupGoal] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+setUpGeneratedApp goals spec generatedAppDir sendMessage =
+  forM_ (resolveSetupSteps goals) $ \step ->
     runSetupStep step spec generatedAppDir sendMessage
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
@@ -86,14 +93,16 @@ runSetup setupAction = do
   (result, warnings) <- runWriterT $ runExceptT setupAction
   return (warnings, fromLeft [] result)
 
--- | The steps a goal needs, in correct execution order.
-resolveSetupSteps :: SetupGoal -> [SetupStep]
-resolveSetupSteps = withPrerequisites . stepsForGoal
+-- | The steps the goals need, in correct execution order.
+resolveSetupSteps :: [SetupGoal] -> [SetupStep]
+resolveSetupSteps = withPrerequisites . concatMap stepsForGoal
 
 stepsForGoal :: SetupGoal -> [SetupStep]
 stepsForGoal PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
+stepsForGoal DbMigrationsChecked = [WarnIfDbNeedsMigration]
 stepsForGoal SdkReady = [BuildSdk]
-stepsForGoal GeneratedAppReady = allSetupSteps
+stepsForGoal WebAppRootDirReady = [CreateWebAppRootDir]
+stepsForGoal UserCodeTypeChecked = [TypeCheckUserCode]
 
 -- | The steps with all their prerequisites. Each step comes after its
 -- prerequisites, and appears once.
