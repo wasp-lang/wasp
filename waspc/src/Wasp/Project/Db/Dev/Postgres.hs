@@ -71,20 +71,20 @@ createDevPostgresContainer db image mountPath = do
 
 waitForDevDbReady :: DevDbSpec -> IO ()
 waitForDevDbReady devDbSpec = do
-  ready <- Retry.retryUntil (Retry.constPause 1000000) 59 $ isDevDbReady devDbSpec
+  ready <- Retry.retryUntil (Retry.constPause 1000000) 59 $ isDevDbReachable devDbSpec
   unless ready $ do
     (_, output, errors) <- readProcessWithExitCode "docker" ["logs", "--tail", "30", devDbSpec.dockerContainerName] ""
     ioError $ userError $ printf "PostgreSQL did not become ready. Check the logs below, then try again.\n%s%s" output errors
 
-isDevDbReady :: DevDbSpec -> IO Bool
-isDevDbReady devDbSpec = do
-  databaseReady <- isDevDbConnectionReady devDbSpec
-  if databaseReady
+isDevDbReachable :: DevDbSpec -> IO Bool
+isDevDbReachable devDbSpec = do
+  postgresAcceptsConnections <- isPostgresAcceptingConnections devDbSpec
+  if postgresAcceptsConnections
     then Socket.checkIfPortIsAcceptingConnections $ Socket.makeLocalHostSocketAddress devDbSpec.port
     else return False
 
-isDevDbConnectionReady :: DevDbSpec -> IO Bool
-isDevDbConnectionReady devDbSpec = do
+isPostgresAcceptingConnections :: DevDbSpec -> IO Bool
+isPostgresAcceptingConnections devDbSpec = do
   (exitCode, _, _) <- readProcessWithExitCode "docker" args ""
   return $ exitCode == ExitSuccess
   where
