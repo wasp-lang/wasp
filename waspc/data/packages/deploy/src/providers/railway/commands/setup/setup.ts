@@ -1,5 +1,3 @@
-import { $ } from "zx";
-
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
@@ -217,9 +215,6 @@ async function setupClient({
     options.railwayExe,
     clientDeploymentDir,
   );
-
-  // Having a Staticfile tells Railway to use a static file server.
-  await $({ cwd: clientDeploymentDir })`touch Staticfile`;
 
   await railwayCli(
     [
