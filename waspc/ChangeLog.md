@@ -8,9 +8,14 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts`, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same.
 
+### 🎉 New Features
+
+- When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
+
 ### 🐞 Bug fixes
 
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
+- Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 
 ## 0.26.0

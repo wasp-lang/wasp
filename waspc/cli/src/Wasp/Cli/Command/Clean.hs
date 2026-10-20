@@ -8,13 +8,13 @@ import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
 
 clean :: Command ()
-clean = withProjectLock $ do
+clean = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
 
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir

@@ -21,10 +21,10 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
+import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
@@ -50,7 +50,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Finally, throws if there was a compile/build error.
 -- Very similar to 'compile'.
 build :: Command ()
-build = withProjectLock $ do
+build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
@@ -161,5 +161,5 @@ buildIO waspProjectDir buildDir =
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
-          setupGoal = GeneratedAppReady
+          setupGoals = allSetupGoals
         }
