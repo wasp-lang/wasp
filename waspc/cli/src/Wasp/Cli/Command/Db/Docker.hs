@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Db.Docker
   ( ensureDockerDaemonAvailable,
     ensureImageAvailable,
-    runDockerCommand,
+    runDockerJobAndPrintOutput,
     stopDatabase,
     removeContainer,
   )
@@ -38,19 +38,19 @@ ensureImageAvailable dbDockerImage = do
   (imageStatus, _, _) <- liftIO $ readProcessWithExitCode "docker" ["image", "inspect", dbDockerImage] ""
   when (imageStatus /= ExitSuccess) $ do
     cliSendMessageC $ Msg.Start $ printf "Pulling PostgreSQL image %s..." dbDockerImage
-    pullStatus <- liftIO $ runDockerCommand ["pull", dbDockerImage]
+    pullStatus <- liftIO $ runDockerJobAndPrintOutput ["pull", dbDockerImage]
     when (pullStatus /= ExitSuccess) $ E.throwError $ CommandError "Could not pull PostgreSQL image" (printf "Check the image name, registry access, and network connection. Image: %s" dbDockerImage)
 
-runDockerCommand :: [String] -> IO ExitCode
-runDockerCommand args = do
-  channel <- newChan
-  fst <$> concurrently (runProcessAsJob (proc "docker" args) Job.Db channel) (printDbMessages channel)
+runDockerJobAndPrintOutput :: [String] -> IO ExitCode
+runDockerJobAndPrintOutput args = do
+  chan <- newChan
+  fst <$> concurrently (runProcessAsJob (proc "docker" args) Job.Db chan) (printDbMessages chan)
 
 printDbMessages :: Chan Job.JobMessage -> IO ()
-printDbMessages channel = runPrefixedWriter go
+printDbMessages chan = runPrefixedWriter go
   where
     go = do
-      message <- liftIO $ readChan channel
+      message <- liftIO $ readChan chan
       case Job._data message of
         Job.JobOutput output _ -> do
           printJobMessagePrefixed $ Job.JobMessage (Job.JobOutput output Job.Stdout) Job.Db

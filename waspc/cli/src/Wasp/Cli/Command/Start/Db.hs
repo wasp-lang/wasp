@@ -178,7 +178,7 @@ withPostgresSession waspProjectDir appName options policy action = do
         (withDatabaseError "Could not start PostgreSQL" $ Dev.Postgres.createDevPostgresContainer db image mountPath)
         Docker.removeContainer
         ( \containerId -> do
-            databaseJob <- liftIO $ async $ Docker.runDockerCommand ["start", "--attach", containerId]
+            databaseJob <- liftIO $ async $ Docker.runDockerJobAndPrintOutput ["start", "--attach", containerId]
             return $ StartedDatabase db containerId databaseJob
         )
 
