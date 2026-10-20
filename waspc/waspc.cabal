@@ -594,6 +594,7 @@ test-suite waspc-tests
     Generator.SetupTest
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
+    Job.IO.PrefixedWriterTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
@@ -656,7 +657,6 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
-    DbMigrateTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest

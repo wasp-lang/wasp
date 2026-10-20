@@ -19,7 +19,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 studio :: Command ()
-studio = makeDbCommand PrismaCliReady $ \_appSpec -> do
+studio = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
