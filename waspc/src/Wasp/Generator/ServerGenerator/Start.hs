@@ -35,7 +35,7 @@ startServer serverRunConfig generatedAppDir controller = do
   startTime <- liftIO getCurrentTime
   (upToDate, initialServerJob) <- bundleAndRun startTime
   liftIO $ setServerUpToDate upToDate
-  J.keepReplacing nextServerJob $ fromMaybe noServer initialServerJob
+  J.hotSwap nextServerJob $ fromMaybe noServer initialServerJob
   where
     -- Runs alongside the current server job, and returns the one replacing
     -- it, if any.

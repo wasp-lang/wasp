@@ -6,7 +6,7 @@ module Wasp.Job
     markInteractive,
     run,
     race,
-    keepReplacing,
+    hotSwap,
     andThen,
     OutputType (..),
     emitOutput,
@@ -20,7 +20,6 @@ module Wasp.Job
   )
 where
 
-import qualified Control.Concurrent.Async as Async
 import Control.Monad.Extra (untilJustM)
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (ReaderT (..), ask, local)
@@ -31,7 +30,7 @@ import Data.Void (Void)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import qualified UnliftIO.Async as UnliftIO
+import qualified UnliftIO.Async as Async
 import Wasp.Env (addEnvVarsOverride)
 import Wasp.Job.Common (Job (..), JobEnv (..), JobType (..), OutputType (..), runWithEnv, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
@@ -52,23 +51,21 @@ race :: Job a -> Job b -> Job (Either a b)
 race left right = Job $ ReaderT $ \env ->
   Async.race (runWithEnv env left) (runWithEnv env right)
 
--- | Runs the job, and keeps replacing it with the next one that @next@
--- produces: the current job is stopped and the new one started. If @next@
--- produces 'Nothing', the current job stays, and @next@ runs again. @next@
--- runs alongside the current job, so the current job keeps running while
--- @next@ does some work before the replacement. If the current job finishes
--- first, @next@ keeps running.
-keepReplacing :: Job (Maybe (Job ())) -> Job () -> Job Void
-keepReplacing next = go
+-- | Runs a job, and keeps calling @produceReplacement@ until it returns a new
+-- job that replaces it. Never returns.
+hotSwap :: Job (Maybe (Job ())) -> Job () -> Job Void
+hotSwap produceReplacement firstJob = runSwapping firstJob
   where
-    go current = replacementOf current >>= go
+    runSwapping :: Job () -> Job Void
+    runSwapping job = do
+      nextJob <- waitForReplacement job
+      runSwapping nextJob
 
-    replacementOf current =
-      UnliftIO.withAsync current $ \currentJob ->
-        untilJustM $
-          UnliftIO.withAsync next $ \nextJob ->
-            UnliftIO.waitEither currentJob nextJob
-              >>= either (const $ UnliftIO.wait nextJob) return
+    waitForReplacement :: Job () -> Job (Job ())
+    waitForReplacement currentJob =
+      Async.withAsync currentJob $ \currentJobAsync -> do
+        Async.link currentJobAsync -- Rethrows the current job's exceptions.
+        untilJustM produceReplacement
 
 emitOutput :: OutputType -> Text -> Job ()
 emitOutput outputType output = Job $ do

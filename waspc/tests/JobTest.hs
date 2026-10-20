@@ -130,7 +130,7 @@ spec_Job = do
         )
         `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
 
-  describe "keepReplacing" $ do
+  describe "hotSwap" $ do
     it "keeps each job running until the next one is produced, then stops it" $ do
       events <- newIORef []
       nextJobNumber <- newEmptyMVar
@@ -143,7 +143,7 @@ spec_Job = do
             n <- liftIO $ takeMVar nextJobNumber
             liftIO $ record $ "produce " <> show n
             return $ Just $ numberedJob n
-      Async.withAsync (Job.run $ Job.keepReplacing next $ numberedJob 0) $ \_ -> do
+      Async.withAsync (Job.run $ Job.hotSwap next $ numberedJob 0) $ \_ -> do
         waitUntil "the first job starts" $ elem "start 0" <$> readIORef events
         putMVar nextJobNumber 1
         waitUntil "the second job starts" $ elem "start 1" <$> readIORef events
@@ -164,7 +164,7 @@ spec_Job = do
             n <- liftIO $ takeMVar nextJobNumber
             liftIO $ record $ "produce " <> maybe "nothing" show n
             return $ numberedJob <$> n
-      Async.withAsync (Job.run $ Job.keepReplacing next $ numberedJob 0) $ \_ -> do
+      Async.withAsync (Job.run $ Job.hotSwap next $ numberedJob 0) $ \_ -> do
         waitUntil "the first job starts" $ elem "start 0" <$> readIORef events
         putMVar nextJobNumber Nothing
         waitUntil "nothing is produced" $ elem "produce nothing" <$> readIORef events
@@ -182,7 +182,7 @@ spec_Job = do
           next = do
             n <- liftIO $ takeMVar nextJobNumber `onException` record "next stopped"
             return $ Just $ numberedJob n
-      Async.withAsync (Job.run $ Job.keepReplacing next $ numberedJob 0) $ \_ -> do
+      Async.withAsync (Job.run $ Job.hotSwap next $ numberedJob 0) $ \_ -> do
         waitUntil "the first job finishes" $ elem "run 0" <$> readIORef events
         putMVar nextJobNumber 1
         waitUntil "the second job finishes" $ elem "run 1" <$> readIORef events
