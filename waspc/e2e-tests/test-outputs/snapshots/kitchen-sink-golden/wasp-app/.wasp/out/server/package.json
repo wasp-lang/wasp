@@ -2,10 +2,10 @@
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
     "@socket.io/component-emitter": "^4.0.0",
-    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.1.tgz",
-    "@wasp.sh/lib-sdk-core": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz",
-    "@wasp.sh/lib-test-utils": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz",
-    "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz",
+    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.27.0.tgz",
+    "@wasp.sh/lib-sdk-core": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz",
+    "@wasp.sh/lib-test-utils": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz",
+    "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -34,9 +34,6 @@
   "name": "@wasp.sh/generated-server",
   "nodemonConfig": {
     "delay": "1000"
-  },
-  "prisma": {
-    "seed": "npm run db-seed"
   },
   "private": true,
   "scripts": {

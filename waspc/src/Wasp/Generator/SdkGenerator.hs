@@ -209,13 +209,6 @@ npmDepsForSdk spec =
             ("@vitejs/plugin-react", "^6.0.3")
           ]
           ++ depsRequiredByOAuth spec
-          -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
-          -- lists prisma/client as a dependency.
-          -- Installing it inside .wasp/out/server/node_modules would also
-          -- install prisma/client in the same folder, which would cause our
-          -- runtime to load the wrong (uninitialized prisma/client).
-          -- TODO(filip): Find a better way to handle duplicate
-          -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec

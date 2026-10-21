@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "6a12546a295c1ca39bd1f8e04a64281f6b8d06704a7fc24312c47b8d27317743"
+        "8db5bc2c94774c686569253c00a2aa7322cbe1e398636c3660a5b0a267dbeeca"
     ],
     [
         [
@@ -23,30 +23,30 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
         ],
-        "189286db2553b34dc1273020fc9d088acc48fc4b5bd299ff13762ddf07b44508"
+        "6d54a7fd8226f667f0b4f09cdecd73e92958f23316ffc40f288991e25151e6c9"
     ],
     [
         [
             "file",
-            "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+            "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "bb3626b8d18673a3b767f64dc4b231348064ce61e4c1cb4e6a63ea3018293829"
+        "7a081a214fe778c8bbfecf6ba385a7addcbff0b0ab429157aa314008d6fabcfc"
     ],
     [
         [
             "file",
-            "libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
+            "libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
         ],
-        "f18eb24d71a9c1feca8b717c5db9e87d55471b2f258f11452b2946418744f5b9"
+        "6079fae7755221de4529e13b7e3fe4ad99b97b2c342217ee4206ed78600be03b"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
         ],
-        "dc0e0cffc93d400a59c54f41f77be3dd40438b442f7dcfa3a1d1bfcf8798a750"
+        "9009b139f8b2baf80b5c3d39230fb18d32ac710f2b40688d3c91b629b2de787a"
     ],
     [
         [
@@ -221,7 +221,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "7d2d5f57a52cf8ed1496ab4940b6498f2db1d0816a25099f7c509cfe66611f80"
+        "2ec37c8c0a8f24c6df259f94786dbc5ab33ec90dbc493c5f5ddc6747d42b1d32"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "45aff48f7640f3c52b0d4c16225130e4b3f5d35afcb23db2f275e61c9f34a6f3"
+        "3dd144c11af85f940a8065c9705f8a59351460f902947de6eba5e90a027cfbd6"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "server/package.json"
         ],
-        "9f35aa29aad717949d589270faf8bc616719aad8618b2c36fcb3402b3a696273"
+        "2b1feaa24a22f79a56d3d150dcd526ca93546b49cc867970d3d87550fe274fd6"
     ],
     [
         [

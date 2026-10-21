@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/lib-sdk-core",
-  "version": "0.26.1",
+  "version": "0.27.0",
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -34,7 +34,7 @@
     "@tanstack/react-query": "~4.42.0",
     "@types/express": "^5.0.0",
     "@vitejs/plugin-react": "^6.0.3",
-    "@wasp.sh/lib-auth": "^0.26.1",
+    "@wasp.sh/lib-auth": "^0.27.0",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",
