@@ -25,9 +25,17 @@ const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema,
 });
 
+// Tests (e.g., with Vitest) run without `wasp start`, which provides the
+// server URL in development. They mock the server, so a placeholder is enough.
+const waspTestClientEnvSchema = z.object({
+  "REACT_APP_API_URL": serverUrlSchema.default("http://localhost:3001"),
+});
+
 const waspClientEnvSchema = import.meta.env.MODE === "production"
   ? waspProdClientEnvSchema
-  : waspDevClientEnvSchema;
+  : import.meta.env.MODE === "test"
+    ? waspTestClientEnvSchema
+    : waspDevClientEnvSchema;
 
 export type CompleteClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
 
