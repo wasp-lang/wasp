@@ -51,7 +51,7 @@ wasp install
 
 ### 2. Update your Vitest setup
 
-The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The testing helpers (`renderInContext` and `mockServer`) moved from `wasp/client/test` to the `@wasp.sh/test-utils` package, which needs `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
+The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The testing helpers (`renderInContext` and `mockServer`) moved from `wasp/client/test` to the `@wasp.sh/test-utils` package, which you now install yourself.
 
 Follow the part that matches your app.
 
@@ -140,7 +140,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 1. Install Vitest, the testing libraries your tests use, and Wasp's testing helpers:
 
    ```bash
-   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp.sh/test-utils
+   npm install -D vitest jsdom @testing-library/jest-dom @wasp.sh/test-utils
    ```
 
 2. Add the options Wasp used to set for you to your `vite.config.ts`:

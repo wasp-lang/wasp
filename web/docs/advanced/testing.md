@@ -7,18 +7,15 @@ Server-side testing is not yet supported, but you can track its progress in [thi
 
 ### Installing the packages
 
-Install Vitest, the libraries for testing React components, and Wasp's testing helpers:
+Install Vitest, a browser environment, and Wasp's testing helpers:
 
 ```bash
-npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp.sh/test-utils
+npm install -D vitest jsdom @wasp.sh/test-utils
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
-- [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
-- [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds DOM matchers like `toBeInTheDocument()`.
-- [`msw`](https://mswjs.io/): mocks HTTP requests. The Wasp helpers use it to mock your queries and APIs.
-- [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs.
+- [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries it builds on along with it: [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/), which renders components and finds elements in them, and [`msw`](https://mswjs.io/), which mocks HTTP requests.
 
 ### Configuring Vitest
 
@@ -41,7 +38,13 @@ export default defineConfig({
 ```
 With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in `jsdom`, a simulated browser.
 
-If you plan to test React components, also create a setup file that adds the DOM matchers and removes the rendered components after each test:
+If you plan to test React components, install [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom) for DOM matchers like `toBeInTheDocument()`:
+
+```bash
+npm install -D @testing-library/jest-dom
+```
+
+Then create a setup file that adds the DOM matchers and removes the rendered components after each test:
 
 ```ts title="src/test/setup.ts" auto-js
 import "@testing-library/jest-dom/vitest";
@@ -233,7 +236,7 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`@wasp.sh/test-utils` exports these helpers. Importing any of them needs `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`, even if you only use `renderInContext` or `WaspTestWrapper`.
+`@wasp.sh/test-utils` exports these helpers. It needs `vitest`, `msw`, and `@testing-library/react` as peer dependencies, which npm installs along with it.
 
 - `renderInContext(ui, options?)`
 
