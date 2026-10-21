@@ -1,6 +1,5 @@
-import type { ErrorMessage } from "@wasp.sh/lib-auth/browser";
-import { getErrorMessage } from "../../../errors.js";
-import { WaspHttpError } from "../../../WaspHttpError.js";
+import { WaspHttpError, getErrorMessage } from "@wasp.sh/lib-sdk-core";
+import type { ErrorMessage } from "../context.js";
 
 export function getAuthErrorMessage(error: unknown): ErrorMessage {
   if (error instanceof WaspHttpError) {

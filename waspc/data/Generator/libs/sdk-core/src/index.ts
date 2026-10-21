@@ -1,32 +1,3 @@
-export { isEmailResendAllowed } from "./auth/email/resend.js";
-
-export {
-  createProviderId,
-  getProviderData,
-  getProviderDataWithPassword,
-  normalizeProviderUserId,
-  providerDataHasPasswordField,
-  type EmailProviderData,
-  type OAuthProviderData,
-  type PossibleProviderData,
-  type ProviderId,
-  type ProviderName,
-  type UsernameProviderData,
-} from "./auth/providerData.js";
-export {
-  SessionResponseSchema,
-  SuccessResponseSchema,
-} from "./auth/responseSchemas.js";
-
-export {
-  PASSWORD_FIELD,
-  ensurePasswordIsPresent,
-  ensureTokenIsPresent,
-  ensureValidEmail,
-  ensureValidPassword,
-  ensureValidUsername,
-  throwValidationError,
-} from "./auth/validation.js";
 export { type ClientConfig } from "./config.js";
 export { defineEnvValidationSchema } from "./env/schema.js";
 export {

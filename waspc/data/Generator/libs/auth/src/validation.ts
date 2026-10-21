@@ -1,5 +1,5 @@
-import { isValidEmail } from "@wasp.sh/lib-auth";
-import { HttpError } from "../HttpError.js";
+import { isValidEmail } from "./email.js";
+import { throwValidationError } from "./errors.js";
 
 export const PASSWORD_FIELD = "password";
 const USERNAME_FIELD = "username";
@@ -56,10 +56,6 @@ export function ensureTokenIsPresent(args: object): void {
   validate(token, [
     { message: "token must be present", validator: (token) => !!token },
   ]);
-}
-
-export function throwValidationError(message: string): void {
-  throw new HttpError(422, "Validation failed", { message });
 }
 
 function validate(

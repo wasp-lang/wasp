@@ -1,28 +1,25 @@
 {
   "compilerOptions": {
-    /* Basic options */
     "target": "esnext",
-    "jsx": "react-jsx",
     "lib": ["esnext", "dom", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["react", "node"],
-
-    /* Modules */
+    "types": ["node"],
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "module": "preserve",
     "verbatimModuleSyntax": true,
-
-    /* Strictness */
     "strict": true,
     "noUnusedLocals": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-
-    /* Declarations */
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "jsx": "react-jsx"
   },
   "include": ["src", "tests"]
 }

@@ -6,11 +6,13 @@ import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import {
   assertPackageVersionMatchesWaspc,
-  discoverSubDirs,
   getPackageJson,
   runCmd,
 } from "../utils.ts";
-import { getDataLibsDirPath } from "./utils.ts";
+import {
+  discoverLibDirsInDependencyOrder,
+  getDataLibsDirPath,
+} from "./utils.ts";
 
 try {
   buildLibs();
@@ -21,7 +23,7 @@ try {
 
 function buildLibs(): void {
   const dataLibsDirPath = getDataLibsDirPath();
-  const libDirs = discoverSubDirs(dataLibsDirPath);
+  const libDirs = discoverLibDirsInDependencyOrder(dataLibsDirPath);
 
   for (const libDir of libDirs) {
     buildLib(libDir);

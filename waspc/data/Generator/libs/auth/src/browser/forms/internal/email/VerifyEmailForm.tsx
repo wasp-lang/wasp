@@ -1,0 +1,44 @@
+import { useEffectOnce } from "@wasp.sh/lib-sdk-core/browser";
+import { useLocation } from "react-router";
+import type { EmailAuthActions } from "../../../actions/email.js";
+import { useAuthContext } from "../../../context.js";
+import { getAuthErrorMessage } from "../../authErrorMessage.js";
+import { Message } from "../../Message.js";
+
+export const VerifyEmailForm = ({
+  verifyEmail,
+}: {
+  verifyEmail: EmailAuthActions<object>["verifyEmail"];
+}) => {
+  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } =
+    useAuthContext();
+  const location = useLocation();
+  const token = new URLSearchParams(location.search).get("token");
+
+  async function submitForm() {
+    if (!token) {
+      setErrorMessage({
+        title:
+          "The token is missing from the URL. Please check the link you received in your email.",
+      });
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await verifyEmail({ token });
+      setSuccessMessage("Your email has been verified. You can now log in.");
+    } catch (error: unknown) {
+      setErrorMessage(getAuthErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffectOnce(() => {
+    submitForm();
+  });
+
+  return <>{isLoading && <Message>Verifying email...</Message>}</>;
+};

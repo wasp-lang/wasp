@@ -38,3 +38,5 @@ export function createJWTHelpers(
 }
 
 export { TimeSpan } from "oslo";
+
+export type JwtHelpers = ReturnType<typeof createJWTHelpers>;
