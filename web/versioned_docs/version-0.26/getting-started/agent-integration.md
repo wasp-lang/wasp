@@ -4,6 +4,8 @@ sidebar_label: Agent integration
 description: Install the official Wasp plugin or skills in Claude Code, Cursor, Codex and other coding agents, so they use the Wasp docs for your Wasp version.
 ---
 
+import Trackable from "@site/src/components/Trackable";
+
 # Agent integration
 
 Wasp provides an official plugin for coding agents that transforms them into Wasp framework experts.
@@ -25,15 +27,23 @@ The plugin / skills work with just about all the popular coding agents, such as 
 
 First, add the Wasp plugin marketplace:
 
+<Trackable event="Agent Plugin: Copy" kind="claude_plugin">
+
 ```bash
 claude plugin marketplace add wasp-lang/wasp-agent-plugins
 ```
 
+</Trackable>
+
 Then install the Wasp plugin:
+
+<Trackable event="Agent Plugin: Copy" kind="claude_plugin">
 
 ```bash
 claude plugin install wasp@wasp-agent-plugins --scope project
 ```
+
+</Trackable>
 
 :::tip
 We recommend installing with `project` scope so the settings are committed to git (via `settings.json`). Use `local` scope if you prefer settings that aren't committed (via `settings.local.json`).
@@ -43,17 +53,25 @@ We recommend installing with `project` scope so the settings are committed to gi
 
 Run the following command and select all the skills:
 
+<Trackable event="Agent Plugin: Copy" kind="skills_cli">
+
 ```bash
 npx skills add wasp-lang/wasp-agent-plugins
 ```
+
+</Trackable>
 
 ## Setup
 
 After installing, initialize the plugin in an active agent session by explicitly invoking the `/wasp-plugin-init` skill:
 
+<Trackable event="Agent Plugin: Copy" kind="plugin_prompt">
+
 ```
 Run the '/wasp-plugin-init' skill.
 ```
+
+</Trackable>
 
 This adds Wasp knowledge to your project's `CLAUDE.md` or `AGENTS.md` file.
 
@@ -65,9 +83,13 @@ Run the 'start-dev-server' skill.
 
 To see all available features and skills:
 
+<Trackable event="Agent Plugin: Copy" kind="plugin_prompt">
+
 ```
 /wasp-plugin-help
 ```
+
+</Trackable>
 
 ## Learn More
 

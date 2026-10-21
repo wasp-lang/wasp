@@ -6,6 +6,7 @@ comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+import Trackable from "@site/src/components/Trackable";
 
 # Legacy Wasp installer
 
@@ -23,16 +24,24 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 
 Afterwards, you can use [the regular installation instructions](../../getting-started/quick-start.md#detailed-installation) to install Wasp through npm:
 
+<Trackable event="Install Command: Copy">
+
 ```shell
 npm i -g @wasp.sh/wasp-cli@latest
 ```
 
+</Trackable>
+
 You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
+
+<Trackable event="Install Command: Copy">
 
 ```shell
 # Set x.y.z to the version you want to install, e.g. 0.20.2
 npm i -g @wasp.sh/wasp-cli@x.y.z
 ```
+
+</Trackable>
 
 ## Keep using the legacy installer {#keep-using}
 

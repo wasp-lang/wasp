@@ -7,6 +7,8 @@ keywords: ["buzz", "ai agents", "wasp framework", "railway deploy", "agentic cha
 description: "I typed one message into a chat channel in Buzz and an agent scaffolded, deployed, and shipped a live full-stack CRM with Wasp. Here's the recipe, written so a human or an agent can follow it."
 ---
 
+import Trackable from "@site/src/components/Trackable";
+
 ![The original Prompt in Buzz](/img/buzz-wasp-one-message-app/prompt.webp)
 
 A couple of weeks ago I typed this into a chat channel:
@@ -49,9 +51,13 @@ Download Buzz from [buzz.xyz](https://buzz.xyz) (free). On first run it detects 
 
 ### 2. Install Wasp
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli@latest
 ```
+
+</Trackable>
 
 One catch worth knowing up front: Wasp needs a recent Node (0.24 requires ≥ 24.14.1), and agent runtimes sometimes ship their own older Node on PATH. If the agent hits a version error, tell it to use your nvm-installed Node explicitly (that one line fixes the most common failure in this whole flow).
 

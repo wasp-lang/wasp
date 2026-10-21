@@ -11,6 +11,7 @@ description: "Claude Code needs few skills for full-stack work: browser and serv
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 import { VideoWithCaption } from './components/VideoWithCaption';
+import Trackable from '@site/src/components/Trackable';
 
 ## TL;DR
 
@@ -366,11 +367,17 @@ Here's how to get started:
 
 1. **Install Wasp**
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
 
+</Trackable>
+
 2. **Install the Claude Code plugin**
+
+<Trackable event="Agent Plugin: Copy" kind="claude_plugin">
 
 ```bash
 # add the Wasp marketplace to Claude
@@ -380,7 +387,11 @@ claude plugin marketplace add wasp-lang/wasp-agent-plugins
 claude plugin install wasp@wasp-agent-plugins --scope project
 ```
 
+</Trackable>
+
 3. **Start a new Wasp project**
+
+<Trackable event="CLI Command: Copy" command="wasp_new">
 
 ```bash
 # create a new project
@@ -390,6 +401,8 @@ wasp new
 cd <your-wasp-project>
 ```
 
+</Trackable>
+
 4. **Start a Claude Code session** in your Wasp project directory
 
 ```bash
@@ -398,9 +411,13 @@ claude
 
 5. **Run the init command** to set up the plugin
 
+<Trackable event="Agent Plugin: Copy" kind="plugin_prompt">
+
 ```bash
 /wasp:init
 ```
+
+</Trackable>
 
 From there, you can tell Claude to "start the dev server" and it will walk you through spinning up fullstack visibility as we outlined above. Or ask it to implement a Wasp feature and watch it fetch version-matched documentation guides for you!
 

@@ -1,6 +1,7 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import type { WrapperProps } from "@docusaurus/types";
 import DocComments from "@site/src/components/DocComments";
+import { trackPlacementAttributes } from "@site/src/lib/analytics";
 import Footer from "@theme-original/DocItem/Footer";
 import type FooterType from "@theme/DocItem/Footer";
 import { type ReactNode } from "react";
@@ -17,7 +18,9 @@ export default function FooterWrapper(props: Props): ReactNode {
 
   return (
     <>
-      <Footer {...props} />
+      <div {...trackPlacementAttributes("doc_footer")} className="contents">
+        <Footer {...props} />
+      </div>
 
       {frontMatter.comments && (
         <div className={styles.commentsWrapper}>
