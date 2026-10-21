@@ -4,11 +4,11 @@ min_version = "2026.10.17"
 [tools]
 ghcup = "0.2.6.2"
 
-cabal = "3.16.1.0"
+"mise-ghcup:cabal" = "recommended"
 
 # Holding off GHC 9.10 since HLint doesn't work with it:
 # https://github.com/haskell/haskell-language-server/issues/4674
-"mise-ghcup:ghc" = "9.6.7"
+"mise-ghcup:ghc" = "recommended"
 
 # When upgrading the HLS version, we need to ensure compatibility with our GHC
 # version. You can see the compatibility table at:
@@ -16,7 +16,7 @@ cabal = "3.16.1.0"
 # Check that the HLS version has a prebuilt binary for the GHC version we are
 # using by running the following command:
 # `type haskell-language-server-$(ghc --numeric-version)`
-"mise-ghcup:hls" = "2.14.0.0"
+"mise-ghcup:hls" = "recommended"
 
 # Use the same version as the one used inside the HLS binary above. You can run
 # the following command to find the plugin versions (incl. HLint) in the current
