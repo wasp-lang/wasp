@@ -12,6 +12,10 @@
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 
+### 🔧 Small improvements
+
+- Refreshed the look of the `basic` starter to match the wasp.sh website. Older projects are unaffected. ([#5042](https://github.com/wasp-lang/wasp/pull/5042))
+
 ## 0.26.0
 
 ### ⚠️ Breaking Changes
@@ -75,7 +79,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 - Telemetry now also reports the CPU architecture (e.g. `x86_64`, `aarch64`). ([#4918](https://github.com/wasp-lang/wasp/pull/4918))
 - The generated server and the database seed script are now bundled separately. ([#4995](https://github.com/wasp-lang/wasp/pull/4995))
 - `Link` and `NavLink` now accept the same `search` values as `routes.X.build`, including `URLSearchParams`, query strings, and key/value arrays. ([#5029](https://github.com/wasp-lang/wasp/pull/5029))
-- Refreshed the look of the `basic` starter to match the wasp.sh website. Older projects are unaffected. ([#5042](https://github.com/wasp-lang/wasp/pull/5042))
 - `wasp/client/router` now exports the `LinkProps` and `NavLinkProps` types, so you can build type-safe wrappers around `Link` and `NavLink`. ([#5027](https://github.com/wasp-lang/wasp/pull/5027))
 - When an app uses the Dummy email sender, Wasp's signup and forgot password forms now point to the `wasp start` terminal for the sent emails. ([#5026](https://github.com/wasp-lang/wasp/pull/5026))
 - `wasp db migrate-dev`, `wasp db reset` and `wasp db studio` no longer build the SDK before running. ([#4996](https://github.com/wasp-lang/wasp/pull/4996))
