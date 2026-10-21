@@ -1,5 +1,5 @@
 # Keep in sync with .github/actions/setup-tools/action.yaml
-min_version = "2026.9.15"
+min_version = "2026.10.17"
 
 [tools]
 ghcup = "0.2.6.2"
@@ -50,8 +50,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "mise-cabal:stan" = "0.2.1.0"
 
 [plugins]
-"vfox-backend:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git#v1.0.0"
-"vfox-backend:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git#v1.0.0"
+"vfox-backend:mise-ghcup" = "packslip:wasp-lang/mise-ghcup#3.0.0"
+"vfox-backend:mise-cabal" = "packslip:wasp-lang/mise-cabal#2.0.0"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
