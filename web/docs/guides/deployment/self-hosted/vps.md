@@ -1,4 +1,7 @@
 ---
+title: "Simple VPS: deploy Wasp with Docker and Caddy"
+sidebar_label: Simple VPS
+description: "Deploy a Wasp app to an Ubuntu VPS: run the server and PostgreSQL in Docker, serve the client and HTTPS with Caddy, and redeploy with a script."
 comments: true
 ---
 

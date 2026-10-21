@@ -1,4 +1,6 @@
 ---
+title: Optimizing for search and AI crawlers (SEO & GEO)
+description: Measure your Wasp app with Lighthouse and Search Console, then add meta tags, prerendering, semantic markup, structured data and files like robots.txt.
 sidebar_label: SEO & GEO
 comments: true
 ---

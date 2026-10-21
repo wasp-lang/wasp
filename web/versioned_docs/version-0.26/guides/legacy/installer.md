@@ -1,4 +1,6 @@
 ---
+title: "Legacy Wasp installer: migrate to npm installation"
+description: Starting from Wasp 0.21, installation is done through npm. The installation method using the script installer is now considered legacy and is not supported anymore.
 sidebar_label: "Wasp Installer"
 comments: true
 ---

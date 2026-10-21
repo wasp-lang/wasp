@@ -1,3 +1,9 @@
+---
+title: "Customizing the app: title and head tags in Wasp"
+sidebar_label: Customizing the app
+description: Change the app title in the browser tab and add lines to the head, such as a favicon, a stylesheet or a script, with the app spec of a Wasp project.
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 
 # Customizing the app

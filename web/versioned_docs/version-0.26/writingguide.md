@@ -1,3 +1,9 @@
+---
+title: "Wasp docs writing guide: principles and style"
+sidebar_label: Wasp docs writing guide
+description: The Wasp docs writing guide sets principles, page structure, style and grammar rules, review steps and link rules, based on the Vue docs guide.
+---
+
 # Wasp docs writing guide
 
 Our docs are the first touch point for new Wasp users.
