@@ -134,6 +134,7 @@ html.blog-wrapper[data-theme="dark"] {
   --wasp-g3: #444;
   --wasp-g2: #333;
   --wasp-g1: #2a2a2a;
+  --wasp-code-bg: #1e1e1e;
   --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
@@ -695,13 +696,15 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 /* Terminal output (blog/components/Terminal.tsx): a window-like frame that
    follows the site theme, with ANSI colors readable on each background. */
 .terminal {
-  --terminal-bg: #fdfcfa;
-  --terminal-header-bg: #efece6;
-  --terminal-border: #d9d4ca;
-  --terminal-dot: #c9c4b9;
-  --terminal-title: #6b6b6b;
-  --terminal-fg: #1f2328;
-  --terminal-prompt: #6b6b6b;
+  /* Frame colors are site tokens that already switch with the theme, so only
+     the ANSI colors need a dark variant. */
+  --terminal-bg: var(--wasp-code-bg);
+  --terminal-header-bg: var(--wasp-g2);
+  --terminal-border: var(--wasp-g3);
+  --terminal-dot: var(--wasp-g5);
+  --terminal-title: var(--wasp-g5);
+  --terminal-fg: var(--ifm-heading-color);
+  --terminal-prompt: var(--wasp-g5);
   --terminal-red: #cf222e;
   --terminal-green: #116329;
   --terminal-yellow: #9a6700;
@@ -709,7 +712,8 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --terminal-magenta: #8250df;
   --terminal-cyan: #1b7c83;
 
-  border-radius: 10px;
+  /* Square corners, like the site's code blocks. */
+  border-radius: 0;
   overflow: hidden;
   border: 1px solid var(--terminal-border);
   background: var(--terminal-bg);
@@ -717,13 +721,6 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 }
 
 html[data-theme="dark"] .terminal {
-  --terminal-bg: #1e1e1e;
-  --terminal-header-bg: #2a2a2a;
-  --terminal-border: #333;
-  --terminal-dot: #555;
-  --terminal-title: #999;
-  --terminal-fg: #e6edf3;
-  --terminal-prompt: #999;
   --terminal-red: #ff7b72;
   --terminal-green: #3fb950;
   --terminal-yellow: #d29922;
@@ -792,24 +789,6 @@ html[data-theme="dark"] .terminal {
 }
 .terminal__ansi-cyan {
   color: var(--terminal-cyan);
-}
-
-.terminal-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 1rem 0;
-}
-
-.terminal-row .terminal {
-  margin: 0;
-  min-width: 0;
-}
-
-@media (max-width: 700px) {
-  .terminal-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Tabbed code snippets wrapper */
