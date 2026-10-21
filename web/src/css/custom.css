@@ -692,6 +692,126 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   background: #1e1e1e !important;
 }
 
+/* Terminal output (blog/components/Terminal.tsx): a window-like frame that
+   follows the site theme, with ANSI colors readable on each background. */
+.terminal {
+  --terminal-bg: #fdfcfa;
+  --terminal-header-bg: #efece6;
+  --terminal-border: #d9d4ca;
+  --terminal-dot: #c9c4b9;
+  --terminal-title: #6b6b6b;
+  --terminal-fg: #1f2328;
+  --terminal-prompt: #6b6b6b;
+  --terminal-red: #cf222e;
+  --terminal-green: #116329;
+  --terminal-yellow: #9a6700;
+  --terminal-blue: #0969da;
+  --terminal-magenta: #8250df;
+  --terminal-cyan: #1b7c83;
+
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--terminal-border);
+  background: var(--terminal-bg);
+  margin: 1rem 0;
+}
+
+html[data-theme="dark"] .terminal {
+  --terminal-bg: #1e1e1e;
+  --terminal-header-bg: #2a2a2a;
+  --terminal-border: #333;
+  --terminal-dot: #555;
+  --terminal-title: #999;
+  --terminal-fg: #e6edf3;
+  --terminal-prompt: #999;
+  --terminal-red: #ff7b72;
+  --terminal-green: #3fb950;
+  --terminal-yellow: #d29922;
+  --terminal-blue: #58a6ff;
+  --terminal-magenta: #bc8cff;
+  --terminal-cyan: #39c5cf;
+}
+
+.terminal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--terminal-header-bg);
+  border-bottom: 1px solid var(--terminal-border);
+}
+
+.terminal__dots {
+  display: flex;
+  gap: 7px;
+}
+
+.terminal__dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--terminal-dot);
+}
+
+.terminal__title {
+  font-size: 0.82rem;
+  color: var(--terminal-title);
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.markdown .terminal__body {
+  margin: 0;
+  padding: 16px;
+  border-radius: 0;
+  border: none;
+  background: var(--terminal-bg);
+  color: var(--terminal-fg);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.terminal__ansi-prompt {
+  color: var(--terminal-prompt);
+}
+.terminal__ansi-red {
+  color: var(--terminal-red);
+}
+.terminal__ansi-green {
+  color: var(--terminal-green);
+}
+.terminal__ansi-yellow {
+  color: var(--terminal-yellow);
+}
+.terminal__ansi-blue {
+  color: var(--terminal-blue);
+}
+.terminal__ansi-magenta {
+  color: var(--terminal-magenta);
+}
+.terminal__ansi-cyan {
+  color: var(--terminal-cyan);
+}
+
+.terminal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 1rem 0;
+}
+
+.terminal-row .terminal {
+  margin: 0;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .terminal-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Tabbed code snippets wrapper */
 .code-sbs {
   margin: 1rem 0;
