@@ -12108,13 +12108,12 @@ Currently, Wasp only provides helpers for testing your client code with [Vitest]
 Install Vitest and the libraries for testing React components:
 
 ```bash
-npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+npm install -D vitest jsdom @testing-library/react msw
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
 - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
-- [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds DOM matchers like `toBeInTheDocument()`.
 - [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
 
 :::note
@@ -12140,7 +12139,13 @@ export default defineConfig({
 
 With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in `jsdom`, a simulated browser.
 
-If you plan to test React components, also create a setup file that adds the DOM matchers and removes the rendered components after each test:
+If you plan to test React components, install [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom) for DOM matchers like `toBeInTheDocument()`:
+
+```bash
+npm install -D @testing-library/jest-dom
+```
+
+Then create a setup file that adds the DOM matchers and removes the rendered components after each test:
 
 ```ts title="src/test/setup.ts"
 import "@testing-library/jest-dom/vitest";
