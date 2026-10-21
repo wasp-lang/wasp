@@ -6,6 +6,7 @@ For other versions, see the links below.
 ## Full Documentation by Version
 - [latest (currently Next)](https://wasp.sh/llms-full.txt)
 - [Next](https://wasp.sh/llms-full-current.txt)
+- [0.26](https://wasp.sh/llms-full-0.26.txt)
 - [0.25](https://wasp.sh/llms-full-0.25.txt)
 - [0.24](https://wasp.sh/llms-full-0.24.txt)
 - [0.23](https://wasp.sh/llms-full-0.23.txt)
@@ -79,7 +80,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "RecipeApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My Recipes",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -566,6 +567,60 @@ You'll have a chance to change the language on every code snippet - both the sni
 :::
 
 
+## Tutorial / 1. Creating a new project
+
+:::info
+You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](https://wasp.sh/docs/quick-start) guide!
+:::
+
+In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
+
+![How the Todo App will work once it is finished](https://wasp.sh/img/todo-app-tutorial-intro.gif)
+
+If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
+
+You can find the complete code of the app we're about to build [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+
+### Creating a Project
+
+To setup a new Wasp project, run the following command in your terminal:
+
+```sh
+wasp new TodoApp -t minimal
+```
+
+We are using the `minimal` template because we're going to implement the app from scratch, instead of the more full-featured default template.
+
+Enter the newly created directory and start the development server:
+
+```sh
+cd TodoApp
+wasp start
+```
+
+`wasp start` will take a bit of time to start the server the first time you run it in a new project.
+
+You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
+
+![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/wasp-new-screenshot.png)
+
+Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
+
+### A note on supported languages
+
+Wasp supports both JavaScript and TypeScript out of the box, but you are free to choose between or mix JavaScript and TypeScript as you see fit.
+
+We'll provide you with both JavaScript and TypeScript code in this tutorial. Code blocks will have a toggle to switch between vanilla JavaScript and TypeScript.
+
+Try it out:
+
+:::note[Welcome to TypeScript!]
+You are now reading the TypeScript version of the docs. The site will remember your preference as you switch pages.
+
+You'll have a chance to change the language on every code snippet - both the snippets and the text will update accordingly.
+:::
+
+
 ## Tutorial / 2. Project structure
 
 After creating a new Wasp project, your project should look like this:
@@ -622,7 +677,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 export default app({
   name: "TodoApp",
   // Pins the version of Wasp to use.
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "TodoApp", // Used as the browser tab title.
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // Add your specs here so Wasp knows to register them.
@@ -770,7 +825,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "TodoApp",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -1577,7 +1632,7 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -1696,7 +1751,7 @@ import { authSpec } from "./src/auth/auth.wasp";
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -3446,7 +3501,7 @@ import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
   name: "tasksCrudApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "Tasks Crud App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
 
@@ -4344,7 +4399,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5433,7 +5488,7 @@ import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring e-mail authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5456,7 +5511,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5789,7 +5844,7 @@ import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring e-mail authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -5815,7 +5870,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6535,7 +6590,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6597,7 +6652,7 @@ import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6745,7 +6800,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6767,7 +6822,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6903,7 +6958,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -6986,7 +7041,7 @@ import { getConfig, userSignupFields } from "./src/auth/github" with { type: "re
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7083,7 +7138,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7105,7 +7160,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7293,7 +7348,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7363,7 +7418,7 @@ import { getConfig, userSignupFields } from "./src/auth/google" with { type: "re
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7460,7 +7515,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7482,7 +7537,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7623,7 +7678,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7686,7 +7741,7 @@ import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7783,7 +7838,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7805,7 +7860,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -7968,7 +8023,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8054,7 +8109,7 @@ import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8152,7 +8207,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8174,7 +8229,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8304,7 +8359,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8376,7 +8431,7 @@ import { getConfig, userSignupFields } from "./src/auth/discord" with { type: "r
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8488,7 +8543,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8510,7 +8565,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8667,7 +8722,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -8731,7 +8786,7 @@ import { getConfig, userSignupFields } from "./src/auth/microsoft" with { type: 
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -9154,7 +9209,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -9452,7 +9507,7 @@ import {
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -9813,7 +9868,7 @@ import {
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -10092,7 +10147,7 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -10234,7 +10289,7 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   auth: {
     // ...
@@ -12577,7 +12632,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "ToDo App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
@@ -12598,7 +12653,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "BookFace",
   // ...
 })
@@ -12615,7 +12670,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My App",
   head: [ // optional
     "<link rel='icon' href='/favicon.ico' />",
@@ -14723,7 +14778,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: "0.25"
+      WASP_VERSION: "0.26"
 
     steps:
       - uses: actions/checkout@v6
@@ -14765,7 +14820,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: "0.25"
+      WASP_VERSION: "0.26"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
@@ -15212,6 +15267,57 @@ For the server, we are using Node.js and the battle-tested Express.js framework.
 Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
 
 
+## Migration guides / From 0.26 to 0.27
+
+To install the latest Wasp version, open your terminal and run:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+You can install Wasp 0.27 specifically by passing the version to the install script:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.27
+```
+
+### What's new in 0.27?
+
+### How to migrate?
+
+#### 1. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.27.0`.
+
+**Before**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.26.0" },
+  // ...
+});
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.27.0" },
+  // ...
+});
+```
+
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
+
+#### 2. Enjoy your updated Wasp app
+
+That's it!
+
+
 ## Migration guides / From 0.25 to 0.26
 
 To install the latest Wasp version, open your terminal and run:
@@ -15392,7 +15498,7 @@ PORT=3001
 
 #### 5. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
+If you are using a [custom Dockerfile](https://wasp.sh/docs/0.26/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
 **Before**
 
@@ -15434,7 +15540,7 @@ Wasp used `/` for the liveness check before, but it behaved differently per envi
 
 We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it. In production, `GET /` is no longer set by Wasp.
 
-This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
+This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/0.26/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
 
 **Before**
 
@@ -15460,7 +15566,21 @@ api.myapp.com {
 
 If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
 
-#### 8. Enjoy your updated Wasp app
+#### 8. Update deployment CLIs
+
+Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both locally and in CI, if you use them.
+
+#### 9. Replace `wasp info` with `wasp show`
+
+`wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
+
+#### 10. Update selectors for email auth fields
+
+If you are running e2e tests on your app, update selectors from `input[type="email"]` to `input[name="email"]`.
+
+Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
+
+#### 11. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19864,7 +19984,7 @@ jobs:
           node-version: "24.14.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.25 # Change to your Wasp version
+        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
 
       - name: Install Wasp app dependencies
         run: cd ./app && wasp install
@@ -20235,7 +20355,7 @@ jobs:
           node-version: "24.14.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.25 # Change to your Wasp version
+        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
 
       - name: Wasp Install
         run: wasp install
@@ -20966,7 +21086,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.25"
+  WASP_VERSION: "0.26"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -21207,7 +21327,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.25"
+  WASP_VERSION: "0.26"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"

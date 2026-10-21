@@ -1,12 +1,8 @@
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
-import '../auth-styles.css'
 import { config } from '../../../../client/index.js'
-import { clsx } from '../util'
-
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
-import { emailFieldRules, emailInputProps } from '../emailField'
 import {
+  clsx,
   Form,
   FormInput,
   FormItemGroup,
@@ -14,17 +10,18 @@ import {
   FormError,
   FormTextarea,
   SubmitButton,
-} from '../Form'
-import type {
-  AdditionalSignupFields,
-  AdditionalSignupField,
-  AdditionalSignupFieldRenderFn,
-  FormState,
-} from '../../types'
-import * as SocialIcons from '../social/SocialIcons'
-import { SocialButton } from '../social/SocialButton'
+  type AdditionalSignupFields,
+  type AdditionalSignupField,
+  type AdditionalSignupFieldRenderFn,
+  type FormState,
+} from '@wasp.sh/lib-sdk-core/browser'
+
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
+import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
+import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
 import { useNavigate } from 'react-router'
-import { getAuthErrorMessage } from "../authErrorMessage";
+import { getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -33,14 +30,8 @@ const googleSignInUrl = `${config.apiUrl}/auth/google/login`
 const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
-// PRIVATE API
-/**
- * The raw values of the form's inputs, including the ones users add through
- * `additionalFields`.
- */
-export type LoginSignupFormFields = {
-  [key: string]: string;
-};
+import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+
 
 // PRIVATE API
 export const LoginSignupForm = ({

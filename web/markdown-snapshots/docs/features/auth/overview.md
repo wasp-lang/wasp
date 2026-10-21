@@ -12,7 +12,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.25" },
+  wasp: { version: "^0.26" },
   title: "My app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

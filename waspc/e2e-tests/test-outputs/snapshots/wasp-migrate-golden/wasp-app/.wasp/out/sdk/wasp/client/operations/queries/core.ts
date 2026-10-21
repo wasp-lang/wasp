@@ -1,31 +1,18 @@
-import type { Route } from '../../index.js'
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
-import type {
-  GenericBackendOperation,
-  GenericOperationRpc,
-  OperationRpcFor,
-  Query,
-  QueryMetadata,
-} from '../rpc.js'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
+  makeQueryCacheKey,
+  buildAndRegisterQuery,
+  type QueryFor,
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '../internal/resources'
+} from '@wasp.sh/lib-sdk-core/browser'
+import {
+  makeOperationRoute,
+  type GenericBackendOperation,
+  type OperationRpcFor,
+} from '@wasp.sh/lib-sdk-core'
+import { callOperation } from '../internal/index.js'
 
-// PRIVATE API (used in the SDK)
-// todo: find ways to remove this duplication and make the type more precise.
-// Details here: https://github.com/wasp-lang/wasp/issues/2017
-export function makeQueryCacheKey<Input, Output>(
-  query: Query<Input, Output>,
-  payload: Input
-): (string | Input)[] {
-  return payload !== undefined ?
-    [...query.queryCacheKey, payload]
-    : query.queryCacheKey
-}
-
-// PRIVATE API (unsed in SDK)
+// PRIVATE API (used in SDK)
 export function createQuery<BackendQuery extends GenericBackendOperation>(
   relativeQueryPath: string,
   entitiesUsed: string[]
@@ -54,38 +41,9 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
   )
 }
 
-// PRIVATE API (used in SDK)
-export function buildAndRegisterQuery<QF extends GenericOperationRpc>(
-  queryFn: QF,
-  { queryCacheKey, queryRoute, entitiesUsed }:
-    { queryCacheKey: string[], queryRoute: Route, entitiesUsed: string[] }
-): QueryForFunction<QF> {
-  const query = queryFn as QueryForFunction<QF>
-
-  query.queryCacheKey = queryCacheKey
-  query.route = queryRoute
-  addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
-
-  return query
-}
-
-// PRIVATE API (but should maybe be public, users define values of this type)
-/**
- * Constructs the client Query object type from the type of the Query's definition
- * on the backend.
- */
-export type QueryFor<BackendQuery extends GenericBackendOperation> =
-  QueryForFunction<QueryFunctionFor<BackendQuery>>
-
 /**
  * Constructs the client Query function type from the type of the Query's
  * definition on the backend.
  */
 type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
   OperationRpcFor<BackendQuery>
-
-/**
- * Returns the appropriate client Query object type for the provided client
- * Query function type.
- */
-type QueryForFunction<QF extends GenericOperationRpc> = QF & QueryMetadata

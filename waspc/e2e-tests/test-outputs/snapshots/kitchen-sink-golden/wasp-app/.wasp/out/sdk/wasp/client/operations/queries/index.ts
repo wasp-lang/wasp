@@ -1,4 +1,5 @@
-import { type QueryFor, createQuery } from "./core";
+import type { QueryFor } from '@wasp.sh/lib-sdk-core/browser'
+import { createQuery } from "./core";
 import type {
   RegisteredGetTasks,
   RegisteredGetNumTasks,
@@ -92,6 +93,3 @@ export const getAnyToNumberSpecified: QueryFor<RegisteredGetAnyToNumberSpecified
   "operations/get-any-to-number-specified",
   [],
 )
-
-// PRIVATE API (used in SDK)
-export { buildAndRegisterQuery } from "./core"
