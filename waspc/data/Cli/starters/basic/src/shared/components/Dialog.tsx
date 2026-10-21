@@ -54,7 +54,7 @@ export function Dialog({
     <dialog
       ref={dialogRef}
       className={twJoin(
-        "top-[20vh] mx-auto my-0 flex max-h-[55vh]",
+        "max-h top-[20vh] my-0 flex max-h-[55vh]",
         "bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-xs",
       )}
       onClose={onClose}

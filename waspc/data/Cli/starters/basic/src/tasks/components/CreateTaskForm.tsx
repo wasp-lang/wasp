@@ -57,9 +57,7 @@ export function CreateTaskForm() {
       className="flex w-full flex-col gap-6"
       id="create-task"
     >
-      <h2 className="font-mono text-sm font-bold tracking-wide uppercase">
-        Create a new task
-      </h2>
+      <h2 className="text-xl font-semibold">Create a new task</h2>
       <Controller
         name="description"
         control={control}

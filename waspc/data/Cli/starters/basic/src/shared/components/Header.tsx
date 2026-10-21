@@ -7,20 +7,18 @@ export function Header() {
   const { data: user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex justify-center border-b border-neutral-900 bg-white">
-      <div className="flex w-full max-w-(--breakpoint-lg) items-center justify-between px-6 py-4 lg:px-12">
+    <header className="sticky top-0 z-10 flex justify-center border-b border-neutral-200 bg-white shadow-sm">
+      <div className="flex w-full max-w-(--breakpoint-lg) items-center justify-between p-4 px-12">
         <Link to="/" className="flex items-center gap-2">
           <img src={Logo} alt="Wasp logo" className="h-10 w-10" />
-          <h1 className="font-mono text-xl font-extrabold tracking-tight">
-            ToDo App
-          </h1>
+          <h1 className="text-2xl font-semibold">ToDo App</h1>
         </Link>
         <nav>
-          <ul className="flex items-center gap-3">
+          <ul className="flex items-center gap-4 font-semibold">
             {user ? (
               <>
                 <li>
-                  <ButtonLink to="/tasks" variant="secondary">
+                  <ButtonLink to="/tasks" variant="ghost">
                     My tasks
                   </ButtonLink>
                 </li>
@@ -34,7 +32,7 @@ export function Header() {
                   <ButtonLink to="/signup">Sign up</ButtonLink>
                 </li>
                 <li>
-                  <ButtonLink to="/login" variant="secondary">
+                  <ButtonLink to="/login" variant="ghost">
                     Login
                   </ButtonLink>
                 </li>
