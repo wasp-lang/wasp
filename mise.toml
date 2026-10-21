@@ -18,11 +18,12 @@ ghcup = "0.2.6.2"
 # `type haskell-language-server-$(ghc --numeric-version)`
 "mise-ghcup:hls" = "recommended"
 
-# Use the same version as the one used inside the HLS binary above. You can run
-# the following command to find the plugin versions (incl. HLint) in the current
-# GHC+HLS combination:
+# Use the same versions of HLint and Stan as the ones used inside the HLS binary
+# above. You can run the following command to find the plugin versions in the
+# current GHC+HLS combination:
 # `haskell-language-server-$(ghc --numeric-version) --list-plugins`
 "mise-cabal:hlint" = "3.8"
+"mise-cabal:stan" = "0.2.1.0"
 
 # This should be equal to Wasp's lowest supported Node version.
 # Keep in sync with:
@@ -46,8 +47,6 @@ jq = "1.8.2"
 # https://github.com/jdx/mise/discussions/10828
 ormolu.version = "0.9.0.0"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
-
-"mise-cabal:stan" = "0.2.1.0"
 
 [plugins]
 "vfox-backend:mise-ghcup" = "packslip:wasp-lang/mise-ghcup#3.0.0"
