@@ -1,6 +1,6 @@
 {
   "name": "wasp-prisma",
-  "version": "0.26.1",
+  "version": "0.27.0",
   "type": "module",
   "author": "Wasp Team",
   "license": "MIT",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "json5": "^2.2.3",
-    "prisma": "5.19.1",
+    "prisma": "6.19.3",
     "strip-ansi": "^7.1.2",
     "tmp-promise": "3.0.3"
   },

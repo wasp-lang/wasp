@@ -34,7 +34,7 @@
                 },
                 {
                     "name": "prisma",
-                    "version": "5.19.1"
+                    "version": "6.19.3"
                 },
                 {
                     "name": "typescript",
@@ -56,11 +56,11 @@
         "dependencies": [
             {
                 "name": "@prisma/client",
-                "version": "5.19.1"
+                "version": "6.19.3"
             },
             {
                 "name": "prisma",
-                "version": "5.19.1"
+                "version": "6.19.3"
             },
             {
                 "name": "express",
@@ -120,19 +120,19 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-test-utils",
-                "version": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
+                "version": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
             }
         ],
         "devDependencies": [
@@ -167,19 +167,19 @@
         "dependencies": [
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+                "version": "file:../libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-test-utils",
-                "version": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
+                "version": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
             },
             {
                 "name": "cookie-parser",
