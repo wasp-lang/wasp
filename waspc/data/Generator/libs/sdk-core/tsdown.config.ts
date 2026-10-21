@@ -7,8 +7,6 @@ export default defineConfig({
     node: "./src/node/index.ts",
     // Keep Vite's runtime dependency out of the general Node.js entry.
     vite: "./src/node/vite/index.ts",
-    // Keep the testing libraries (Testing Library, MSW, Vitest) out of the general browser entry.
-    test: "./src/browser/test/index.ts",
   },
   platform: "neutral",
   unbundle: true,

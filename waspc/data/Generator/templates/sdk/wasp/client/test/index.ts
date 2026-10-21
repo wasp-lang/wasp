@@ -1,15 +1,9 @@
-import {
-  createMockServer,
-  type MockServer,
-} from "@wasp.sh/lib-sdk-core/browser/test";
+import { createMockServer, type MockServer } from "@wasp.sh/lib-vitest-utils";
 import { serialize } from "../../core/serialization/index.js";
 import { config } from "../config.js";
 
 // PUBLIC API
-export {
-  renderInContext,
-  WaspTestWrapper,
-} from "@wasp.sh/lib-sdk-core/browser/test";
+export { renderInContext, WaspTestWrapper } from "@wasp.sh/lib-vitest-utils";
 
 // PUBLIC API
 /**
