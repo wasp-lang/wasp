@@ -1,3 +1,9 @@
+---
+title: "Discord auth in Wasp: login setup and user data"
+sidebar_label: Discord
+description: "Add Discord login to a Wasp app: create a Discord application with an OAuth2 redirect, set the client ID and secret, and read the user data Discord sends."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';

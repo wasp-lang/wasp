@@ -1,3 +1,9 @@
+---
+title: "Keycloak auth in Wasp: login setup and user data"
+sidebar_label: Keycloak
+description: "Add Keycloak login to a Wasp app: create a Keycloak client with client authentication, set the client ID, secret and realm URL, then add the login page."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';

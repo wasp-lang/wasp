@@ -1,3 +1,9 @@
+---
+title: "Self-hosted: deploy Wasp by guide or by hand"
+sidebar_label: Self-hosted
+description: Deploy a Wasp app to your own server with the CapRover, Coolify or Docker guides, or with manual steps for the build, database, reverse proxy and domain.
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { CardLink } from '@site/src/components/CardLink'
 
