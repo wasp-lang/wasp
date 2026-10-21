@@ -150,20 +150,21 @@ Check the [migration guide](/docs/migration-guide) for the full list of changes 
 
 ### Bonus feature
 
-Wasp 0.26 allows you to specify the exact ports you want Wasp to use for your client and your server.
-These flags work for both `wasp start` and `wasp build start`:
+Wasp 0.26 allows you to specify the exact ports you want Wasp to use for your client, your server, and your dev database.
+The client and server flags work for both `wasp start` and `wasp build start`:
 
 ```bash
 wasp start --client-port 4000 --server-port 5000
 wasp build start --client-port 4000 --server-port 5000
+wasp start db --db-port 6000
 ```
 
 If any of those ports is taken, Wasp will fail instead of looking for alternatives.
 The reasoning is that you care about your process running on those specific ports, so it's better to explicitly fail than silently start listening elsewhere.
 It's therefore up to you to either free those ports up, specify different ports, or remove the port arguments.
 
-There's no such flag for the database. `wasp start db` always picks its port automatically.
-That will change soon, though. Stay tuned!
+The `--db-port` flag was contributed by [Nihal Ahamed](https://github.com/Nihal-Ahamed-MS).
+Thanks for all the patience during the design changes and reviews, Nihal!
 
 ## Try it out
 
