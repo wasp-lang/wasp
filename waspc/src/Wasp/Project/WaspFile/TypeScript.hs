@@ -33,7 +33,7 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstalledPackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -120,7 +120,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
           ]
           compileOptions.waspProjectDir
           "node"
-          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+          [ fromRelFile $ getInstalledPackageScriptInProject WaspSpecPackage,
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),

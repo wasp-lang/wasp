@@ -10,7 +10,7 @@ module Wasp.NodePackageFFI
     getPackageJsonSpecifierForPackage,
     tryGettingInstalledPackageVersion,
     ensurePackageIsAtInstallationPathInProject,
-    getInstallablePackageScriptInProject,
+    getInstalledPackageScriptInProject,
   )
 where
 
@@ -27,7 +27,6 @@ import StrongPath
     Path',
     Rel,
     castDir,
-    castFile,
     castRel,
     fromAbsDir,
     fromAbsFile,
@@ -146,23 +145,27 @@ tryGettingInstalledPackageVersion projectDir package = runExceptT $ do
     Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
   where
     packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
-    packageJsonPath =
-      castFile $
-        projectDir
-          </> nodeModulesDirInWaspProjectDir
-          </> fromJust (parseRelDir $ getInstallablePackageName package)
-          </> [relfile|package.json|]
+    packageJsonPath = projectDir </> getInstalledPackageDirInProject package </> [relfile|package.json|]
 
 data InstalledPackageJsonFile
 
 instance PJ.PackageJsonFile InstalledPackageJsonFile
 
--- | Returns the path to the main script of an installable package, relative
+-- | Returns the path to the main script of an installed package, relative
 -- to the project root. This can be passed to @node@ directly, avoiding the
 -- need for @npx@ and its requirement that bin files are executable.
-getInstallablePackageScriptInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) File'
-getInstallablePackageScriptInProject package =
-  castFile $ getPackageInstallationPathInProject package </> installablePackageScript package
+--
+-- We run the script through @node_modules@ instead of from the copy in
+-- @.wasp/@ because only the installed package is guaranteed to find its own
+-- dependencies. Node follows the symlink to wherever the package manager put
+-- the package, so its imports resolve from there.
+getInstalledPackageScriptInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) File'
+getInstalledPackageScriptInProject package =
+  getInstalledPackageDirInProject package </> installablePackageScript package
+
+getInstalledPackageDirInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
+getInstalledPackageDirInProject package =
+  nodeModulesDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
 
 installablePackageScript :: InstallablePackage -> Path' (Rel d) File'
 installablePackageScript = \case
