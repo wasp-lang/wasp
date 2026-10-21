@@ -95,6 +95,10 @@
                 "version": "^2.2.1"
             },
             {
+                "name": "@vitejs/plugin-react",
+                "version": "^6.0.3"
+            },
+            {
                 "name": "@vitest/ui",
                 "version": "^4.1.9"
             },
@@ -141,16 +145,16 @@
                 "version": "6.0.3"
             },
             {
-                "name": "@vitejs/plugin-react",
-                "version": "^6.0.3"
-            },
-            {
                 "name": "@types/express",
                 "version": "^5.0.0"
             },
             {
                 "name": "@types/express-serve-static-core",
                 "version": "^5.0.0"
+            },
+            {
+                "name": "@types/node",
+                "version": "^24.0.0"
             },
             {
                 "name": "@types/react",
@@ -161,7 +165,16 @@
                 "version": "^19.2.3"
             }
         ],
-        "peerDependencies": []
+        "peerDependencies": [
+            {
+                "name": "vite",
+                "version": "^8.1.0"
+            },
+            {
+                "name": "vitest",
+                "version": "^4.1.9"
+            }
+        ]
     },
     "_waspServerNpmDeps": {
         "dependencies": [
