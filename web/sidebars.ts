@@ -26,6 +26,7 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       link: { type: "doc", id: "tutorial/create" },
       items: [
+        "tutorial/create",
         "tutorial/project-structure",
         "tutorial/pages",
         "tutorial/entities",
