@@ -28,10 +28,10 @@ import { Terminal } from './components/Terminal';
 />
 
 Wasp 0.26 improves support for agent orchestrators and multiple Wasp project instances in Git worktrees:
-- It's no longer possible to run conflicting Wasp commands at the same time.
-For example, executing `wasp build` while `wasp start` is already running won't
-corrupt the generated code.
-- Wasp no longer runs into "This port is already taken" errors when spinning up its dev servers.
+- It's no longer possible to accidentally run incompatible Wasp commands at the
+same time. For example, executing `wasp build` while `wasp start` is already
+running won't corrupt the generated code.
+- Wasp no longer runs into _"This port is already taken"_ errors when spinning up its dev servers.
 Both `wasp start` and `wasp start db` now dynamically look for free ports.
 
 {/* truncate */}
@@ -45,22 +45,30 @@ If you know all about this, feel free to skip right to the [next section](#using
 - An **agent orchestrator** is a tool for coordinating agents. It helps you assign tasks to agents and keep track of their work, without juggling thirteen terminal windows and losing your mind. Examples of popular agent orchestrators are [Herdr](https://github.com/herdrdev/herdr), [Workmux](https://github.com/raine/workmux), and [Conductor](https://www.conductor.build/).
 - **[Git worktrees](https://git-scm.com/docs/git-worktree)** are a Git feature that lets you check out multiple branches of a Git project at the same time, each one in its own isolated directory.
 
-Developers use agent orchestrators to independently work on several features at
-the same time:
+Developers use agent orchestrators to work on several features simultaneoulsy:
 1. The orchestrator gives each agent an isolated Git worktree. The agent works inside it and does whatever it needs.
-2. The orchestrator lets you know every time an agent needs your input.
+2. While the agents do their thing, the orchestrator lets you know each time one of them needs your input.
 3. When a feature is done, you review the diff and use the orchestrator to merge it into `main`, deleting the worktree.
 
 ## What's new in Wasp?
 
 Wasp used to have poor support for orchestrator workflows. You technicaly _could_ set them up, but it was a whole ordeal.
-We won't explain the history behind it - that's a story for a different blog post.
 
-All you need to know is:
+The technical dtails are interesting but a story for another time. All you need to know now is:
 - Different Wasp commands in the same project no longer overwrite each other's outputs.
 - Wasp commands across different projects no longer compete for the same TCP ports.
 
+## How to use this?
 
+There's nothing special you need to do!
+Just keep running Wasp commands as you've always done.
+
+### Wasp commands no longer fight over the file system 
+
+Before Wasp 0.26, running multiple Wasp commands in the same project could cause them to write over each other's outputs.
+For example, executing `wasp build` would break an already running instance of `wasp start`.
+
+Wasp 0.26 prevents such conflicts:
 
 <ImgWithCaption
     alt="Before Wasp 0.26, wasp start and wasp build both read and wrote .wasp/out and corrupted its contents. After Wasp 0.26, Wasp blocks the second command."
@@ -70,22 +78,8 @@ All you need to know is:
     caption="Conflicting commands in the same project: Wasp now blocks the second one instead of letting it corrupt the output."
 />
 
-<ImgWithCaption
-    alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the second worktree gets 5433, 3002, and 3003."
-    source="img/wasp-agent-friendly/commands-in-different-projects.svg"
-    sourceDark="img/wasp-agent-friendly/commands-in-different-projects-dark.svg"
-    width="100%"
-    caption="Two worktrees running at the same time: each process now takes the next free port."
-/>
 
-## How to use this?
-
-There's nothing special you need to do!
-Just keep running Wasp commands as you've always done.
-
-### File system conflicts
-
-When two different commands try to write the files, Wasp will catch it and print a clear error message.
+If someone runs two different commands that write the same files, Wasp catches it and prints a clear error message.
 Both you and your agents will know what's the best thing to do:
 
 <Terminal
@@ -112,8 +106,15 @@ Both you and your agents will know what's the best thing to do:
   ]}
 />
 
+### Wasp projects no longer fight over ports
 
-Wasp also automatically takes care of all the port machinery under the hood:
+Before Wasp 0.26, it was problematic to run `wasp start` and `wasp start db` in multiple worktrees:
+all clients would fight over port 3000, servers over 3001, and databases over 5432. This lead to many _"Port already taken"_ errors.
+
+Wasp 0.26 solves this problem with dynamic port allocation.
+
+If you have a bespoke system for handling port conflicts, it's finally time to retire it.
+Just run the commands you want to run, and Wasp takes care of the rest:
 
 ```bash
 # Starts the client and the server on the first two free ports it finds.
@@ -125,16 +126,25 @@ wasp start
 wasp start db
 ```
 
+<ImgWithCaption
+    alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the second worktree gets 5433, 3002, and 3003."
+    source="img/wasp-agent-friendly/commands-in-different-projects.svg"
+    sourceDark="img/wasp-agent-friendly/commands-in-different-projects-dark.svg"
+    width="100%"
+    caption="Two worktrees running at the same time: each process now takes the next free port."
+/>
+
+
 That said, there are two things to keep in mind.
 
 First, your Wasp processes will no longer always run on the same ports (i.e., `3000` for the client, `3001` for the server, and `5432` for the dev database).
 They'll run on the first available ports starting from those, so pay attention to where Wasp tells you they're listening.
 
-Second, working in many worktrees means having many databases (remember, each worktree gets its own).
+Second, since each worktree gets its own database, working in many worktrees means having many databases.
 Databases are not terribly useful without data, so we recommend you [seed them](/docs/data-model/databases#seeding-the-database).
 
 :::caution Breaking change
-Since Wasp now manages the ports and URLs in development, setting them yourself (e.g., `server.port` in `vite.config.ts` or `PORT` in `.env.server`) is an error.
+Because Wasp now manages the ports and URLs in development, setting them yourself (e.g., `server.port` in `vite.config.ts` or `PORT` in `.env.server`) is an error.
 Check the [migration guide](/docs/migration-guide) for the full list of changes and how to update your project.
 :::
 
