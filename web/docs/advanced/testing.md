@@ -15,7 +15,9 @@ npm install -D vitest jsdom @wasp.sh/test-utils
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
-- [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries it builds on along with it: [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/), which renders components and finds elements in them, and [`msw`](https://mswjs.io/), which mocks HTTP requests.
+- [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries the helpers build on along with it:
+  - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
+  - [`msw`](https://mswjs.io/): mocks HTTP requests.
 
 :::note
 When Wasp compiles your app, it type-checks the test files in your `src` folder like the rest of your code. Install the testing packages before you add tests, or compiling fails because it can't find their imports.
