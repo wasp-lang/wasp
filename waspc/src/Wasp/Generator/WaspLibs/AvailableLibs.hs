@@ -12,6 +12,6 @@ waspLibs =
     -- `package.json` files of the libs in the ./data/Generator/libs directory.
     WaspLib.makeWaspLib "@wasp.sh/lib-auth" [reldir|auth|],
     WaspLib.makeWaspLib "@wasp.sh/lib-sdk-core" [reldir|sdk-core|],
-    WaspLib.makeWaspLib "@wasp.sh/lib-vite-ssr" [reldir|vite-ssr|],
-    WaspLib.makeWaspLib "@wasp.sh/lib-vitest-utils" [reldir|vitest-utils|]
+    WaspLib.makeWaspLib "@wasp.sh/lib-test-utils" [reldir|test-utils|],
+    WaspLib.makeWaspLib "@wasp.sh/lib-vite-ssr" [reldir|vite-ssr|]
   ]

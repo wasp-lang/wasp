@@ -1,5 +1,5 @@
 {
-  "name": "@wasp.sh/lib-vitest-utils",
+  "name": "@wasp.sh/lib-test-utils",
   "version": "0.26.1",
   "type": "module",
   "license": "MIT",
