@@ -5,6 +5,7 @@ import {
   trackDeclaredClick,
   trackDeclaredCopy,
   type GitHubTarget,
+  type TrackOptions,
 } from "../lib/analytics";
 
 if (ExecutionEnvironment.canUseDOM) {
@@ -27,55 +28,70 @@ function handleClick(event: MouseEvent): void {
 }
 
 function handleCopy(): void {
-  // The Docusaurus copy fallback copies from a hidden textarea; the copy
-  // button already counted it.
-  const activeElement = document.activeElement;
-  if (
-    activeElement instanceof HTMLTextAreaElement ||
-    activeElement instanceof HTMLInputElement
-  ) {
+  if (isCopyFromFormField()) {
     return;
   }
 
   const selection = document.getSelection();
-  const anchorNode = selection?.anchorNode;
-  const anchorElement =
-    anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
-  if (!selection?.toString().trim() || !anchorElement) {
+  const selectionStart = getSelectionStartElement(selection);
+  if (!selection?.toString().trim() || !selectionStart) {
     return;
   }
 
-  trackDeclaredCopy(anchorElement, "selection");
+  trackDeclaredCopy(selectionStart, "selection");
 }
 
 // These links are in hundreds of Markdown files, so the URL decides the event.
 function trackLinkClick(link: HTMLAnchorElement): void {
-  let url: URL;
-  try {
-    url = new URL(link.href, window.location.href);
-  } catch {
+  const url = parseLinkUrl(link);
+  if (!url) {
     return;
   }
 
-  const leavesPage =
-    url.origin !== window.location.origin && link.target !== "_blank";
-
+  const options: TrackOptions = { leavesPage: leavesThisPage(url, link) };
   if (isDiscordUrl(url)) {
-    track(link, "Discord: Click", {}, { leavesPage });
+    track(link, "Discord: Click", {}, options);
   } else if (isWaspGitHubUrl(url)) {
-    track(
-      link,
-      "GitHub: Click",
-      { target: getGitHubTarget(url) },
-      { leavesPage },
-    );
+    track(link, "GitHub: Click", { target: getGitHubTarget(url) }, options);
   } else if (isOpenSaasUrl(url)) {
-    track(link, "Open SaaS: Click", {}, { leavesPage });
+    track(link, "Open SaaS: Click", {}, options);
   }
 }
 
+// The Docusaurus copy fallback copies from a hidden textarea; the copy button
+// already counted it.
+function isCopyFromFormField(): boolean {
+  const activeElement = document.activeElement;
+  return (
+    activeElement instanceof HTMLTextAreaElement ||
+    activeElement instanceof HTMLInputElement
+  );
+}
+
+// A selection often begins in a text node, so the element is its parent.
+function getSelectionStartElement(selection: Selection | null): Element | null {
+  const anchorNode = selection?.anchorNode;
+  return anchorNode instanceof Element
+    ? anchorNode
+    : (anchorNode?.parentElement ?? null);
+}
+
+function parseLinkUrl(link: HTMLAnchorElement): URL | null {
+  try {
+    return new URL(link.href, window.location.href);
+  } catch {
+    return null;
+  }
+}
+
+// A link to another site in the same tab unloads the page, so its event must go
+// out with `sendBeacon`.
+function leavesThisPage(url: URL, link: HTMLAnchorElement): boolean {
+  return url.origin !== window.location.origin && link.target !== "_blank";
+}
+
 function isDiscordUrl(url: URL): boolean {
-  const host = url.hostname.replace(/^www\./, "");
+  const host = hostWithoutWww(url);
   return (
     host === "discord.gg" ||
     (host === "discord.com" && url.pathname.startsWith("/invite/")) ||
@@ -85,20 +101,20 @@ function isDiscordUrl(url: URL): boolean {
 }
 
 function isWaspGitHubUrl(url: URL): boolean {
-  const host = url.hostname.replace(/^www\./, "");
   return (
-    host === "github.com" &&
+    hostWithoutWww(url) === "github.com" &&
     url.pathname.toLowerCase().startsWith("/wasp-lang/")
   );
 }
 
 function isOpenSaasUrl(url: URL): boolean {
-  const host = url.hostname.replace(/^www\./, "");
+  const host = hostWithoutWww(url);
   return host === "opensaas.sh" || host === "docs.opensaas.sh";
 }
 
 function getGitHubTarget(url: URL): GitHubTarget {
-  const [, , repo, section] = url.pathname.toLowerCase().split("/");
+  const path = url.pathname.toLowerCase();
+  const [, , repo, section] = path.split("/");
   if (repo !== "wasp") {
     return "other_repo";
   }
@@ -108,8 +124,12 @@ function getGitHubTarget(url: URL): GitHubTarget {
   if (section === "issues") {
     return "issues";
   }
-  if (url.pathname.toLowerCase().includes("/examples")) {
+  if (path.includes("/examples")) {
     return "examples";
   }
   return "repo";
+}
+
+function hostWithoutWww(url: URL): string {
+  return url.hostname.replace(/^www\./, "");
 }

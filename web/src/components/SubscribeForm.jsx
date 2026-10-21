@@ -119,10 +119,10 @@ function getErrorStatus(httpStatus) {
   if (httpStatus === 429) {
     return "429";
   }
-  if (httpStatus >= 500) {
-    return "500";
+  if (httpStatus >= 500 && httpStatus < 600) {
+    return "5xx";
   }
-  return "400";
+  return "other";
 }
 
 export default SubscribeForm;

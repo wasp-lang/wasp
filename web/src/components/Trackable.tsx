@@ -8,5 +8,9 @@ export default function Trackable({
   children,
   ...declared
 }: DeclaredEvent & { children: ReactNode }): ReactNode {
-  return <div {...trackEventAttributes(declared)}>{children}</div>;
+  return (
+    <div {...trackEventAttributes(declared)} className="contents">
+      {children}
+    </div>
+  );
 }
