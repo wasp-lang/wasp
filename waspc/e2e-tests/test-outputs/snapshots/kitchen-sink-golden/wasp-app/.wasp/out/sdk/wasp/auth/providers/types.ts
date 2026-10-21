@@ -1,8 +1,8 @@
-import { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
-export { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
+import { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-auth/node'
+export { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-auth/node'
 
 import type { Prisma } from '@prisma/client'
-import type { Exact, Expand, ProviderName } from '@wasp.sh/lib-sdk-core'
+import type { Exact, Expand } from '@wasp.sh/lib-sdk-core'
 import type { FromRegister } from '../../types/register'
 
 // PUBLIC API

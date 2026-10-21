@@ -1,13 +1,6 @@
+import { createAuthHooks } from '@wasp.sh/lib-auth/node'
 import { prisma } from 'wasp/server'
-import type {
-  OnAfterSignupHook,
-  OnAfterEmailVerifiedHook,
-  OnBeforeOAuthRedirectHook,
-  OnBeforeSignupHook,
-  OnBeforeLoginHook,
-  OnAfterLoginHook,
-  InternalAuthHookParams,
-} from 'wasp/server/auth'
+import type { AuthHookTypes } from 'wasp/server/auth'
 import { onBeforeSignup as onBeforeSignupHook_ext } from "../../../../../src/features/auth/hooks"
 import { onAfterSignup as onAfterSignupHook_ext } from "../../../../../src/features/auth/hooks"
 import { onAfterEmailVerified as onAfterEmailVerifiedHook_ext } from "../../../../../src/features/auth/hooks"
@@ -17,56 +10,25 @@ import { onAfterLogin as onAfterLoginHook_ext } from "../../../../../src/feature
 /*
   These are "internal hook functions" based on the user defined hook functions.
 
-  In the server code (e.g. email signup) we import these functions and call them.
+  In the auth flows (e.g. email signup) we call these functions.
 
-  We want to pass extra params to the user defined hook functions, but we don't want to
-  pass them when we call them in the server code.
+  They pass extra params (e.g. `prisma`) to the user defined hook functions, and
+  are no-ops for the hooks the user didn't define.
 */
-
-export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = (params) =>
-  onBeforeSignupHook_ext({
-    prisma,
-    ...params,
-  })
-
-export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (params) =>
-  onAfterSignupHook_ext({
-    prisma,
-    ...params,
-  })
-
-export const onAfterEmailVerifiedHook: InternalFunctionForHook<OnAfterEmailVerifiedHook> = (params) =>
-  onAfterEmailVerifiedHook_ext({
-    prisma,
-    ...params,
-  })
-
-/**
- * This is an identity function since the user didn't define the onBeforeOAuthRedirect hook.
- */
-export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = async (params) => params
-
-
-export const onBeforeLoginHook: InternalFunctionForHook<OnBeforeLoginHook> = (params) =>
-  onBeforeLoginHook_ext({
-    prisma,
-    ...params,
-  })
-
-export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = (params) =>
-  onAfterLoginHook_ext({
-    prisma,
-    ...params,
-  })
-
-/*
-  We pass extra params to the user defined hook functions, but we don't want to
-  pass the extra params (e.g. 'prisma') when we call the hooks in the server code.
-  So, we need to remove the extra params from the params object which is used to define the
-  internal hook functions.
-*/
-type InternalFunctionForHook<Fn extends (args: never) => unknown | Promise<unknown>> = Fn extends (
-  params: infer P,
-) => infer R
-  ? (args: Omit<P, keyof InternalAuthHookParams>) => R
-  : never
+export const {
+  onBeforeSignupHook,
+  onAfterSignupHook,
+  onAfterEmailVerifiedHook,
+  onBeforeOAuthRedirectHook,
+  onBeforeLoginHook,
+  onAfterLoginHook,
+} = createAuthHooks<AuthHookTypes>({
+  prisma,
+  hooks: {
+    onBeforeSignup: onBeforeSignupHook_ext,
+    onAfterSignup: onAfterSignupHook_ext,
+    onAfterEmailVerified: onAfterEmailVerifiedHook_ext,
+    onBeforeLogin: onBeforeLoginHook_ext,
+    onAfterLogin: onAfterLoginHook_ext,
+  },
+})

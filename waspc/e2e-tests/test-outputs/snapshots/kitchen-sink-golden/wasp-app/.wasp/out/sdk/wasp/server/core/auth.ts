@@ -1,6 +1,5 @@
-import { getSessionAndUserFromBearerToken } from '../auth/session.js'
-import { createInvalidCredentialsError } from '@wasp.sh/lib-sdk-core/node'
-import { defineHandler } from '../utils.js'
+import { createAuthMiddleware } from "@wasp.sh/lib-auth/node";
+import { sessions } from "../auth/session.js";
 
 /**
  * Auth middleware
@@ -14,27 +13,6 @@ import { defineHandler } from '../utils.js'
  *   - `req.sessionId` is the ID of the session that authenticated the request.
  * - If the request is not authenticated, it throws an error.
  */
-const auth = defineHandler(async (req, _res, next) => {
-  const authHeader = req.get('Authorization')
-  // NOTE(matija): for now we let tokenless requests through and make it operation's
-  // responsibility to verify whether the request is authenticated or not. In the future
-  // we will develop our own system at Wasp-level for that.
-  if (!authHeader) {
-    req.sessionId = null
-    req.user = null
-    return next()
-  }
+const auth = createAuthMiddleware(sessions);
 
-  const sessionAndUser = await getSessionAndUserFromBearerToken(req)
-
-  if (sessionAndUser === null) {
-    throw createInvalidCredentialsError()
-  }
-
-  req.sessionId = sessionAndUser.session.id
-  req.user = sessionAndUser.user
-
-  next()
-})
-
-export default auth
+export default auth;

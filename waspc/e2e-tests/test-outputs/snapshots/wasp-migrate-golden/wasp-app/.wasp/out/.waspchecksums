@@ -25,14 +25,14 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
         ],
-        "189286db2553b34dc1273020fc9d088acc48fc4b5bd299ff13762ddf07b44508"
+        "495918ce8193d5193b824d52ec786f1a3a62fe0f0f5d285808e198c891306f12"
     ],
     [
         [
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
         ],
-        "bb3626b8d18673a3b767f64dc4b231348064ce61e4c1cb4e6a63ea3018293829"
+        "e75ffaf9badec8c1c005f534a87556d28adda0f172d11cd6043373e3bc1b2897"
     ],
     [
         [
@@ -221,7 +221,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "7d2d5f57a52cf8ed1496ab4940b6498f2db1d0816a25099f7c509cfe66611f80"
+        "70b5d0617926a70629f4044bf07cc0b75824c5238997fd6f927581782801130d"
     ],
     [
         [
@@ -298,7 +298,7 @@
             "file",
             "sdk/wasp/scripts/copy-assets.js"
         ],
-        "0b7e3d7a0238faae3d97c43c50dfcbcfb088b769632046048ff78f8970e1d55b"
+        "0c582a87a0a80708de9b18985346546fe7d004fb2535a3f62e6b80f09eff0e04"
     ],
     [
         [

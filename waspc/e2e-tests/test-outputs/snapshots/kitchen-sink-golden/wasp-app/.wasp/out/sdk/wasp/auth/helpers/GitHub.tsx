@@ -1,7 +1,7 @@
 
 import { config } from '../../client/index.js'
-import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
-import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
+import { SocialButton } from '@wasp.sh/lib-auth/browser'
+import * as SocialIcons from '@wasp.sh/lib-auth/browser'
 
 // PUBLIC API
 export const signInUrl: string = `${config.apiUrl}/auth/github/login`

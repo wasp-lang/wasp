@@ -1,24 +1,29 @@
-import type { Request as ExpressRequest } from 'express'
-import type { ProviderId, CreateUserResult, FindAuthWithUserResult } from './utils.js'
-import { prisma } from '../index.js'
-import type { Expand } from '@wasp.sh/lib-sdk-core'
+import type * as AuthCore from "@wasp.sh/lib-auth/node";
+import type { AppAuthEntityTypes } from "../../auth/user.js";
+import type { prisma } from "../index.js";
+
+// PRIVATE API (used in the SDK and the server)
+/**
+ * The app's types that the auth lib's hook types are instantiated with.
+ */
+export type AuthHookTypes = {
+  prisma: typeof prisma;
+  entities: AppAuthEntityTypes;
+  oauthData: OAuthData;
+};
 
 // PUBLIC API
-export type OnBeforeSignupHook = (
-  params: Expand<OnBeforeSignupHookParams>,
-) => void | Promise<void>
+export type OnBeforeSignupHook = AuthCore.OnBeforeSignupHook<AuthHookTypes>;
 
 // PUBLIC API
-export type OnAfterSignupHook = (
-  params: Expand<OnAfterSignupHookParams>,
-) => void | Promise<void>
+export type OnAfterSignupHook = AuthCore.OnAfterSignupHook<AuthHookTypes>;
 
 // PUBLIC API
 /**
  * Use this type for typing your `onAfterEmailVerified` hook.
- * 
+ *
  * Wasp calls this hook exactly once, after a user successfully verifies their email during the email verification flow.
- * 
+ *
  * @example
  * ```ts
  * export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
@@ -32,149 +37,32 @@ export type OnAfterSignupHook = (
  * }
  * ```
  */
-export type OnAfterEmailVerifiedHook = (
-  params: Expand<OnAfterEmailVerifiedHookParams>,
-) => void | Promise<void>
+export type OnAfterEmailVerifiedHook =
+  AuthCore.OnAfterEmailVerifiedHook<AuthHookTypes>;
 
 // PUBLIC API
 /**
  * @returns Object with a URL that the OAuth flow should redirect to.
  */
-export type OnBeforeOAuthRedirectHook = (
-  params: Expand<OnBeforeOAuthRedirectHookParams>,
-) => { url: URL } | Promise<{ url: URL }>
+export type OnBeforeOAuthRedirectHook =
+  AuthCore.OnBeforeOAuthRedirectHook<AuthHookTypes>;
 
 // PUBLIC API
-export type OnBeforeLoginHook = (
-  params: Expand<OnBeforeLoginHookParams>,
-) => void | Promise<void>
+export type OnBeforeLoginHook = AuthCore.OnBeforeLoginHook<AuthHookTypes>;
 
 // PUBLIC API
-export type OnAfterLoginHook = (
-  params: Expand<OnAfterLoginHookParams>,
-) => void | Promise<void>
+export type OnAfterLoginHook = AuthCore.OnAfterLoginHook<AuthHookTypes>;
 
 // PRIVATE API (used in the SDK and the server)
-export type InternalAuthHookParams = {
-  /**
-   * Prisma instance that can be used to interact with the database.
-  */
-  prisma: typeof prisma
-}
-
-// NOTE: We should be exporting types that can be reached by users via other
-// exported types (e.g. using the Parameters<T> Typescript helper).
-// However, we are not exporting this type to keep the API surface smaller.
-// This type is only used internally by the SDK. Exporting it might confuse
-// users since the name is too similar to the exported function type.
-// Same goes for all other *Params types in this file.
-type OnBeforeSignupHookParams = {
-  /**
-   * Provider ID object that contains the provider name and the provider user ID.
-  */
-  providerId: ProviderId
-  /**
-   * Request object that can be used to access the user's incoming signup request.
-  */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnAfterSignupHookParams = {
-  /**
-   * Provider ID object that contains the provider name and the provider user ID.
-  */
-  providerId: ProviderId
-  /**
-   * User object that was created during the signup process.
-  */
-  user: CreateUserResult
-  /**
-   * OAuth flow data that was generated during the OAuth flow. This is only
-   * available if the user signed up using OAuth.
-  */
-  oauth?: OAuthData
-  /**
-   * Request object that can be used to access the user's incoming signup request.
-  */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnAfterEmailVerifiedHookParams = {
-  /**
-   * The email address that was verified.
-  */
-  email: string
-  /**
-   * The user who completed email verification.
-  */
-  user: FindAuthWithUserResult['user']
-  /**
-   * Request object that can be used to access the user's incoming verification request.
-   */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnBeforeOAuthRedirectHookParams = {
-  /**
-   * URL that the OAuth flow should redirect to.
-  */
-  url: URL
-  /**
-   * Unique request ID that was generated during the OAuth flow.
-  */
-  oauth: Pick<OAuthData, 'uniqueRequestId'>
-  /**
-   * Request object that can be used to access the user's incoming OAuth flow request.
-  */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnBeforeLoginHookParams = {
-  /**
-   * Provider ID object that contains the provider name and the provider user ID.
-  */
-  providerId: ProviderId
-  /**
-   * User that is trying to log in.
-  */
-  user: FindAuthWithUserResult['user']
-  /**
-   * Request object that can be used to access the user's incoming login request.
-  */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnAfterLoginHookParams = {
-  /**
-   * Provider ID object that contains the provider name and the provider user ID.
-  */
-  providerId: ProviderId
-  /**
-   * User that is logged in.
-  */
-  user: FindAuthWithUserResult['user']
-  /**
-   * OAuth flow data that was generated during the OAuth flow. This is only
-   * available if the user logged in using OAuth.
-  */
-  oauth?: OAuthData
-  /**
-   * Request object that can be used to access the user's incoming login request.
-  */
-  req: ExpressRequest
-} & InternalAuthHookParams
+export type InternalAuthHookParams =
+  AuthCore.InternalAuthHookParams<AuthHookTypes>;
 
 // PUBLIC API
-export type OAuthData = {
-  /**
-   * Unique request ID that was generated during the OAuth flow.
-  */
-  uniqueRequestId: string
-} & (
-  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
-  | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
-  | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
-  | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
-  | { providerName: 'slack'; tokens: import('arctic').SlackTokens }
+export type OAuthData = AuthCore.OAuthDataFor<
+  | "slack"
+  | "discord"
+  | "google"
+  | "github"
+  | "microsoft"
   | never
-)
+>;

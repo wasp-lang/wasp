@@ -32,14 +32,14 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
         ],
-        "189286db2553b34dc1273020fc9d088acc48fc4b5bd299ff13762ddf07b44508"
+        "495918ce8193d5193b824d52ec786f1a3a62fe0f0f5d285808e198c891306f12"
     ],
     [
         [
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
         ],
-        "bb3626b8d18673a3b767f64dc4b231348064ce61e4c1cb4e6a63ea3018293829"
+        "e75ffaf9badec8c1c005f534a87556d28adda0f172d11cd6043373e3bc1b2897"
     ],
     [
         [
@@ -65,163 +65,51 @@
     [
         [
             "file",
-            "sdk/wasp/auth/email/actions/login.ts"
+            "sdk/wasp/auth/email/actions.ts"
         ],
-        "f4f3d9f84c865e368aaf2d5c2a1ac50c23dcfcb09dc3657efcf13287f54c29ed"
+        "3951aff0fb8555e3ca19b9e82a55ef196da34c23e76a8e2d3db79cd2043c179d"
     ],
     [
         [
             "file",
-            "sdk/wasp/auth/email/actions/passwordReset.ts"
+            "sdk/wasp/auth/forms/index.ts"
         ],
-        "d8ef4f80c0e3b253a07410807123a86d087d99cb620c1741aad80cd85fa47aff"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/email/actions/signup.ts"
-        ],
-        "18f704e1881cf97a70622cb46b522a23ac544932ea0cbcd5eb0462f3481fada0"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/email/actions/verifyEmail.ts"
-        ],
-        "7fc4654c113d88c222a5d2afe9f7fa5c99538465c80735c20d6f2ca80cb9ed63"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Auth.module.css"
-        ],
-        "b804d03ac790396cf152a5ca3290d018b03c8764f5edb78f45785013aae635d1"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Auth.tsx"
-        ],
-        "bc5a6fb307ca3ab3e52ddea85552183195da7dc87b12c46417bbceda3c88425c"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/ForgotPassword.tsx"
-        ],
-        "442a3110f2d9fa26773be02a568e1e41ff133a91a51c1b4a8e127586d7a4fb48"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Login.tsx"
-        ],
-        "43c85e6e192eb1b02423f2ce9c89583bc889c278bdf5ea1adaf3d0378f69650b"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/ResetPassword.tsx"
-        ],
-        "f9fed1627c7443ce46eefc789df4e6286ae0cf134e7a7ed9f5d1ffa3ac755c90"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Signup.tsx"
-        ],
-        "4a9b7ccb916ce6a9733a09b9984855f73bf7bcc6ff23509cab798e2b1e2a5364"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/VerifyEmail.tsx"
-        ],
-        "3f172aac9eb3d8a81b860f405e2e73a0a0316df69a4d96815c1b07d2f285a422"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css"
-        ],
-        "ceb7e900e700da20b71487c1ad65d0d3148747990c1e2d4540b18ec001ea2bcd"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
-        ],
-        "6c6acc5cf982dae99e27631944e1d022a534b09160280406b7915bfbe665a903"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx"
-        ],
-        "bf0fc6e3b554bb96ceb1c2b881502e05897d39277e651ca91013894eb7e86b88"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
-        ],
-        "47f5ad6164c3e7d27167ba1cc451a796ac084d478e91707b2a796b4e3df71b1b"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
-        ],
-        "66929dd9590ceeab438a260413a10d680c4be6e7eff998299fcd1b0a3d183883"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/email/useEmail.ts"
-        ],
-        "13db5ac88f864eb7d4d1f4dde93291caa17a84a1fead3cffa41185b370492453"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/types.ts"
-        ],
-        "5ec6e575e685db8db9ee0ba6c2de09e23e60fd6e5d675b58df75f41b56f6b44c"
+        "5bd75c5c5ebf15e1c7adf888c5059273882ec608c4cde3dd150a102f1c34359c"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/helpers/Discord.tsx"
         ],
-        "4c42dd0d6f8eadd3041d19143627caaa324878c8f17c005afe72e707750f204a"
+        "4866c136875ca25f849b69f750e0719b2e71766ef16c7511ce1e3aba7bacbbf7"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/helpers/GitHub.tsx"
         ],
-        "4381bc1476e372dd4c9a134f58be3a001bc8ad4b47c3e7673a4baec859f7e808"
+        "e4b7dc946319f210536be1a551ba8e12abea957138b198f00916b29acd9cf86d"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/helpers/Google.tsx"
         ],
-        "803342176e0bf1a89fb6eb1476ab311335c862b71bb3ffe22d52326a9b321d13"
+        "2e8165fc6f63aa6be3d753087b38bb7184dcab6ca6582d7d889f5c859b1860f6"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/helpers/Microsoft.tsx"
         ],
-        "63e5e30a350bde53a895fa35afb80416d57c3aa55272bc52a485d7d64291dba8"
+        "9974b217bacd5456da5a076975bb26d0c56afe970b89c497726ea28cb0cdf9e8"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/helpers/Slack.tsx"
         ],
-        "982dbdba3f62ed283a228be32a43a8c627ab0946560defcaec014bf077f60fef"
+        "ceb2141ba980367ff6001dfe2645de0c5fbeff2d8af958c7fdb4afd0ffa6ed5b"
     ],
     [
         [
@@ -235,7 +123,7 @@
             "file",
             "sdk/wasp/auth/logout.ts"
         ],
-        "3377c659b174db9c8d1a0e092a5b5cb62636f61f7064fe3c2d0489104539725a"
+        "ba1199ca93967a19afdf3583eba54f002f52ee261ef354392bfc187e5d1fe24a"
     ],
     [
         [
@@ -249,28 +137,28 @@
             "file",
             "sdk/wasp/auth/providers/types.ts"
         ],
-        "7d14dd126234cf5a37af0a0f68f2d52198e281216d9aeb1b607252766649d61a"
+        "d9e220a204f9e2024d752e13464ecb60e491c470ac4caa98d2804dccb87b8a4b"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/useAuth.ts"
         ],
-        "0aab4be2052ee833ba4f531ba104f26c3d0051af3635fc3cd70f6bcc3297500d"
+        "102b4b0c33bc10d073b3f9c80b3ca99d44c6f1e69ae87804674d0d7d1c85a92d"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/user.ts"
         ],
-        "ef568901d31bded4cc0fb5816d051b06ca03b069ec25f621fb4e0cc4267daf95"
+        "fc52c72efbd4926246e0b9b0e7881f7c545803e1d9c1b01a283eb0f5efc4ffe7"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/validation.ts"
         ],
-        "e609bebc3ac47e077906cbab2ac3617128bd61a5b06249d88c230779386d515b"
+        "90488ac09ebe78ed1458bd609d17ef3cb0d6e3d1a0fb5fee0d19615d167eea62"
     ],
     [
         [
@@ -326,7 +214,7 @@
             "file",
             "sdk/wasp/client/auth/email.ts"
         ],
-        "24f90abc4e3f674b5dd3b66692ed69e9d1853d41f4131c6edbe6351353283dd4"
+        "3bcb674ccf19b9986834dc737ceb86c357196cf587a125c9296b56b88090c676"
     ],
     [
         [
@@ -368,7 +256,7 @@
             "file",
             "sdk/wasp/client/auth/ui.ts"
         ],
-        "1479d272aae8e2dc0d1e2c58586b57060c127bd9caacf80ac20bd632e03006d3"
+        "93335a1a72e30bb53c9af5d2527952369477d0f50d199efcb429fc19ad2386d9"
     ],
     [
         [
@@ -529,7 +417,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "7d2d5f57a52cf8ed1496ab4940b6498f2db1d0816a25099f7c509cfe66611f80"
+        "70b5d0617926a70629f4044bf07cc0b75824c5238997fd6f927581782801130d"
     ],
     [
         [
@@ -620,7 +508,7 @@
             "file",
             "sdk/wasp/scripts/copy-assets.js"
         ],
-        "0b7e3d7a0238faae3d97c43c50dfcbcfb088b769632046048ff78f8970e1d55b"
+        "0c582a87a0a80708de9b18985346546fe7d004fb2535a3f62e6b80f09eff0e04"
     ],
     [
         [
@@ -655,98 +543,91 @@
             "file",
             "sdk/wasp/server/auth/email/index.ts"
         ],
-        "d7e41e995856aabb1d1ce06a0f93d02888fac80a70389037f87b488560a531f7"
+        "88ed74e66523f5d91e8fea7d32dffd48965edbb97a37b7fc2758eb0fa8829a00"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/email/utils.ts"
         ],
-        "14ae72c52790a68bbe3ceef361beff50af5b555e605c08a8fb230df70158f657"
+        "058c35a7a3d89132a1926c8b40443eab2fe6f88dc3215cf667cc8e8cf548fa3d"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "203a66232d5ea186cdc04f1fc00eab1f04846a93e8e4c4244cf28b93feab951a"
+        "ed69e4d947f2dc9e8d55410700a76a35ee7166fa979e3a3aa73ec956c12b083b"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "e8e190a518791323bdb9605ee0b21881349293eda0cb796953dc4e42398dc602"
+        "59e0f8db75d3ffbd07d4c4565dd2ef8cec77fc30a8bd5176b85b90fb5074136c"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/jwt.ts"
         ],
-        "94ff0c4280ba5ba0f7be0100cc9bf48b528c49f1fb87624dbb5e4da8618160a0"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/server/auth/lucia.ts"
-        ],
-        "b734bbf7137131e6786f69afddf5941f9947b8c2cae617203a208255f01f8c9b"
+        "9dbb16cb6cecf8ebf408781fb76c3ee52fd2859e61c1a79a6072d9bea8c285ca"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "65ea738b50a72e3dd7b95cc8223d5954150c6c9192854c2e67e7ffc8613bb03b"
+        "f137c08bf6b9f78a7f30a2e05699173370204e064f5af299997d7a009c88c1a8"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/oneTimeCode.ts"
         ],
-        "ec39ac2441a70aef4b4c54f699cbeaecaa5f4b03639ed4e85727c2edd0d7efd3"
+        "d3049dad95bddca6fdb47dbbb2d8e68fd34e3be6467da9657cb37c5c71500a50"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/providers/discord.ts"
         ],
-        "cf9b73fe09ffa1c45c1a6d8e3f50cdd6cf206d2d604817f06735a6e471be630a"
+        "96bfd16760ed6b5d41d6e8f1980ba4770ffeba93c57dda9879e19122376bacbc"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/providers/github.ts"
         ],
-        "97005a9789697b810821f6fd648cafde18c241ff9f581f8bc4238c9f4fb96aa7"
+        "8b51005470ee30d2fd08a106038807db3597ccaef5575fc44ba2ccc04ace463c"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/providers/google.ts"
         ],
-        "5c6589f1f1bde82298659ec37a8465c12a94f15a0d0c2394687ea192679b2fa3"
+        "6b4b6ae87252101ea5f9b7a49d6874e29770e657bb7fd98d76112ce34c2b6973"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/providers/microsoft.ts"
         ],
-        "6f7348d3f80f07f69a4426e6dd4ef79a60c96e90751dd2d7dc1f44ddbb8ae33c"
+        "37198839c1d05038fde6beb1bfe210b77222a5a5682c9be41bf68e3a363b0737"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/providers/slack.ts"
         ],
-        "10f16c19e77f69061ee02ea45402a8bbf980107709e95035a4c74848ca821762"
+        "9036325729f80397932873aa7822eb8518b6e07bb87c69cc1b5c90abd060a199"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/oauth/redirect.ts"
         ],
-        "912ed66e1f591ef7ce6c511db457b990f4346b652c8ae92087382fb3f5590dbe"
+        "ffae14ab86bc70e0b33b8127aede9596d0f25c570d7a1c36c388e22030725a81"
     ],
     [
         [
@@ -760,14 +641,14 @@
             "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "90f012eefa1470aeabc4dd681358783b74d15693f1dafbb50982ececfbbd53d3"
+        "cac1d1cdbfecbd51700b9706a3d5d0af01bb04f6cf01746b250d3b7e1b679963"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/utils.ts"
         ],
-        "aa8bb1da182262c321315688f9998091918611c27db12e53021b14a6261f437b"
+        "e96ad0228a77f42516fc2bd7f8c6f088749b589b14ff408f450d97b3b50f6e1c"
     ],
     [
         [
@@ -781,7 +662,7 @@
             "file",
             "sdk/wasp/server/core/auth.ts"
         ],
-        "5289ff5ab0db1e2598cbe8d1c021e054419357fff157d275f24e63d6ab6113d9"
+        "cbc9d7174caf3cb3236e3e42850f470c36c6899de2d6e9817bc328309708c972"
     ],
     [
         [
@@ -1215,140 +1096,63 @@
             "file",
             "server/src/auth/hooks.ts"
         ],
-        "0b2b28264321995ee1628fab29c76920d828239560c69aeae46bec5f0560c12f"
+        "766dea4a1d3ade1fd21b3b451e975403cc8f9f6635e3e32eed7c5de4e432aca2"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/discord.ts"
         ],
-        "52384964fff235c2f2d96b975002dbdc3407219d0323e84074ee3c363e829f5b"
+        "c3d2dfbea4613f50d65d0ea72f06bc31223716c62bfb5f986f3bb256804df213"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/email.ts"
         ],
-        "2b4559a1bfe631d9da6ca302b0b3ef00b9ac8cc508f859e15480d09a274cbedb"
+        "0fdec8fa1deef036503308578cf6f12fb74c991d205becaed186cecf1314ad22"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/github.ts"
         ],
-        "557df93facc6923d6f2ce53f50bdb2942939f7866de1325dc7390582ccd6ddc0"
+        "8b8309de9441fbfc4fa5d762317fb6779032f4c5f5ede79e1b5113c8250b6a64"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "b49971038a8a6376b55332cca73e612b1518dfd85102709b46bb45af602b8649"
+        "a99e5c8525fb9fa221c5f29422a164a07d9dd5d7146ff54b1ae407791a8e8b32"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/microsoft.ts"
         ],
-        "c3571478f9e3c9c380dd1e5c0bfece5afacf8f11342e23dbf60d98e6c3b9d815"
+        "5c16ac6c084f363e523f2d4016a13e4bb39a3f0ec2bffc8a1946d5432deab953"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/slack.ts"
         ],
-        "9835de1bf4316ab32fd420393096802a847d9afa05a022945c79c4afe2d411f4"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/email/login.ts"
-        ],
-        "766d2b6a186a1f16e4aba25d53a4ae38f0b7da8730e7827d2ae400c7544faff5"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/email/requestPasswordReset.ts"
-        ],
-        "1936facb5dac8641ada0db5d6946be08603c07f4f441c2f22140b49bb3e21d04"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/email/resetPassword.ts"
-        ],
-        "f280cb3434c959b47f9fc7ba3ad8ba8921d7f24813c44be8ed8e80538f1fff9c"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/email/signup.ts"
-        ],
-        "e85d803697f4d48ddfb030febbbd321fc8579fae9d79ac24c9f3996726c62422"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/email/verifyEmail.ts"
-        ],
-        "d3b75adf041988926a97b741a5d7cf01d9c96904411ba34242f673c5da02e572"
+        "d62d593619130f706c4f1ea0acbe7bbbf82463b46771fa5b0620f39c4f7c0427"
     ],
     [
         [
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "e387d640db047d73d2d82185e5e0c2d9cf3d991d5456d2c90afdc2263cc5649c"
+        "0ad5d95bc81d07fea2541477d543b739ab9fee35d1053c447d2f0d5a96512352"
     ],
     [
         [
             "file",
-            "server/src/auth/providers/oauth/config.ts"
+            "server/src/auth/providers/oauth/dependencies.ts"
         ],
-        "b5901b3c8067b9d5f83ba4e67dc3360e102bd246f57d502227051b66df1b5915"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/cookies.ts"
-        ],
-        "1be2e0c1165e2b3cc07fce6d613a004ed42a05dae13b19c8d0f3825e0b9a0a4d"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/handler.ts"
-        ],
-        "8c087b4a5fed66c878ef5183f4e4368802e46c752245a1697d34052c80651aae"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/oneTimeCode.ts"
-        ],
-        "52488a7a332fdc827b2f7a11cc3b1a8c6cc117f2c126b9b85988e97e5ace3cad"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/state.ts"
-        ],
-        "772fd49c04eff2f47701565175c9756787d8548db3c4af190ce3420208bd4919"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/types.ts"
-        ],
-        "eb54019f51a0ba1e7c4c15734e6a36dea1631727b0816bea7b0c2855aeb5f0c0"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/user.ts"
-        ],
-        "70c10d31134efc795abb2f38a3c1a81dbbb21a2806551d74867df1f8a80dee42"
+        "d1a1b8c5f456cac7da14f7c515efea24e3c0b9186ff366230cdf4b26b712d491"
     ],
     [
         [
@@ -1544,14 +1348,14 @@
             "file",
             "server/src/routes/auth/logout.ts"
         ],
-        "4593abb1d8235eeba9520facace9f5604109ba8552bf06a658312b3ea74255bd"
+        "6a5cb658db57d1deeac395fbc1c6999ad8a3e9de9f32cb8633b74ad03c67d0a4"
     ],
     [
         [
             "file",
             "server/src/routes/auth/me.ts"
         ],
-        "a2c1e8ecf1828ca79ee542cf7cfe887d2c0cd4ad0b2dff5c654c41ab171098a5"
+        "d506a068753d4be92f3881fc1c9628472eb79a9d53b340b8a63d3940ccbda334"
     ],
     [
         [
