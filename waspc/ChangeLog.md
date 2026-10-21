@@ -6,8 +6,8 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp now uses Prisma 6. ([#TODO](https://github.com/wasp-lang/wasp/pull/TODO))
-- `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#TODO](https://github.com/wasp-lang/wasp/pull/TODO))
+- Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
+- `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 
 ### 🎉 New Features
 
