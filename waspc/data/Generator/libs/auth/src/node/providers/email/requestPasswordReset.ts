@@ -1,12 +1,12 @@
 import { HttpError } from "@wasp.sh/lib-sdk-core";
 import type { EmailFromField } from "@wasp.sh/lib-sdk-core/node";
 import type { Request, Response } from "express";
-import { isEmailResendAllowed } from "../../../emailResend.js";
+import { isEmailResendAllowed } from "../../../shared/emailResend.js";
 import {
   createProviderId,
   getProviderDataWithPassword,
-} from "../../../providerData.js";
-import { ensureValidEmail } from "../../../validation.js";
+} from "../../../shared/providerData.js";
+import { ensureValidEmail } from "../../../shared/validation.js";
 import { doFakeWork } from "../../fakeWork.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import type { EmailAuthDependencies } from "./provider.js";

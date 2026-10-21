@@ -1,5 +1,5 @@
 import type { Request, Router } from "express";
-import type { ProviderName } from "../providerData.js";
+import type { ProviderName } from "../shared/providerData.js";
 export type ProviderConfig = {
   // Unique provider identifier, used as part of URL paths
   id: ProviderName;

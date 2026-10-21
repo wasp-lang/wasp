@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
-import { createInvalidCredentialsError } from "../../../errors.js";
+import { createInvalidCredentialsError } from "../../../shared/errors.js";
 import {
   createProviderId,
   getProviderDataWithPassword,
-} from "../../../providerData.js";
+} from "../../../shared/providerData.js";
 import {
   ensurePasswordIsPresent,
   ensureValidEmail,
-} from "../../../validation.js";
+} from "../../../shared/validation.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import { verifyPassword } from "../../password.js";
 import type { EmailAuthDependencies } from "./provider.js";

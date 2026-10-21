@@ -1,10 +1,10 @@
 import type { EmailFromField } from "@wasp.sh/lib-sdk-core/node";
-import type { AuthEntityTypes } from "../../../entities.js";
+import type { AuthEntityTypes } from "../../../shared/entities.js";
 import {
   createProviderId,
   getProviderDataWithPassword,
   type EmailProviderData,
-} from "../../../providerData.js";
+} from "../../../shared/providerData.js";
 import type { AuthIdentities } from "../../identities.js";
 import { TimeSpan, type JwtHelpers } from "../../jwt.js";
 

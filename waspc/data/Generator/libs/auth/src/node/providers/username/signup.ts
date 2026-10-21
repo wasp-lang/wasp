@@ -1,10 +1,10 @@
 import { defineHandler } from "@wasp.sh/lib-sdk-core/node";
-import { createProviderId } from "../../../providerData.js";
+import { createProviderId } from "../../../shared/providerData.js";
 import {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
-} from "../../../validation.js";
+} from "../../../shared/validation.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import type { UserSignupFields } from "../../identities.js";
 import { sanitizeAndSerializeProviderData } from "../../providerDataStorage.js";

@@ -3,12 +3,12 @@ import type { Request, Response } from "express";
 import {
   createProviderId,
   getProviderDataWithPassword,
-} from "../../../providerData.js";
+} from "../../../shared/providerData.js";
 import {
   ensurePasswordIsPresent,
   ensureTokenIsPresent,
   ensureValidPassword,
-} from "../../../validation.js";
+} from "../../../shared/validation.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import type { EmailAuthDependencies } from "./provider.js";
 

@@ -3,7 +3,7 @@ import type { KyInstance } from "ky";
 import {
   SessionResponseSchema,
   SuccessResponseSchema,
-} from "../../responseSchemas.js";
+} from "../../shared/responseSchemas.js";
 
 export type EmailSignupData<ExtraSignupFields extends object> = {
   email: string;

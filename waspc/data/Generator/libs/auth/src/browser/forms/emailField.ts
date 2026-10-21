@@ -1,4 +1,4 @@
-import { isValidEmail } from "../../email.js";
+import { isValidEmail } from "../../shared/email.js";
 
 /**
  * We deliberately don't use the usual `type="email"` here because

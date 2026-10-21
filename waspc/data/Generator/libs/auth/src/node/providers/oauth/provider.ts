@@ -1,5 +1,5 @@
 import type { OAuth2Provider, OAuth2ProviderWithPKCE } from "arctic";
-import type { ProviderName } from "../../../providerData.js";
+import type { ProviderName } from "../../../shared/providerData.js";
 
 /** An OAuth provider as `defineProvider` returns it: its id, display name and arctic client. */
 export type DefinedOAuthProvider<

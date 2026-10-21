@@ -1,6 +1,6 @@
 import { defineHandler } from "@wasp.sh/lib-sdk-core/node";
 import { Router, type RequestHandler } from "express";
-import { createInvalidCredentialsError } from "../errors.js";
+import { createInvalidCredentialsError } from "../shared/errors.js";
 import type { RequestWithAuth } from "./middleware.js";
 import type { ProviderConfig } from "./providers.js";
 import type { Sessions } from "./sessions.js";

@@ -1,10 +1,10 @@
 import { HttpError } from "@wasp.sh/lib-sdk-core";
 import type { Request, Response } from "express";
-import { createInvalidCredentialsError } from "../../../errors.js";
+import { createInvalidCredentialsError } from "../../../shared/errors.js";
 import {
   createProviderId,
   getProviderDataWithPassword,
-} from "../../../providerData.js";
+} from "../../../shared/providerData.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import type { EmailAuthDependencies } from "./provider.js";
 

@@ -1,6 +1,6 @@
 import { defineHandler, type EmailFromField } from "@wasp.sh/lib-sdk-core/node";
 import { Router } from "express";
-import type { ProviderName } from "../../../providerData.js";
+import type { ProviderName } from "../../../shared/providerData.js";
 import type { AuthHookTypes, AuthHooks } from "../../hooks.js";
 import type { AuthIdentities, UserSignupFields } from "../../identities.js";
 import type { JwtHelpers } from "../../jwt.js";

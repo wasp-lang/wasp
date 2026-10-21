@@ -1,5 +1,5 @@
 import { Router } from "express";
-import type { ProviderName } from "../../../providerData.js";
+import type { ProviderName } from "../../../shared/providerData.js";
 import type { AuthHookTypes, AuthHooks } from "../../hooks.js";
 import type { AuthIdentities, UserSignupFields } from "../../identities.js";
 import type { ProviderConfig } from "../../providers.js";

@@ -11,8 +11,9 @@ the generated code through factory functions.
 
 Module layout under `src/`:
 
-- `providerData.ts`, `authUser.ts`, `entities.ts`, `errors.ts`: runtime-agnostic framework code
-- `validation.ts`, `email.ts`, `emailResend.ts`, `responseSchemas.ts`: runtime-agnostic provider code
+- `shared/`: runtime-agnostic code used by both the node and browser entries:
+  `providerData.ts`, `authUser.ts`, `entities.ts`, `errors.ts`, `validation.ts`,
+  `email.ts`, `emailResend.ts`, `responseSchemas.ts`; `shared/index.ts` is the `.` entry
 - `node/`: `sessions.ts`, `identities.ts`, `hooks.ts`, `middleware.ts`, `routes.ts`,
   `password.ts`, `providerDataStorage.ts`, `jwt.ts`
 - `node/providers/{email,username,oauth}/`: the server flows of each auth method

@@ -1,9 +1,9 @@
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import type { Request as ExpressRequest } from "express";
 import { Lucia, type Session } from "lucia";
-import type { CompleteUserEntityWithAuth } from "../authUser.js";
-import type { AuthEntityTypes } from "../entities.js";
-import { createInvalidCredentialsError } from "../errors.js";
+import type { CompleteUserEntityWithAuth } from "../shared/authUser.js";
+import type { AuthEntityTypes } from "../shared/entities.js";
+import { createInvalidCredentialsError } from "../shared/errors.js";
 import type { PrismaModelDelegate } from "./identities.js";
 
 declare module "lucia" {

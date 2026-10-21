@@ -10,7 +10,7 @@ import {
   useQuery,
 } from "@wasp.sh/lib-sdk-core/browser";
 import type { KyInstance } from "ky";
-import { makeAuthUserIfPossible, type AuthUserMethods } from "../authUser.js";
+import { makeAuthUserIfPossible, type AuthUserMethods } from "../shared/authUser.js";
 
 export type AuthQueryConfig = {
   /** The app's API client. */

@@ -2,7 +2,7 @@ import {
   providerDataHasPasswordField,
   type PossibleProviderData,
   type ProviderName,
-} from "../providerData.js";
+} from "../shared/providerData.js";
 import { hashPassword } from "./password.js";
 
 /**

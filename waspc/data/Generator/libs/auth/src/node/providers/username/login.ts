@@ -1,13 +1,13 @@
 import { defineHandler } from "@wasp.sh/lib-sdk-core/node";
-import { createInvalidCredentialsError } from "../../../errors.js";
+import { createInvalidCredentialsError } from "../../../shared/errors.js";
 import {
   createProviderId,
   getProviderDataWithPassword,
-} from "../../../providerData.js";
+} from "../../../shared/providerData.js";
 import {
   ensurePasswordIsPresent,
   ensureValidUsername,
-} from "../../../validation.js";
+} from "../../../shared/validation.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import { verifyPassword } from "../../password.js";
 import type { UsernameAuthDependencies } from "./provider.js";

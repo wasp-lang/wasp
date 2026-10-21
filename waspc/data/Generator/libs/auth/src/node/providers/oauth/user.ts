@@ -1,5 +1,5 @@
 import type { Request as ExpressRequest } from "express";
-import { createProviderId, type ProviderId } from "../../../providerData.js";
+import { createProviderId, type ProviderId } from "../../../shared/providerData.js";
 import type { AuthHookTypes } from "../../hooks.js";
 import type { UserSignupFields } from "../../identities.js";
 import { sanitizeAndSerializeProviderData } from "../../providerDataStorage.js";

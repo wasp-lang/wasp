@@ -1,7 +1,7 @@
 import { HttpError } from "@wasp.sh/lib-sdk-core";
 import { defineHandler } from "@wasp.sh/lib-sdk-core/node";
 import type { Router } from "express";
-import type { AuthEntityTypes } from "../../../entities.js";
+import type { AuthEntityTypes } from "../../../shared/entities.js";
 import type { AuthIdentities } from "../../identities.js";
 import { TimeSpan, type JwtHelpers } from "../../jwt.js";
 import type { Sessions } from "../../sessions.js";

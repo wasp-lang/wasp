@@ -1,6 +1,6 @@
 import { handleApiError, initSession } from "@wasp.sh/lib-sdk-core/browser";
 import type { KyInstance } from "ky";
-import { SessionResponseSchema } from "../../responseSchemas.js";
+import { SessionResponseSchema } from "../../shared/responseSchemas.js";
 
 export type UsernameSignupData<ExtraSignupFields extends object> = {
   username: string;

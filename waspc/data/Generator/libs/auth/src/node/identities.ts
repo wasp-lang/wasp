@@ -6,13 +6,13 @@ import {
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 import { HttpError, getErrorMessage } from "@wasp.sh/lib-sdk-core";
-import type { AuthEntityTypes } from "../entities.js";
-import { throwValidationError } from "../errors.js";
+import type { AuthEntityTypes } from "../shared/entities.js";
+import { throwValidationError } from "../shared/errors.js";
 import type {
   PossibleProviderData,
   ProviderId,
   ProviderName,
-} from "../providerData.js";
+} from "../shared/providerData.js";
 import {
   ensurePasswordIsHashed,
   serializeProviderData,

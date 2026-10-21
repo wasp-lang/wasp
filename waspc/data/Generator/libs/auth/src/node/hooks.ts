@@ -1,7 +1,7 @@
 import type { Expand } from "@wasp.sh/lib-sdk-core";
 import type { Request as ExpressRequest } from "express";
-import type { AuthEntityTypes } from "../entities.js";
-import type { ProviderId } from "../providerData.js";
+import type { AuthEntityTypes } from "../shared/entities.js";
+import type { ProviderId } from "../shared/providerData.js";
 import type { CreateUserResult } from "./identities.js";
 
 /**
