@@ -62,24 +62,29 @@ export const ssrDev = (
             ? originalUrl
             : routes.spaFallbackFile.path;
 
-          // Clear the SSR module cache on every request, so that we always run the latest code.
-          ssrEnv.runner.clearCache();
+          try {
+            // Clear the SSR module cache on every request, so that we always run the latest code.
+            ssrEnv.runner.clearCache();
 
-          const html = await withRegisteredCss(ssrEnv.hot, async () => {
-            const { default: prerenderApp }: { default: PrerenderFn } =
-              await ssrEnv.runner.import(ssrEntrySrc);
-            return await prerenderApp(route, { clientEntrySrc });
-          });
+            const html = await withRegisteredCss(ssrEnv.hot, async () => {
+              const { default: prerenderApp }: { default: PrerenderFn } =
+                await ssrEnv.runner.import(ssrEntrySrc);
+              return await prerenderApp(route, { clientEntrySrc });
+            });
 
-          if (!html) {
-            return next();
+            if (!html) {
+              return next();
+            }
+
+            const newHtml = await server.transformIndexHtml(originalUrl, html);
+
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "text/html");
+            res.end(newHtml);
+          } catch (error) {
+            // Forward the error to Vite so it shows up in its error overlay.
+            return next(error);
           }
-
-          const newHtml = await server.transformIndexHtml(originalUrl, html);
-
-          res.statusCode = 200;
-          res.setHeader("Content-Type", "text/html");
-          res.end(newHtml);
         });
       };
     },
