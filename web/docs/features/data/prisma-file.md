@@ -1,3 +1,9 @@
+---
+title: "Prisma schema file: define your data model in Wasp"
+sidebar_label: Prisma schema file
+description: Wasp uses Prisma to interact with the database, and you can define your Wasp data model in the schema.prisma file.
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 # Prisma schema file

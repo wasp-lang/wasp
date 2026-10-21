@@ -8,6 +8,7 @@
 - [Agent integration](https://wasp.sh/docs/getting-started/agent-integration.md)
 ### Tutorial
 - [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
+- [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
 - [2. Project structure](https://wasp.sh/docs/tutorial/project-structure.md)
 - [3. Pages and routes](https://wasp.sh/docs/tutorial/pages.md)
 - [4. Database entities](https://wasp.sh/docs/tutorial/entities.md)
@@ -119,7 +120,7 @@
 - [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render.md)
 - [Vercel](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel.md)
 #### Self-Hosted
-- [Caprover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
+- [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
 - [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
 - [Simple VPS](https://wasp.sh/docs/guides/deployment/self-hosted/vps.md)
 ### Integrations

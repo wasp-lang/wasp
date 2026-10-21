@@ -1,3 +1,9 @@
+---
+title: "Agent integration: Wasp plugin for coding agents"
+sidebar_label: Agent integration
+description: Install the official Wasp plugin or skills in Claude Code, Cursor, Codex and other coding agents, so they use the Wasp docs for your Wasp version.
+---
+
 import Trackable from "@site/src/components/Trackable";
 
 # Agent integration

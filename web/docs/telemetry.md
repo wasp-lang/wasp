@@ -1,3 +1,9 @@
+---
+title: "Telemetry: what Wasp collects and how to opt out"
+sidebar_label: Telemetry
+description: The Wasp CLI sends anonymized usage data over HTTPS, no more than three times in 12 hours. See the exact data and opt out with WASP_TELEMETRY_DISABLE.
+---
+
 # Telemetry
 
 ## Overview

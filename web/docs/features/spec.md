@@ -1,4 +1,6 @@
 ---
+title: "Wasp Spec: configure your app in TypeScript"
+description: Define your app's pages, routes, queries, actions and auth in main.wasp.ts. The Wasp Spec is TypeScript, with editor support and full type checking.
 sidebar_label: Wasp Spec (main.wasp.ts)
 ---
 

@@ -1,4 +1,7 @@
 ---
+title: "Quick start: install Wasp and create your first app"
+sidebar_label: Quick start
+description: Install Wasp with npm, create an app with wasp new and run it with wasp start. Then add the Wasp agent plugin to Claude Code or another coding agent.
 slug: /quick-start
 ---
 

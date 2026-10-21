@@ -1,6 +1,14 @@
 import Link from "@docusaurus/Link";
+import { useLocation } from "@docusaurus/router";
 import BlogPostItem from "@theme/BlogPostItem";
 import { trackPlacementAttributes } from "../../lib/analytics";
+
+// The main list pages get one H1 here, and the post titles below are H2.
+// Tag and author pages render their own H1, so they get none here.
+const LIST_PAGE_HEADINGS = {
+  "/blog": "Wasp Blog",
+  "/resources": "Wasp Resources",
+};
 
 const getReadingTimeStatement = (readingTimeFloat) =>
   Math.ceil(readingTimeFloat) + " min read";
@@ -11,6 +19,8 @@ export default function BlogPostItems({
 }) {
   // TODO(matija): what if there are no items (blog posts)?
   const featuredItem = items[0];
+  const { pathname } = useLocation();
+  const listHeading = LIST_PAGE_HEADINGS[pathname.replace(/\/$/, "")];
   const coverImgSrc =
     featuredItem.content.frontMatter.image || "/img/blog-default-img.png";
 
@@ -21,6 +31,11 @@ export default function BlogPostItems({
         {...trackPlacementAttributes("post_list")}
       >
         <div className={`container mx-auto lg:px-8`}>
+          {listHeading && (
+            <h1 className="mb-6 text-sm font-semibold uppercase tracking-wider text-neutral-800 md:px-8 lg:px-0">
+              {listHeading}
+            </h1>
+          )}
           <article
             className={`relative grid-cols-2 items-stretch gap-5 md:px-8 lg:grid lg:px-0`}
           >
@@ -39,9 +54,9 @@ export default function BlogPostItems({
               </span>
 
               {/* Title */}
-              <h1 className="text-4xl leading-tight text-neutral-800">
+              <h2 className="text-4xl leading-tight text-neutral-800">
                 {featuredItem.content.frontMatter.title}
-              </h1>
+              </h2>
 
               {/* Read more button */}
               <div className="mt-24">
@@ -107,9 +122,9 @@ export default function BlogPostItems({
                 </span>
 
                 {/* Title */}
-                <h1 className="my-4 h-28 text-xl">
+                <h2 className="my-4 h-28 text-xl">
                   {item.content.frontMatter.title}
-                </h1>
+                </h2>
 
                 <p className="mb-0 mt-0 font-semibold text-yellow-600">
                   Read more →
