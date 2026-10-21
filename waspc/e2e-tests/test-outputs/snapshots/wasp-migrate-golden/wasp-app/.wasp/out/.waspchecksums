@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
         ],
-        "f020de83a47af80e1bc86bc5c2d2d15f9f6ba9b16d84657166f79972ce1fbd94"
+        "bb3626b8d18673a3b767f64dc4b231348064ce61e4c1cb4e6a63ea3018293829"
     ],
     [
         [
@@ -40,6 +40,13 @@
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
         ],
         "dc0e0cffc93d400a59c54f41f77be3dd40438b442f7dcfa3a1d1bfcf8798a750"
+    ],
+    [
+        [
+            "file",
+            "libs/vitest-utils/wasp.sh-lib-vitest-utils-0.26.1.tgz"
+        ],
+        "91c189317430fec3a142cb4b680a74fff8c66e2d33fc99db1b25a08519ff46f2"
     ],
     [
         [
@@ -172,7 +179,7 @@
             "file",
             "sdk/wasp/client/test/index.ts"
         ],
-        "818176f82312d9e40492843ef51009016fbd8725f94df738ce28a3a3dd0ae1b0"
+        "49606e3eb5d75af4538db80250547470359e817ba78f4fe64c405aa53544a871"
     ],
     [
         [
@@ -180,13 +187,6 @@
             "sdk/wasp/client/test/setup.ts"
         ],
         "610e936776aaa39e861f0b2a83b0c0290d74ca8123d9d5409e5f2183384fdb52"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/test/vitest/helpers.tsx"
-        ],
-        "caaeb3292f943d597ad22997978276c963a2383f7c32dafb07c115771b4dc63d"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "2b01790d40252f91adc40ec760a1f1bd535af40614d4abc52d00f38e4d56ba63"
+        "d5eb75391adcab30fa4eb039c5415ed3e880904fc06f09a135479046946019f7"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "server/package.json"
         ],
-        "499287fc85e739028766658c562fa16365560b346bc4370770bc3c0e7dadc17b"
+        "4b5c9e2df31622acca8acc0949cd4465a3625b7203c92ade3b266d9d6d68d14e"
     ],
     [
         [
