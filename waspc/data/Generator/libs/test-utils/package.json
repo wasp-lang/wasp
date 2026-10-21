@@ -2,6 +2,21 @@
   "name": "@wasp.sh/lib-test-utils",
   "version": "0.27.0",
   "type": "module",
+  "description": "Vitest helpers for testing the client code of Wasp apps",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "waspc/data/Generator/libs/test-utils"
+  },
+  "homepage": "https://wasp.sh/docs/advanced/testing",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
   "license": "MIT",
   "exports": {
     ".": {
