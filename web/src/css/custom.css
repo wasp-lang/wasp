@@ -696,8 +696,6 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 /* Terminal output (blog/components/Terminal.tsx): a window-like frame that
    follows the site theme, with ANSI colors readable on each background. */
 .terminal {
-  /* Frame colors are site tokens that already switch with the theme, so only
-     the ANSI colors need a dark variant. */
   --terminal-bg: var(--wasp-code-bg);
   --terminal-header-bg: var(--wasp-g2);
   --terminal-border: var(--wasp-g3);
@@ -705,6 +703,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --terminal-title: var(--wasp-g5);
   --terminal-fg: var(--ifm-heading-color);
   --terminal-prompt: var(--wasp-g5);
+  /* ANSI colors have no site equivalent, so they are hard-coded. */
   --terminal-red: #cf222e;
   --terminal-green: #116329;
   --terminal-yellow: #9a6700;
@@ -721,6 +720,8 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 }
 
 html[data-theme="dark"] .terminal {
+  /* The frame variables already switch with the theme, so only the ANSI
+     colors need dark values. */
   --terminal-red: #ff7b72;
   --terminal-green: #3fb950;
   --terminal-yellow: #d29922;
