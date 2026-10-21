@@ -59,4 +59,9 @@ for package in "${publish_packages[@]}"; do
   # package directories, not tarballs.
   mkdir -p "$package_output_dir"
   tar -xzf "$pack_dir"/*.tgz -C "$package_output_dir" --strip-components=1
+
+  # The packed package is already built, but publishing packs it again, which
+  # runs `prepare`. Libs build in `prepare`, and their build tools aren't
+  # installed in the packed package, so we remove it.
+  (cd "$package_output_dir" && npm pkg delete scripts.prepare)
 done
