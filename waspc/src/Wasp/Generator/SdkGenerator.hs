@@ -111,7 +111,6 @@ genSdk spec =
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|server/index.ts|],
-      C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/index.ts|],
