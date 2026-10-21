@@ -10,6 +10,7 @@
     "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.26.1.tgz",
     "@wasp.sh/lib-sdk-core": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz",
     "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz",
+    "@wasp.sh/lib-vitest-utils": "file:../../libs/vitest-utils/wasp.sh-lib-vitest-utils-0.26.1.tgz",
     "arctic": "^1.2.1",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",

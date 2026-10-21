@@ -221,6 +221,10 @@
             {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-vitest-utils",
+                "version": "file:../../libs/vitest-utils/wasp.sh-lib-vitest-utils-0.26.1.tgz"
             }
         ],
         "devDependencies": [
@@ -272,6 +276,10 @@
             {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-vitest-utils",
+                "version": "file:../libs/vitest-utils/wasp.sh-lib-vitest-utils-0.26.1.tgz"
             },
             {
                 "name": "cookie-parser",
