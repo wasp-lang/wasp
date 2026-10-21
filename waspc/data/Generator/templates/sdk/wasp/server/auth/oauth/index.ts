@@ -29,6 +29,7 @@ export { microsoft } from './providers/microsoft.js';
 
 // PRIVATE API
 export {
+  oauthRedirects,
   loginPath,
   callbackPath,
   exchangeCodeForTokenPath,

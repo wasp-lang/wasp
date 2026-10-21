@@ -29,16 +29,11 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
-import Wasp.Util ((<++>))
 import Wasp.Util.Js (makeJsStringLiteral)
 
 genEmailAuth :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth spec auth = case emailAuth of
-  Just emailAuthConfig ->
-    sequence
-      [ genEmailAuthConfig spec emailAuthConfig
-      ]
-      <++> genRoutes
+  Just emailAuthConfig -> sequence [genEmailAuthConfig spec emailAuthConfig]
   Nothing -> return []
   where
     emailAuth = AS.Auth.email $ AS.Auth.methods auth
@@ -88,15 +83,3 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|auth/providers/config/email.ts|]
-
-genRoutes :: Generator [FileDraft]
-genRoutes =
-  sequence
-    [ genFileCopy [relfile|auth/providers/email/signup.ts|],
-      genFileCopy [relfile|auth/providers/email/login.ts|],
-      genFileCopy [relfile|auth/providers/email/resetPassword.ts|],
-      genFileCopy [relfile|auth/providers/email/requestPasswordReset.ts|],
-      genFileCopy [relfile|auth/providers/email/verifyEmail.ts|]
-    ]
-  where
-    genFileCopy = return . C.mkSrcTmplFd

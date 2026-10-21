@@ -2,7 +2,7 @@
 import { MicrosoftEntraId } from 'arctic';
 
 import { getRedirectUriForCallback } from '../redirect.js';
-import { defineProvider } from '@wasp.sh/lib-sdk-core/node';
+import { defineProvider } from '@wasp.sh/lib-auth/node';
 import { env } from '../../../env.js';
 
 const id = '{= providerId =}';

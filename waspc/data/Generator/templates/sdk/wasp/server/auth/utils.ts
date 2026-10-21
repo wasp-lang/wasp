@@ -1,27 +1,13 @@
 {{={= =}=}}
-import {
-  getErrorMessage,
-  throwValidationError,
-  type ProviderId,
-  type ProviderName,
-  type PossibleProviderData,
-} from '@wasp.sh/lib-sdk-core'
-export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp.sh/lib-sdk-core/node'
-
-import { ensurePasswordIsHashed } from '@wasp.sh/lib-sdk-core/node'
-import { prisma, HttpError } from '../index.js'
-import type {
-  {= userEntityUpper =},
-  {= authEntityUpper =},
-  {= authIdentityEntityUpper =},
-} from '../../entities/index.js'
-import { Prisma } from '@prisma/client';
-
-import type { UserSignupFields, PossibleUserFields } from '../../auth/providers/types.js'
+import type * as AuthCore from "@wasp.sh/lib-auth/node";
+import { createAuthIdentities } from "@wasp.sh/lib-auth/node";
+import type { AppAuthEntityTypes } from "../../auth/user.js";
+import { prisma } from "../index.js";
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).
 export {
+  createInvalidCredentialsError,
   createProviderId,
   normalizeProviderUserId,
   getProviderData,
@@ -32,197 +18,53 @@ export {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-} from '@wasp.sh/lib-sdk-core'
+} from "@wasp.sh/lib-auth";
+export {
+  doFakeWork,
+  sanitizeAndSerializeProviderData,
+} from "@wasp.sh/lib-auth/node";
 
 // PRIVATE API
 export const contextWithUserEntity = {
   entities: {
-    {= userEntityUpper =}: prisma.{= userEntityLower =}
-  }
-}
+    {= userEntityUpper =}: prisma.{= userEntityLower =},
+  },
+};
 
 // PRIVATE API
 export const authConfig = {
   failureRedirectPath: {=& failureRedirectPath =},
   successRedirectPath: {=& successRedirectPath =},
-}
-
-// PUBLIC API
-export async function findAuthIdentity(providerId: ProviderId): Promise<{= authIdentityEntityUpper =} | null> {
-  return prisma.{= authIdentityEntityLower =}.findUnique({
-    where: {
-      providerName_providerUserId: providerId,
-    }
-  });
-}
-
-// PUBLIC API
-/**
- * Updates the provider data for the given auth identity.
- *
- * This function performs data sanitization and serialization.
- * Sanitization is done by hashing the password, so this function
- * expects the password received in the `providerDataUpdates`
- * **not to be hashed**.
- */
-export async function updateAuthIdentityProviderData<PN extends ProviderName>(
-  providerId: ProviderId,
-  existingProviderData: PossibleProviderData[PN],
-  providerDataUpdates: Partial<PossibleProviderData[PN]>,
-): Promise<{= authIdentityEntityUpper =}> {
-  // We are doing the sanitization here only on updates to avoid
-  // hashing the password multiple times.
-  const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
-  const newProviderData = {
-    ...existingProviderData,
-    ...sanitizedProviderDataUpdates,
-  }
-  const serializedProviderData = await serializeProviderData<PN>(newProviderData);
-  return prisma.{= authIdentityEntityLower =}.update({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    data: { providerData: serializedProviderData },
-  });
-}
+};
 
 // PRIVATE API
-export type FindAuthWithUserResult = {= authEntityUpper =} & {
-  {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
-}
-
-// PRIVATE API
-export async function findAuthWithUserBy(
-  where: Prisma.{= authEntityUpper =}WhereInput
-): Promise<FindAuthWithUserResult | null> {
-  const result = await prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
-
-  if (result === null) {
-    return null;
-  }
-
-  if (result.user === null) {
-    return null;
-  }
-
-  return { ...result, user: result.user };
-}
-
-// PUBLIC API
-export type CreateUserResult = {= userEntityUpper =} & {
-  auth: {= authEntityUpper =} | null
-}
-
-// PUBLIC API
-export async function createUser(
-  providerId: ProviderId,
-  serializedProviderData?: string,
-  userFields?: PossibleUserFields,
-): Promise<CreateUserResult> {
-  return prisma.{= userEntityLower =}.create({
-    data: {
-      // Using any here to prevent type errors when userFields are not
-      // defined. We want Prisma to throw an error in that case.
-      ...(userFields ?? {} as any),
-      {= authFieldOnUserEntityName =}: {
-        create: {
-          {= identitiesFieldOnAuthEntityName =}: {
-              create: {
-                  providerName: providerId.providerName,
-                  providerUserId: providerId.providerUserId,
-                  providerData: serializedProviderData,
-              },
-          },
-        }
-      },
-    },
-    // We need to include the Auth entity here because we need `authId`
-    // to be able to create a session.
-    include: {
-      {= authFieldOnUserEntityName =}: true,
-    },
-  })
-}
-
-// PRIVATE API
-export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
-  return prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
-    id: authId,
-  } } })
-}
-
-// PRIVATE API
-export function rethrowPossibleAuthError(e: unknown): void {
-  // Prisma code P2002 is for unique constraint violations.
-  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-    throw new HttpError(422, 'Save failed', {
-      message: `user with the same identity already exists`,
-    })
-  }
-
-  if (e instanceof Prisma.PrismaClientValidationError) {
-    // NOTE: Logging the error since this usually means that there are
-    // required fields missing in the request, we want the developer
-    // to know about it.
-    console.error(e)
-    throw new HttpError(422, 'Save failed', {
-      message: 'there was a database error'
-    })
-  }
-
-  // Prisma code P2021 is for missing table errors.
-  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
-    // NOTE: Logging the error since this usually means that the database
-    // migrations weren't run, we want the developer to know about it.
-    console.error(e)
-    console.info('🐝 This error can happen if you did\'t run the database migrations.')
-    throw new HttpError(500, 'Save failed', {
-      message: `there was a database error`,
-    })
-  }
-
-  // Prisma code P2003 is for foreign key constraint failure
-  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
-    console.error(e)
-    console.info(`🐝 This error can happen if you have some relation on your {= userEntityUpper =} entity
-   but you didn't specify the "onDelete" behaviour to either "Cascade" or "SetNull".
-   Read more at: https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions`)
-    throw new HttpError(500, 'Save failed', {
-      message: `there was a database error`,
-    })
-  }
-
-  throw e
-}
-
-function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
-  return JSON.stringify(providerData);
-}
-
-// PRIVATE API
-export async function validateAndGetUserFields(
-  data: {
-    [key: string]: unknown
+export const authIdentities = createAuthIdentities<AppAuthEntityTypes>({
+  prisma: {
+    user: prisma.{= userEntityLower =},
+    auth: prisma.{= authEntityLower =},
+    authIdentity: prisma.{= authIdentityEntityLower =},
   },
-  userSignupFields?: UserSignupFields,
-): Promise<Record<string, any>> {
-  const {
-    password: _password,
-    ...sanitizedData
-  } = data;
-  const result: Record<string, any> = {};
+  userEntityName: "{= userEntityUpper =}",
+  authFieldOnUserEntityName: "{= authFieldOnUserEntityName =}",
+  userFieldOnAuthEntityName: "{= userFieldOnAuthEntityName =}",
+  identitiesFieldOnAuthEntityName: "{= identitiesFieldOnAuthEntityName =}",
+});
 
-  if (!userSignupFields) {
-    return result;
-  }
+// PUBLIC API
+export const { findAuthIdentity, updateAuthIdentityProviderData, createUser } =
+  authIdentities;
 
-  for (const [field, getFieldValue] of Object.entries(userSignupFields)) {
-    try {
-      const value = await getFieldValue(sanitizedData)
-      result[field] = value
-    } catch (e: unknown) {
-      throwValidationError(getErrorMessage(e));
-    }
-  }
-  return result;
-}
+// PRIVATE API
+export const {
+  findAuthWithUserBy,
+  deleteUserByAuthId,
+  rethrowPossibleAuthError,
+  validateAndGetUserFields,
+} = authIdentities;
+
+// PRIVATE API
+export type FindAuthWithUserResult =
+  AuthCore.FindAuthWithUserResult<AppAuthEntityTypes>;
+
+// PUBLIC API
+export type CreateUserResult = AuthCore.CreateUserResult<AppAuthEntityTypes>;

@@ -1,10 +1,9 @@
 {{={= =}=}}
-
-import { Router } from "express";
-
-import login from "../username/login.js";
-import { getSignupRoute } from "../username/signup.js";
-import { ProviderConfig } from "wasp/auth/providers/types";
+import { createUsernameAuthProvider } from "@wasp.sh/lib-auth/node";
+import type { AuthHookTypes } from "wasp/server/auth";
+import { sessions } from "wasp/server/auth/session";
+import { authIdentities } from "wasp/server/auth/utils";
+import * as hooks from "../../hooks.js";
 
 {=# userSignupFields.isDefined =}
 {=& userSignupFields.importStatement =}
@@ -14,20 +13,17 @@ const _waspUserSignupFields = {= userSignupFields.importIdentifier =}
 const _waspUserSignupFields = undefined
 {=/ userSignupFields.isDefined =}
 
-const config: ProviderConfig = {
+const config = createUsernameAuthProvider<AuthHookTypes>(
+  {
     id: "{= providerId =}",
     displayName: "{= displayName =}",
-    createRouter() {
-        const router = Router();
-
-        router.post('/login', login);
-        const signupRoute = getSignupRoute({
-            userSignupFields: _waspUserSignupFields,
-        });
-        router.post('/signup', signupRoute);
-
-        return router;
-    },
-}
+    userSignupFields: _waspUserSignupFields,
+  },
+  {
+    identities: authIdentities,
+    sessions,
+    hooks,
+  },
+);
 
 export default config;

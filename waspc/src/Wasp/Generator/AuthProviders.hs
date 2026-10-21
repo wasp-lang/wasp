@@ -71,6 +71,37 @@ microsoftAuthProvider =
       OA._requiredScope = ["openid", "profile", "email"]
     }
 
+-- | The enabled providers in the order the auth libs list a user's identities
+-- (e.g. `AuthUser.identities`, `getFirstProviderUserId`), as a list of
+-- objects with a `providerName` field.
+getEnabledAuthProvidersListJson :: AS.Auth.Auth -> Aeson.Value
+getEnabledAuthProvidersListJson auth = makeProviderNamesJson $ getEnabledAuthProviderIds auth
+
+getEnabledOAuthProvidersListJson :: AS.Auth.Auth -> Aeson.Value
+getEnabledOAuthProvidersListJson auth = makeProviderNamesJson $ getEnabledOAuthProviderIds auth
+
+makeProviderNamesJson :: [String] -> Aeson.Value
+makeProviderNamesJson providerIds = Aeson.toJSON $ map (\pid -> object ["providerName" .= pid]) providerIds
+
+getEnabledAuthProviderIds :: AS.Auth.Auth -> [String]
+getEnabledAuthProviderIds auth =
+  concat
+    [ [E.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth],
+      [UP.providerId usernameAndPasswordAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth]
+    ]
+    ++ getEnabledOAuthProviderIds auth
+
+getEnabledOAuthProviderIds :: AS.Auth.Auth -> [String]
+getEnabledOAuthProviderIds auth =
+  concat
+    [ [OA.providerId slackAuthProvider | AS.Auth.isSlackAuthEnabled auth],
+      [OA.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
+      [OA.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+      [OA.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
+      [OA.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+      [OA.providerId microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth]
+    ]
+
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object

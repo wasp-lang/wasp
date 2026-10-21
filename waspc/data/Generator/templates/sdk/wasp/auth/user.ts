@@ -1,196 +1,86 @@
 {{={= =}=}}
+import type { Prisma } from "@prisma/client";
+import type * as AuthCore from "@wasp.sh/lib-auth";
+import {
+  createAuthUserHelpers,
+  makeAuthUserIfPossible,
+} from "@wasp.sh/lib-auth";
 import type {
   {= userEntityName =},
   {= authEntityName =},
   {= authIdentityEntityName =},
-} from '../entities/index.js'
-import {
-  type PossibleProviderData,
-  type ProviderName,
-  getProviderData,
-  isNotNull,
-  type Expand,
-} from '@wasp.sh/lib-sdk-core'
+} from "../entities/index.js";
+
+// PRIVATE API
+/**
+ * The app's entity types and relation names that the auth lib's generics are
+ * instantiated with.
+ */
+export type AppAuthEntityTypes = {
+  user: {= userEntityName =};
+  auth: {= authEntityName =};
+  authIdentity: {= authIdentityEntityName =};
+  userCreateInput: Prisma.{= userEntityName =}CreateInput;
+  authWhereInput: Prisma.{= authEntityName =}WhereInput;
+  authFieldOnUserEntity: "{= authFieldOnUserEntityName =}";
+  userFieldOnAuthEntity: "{= userFieldOnAuthEntityName =}";
+  identitiesFieldOnAuthEntity: "{= identitiesFieldOnAuthEntityName =}";
+};
+
+// PRIVATE API
+export type EnabledProviderName =
+  {=# enabledProviders =}
+  | "{= providerName =}"
+  {=/ enabledProviders =}
+  | never;
+
+const enabledProviders: EnabledProviderName[] = [
+  {=# enabledProviders =}
+  "{= providerName =}",
+  {=/ enabledProviders =}
+];
 
 // PUBLIC API
-export function getEmail(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "email")?.providerUserId ?? null;
-}
-
-// PUBLIC API
-export function getUsername(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "username")?.providerUserId ?? null;
-}
-
-// PUBLIC API
-export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
-  if (!user || !user.auth || !user.auth.identities || user.auth.identities.length === 0) {
-    return null;
-  }
-
-  return user.auth.identities[0]?.providerUserId ?? null;
-}
-
-// PUBLIC API
-export type AuthUser = AuthUserData & {
-  getFirstProviderUserId: () => string | null,
-}
+export type AuthUser = AuthCore.AuthUser<
+  AppAuthEntityTypes,
+  EnabledProviderName
+>;
 
 // PRIVATE API (used in SDK and server)
-/*
- * We write this type out instead of using `ReturnType<typeof createAuthUserData>`
- * because `Expand` makes editors show each identity's fields on hover. The
- * inferred type would show `UserFacingProviderData<"email">` instead.
- */
-export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
-  identities: {
-    {=# enabledProviders.isEmailAuthEnabled =}
-    email: Expand<UserFacingProviderData<'email'>> | null
-    {=/ enabledProviders.isEmailAuthEnabled =}
-    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    username: Expand<UserFacingProviderData<'username'>> | null
-    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    {=# enabledProviders.isSlackAuthEnabled =}
-    slack: Expand<UserFacingProviderData<'slack'>> | null
-    {=/ enabledProviders.isSlackAuthEnabled =}
-    {=# enabledProviders.isDiscordAuthEnabled =}
-    discord: Expand<UserFacingProviderData<'discord'>> | null
-    {=/ enabledProviders.isDiscordAuthEnabled =}
-    {=# enabledProviders.isGoogleAuthEnabled =}
-    google: Expand<UserFacingProviderData<'google'>> | null
-    {=/ enabledProviders.isGoogleAuthEnabled =}
-    {=# enabledProviders.isKeycloakAuthEnabled =}
-    keycloak: Expand<UserFacingProviderData<'keycloak'>> | null
-    {=/ enabledProviders.isKeycloakAuthEnabled =}
-    {=# enabledProviders.isGitHubAuthEnabled =}
-    github: Expand<UserFacingProviderData<'github'>> | null
-    {=/ enabledProviders.isGitHubAuthEnabled =}
-    {=# enabledProviders.isMicrosoftAuthEnabled =}
-    microsoft: Expand<UserFacingProviderData<'microsoft'>> | null
-    {=/ enabledProviders.isMicrosoftAuthEnabled =}
-  },
-}
-
-type UserFacingProviderData<PN extends ProviderName> = {
-  id: string
-} & Omit<PossibleProviderData[PN], 'hashedPassword'>
+export type AuthUserData = AuthCore.AuthUserData<
+  AppAuthEntityTypes,
+  EnabledProviderName
+>;
 
 // PRIVATE API
 export type CompleteUserEntityWithAuth =
-  MakeUserEntityWithAuth<CompleteAuthEntityWithIdentities>
+  AuthCore.CompleteUserEntityWithAuth<AppAuthEntityTypes>;
 
 // PRIVATE API
 export type CompleteAuthEntityWithIdentities =
-  MakeAuthEntityWithIdentities<{= authIdentityEntityName =}>
+  AuthCore.CompleteAuthEntityWithIdentities<AppAuthEntityTypes>;
 
 // PRIVATE API
 /**
  * User entity with all of the auth related data that's needed for the user facing
  * helper functions like `getUsername` and `getEmail`.
  */
-export type UserEntityWithAuth = MakeUserEntityWithAuth<
-  MakeAuthEntityWithIdentities<
-    // It's constructed like the Complete* types, but only with the fields needed
-    // for the user facing functions.
-    Pick<{= authIdentityEntityName =}, 'providerName' | 'providerUserId'>
-  >
->
-
-type MakeUserEntityWithAuth<AuthType> = {= userEntityName =} & {
-  {= authFieldOnUserEntityName =}: AuthType | null
-}
-
-type MakeAuthEntityWithIdentities<IdentityType> = {= authEntityName =} & {
-  {= identitiesFieldOnAuthEntityName =}: IdentityType[]
-}
+export type UserEntityWithAuth = AuthCore.UserEntityWithAuth<AppAuthEntityTypes>;
 
 // PRIVATE API (used in SDK and server)
-export function makeAuthUserIfPossible(user: null): null
-export function makeAuthUserIfPossible(user: AuthUserData): AuthUser
-export function makeAuthUserIfPossible(user: AuthUserData | null): AuthUser | null
-export function makeAuthUserIfPossible(
-  user: AuthUserData | null,
-): AuthUser | null {
-  return user ? makeAuthUser(user) : null
-}
+export { makeAuthUserIfPossible };
 
-function makeAuthUser(data: AuthUserData): AuthUser {
-  return {
-    ...data,
-    getFirstProviderUserId: () => {
-      const identities = Object.values(data.identities).filter(isNotNull);
-      return identities[0]?.id ?? null;
-    },
-  };
-}
+const authUserHelpers = createAuthUserHelpers<
+  AppAuthEntityTypes,
+  EnabledProviderName
+>({
+  authFieldOnUserEntityName: "{= authFieldOnUserEntityName =}",
+  identitiesFieldOnAuthEntityName: "{= identitiesFieldOnAuthEntityName =}",
+  enabledProviders,
+});
+
+// PUBLIC API
+export const { getEmail, getUsername, getFirstProviderUserId } = authUserHelpers;
 
 // PRIVATE API
-export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
-  const { {= authFieldOnUserEntityName =}, ...rest } = user
-  if (!{= authFieldOnUserEntityName =}) {
-    throw new Error(`🐝 Error: trying to create a user without auth data.
-This should never happen, but it did which means there is a bug in the code.`)
-  }
-  const identities = {
-    {=# enabledProviders.isEmailAuthEnabled =}
-    email: getProviderInfo<'email'>({= authFieldOnUserEntityName =}, 'email'),
-    {=/ enabledProviders.isEmailAuthEnabled =}
-    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    username: getProviderInfo<'username'>({= authFieldOnUserEntityName =}, 'username'),
-    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    {=# enabledProviders.isSlackAuthEnabled =}
-    slack: getProviderInfo<'slack'>({= authFieldOnUserEntityName =}, 'slack'),
-    {=/ enabledProviders.isSlackAuthEnabled =}
-    {=# enabledProviders.isDiscordAuthEnabled =}
-    discord: getProviderInfo<'discord'>({= authFieldOnUserEntityName =}, 'discord'),
-    {=/ enabledProviders.isDiscordAuthEnabled =}
-    {=# enabledProviders.isGoogleAuthEnabled =}
-    google: getProviderInfo<'google'>({= authFieldOnUserEntityName =}, 'google'),
-    {=/ enabledProviders.isGoogleAuthEnabled =}
-    {=# enabledProviders.isKeycloakAuthEnabled =}
-    keycloak: getProviderInfo<'keycloak'>({= authFieldOnUserEntityName =}, 'keycloak'),
-    {=/ enabledProviders.isKeycloakAuthEnabled =}
-    {=# enabledProviders.isGitHubAuthEnabled =}
-    github: getProviderInfo<'github'>({= authFieldOnUserEntityName =}, 'github'),
-    {=/ enabledProviders.isGitHubAuthEnabled =}
-    {=# enabledProviders.isMicrosoftAuthEnabled =}
-    microsoft: getProviderInfo<'microsoft'>({= authFieldOnUserEntityName =}, 'microsoft'),
-    {=/ enabledProviders.isMicrosoftAuthEnabled =}
-  }
-  return {
-    ...rest,
-    identities,
-  }
-}
-
-function getProviderInfo<PN extends ProviderName>(
-  auth: CompleteAuthEntityWithIdentities,
-  providerName: PN
-):
-  | UserFacingProviderData<PN>
-  | null {
-  const identity = getIdentity(auth, providerName)
-  if (!identity) {
-    return null
-  }
-  return {
-    ...getProviderData<PN>(identity.providerData),
-    id: identity.providerUserId,
-  }
-}
-
-function getIdentity(
-  auth: CompleteAuthEntityWithIdentities,
-  providerName: ProviderName
-): {= authIdentityEntityName =} | null {
-  return auth.{= identitiesFieldOnAuthEntityName =}.find((i) => i.providerName === providerName) ?? null
-}
-
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): NonNullable<UserEntityWithAuth['auth']>['identities'][number] | null {
-  if (!user.auth) {
-    return null;
-  }
-  return user.auth.identities.find(
-    (identity) => identity.providerName === providerName
-  ) ?? null;
-}
+export const { createAuthUserData } = authUserHelpers;

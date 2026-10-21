@@ -63,7 +63,9 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          noExternal: ["@wasp.sh/lib-sdk-core"],
+          // Wasp libs import each other and ship CSS, so Node can not load them
+          // as externals during the SSR prerender.
+          noExternal: ["@wasp.sh/lib-sdk-core", "@wasp.sh/lib-auth"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them

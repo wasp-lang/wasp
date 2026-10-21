@@ -23,7 +23,7 @@ export {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureTokenIsPresent,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp.sh/lib-auth'
 
 export type {
   OnBeforeSignupHook,
@@ -34,6 +34,7 @@ export type {
   OnAfterLoginHook,
   InternalAuthHookParams,
   OAuthData,
+  AuthHookTypes,
 } from './hooks.js'
 
 {=# isExternalAuthEnabled =}
@@ -45,5 +46,5 @@ export * from './email/index.js'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-export { ensureValidUsername } from '@wasp.sh/lib-sdk-core'
+export { ensureValidUsername } from '@wasp.sh/lib-auth'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}

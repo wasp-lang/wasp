@@ -79,9 +79,10 @@ genUserTs auth =
         [ "userEntityName" .= userEntityName,
           "authEntityName" .= DbAuth.authEntityName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "userFieldOnAuthEntityName" .= DbAuth.userFieldOnAuthEntityName,
           "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersListJson auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

@@ -1,13 +1,10 @@
 {{={= =}=}}
 // PUBLIC API
-export { LoginForm } from '../../auth/forms/Login'
-export { SignupForm } from '../../auth/forms/Signup'
+export { LoginForm, SignupForm } from '../../auth/forms/index.js'
 {=# isEmailAuthEnabled =}
-export { ForgotPasswordForm } from '../../auth/forms/ForgotPassword'
-export { VerifyEmailForm } from '../../auth/forms/VerifyEmail'
-export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
+export { ForgotPasswordForm, VerifyEmailForm, ResetPasswordForm } from '../../auth/forms/index.js'
 {=/ isEmailAuthEnabled =}
-export type { CustomizationOptions } from '@wasp.sh/lib-sdk-core/browser'
+export type { CustomizationOptions } from '@wasp.sh/lib-auth/browser'
 {=# isSlackAuthEnabled =}
 export { SignInButton as SlackSignInButton } from '../../auth/helpers/Slack'
 {=/ isSlackAuthEnabled =}
@@ -32,4 +29,4 @@ export {
   FormTextarea,
   FormItemGroup,
   FormLabel,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp.sh/lib-auth/browser'

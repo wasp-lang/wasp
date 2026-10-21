@@ -37,7 +37,6 @@ genServerAuth spec =
           genFileCopyInServerAuth [relfile|password.ts|],
           genFileCopyInServerAuth [relfile|jwt.ts|],
           genSessionTs auth,
-          genLuciaTs auth,
           genUtils auth
         ]
         <++> genAuthEmail auth
@@ -66,23 +65,7 @@ genHooks auth =
       (serverAuthDirInSdkTemplatesDir </> [relfile|hooks.ts|])
       tmplData
   where
-    tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
-
-genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
-genLuciaTs auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|lucia.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userEntityUpper" .= (userEntityName :: String)
-        ]
-
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
+    tmplData = object ["enabledOAuthProviders" .= AuthProviders.getEnabledOAuthProvidersListJson auth]
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
@@ -93,8 +76,9 @@ genSessionTs auth =
   where
     tmplData =
       object
-        [ "userEntityUpper" .= userEntityName,
-          "userEntityLower" .= Util.toLowerFirst userEntityName,
+        [ "userEntityLower" .= Util.toLowerFirst userEntityName,
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
         ]
@@ -111,12 +95,10 @@ genUtils auth =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String),
-          "authIdentityEntityUpper" .= (DbAuth.authIdentityEntityName :: String),
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "failureRedirectPath" .= makeJsStringLiteral (AS.Auth.onAuthFailedRedirectTo auth),
           "successRedirectPath" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth)
@@ -129,26 +111,9 @@ genAuthEmail auth =
     then
       sequence
         [ genFileCopyInServerAuth [relfile|email/index.ts|],
-          genEmailUtils auth
+          genFileCopyInServerAuth [relfile|email/utils.ts|]
         ]
     else return []
-
-genEmailUtils :: AS.Auth.Auth -> Generator FileDraft
-genEmailUtils auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|email/utils.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
-        ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]

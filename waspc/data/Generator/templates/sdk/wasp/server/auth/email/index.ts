@@ -1,4 +1,4 @@
-export { type GetPasswordResetEmailContentFn, type GetVerificationEmailContentFn } from '@wasp.sh/lib-sdk-core/node'
+export { type GetPasswordResetEmailContentFn, type GetVerificationEmailContentFn } from '@wasp.sh/lib-auth/node'
 
 export {
     createEmailVerificationLink,
@@ -6,5 +6,6 @@ export {
     createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
+    emailVerification,
 } from './utils.js'
-export { ensureValidEmail } from '@wasp.sh/lib-sdk-core'
+export { ensureValidEmail } from '@wasp.sh/lib-auth'

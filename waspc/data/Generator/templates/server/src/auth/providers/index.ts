@@ -1,7 +1,10 @@
 {{={= =}=}}
-import { Router } from "express";
+import { createAuthProvidersRouter } from "@wasp.sh/lib-auth/node";
 {=# isExternalAuthEnabled =}
-import { setupOneTimeCodeRoute } from "./oauth/oneTimeCode";
+import { setupOneTimeCodeRoute } from "@wasp.sh/lib-auth/node";
+import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
+import { sessions } from "wasp/server/auth/session";
+import { authIdentities } from "wasp/server/auth/utils";
 {=/ isExternalAuthEnabled =}
 
 {=# providers =}
@@ -14,19 +17,20 @@ const providers = [
   {=/ providers =}
 ];
 
-const router = Router();
-
 {=# isExternalAuthEnabled =}
-// Setting up a common route for all OAuth providers to exchange
-// one-time code for a session.
-setupOneTimeCodeRoute(router);
+const router = createAuthProvidersRouter(providers, (router) => {
+  // Setting up a common route for all OAuth providers to exchange
+  // one-time code for a session.
+  setupOneTimeCodeRoute(router, {
+    exchangeCodeForTokenPath,
+    tokenStore,
+    identities: authIdentities,
+    sessions,
+  });
+});
 {=/ isExternalAuthEnabled =}
-
-for (const provider of providers) {
-  const { createRouter } = provider;
-  const providerRouter = createRouter(provider);
-  router.use(`/${provider.id}`, providerRouter);
-  console.log(`🚀 "${provider.displayName}" auth initialized`);
-}
+{=^ isExternalAuthEnabled =}
+const router = createAuthProvidersRouter(providers);
+{=/ isExternalAuthEnabled =}
 
 export default router;

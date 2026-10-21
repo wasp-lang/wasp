@@ -1,1 +1,9 @@
-export { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, ensureValidUsername, PASSWORD_FIELD, throwValidationError } from '@wasp.sh/lib-sdk-core'
+export {
+  PASSWORD_FIELD,
+  ensurePasswordIsPresent,
+  ensureTokenIsPresent,
+  ensureValidEmail,
+  ensureValidPassword,
+  ensureValidUsername,
+  throwValidationError,
+} from "@wasp.sh/lib-auth";

@@ -4,7 +4,8 @@ module Wasp.Generator.SdkGenerator.Auth.AuthFormsG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import qualified Data.Aeson as Aeson
+import StrongPath (relfile)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.Generator.AuthProviders
@@ -15,143 +16,47 @@ import Wasp.Generator.AuthProviders
     microsoftAuthProvider,
     slackAuthProvider,
   )
-import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
--- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    genFileCopy,
-    mkTmplFdWithData,
-  )
-import Wasp.Util ((<++>))
+import Wasp.Generator.SdkGenerator.Common (mkTmplFdWithData)
 import Wasp.Util.Js (makeJsStringLiteral)
 
+-- | Generates the file that creates the auth form components from
+--   `@wasp.sh/lib-auth` with the app's auth config.
 genAuthForms :: AS.Auth.Auth -> Maybe AS.EmailSender.EmailSender -> Generator [FileDraft]
 genAuthForms auth maybeEmailSender =
-  sequence
-    [ genAuthComponent auth isDummyEmailSenderNoticeEnabled,
-      genFileCopyInAuthForms [relfile|Auth.module.css|],
-      genTypes auth,
-      genFileCopyInAuthForms [relfile|Login.tsx|],
-      genFileCopyInAuthForms [relfile|Signup.tsx|]
+  return
+    [ mkTmplFdWithData [relfile|auth/forms/index.ts|] tmplData
     ]
-    <++> genEmailForms auth
-    <++> genInternalAuthComponents auth
-    <++> genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled
-  where
-    isDummyEmailSenderNoticeEnabled = AS.Auth.isEmailAuthEnabled auth && isDummyEmailSenderUsed
-    isDummyEmailSenderUsed = maybe False AS.EmailSender.isDummyEmailSender maybeEmailSender
-
-genAuthComponent :: AS.Auth.Auth -> Bool -> Generator FileDraft
-genAuthComponent auth isDummyEmailSenderNoticeEnabled =
-  return $
-    mkTmplFdWithData
-      (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|])
-      tmplData
   where
     tmplData =
       object
-        [ "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
-          "isDummyEmailSenderNoticeEnabled" .= isDummyEmailSenderNoticeEnabled
-        ]
-
-genTypes :: AS.Auth.Auth -> Generator FileDraft
-genTypes auth =
-  return $
-    mkTmplFdWithData
-      (authFormsDirInSdkTemplatesDir </> [relfile|types.ts|])
-      tmplData
-  where
-    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
-
-genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
-genEmailForms auth =
-  genConditionally isEmailAuthEnabled $
-    sequence
-      [ genFileCopyInAuthForms [relfile|ResetPassword.tsx|],
-        genFileCopyInAuthForms [relfile|ForgotPassword.tsx|],
-        genFileCopyInAuthForms [relfile|VerifyEmail.tsx|]
-      ]
-  where
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-
-genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
-genInternalAuthComponents auth =
-  genLoginSignupForm auth
-    <++> genEmailComponents
-    <++> genUsernameAndPasswordComponents
-  where
-    genEmailComponents =
-      genConditionally isEmailAuthEnabled $
-        sequence
-          [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
-            genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
-            genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
-            genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]
-          ]
-
-    genUsernameAndPasswordComponents =
-      genConditionally isUsernameAndPasswordAuthEnabled $
-        sequence
-          [ genFileCopyInAuthFormsInternal [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
-          ]
-
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
-
-genDummyEmailSenderNotice :: Bool -> Generator [FileDraft]
-genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled =
-  genConditionally isDummyEmailSenderNoticeEnabled $
-    sequence
-      [ genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.tsx|],
-        genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.module.css|]
-      ]
-
-genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
-genLoginSignupForm auth =
-  sequence
-    [ genLoginSigunFormComponent,
-      genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
-    ]
-  where
-    genLoginSigunFormComponent =
-      return $
-        mkTmplFdWithData
-          (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
-          loginSignupFormComponentTmplData
-    loginSignupFormComponentTmplData =
-      object
         [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
-          "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
-          "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "microsoftSignInPath" .= OAuth.serverLoginUrl microsoftAuthProvider,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+          "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+          "isDummyEmailSenderNoticeEnabled" .= isDummyEmailSenderNoticeEnabled,
+          "socialProviders" .= map makeSocialProviderJson enabledSocialProviders
         ]
-    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
-    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+    isDummyEmailSenderNoticeEnabled = AS.Auth.isEmailAuthEnabled auth && isDummyEmailSenderUsed
+    isDummyEmailSenderUsed = maybe False AS.EmailSender.isDummyEmailSender maybeEmailSender
 
-genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
-genConditionally isEnabled gen = if isEnabled then gen else return []
+    -- The order decides the order of the social buttons in the forms.
+    enabledSocialProviders =
+      concat
+        [ [slackAuthProvider | AS.Auth.isSlackAuthEnabled auth],
+          [discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
+          [googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+          [keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
+          [gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+          [microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth]
+        ]
 
-authFormsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authFormsDirInSdkTemplatesDir = [reldir|auth/forms|]
-
-genFileCopyInAuthForms :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInAuthForms =
-  genFileCopy . (authFormsDirInSdkTemplatesDir </>)
-
-authFormsInternalDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authFormsInternalDirInSdkTemplatesDir = authFormsDirInSdkTemplatesDir </> [reldir|internal|]
-
-genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInAuthFormsInternal =
-  genFileCopy . (authFormsInternalDirInSdkTemplatesDir </>)
+    makeSocialProviderJson :: OAuthAuthProvider -> Aeson.Value
+    makeSocialProviderJson provider =
+      object
+        [ "providerName" .= OAuth.providerId provider,
+          "signInPath" .= OAuth.serverLoginUrl provider
+        ]
