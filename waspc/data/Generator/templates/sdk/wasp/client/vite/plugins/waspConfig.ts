@@ -62,6 +62,9 @@ export function waspConfig(): PluginOption {
         build: {
           outDir: forcedOptions["build.outDir"],
         },
+        ssr: {
+          noExternal: ["@wasp.sh/lib-sdk-core"],
+        },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
           // causes runtime errors (e.g., hook rule violation in react, QueryClient

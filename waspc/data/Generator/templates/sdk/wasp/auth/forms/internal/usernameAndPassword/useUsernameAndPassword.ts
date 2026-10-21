@@ -1,5 +1,5 @@
-import { login, signup } from '../../../username'
-import type { UsernameSignupData } from "../../../username/actions/signup";
+import { login } from '../../../username/actions/login'
+import { signup, type UsernameSignupData } from '../../../username/actions/signup'
 
 // PRIVATE API
 export function useUsernameAndPassword({

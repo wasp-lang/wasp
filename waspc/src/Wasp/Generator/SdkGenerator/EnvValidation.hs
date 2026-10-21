@@ -34,9 +34,7 @@ genEnvValidation spec =
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
   sequence
-    [ genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|]
-    ]
+    [genFileCopy [relfile|env/index.ts|]]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec = sequence [genServerEnv spec]

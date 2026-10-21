@@ -1,11 +1,15 @@
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
-import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
-import type { SpecificOptimisticUpdateDefinition } from "../hooks.js";
-import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
+  type ActionFor,
+  type SpecificOptimisticUpdateDefinition,
   registerActionInProgress,
   registerActionDone,
-} from '../internal/resources.js'
+} from '@wasp.sh/lib-sdk-core/browser'
+import {
+  makeOperationRoute,
+  type OperationRpcFor,
+  type GenericBackendOperation,
+} from '@wasp.sh/lib-sdk-core'
+import { callOperation } from '../internal/index.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
@@ -47,7 +51,3 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   // https://www.typescriptlang.org/play/?#code/MYewdgzgLgBCBGArGBeGBvGBDAXDA5AGYgj4wC+AUAogHTyoHxYBO+llA9JzIQK5hgUAJbhsAG3EgA7hGxgYAUwBuIccuFgA5jCgBPAA6KY8PrBqKhMACYhFcsCCiVQkWPwVoAFAEpUAPgJiUkoPekZ8ZjYgA
   return action as unknown as ActionFor<BackendAction>
 }
-
-// PRIVATE API
-export type ActionFor<BackendAction extends GenericBackendOperation> =
-  OperationRpcFor<BackendAction>

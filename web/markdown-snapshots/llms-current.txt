@@ -8,6 +8,7 @@
 - [Agent integration](https://wasp.sh/docs/getting-started/agent-integration.md)
 ### Tutorial
 - [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
+- [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
 - [2. Project structure](https://wasp.sh/docs/tutorial/project-structure.md)
 - [3. Pages and routes](https://wasp.sh/docs/tutorial/pages.md)
 - [4. Database entities](https://wasp.sh/docs/tutorial/entities.md)
@@ -86,7 +87,8 @@
 - [CI & CD](https://wasp.sh/docs/deployment/ci-cd.md)
 - [Extras](https://wasp.sh/docs/deployment/extras.md)
 ### Migration guides
-- [From 0.25 to 0.26](https://wasp.sh/docs/migration-guide.md)
+- [From 0.26 to 0.27](https://wasp.sh/docs/migration-guide.md)
+- [From 0.25 to 0.26](https://wasp.sh/docs/0.26/migration-guide.md)
 - [From 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide.md)
 - [From 0.23 to 0.24](https://wasp.sh/docs/0.24/migration-guide.md)
 - [From 0.22 to 0.23](https://wasp.sh/docs/0.23/migration-guide.md)

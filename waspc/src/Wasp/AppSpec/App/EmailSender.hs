@@ -6,6 +6,7 @@ module Wasp.AppSpec.App.EmailSender
   ( EmailSender (..),
     EmailProvider (..),
     EmailFromField (..),
+    isDummyEmailSender,
   )
 where
 
@@ -21,6 +22,9 @@ data EmailSender = EmailSender
 
 data EmailProvider = SMTP | SendGrid | Mailgun | Resend | Dummy
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+isDummyEmailSender :: EmailSender -> Bool
+isDummyEmailSender emailSender = provider emailSender == Dummy
 
 data EmailFromField = EmailFromField
   { name :: Maybe String,

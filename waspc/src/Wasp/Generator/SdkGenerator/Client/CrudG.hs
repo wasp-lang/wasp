@@ -6,7 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir', File', Path', Rel, Rel', castRel, parseRelFile, reldir, relfile, (</>))
+import StrongPath (Dir', Path', Rel, castRel, parseRelFile, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
@@ -15,7 +15,6 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
-    genFileCopy,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
   )
@@ -25,10 +24,7 @@ genClientCrudApi :: AppSpec -> Generator [FileDraft]
 genClientCrudApi spec =
   if areThereAnyCruds
     then
-      sequence
-        [ genCrudIndex spec cruds,
-          genFileCopyInClientCrud [relfile|operationsHelpers.ts|]
-        ]
+      sequence [genCrudIndex spec cruds]
         <++> genCrudOperations spec cruds
     else return []
   where
@@ -63,7 +59,3 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
 
 clientCrudDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 clientCrudDirInSdkTemplatesDir = [reldir|client/crud|]
-
-genFileCopyInClientCrud :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInClientCrud =
-  genFileCopy . (clientCrudDirInSdkTemplatesDir </>)
