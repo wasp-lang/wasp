@@ -14,7 +14,7 @@ import InstallInstructions from './_install-instructions.md'
 
 Wasp no longer installs and runs [Vitest](https://vitest.dev/) for you. You set it up like in any other Vite app, so you choose the versions of Vitest and the testing libraries.
 
-The `wasp/client/test` helpers for rendering components and mocking queries and APIs still work. Read more in the [testing docs](./advanced/testing.md).
+The helpers for rendering components and mocking queries and APIs moved from `wasp/client/test` to the `@wasp.sh/test-utils` package, and work the same. Read more in the [testing docs](./advanced/testing.md).
 
 ## How to migrate?
 
@@ -51,7 +51,7 @@ wasp install
 
 ### 2. Update your Vitest setup
 
-The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
+The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The testing helpers (`renderInContext` and `mockServer`) moved from `wasp/client/test` to the `@wasp.sh/test-utils` package, which needs `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
 Follow the part that matches your app.
 
@@ -137,10 +137,10 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 #### If you use Vitest
 
-1. Install Vitest and the testing libraries your tests use:
+1. Install Vitest, the testing libraries your tests use, and Wasp's testing helpers:
 
    ```bash
-   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp.sh/test-utils
    ```
 
 2. Add the options Wasp used to set for you to your `vite.config.ts`:
@@ -189,7 +189,24 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
    });
    ```
 
-4. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
+4. Import the testing helpers from `@wasp.sh/test-utils` instead of `wasp/client/test`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="src/TaskList.test.tsx"
+       // highlight-next-line
+       import { mockServer, renderInContext } from "wasp/client/test";
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="src/TaskList.test.tsx"
+       // highlight-next-line
+       import { mockServer, renderInContext } from "@wasp.sh/test-utils";
+       ```
+     </TabItem>
+   </Tabs>
+
+5. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
 
    ```bash
    wasp compile

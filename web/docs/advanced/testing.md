@@ -1,23 +1,24 @@
 # Testing
 
-Currently, Wasp only provides helpers for testing your client code with [Vitest](https://vitest.dev/).
+Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/) in the `@wasp.sh/test-utils` package.
 Server-side testing is not yet supported, but you can track its progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
 
 ## Setting up Vitest for client tests
 
 ### Installing the packages
 
-Install Vitest and the libraries for testing React components:
+Install Vitest, the libraries for testing React components, and Wasp's testing helpers:
 
 ```bash
-npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp.sh/test-utils
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
 - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds DOM matchers like `toBeInTheDocument()`.
-- [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
+- [`msw`](https://mswjs.io/): mocks HTTP requests. The Wasp helpers use it to mock your queries and APIs.
+- [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs.
 
 ### Configuring Vitest
 
@@ -114,7 +115,7 @@ test("areThereAnyTasks", () => {
 Wasp wraps every page of your app in providers: React Query for queries and actions, and React Router for links.
 A component that uses queries, actions, or links fails to render without them.
 
-`renderInContext` from `wasp/client/test` renders a component inside the same providers:
+`renderInContext` from `@wasp.sh/test-utils` renders a component inside the same providers:
 
 ```tsx title="src/tasks/TasksHeader.tsx" auto-js
 import { Link } from "wasp/client/router";
@@ -131,8 +132,8 @@ export function TasksHeader() {
 
 ```tsx title="src/tasks/TasksHeader.test.tsx" auto-js
 import { screen } from "@testing-library/react";
+import { renderInContext } from "@wasp.sh/test-utils";
 import { expect, test } from "vitest";
-import { renderInContext } from "wasp/client/test";
 import { TasksHeader } from "./TasksHeader";
 
 test("links back home", () => {
@@ -169,9 +170,9 @@ export function TaskList() {
 
 ```tsx title="src/tasks/TaskList.test.tsx" auto-js
 import { screen } from "@testing-library/react";
+import { mockServer, renderInContext } from "@wasp.sh/test-utils";
 import { expect, test } from "vitest";
 import { getTasks } from "wasp/client/operations";
-import { mockServer, renderInContext } from "wasp/client/test";
 import { TaskList } from "./TaskList";
 
 const { mockQuery } = mockServer();
@@ -214,9 +215,9 @@ export function TaskStats() {
 
 ```tsx title="src/tasks/TaskStats.test.tsx" auto-js
 import { screen } from "@testing-library/react";
+import { mockServer, renderInContext } from "@wasp.sh/test-utils";
 import { test } from "vitest";
 import { HttpMethod } from "wasp/client";
-import { mockServer, renderInContext } from "wasp/client/test";
 import { TaskStats } from "./TaskStats";
 
 const { mockApi } = mockServer();
@@ -232,7 +233,7 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`wasp/client/test` exports these helpers. Importing any of them needs `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`, even if you only use `renderInContext` or `WaspTestWrapper`.
+`@wasp.sh/test-utils` exports these helpers. Importing any of them needs `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`, even if you only use `renderInContext` or `WaspTestWrapper`.
 
 - `renderInContext(ui, options?)`
 
