@@ -19,6 +19,10 @@ npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds DOM matchers like `toBeInTheDocument()`.
 - [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
 
+:::note
+When Wasp compiles your app, it type-checks the test files in your `src` folder like the rest of your code. Install the testing packages before you add tests, or compiling fails because it can't find their imports.
+:::
+
 ### Configuring Vitest
 
 Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it:
@@ -71,17 +75,28 @@ export default defineConfig({
 
 ### Running your tests
 
-Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app.
-Keep `wasp start` running in one terminal, and run Vitest in another:
+Add a script for running your tests to your `package.json`:
 
-```sh
-npx vitest run
+```json title="package.json"
+{
+  "scripts": {
+    "test": "vitest"
+  }
+}
 ```
 
-Alternatively, you can run Vitest in watch mode to follow your app's changes:
+Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app.
+Keep `wasp start` running in one terminal, and run your tests in another:
 
 ```sh
-npx vitest
+npm test
+```
+
+Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `wasp compile` before running the tests:
+
+```sh
+wasp compile
+npm test
 ```
 
 If you prefer a UI for your test results, install [`@vitest/ui`](https://vitest.dev/guide/ui) and run `npx vitest --ui`.
