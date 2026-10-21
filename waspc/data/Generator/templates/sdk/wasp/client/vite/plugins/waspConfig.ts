@@ -1,5 +1,7 @@
 {{={= =}=}}
 /// <reference types="vitest/config" />
+import { createRequire } from "node:module";
+import path from "node:path";
 import type { PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
 
@@ -43,6 +45,7 @@ export function waspConfig(): PluginOption {
     enforce: "pre",
     config(config) {
       throwIfOverridingForcedOptions(config);
+      const generatedPrismaClientDir = getGeneratedPrismaClientDir();
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
@@ -81,12 +84,12 @@ export function waspConfig(): PluginOption {
               // folder. We point it to the correct place here.
               // TODO: Check if we can remove when updating Prisma (#2504)
               find: /^\.prisma\/client\/(.+)$/,
-              replacement: "node_modules/.prisma/client/$1.js",
+              replacement: `${generatedPrismaClientDir}/$1.js`,
             },
             {
               // Handle bare .prisma/client import
               find: /^\.prisma\/client$/,
-              replacement: "node_modules/.prisma/client",
+              replacement: generatedPrismaClientDir,
             },
           ],
         },
@@ -102,6 +105,24 @@ export function waspConfig(): PluginOption {
       };
     },
   };
+}
+
+// `prisma generate` writes the generated client into a `.prisma/client` dir
+// next to the installed `@prisma/client` package. Where that is depends on the
+// package manager, so we ask Node where the SDK's `@prisma/client` is. Node
+// follows symlinks, so we get its real location.
+function getGeneratedPrismaClientDir(): string {
+  const prismaClientPackageJson = createRequire(import.meta.url).resolve(
+    "@prisma/client/package.json",
+  );
+  // From `<node_modules>/@prisma/client` to `<node_modules>/.prisma/client`.
+  return path.join(
+    path.dirname(prismaClientPackageJson),
+    "..",
+    "..",
+    ".prisma",
+    "client",
+  );
 }
 
 function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {

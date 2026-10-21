@@ -16,14 +16,12 @@ module Wasp.Generator.DbGenerator.Common
     PrismaDbSchema,
     dbSchemaFileInGeneratedAppDir,
     DbSchemaChecksumFile,
-    dbSchemaFileInNodeModulesDir,
   )
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import Wasp.Generator.Common (DbRootDir, GeneratedAppComponentDir, GeneratedAppDir)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
@@ -67,9 +65,6 @@ dbSchemaFileFromGeneratedAppComponentDir = dbRootDirFromGeneratedAppComponentDir
 
 dbSchemaFileInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File PrismaDbSchema)
 dbSchemaFileInGeneratedAppDir = dbRootDirInGeneratedAppDir </> dbSchemaFileInDbRootDir
-
-dbSchemaFileInNodeModulesDir :: Path' (Rel GeneratedAppDir) (File PrismaDbSchema)
-dbSchemaFileInNodeModulesDir = waspProjectDirFromGeneratedAppDir </> [relfile|node_modules/.prisma/client/schema.prisma|]
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]

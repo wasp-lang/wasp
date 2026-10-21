@@ -11,7 +11,10 @@ import Data.Aeson (object, (.=))
 import Data.List (find)
 import Data.Maybe (maybeToList)
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, File, Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, Path', (</>))
+import qualified StrongPath as SP
+import qualified System.Directory as Dir
+import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -33,7 +36,6 @@ import Wasp.Generator.DbGenerator.Common
     dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir,
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInGeneratedAppDir,
-    dbSchemaFileInNodeModulesDir,
     dbTemplatesDirInTemplatesDir,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
@@ -45,6 +47,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
@@ -234,16 +237,15 @@ generatePrismaClient spec generatedAppDir = do
     isCurrentSchemaUpToDate =
       checksumFileExistsAndMatchesSchema
         generatedAppDir
-        Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
+        (generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir)
 
     -- If the generated client's schema doesn't match the current Wasp schema.prisma,
     -- we should regenerate the client.
     -- This can happen if the user runs `npx prisma generate` manually.
     isNodeModulesSchemaSameAsProjectSchema :: IO Bool
     isNodeModulesSchemaSameAsProjectSchema =
-      checksumFileExistsAndMatchesSchema
-        generatedAppDir
-        Wasp.Generator.DbGenerator.Common.dbSchemaFileInNodeModulesDir
+      findGeneratedPrismaClientSchemaFile generatedAppDir
+        >>= maybe (return False) (checksumFileExistsAndMatchesSchema generatedAppDir)
 
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
@@ -253,17 +255,41 @@ generatePrismaClient spec generatedAppDir = do
 
     entitiesExist = hasEntities spec
 
+-- | `prisma generate` writes the generated client into a `.prisma/client` dir
+-- next to the installed `@prisma/client` package. Where that is depends on the
+-- package manager, so we look up `@prisma/client` from the SDK (which depends
+-- on it) like Node would, and follow its symlinks to the real location.
+findGeneratedPrismaClientSchemaFile :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe (Path' Abs (File PrismaDbSchema)))
+findGeneratedPrismaClientSchemaFile generatedAppDir =
+  (>>= SP.parseAbsFile . schemaFileNextTo) <$> findPrismaClientPackageDir sdkDir
+  where
+    sdkDir = SP.fromAbsDir $ generatedAppDir </> sdkRootDirInGeneratedAppDir
+    -- From `<node_modules>/@prisma/client` to `<node_modules>/.prisma/client/schema.prisma`.
+    schemaFileNextTo prismaClientPackageDir =
+      FP.takeDirectory (FP.takeDirectory prismaClientPackageDir) FP.</> ".prisma" FP.</> "client" FP.</> "schema.prisma"
+
+-- | Searches the `node_modules` dir in the given dir and each of its ancestors,
+-- the same way Node resolves a package.
+findPrismaClientPackageDir :: FilePath -> IO (Maybe FilePath)
+findPrismaClientPackageDir dir =
+  ifM
+    (Dir.doesDirectoryExist candidate)
+    (Just <$> Dir.canonicalizePath candidate)
+    (if parentDir == dir then return Nothing else findPrismaClientPackageDir parentDir)
+  where
+    candidate = dir FP.</> "node_modules" FP.</> "@prisma" FP.</> "client"
+    parentDir = FP.takeDirectory dir
+
 checksumFileExistsAndMatchesSchema ::
   Path' Abs (Dir GeneratedAppDir) ->
-  Path' (Rel GeneratedAppDir) (File PrismaDbSchema) ->
+  Path' Abs (File PrismaDbSchema) ->
   IO Bool
-checksumFileExistsAndMatchesSchema generatedAppDir schemaFileInProjectDir =
+checksumFileExistsAndMatchesSchema generatedAppDir dbSchemaFileAbs =
   ifM
     (IOUtil.doesFileExist checksumFileAbs)
     (checksumFileMatchesSchema dbSchemaFileAbs checksumFileAbs)
     (return False)
   where
-    dbSchemaFileAbs = generatedAppDir </> schemaFileInProjectDir
     checksumFileAbs = generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir
 
 checksumFileMatchesSchema :: (Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f) => Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
