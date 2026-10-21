@@ -90,7 +90,7 @@
                 },
                 {
                     "name": "@wasp.sh/wasp-app-runner",
-                    "version": "^0.0.17"
+                    "version": "^0.0.18"
                 },
                 {
                     "name": "prisma",
@@ -123,24 +123,12 @@
                 "version": "5.19.1"
             },
             {
-                "name": "dotenv",
-                "version": "^16.6.1"
-            },
-            {
-                "name": "dotenv-expand",
-                "version": "^12.0.3"
-            },
-            {
                 "name": "express",
                 "version": "~5.1.0"
             },
             {
                 "name": "ky",
                 "version": "^2.0.0"
-            },
-            {
-                "name": "mitt",
-                "version": "3.0.0"
             },
             {
                 "name": "react",
@@ -165,6 +153,10 @@
             {
                 "name": "superjson",
                 "version": "^2.2.1"
+            },
+            {
+                "name": "@vitejs/plugin-react",
+                "version": "^6.0.3"
             },
             {
                 "name": "arctic",
@@ -224,21 +216,25 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-sdk-core",
+                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-test-utils",
+                "version": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
+                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
             }
         ],
         "devDependencies": [
             {
                 "name": "typescript",
                 "version": "6.0.3"
-            },
-            {
-                "name": "@vitejs/plugin-react",
-                "version": "^6.0.3"
             },
             {
                 "name": "@types/express",
@@ -249,15 +245,32 @@
                 "version": "^5.0.0"
             },
             {
+                "name": "@types/node",
+                "version": "^24.0.0"
+            },
+            {
                 "name": "@types/react",
                 "version": "^19.2.7"
             },
             {
                 "name": "@types/react-dom",
                 "version": "^19.2.3"
+            },
+            {
+                "name": "@types/nodemailer",
+                "version": "^8.0.0"
             }
         ],
-        "peerDependencies": []
+        "peerDependencies": [
+            {
+                "name": "vite",
+                "version": "^8.1.0"
+            },
+            {
+                "name": "vitest",
+                "version": "^4.1.9"
+            }
+        ]
     },
     "_waspServerNpmDeps": {
         "dependencies": [
@@ -267,11 +280,19 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-sdk-core",
+                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-test-utils",
+                "version": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
+                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
             },
             {
                 "name": "cookie-parser",
@@ -295,7 +316,7 @@
             },
             {
                 "name": "morgan",
-                "version": "~1.11.0"
+                "version": "~1.12.1"
             },
             {
                 "name": "socket.io",

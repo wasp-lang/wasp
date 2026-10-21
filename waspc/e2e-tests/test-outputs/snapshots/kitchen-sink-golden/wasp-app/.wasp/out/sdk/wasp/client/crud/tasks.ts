@@ -1,6 +1,6 @@
-import { createAction, type ActionFor } from "../operations/actions/core";
-import { createQuery, type QueryFor } from "../operations/queries/core";
-import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers";
+import { createAction } from "../operations/actions/core";
+import { createQuery } from "../operations/queries/core";
+import { makeUseActionFor, makeUseQueryFor, type ActionFor, type QueryFor, type UseActionFor, type UseQueryFor } from "@wasp.sh/lib-sdk-core/browser";
 import type {
   RegisteredGetQuery,
   RegisteredGetAllQuery,
@@ -49,23 +49,23 @@ export interface TaskDelete {
 function createCrud(): TaskCrud {
   const crudGetQuery = createQuery<RegisteredGetQuery>(
     'crud/tasks/get',
-    ['Task']
+    ["Task"]
   )
   const crudGetAllQuery = createQuery<RegisteredGetAllQuery>(
     'crud/tasks/get-all',
-    ['Task']
+    ["Task"]
   )
   const crudCreateAction = createAction<RegisteredCreateAction>(
     'crud/tasks/create',
-    ['Task']
+    ["Task"]
   )
   const crudUpdateAction = createAction<RegisteredUpdateAction>(
     'crud/tasks/update',
-    ['Task']
+    ["Task"]
   )
   const crudDeleteAction = createAction<RegisteredDeleteAction>(
     'crud/tasks/delete',
-    ['Task']
+    ["Task"]
   )
   return {
     get: {
@@ -90,4 +90,3 @@ function createCrud(): TaskCrud {
     },
   }
 }
-

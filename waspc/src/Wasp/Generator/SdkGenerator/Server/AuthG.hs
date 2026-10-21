@@ -23,6 +23,7 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
@@ -40,10 +41,9 @@ genServerAuth spec =
           genUtils auth
         ]
         <++> genAuthEmail auth
-        <++> genAuthUsername auth
         <++> genOAuth auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = AS.App.auth $ getApp spec
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
@@ -118,8 +118,8 @@ genUtils auth =
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "failureRedirectPath" .= makeJsStringLiteral (AS.Auth.onAuthFailedRedirectTo auth),
+          "successRedirectPath" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
@@ -149,12 +149,6 @@ genEmailUtils auth =
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
-    else return []
 
 serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]

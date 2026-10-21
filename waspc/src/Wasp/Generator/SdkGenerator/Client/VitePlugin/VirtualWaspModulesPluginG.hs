@@ -17,12 +17,12 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.Vi
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genVirtualWaspModulesPlugin :: AppSpec -> Generator [FileDraft]
 genVirtualWaspModulesPlugin spec =
   sequence
     [ genVirtualWaspModulesTs,
-      genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
       genVirtualSsrEntryTsx spec,
@@ -35,13 +35,6 @@ genVirtualFilesIndexTs =
     C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
-
-genVirtualFilesResolverTs :: Generator FileDraft
-genVirtualFilesResolverTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
 genVirtualWaspModulesTs :: Generator FileDraft
 genVirtualWaspModulesTs =
@@ -65,7 +58,7 @@ genVirtualClientEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
-          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
+          "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec))
         ]
 
 genVirtualSsrEntryTsx :: AppSpec -> Generator FileDraft
@@ -78,11 +71,11 @@ genVirtualSsrEntryTsx spec =
       object
         [ "routeObjects" .= routeObjectsImportJson,
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
+          "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec))
         ]
 
 routeObjectsImportJson :: Value
 routeObjectsImportJson =
-  jsImportToImportJson $
-    Just $
-      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
+  jsImportToImportJson
+    $ Just
+    $ makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")

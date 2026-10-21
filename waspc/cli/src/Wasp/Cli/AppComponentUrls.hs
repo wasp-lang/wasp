@@ -1,25 +1,24 @@
 module Wasp.Cli.AppComponentUrls
   ( makeDefaultUrls,
-    makeDefaultDevClientUrl,
-    defaultDevServerUrl,
+    makeAppComponentUrls,
   )
 where
 
-import Wasp.AppComponentUrl (AppComponentUrl (..))
+import Network.Socket (PortNumber)
+import Network.URI (URI)
+import Wasp.AppComponentUrl (AppComponentUrl, makeAppComponentUrl)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 
 makeDefaultUrls :: AppSpec -> (AppComponentUrl, AppComponentUrl)
-makeDefaultUrls appSpec = (clientUrl, serverUrl)
-  where
-    clientUrl = makeDefaultDevClientUrl appSpec
-    serverUrl = defaultDevServerUrl
+makeDefaultUrls appSpec =
+  makeAppComponentUrls appSpec (defaultDevClientPort, defaultDevServerPort) (Nothing, Nothing)
 
-makeDefaultDevClientUrl :: AppSpec -> AppComponentUrl
-makeDefaultDevClientUrl spec =
-  Local {port = defaultDevClientPort, path = Just $ WebAppG.getBaseDir spec}
-
-defaultDevServerUrl :: AppComponentUrl
-defaultDevServerUrl =
-  Local {port = defaultDevServerPort, path = Nothing}
+-- | Builds the client and server URLs from the ports they listen on and,
+-- optionally, custom URLs to use instead of @http://localhost:<port>@.
+makeAppComponentUrls :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> (AppComponentUrl, AppComponentUrl)
+makeAppComponentUrls appSpec (clientPort, serverPort) (customClientUrl, customServerUrl) =
+  ( makeAppComponentUrl clientPort (Just $ WebAppG.getBaseDir appSpec) customClientUrl,
+    makeAppComponentUrl serverPort Nothing customServerUrl
+  )

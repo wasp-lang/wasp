@@ -4,6 +4,7 @@ module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
     askForRequiredInput,
+    tryGettingConfirmation,
     tryGettingConfirmationWithTimeout,
     IsOption (..),
     ConfirmationError (..),
@@ -18,6 +19,7 @@ import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import System.IO (hFlush, hIsTerminalDevice, stdin, stdout)
 import System.Timeout (timeout)
@@ -128,18 +130,21 @@ askToChoose question options = do
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 
-tryGettingConfirmationWithTimeout :: String -> String -> Int -> IO (Either ConfirmationError ())
-tryGettingConfirmationWithTimeout message requiredAnswer timeoutSeconds = do
+tryGettingConfirmation :: String -> String -> IO (Either ConfirmationError ())
+tryGettingConfirmation message requiredAnswer = do
   isInteractive <- hIsTerminalDevice stdin
   if not isInteractive
     then return $ Left NonInteractiveShell
     else
-      timeout timeoutMicroseconds (askForInput message)
-        <&> \case
-          Nothing -> Left Timeout
-          Just actualAnswer
-            | actualAnswer == requiredAnswer -> Right ()
-            | otherwise -> Left $ WrongAnswer actualAnswer
+      askForInput message <&> \actualAnswer ->
+        if actualAnswer == requiredAnswer
+          then Right ()
+          else Left $ WrongAnswer actualAnswer
+
+tryGettingConfirmationWithTimeout :: String -> String -> Int -> IO (Either ConfirmationError ())
+tryGettingConfirmationWithTimeout message requiredAnswer timeoutSeconds =
+  timeout timeoutMicroseconds (tryGettingConfirmation message requiredAnswer)
+    <&> fromMaybe (Left Timeout)
   where
     timeoutMicroseconds = timeoutSeconds * 10 ^ (6 :: Int)
 

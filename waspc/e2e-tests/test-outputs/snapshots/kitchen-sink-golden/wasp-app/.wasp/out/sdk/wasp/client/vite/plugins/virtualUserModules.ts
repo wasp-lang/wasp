@@ -9,7 +9,7 @@ import type { Plugin } from "vite";
  * clientVirtualUserModuleMap["virtual:wasp/user/env"] // => "./src/env"
  */
 const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
-  'virtual:wasp/user/env': './src/env',
+  "virtual:wasp/user/env": "./src/env",
 };
 
 /**

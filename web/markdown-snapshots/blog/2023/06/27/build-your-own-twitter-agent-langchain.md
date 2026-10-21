@@ -1352,7 +1352,7 @@ Let’s try it out now in our `MainPage` by adding the following snippet above o
 
 Great. Now we should be sitting pretty 😻
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 8-65eeeb0b76e575e06900254bd8c07940.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 8-520e26c0f08c60eea93de0b79d082269.png>)
 
 You might remember from the beginning of the tutorial when we defined the LLM calls, that if your vector store notes don’t turn back a cosine similarity of at least 0.7, your agent will generate its own ideas entirely without using your notes as a guide.
 

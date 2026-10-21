@@ -1,9 +1,7 @@
----
-title: 4. Database Entities
----
-
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
+
+# 4. Database entities
 
 Entities are one of the most important concepts in Wasp and are how you define what gets stored in the database.
 
@@ -25,7 +23,7 @@ model Task {
 </TutorialAction>
 
 :::note
-Read more about how Wasp Entities work in the [Entities](../data-model/entities.md) section or how Wasp uses the `schema.prisma` file in the [Prisma Schema File](../data-model/prisma-file.md) section.
+Read more about how Wasp Entities work in the [Entities](../features/data/entities.md) section or how Wasp uses the `schema.prisma` file in the [Prisma schema file](../features/data/prisma-file.md) section.
 :::
 
 To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:

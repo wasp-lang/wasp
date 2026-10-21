@@ -27,24 +27,24 @@ import type {
   BoolToVoidAuth,
   JsActionWithArgs,
 } from './types'
-import { customSignup as customSignup_ext } from 'virtual:wasp/user/features/auth/customSignup'
-import { createTask as createTask_ext } from 'virtual:wasp/user/features/operations/actions'
-import { updateTaskIsDone as updateTaskIsDone_ext } from 'virtual:wasp/user/features/operations/actions'
-import { deleteCompletedTasks as deleteCompletedTasks_ext } from 'virtual:wasp/user/features/operations/actions'
-import { toggleAllTasks as toggleAllTasks_ext } from 'virtual:wasp/user/features/operations/actions'
-import { requestUppercaseText as requestUppercaseText_ext } from 'virtual:wasp/user/features/jobs/uppercaseText'
-import { testingAction as testingAction_ext } from 'virtual:wasp/user/rpcTests/operations/server'
-import { taskToTaskUnspecified as taskToTaskUnspecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { taskToTaskSatisfies as taskToTaskSatisfies_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { taskToTaskSpecified as taskToTaskSpecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { voidToStringAuth as voidToStringAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { voidToStringNoAuth as voidToStringNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { unspecifiedToNumber as unspecifiedToNumber_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToStringAuth as boolToStringAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToStringNoAuth as boolToStringNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToVoidNoAuth as boolToVoidNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToVoidAuth as boolToVoidAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { jsActionWithArgs as jsActionWithArgs_ext } from 'virtual:wasp/user/rpcTests/operations/jsDefinitions'
+import { customSignup as customSignup_ext } from "virtual:wasp/user/features/auth/customSignup"
+import { createTask as createTask_ext } from "virtual:wasp/user/features/operations/actions"
+import { updateTaskIsDone as updateTaskIsDone_ext } from "virtual:wasp/user/features/operations/actions"
+import { deleteCompletedTasks as deleteCompletedTasks_ext } from "virtual:wasp/user/features/operations/actions"
+import { toggleAllTasks as toggleAllTasks_ext } from "virtual:wasp/user/features/operations/actions"
+import { requestUppercaseText as requestUppercaseText_ext } from "virtual:wasp/user/features/jobs/uppercaseText"
+import { testingAction as testingAction_ext } from "virtual:wasp/user/rpcTests/operations/server"
+import { taskToTaskUnspecified as taskToTaskUnspecified_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { taskToTaskSatisfies as taskToTaskSatisfies_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { taskToTaskSpecified as taskToTaskSpecified_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { voidToStringAuth as voidToStringAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { voidToStringNoAuth as voidToStringNoAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { unspecifiedToNumber as unspecifiedToNumber_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { boolToStringAuth as boolToStringAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { boolToStringNoAuth as boolToStringNoAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { boolToVoidNoAuth as boolToVoidNoAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { boolToVoidAuth as boolToVoidAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
+import { jsActionWithArgs as jsActionWithArgs_ext } from "virtual:wasp/user/rpcTests/operations/jsDefinitions"
 
 // PRIVATE API
 export type RegisteredCustomSignup = FromRegisterPath<['operations', 'customSignup'], CustomSignup>

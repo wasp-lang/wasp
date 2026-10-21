@@ -8,7 +8,7 @@
  */
 {=# virtualUserModules =}
 
-declare module "{=& virtualModuleId =}" {
+declare module {=& virtualModuleId =} {
   {=# isDefaultExport =}
   const _default: {=& declaredType =};
   export default _default;

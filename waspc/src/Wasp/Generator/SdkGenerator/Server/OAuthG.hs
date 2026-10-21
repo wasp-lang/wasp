@@ -37,8 +37,7 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genFileCopyInServerOAuth [relfile|oneTimeCode.ts|],
-          genFileCopyInServerOAuth [relfile|provider.ts|]
+          genFileCopyInServerOAuth [relfile|oneTimeCode.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -104,7 +103,7 @@ depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
   [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
-    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
+    maybeAuth = AS.App.auth $ AS.Valid.getApp spec
 
 serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]

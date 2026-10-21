@@ -17,7 +17,7 @@ import { defaultExclude } from "vitest/config";
 //    appends them to whatever the user already has.
 
 const forcedOptions = {
-  base: "{= baseDir =}",
+  base: {=& baseDir =},
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
   // Heads up! The env referred to by `clientPortEnvVarName` is empty during
@@ -61,6 +61,9 @@ export function waspConfig(): PluginOption {
         envPrefix: forcedOptions["envPrefix"],
         build: {
           outDir: forcedOptions["build.outDir"],
+        },
+        ssr: {
+          noExternal: ["@wasp.sh/lib-sdk-core"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them

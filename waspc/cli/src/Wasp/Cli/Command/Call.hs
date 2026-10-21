@@ -6,7 +6,7 @@ data Call
   | StartDb Arguments
   | Clean
   | Install
-  | Uninstall
+  | Uninstall Arguments
   | Compile
   | Db Arguments -- db args
   | Build

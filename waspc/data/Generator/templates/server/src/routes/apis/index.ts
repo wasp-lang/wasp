@@ -30,13 +30,13 @@ const {=& routeMiddlewareConfigFn.importAlias =} = idFn
 const router = express.Router()
 
 {=# apiNamespaces =}
-router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
+router.use({=& namespacePath =}, globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
 {=/ apiNamespaces =}
 
 {=# apiRoutes =}
 const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importAlias =})
 router.{= routeMethod =}(
-  '{= routePath =}',
+  {=& routePath =},
   {=# usesAuth =}
   [auth, ...{= apiName =}Middleware],
   {=/ usesAuth =}

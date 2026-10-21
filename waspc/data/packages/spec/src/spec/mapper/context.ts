@@ -72,7 +72,7 @@ export function makeAppMapperContext({
 function makeKeyForDecl(decl: AppSpec.Decl): string {
   // We're keying by type+name since waspc allows Decls with the same name
   // if they are different types.
-  return `${decl.declType}:${decl.declName}`;
+  return `${decl.declType}:${decl.declValue.name}`;
 }
 
 export function makeRefParser<T extends AppSpec.DeclType>(
@@ -98,9 +98,9 @@ function makeConflictingDeclsError(
   incomingDecl: AppSpec.Decl,
 ): WaspSpecUserError {
   return new WaspSpecUserError(
-    `Conflicting configurations for the ${declTypeDisplayNames[existingDecl.declType]} \`${existingDecl.declName}\`:\n\n` +
-      `\`${existingDecl.declName}\` (A):\n${showDecl(existingDecl)}\n\n` +
-      `\`${incomingDecl.declName}\` (B):\n${showDecl(incomingDecl)}\n\n` +
+    `Conflicting configurations for the ${declTypeDisplayNames[existingDecl.declType]} \`${existingDecl.declValue.name}\`:\n\n` +
+      `\`${existingDecl.declValue.name}\` (A):\n${showDecl(existingDecl)}\n\n` +
+      `\`${incomingDecl.declValue.name}\` (B):\n${showDecl(incomingDecl)}\n\n` +
       `All definitions with the same name must produce the same configuration.\n` +
       "If the duplication was intentional, please use a different name to differentiate them.",
   );

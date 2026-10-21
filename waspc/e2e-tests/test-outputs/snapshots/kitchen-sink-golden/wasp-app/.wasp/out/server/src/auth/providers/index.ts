@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { setupOneTimeCodeRoute } from "./oauth/oneTimeCode";
 
-import slack from './config/slack.js'
-import discord from './config/discord.js'
-import github from './config/github.js'
-import google from './config/google.js'
-import microsoft from './config/microsoft.js'
-import email from './config/email.js'
+import slack from "./config/slack.js"
+import discord from "./config/discord.js"
+import github from "./config/github.js"
+import google from "./config/google.js"
+import microsoft from "./config/microsoft.js"
+import email from "./config/email.js"
 
 const providers = [
   slack,

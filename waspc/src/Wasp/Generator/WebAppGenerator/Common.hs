@@ -16,7 +16,7 @@ import Wasp.AppSpec.Valid (getApp)
 getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
 getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
   where
-    maybeBaseDir = SP.parseAbsDirP =<< (AS.App.Client.baseDir =<< AS.App.client (snd $ getApp spec))
+    maybeBaseDir = SP.parseAbsDirP =<< (AS.App.Client.baseDir =<< AS.App.client (getApp spec))
 
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "REACT_APP_API_URL"

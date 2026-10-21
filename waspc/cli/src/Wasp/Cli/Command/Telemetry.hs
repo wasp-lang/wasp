@@ -26,13 +26,13 @@ isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
 telemetry :: Command ()
 telemetry = do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  cliSendMessageC $
-    Msg.Info $
-      "Telemetry is currently: "
-        <> ( if telemetryDisabled
-               then "DISABLED"
-               else "ENABLED"
-           )
+  cliSendMessageC
+    $ Msg.Info
+    $ "Telemetry is currently: "
+      <> ( if telemetryDisabled
+             then "DISABLED"
+             else "ENABLED"
+         )
 
   unless telemetryDisabled $ do
     telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
@@ -42,15 +42,15 @@ telemetry = do
     for_ maybeProjectHash $ \projectHash -> do
       maybeProjectCache <- liftIO $ TlmProject.readProjectTelemetryCacheFile telemetryCacheDirPath projectHash
       for_ maybeProjectCache $ \projectCache -> do
-        let maybeTimeOfLastSending = TlmProject.getTimeOfLastTelemetryDataSent projectCache
-        for_ maybeTimeOfLastSending $ \timeOfLastSending -> do
-          cliSendMessageC $ Msg.Info $ "Last time telemetry data was sent for this project: " ++ show timeOfLastSending
+        let maybeTimeOfLastSendAttempt = TlmProject.getTimeOfLastTelemetryDataSendAttempt projectCache
+        for_ maybeTimeOfLastSendAttempt $ \timeOfLastSendAttempt -> do
+          cliSendMessageC $ Msg.Info $ "Last time we attempted to send telemetry data for this project: " ++ show timeOfLastSendAttempt
 
   cliSendMessageC $ Msg.Info "Our telemetry is anonymized and very limited in its scope: check https://wasp.sh/docs/telemetry for more details."
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.
--- If telemetry data was already sent for this project in the last 12 hours, nothing happens.
+-- If we already attempted to send telemetry data for this project in the last 12 hours, nothing happens.
 -- If env var WASP_TELEMETRY_DISABLE is set, nothing happens.
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do

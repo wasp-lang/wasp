@@ -13,16 +13,16 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import StrongPath ((</>))
 import qualified StrongPath as SP
-import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
+import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.RunConfigs (makeRunConfigs)
-import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -49,13 +49,11 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  let clientUrl = (makeDefaultDevClientUrl appSpec) {AppComponentUrl.port = args.clientPort}
-      serverUrl = defaultDevServerUrl {AppComponentUrl.port = args.serverPort}
+  let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
+      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
 
-      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs (clientUrl, serverUrl)
-
-  clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
-  serverRunConfig' <- baseServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
+  clientRunConfig' <- userClientEnvVars `addEnvVarsUniqueC` baseClientRunConfig
+  serverRunConfig' <- userServerEnvVars `addEnvVarsUniqueC` baseServerRunConfig
 
   return $
     BuildStartConfig
@@ -66,8 +64,8 @@ makeBuildStartConfig appSpec args projectDir' = do
         clientRunConfig = clientRunConfig'
       }
   where
-    appUniqueId' = makeAppUniqueId projectDir' appName
-    (appName, _) = ASV.getApp appSpec
+    appUniqueId' = makeAppUniqueId projectDir' app.name
+    app = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
@@ -75,13 +73,13 @@ makeBuildStartConfig appSpec args projectDir' = do
       CommandError
         "No env vars specified"
         $ "You called "
-          ++ styleCode "wasp build start"
-          ++ " without specifying any environment variables for the started apps (client and server). This is likely a mistake, as all apps require some env vars: https://wasp.sh/docs/project/env-vars.\n\n"
+          ++ styleCode (commandName buildStartArgsParser)
+          ++ " without specifying any environment variables for the started apps (client and server). This is likely a mistake, as all apps require some env vars: https://wasp.sh/docs/advanced/env-vars.\n\n"
           ++ "To faithfully simulate the production environment, "
-          ++ styleCode "wasp build start"
+          ++ styleCode (commandName buildStartArgsParser)
           ++ " won't automatically read your "
           ++ styleCode ".env"
-          ++ " files unless you explicitly tell it. "
+          ++ " files unless you explicitly tell it.\n"
           ++ getParserHelpMessage buildStartArgsParser
 
 dockerImageName :: BuildStartConfig -> String

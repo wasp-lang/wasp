@@ -1,6 +1,9 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Wasp.Project.Common
   ( WaspProjectDir,
     DotWaspDir,
+    UserSrcDir,
     NodeModulesDir,
     CompileError,
     CompileWarning,
@@ -30,9 +33,9 @@ module Wasp.Project.Common
 where
 
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
+import Data.Data (Data)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
 import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
@@ -48,6 +51,9 @@ data WaspProjectDir -- Root dir of Wasp project, containing source files.
 data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
+
+-- | The src/ dir of the Wasp project, where the user's code lives.
+data UserSrcDir deriving (Data)
 
 data UserPackageJsonFile
 
@@ -121,7 +127,7 @@ packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
 prismaSchemaFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
 
-srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
+srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir UserSrcDir)
 srcDirInWaspProjectDir = [reldir|src|]
 
 findFileInWaspProjectDir ::

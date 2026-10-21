@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
 
-import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+import { DefaultRootErrorBoundary } from '@wasp.sh/lib-sdk-core/browser'
 
 import { routes } from '../router/index'
 
@@ -15,7 +15,7 @@ export function getRouteObjects({
   routesMapping: RouteMapping,
   rootElement: ReactNode,
 }): RouteObject[] {
-  const waspDefinedRoutes = [
+  const waspDefinedRoutes: RouteObject[] = [
   ]
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     return {

@@ -7,6 +7,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.Common (GeneratedAppDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -32,7 +33,7 @@ genSpecTypeAugmentation spec =
             )
         ]
   where
-    entities = map (makeJsonWithEntityData . fst) $ getEntities spec
+    entities = map (makeJsonWithEntityData . AS.Entity.getName) $ getEntities spec
 
     waspSpecPackageName :: String
     waspSpecPackageName = getInstallablePackageName WaspSpecPackage

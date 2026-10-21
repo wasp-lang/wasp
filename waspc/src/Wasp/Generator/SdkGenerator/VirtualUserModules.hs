@@ -1,17 +1,21 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Wasp.Generator.SdkGenerator.VirtualUserModules
-  ( VirtualUserModule,
+  ( VirtualUserModule (..),
+    Runtime (..),
     getClientVirtualUserModules,
     getServerVirtualUserModules,
     extImportToVirtualUserModuleJsImportPath,
     mkVirtualUserModulePluginData,
     mkVirtualUserModulesDeclarationData,
+    nubByModuleId, -- Exported for testing.
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.Function (on)
+import Data.List (nubBy)
 import Data.Maybe (maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
@@ -26,6 +30,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
 import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 {-
 This module allows the SDK to use the user project values (ext imports).
@@ -128,21 +133,26 @@ getVirtualUserModules spec =
         (getRegisteredOperationTypeName operation)
 
     getOperationsIndexModulePath = \case
-      AS.Operation.QueryOp _ _ -> [relfileP|./server/operations/queries/index|]
-      AS.Operation.ActionOp _ _ -> [relfileP|./server/operations/actions/index|]
+      AS.Operation.QueryOp _ -> [relfileP|./server/operations/queries/index|]
+      AS.Operation.ActionOp _ -> [relfileP|./server/operations/actions/index|]
 
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    app = snd $ getApp spec
+    app = getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
 getClientVirtualUserModules :: AppSpec -> [VirtualUserModule]
-getClientVirtualUserModules = filter ((== ClientRuntime) . runtime) . getVirtualUserModules
+getClientVirtualUserModules = nubByModuleId . filter ((== ClientRuntime) . runtime) . getVirtualUserModules
 
 -- | Virtual user modules that end up in the server bundle.
 getServerVirtualUserModules :: AppSpec -> [VirtualUserModule]
-getServerVirtualUserModules = filter ((== ServerRuntime) . runtime) . getVirtualUserModules
+getServerVirtualUserModules = nubByModuleId . filter ((== ServerRuntime) . runtime) . getVirtualUserModules
+
+-- | Several ext imports can point at the same user file (e.g. two queries
+-- from @queries.ts@), but a bundler maps a module id to a file only once.
+nubByModuleId :: [VirtualUserModule] -> [VirtualUserModule]
+nubByModuleId = nubBy ((==) `on` getVirtualUserModuleId)
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
 extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
@@ -156,7 +166,7 @@ mkVirtualUserModulePluginData ::
   Aeson.Value
 mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
   object
-    [ "virtualModuleId" .= getVirtualUserModuleId virtualUserModule,
+    [ "virtualModuleId" .= makeJsStringLiteral (getVirtualUserModuleId virtualUserModule),
       "importJson" .= extImportToImportJson (extImport virtualUserModule)
     ]
 
@@ -167,7 +177,7 @@ mkVirtualUserModulesDeclarationData spec =
   where
     mkDeclarationData virtualUserModule =
       object
-        [ "virtualModuleId" .= getVirtualUserModuleId virtualUserModule,
+        [ "virtualModuleId" .= makeJsStringLiteral (getVirtualUserModuleId virtualUserModule),
           "exportName" .= getVirtualUserModuleExportName virtualUserModule,
           "isDefaultExport" .= isDefaultExport virtualUserModule,
           "declaredType" .= getDeclaredTypeExpression virtualUserModule

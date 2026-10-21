@@ -1,18 +1,18 @@
 import { useMemo } from 'react'
 import { Link as RouterLink } from 'react-router'
-import { interpolatePath } from './linkHelpers'
+import { interpolatePath, type OptionalRouteOptions } from '@wasp.sh/lib-sdk-core'
 import type { Routes } from './index'
 
 type RouterLinkProps = Parameters<typeof RouterLink>[0]
 
 // PUBLIC API
-export function Link(
-  { to, params, search, hash, ...restOfProps }: Omit<RouterLinkProps, "to">
-  & {
-    search?: Record<string, string>;
-    hash?: string;
-  }
+export type LinkProps = Omit<RouterLinkProps, "to">
+  & OptionalRouteOptions
   & Routes
+
+// PUBLIC API
+export function Link(
+  { to, params, search, hash, ...restOfProps }: LinkProps
 ): React.JSX.Element {
   const toPropWithParams = useMemo(() => {
     return interpolatePath(to, params, search, hash)

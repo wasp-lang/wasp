@@ -5,8 +5,10 @@ inputs:
   build-name:
     description: >
       The build name (e.g., linux-x86_64, macos-aarch64, etc.).
-      The special value "all" can be used to receive a glob that matches all of the build names.
-      The special value "current" auto-detects the build name from the current runner's OS and architecture.
+      The special value "all" can be used to receive a glob that matches all of
+      the build names, and the npm targets of every build.
+      The special value "current" auto-detects the build name from the current
+      runner's OS and architecture.
     required: true
 
 runs:
@@ -68,19 +70,27 @@ runs:
 
     - name: Set npm target
       id: set-npm-target
-      if: steps.resolve-build-name.outputs.build-name != '*'
       shell: sh
       env:
         BUILD_NAME: ${{ steps.resolve-build-name.outputs.build-name }}
+        NPM_TARGETS: |
+          {
+            "linux-x86_64": { "os": "linux", "cpu": "x64", "libc": "glibc" },
+            "linux-x86_64-static": { "os": "linux", "cpu": "x64", "libc": "musl" },
+            "linux-aarch64": { "os": "linux", "cpu": "arm64", "libc": "glibc" },
+            "macos-x86_64": { "os": "darwin", "cpu": "x64" },
+            "macos-aarch64": { "os": "darwin", "cpu": "arm64" }
+          }
       run: |
-        case "$BUILD_NAME" in
-          linux-x86_64)         npm_target='{"os":"linux","cpu":"x64","libc":"glibc"}' ;;
-          linux-x86_64-static)  npm_target='{"os":"linux","cpu":"x64","libc":"musl"}' ;;
-          linux-aarch64)        npm_target='{"os":"linux","cpu":"arm64","libc":"glibc"}' ;;
-          macos-x86_64)         npm_target='{"os":"darwin","cpu":"x64"}' ;;
-          macos-aarch64)        npm_target='{"os":"darwin","cpu":"arm64"}' ;;
-        esac
-        echo "npm-target=$npm_target" >>"$GITHUB_OUTPUT"
+        echo 'npm-target<<EOF' >>"$GITHUB_OUTPUT"
+        if [ "$BUILD_NAME" = "*" ]; then
+          echo "$NPM_TARGETS" >>"$GITHUB_OUTPUT"
+        else
+          echo "$NPM_TARGETS" |
+            jq --arg buildName "$BUILD_NAME" '.[$buildName]' \
+              >>"$GITHUB_OUTPUT"
+        fi
+        echo 'EOF' >>"$GITHUB_OUTPUT"
 
 outputs:
   artifact-name:
@@ -91,4 +101,6 @@ outputs:
     description: "The name of the tarball inside the artifact."
   npm-target:
     value: ${{ steps.set-npm-target.outputs.npm-target }}
-    description: "A JSON-encoded object of {os, cpu, libc?} for this build."
+    description: >
+      A JSON-encoded object of {os, cpu, libc?} for this build. If "all", a
+      JSON-encoded object mapping each build name to its npm target.

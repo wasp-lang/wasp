@@ -47,7 +47,7 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
+          exclude: ["wasp"]
         },
         server: {
           port: forcedOptions["server.port"],
@@ -60,6 +60,9 @@ export function waspConfig(): PluginOption {
         envPrefix: forcedOptions["envPrefix"],
         build: {
           outDir: forcedOptions["build.outDir"],
+        },
+        ssr: {
+          noExternal: ["@wasp.sh/lib-sdk-core"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
@@ -89,7 +92,7 @@ export function waspConfig(): PluginOption {
         test: {
           globals: useUserValue(config.test?.globals, true),
           environment: useUserValue(config.test?.environment, "jsdom"),
-          setupFiles: ['wasp/client/test/setup'],
+          setupFiles: ["wasp/client/test/setup"],
           exclude: [
             ...defaultExclude,
             ".wasp/**/*",

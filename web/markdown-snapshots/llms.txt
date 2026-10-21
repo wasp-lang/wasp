@@ -7,6 +7,7 @@
 ## Documentation Maps by Version
 *IMPORTANT:* You should run `wasp version` to get the installed Wasp CLI version before choosing the correct link.
 - [Next (latest)](https://wasp.sh/llms-current.txt)
+- [0.26](https://wasp.sh/llms-0.26.txt)
 - [0.25](https://wasp.sh/llms-0.25.txt)
 - [0.24](https://wasp.sh/llms-0.24.txt)
 - [0.23](https://wasp.sh/llms-0.23.txt)
@@ -27,6 +28,7 @@
 Use the same URL pattern as the versioned documentation maps: https://wasp.sh/llms-full-{version}.txt
 
 ## Blog
+- [Wasp 1.0 is coming](https://wasp.sh/blog/2026/10/20/wasp-1-0-is-coming.md)
 - [How to Build a Secure AI Agent for Your SaaS (with Flue)](https://wasp.sh/blog/2026/08/18/flue-react-for-agents.md)
 - [Wasp now supports Resend for sending emails](https://wasp.sh/blog/2026/08/03/wasp-resend-email-provider.md)
 - [Buzz + Wasp: from one chat message to a deployed full-stack app](https://wasp.sh/blog/2026/07/30/buzz-wasp-one-message-app.md)

@@ -16,3 +16,7 @@ class (Typeable a, ToJSON a, Inspectable a) => IsDecl a where
   -- the declaration.
   declTypeName :: String
   declTypeName = show $ typeRep (Proxy :: Proxy a)
+
+  -- | Returns the name of the Wasp declaration.
+  -- For example, for a Wasp declaration `page MyPage {...}`, this returns "MyPage".
+  declName :: a -> String

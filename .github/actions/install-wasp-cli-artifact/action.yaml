@@ -9,7 +9,7 @@ runs:
   using: composite
   steps:
     - name: Compute artifact names
-      uses: ./.github/actions/compute-artifact-names
+      uses: $/.github/actions/compute-artifact-names
       id: artifact-names
       with:
         build-name: current

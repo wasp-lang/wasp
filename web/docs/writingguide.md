@@ -26,23 +26,24 @@ To make the process as painless as possible, read this guide thoroughly(with par
 
 ### Organization of pages
 
-- **Getting Started**:
+- **Getting started**:
   - **Introduction** - Provides a less than 10-minute overview of the problems Wasp solves and explains why it exists.
-  - **Quick Start** - Provides short (less than 5 minutes) instructions on installing Wasp and starting the demo app. At the end, it links to the tutorial and the rest of our resources (Discord, editor setup, newsletter)
-  - **Editor Setup** - Provides short instructions (less than 5 minutes) on how to get the most out of Wasp in your editor, and which editors we currently support.
+  - **Quick start** - Provides short (less than 5 minutes) instructions on installing Wasp and starting the demo app. At the end, it links to the tutorial and the rest of our resources (Discord, starter templates, newsletter)
+  - **Starter templates** and **Agent integration** - Provide short instructions (less than 5 minutes) on the fastest ways to get from an empty directory to a running Wasp app.
 - **Tutorial**: Takes users through the journey of building a simple application in Wasp from scratch.
   The goal is to make users feel smart, powerful, and curious.
   Tutorial pages are meant to be read sequentially. Their order depends on how the implemented features depend on each other (e.g., to query the database, the user must first define database models).
-- **Feature pages**: Explores all of Wasp's features.
+- **Features**: Explores the features most apps need.
   The features are divided into several sections and don't need to be read sequentially.
   See [Organization inside a page](#organization-inside-a-page) to see how to organize each page.
-  - **Data model**: Goes deeper into the Wasp's central feature - its data model (Entities, Actions, and Queries).
-  - **Authentication**: Covers everything there is to know about authentication in Wasp.
-  - **Project setup**: Explains how to customize and configure Wasp projects, how to run tests, how to set environment variables, etc. It goes into everything you could run into while building a project besides programming.
-- **Advanced Features**: Describes all the remaining features. This section also follows the rules from [Organization inside a page](#organization-inside-a-page).
-  These are either features that most small apps won't need but are bound to come up in production-ready projects (e.g., deployment, recurring jobs, sending emails) or features useful for apps of all sizes that require more skill/familiarity with Wasp or TypeScript (e.g., Type-safe links).
-- **General**: Includes an overview of the Wasp language and the CLI Reference.
-- **Miscellaneous**: Talks about our vision, ways to contribute, the data we collect, and how to contact us.
+  - **Data**: Goes deeper into the Wasp's central feature - its data model (Entities, Actions, and Queries).
+  - **Auth**: Covers everything there is to know about authentication in Wasp.
+- **Advanced**: Describes all the remaining features. This section also follows the rules from [Organization inside a page](#organization-inside-a-page).
+  These are either features that most small apps won't need but are bound to come up in production-ready projects (e.g., recurring jobs, prerendering) or features useful for apps of all sizes that require more skill/familiarity with Wasp or TypeScript (e.g., Type-safe links, customizing the client or the server).
+  It also includes the CLI reference.
+- **Deployment**: Explains how to get a Wasp app into production, and which deployment methods we support.
+- **Migration guides**: Explains how to move an app from one Wasp version to the next.
+- The unsectioned pages at the bottom talk about our vision, ways to contribute, the data we collect, and how to contact us.
 
 ### Organization inside a page
 
@@ -164,9 +165,9 @@ Writing a link "absolute to the file root":
 1. Write an absolute link, start from the file root (e.g. `/` represents the `docs` folder)
 2. Include the extension (e.g. `.md`)
 
-For example, `/docs/introduction` should be written as `/introduction/introduction.md` because this file is located at `./docs/introduction/introduction.md`.
+For example, `/docs/features/spec` should be written as `/features/spec.md` because this file is located at `./docs/features/spec.md`.
 
-Or another example `/docs/auth/entities#accessing-the-auth-fields` becomes `/auth/entities/entities.md#accessing-the-auth-fields`. This file is located at `./docs/auth/entities/entities.md`.
+Or another example `/docs/features/auth/entities#accessing-the-auth-fields` becomes `/features/auth/entities.md#accessing-the-auth-fields`. This file is located at `./docs/features/auth/entities.md`.
 
 ## Possible improvements
 

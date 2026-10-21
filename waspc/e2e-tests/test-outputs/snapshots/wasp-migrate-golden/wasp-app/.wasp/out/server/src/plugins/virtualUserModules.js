@@ -9,6 +9,8 @@ const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
  * 
  * @example 
  * serverVirtualUserModuleMap["virtual:wasp/user/env"] // => "../../../src/env"
+ *
+ * @type {{ [virtualUserModule: string]: string }}
  */
 const serverVirtualUserModuleMap = {
 };
@@ -17,6 +19,8 @@ const serverVirtualUserModuleMap = {
  * Resolves virtual modules pointing to user's modules.
  * Virtual user modules allow Wasp code to depend on user code at runtime,
  * without depending on the user's project during compile time.
+ *
+ * @returns {import("rollup").Plugin}
  */
 export function virtualUserModules() {
   return {

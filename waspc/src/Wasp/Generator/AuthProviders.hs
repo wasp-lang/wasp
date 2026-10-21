@@ -6,8 +6,8 @@ import Data.Maybe (fromJust)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders.Common (makeProviderId)
 import qualified Wasp.Generator.AuthProviders.Email as E
-import qualified Wasp.Generator.AuthProviders.Local as L
 import qualified Wasp.Generator.AuthProviders.OAuth as OA
+import qualified Wasp.Generator.AuthProviders.UsernameAndPassword as UP
 
 googleAuthProvider :: OA.OAuthAuthProvider
 googleAuthProvider =
@@ -33,11 +33,11 @@ gitHubAuthProvider =
       OA._requiredScope = []
     }
 
-localAuthProvider :: L.LocalAuthProvider
-localAuthProvider =
-  L.LocalAuthProvider
-    { L._providerId = fromJust $ makeProviderId "username",
-      L._displayName = "Username and password"
+usernameAndPasswordAuthProvider :: UP.UsernameAndPasswordAuthProvider
+usernameAndPasswordAuthProvider =
+  UP.UsernameAndPasswordAuthProvider
+    { UP._providerId = fromJust $ makeProviderId "username",
+      UP._displayName = "Username and password"
     }
 
 emailAuthProvider :: E.EmailAuthProvider

@@ -38,7 +38,6 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -62,7 +61,7 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -72,7 +71,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -81,7 +80,8 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genRollupConfigJs spec,
+      genFileCopy [relfile|rollup.config.js|],
+      genFileCopy [relfile|src/createRollupBundle.js|],
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -173,7 +173,7 @@ npmDepsFromWasp spec =
             [ ("cookie-parser", "~1.4.6"),
               ("cors", "^2.8.5"),
               ("express", show expressVersionRange),
-              ("morgan", "~1.11.0"),
+              ("morgan", "~1.12.1"),
               ("dotenv", show dotenvVersionRange),
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersionRange)
@@ -236,7 +236,7 @@ genNodemon =
       [relfile|nodemon.json|]
       (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
   where
-    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
+    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
       waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
@@ -270,8 +270,8 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (getApp spec)
+    maybeWebSocket = AS.App.webSocket $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
@@ -294,15 +294,25 @@ genRoutesIndex spec =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+          "upRouteInRootRouter" .= (upRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "appName" .= (app.name :: String)
         ]
+    app = getApp spec
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+-- | Since our health check is just a simple liveness check,
+-- we use the same @/up@ route that Rails and Laravel use.
+--
+-- Health checks (@/health@ route) are much more complex,
+-- so we let users handle it themselves.
+upRouteInRootRouter :: String
+upRouteInRootRouter = "up"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec
@@ -329,7 +339,7 @@ genMiddleware spec =
 
     globalMiddlewareConfigFnTmplData :: Aeson.Value
     globalMiddlewareConfigFnTmplData =
-      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+      let maybeGlobalMiddlewareConfigFn = AS.App.server (getApp spec) >>= AS.App.Server.middlewareConfigFn
           globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
           maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
        in object
@@ -347,12 +357,3 @@ genOperationsMiddleware spec =
       (Just tmplData)
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
-
-genRollupConfigJs :: AppSpec -> Generator FileDraft
-genRollupConfigJs spec =
-  return $
-    C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
-  where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
-
-    areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec

@@ -27,7 +27,7 @@ loadInstalledNpmDepsLog dstDir = do
   where
     logFilePath = getInstalledNpmDepsLogFilePath dstDir
 
--- Save the record of the Wasp's (webapp + server) npm dependencies we installed, to disk.
+-- Save the log of the npm dependencies we installed (user project + server + SDK), to disk.
 saveInstalledNpmDepsLog :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO ()
 saveInstalledNpmDepsLog deps dstDir =
   B.writeFile (SP.fromAbsFile $ getInstalledNpmDepsLogFilePath dstDir) (AesonPretty.encodePretty deps)
