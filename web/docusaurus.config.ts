@@ -20,7 +20,7 @@ const lightCodeTheme = {
 
 const darkCodeTheme = {
   ...themes.dracula,
-  plain: { ...themes.dracula.plain, backgroundColor: "#1e1e1e" },
+  plain: { ...themes.dracula.plain, backgroundColor: "var(--wasp-code-bg)" },
 };
 
 const includeCurrentVersion =
