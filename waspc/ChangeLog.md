@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### ⚠️ Breaking Changes
+
+- Piping answers into prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, commands now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
+
 ### 🎉 New Features
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
@@ -11,6 +15,7 @@
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
+- Wasp commands no longer crash with `hGetLine: end of file` when they need to ask a question but stdin isn't an interactive terminal (e.g. in CI, scripts, or AI agents). They now fail with the command's `--help` text telling you how to pass the arguments non-interactively. Pressing Ctrl+D at a prompt now prints `Aborted.` and exits. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 
 ## 0.26.0
 

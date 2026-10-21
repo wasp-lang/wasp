@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (filterM, unless)
+import Control.Monad (filterM, forM_, unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
@@ -19,8 +19,9 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Cli.Interactive (InteractiveTerminal)
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -41,8 +42,12 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
   if null $ toFilePaths waspPathsToRemove
     then cliSendMessageC $ Msg.Info "No Wasp data was found on this system."
     else do
+      confirmationTerminal <-
+        if skipConfirmation
+          then return Nothing
+          else Just <$> requireInteractiveTerminal uninstallArgsParser
       cliSendMessageC $ Msg.Start "Removing Wasp data..."
-      liftIO $ removeWaspPaths skipConfirmation waspPathsToRemove
+      liftIO $ removeWaspPaths confirmationTerminal waspPathsToRemove
       cliSendMessageC $ Msg.Success "Removed Wasp data."
 
   cliSendMessageC $ Msg.Info ""
@@ -93,18 +98,19 @@ findWaspPathsToRemove =
         [ homeDir </> waspExecutableInHomeDir
         ]
 
-removeWaspPaths :: Bool -> PathsToRemove -> IO ()
-removeWaspPaths skipConfirmation pathsToRemove = do
+-- | Asks for confirmation on the given terminal before deleting anything.
+-- Without one (`--force`), deletes right away.
+removeWaspPaths :: Maybe InteractiveTerminal -> PathsToRemove -> IO ()
+removeWaspPaths confirmationTerminal pathsToRemove = do
   putStr $
     unlines
       [ "We will remove the following files and directories:",
         indent 2 $ unlines $ toFilePaths pathsToRemove
       ]
 
-  unless skipConfirmation $
-    Interactive.tryGettingConfirmation "Are you sure you want to continue? [y/N]" "y" >>= \case
-      Right () -> return ()
-      Left _ -> die "Aborted."
+  forM_ confirmationTerminal $ \terminal -> do
+    confirmed <- Interactive.askForConfirmation terminal "Are you sure you want to continue?"
+    unless confirmed $ die "Aborted."
 
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
   mapM_ deleteFileIfExists $ snd pathsToRemove
