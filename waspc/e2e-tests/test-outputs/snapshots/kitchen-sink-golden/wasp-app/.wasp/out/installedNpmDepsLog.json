@@ -61,6 +61,14 @@
                     "version": "^4.3.1"
                 },
                 {
+                    "name": "@testing-library/jest-dom",
+                    "version": "^6.9.1"
+                },
+                {
+                    "name": "@testing-library/react",
+                    "version": "^16.3.1"
+                },
+                {
                     "name": "@types/chai",
                     "version": "^5.2.2"
                 },
@@ -93,6 +101,14 @@
                     "version": "^0.0.18"
                 },
                 {
+                    "name": "jsdom",
+                    "version": "^27.4.0"
+                },
+                {
+                    "name": "msw",
+                    "version": "^2.12.7"
+                },
+                {
                     "name": "prisma",
                     "version": "5.19.1"
                 },
@@ -106,7 +122,7 @@
                 },
                 {
                     "name": "vitest",
-                    "version": "^4.1.9"
+                    "version": "^5.0.4"
                 }
             ],
             "peerDependencies": []
@@ -183,26 +199,6 @@
                 "version": "^4.0.0"
             },
             {
-                "name": "@vitest/ui",
-                "version": "^4.1.9"
-            },
-            {
-                "name": "jsdom",
-                "version": "^27.4.0"
-            },
-            {
-                "name": "@testing-library/react",
-                "version": "^16.3.1"
-            },
-            {
-                "name": "@testing-library/jest-dom",
-                "version": "^6.9.1"
-            },
-            {
-                "name": "msw",
-                "version": "^2.12.7"
-            },
-            {
                 "name": "pg-boss",
                 "version": "^8.4.2"
             },
@@ -212,19 +208,19 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-test-utils",
-                "version": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
+                "version": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
             }
         ],
         "devDependencies": [
@@ -267,19 +263,19 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
+                "version": "file:../libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
+                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-test-utils",
-                "version": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.26.1.tgz"
+                "version": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
+                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
             },
             {
                 "name": "cookie-parser",
