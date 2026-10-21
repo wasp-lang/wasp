@@ -2,7 +2,11 @@ import Link from "@docusaurus/Link";
 import { useState } from "react";
 import { BookOpen, Check, Copy, Terminal } from "react-feather";
 
-import { track } from "../lib/analytics";
+import {
+  trackDeclaredCopy,
+  trackEventAttributes,
+  trackPlacementAttributes,
+} from "../lib/analytics";
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
 import TextLink from "./TextLink";
@@ -14,7 +18,7 @@ const InstallCommand = () => {
 
   const handleCopy = (event) => {
     navigator.clipboard.writeText(installCmd);
-    track(event.currentTarget, "Install Command: Copy", { method: "button" });
+    trackDeclaredCopy(event.currentTarget, "button");
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -23,6 +27,7 @@ const InstallCommand = () => {
     <button
       type="button"
       onClick={handleCopy}
+      {...trackEventAttributes({ event: "Install Command: Copy" })}
       className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-[var(--wasp-code-bg)] px-3 py-2 text-left font-mono text-xs text-wasp-g7 transition hover:text-wasp-black hover:brightness-95"
       title="Click to copy"
       aria-label={`Copy install command: ${installCmd}`}
@@ -41,7 +46,7 @@ const ActionButtons = () => (
   <div className="flex items-center gap-2">
     <Link
       to="/docs/quick-start"
-      data-track-event="Get Started: Click"
+      {...trackEventAttributes({ event: "Get Started: Click" })}
       className="inline-flex items-center space-x-2 border-2 border-wasp-black bg-wasp-yellow px-3 py-2 text-sm font-semibold leading-4 text-wasp-black transition duration-200 ease-out hover:bg-wasp-yellow-dark hover:text-wasp-black"
     >
       <Terminal size={16} />
@@ -190,7 +195,7 @@ const Hero = () => {
     <SectionContainer className="xl:pt-24">
       <div
         className="xl:grid xl:grid-cols-12 xl:gap-16"
-        data-track-placement="hero"
+        {...trackPlacementAttributes("hero")}
       >
         <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}

@@ -17,22 +17,18 @@ export const VCSection = ({ children, className = "", id }) => {
  */
 import { useState } from "react";
 import { Check, Copy } from "react-feather";
-import { track } from "../../lib/analytics";
+import { trackDeclaredCopy, trackEventAttributes } from "../../lib/analytics";
 
 export const InstallBlock = ({
   command = "npm i -g @wasp.sh/wasp-cli@latest",
   className = "",
-  event = "Install Command: Copy",
-  kind,
+  trackEvent = { event: "Install Command: Copy" },
 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (clickEvent) => {
     navigator.clipboard.writeText(command);
-    track(clickEvent.currentTarget, event, {
-      method: "button",
-      ...(kind ? { kind } : {}),
-    });
+    trackDeclaredCopy(clickEvent.currentTarget, "button");
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -40,8 +36,7 @@ export const InstallBlock = ({
   return (
     <code
       className={`inline-flex items-center gap-2 rounded-none border-0 bg-neutral-100 px-4 py-2 text-sm text-neutral-500 ${className}`}
-      data-track-event={event}
-      data-track-kind={kind}
+      {...trackEventAttributes(trackEvent)}
     >
       <span>
         <span className="text-yellow-400">%</span> {command}

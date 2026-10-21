@@ -5,6 +5,8 @@ image: /img/security-incident/security-incident.png
 tags: [security, oauth, keycloak, wasp]
 ---
 
+import Trackable from "@site/src/components/Trackable";
+
 ## Introduction
 
 On May 23rd, 2025, we learned about a security vulnerability in Wasp auth related to our OAuth support in Wasp `0.16.5` and earlier.
@@ -81,9 +83,13 @@ Users who use Keycloak auth with a configuration that makes the user IDs case se
 
 Upgrade to the latest Wasp version by running:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 <small>
 

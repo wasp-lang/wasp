@@ -1,5 +1,5 @@
-// Queues custom events until the Plausible script loads and sends them.
-// https://plausible.io/docs/custom-event-goals
+// Holds `plausible()` calls until the Plausible script loads. On load, the
+// script sends each call in `window.plausible.q`.
 window.plausible =
   window.plausible ||
   function () {

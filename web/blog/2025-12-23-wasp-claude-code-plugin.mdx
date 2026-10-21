@@ -6,6 +6,7 @@ tags: [wasp, ai, claude-code]
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
+import Trackable from '@site/src/components/Trackable';
 
 ## Get Even More Out of Claude Code with the Wasp Plugin
 
@@ -35,21 +36,33 @@ Here's how you can try it once you've got [Wasp](https://wasp.sh) and [Claude Co
 
 1. Add the Wasp x Claude Code Plugin Marketplace:
 
+<Trackable event="Agent Plugin: Copy" kind="claude_plugin">
+
 ```bash
 claude plugin marketplace add wasp-lang/wasp-agent-plugins
 ```
 
+</Trackable>
+
 2. Install the plugin:
+
+<Trackable event="Agent Plugin: Copy" kind="claude_plugin">
 
 ```bash
 claude plugin install wasp@wasp-agent-plugins --scope project
 ```
 
+</Trackable>
+
 3. Once installed, initialize the plugin in a Claude Code session and follow the instructions:
+
+<Trackable event="Agent Plugin: Copy" kind="plugin_prompt">
 
 ```bash
 /wasp:init
 ```
+
+</Trackable>
 
 <ImgWithCaption
     alt="Wasp plugin initialization"

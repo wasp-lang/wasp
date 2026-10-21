@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 
+import { trackPlacementAttributes } from "../lib/analytics";
 import SectionContainer from "./Layouts/SectionContainer";
 import SubscribeForm from "./SubscribeForm";
 
@@ -88,7 +89,7 @@ const Segment = ({ title, links }) => (
 
 const Footer = () => {
   return (
-    <footer className="border-t" data-track-placement="footer">
+    <footer className="border-t" {...trackPlacementAttributes("footer")}>
       <SectionContainer>
         <div className="grid grid-cols-1 gap-8 xl:grid xl:grid-cols-3">
           {/* cols with links */}

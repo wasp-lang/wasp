@@ -1,13 +1,11 @@
-import type { AgentPluginKind, CliCommand } from "./analytics-classifier";
-
 // Event names and property values are fixed once they are live: a renamed one
 // starts again from zero in Plausible and PostHog. Plausible counts an event
 // only if a goal with the same name exists, so create the goal first. Never
 // send copied text, an email address or an ID as a property value.
 export type AnalyticsEvents = {
-  // A copy of `npm i -g @wasp.sh/wasp-cli`, with a copy button or by hand.
+  // A copy of the Wasp install command, with a copy button or by hand.
   "Install Command: Copy": { method: CopyMethod };
-  // A copy from any other shell code block.
+  // A copy of a code block with a `wasp` command.
   "CLI Command: Copy": { method: CopyMethod; command: CliCommand };
   // A copy of an agent plugin command or prompt.
   "Agent Plugin: Copy": { method: CopyMethod; kind: AgentPluginKind };
@@ -17,7 +15,6 @@ export type AnalyticsEvents = {
   "Newsletter: Error": { status: NewsletterErrorStatus };
   // A click on a Discord invite link, or on a `/discord/<source>` link.
   "Discord: Click": Record<string, never>;
-  // A click on an element with `data-track-event="Get Started: Click"`.
   "Get Started: Click": Record<string, never>;
   // A click on a link to `github.com/wasp-lang/...`.
   "GitHub: Click": { target: GitHubTarget };
@@ -28,26 +25,49 @@ export type AnalyticsEvents = {
 export type AnalyticsEventName = keyof AnalyticsEvents;
 
 // Every event also gets a `placement`: where on the page it happened.
-export type Placement =
-  | "announcement_bar"
-  | "header"
-  | "mobile_menu"
-  | "hero"
-  // The newsletter section of the homepage.
-  | "newsletter"
+const PLACEMENTS = [
+  "header",
+  "mobile_menu",
+  "hero",
+  "newsletter",
   // The cards under each blog post.
-  | "post_card"
-  | "post_list"
-  | "sidebar"
-  | "toc"
-  | "doc_footer"
-  | "footer"
+  "post_card",
+  "post_list",
+  "sidebar",
+  "doc_footer",
+  "footer",
   // Anywhere else.
-  | "body";
+  "body",
+] as const;
+export type Placement = (typeof PLACEMENTS)[number];
 
 export type CopyMethod = "button" | "selection";
 
-export type NewsletterErrorStatus = "400" | "429" | "500" | "network";
+const CLI_COMMANDS = ["wasp_new", "wasp_start"] as const;
+export type CliCommand = (typeof CLI_COMMANDS)[number];
+
+const AGENT_PLUGIN_KINDS = [
+  "claude_plugin",
+  // `npx skills add wasp-lang/wasp-agent-plugins`.
+  "skills_cli",
+  // A prompt or a slash command for the plugin, for example `/wasp-plugin-init`.
+  "plugin_prompt",
+  // The example prompt on `/vibe-coding`.
+  "example_prompt",
+] as const;
+export type AgentPluginKind = (typeof AGENT_PLUGIN_KINDS)[number];
+
+// The Loops form endpoint answers 200, 400, 429 or 500.
+export type NewsletterErrorStatus =
+  // Loops refused the signup, for example for a bad email. Also any other
+  // answer that is not a 429, not a 5xx and not a 200 with `success: true`.
+  | "400"
+  // Too many signups from one IP address in a short time.
+  | "429"
+  // Any 5xx answer.
+  | "500"
+  // No answer: `fetch` failed, for example offline or blocked by an extension.
+  | "network";
 
 export type GitHubTarget =
   | "repo"
@@ -60,44 +80,55 @@ export interface TrackOptions {
   leavesPage?: boolean;
 }
 
+type DeclaredAction = "copy" | "click";
+
+interface DeclaredEventSpec {
+  action: DeclaredAction;
+  props: Record<string, readonly string[]>;
+}
+
+// The events that the markup declares with `trackEventAttributes()` or
+// `<Trackable>`: the action that sends each one, and the allowed values of the
+// properties that the markup sets. The listener adds `method` itself.
+const DECLARED_EVENTS = {
+  "Install Command: Copy": { action: "copy", props: {} },
+  "CLI Command: Copy": { action: "copy", props: { command: CLI_COMMANDS } },
+  "Agent Plugin: Copy": { action: "copy", props: { kind: AGENT_PLUGIN_KINDS } },
+  "Get Started: Click": { action: "click", props: {} },
+} as const satisfies {
+  [E in AnalyticsEventName]?: {
+    action: DeclaredAction;
+    // The properties of the event in `AnalyticsEvents`, except `method`.
+    props: {
+      [P in Exclude<
+        keyof AnalyticsEvents[E],
+        "method"
+      >]: readonly AnalyticsEvents[E][P][];
+    };
+  };
+};
+
+type DeclaredEventName = keyof typeof DECLARED_EVENTS;
+
+type DeclaredProps<E extends DeclaredEventName> = {
+  -readonly [P in keyof (typeof DECLARED_EVENTS)[E]["props"]]: (typeof DECLARED_EVENTS)[E]["props"][P] extends readonly (infer Value)[]
+    ? Value
+    : never;
+};
+
+export type DeclaredEvent = {
+  [E in DeclaredEventName]: { event: E } & DeclaredProps<E>;
+}[DeclaredEventName];
+
+// The markup and the DOM give any string, so look up events by string.
+const declaredEventSpecs: Record<string, DeclaredEventSpec | undefined> =
+  DECLARED_EVENTS;
+
+const EVENT_ATTRIBUTE = "data-track-event";
+
 // `data-track-placement` on a container sets the placement of every event
 // inside it. The nearest one wins.
 const PLACEMENT_ATTRIBUTE = "data-track-placement";
-
-// Checked first: the Docusaurus mobile menu reuses the navbar item props.
-const MOBILE_MENU_SELECTOR = ".navbar-sidebar, .theme-layout-navbar-sidebar";
-
-const PLACEMENT_BY_THEME_SELECTOR: [selector: string, placement: Placement][] =
-  [
-    [".theme-announcement-bar", "announcement_bar"],
-    [".theme-layout-navbar, .navbar", "header"],
-    [".theme-doc-sidebar-container", "sidebar"],
-    [".theme-doc-toc-desktop, .theme-doc-toc-mobile", "toc"],
-    [".theme-doc-footer", "doc_footer"],
-    [".theme-layout-footer, .footer", "footer"],
-  ];
-
-type PlausibleFn = (
-  eventName: string,
-  options?: { props?: Record<string, string>; interactive?: boolean },
-) => void;
-
-interface PostHogLike {
-  capture?: (
-    eventName: string,
-    properties?: Record<string, string>,
-    options?: { transport?: "sendBeacon" },
-  ) => void;
-}
-
-declare global {
-  interface Window {
-    plausible?: PlausibleFn;
-    posthog?: PostHogLike;
-  }
-}
-
-const DEBUG_STORAGE_KEY = "wasp-analytics-debug";
 
 export function track<E extends AnalyticsEventName>(
   element: Element,
@@ -105,20 +136,121 @@ export function track<E extends AnalyticsEventName>(
   props: AnalyticsEvents[E],
   options: TrackOptions = {},
 ): void {
-  if (typeof window === "undefined") {
+  send(element, eventName, props, options);
+}
+
+// Returns the attributes that declare an event on an element. It throws on an
+// unknown event or a wrong value. TypeScript does not check MDX and `.jsx`
+// files, and `docusaurus build` renders every page, so the build fails.
+export function trackEventAttributes(
+  declared: DeclaredEvent,
+): Record<string, string> {
+  const { event, ...props }: { event: string } & Record<string, unknown> =
+    declared;
+  const spec = declaredEventSpecs[event];
+  if (!spec) {
+    throw new Error(`Unknown analytics event "${event}".`);
+  }
+
+  for (const name of Object.keys(props)) {
+    if (!(name in spec.props)) {
+      throw new Error(`"${event}" has no property "${name}".`);
+    }
+  }
+
+  const attributes: Record<string, string> = { [EVENT_ATTRIBUTE]: event };
+  for (const [name, allowedValues] of Object.entries(spec.props)) {
+    const value = props[name];
+    if (typeof value !== "string" || !allowedValues.includes(value)) {
+      throw new Error(
+        `"${event}" needs "${name}" to be one of: ${allowedValues.join(", ")}. It got: ${String(value)}.`,
+      );
+    }
+    attributes[propAttribute(name)] = value;
+  }
+  return attributes;
+}
+
+export function trackDeclaredClick(element: Element): void {
+  trackDeclaredEvent(element, "click", {});
+}
+
+export function trackDeclaredCopy(element: Element, method: CopyMethod): void {
+  trackDeclaredEvent(element, "copy", { method });
+}
+
+// Sends the event that the nearest `data-track-event` declares, if that event
+// belongs to this action.
+function trackDeclaredEvent(
+  element: Element,
+  action: DeclaredAction,
+  actionProps: Record<string, string>,
+): void {
+  const declaredElement = element.closest(`[${EVENT_ATTRIBUTE}]`);
+  const event = declaredElement?.getAttribute(EVENT_ATTRIBUTE);
+  if (!declaredElement || !event) {
     return;
   }
 
+  const spec = declaredEventSpecs[event];
+  if (spec?.action !== action) {
+    return;
+  }
+
+  const props: Record<string, string> = {};
+  for (const [name, allowedValues] of Object.entries(spec.props)) {
+    const value = declaredElement.getAttribute(propAttribute(name));
+    if (value === null || !allowedValues.includes(value)) {
+      return;
+    }
+    props[name] = value;
+  }
+
+  send(declaredElement, event, { ...props, ...actionProps });
+}
+
+// Returns the attribute that sets the placement of every event inside an
+// element. It throws on an unknown placement, so a typo fails the build, as
+// in `trackEventAttributes()`.
+export function trackPlacementAttributes(
+  placement: Placement,
+): Record<string, string> {
+  if (!isPlacement(placement)) {
+    throw new Error(
+      `Unknown analytics placement "${placement}". Use one of: ${PLACEMENTS.join(", ")}.`,
+    );
+  }
+  return { [PLACEMENT_ATTRIBUTE]: placement };
+}
+
+export function getPlacement(element: Element): Placement {
+  const placement = element
+    .closest(`[${PLACEMENT_ATTRIBUTE}]`)
+    ?.getAttribute(PLACEMENT_ATTRIBUTE);
+  return placement && isPlacement(placement) ? placement : "body";
+}
+
+function isPlacement(value: string): value is Placement {
+  return (PLACEMENTS as readonly string[]).includes(value);
+}
+
+function send(
+  element: Element,
+  eventName: string,
+  props: Record<string, string>,
+  options: TrackOptions = {},
+): void {
   const allProps: Record<string, string> = {
     ...props,
     placement: getPlacement(element),
   };
 
-  if (isDebugEnabled()) {
-    console.info("[analytics]", eventName, allProps);
-  }
-
-  // `interactive: false` keeps these events out of the bounce rate.
+  // Plausible counts a visit as a bounce if it has one pageview and no
+  // interactive event. A custom event is interactive by default, so a copy or
+  // a click would turn a bounce into a non-bounce. `interactive: false` keeps
+  // these events out of the Plausible bounce rate, so the bounce rate stays
+  // comparable with the months before these events. Plausible still counts
+  // the events themselves.
   window.plausible?.(eventName, { props: allProps, interactive: false });
   window.posthog?.capture?.(
     eventName,
@@ -127,35 +259,6 @@ export function track<E extends AnalyticsEventName>(
   );
 }
 
-export function getPlacement(element: Element): Placement {
-  if (element.closest(MOBILE_MENU_SELECTOR)) {
-    return "mobile_menu";
-  }
-
-  const ownPlacement = element
-    .closest(`[${PLACEMENT_ATTRIBUTE}]`)
-    ?.getAttribute(PLACEMENT_ATTRIBUTE);
-  if (ownPlacement) {
-    return ownPlacement as Placement;
-  }
-
-  for (const [selector, placement] of PLACEMENT_BY_THEME_SELECTOR) {
-    if (element.closest(selector)) {
-      return placement;
-    }
-  }
-
-  return "body";
-}
-
-function isDebugEnabled(): boolean {
-  if (process.env.NODE_ENV !== "production") {
-    return true;
-  }
-
-  try {
-    return window.localStorage.getItem(DEBUG_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
+function propAttribute(name: string): string {
+  return `data-track-${name}`;
 }

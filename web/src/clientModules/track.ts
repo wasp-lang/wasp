@@ -1,28 +1,13 @@
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 
-import { track, type GitHubTarget } from "../lib/analytics";
 import {
-  classifyCopiedText,
-  isShellLanguage,
-  type AgentPluginKind,
-} from "../lib/analytics-classifier";
+  track,
+  trackDeclaredClick,
+  trackDeclaredCopy,
+  type GitHubTarget,
+} from "../lib/analytics";
 
-const CODE_BLOCK_SELECTOR = ".theme-code-block";
-// Match on `title`: Docusaurus changes the `aria-label` to "Copied" after a copy.
-const CODE_BLOCK_COPY_BUTTON_SELECTOR = `${CODE_BLOCK_SELECTOR} button[title="Copy"]`;
-
-// A component with its own copy button sets `data-track-event` (and
-// `data-track-kind`), so a copy of its text by hand sends the same event.
-const COPY_BLOCK_SELECTOR = '[data-track-event$=": Copy"]';
-
-declare global {
-  interface Window {
-    __waspAnalyticsListening?: boolean;
-  }
-}
-
-if (ExecutionEnvironment.canUseDOM && !window.__waspAnalyticsListening) {
-  window.__waspAnalyticsListening = true;
+if (ExecutionEnvironment.canUseDOM) {
   // Capture phase, because some components stop the propagation of their clicks.
   document.addEventListener("click", handleClick, { capture: true });
   document.addEventListener("copy", handleCopy, { capture: true });
@@ -33,14 +18,7 @@ function handleClick(event: MouseEvent): void {
     return;
   }
 
-  const copyButton = event.target.closest(CODE_BLOCK_COPY_BUTTON_SELECTOR);
-  if (copyButton) {
-    const codeBlock = copyButton.closest(CODE_BLOCK_SELECTOR);
-    if (codeBlock) {
-      trackCodeCopy(getCodeBlockText(codeBlock), codeBlock, "button");
-    }
-    return;
-  }
+  trackDeclaredClick(event.target);
 
   const link = event.target.closest<HTMLAnchorElement>("a[href]");
   if (link) {
@@ -49,7 +27,8 @@ function handleClick(event: MouseEvent): void {
 }
 
 function handleCopy(): void {
-  // The Docusaurus copy fallback copies from a hidden textarea; the click already counted it.
+  // The Docusaurus copy fallback copies from a hidden textarea; the copy
+  // button already counted it.
   const activeElement = document.activeElement;
   if (
     activeElement instanceof HTMLTextAreaElement ||
@@ -59,68 +38,18 @@ function handleCopy(): void {
   }
 
   const selection = document.getSelection();
-  const text = selection?.toString() ?? "";
   const anchorNode = selection?.anchorNode;
   const anchorElement =
     anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
-  if (!text.trim() || !anchorElement) {
+  if (!selection?.toString().trim() || !anchorElement) {
     return;
   }
 
-  const copyBlock = anchorElement.closest<HTMLElement>(COPY_BLOCK_SELECTOR);
-  if (copyBlock) {
-    trackCopyBlockSelection(copyBlock);
-    return;
-  }
-
-  const codeBlock = anchorElement.closest(CODE_BLOCK_SELECTOR);
-  trackCodeCopy(text, codeBlock ?? anchorElement, "selection");
+  trackDeclaredCopy(anchorElement, "selection");
 }
 
-function trackCopyBlockSelection(copyBlock: HTMLElement): void {
-  const { trackEvent, trackKind } = copyBlock.dataset;
-  if (trackEvent === "Install Command: Copy") {
-    track(copyBlock, trackEvent, { method: "selection" });
-  } else if (trackEvent === "Agent Plugin: Copy" && trackKind) {
-    track(copyBlock, trackEvent, {
-      method: "selection",
-      kind: trackKind as AgentPluginKind,
-    });
-  }
-}
-
-function trackCodeCopy(
-  text: string,
-  element: Element,
-  method: "button" | "selection",
-): void {
-  const codeBlock = element.closest(CODE_BLOCK_SELECTOR);
-  const result = classifyCopiedText(text, {
-    isShellBlock: codeBlock !== null && isShellLanguage(getLanguage(codeBlock)),
-  });
-
-  switch (result?.name) {
-    case "Install Command: Copy":
-      track(element, result.name, { method });
-      break;
-    case "Agent Plugin: Copy":
-      track(element, result.name, { method, kind: result.props.kind });
-      break;
-    case "CLI Command: Copy":
-      track(element, result.name, { method, command: result.props.command });
-      break;
-  }
-}
-
+// These links are in hundreds of Markdown files, so the URL decides the event.
 function trackLinkClick(link: HTMLAnchorElement): void {
-  if (
-    link.closest("[data-track-event]")?.getAttribute("data-track-event") ===
-    "Get Started: Click"
-  ) {
-    track(link, "Get Started: Click", {});
-    return;
-  }
-
   let url: URL;
   try {
     url = new URL(link.href, window.location.href);
@@ -143,21 +72,6 @@ function trackLinkClick(link: HTMLAnchorElement): void {
   } else if (isOpenSaasUrl(url)) {
     track(link, "Open SaaS: Click", {}, { leavesPage });
   }
-}
-
-function getCodeBlockText(codeBlock: Element): string {
-  const lines = codeBlock.querySelectorAll(".token-line");
-  if (lines.length > 0) {
-    return Array.from(lines, (line) => line.textContent ?? "").join("\n");
-  }
-  return codeBlock.querySelector("code")?.textContent ?? "";
-}
-
-function getLanguage(codeBlock: Element): string | undefined {
-  const languageClass = Array.from(codeBlock.classList).find((className) =>
-    className.startsWith("language-"),
-  );
-  return languageClass?.slice("language-".length);
 }
 
 function isDiscordUrl(url: URL): boolean {
