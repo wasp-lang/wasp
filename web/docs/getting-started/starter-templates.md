@@ -68,6 +68,8 @@ wasp new <project-name> -t basic
 
 ### Minimal Template
 
+![Minimal Template](/img/starter-templates/minimal-main-page.png)
+
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 
 Use this template:
