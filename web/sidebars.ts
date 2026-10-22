@@ -24,7 +24,6 @@ const sidebars: SidebarsConfig = {
       label: "Tutorial",
       collapsed: true,
       collapsible: true,
-      link: { type: "doc", id: "tutorial/create" },
       items: [
         "tutorial/create",
         "tutorial/project-structure",
