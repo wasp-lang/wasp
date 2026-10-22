@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { api } from "wasp/client/api";
 import { Link } from "wasp/client/router";
-import { secondaryButtonClasses } from "../components/buttonStyles";
 import { InlineCode } from "../components/InlineCode";
 import type { SampleUser } from "./apis";
 
@@ -27,7 +26,7 @@ export function SampleUserButton() {
     <>
       <button
         type="button"
-        className={secondaryButtonClasses}
+        className="inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 text-neutral-900 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-40"
         onClick={createSampleUser}
         disabled={isLoading}
       >

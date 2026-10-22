@@ -2,7 +2,6 @@
 // `README.md` for how to remove it once you no longer need it.
 
 import { Link } from "wasp/client/router";
-import { primaryButtonClasses } from "./components/buttonStyles";
 import { CodeWindow } from "./components/CodeWindow";
 import { InlineCode } from "./components/InlineCode";
 import { Walkthrough, type WalkthroughStep } from "./components/Walkthrough";
@@ -60,7 +59,10 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
           page, queries, and actions behind it.
         </p>
         <div>
-          <Link to="/tasks" className={primaryButtonClasses}>
+          <Link
+            to="/tasks"
+            className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
+          >
             Go to your tasks
           </Link>
         </div>
@@ -192,7 +194,7 @@ export default app({
             href="https://wasp.sh/docs/deployment/methods/wasp-deploy/overview"
             target="_blank"
             rel="noreferrer"
-            className={primaryButtonClasses}
+            className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
           >
             Deploy your app <span aria-hidden>→</span>
           </a>
