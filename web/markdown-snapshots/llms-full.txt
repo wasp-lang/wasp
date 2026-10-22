@@ -567,60 +567,6 @@ You'll have a chance to change the language on every code snippet - both the sni
 :::
 
 
-## Tutorial / 1. Creating a new project
-
-:::info
-You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](https://wasp.sh/docs/quick-start) guide!
-:::
-
-In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
-
-![How the Todo App will work once it is finished](https://wasp.sh/img/todo-app-tutorial-intro.gif)
-
-If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
-
-You can find the complete code of the app we're about to build [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
-
-### Creating a Project
-
-To setup a new Wasp project, run the following command in your terminal:
-
-```sh
-wasp new TodoApp -t minimal
-```
-
-We are using the `minimal` template because we're going to implement the app from scratch, instead of the more full-featured default template.
-
-Enter the newly created directory and start the development server:
-
-```sh
-cd TodoApp
-wasp start
-```
-
-`wasp start` will take a bit of time to start the server the first time you run it in a new project.
-
-You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
-
-![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/wasp-new-screenshot.png)
-
-Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
-
-### A note on supported languages
-
-Wasp supports both JavaScript and TypeScript out of the box, but you are free to choose between or mix JavaScript and TypeScript as you see fit.
-
-We'll provide you with both JavaScript and TypeScript code in this tutorial. Code blocks will have a toggle to switch between vanilla JavaScript and TypeScript.
-
-Try it out:
-
-:::note[Welcome to TypeScript!]
-You are now reading the TypeScript version of the docs. The site will remember your preference as you switch pages.
-
-You'll have a chance to change the language on every code snippet - both the snippets and the text will update accordingly.
-:::
-
-
 ## Tutorial / 2. Project structure
 
 After creating a new Wasp project, your project should look like this:
@@ -12108,11 +12054,11 @@ Wasp provides helpers for testing your client code with [Vitest](https://vitest.
 Install Vitest and the libraries for testing React components:
 
 ```bash
-npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+npm install -D vitest jsdom@29 @testing-library/react @testing-library/jest-dom msw
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
-- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
+- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests. Version 29 supports all Node.js versions Wasp supports, while version 30 needs Node.js 24.15 or newer.
 - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
 - [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
@@ -15458,7 +15404,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 1. Install Vitest and the testing libraries your tests use:
 
    ```bash
-   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+   npm install -D vitest jsdom@29 @testing-library/react @testing-library/jest-dom msw
    ```
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
@@ -21172,7 +21118,7 @@ When you make updates and need to redeploy:
    ```
 
 
-## Deployment / Self-Hosted / Caprover
+## Deployment / Self-Hosted / CapRover
 
 :::note
 Last checked with Wasp 0.24 and Caprover 1.14.1.

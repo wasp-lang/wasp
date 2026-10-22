@@ -1,3 +1,9 @@
+---
+title: "Auth UI: generated login and signup forms in Wasp"
+sidebar_label: Auth UI
+description: Wasp generates login, signup, forgot password, reset password and verify email forms. Use them as is or change their colors, logo and social button layout.
+---
+
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
 
 # Auth UI

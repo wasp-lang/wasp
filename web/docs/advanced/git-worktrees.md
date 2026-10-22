@@ -1,4 +1,6 @@
 ---
+title: "Git worktree setup: parallel coding agents in Wasp"
+description: "Set up Git worktrees of a Wasp app for parallel coding agents: run wasp install, copy env files and migrate. Each gets free ports and its own dev database."
 sidebar_label: Worktrees
 ---
 

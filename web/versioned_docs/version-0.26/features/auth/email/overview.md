@@ -1,3 +1,9 @@
+---
+title: "Email auth in Wasp: verification and password reset"
+sidebar_label: Overview
+description: "Add email auth with verification and password reset to a Wasp app: enable it in main.wasp.ts, add the User entity, the auth pages and an email sender."
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 import MultipleIdentitiesWarning from '../_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
@@ -5,7 +11,7 @@ import EmailData from '../entities/_email-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
 
-# Overview
+# Email auth
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 

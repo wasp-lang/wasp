@@ -1,3 +1,9 @@
+---
+title: "6. Modifying data: Wasp tutorial"
+sidebar_label: "6. Modifying data"
+description: Add a Wasp Action that creates a task in the Todo app, call it from a React form, and write a second Action that marks a task as done in the database.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import Collapse from '@site/src/components/Collapse';

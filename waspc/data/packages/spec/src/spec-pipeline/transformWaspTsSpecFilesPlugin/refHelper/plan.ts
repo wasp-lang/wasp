@@ -39,7 +39,7 @@ export function planTransformRefHelper(ast: t.Program): Plan | null {
     (declaration) =>
       declaration.specifiers
         .filter(isRefHelperImportSpecifier)
-        .map((specifier) => getStringValue(specifier.local)),
+        .map((specifier) => specifier.local.name),
   );
 
   const scope = getTopLevelBindings(ast);
