@@ -6,6 +6,7 @@ description: "Build a small Wasp app with React and Node.js that fetches develop
 ---
 
 import { InBlogCta } from './components/InBlogCta';
+import Trackable from '@site/src/components/Trackable';
 
 We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! And will do it with a single config file that covers the full-stack app architecture plus several dozen lines of code. In the quickest possible way, so we can’t excuse ourselves from building it!
 
@@ -48,9 +49,13 @@ Wasp intentionally works with the LTS Node.js version since it guarantees stabil
 
 Installing Wasp on Linux (for Mac/Windows, please [check the docs](https://wasp.sh/docs#2-installation)):
 
+<Trackable event="Install Command: Copy">
+
 ```
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 Now let’s create a new web app named ItWaspsOnMyMachine.
 

@@ -3,7 +3,10 @@ title: 'Build Your Own Personal Twitter Agent 🧠🐦⛓ with LangChain'
 authors: [vinny]
 image: /img/build-your-own-twitter-agent/twitter-agent-logo.png
 tags: [wasp, ai, gpt, langchain, fullstack, node, react, agent]
+description: "Build a Twitter agent with LangChain and Wasp. It scrapes tweets via Rettiwt-API, finds related notes in Pinecone and drafts tweets with ChatGPT."
 ---
+
+import Trackable from "@site/src/components/Trackable";
 
 ## TL;DR
 
@@ -87,6 +90,8 @@ We’re going to make this a full-stack React/NodeJS web app so we need to get t
 
 Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 # First, install Wasp by running this in your terminal:
 
@@ -100,6 +105,8 @@ wasp new twitter-agent
 
 cd twitter-agent && wasp start
 ```
+
+</Trackable>
 
 Great! When running `wasp start`, Wasp will install all the necessary npm packages, start our server on port 3001, and our React client on port 3000. Head to [localhost:3000](http://localhost:3000) in your browser to check it out.
 

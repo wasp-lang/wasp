@@ -1,7 +1,7 @@
 > Fetch the complete documentation index at: https://wasp.sh/llms.txt
 ---
 
-# Overview
+# Auth overview
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 

@@ -7,6 +7,7 @@ description: "Lucia is a framework-agnostic auth library. Set up GitHub OAuth wi
 ---
 
 import Link from '@docusaurus/Link';
+import Trackable from '@site/src/components/Trackable';
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
@@ -395,11 +396,15 @@ As seen in the video, Wasp is a framework for building apps with the benefits of
 
 ### Step 1: Create a Wasp Project
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 wasp new my-wasp-app
 cd my-wasp-app
 ```
+
+</Trackable>
 
 ### Step 2: Add the User entity into our DB
 

@@ -1,4 +1,7 @@
 ---
+title: "Radix Themes in a Wasp app: install and customize"
+sidebar_label: Radix Themes
+description: "Add the Radix Themes component library to a Wasp app: install @radix-ui/themes, wrap the root component in Theme, and set colors, radius and scaling."
 comments: true
 ---
 

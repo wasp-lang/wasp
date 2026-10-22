@@ -119,7 +119,7 @@
 - [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render.md)
 - [Vercel](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel.md)
 #### Self-Hosted
-- [Caprover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
+- [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
 - [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
 - [Simple VPS](https://wasp.sh/docs/guides/deployment/self-hosted/vps.md)
 ### Integrations

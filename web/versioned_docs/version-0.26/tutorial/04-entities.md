@@ -1,3 +1,9 @@
+---
+title: "4. Database entities: Wasp tutorial"
+sidebar_label: "4. Database entities"
+description: Define the Task entity of the Wasp Todo app as a Prisma model in schema.prisma, then run wasp db migrate-dev and view the data in wasp db studio.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
 

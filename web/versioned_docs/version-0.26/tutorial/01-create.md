@@ -1,3 +1,9 @@
+---
+title: "1. Creating a new project: Wasp tutorial"
+sidebar_label: "1. Creating a new project"
+description: "Start the Wasp Todo app tutorial: create a project from the minimal template with wasp new, run it with wasp start and pick JavaScript or TypeScript."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
 
