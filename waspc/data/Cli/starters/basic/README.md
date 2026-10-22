@@ -22,8 +22,6 @@ wasp new <project-name> -t basic
 
 ## Development
 
-After cloning the project, run `wasp install`.
-
 To start the application locally for development or preview purposes:
 
 1. Run `wasp db migrate-dev` to migrate the database to the latest migration

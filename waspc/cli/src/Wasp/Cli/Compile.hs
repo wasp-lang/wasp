@@ -9,7 +9,7 @@ import Data.Functor ((<&>))
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (analyzeWithOptions, compileWithOptions)
-import Wasp.Cli.Command.Install (waspInstallIfNeeded)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -76,7 +76,7 @@ attemptEnsureCompile :: CompileOptions -> Command EnsureCompileResult
 attemptEnsureCompile options =
   ProjectLock.acquire Nothing $ \case
     Right _ -> do
-      waspInstallIfNeeded
+      installIfNeeded
       WaspSpecAvailable <- require
       GeneratedAppUpToDate . snd <$> compileWithOptions options
     Left (Just ProjectLockData {pid, watcherStatus = Just UpToDate}) -> do

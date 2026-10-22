@@ -27,7 +27,7 @@ import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Install (waspInstallIfNeeded)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -58,7 +58,7 @@ compile = do
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
-  waspInstallIfNeeded
+  installIfNeeded
   WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 

@@ -19,7 +19,7 @@ This project uses the Wasp framework.
 
 ### Fresh checkout
 
-- Run `wasp install` before other Wasp commands in a fresh clone or worktree.
+- In a fresh clone or worktree, `wasp start`, `wasp build`, and the `wasp db` commands install dependencies on their own. Run `wasp install` first only before other commands, like `wasp start db`.
 - Set up `.env.server` and `.env.client` from the example files or the project README.
 - Run `wasp db migrate-dev`. Check the project README to see whether you also need to run a seed.
 

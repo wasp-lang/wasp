@@ -37,7 +37,8 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
-  -- TODO consider removing if we start doing `wasp install` automatically
+  -- Commands that compile install on their own, but editors and the commands
+  -- that don't hold the project lock still need the dependencies right away.
   liftIO $ installDepsForNewProject (getAbsWaspProjectDir newProjectDescription)
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 

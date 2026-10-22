@@ -1,10 +1,9 @@
 module Wasp.Cli.Command.Require.WaspSpecAvailable
   ( WaspSpecAvailable (WaspSpecAvailable),
-    isWaspSpecAvailable,
+    isInstalledWaspSpecUpToDate,
   )
 where
 
-import Control.Monad (unless)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
@@ -14,6 +13,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util (unlessM)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
@@ -27,8 +27,7 @@ instance Requirable WaspSpecAvailable where
     -- Reading the wasp spec runs Node.js (via the FFI), so it requires Node.js
     -- and npm to be present.
     ValidNodeAndNpm <- require
-    isAvailable <- liftIO $ isWaspSpecAvailable waspProjectDir
-    unless isAvailable $ throwError missingDepsError
+    unlessM (liftIO $ isInstalledWaspSpecUpToDate waspProjectDir) $ throwError missingDepsError
     return WaspSpecAvailable
     where
       missingDepsError =
@@ -36,8 +35,8 @@ instance Requirable WaspSpecAvailable where
           "Missing or stale dependencies in project"
           $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
 
-isWaspSpecAvailable :: Path' Abs (Dir WaspProjectDir) -> IO Bool
-isWaspSpecAvailable waspProjectDir =
+isInstalledWaspSpecUpToDate :: Path' Abs (Dir WaspProjectDir) -> IO Bool
+isInstalledWaspSpecUpToDate waspProjectDir =
   tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage >>= \case
     Left _ -> return False
     Right installedWaspSpecVersion -> return $ installedWaspSpecVersion == WV.waspVersion

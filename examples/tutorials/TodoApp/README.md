@@ -17,7 +17,6 @@ npm i -g @wasp.sh/wasp-cli@latest
 Position yourself in the project directory, then migrate the DB:
 
 ```bash
-wasp install
 wasp db migrate-dev
 ```
 

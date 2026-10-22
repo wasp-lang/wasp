@@ -27,9 +27,12 @@ import ShellCommands
     waspCliTelemetry,
     waspCliVersion,
   )
-import StrongPath (fromAbsDir, reldir, (</>))
+import StrongPath (fromAbsDir, fromRelDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Cli.Command.Install (installingDependenciesMessage)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
+import Wasp.Project.Common (nodeModulesDirInWaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
 import Wasp.Version (waspVersion)
 
@@ -39,36 +42,28 @@ waspSpecAvailableTest =
     "wasp-spec-available"
     [ TestCase
         "lock-free-commands-fail-with-install-hint-when-wasp-spec-missing"
-        -- Without the project lock, installing could race a running `wasp start`.
+        -- These commands don't hold the project lock, so they don't install and
+        -- fail with the install hint instead.
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
-                removeNodeModules
-                  : map
-                    assertCommandFailsWithInstallHint
-                    [ waspCliShowSpec,
-                      waspCliDeps,
-                      waspCliDockerfile,
-                      waspCliStudio,
-                      waspCliDeploy ["fly", "setup"],
-                      waspCliStartDb
-                    ]
+                removeNodeModules : map assertCommandFailsWithInstallHint lockFreeCommandsRequiringWaspSpec
             ]
         ),
       TestCase
-        "lock-free-command-fails-with-install-hint-when-wasp-spec-version-mismatches-cli"
+        "lock-free-commands-fail-with-install-hint-when-wasp-spec-version-mismatches-cli"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ corruptWaspSpecVersion,
-                  assertCommandFailsWithInstallHint waspCliDeps
-                ]
+              inTestWaspProjectDir $
+                corruptWaspSpecVersion : map assertCommandFailsWithInstallHint lockFreeCommandsRequiringWaspSpec
             ]
         ),
       TestCase
         "lock-holding-commands-install-missing-wasp-spec"
         -- `wasp start` and `wasp test client` install through `compile` too,
         -- but they don't terminate, so we don't run them here.
+        -- FIXME: Cover them once the e2e suite supports long-running processes:
+        -- https://github.com/wasp-lang/wasp/issues/4601
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
@@ -93,7 +88,7 @@ waspSpecAvailableTest =
             ]
         ),
       TestCase
-        "compile-skips-install-when-wasp-spec-is-available"
+        "compile-skips-install-when-wasp-spec-is-installed-and-up-to-date"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
@@ -138,6 +133,16 @@ waspSpecAvailableTest =
         )
     ]
   where
+    lockFreeCommandsRequiringWaspSpec :: [ShellCommandBuilder WaspProjectContext ShellCommand]
+    lockFreeCommandsRequiringWaspSpec =
+      [ waspCliShowSpec,
+        waspCliDeps,
+        waspCliDockerfile,
+        waspCliStudio,
+        waspCliDeploy ["fly", "setup"],
+        waspCliStartDb
+      ]
+
     -- Putting the project in a "wasp-spec missing" state without invoking any wasp command.
     removeNodeModules :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeNodeModules = return "rm -rf node_modules"
@@ -167,7 +172,9 @@ waspSpecAvailableTest =
 
     assertWaspSpecVersionMatchesCli :: ShellCommand
     assertWaspSpecVersionMatchesCli =
-      "[ \"$(cd node_modules/@wasp.sh/spec && npm pkg get version)\" = '\"" ++ show waspVersion ++ "\"' ]"
+      "[ \"$(cd " ++ installedWaspSpecDir ++ " && npm pkg get version)\" = '\"" ++ show waspVersion ++ "\"' ]"
+      where
+        installedWaspSpecDir = fromRelDir nodeModulesDirInWaspProjectDir ++ getInstallablePackageName WaspSpecPackage
 
     assertCommandSkipsInstall ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
@@ -176,6 +183,3 @@ waspSpecAvailableTest =
       command <- commandBuilder
       let logFile = ".wasp-e2e-output.log"
       return $ command ++ " > " ++ logFile ++ " 2>&1 && ! grep -qF '" ++ installingDependenciesMessage ++ "' " ++ logFile
-
-    installingDependenciesMessage :: String
-    installingDependenciesMessage = "Installing missing or outdated project dependencies..."
