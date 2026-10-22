@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "6a12546a295c1ca39bd1f8e04a64281f6b8d06704a7fc24312c47b8d27317743"
+        "8db5bc2c94774c686569253c00a2aa7322cbe1e398636c3660a5b0a267dbeeca"
     ],
     [
         [
@@ -214,7 +214,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "09b66dd343264130b425700de49dcf943be4668b3284b8ad92b3ab22e129c8f2"
+        "920ea3db0b5e4d640350440d5bae740d22749f343c2459356217e1c59bb79f7b"
     ],
     [
         [
@@ -277,7 +277,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "d62c84c4e6c3b4204bba3cec666e29c941e46f9453c2eab5fa17d4681239837c"
+        "1695ff1c2d2ae1f9affb5951c545ca3a31467955b93b8de5a47cf7bfc167d986"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "server/package.json"
         ],
-        "d50904ae40f73c872a2f1bbbf32cd27b387692891375ddf6f907473b30b55312"
+        "2b1feaa24a22f79a56d3d150dcd526ca93546b49cc867970d3d87550fe274fd6"
     ],
     [
         [

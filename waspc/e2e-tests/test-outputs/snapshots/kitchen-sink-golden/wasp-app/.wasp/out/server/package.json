@@ -35,9 +35,6 @@
   "nodemonConfig": {
     "delay": "1000"
   },
-  "prisma": {
-    "seed": "npm run db-seed"
-  },
   "private": true,
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",

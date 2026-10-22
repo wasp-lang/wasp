@@ -21,7 +21,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -43,6 +43,7 @@ import Wasp.Generator.DepVersions
     reactVersionRange,
     superjsonVersionRange,
     typescriptVersionRange,
+    viteVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -202,16 +203,10 @@ npmDepsForSdk spec =
             ("@tanstack/react-query", show reactQueryVersionRange),
             ("react-router", show reactRouterVersionRange),
             ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersionRange)
+            ("superjson", show superjsonVersionRange),
+            ("@vitejs/plugin-react", "^6.0.3")
           ]
           ++ depsRequiredByOAuth spec
-          -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
-          -- lists prisma/client as a dependency.
-          -- Installing it inside .wasp/out/server/node_modules would also
-          -- install prisma/client in the same folder, which would cause our
-          -- runtime to load the wrong (uninitialized prisma/client).
-          -- TODO(filip): Find a better way to handle duplicate
-          -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
@@ -222,14 +217,19 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
             ("typescript", show typescriptVersionRange),
-            ("@vitejs/plugin-react", "^6.0.3"),
             ("@types/express", show expressTypesVersionRange),
             ("@types/express-serve-static-core", show expressTypesVersionRange),
+            ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
             ("@types/react", show reactTypesVersionRange),
             ("@types/react-dom", show reactDomTypesVersionRange)
           ]
           ++ devDepsRequiredByEmail spec,
-      N.peerDependencies = Npm.Dependency.fromList []
+      -- The SDK imports `vite` at runtime, but it must be the same instance
+      -- the user's project uses, so the user's package.json provides it.
+      N.peerDependencies =
+        Npm.Dependency.fromList
+          [ ("vite", show viteVersionRange)
+          ]
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs

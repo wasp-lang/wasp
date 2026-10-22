@@ -34,7 +34,7 @@
                 },
                 {
                     "name": "prisma",
-                    "version": "5.19.1"
+                    "version": "6.19.3"
                 },
                 {
                     "name": "typescript",
@@ -52,11 +52,11 @@
         "dependencies": [
             {
                 "name": "@prisma/client",
-                "version": "5.19.1"
+                "version": "6.19.3"
             },
             {
                 "name": "prisma",
-                "version": "5.19.1"
+                "version": "6.19.3"
             },
             {
                 "name": "express",
@@ -91,6 +91,10 @@
                 "version": "^2.2.1"
             },
             {
+                "name": "@vitejs/plugin-react",
+                "version": "^6.0.3"
+            },
+            {
                 "name": "zod",
                 "version": "^4.3.6"
             },
@@ -117,16 +121,16 @@
                 "version": "6.0.3"
             },
             {
-                "name": "@vitejs/plugin-react",
-                "version": "^6.0.3"
-            },
-            {
                 "name": "@types/express",
                 "version": "^5.0.0"
             },
             {
                 "name": "@types/express-serve-static-core",
                 "version": "^5.0.0"
+            },
+            {
+                "name": "@types/node",
+                "version": "^24.0.0"
             },
             {
                 "name": "@types/react",
@@ -137,7 +141,12 @@
                 "version": "^19.2.3"
             }
         ],
-        "peerDependencies": []
+        "peerDependencies": [
+            {
+                "name": "vite",
+                "version": "^8.1.0"
+            }
+        ]
     },
     "_waspServerNpmDeps": {
         "dependencies": [
