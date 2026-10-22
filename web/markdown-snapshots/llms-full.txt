@@ -521,7 +521,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-![How the Todo App will work once it is finished](https://wasp.sh/img/todo-app-intro.gif)
+![How the Todo App will work once it is finished](https://wasp.sh/assets/images/todo-app-intro-3b8541582f3c222fd6afc3cd84efb2e9.gif)
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
@@ -548,7 +548,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
-![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/wasp-new-screenshot.webp)
+![Screenshot of the Wasp minimal starter app](https://wasp.sh/assets/images/wasp-new-screenshot-ab75a6dbfde0efa22c4c6122b804714d.webp)
 
 Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
 
@@ -925,7 +925,7 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-![Todo App - Hello World](https://wasp.sh/img/todo-app-hello-world.webp)
+*(Inlined image: Todo App - Hello World)*
 
 You can now delete `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
 
@@ -991,7 +991,7 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-![Todo App - Db studio showing Task schema](https://wasp.sh/img/todo-app-db-studio-task-entity.webp)
+![Todo App - Db studio showing Task schema](https://wasp.sh/assets/images/todo-app-db-studio-task-entity-ca7deaa0d8fe5eec314cf0c4474c402b.webp)
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
 
@@ -1145,7 +1145,7 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-![Todo App - No Tasks](https://wasp.sh/img/todo-app-no-tasks.webp)
+*(Inlined image: Todo App - No Tasks)*
 
 We'll create a form to add tasks in the next step 🪄
 
@@ -1297,7 +1297,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-![Todo App - creating new task](https://wasp.sh/img/todo-app-new-task.webp)
+![Todo App - creating new task](https://wasp.sh/assets/images/todo-app-new-task-c56988ad64a4602ec0ab1ce169277ac9.webp)
 
 :::note[Automatic Query Invalidation]
 When you create a new task, the list of tasks is automatically updated to display the new task, even though you haven't written any code that does that! Wasp handles these automatic updates under the hood.
@@ -1596,7 +1596,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-![Database demonstration - password hashing](https://wasp.sh/img/wasp_user_in_db.gif)
+![Database demonstration - password hashing](https://wasp.sh/assets/images/wasp_user_in_db-512c2a3ee0c92b442a9e3ebe55b461f7.gif)
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -1709,7 +1709,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-![Database demonstration](https://wasp.sh/img/wasp_db_demonstration.gif)
+![Database demonstration](https://wasp.sh/assets/images/wasp_db_demonstration-e6386a38573e1bca9e0476e9ff301cd9.gif)
 
 You will see that each user has their tasks, just as we specified in our code!
 

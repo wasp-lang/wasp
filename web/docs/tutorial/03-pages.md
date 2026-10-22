@@ -4,7 +4,6 @@ sidebar_label: "3. Pages and routes"
 description: Step 3 of the Wasp tutorial explains the page and route specs in main.wasp.ts, adds a second page with a URL parameter and cleans up the starter project.
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'
 import TypescriptServerNote from '../_TypescriptServerNote.md'
@@ -294,7 +293,7 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.webp')} className="tutorial-image" />
+<img alt="Todo App - Hello World" src={require('./img/todo-app-hello-world.webp').default} className="tutorial-image" />
 
 You can now delete `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 

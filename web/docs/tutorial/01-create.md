@@ -4,7 +4,6 @@ sidebar_label: "1. Creating a new project"
 description: "Start the Wasp Todo app tutorial: create a project from the minimal template with wasp new, run it with wasp start and pick JavaScript or TypeScript."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
 
 # 1. Creating a new project
@@ -15,7 +14,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-<img alt="How the Todo App will work once it is finished" src={useBaseUrl('img/todo-app-intro.gif')} className="tutorial-image" />
+<img alt="How the Todo App will work once it is finished" src={require('./img/todo-app-intro.gif').default} className="tutorial-image" />
 
 <br />
 
@@ -52,7 +51,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
-<img alt="Screenshot of the Wasp minimal starter app" src={useBaseUrl('img/wasp-new-screenshot.webp')} className="tutorial-image" />
+<img alt="Screenshot of the Wasp minimal starter app" src={require('./img/wasp-new-screenshot.webp').default} className="tutorial-image" />
 
 <br />
 
