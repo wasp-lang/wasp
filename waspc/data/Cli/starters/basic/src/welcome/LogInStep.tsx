@@ -3,7 +3,6 @@ import { type AuthUser } from "wasp/auth";
 import { useAuth } from "wasp/client/auth";
 import { Link } from "wasp/client/router";
 import { InlineCode } from "./components/InlineCode";
-import { SampleUserButton } from "./sampleUser/SampleUserButton";
 
 export function LogInStep() {
   const { data: user } = useAuth();
@@ -18,18 +17,14 @@ export function LogInStep() {
         verification. The pages in <InlineCode>src/auth</InlineCode> use our
         built-in Auth UI to let users sign up and log in.
       </p>
-      <p>
-        Sign up to try the whole flow, or let us automatically create a sample
-        user in one click.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
+      <p>Sign up to try the whole flow.</p>
+      <div>
         <Link
           to="/signup"
           className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
         >
           Sign up
         </Link>
-        <SampleUserButton />
       </div>
     </>
   );
