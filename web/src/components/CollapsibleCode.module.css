@@ -1,0 +1,55 @@
+.root {
+  position: relative;
+  margin-bottom: var(--ifm-leading);
+}
+
+.root :global(.theme-code-block) {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.root :global(.theme-code-block)::after {
+  content: "";
+  position: absolute;
+  inset: auto 1px 1px 1px;
+  height: 7rem;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--prism-background-color)
+  );
+  pointer-events: none;
+}
+
+.collapsed pre {
+  max-height: 18rem;
+  overflow: auto hidden;
+}
+
+.expanded pre {
+  padding-bottom: 4rem;
+}
+
+.expanded :global(.theme-code-block)::after {
+  height: 4rem;
+}
+
+.toggle {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: transparent;
+  color: var(--ifm-color-emphasis-700);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  border-color: var(--ifm-color-emphasis-500);
+  color: var(--ifm-color-emphasis-900);
+}
