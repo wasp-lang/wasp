@@ -15,6 +15,11 @@ import { barBaz as _waspbarBazfn } from "../../../../../../src/features/apis/api
 import { patchBarBaz as _wasppatchBarBazfn } from "../../../../../../src/features/apis/apis"
 import { webhookCallback as _waspwebhookCallbackfn } from "../../../../../../src/features/apis/apis"
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
+import { throwUnexpectedError as _waspthrowUnexpectedErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwHttpError as _waspthrowHttpErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwConcealedError as _waspthrowConcealedErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwUnavailableError as _waspthrowUnavailableErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwRateLimitError as _waspthrowRateLimitErrorfn } from "../../../../../../src/features/errors/apis"
 import { streamingText as _waspstreamingTextfn } from "../../../../../../src/features/streaming/api"
 
 const idFn: MiddlewareConfigFn = x => x
@@ -22,6 +27,11 @@ const idFn: MiddlewareConfigFn = x => x
 const _waspheadBarBazmiddlewareConfigFn = idFn
 const _waspbarBazmiddlewareConfigFn = idFn
 const _wasppatchBarBazmiddlewareConfigFn = idFn
+const _waspthrowUnexpectedErrormiddlewareConfigFn = idFn
+const _waspthrowHttpErrormiddlewareConfigFn = idFn
+const _waspthrowConcealedErrormiddlewareConfigFn = idFn
+const _waspthrowUnavailableErrormiddlewareConfigFn = idFn
+const _waspthrowRateLimitErrormiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
@@ -114,6 +124,91 @@ router.post(
         },
       }
       return _waspwebhookCallbackfn(req, res, context)
+    }
+  )
+)
+const throwUnexpectedErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowUnexpectedErrormiddlewareConfigFn)
+router.get(
+  "/errors/unexpected",
+  throwUnexpectedErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowUnexpectedErrorfn>[0],
+      res: Parameters<typeof _waspthrowUnexpectedErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowUnexpectedErrorfn(req, res, context)
+    }
+  )
+)
+const throwHttpErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowHttpErrormiddlewareConfigFn)
+router.get(
+  "/errors/http",
+  throwHttpErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowHttpErrorfn>[0],
+      res: Parameters<typeof _waspthrowHttpErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowHttpErrorfn(req, res, context)
+    }
+  )
+)
+const throwConcealedErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowConcealedErrormiddlewareConfigFn)
+router.get(
+  "/errors/concealed",
+  throwConcealedErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowConcealedErrorfn>[0],
+      res: Parameters<typeof _waspthrowConcealedErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowConcealedErrorfn(req, res, context)
+    }
+  )
+)
+const throwUnavailableErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowUnavailableErrormiddlewareConfigFn)
+router.get(
+  "/errors/unavailable",
+  throwUnavailableErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowUnavailableErrorfn>[0],
+      res: Parameters<typeof _waspthrowUnavailableErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowUnavailableErrorfn(req, res, context)
+    }
+  )
+)
+const throwRateLimitErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowRateLimitErrormiddlewareConfigFn)
+router.get(
+  "/errors/rate-limit",
+  throwRateLimitErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowRateLimitErrorfn>[0],
+      res: Parameters<typeof _waspthrowRateLimitErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowRateLimitErrorfn(req, res, context)
     }
   )
 )
