@@ -8,19 +8,30 @@ import {
   useQuery,
 } from "wasp/client/operations";
 import type { Task } from "wasp/entities";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = ({ user }: { user: AuthUser }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      <NewTaskForm />
-      {tasks && <TasksList tasks={tasks} />}
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+        <button onClick={logout}>Logout</button>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        <NewTaskForm />
+        {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-      <button onClick={logout}>Logout</button>
-    </div>
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
@@ -37,15 +48,15 @@ const TaskView = ({ task }: { task: Task }) => {
   };
 
   return (
-    <div>
+    <li>
       <input
         type="checkbox"
         id={String(task.id)}
         checked={task.isDone}
         onChange={handleIsDoneChange}
       />
-      {task.description}
-    </div>
+      <label htmlFor={String(task.id)}>{task.description}</label>
+    </li>
   );
 };
 
@@ -53,11 +64,11 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   if (!tasks?.length) return <div>No tasks</div>;
 
   return (
-    <div>
+    <ul className="tasks">
       {tasks.map((task) => (
         <TaskView task={task} key={task.id} />
       ))}
-    </div>
+    </ul>
   );
 };
 
@@ -75,8 +86,13 @@ const NewTaskForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="description" type="text" defaultValue="" />
+    <form className="new-task-form" onSubmit={handleSubmit}>
+      <input
+        name="description"
+        type="text"
+        placeholder="What needs to be done?"
+        defaultValue=""
+      />
       <input type="submit" value="Create task" />
     </form>
   );

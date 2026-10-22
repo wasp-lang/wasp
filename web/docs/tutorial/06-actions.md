@@ -113,8 +113,13 @@ const NewTaskForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="description" type="text" defaultValue="" />
+    <form className="new-task-form" onSubmit={handleSubmit}>
+      <input
+        name="description"
+        type="text"
+        placeholder="What needs to be done?"
+        defaultValue=""
+      />
       <input type="submit" value="Create task" />
     </form>
   );
@@ -137,18 +142,29 @@ All that's left now is adding this form to the page component:
 import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      // highlight-next-line
-      <NewTaskForm />
-      {tasks && <TasksList tasks={tasks} />}
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        // highlight-next-line
+        <NewTaskForm />
+        {tasks && <TasksList tasks={tasks} />}
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
@@ -164,7 +180,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-<img alt="Todo App - creating new task" src={useBaseUrl('img/todo-app-new-task.png')} className="tutorial-image" />
+<img alt="Todo App - creating new task" src={useBaseUrl('img/todo-app-new-task.webp')} className="tutorial-image" />
 
 <br />
 
@@ -271,7 +287,7 @@ const TaskView = ({ task }: { task: Task }) => {
   // highlight-end
 
   return (
-    <div>
+    <li>
       <input
         type="checkbox"
         id={String(task.id)}
@@ -279,8 +295,8 @@ const TaskView = ({ task }: { task: Task }) => {
         // highlight-next-line
         onChange={handleIsDoneChange}
       />
-      {task.description}
-    </div>
+      <label htmlFor={String(task.id)}>{task.description}</label>
+    </li>
   );
 };
 

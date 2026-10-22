@@ -116,19 +116,188 @@ Start by cleaning up the starter project and removing unnecessary code and files
 
 <TutorialAction id="prepare-project" action="APPLY_PATCH">
 
-First, remove most of the code from the `MainPage` component:
+First, replace the starter styles in `src/Main.css` with the styles for the Todo app. You don't need to understand them to follow the tutorial. They only make the app look nice:
+
+```css title="src/Main.css"
+:root {
+  --yellow: #f5c842;
+  --yellow-dark: #d4a930;
+  --black: #111;
+  --gray: #555;
+  --cream: #f7f5f0;
+  --white: #fafafa;
+  --font-mono:
+    ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --border: 2px solid var(--black);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Browsers draw input borders as "inset" by default, make them flat. */
+input {
+  border-style: solid;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--black);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-bottom: var(--border);
+  background: var(--white);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(32rem, 100% - 2rem);
+  margin: 3rem auto;
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+h1 img {
+  height: 2.5rem;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+a {
+  color: var(--black);
+}
+
+:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+}
+
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--yellow);
+}
+
+button,
+input[type="submit"] {
+  padding: 0.75rem 1.25rem;
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--black);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background: var(--yellow-dark);
+}
+
+header button {
+  padding: 0.5rem 1rem;
+}
+
+.card,
+.tasks {
+  border: var(--border);
+  background: var(--white);
+  box-shadow: 6px 6px 0 var(--yellow);
+}
+
+.card {
+  padding: 1rem 2rem 2rem;
+}
+
+.new-task-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.new-task-form input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: var(--border);
+  background: var(--white);
+  font: inherit;
+}
+
+.tasks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tasks li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.tasks li + li {
+  border-top: var(--border);
+}
+
+.tasks label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.tasks li:has(input:checked) label {
+  color: var(--gray);
+  text-decoration: line-through;
+}
+```
+
+Then, replace the `MainPage` component with the skeleton of the Todo app, a header with the app title and an empty main area:
 
 ```tsx title="src/MainPage.tsx" auto-js
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
+
 export const MainPage = () => {
-  return <div>Hello world!</div>;
+  return (
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>Hello world!</main>
+    </>
+  );
 };
 ```
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
+<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.webp')} className="tutorial-image" />
 
-You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
+You can now delete `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
 
