@@ -33,7 +33,6 @@
   "nodemonConfig": {
     "delay": "1000"
   },
-  "prisma": {},
   "private": true,
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",

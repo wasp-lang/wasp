@@ -20,18 +20,6 @@ async function createUser(prismaClient: PrismaClient, data: any) {
         },
       },
     },
-    include: {
-      auth: {
-        select: {
-          id: true,
-          userId: true,
-          identities: true,
-        },
-        include: {
-          identities: true,
-        },
-      },
-    },
   });
 
   return {

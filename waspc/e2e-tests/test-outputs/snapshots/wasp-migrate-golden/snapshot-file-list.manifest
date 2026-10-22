@@ -5,7 +5,6 @@ wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo
 wasp-app/.wasp/out/Dockerfile
 wasp-app/.wasp/out/db/dev.db
-wasp-app/.wasp/out/db/dev.db-journal
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/migrations/no-date-foo/migration.sql
 wasp-app/.wasp/out/db/schema.prisma
