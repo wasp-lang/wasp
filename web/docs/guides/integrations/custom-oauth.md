@@ -1,10 +1,13 @@
 ---
+title: "Custom OAuth provider in Wasp: Spotify example"
+sidebar_label: Custom OAuth Provider
+description: "Add a custom OAuth provider to a Wasp app, using Spotify as the example: add API routes, write handlers with Arctic and create users from the profile."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# Custom OAuth Provider
+# Custom OAuth provider
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
@@ -67,14 +70,14 @@ SPOTIFY_CLIENT_SECRET=your_client_secret
 # just to get the arctic package installed
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
-
-# Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
-WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
 ```
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
+Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
+
+```bash
+wasp start \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
 ```
 
 :::note

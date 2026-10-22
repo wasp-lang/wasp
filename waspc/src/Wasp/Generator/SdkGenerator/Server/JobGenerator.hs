@@ -33,6 +33,7 @@ import Wasp.Generator.SdkGenerator.Common
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genJobsApi :: AppSpec -> Generator [FileDraft]
 genJobsApi spec =
@@ -45,7 +46,7 @@ genJobsApi spec =
         <++> mapM genJob jobs
         <++> genJobExecutors spec
 
-genIndexTs :: [(String, Job)] -> Generator FileDraft
+genIndexTs :: [Job] -> Generator FileDraft
 genIndexTs jobs =
   return $
     mkTmplFdWithData
@@ -53,24 +54,24 @@ genIndexTs jobs =
       tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
-    getJobTmplData (jobName, _) =
+    getJobTmplData job =
       object
-        [ "typeName" .= toUpperFirst jobName,
-          "jobName" .= jobName
+        [ "typeName" .= toUpperFirst job.name,
+          "jobName" .= job.name
         ]
 
-genJob :: (String, Job) -> Generator FileDraft
-genJob (jobName, job) =
+genJob :: Job -> Generator FileDraft
+genJob job =
   return $
     mkTmplFdWithDstAndData
       (serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|])
-      (castRel serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts")))
+      (castRel serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (job.name ++ ".ts")))
       (Just tmplData)
   where
     tmplData =
       object
-        [ "jobName" .= jobName,
-          "typeName" .= toUpperFirst jobName,
+        [ "jobName" .= job.name,
+          "typeName" .= toUpperFirst job.name,
           "jobExecutorImportPath" .= getJobExecutorSdkInternalImportPath (J.executor job),
           "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job),
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
@@ -86,7 +87,7 @@ genJob (jobName, job) =
         ( \schedule ->
             object
               [ "isDefined" .= True,
-                "cron" .= J.cron schedule,
+                "cron" .= makeJsStringLiteral (J.cron schedule),
                 "args" .= getJobScheduleArgs (J.args schedule),
                 "options" .= getJobSchduleOptions (J.scheduleExecutorOptionsJson job)
               ]
@@ -102,21 +103,21 @@ genJob (jobName, job) =
 
 getImportJsonForJobDefinition :: String -> Aeson.Value
 getImportJsonForJobDefinition jobName =
-  GJI.jsImportToImportJson $
-    Just $
-      JI.JsImport
-        { JI._kind = JI.ValueImport,
-          JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
-          JI._name = JI.JsImportField jobName,
-          -- NOTE: We are using alias to avoid name conflicts with user defined imports.
-          JI._importAlias = Just "_waspJobDefinition"
-        }
+  GJI.jsImportToImportJson
+    $ Just
+    $ JI.JsImport
+      { JI._kind = JI.ValueImport,
+        JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
+        JI._name = JI.JsImportField jobName,
+        -- NOTE: We are using alias to avoid name conflicts with user defined imports.
+        JI._importAlias = Just "_waspJobDefinition"
+      }
 
 genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    sequence $ genFileCopyInServerJob [relfile|core/job.ts|] : genAllJobExecutors
+    sequence genAllJobExecutors
     where
       genAllJobExecutors = concatMap genJobExecutor jobExecutors
 

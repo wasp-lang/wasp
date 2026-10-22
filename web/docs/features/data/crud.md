@@ -1,10 +1,14 @@
 ---
-title: Automatic CRUD
+title: "Automatic CRUD in Wasp: generated operations"
+sidebar_label: Automatic CRUD
+description: From one crud spec, Wasp generates Queries and Actions to create, read, update and delete an Entity. You can override each one.
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+
+# Automatic CRUD
 
 If you have a lot of experience writing full-stack apps, you probably ended up doing some of the same things many times: listing data, adding data, editing it, and deleting it.
 

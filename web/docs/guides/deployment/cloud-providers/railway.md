@@ -1,4 +1,7 @@
 ---
+title: "Railway: deploy a Wasp app manually with the CLI"
+sidebar_label: Railway
+description: "Deploy a Wasp app to Railway by hand with the Railway CLI: create a project with PostgreSQL, deploy the server and the client, and redeploy after changes."
 comments: true
 ---
 

@@ -3,6 +3,8 @@ import { type MiddlewareConfigFn } from "wasp/server";
 import {
   type BarBaz,
   type FooBar,
+  type HeadBarBaz,
+  type PatchBarBaz,
   type WebhookCallback,
 } from "wasp/server/api";
 
@@ -32,6 +34,15 @@ export const fooBarMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 
 export const barBaz: BarBaz = (_req, res, _context) => {
   res.json({ msg: `Hello, stranger!` });
+};
+
+export const patchBarBaz: PatchBarBaz = (req, res, _context) => {
+  res.json({ msg: `Patched with ${JSON.stringify(req.body)}` });
+};
+
+export const headBarBaz: HeadBarBaz = (_req, res, _context) => {
+  res.setHeader("X-Api-Handler", "headBarBaz");
+  res.end();
 };
 
 export const barNamespaceMiddlewareFn: MiddlewareConfigFn = (

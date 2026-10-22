@@ -23,6 +23,7 @@ import Data.Data (Data)
 import Data.List (isPrefixOf)
 import StrongPath (Dir', File', Path, Posix, Rel)
 import qualified StrongPath as SP
+import Wasp.Util.Js (makeJsStringLiteral)
 
 -- | Represents a JS import data type that can be used to generate import statements
 --   in generated app. It doesn't fully support all types of JS imports (multiple imports)
@@ -102,7 +103,7 @@ getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifi
 getJsImportStmtAndIdentifier jsImport =
   (importStatement, importIdentifier)
   where
-    importStatement = importKeyword ++ " " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
+    importStatement = importKeyword ++ " " ++ importClause ++ " from " ++ makeJsStringLiteral (getJsImportPathString jsImport)
     importKeyword = case jsImport._kind of
       TypeImport -> "import type"
       ValueImport -> "import"
@@ -126,10 +127,10 @@ getJsImportPathStringFromPath = \case
 --   * named value export: @import('./path').then(m => m.Name)@
 getJsDynamicImportExpression :: JsImport -> String
 getJsDynamicImportExpression jsImport = case jsImport._kind of
-  TypeImport -> "import('" ++ importPath ++ "')." ++ importName
-  ValueImport -> "import('" ++ importPath ++ "').then(m => m." ++ importName ++ ")"
+  TypeImport -> "import(" ++ importPath ++ ")." ++ importName
+  ValueImport -> "import(" ++ importPath ++ ").then(m => m." ++ importName ++ ")"
   where
-    importPath = getJsImportPathString jsImport
+    importPath = makeJsStringLiteral (getJsImportPathString jsImport)
     importName = case jsImport._name of
       JsImportModule _ -> "default"
       JsImportField name -> name

@@ -47,7 +47,7 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
+          exclude: ["wasp"]
         },
         server: {
           port: forcedOptions["server.port"],
@@ -61,6 +61,9 @@ export function waspConfig(): PluginOption {
         build: {
           outDir: forcedOptions["build.outDir"],
         },
+        ssr: {
+          noExternal: ["@wasp.sh/lib-sdk-core"],
+        },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
           // causes runtime errors (e.g., hook rule violation in react, QueryClient
@@ -71,25 +74,11 @@ export function waspConfig(): PluginOption {
             "@tanstack/react-query",
             "react-router",
           ],
-          alias: [
-            {
-              // Vite doesn't look for `.prisma/client` imports in the `node_modules`
-              // folder. We point it to the correct place here.
-              // TODO: Check if we can remove when updating Prisma (#2504)
-              find: /^\.prisma\/client\/(.+)$/,
-              replacement: "node_modules/.prisma/client/$1.js",
-            },
-            {
-              // Handle bare .prisma/client import
-              find: /^\.prisma\/client$/,
-              replacement: "node_modules/.prisma/client",
-            },
-          ],
         },
         test: {
           globals: useUserValue(config.test?.globals, true),
           environment: useUserValue(config.test?.environment, "jsdom"),
-          setupFiles: ['wasp/client/test/setup'],
+          setupFiles: ["wasp/client/test/setup"],
           exclude: [
             ...defaultExclude,
             ".wasp/**/*",

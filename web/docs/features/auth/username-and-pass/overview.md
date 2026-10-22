@@ -1,5 +1,7 @@
 ---
-title: Overview
+title: Username and password auth in Wasp
+sidebar_label: Overview
+description: "Add username and password login to a Wasp app: enable it in main.wasp.ts, add the User entity, then build login and signup pages with Auth UI forms."
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
@@ -8,6 +10,8 @@ import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
 import UsernameData from '../entities/_username-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
+
+# Username and password auth
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client side.
 

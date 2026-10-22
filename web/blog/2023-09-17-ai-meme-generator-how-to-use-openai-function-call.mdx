@@ -4,9 +4,11 @@ authors: [vinny]
 image: /img/memerator-banner-tall.gif
 tags: [ai, meme, openai, function calling, react, full-stack, generate]
 toc_max_heading_level: 4
+description: "Build an AI meme generator with the Imgflip API and OpenAI function calling: GPT writes the captions as JSON and a daily cron job adds templates."
 ---
 
 import TOCInline from '@theme/TOCInline';
+import Trackable from '@site/src/components/Trackable';
 
 ## Table of Contents
 
@@ -84,9 +86,13 @@ Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 
 First, install Wasp by running this in your terminal:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 Next, let’s clone the `start` branch of the [Memerator](http://damemerator.netlify.app) app that I’ve prepared for you:
 
@@ -1218,7 +1224,7 @@ import { AiOutlineEdit } from 'react-icons/ai';
 )}
 ```
 
-What’s really cool about this, is that Wasp’s `Link` component will give you [type-safe routes](https://wasp.sh/docs/advanced/links), by making sure you’re following the pattern you defined in your `main.wasp` file.
+What’s really cool about this, is that Wasp’s `Link` component will give you [type-safe routes](https://wasp.sh/docs/features/pages-and-routes#link-component), by making sure you’re following the pattern you defined in your `main.wasp` file.
 
 And with that, so long as the authenticated user was the creator of the meme (or is an admin), the `Edit Meme` button will show up and direct the user to the `EditMemePage`
 

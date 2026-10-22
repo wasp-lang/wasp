@@ -76,8 +76,7 @@ const config: Config = {
       logo: {
         alt: "Wasp logo",
         src: "img/wasp-logo.svg",
-        href: "https://wasp.sh/",
-        target: "_self",
+        href: "/",
       },
       items: [
         {
@@ -188,7 +187,10 @@ const config: Config = {
       contextualSearch: true,
     },
     image: "img/wasp_twitter_cover.png",
-    metadata: [{ name: "twitter:card", content: "summary_large_image" }],
+    metadata: [
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:site_name", content: "Wasp" },
+    ],
   } as Preset.ThemeConfig,
   presets: [
     [
@@ -250,9 +252,9 @@ const config: Config = {
           id: "blog",
           path: "./blog",
           routeBasePath: "blog",
-          blogTitle: "Blog",
+          blogTitle: "Wasp Blog: tutorials, updates and case studies",
           blogDescription:
-            "The latest updates, tutorials, and deep-dives from the Wasp team.",
+            "The Wasp team writes tutorials, launch updates, case studies and engineering posts about Wasp and full-stack web development with React and Node.js.",
           showReadingTime: true,
           showLastUpdateTime: true,
           blogSidebarCount: "ALL",
@@ -269,6 +271,7 @@ const config: Config = {
     ],
   ],
   scripts: getScripts(),
+  clientModules: ["./src/clientModules/track.ts"],
   plugins: [
     "plugin-image-zoom",
 
@@ -284,8 +287,9 @@ const config: Config = {
         id: "resources",
         path: "./resources",
         routeBasePath: "resources",
-        blogTitle: "Resources",
-        blogDescription: "Guides, comparisons, and other resources.",
+        blogTitle: "Wasp Resources: guides, comparisons and opinions",
+        blogDescription:
+          "Guides, comparisons, research and opinions on full-stack web frameworks, to help you pick and use the right one.",
         authorsMapPath: "../blog/authors.yml",
         showReadingTime: true,
         showLastUpdateTime: true,
@@ -364,6 +368,10 @@ function getScripts() {
   const devOnlyScripts: ScriptWithConsent[] = [];
 
   const prodOnlyScripts: ScriptWithConsent[] = [
+    {
+      src: "/scripts/plausible-queue.js",
+      requiresConsent: false,
+    },
     {
       // We are using Cloudflare Workers to proxy the Plausible script.
       src: "/waspara/wasp/script.js",

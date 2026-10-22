@@ -1,8 +1,12 @@
 ---
-title: Overview
+title: "Deployment methods: Wasp Deploy or other hosts"
+sidebar_label: Overview
+description: Deploy the Node.js server, static client and PostgreSQL database of a Wasp app with Wasp Deploy or elsewhere, and add steps to the generated Dockerfile.
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
+
+# Deployment methods
 
 Wasp apps are full-stack apps that consist of:
 

@@ -34,11 +34,10 @@ import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (declName))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
-import qualified Wasp.AppSpec.ExternalFiles as ExternalFiles
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -71,8 +70,6 @@ data AppSpec = AppSpec
     packageJson :: PackageJson,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
-    -- | List of external code files (they are referenced/used in the declarations).
-    externalCodeFiles :: [ExternalFiles.CodeFile],
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Env variables to be provided to the server only during the development.
     devEnvVarsServer :: [EnvVar],
@@ -87,50 +84,45 @@ data AppSpec = AppSpec
     srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
   }
 
--- TODO: Make this return "Named" declarations?
--- We would have something like NamedDecl or smth like that. Or at least have a @type Named@ or smth like that.
--- Or @WithName@ or just @Named@.
--- I like the best: `newtype Named a = Named (String, a)`
--- I created a github issue for it: https://github.com/wasp-lang/wasp/issues/426 .
-getDecls :: (IsDecl a) => AppSpec -> [(String, a)]
+getDecls :: (IsDecl a) => AppSpec -> [a]
 getDecls = takeDecls . decls
 
-getEntities :: AppSpec -> [(String, Entity)]
+getEntities :: AppSpec -> [Entity]
 getEntities = getDecls
 
-getQueries :: AppSpec -> [(String, Query)]
+getQueries :: AppSpec -> [Query]
 getQueries = getDecls
 
-getActions :: AppSpec -> [(String, Action)]
+getActions :: AppSpec -> [Action]
 getActions = getDecls
 
 getOperations :: AppSpec -> [Operation]
 getOperations spec =
-  map (uncurry AS.Operation.QueryOp) (getQueries spec)
-    <> map (uncurry AS.Operation.ActionOp) (getActions spec)
+  map AS.Operation.QueryOp (getQueries spec)
+    <> map AS.Operation.ActionOp (getActions spec)
 
-getApis :: AppSpec -> [(String, Api)]
+getApis :: AppSpec -> [Api]
 getApis = getDecls
 
-getApiNamespaces :: AppSpec -> [(String, ApiNamespace)]
+getApiNamespaces :: AppSpec -> [ApiNamespace]
 getApiNamespaces = getDecls
 
-getCruds :: AppSpec -> [(String, Crud)]
+getCruds :: AppSpec -> [Crud]
 getCruds = getDecls
 
-getPages :: AppSpec -> [(String, Page)]
+getPages :: AppSpec -> [Page]
 getPages = getDecls
 
-getRoutes :: AppSpec -> [(String, Route)]
+getRoutes :: AppSpec -> [Route]
 getRoutes = getDecls
 
-getJobs :: AppSpec -> [(String, Job)]
+getJobs :: AppSpec -> [Job]
 getJobs = getDecls
 
-getApp :: [Decl] -> Maybe (String, App)
+getApp :: [Decl] -> Maybe App
 getApp = listToMaybe . takeDecls @App
 
-resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
+resolveRef :: (IsDecl d) => AppSpec -> Ref d -> d
 resolveRef spec ref =
   fromMaybe
     ( error $
@@ -139,7 +131,7 @@ resolveRef spec ref =
           ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst)
+    $ find ((== refName ref) . declName)
     $ getDecls spec
 
 -- This is the node version range that user expects his code to work on.

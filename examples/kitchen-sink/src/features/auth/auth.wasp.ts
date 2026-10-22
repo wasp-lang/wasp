@@ -68,7 +68,7 @@ export const authConfig: Auth = {
     email: {
       userSignupFields: emailUserSignupFields,
       fromField: {
-        name: "Wasp Kitchen Sink",
+        name: 'Wasp\'s "Kitchen Sink"',
         email: "kitchen-sink@wasp.sh",
       },
       emailVerification: {

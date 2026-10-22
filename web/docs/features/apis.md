@@ -1,10 +1,14 @@
 ---
-title: API routes
+title: "API routes: custom HTTP endpoints in Wasp"
+sidebar_label: API routes
+description: Add custom HTTP endpoints in Wasp when Operations do not fit. Declare an API in the spec, write an Express handler and call it from the client or outside.
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
+
+# API routes
 
 In Wasp, the default client-server interaction mechanism is through [Operations](./data/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`. Best of all, they should look and feel very familiar.
 
@@ -38,6 +42,10 @@ export default app({
 <ReferencingCodeFromSrcNote />
 
 Read more about the supported fields in the [API Reference](#api-reference).
+
+:::warning HEAD apis need extra care
+Express answers `HEAD` requests with the `GET` api on the same path, so a `HEAD` api only takes over if you declare it before the `GET` one.
+:::
 
 ### Defining the API's NodeJS Implementation
 
@@ -219,7 +227,7 @@ export default app({
 ```
 
 <small>
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+Don't forget to set up the CORS middleware. See the [section explaining CORS](#making-sure-cors-works) for details.
 </small>
 
 ```ts title="src/streaming.ts" auto-js

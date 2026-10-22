@@ -25,19 +25,24 @@ module Wasp.Cli.Command
   )
 where
 
+import Control.Concurrent (threadDelay)
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
+import Wasp.Util.IO.Retry (MonadRetry (..))
 
 newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)
+
+instance MonadRetry Command where
+  rThreadDelay = liftIO . threadDelay
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do

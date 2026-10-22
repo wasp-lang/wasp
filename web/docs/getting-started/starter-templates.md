@@ -1,6 +1,10 @@
 ---
-title: Starter templates
+title: "Starter templates for Wasp: basic, minimal and SaaS"
+sidebar_label: Starter templates
+description: "Create a new Wasp project from a template with wasp new: basic, minimal, or the OpenSaaS.sh template with auth, Stripe payments, Tailwind and cron jobs."
 ---
+
+# Starter templates
 
 We created a few starter templates to help you get started with Wasp. Check out the list [below](#available-templates).
 

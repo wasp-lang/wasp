@@ -1,9 +1,13 @@
 ---
-title: Middleware
+title: "Middleware: Express defaults and overrides in Wasp"
+sidebar_label: Middleware
+description: Wasp adds Helmet, CORS, Morgan, express.json and other Express middleware to every app. Change it globally, for one api or for all routes under a path.
 ---
 
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { CardLink } from '@site/src/components/CardLink';
+
+# Middleware
 
 Wasp comes with a minimal set of useful Express middleware in every application. While this is good for most users, we realize some may wish to add, modify, or remove some of these choices both globally, or on a per-`api`/path basis.
 

@@ -1,5 +1,7 @@
 ---
-title: Railway
+title: "Railway: deploy a Wasp app with a single command"
+sidebar_label: Railway
+description: Deploy a Wasp app to Railway with wasp deploy railway launch, which sets up client, server and Postgres services. Then add a custom domain and env vars.
 ---
 
 import { Required } from '@site/src/components/Tag';
@@ -7,6 +9,8 @@ import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CustomPostgresOption from './_railway-custom-postgres-option.md'
 import CiCdMention from './_ci-cd-mention.md'
 import CustomServerUrlOption from './_custom-server-url-option.md'
+
+# Railway
 
 [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) is a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
 

@@ -21,10 +21,10 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
@@ -50,7 +50,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Finally, throws if there was a compile/build error.
 -- Very similar to 'compile'.
 build :: Command ()
-build = withProjectLock $ do
+build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
@@ -59,30 +59,30 @@ build = withProjectLock $ do
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
-    cliSendMessageC $
-      Msg.Start $
-        "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
+    cliSendMessageC
+      $ Msg.Start
+      $ "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
-    cliSendMessageC $
-      Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+    cliSendMessageC
+      $ Msg.Success
+      $ "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
   liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $
-    throwError $
-      CommandError "Building of wasp project failed" $
-        show (length errors) ++ " errors found."
+  unless (null errors)
+    $ throwError
+    $ CommandError "Building of wasp project failed"
+    $ show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
-  cliSendMessageC $
-    Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  cliSendMessageC
+    $ Msg.Success
+    $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       let srcTsConfigPath = srcTsConfig tsConfigPaths
@@ -161,11 +161,5 @@ buildIO waspProjectDir buildDir =
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
-          -- Ignore "DB needs migration warnings" during build, as that is not a required step.
-          generatorWarningsFilter =
-            filter
-              ( \case
-                  GeneratorNeedsMigrationWarning _ -> False
-                  _ -> True
-              )
+          setupGoals = allSetupGoals
         }

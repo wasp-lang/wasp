@@ -1,6 +1,10 @@
 ---
-title: Environment variables
+title: Environment variables for a deployed Wasp app
+sidebar_label: Environment variables
+description: A deployed Wasp app ignores the .env.client and .env.server files. You pass client env vars to the build command and set server env vars on your host.
 ---
+
+# Environment variables
 
 We talked about environment variables in the [environment variables reference](../advanced/env-vars.md). If you haven't read it, make sure to check it out first. In this section, we'll talk about environment variables in the context of deploying the app.
 

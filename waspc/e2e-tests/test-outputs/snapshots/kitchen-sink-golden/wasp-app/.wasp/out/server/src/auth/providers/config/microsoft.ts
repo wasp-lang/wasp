@@ -4,9 +4,9 @@ import { microsoft } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { microsoftUserSignupFields } from '../../../../../../../src/features/auth/providers/microsoft'
+import { microsoftUserSignupFields } from "../../../../../../../src/features/auth/providers/microsoft"
 const _waspUserSignupFields = microsoftUserSignupFields
-import { microsoftConfig } from '../../../../../../../src/features/auth/providers/microsoft'
+import { microsoftConfig } from "../../../../../../../src/features/auth/providers/microsoft"
 const _waspUserDefinedConfigFn = microsoftConfig
 
 const _waspConfig: ProviderConfig = {
@@ -14,7 +14,7 @@ const _waspConfig: ProviderConfig = {
     displayName: microsoft.displayName,
     createRouter(provider) {
         const config = mergeDefaultAndUserConfig({
-            scopes: ['openid', 'profile', 'email'],
+            scopes: ["openid", "profile", "email"],
         }, _waspUserDefinedConfigFn);
 
         async function getMicrosoftProfile(accessToken: string): Promise<{

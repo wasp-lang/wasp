@@ -10,6 +10,7 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
 where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.Char (isAlpha, isAlphaNum)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
 import Data.Maybe (isNothing)
@@ -97,7 +98,7 @@ askForTemplate starterTemplates =
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName
-  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
+  | isValidProjectName projectName && isValidWaspIdentifier appName = Right $ NewProjectAppName appName
   | otherwise =
       Left . intercalate "\n" $
         [ "The project's name is not in a valid format! The project's name:",
@@ -107,6 +108,15 @@ parseWaspProjectNameIntoAppName projectName
         ]
   where
     appName = kebabToCamelCase projectName
+
+-- We validate the raw project name because it does not undergo the conversion
+-- to app name, but the project directory is still created from it.
+isValidProjectName :: String -> Bool
+isValidProjectName [] = False
+isValidProjectName (c : cs) = isStartChar c && all isNameChar cs
+  where
+    isStartChar ch = isAlpha ch || ch == '_'
+    isNameChar ch = isAlphaNum ch || ch == '_' || ch == '-'
 
 findTemplateOrThrow :: [StarterTemplate] -> String -> Command StarterTemplate
 findTemplateOrThrow availableTemplates templateName = case findTemplateByString availableTemplates templateName of
@@ -133,12 +143,13 @@ obtainAvailableTemplateOutputDirPath projectName = do
         throwError err = throwProjectCreationError $ "Failed to get absolute path to template output dir: " ++ show err
 
     ensureTemplateOutputDirDoesNotExist :: String -> Path' Abs (Dir TemplateOutputDir) -> Command ()
-    ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir = do
-      whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir) $
-        throwProjectCreationError $
-          "Directory `"
-            ++ projectDirName
-            ++ "` already exists. Choose a different name or delete the directory first."
+    ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir =
+      do
+        whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir)
+        $ throwProjectCreationError
+        $ "Directory `"
+          ++ projectDirName
+          ++ "` already exists. Choose a different name or delete the directory first."
 
 mkNewProjectDescription :: String -> NewProjectAppName -> Path' Abs (Dir TemplateOutputDir) -> StarterTemplate -> NewProjectDescription
 mkNewProjectDescription projectName appName absTemplateOutputDir template =

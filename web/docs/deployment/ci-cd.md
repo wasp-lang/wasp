@@ -1,6 +1,10 @@
 ---
-title: CI & CD
+title: "CI & CD: run tests and deploy your Wasp app"
+sidebar_label: CI & CD
+description: Run Playwright end-to-end tests and client unit tests in GitHub Actions, then deploy your Wasp app on each push with Docker images or static files.
 ---
+
+# CI & CD
 
 Setting up a CI/CD pipeline is an optional but highly recommended part of deploying applications.
 
@@ -135,6 +139,6 @@ Wasp's client app is a single page application (SPA) which you build into static
 2. Build the client app with `npx vite build`.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 
-<!-- TOOD: update links below -->
+<!-- TODO: update links below -->
 
 Check out our instructions for deploying the client app to [Netlify](../guides/deployment/cloud-providers/netlify.md) or [Cloudflare](../guides/deployment/cloud-providers/cloudflare.md) where you can check out the example deployment using Github Actions.

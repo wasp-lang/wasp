@@ -1,6 +1,10 @@
 ---
-title: Testing
+title: Testing Wasp client code with Vitest
+sidebar_label: Testing
+description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, run them with wasp test client, and mock queries and APIs.
 ---
+
+# Testing
 
 :::info
 Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly some changes with testing support in the future. If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
@@ -95,7 +99,7 @@ Wasp provides several functions to help you write React tests:
     ```js
     import { HttpMethod } from "wasp/client";
 
-    mockApi({ method: HttpMethod.Get, path: "/foor/bar" }, { res: "hello" });
+    mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
     ```
 
 ## Testing Your Server-Side Code

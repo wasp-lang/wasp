@@ -6,6 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
     gitHubAuthProvider,
@@ -26,11 +27,12 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
+import Wasp.Util.Js (makeJsStringLiteral)
 
-genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthForms auth =
+genAuthForms :: AS.Auth.Auth -> Maybe AS.EmailSender.EmailSender -> Generator [FileDraft]
+genAuthForms auth maybeEmailSender =
   sequence
-    [ genAuthComponent auth,
+    [ genAuthComponent auth isDummyEmailSenderNoticeEnabled,
       genFileCopyInAuthForms [relfile|Auth.module.css|],
       genTypes auth,
       genFileCopyInAuthForms [relfile|Login.tsx|],
@@ -38,15 +40,23 @@ genAuthForms auth =
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
+    <++> genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled
+  where
+    isDummyEmailSenderNoticeEnabled = AS.Auth.isEmailAuthEnabled auth && isDummyEmailSenderUsed
+    isDummyEmailSenderUsed = maybe False AS.EmailSender.isDummyEmailSender maybeEmailSender
 
-genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
-genAuthComponent auth =
+genAuthComponent :: AS.Auth.Auth -> Bool -> Generator FileDraft
+genAuthComponent auth isDummyEmailSenderNoticeEnabled =
   return $
     mkTmplFdWithData
       (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|])
       tmplData
   where
-    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
+    tmplData =
+      object
+        [ "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+          "isDummyEmailSenderNoticeEnabled" .= isDummyEmailSenderNoticeEnabled
+        ]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
@@ -70,34 +80,14 @@ genEmailForms auth =
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
-  sequence
-    [ genFileCopyInAuthFormsInternal [relfile|auth-styles.css|],
-      genFileCopyInAuthFormsInternal [relfile|util.ts|]
-    ]
-    <++> genLoginSignupForm auth
-    <++> genFormComponent
-    <++> genMessageComponent
+  genLoginSignupForm auth
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
-    <++> genSocialComponents
   where
-    genFormComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|Form.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|Form.module.css|]
-        ]
-
-    genMessageComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|Message.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|Message.module.css|]
-        ]
-
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ genFileCopyInAuthFormsInternal [relfile|emailField.ts|],
-            genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
+          [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
             genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]
@@ -109,26 +99,16 @@ genInternalAuthComponents auth =
           [ genFileCopyInAuthFormsInternal [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
           ]
 
-    genSocialComponents =
-      genConditionally isExternalAuthEnabled $
-        genSocialButtonComponent
-          <++> genSocialIconsComponent
-
-    genSocialButtonComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|social/SocialButton.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|social/SocialButton.module.css|]
-        ]
-
-    genSocialIconsComponent =
-      sequence
-        [ genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.module.css|]
-        ]
-
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
+
+genDummyEmailSenderNotice :: Bool -> Generator [FileDraft]
+genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled =
+  genConditionally isDummyEmailSenderNoticeEnabled $
+    sequence
+      [ genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.tsx|],
+        genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.module.css|]
+      ]
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
@@ -144,7 +124,7 @@ genLoginSignupForm auth =
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+        [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,

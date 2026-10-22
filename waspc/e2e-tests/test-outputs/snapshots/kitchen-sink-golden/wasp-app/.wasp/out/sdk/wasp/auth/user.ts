@@ -7,9 +7,9 @@ import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
-} from './providerData.js'
-import type { Expand } from '../universal/types.js'
-import { isNotNull } from '../universal/predicates.js'
+  isNotNull,
+  type Expand,
+} from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
@@ -37,16 +37,9 @@ export type AuthUser = AuthUserData & {
 
 // PRIVATE API (used in SDK and server)
 /*
- * Ideally, we'd do something like this:
- * ```
- * export type AuthUserData = ReturnType<typeof createAuthUserData>
- * ```
- * to get the benefits of the createAuthUser and the AuthUserData type being in sync.
- *
- * But since we are not using strict mode, the inferred return type of createAuthUser
- * is not correct. So we have to define the AuthUserData type manually.
- *
- * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
+ * We write this type out instead of using `ReturnType<typeof createAuthUserData>`
+ * because `Expand` makes editors show each identity's fields on hover. The
+ * inferred type would show `UserFacingProviderData<"email">` instead.
  */
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, 'auth'> & {
   identities: {

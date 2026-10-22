@@ -1,4 +1,7 @@
 ---
+title: "Simple VPS: deploy Wasp with Docker and Caddy"
+sidebar_label: Simple VPS
+description: "Deploy a Wasp app to an Ubuntu VPS: run the server and PostgreSQL in Docker, serve the client and HTTPS with Caddy, and redeploy with a script."
 comments: true
 ---
 
@@ -324,7 +327,7 @@ Configure Caddy to retry connections during restarts:
 ```caddyfile
 api.myapp.com {
     reverse_proxy localhost:3001 {
-        health_uri /
+        health_uri /up
         lb_try_duration 15s
     }
 }

@@ -22,8 +22,8 @@ export function mapAppSpec(
 
   return {
     declType: "App",
-    declName: name,
     declValue: {
+      name,
       wasp,
       title,
       deployment: deployment && mapDeployment(deployment),

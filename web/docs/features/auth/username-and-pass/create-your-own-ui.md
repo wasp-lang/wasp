@@ -1,8 +1,12 @@
 ---
-title: Create your own UI
+title: Create your own UI for username and password auth
+sidebar_label: Create your own UI
+description: Build your own sign-up and login forms for username and password auth in Wasp, and call the signup() and login() functions from wasp/client/auth.
 ---
 
 import { Required } from '@site/src/components/Tag'
+
+# Create your own UI
 
 The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 

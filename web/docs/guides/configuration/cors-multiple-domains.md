@@ -1,11 +1,13 @@
 ---
-title: Multiple Domains CORS
+title: "Multiple domains CORS: allow extra origins in Wasp"
+sidebar_label: Multiple Domains CORS
+description: By default, Wasp allows CORS only from your client URL. Add more domains with custom global middleware, an env var or a function that checks each origin.
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# Multiple Domains CORS
+# Multiple domains CORS
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
@@ -166,7 +168,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
     "cors",
     cors({
       origin: ["https://app.example.com", "https://admin.example.com"],
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
       maxAge: 86400, // 24 hours

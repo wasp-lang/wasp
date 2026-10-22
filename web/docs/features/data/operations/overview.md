@@ -1,8 +1,12 @@
 ---
-title: Overview
+title: "Operations overview: queries and actions in Wasp"
+sidebar_label: Overview
+description: Operations are how a Wasp app works with its data. Queries read data, and Actions change it by updating existing entries or creating new ones.
 ---
 
 import { Required } from '@site/src/components/Tag';
+
+# Operations overview
 
 While Entities enable you to define your app's data model and relationships, Operations are all about working with this data.
 

@@ -17,7 +17,7 @@ import { defaultExclude } from "vitest/config";
 //    appends them to whatever the user already has.
 
 const forcedOptions = {
-  base: "{= baseDir =}",
+  base: {=& baseDir =},
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
   // Heads up! The env referred to by `clientPortEnvVarName` is empty during
@@ -62,6 +62,9 @@ export function waspConfig(): PluginOption {
         build: {
           outDir: forcedOptions["build.outDir"],
         },
+        ssr: {
+          noExternal: ["@wasp.sh/lib-sdk-core"],
+        },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
           // causes runtime errors (e.g., hook rule violation in react, QueryClient
@@ -71,20 +74,6 @@ export function waspConfig(): PluginOption {
             "react-dom",
             "@tanstack/react-query",
             "react-router",
-          ],
-          alias: [
-            {
-              // Vite doesn't look for `.prisma/client` imports in the `node_modules`
-              // folder. We point it to the correct place here.
-              // TODO: Check if we can remove when updating Prisma (#2504)
-              find: /^\.prisma\/client\/(.+)$/,
-              replacement: "node_modules/.prisma/client/$1.js",
-            },
-            {
-              // Handle bare .prisma/client import
-              find: /^\.prisma\/client$/,
-              replacement: "node_modules/.prisma/client",
-            },
           ],
         },
         test: {

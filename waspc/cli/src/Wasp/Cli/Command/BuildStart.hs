@@ -27,7 +27,7 @@ import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
-buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
+buildStart = withArguments buildStartArgsParser $ \args -> do
   ValidNodeAndNpm <- require
   GeneratedAppIsProduction _ <- require
 
@@ -59,9 +59,9 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $
-    Msg.Info $
-      showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
+  cliSendMessageC
+    $ Msg.Info
+    $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_

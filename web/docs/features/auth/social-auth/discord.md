@@ -1,5 +1,7 @@
 ---
-title: Discord
+title: "Discord auth in Wasp: login setup and user data"
+sidebar_label: Discord
+description: "Add Discord login to a Wasp app: create a Discord application with an OAuth2 redirect, set the client ID and secret, and read the user data Discord sends."
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -13,6 +15,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import DiscordData from '../entities/_discord-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# Discord
 
 Wasp supports Discord Authentication out of the box.
 

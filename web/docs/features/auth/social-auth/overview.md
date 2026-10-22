@@ -1,5 +1,7 @@
 ---
-title: Overview
+title: "Social auth overview: providers and overrides"
+sidebar_label: Overview
+description: "Add social login such as Google or GitHub to a Wasp app: declare the User entity, learn the defaults, and store more user data with userSignupFields."
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
@@ -7,6 +9,8 @@ import { SocialAuthGrid } from './SocialAuthGrid';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
 import GetUserFieldsType from './_getuserfields-type.md';
+
+# Social auth overview
 
 Social login options (e.g., _Log in with Google_) are a great (maybe even the best) solution for handling user accounts.
 A famous old developer joke tells us _"The best auth system is the one you never have to make."_

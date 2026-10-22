@@ -1,10 +1,14 @@
 ---
-title: 5. Querying the database
+title: "5. Querying the database: Wasp tutorial"
+sidebar_label: "5. Querying the database"
+description: "Step 5 of the Wasp tutorial: declare a getTasks Query in main.wasp.ts, read the tasks with the Prisma client and list them on the main page with useQuery."
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+
+# 5. Querying the database
 
 We want to know which tasks we need to do, so let's list them!
 

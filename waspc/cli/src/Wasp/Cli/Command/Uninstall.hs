@@ -3,12 +3,14 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (filterM, unless, when)
+import Control.Monad (filterM, unless)
 import Control.Monad.IO.Class (liftIO)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
@@ -17,6 +19,8 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -30,16 +34,35 @@ import Wasp.Util.IO
 import Wasp.Util.InstallMethod (uninstallationCommand)
 
 -- | Removes Wasp from the system.
-uninstall :: Command ()
-uninstall = do
-  cliSendMessageC $ Msg.Start "Removing Wasp data..."
-  liftIO removeWaspFiles
-  cliSendMessageC $ Msg.Success "Removed Wasp data."
+uninstall :: Arguments -> Command ()
+uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConfirmation} -> do
+  waspPathsToRemove <- liftIO findWaspPathsToRemove
+
+  if null $ toFilePaths waspPathsToRemove
+    then cliSendMessageC $ Msg.Info "No Wasp data was found on this system."
+    else do
+      cliSendMessageC $ Msg.Start "Removing Wasp data..."
+      liftIO $ removeWaspPaths skipConfirmation waspPathsToRemove
+      cliSendMessageC $ Msg.Success "Removed Wasp data."
+
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
   cliSendMessageC $ Msg.Info $ indent 2 uninstallationCommand
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC dockerVolumeMsg
+
+newtype UninstallArgs = UninstallArgs
+  { force :: Bool
+  }
+
+uninstallArgsParser :: ArgsParser UninstallArgs
+uninstallArgsParser =
+  ArgsParser "wasp uninstall" $
+    UninstallArgs
+      <$> Opt.switch
+        ( Opt.long "force"
+            <> Opt.help "Skip the confirmation prompt"
+        )
 
 dockerVolumeMsg :: Message
 dockerVolumeMsg =
@@ -48,41 +71,44 @@ dockerVolumeMsg =
       <> " deleted all the docker volumes it might have created."
       <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
 
-removeWaspFiles :: IO ()
-removeWaspFiles = do
-  dirsToRemove <- filterM doesDirectoryExist =<< getWaspDirectories
-  filesToRemove <- filterM doesFileExist =<< getWaspFiles
+type PathsToRemove = ([Path' Abs Dir'], [Path' Abs File'])
 
-  let allPathsToRemove =
-        (SP.fromAbsDir <$> dirsToRemove)
-          ++ (SP.fromAbsFile <$> filesToRemove)
-
-  unless (null allPathsToRemove) $ do
-    putStr $
-      unlines
-        [ "We will remove the following files and directories:",
-          indent 2 $ unlines allPathsToRemove,
-          "Are you sure you want to continue? [y/N]"
+findWaspPathsToRemove :: IO PathsToRemove
+findWaspPathsToRemove =
+  (,)
+    <$> (filterM doesDirectoryExist =<< getWaspDirectories)
+    <*> (filterM doesFileExist =<< getWaspFiles)
+  where
+    getWaspDirectories = do
+      homeDir <- getHomeDir
+      userCacheDir <- getUserCacheDir
+      return
+        [ homeDir </> waspInstallationDirInHomeDir,
+          SP.castDir $ getWaspCacheDir userCacheDir
         ]
 
-    answer <- getLine
-    when (answer /= "y") $ die "Aborted."
+    getWaspFiles = do
+      homeDir <- getHomeDir
+      return
+        [ homeDir </> waspExecutableInHomeDir
+        ]
 
-    mapM_ deleteDirectoryIfExists dirsToRemove
-    mapM_ deleteFileIfExists filesToRemove
+removeWaspPaths :: Bool -> PathsToRemove -> IO ()
+removeWaspPaths skipConfirmation pathsToRemove = do
+  putStr $
+    unlines
+      [ "We will remove the following files and directories:",
+        indent 2 $ unlines $ toFilePaths pathsToRemove
+      ]
 
-getWaspDirectories :: IO [Path' Abs Dir']
-getWaspDirectories = do
-  homeDir <- getHomeDir
-  userCacheDir <- getUserCacheDir
+  unless skipConfirmation $
+    Interactive.tryGettingConfirmation "Are you sure you want to continue? [y/N]" "y" >>= \case
+      Right () -> return ()
+      Left _ -> die "Aborted."
 
-  return
-    [ homeDir </> waspInstallationDirInHomeDir,
-      SP.castDir $ getWaspCacheDir userCacheDir
-    ]
+  mapM_ deleteDirectoryIfExists $ fst pathsToRemove
+  mapM_ deleteFileIfExists $ snd pathsToRemove
 
-getWaspFiles :: IO [Path' Abs File']
-getWaspFiles = do
-  homeDir <- getHomeDir
-
-  return [homeDir </> waspExecutableInHomeDir]
+toFilePaths :: PathsToRemove -> [FilePath]
+toFilePaths (dirs, files) =
+  (SP.fromAbsDir <$> dirs) ++ (SP.fromAbsFile <$> files)

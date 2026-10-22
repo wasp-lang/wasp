@@ -27,15 +27,8 @@ import Wasp.Util ((<++>))
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
-    [ -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/resources.js|],
-      genFileCopyInClientOps [relfile|internal/index.ts|],
-      -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/updateHandlersMap.js|],
-      genFileCopyInClientOps [relfile|rpc.ts|],
-      genFileCopyInClientOps [relfile|hooks.ts|],
-      genFileCopyInClientOps [relfile|index.ts|],
-      genFileCopyInClientOps [relfile|queryClient.ts|]
+    [ genFileCopyInClientOps [relfile|internal/index.ts|],
+      genFileCopyInClientOps [relfile|index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -78,8 +71,8 @@ genActionsIndex spec =
         [ "actions" .= map getActionData (AS.getActions spec)
         ]
 
-getQueryData :: (String, AS.Query.Query) -> Aeson.Value
-getQueryData (queryName, query) =
+getQueryData :: AS.Query.Query -> Aeson.Value
+getQueryData query =
   object $
     [ "queryRoute"
         .= ( ServerGenerator.operationsRouteInRootRouter
@@ -90,10 +83,10 @@ getQueryData (queryName, query) =
     ]
       ++ getOperationTypeData operation
   where
-    operation = AS.Operation.QueryOp queryName query
+    operation = AS.Operation.QueryOp query
 
-getActionData :: (String, AS.Action.Action) -> Aeson.Value
-getActionData (actionName, action) =
+getActionData :: AS.Action.Action -> Aeson.Value
+getActionData action =
   object $
     [ "actionRoute"
         .= ( ServerGenerator.operationsRouteInRootRouter
@@ -104,10 +97,10 @@ getActionData (actionName, action) =
     ]
       ++ getOperationTypeData operation
   where
-    operation = AS.Operation.ActionOp actionName action
+    operation = AS.Operation.ActionOp action
 
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
---   E.g. "['Task', 'Project']"
+--   E.g. "[\"Task\", \"Project\"]"
 makeJsArrayOfEntityNames :: AS.Operation.Operation -> String
 makeJsArrayOfEntityNames operation = makeJsArrayFromHaskellList entityNames
   where

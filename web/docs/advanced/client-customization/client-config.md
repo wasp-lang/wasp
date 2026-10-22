@@ -1,11 +1,15 @@
 ---
-title: Client configuration
+title: "Client configuration: root component and setupFn"
+sidebar_label: Client configuration
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, query defaults and a base directory."
 ---
 
 import BaseDirEnvNote from './_baseDirEnvNote.md'
 
 import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
+
+# Client configuration
 
 You can configure the client using the `client` field inside the `app` spec:
 

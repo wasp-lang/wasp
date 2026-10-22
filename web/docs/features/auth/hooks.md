@@ -1,11 +1,14 @@
 ---
-title: Auth hooks
+title: "Auth hooks: run custom code on signup and login"
+description: Run custom code at stages of the Wasp auth flow with hooks like onBeforeSignup and onAfterLogin, to block certain emails or send a welcome email.
 sidebar_label: Hooks
 ---
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
+
+# Auth hooks
 
 Auth hooks allow you to "hook into" the auth process at various stages and run your custom code. For example, if you want to forbid certain emails from signing up, or if you wish to send a welcome email to the user after they sign up, auth hooks are the way to go.
 

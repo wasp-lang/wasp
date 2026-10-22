@@ -1,9 +1,13 @@
 ---
-title: Cloud providers
+title: "Cloud providers: deploy Wasp by guide or by hand"
+sidebar_label: Cloud providers
+description: Deploy Wasp to any provider that runs Node.js, serves static files and hosts PostgreSQL. Follow a guide for Vercel, Fly.io and others, or deploy by hand.
 ---
 
 import BuildingTheWebClient from './_building-the-web-client.md'
 import { CardLink } from '@site/src/components/CardLink'
+
+# Cloud providers
 
 You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.
 

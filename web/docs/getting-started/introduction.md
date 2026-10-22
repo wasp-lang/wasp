@@ -1,9 +1,13 @@
 ---
-title: What's Wasp?
+title: What's Wasp? A spec-driven full-stack framework
+sidebar_label: What's Wasp?
+description: Wasp is a spec-driven framework for full-stack web apps with React, Node.js and Prisma. Read a code example and find out when to use Wasp.
 slug: /
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+
+# What's Wasp?
 
 :::note
 If you are looking for the installation instructions, check out the [Quick Start](./quick-start.md) section.

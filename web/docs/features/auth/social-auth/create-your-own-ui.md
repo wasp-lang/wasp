@@ -1,6 +1,10 @@
 ---
-title: Create your own UI
+title: Create your own UI for social auth in Wasp
+sidebar_label: Create your own UI
+description: Build your own social login page in Wasp with the sign-in buttons and URLs that Wasp provides for each supported provider, such as Google and GitHub.
 ---
+
+# Create your own UI
 
 [Auth UI](../ui.md) is a common name for all high-level auth forms that come with Wasp.
 

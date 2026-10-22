@@ -8,6 +8,7 @@
 - [Agent integration](https://wasp.sh/docs/getting-started/agent-integration.md)
 ### Tutorial
 - [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
+- [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
 - [2. Project structure](https://wasp.sh/docs/tutorial/project-structure.md)
 - [3. Pages and routes](https://wasp.sh/docs/tutorial/pages.md)
 - [4. Database entities](https://wasp.sh/docs/tutorial/entities.md)
@@ -16,7 +17,7 @@
 - [7. Adding authentication](https://wasp.sh/docs/tutorial/auth.md)
 ### Features
 - [Wasp Spec (main.wasp.ts)](https://wasp.sh/docs/features/spec.md)
-- [Routes](https://wasp.sh/docs/features/routes.md)
+- [Pages and routes](https://wasp.sh/docs/features/pages-and-routes.md)
 #### Data
 - [Entities](https://wasp.sh/docs/features/data/entities.md)
 ##### Operations
@@ -54,7 +55,6 @@
 - [API routes](https://wasp.sh/docs/features/apis.md)
 ### Advanced
 - [Dependencies](https://wasp.sh/docs/advanced/dependencies.md)
-- [Type-safe links](https://wasp.sh/docs/advanced/links.md)
 - [Worktrees](https://wasp.sh/docs/advanced/git-worktrees.md)
 - [Environment variables](https://wasp.sh/docs/advanced/env-vars.md)
 - [Testing](https://wasp.sh/docs/advanced/testing.md)
@@ -87,7 +87,8 @@
 - [CI & CD](https://wasp.sh/docs/deployment/ci-cd.md)
 - [Extras](https://wasp.sh/docs/deployment/extras.md)
 ### Migration guides
-- [From 0.25 to 0.26](https://wasp.sh/docs/migration-guide.md)
+- [From 0.26 to 0.27](https://wasp.sh/docs/migration-guide.md)
+- [From 0.25 to 0.26](https://wasp.sh/docs/0.26/migration-guide.md)
 - [From 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide.md)
 - [From 0.23 to 0.24](https://wasp.sh/docs/0.24/migration-guide.md)
 - [From 0.22 to 0.23](https://wasp.sh/docs/0.23/migration-guide.md)
@@ -121,7 +122,7 @@
 - [Vercel](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel.md)
 - [Zerops](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops.md)
 #### Self-Hosted
-- [Caprover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
+- [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
 - [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
 - [Simple VPS](https://wasp.sh/docs/guides/deployment/self-hosted/vps.md)
 ### Integrations

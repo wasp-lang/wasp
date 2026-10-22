@@ -35,8 +35,8 @@
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
     "@wasp.sh/spec": "file:.wasp/spec",
-    "@wasp.sh/wasp-app-runner": "^0.0.17",
-    "prisma": "5.19.1",
+    "@wasp.sh/wasp-app-runner": "^0.0.18",
+    "prisma": "6.19.3",
     "typescript": "6.0.3",
     "vite": "^8.1.0",
     "vitest": "^4.1.9"

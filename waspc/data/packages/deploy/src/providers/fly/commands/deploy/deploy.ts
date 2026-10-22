@@ -8,7 +8,7 @@ import {
 } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  getClientDeploymentDir,
+  ensureClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import {
@@ -115,7 +115,9 @@ async function deployClient(
 ) {
   waspSays("Deploying your client now...");
 
-  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  cd(
+    ensureClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir),
+  );
   copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
   const serverUrl =

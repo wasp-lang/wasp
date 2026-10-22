@@ -1,7 +1,8 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
-    postWriteDbGeneratorActions,
+    formatPrismaSchemaFileOnDisk,
     warnIfDbNeedsMigration,
+    generatePrismaClient,
     getEntitiesForPrismaSchema,
   )
 where
@@ -47,7 +48,6 @@ import Wasp.Generator.Monad
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
-import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Pls.Db
@@ -112,47 +112,29 @@ genPrismaSchema spec = do
       -- We are not overriding any values for now in the generator blocks.
       Psl.Ast.ConfigBlock.overrideKeyValuePairs [] . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
 
-    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
-    entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Schema.generateSchemaBlock $
-        Psl.Schema.ModelBlock $
-          Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
+    entityToPslModelSchema :: AS.Entity.Entity -> String
+    entityToPslModelSchema =
+      Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ModelBlock . AS.Entity.getPslModel
 
     prismaSchemaAst = AS.prismaSchema spec
 
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.
-getEntitiesForPrismaSchema :: AppSpec -> Generator [(String, AS.Entity.Entity)]
+getEntitiesForPrismaSchema :: AppSpec -> Generator [AS.Entity.Entity]
 getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
   where
     userDefinedEntities = getEntities spec
 
-    maybeUserEntity :: Maybe (String, AS.Entity.Entity)
+    maybeUserEntity :: Maybe AS.Entity.Entity
     maybeUserEntity = do
-      auth <- AS.App.auth $ snd $ getApp spec
+      auth <- AS.App.auth $ getApp spec
       let userEntityName = AS.refName . AS.Auth.userEntity $ auth
-      find ((== userEntityName) . fst) userDefinedEntities
+      find ((== userEntityName) . AS.Entity.getName) userDefinedEntities
 
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir <$> AS.migrationsDir spec
   where
     genProjectMigrationsDir = Wasp.Generator.DbGenerator.Common.dbRootDirInGeneratedAppDir </> Wasp.Generator.DbGenerator.Common.dbMigrationsDirInDbRootDir
-
--- | This function operates on generated app, and thus assumes the file drafts were written to disk
-postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO ([GeneratorWarning], [GeneratorError])
-postWriteDbGeneratorActions spec dstDir = do
-  formatPrismaSchemaFileOnDisk dstDir
-
-  dbGeneratorWarnings <-
-    -- It makes sense to check if db needs migration only if the db is known at this moment, for
-    -- example if we are in development (`wasp start`).
-    -- However if we are in build (`wasp build`), then there is no database to check against right
-    -- now.
-    if not (AS.isProduction spec)
-      then maybeToList <$> warnIfDbNeedsMigration spec dstDir
-      else pure []
-  dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir
-  pure (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | One of the checks we perform is to compare the Wasp generated schema.prisma file
 -- and the schema.prisma file in the node_modules. Prisma formats the schema in node_modules

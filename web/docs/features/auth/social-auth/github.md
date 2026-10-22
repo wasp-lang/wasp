@@ -1,5 +1,7 @@
 ---
-title: GitHub
+title: "GitHub auth in Wasp: login setup and user data"
+sidebar_label: GitHub
+description: Add GitHub login to a Wasp app, a good choice for developer apps. Create a GitHub App, set the client ID and secret, and request a scope to read emails.
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -13,6 +15,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import GithubData from '../entities/_github-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# GitHub
 
 Wasp supports GitHub Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.

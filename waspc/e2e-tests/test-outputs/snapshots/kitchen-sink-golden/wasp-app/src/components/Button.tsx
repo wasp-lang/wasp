@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, type LinkProps } from "wasp/client/router";
 import { cn } from "../cn";
 
 type ButtonVariant =
@@ -23,10 +23,10 @@ interface RegularButtonProps extends BaseButtonProps {
   type?: "button" | "submit" | "reset";
 }
 
-interface LinkButtonProps extends BaseButtonProps {
-  to: string;
-  replace?: boolean;
-}
+type LinkButtonProps = LinkProps & {
+  variant?: ButtonVariant;
+  disabled?: boolean;
+};
 
 export function Button(props: RegularButtonProps) {
   const classes = getButtonClasses(props);
@@ -38,13 +38,17 @@ export function Button(props: RegularButtonProps) {
   );
 }
 
-export function ButtonLink(props: LinkButtonProps) {
-  const classes = getButtonClasses(props);
-
+export function ButtonLink({
+  variant,
+  disabled,
+  className,
+  ...linkProps
+}: LinkButtonProps) {
   return (
-    <Link {...props} className={classes}>
-      {props.children}
-    </Link>
+    <Link
+      {...linkProps}
+      className={getButtonClasses({ variant, disabled, className })}
+    />
   );
 }
 

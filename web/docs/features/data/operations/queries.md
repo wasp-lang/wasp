@@ -1,5 +1,7 @@
 ---
-title: Queries
+title: "Queries: fetch data from the server in Wasp"
+sidebar_label: Queries
+description: "Use Queries to fetch data in a Wasp app: declare a query in the spec, implement it in Node.js, call it with the useQuery hook and use Entities inside it."
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
@@ -7,6 +9,8 @@ import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './_superjson-note.md';
 import ReferencingCodeFromSrcNote from '../../../_referencing-code-from-src-note.md';
+
+# Queries
 
 We'll explain what Queries are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 

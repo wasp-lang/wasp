@@ -1,6 +1,6 @@
-:::caution Setting the correct env variable
+:::caution Setting the correct client URL
 
-If you set the `baseDir` option, make sure that the `WASP_WEB_CLIENT_URL` env variable also includes that base directory.
+If you set the `baseDir` option, make sure that your client URL also includes that base directory. In production, that is the `WASP_WEB_CLIENT_URL` env variable. In development, Wasp adds the base directory for you, unless you pass a custom URL with `--client-url`.
 
-For example, if you are serving your app from `https://example.com/my-app`, the `WASP_WEB_CLIENT_URL` should be also set to `https://example.com/my-app`, and not just `https://example.com`.
+For example, if you are serving your app from `https://example.com/my-app`, the client URL should also be `https://example.com/my-app`, and not just `https://example.com`.
 :::

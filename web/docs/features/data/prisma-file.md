@@ -1,8 +1,12 @@
 ---
-title: Prisma schema file
+title: "Prisma schema file: define your data model in Wasp"
+sidebar_label: Prisma schema file
+description: Wasp uses Prisma to interact with the database, and you can define your Wasp data model in the schema.prisma file.
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+
+# Prisma schema file
 
 Wasp uses [Prisma](https://www.prisma.io/) to interact with the database. Prisma is a "Next-generation Node.js and TypeScript ORM" that provides a type-safe API for working with your database.
 

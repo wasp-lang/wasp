@@ -95,9 +95,9 @@ listNews localState listing = do
 
     updateTimestampAndMarkAsSeen newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
-      saveLocalNewsState $
-        setLastListingTimestamp currentTime $
-          markNewsAsSeen newsToMarkAsSeen localState
+      saveLocalNewsState
+        $ setLastListingTimestamp currentTime
+        $ markNewsAsSeen newsToMarkAsSeen localState
 
 showMessageForUser :: LocalNewsState -> NewsListing -> Maybe String
 showMessageForUser localState listing = case listing of

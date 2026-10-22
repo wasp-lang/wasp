@@ -1,5 +1,7 @@
 ---
-title: Google
+title: "Google auth in Wasp: login setup and user data"
+sidebar_label: Google
+description: "Add Google login to a Wasp app: create an OAuth client in Google Auth Platform, set the client ID and secret, then add the login page."
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -13,6 +15,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import GoogleData from '../entities/_google-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# Google
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.

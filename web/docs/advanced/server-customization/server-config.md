@@ -1,9 +1,13 @@
 ---
-title: Server config
+title: "Server config in Wasp: setupFn and middleware"
+sidebar_label: Server config
+description: "Configure the Wasp server in the app spec: a setupFn runs on start, for example to add a custom route, and middlewareConfigFn changes global middleware."
 ---
 
 import { CardLink } from "@site/src/components/CardLink";
 import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
+
+# Server config
 
 You can configure the behavior of the server via the `server` field of `app` spec:
 

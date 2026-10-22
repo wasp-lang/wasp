@@ -1,6 +1,6 @@
 import { deserialize } from '../core/serialization/index.js'
-import { useQuery, buildAndRegisterQuery } from '../client/operations/index.js'
-import type { QueryFunction, Query  } from '../client/operations/rpc.js'
+import { buildAndRegisterQuery, useQuery } from '@wasp.sh/lib-sdk-core/browser'
+import type { QueryFunction, Query  } from '@wasp.sh/lib-sdk-core'
 import { api, handleApiError } from '../api/index.js'
 import { HttpMethod } from '../client/index.js'
 import type { AuthUser, AuthUserData } from './user.js'
@@ -31,6 +31,6 @@ function createUserGetter(): Query<void, AuthUser | null> {
   return buildAndRegisterQuery(getMe, {
     queryCacheKey: [getMeRelativePath],
     queryRoute: getMeRoute,
-    entitiesUsed: ['User'],
+    entitiesUsed: ["User"],
   })
 }

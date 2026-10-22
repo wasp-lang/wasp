@@ -1,8 +1,12 @@
 ---
-title: Entities
+title: "Entities: Prisma models and types in Wasp"
+sidebar_label: Entities
+description: Each Prisma model in schema.prisma is a Wasp Entity. Define your models there, run wasp db migrate-dev for migrations and use them in Queries and Actions.
 ---
 
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
+
+# Entities
 
 Entities are the foundation of your app's data model. In short, an Entity defines a model in your database.
 

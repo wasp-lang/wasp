@@ -1,12 +1,14 @@
 ---
-title: Email
+title: "Sending emails in Wasp: providers and setup"
+description: Send emails from a Wasp app with emailSender. Choose the Dummy, SMTP, Mailgun, SendGrid or Resend provider, set its env vars in .env.server and call send.
+sidebar_label: Email
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-# Sending Emails
+# Sending emails
 
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 

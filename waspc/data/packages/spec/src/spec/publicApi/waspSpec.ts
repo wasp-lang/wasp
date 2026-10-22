@@ -887,7 +887,7 @@ export interface Page extends BaseSpecElement<"page"> {
  *
  * Create one with the {@link route} constructor.
  *
- * See [Routing](https://wasp.sh/docs/features/routes) for path patterns
+ * See [Pages & Routes](https://wasp.sh/docs/features/pages-and-routes) for path patterns
  * (dynamic segments, optional segments, splats).
  *
  * @category Specifications
@@ -1079,8 +1079,18 @@ export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
  * HTTP methods supported by an {@link Api}.
  *
  * Use `"ALL"` to match any method.
+ *
+ * A `"HEAD"` api must be declared before a `"GET"` api on the same path,
+ * otherwise the `"GET"` api answers the HEAD requests as well.
  */
-export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod =
+  | "ALL"
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD";
 
 /**
  * A background job. Can be submitted ad-hoc or run on a recurring schedule.

@@ -2,9 +2,8 @@ cabal-version: 2.4
 -- TODO:
 --  - Rename wasp-cli back to just wasp.
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
---    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.26.0
+version: 0.27.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -141,6 +140,7 @@ library
     mustache ^>=2.4.2,
     neat-interpolation ^>=0.5.1,
     network ^>=3.1.4,
+    network-uri ^>=2.6.4,
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
@@ -149,6 +149,7 @@ library
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
+    temporary ^>=1.3,
     text ^>=2.1.3,
     time ^>=1.12.2,
     unliftio ^>=0.2.25,
@@ -181,7 +182,6 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
     Wasp.AppSpec.Entity
-    Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Identifier
     Wasp.AppSpec.Inspectable
@@ -206,8 +206,8 @@ library
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.OAuth
+    Wasp.Generator.AuthProviders.UsernameAndPassword
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -239,8 +239,8 @@ library
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.Common
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG
-    Wasp.Generator.SdkGenerator.Auth.LocalAuthG
     Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
+    Wasp.Generator.SdkGenerator.Auth.UsernameAndPasswordAuthG
     Wasp.Generator.SdkGenerator.AuthG
     Wasp.Generator.SdkGenerator.Client.AppG
     Wasp.Generator.SdkGenerator.Client.AuthG
@@ -269,8 +269,8 @@ library
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
-    Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
+    Wasp.Generator.ServerGenerator.Auth.UsernameAndPasswordAuthG
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.CrudG
@@ -342,7 +342,6 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
-    Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -396,6 +395,7 @@ library
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
+    Wasp.Util.Js
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
@@ -430,12 +430,13 @@ library cli-lib
     mtl,
     neat-interpolation,
     network,
+    network-uri,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
     strong-path,
     tar ^>=0.6.3,
-    temporary ^>=1.3,
+    temporary,
     text,
     time,
     utf8-string,
@@ -510,6 +511,7 @@ library cli-lib
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
+    Wasp.Cli.Compile
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -517,9 +519,12 @@ library cli-lib
     Wasp.Cli.Message
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
+    Wasp.Cli.ProjectLock.Data
+    Wasp.Cli.ProjectLock.Handle
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.PortArgument
@@ -556,6 +561,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    network-uri,
     parsec,
     strong-path,
     tasty ^>=1.5.3,
@@ -566,6 +572,7 @@ test-suite waspc-tests
     waspc,
 
   other-modules:
+    AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -573,7 +580,8 @@ test-suite waspc-tests
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
-    Fixtures
+    Fixtures.AppSpec
+    Fixtures.Paths
     Generator.AuthInjectionTest
     Generator.CommonTest
     Generator.CrudTest
@@ -585,7 +593,10 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
+    Generator.SetupTest
+    Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
+    Job.IO.PrefixedWriterTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
@@ -620,6 +631,7 @@ test-suite waspc-tests
     Util.DockerTest
     Util.FilePathTest
     Util.IO.RetryTest
+    Util.JsTest
     Util.Prisma
     Util.StrongPathTest
     Util.WebRouterPathTest
@@ -639,6 +651,7 @@ test-suite wasp-cli-tests
     cli-lib,
     hspec,
     network,
+    network-uri,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -646,13 +659,14 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
-    DbMigrateTest
     Paths_waspc
     TerminalTest
+    Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Util.HttpUrlArgumentTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
@@ -688,6 +702,7 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
+    Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest

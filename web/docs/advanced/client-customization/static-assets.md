@@ -1,8 +1,12 @@
 ---
-title: Static assets
+title: "Static assets in Wasp: imports and the public folder"
+sidebar_label: Static assets
+description: Import an image or other static asset in a Wasp app to get its URL in the build, or put files such as favicon.ico and robots.txt in the public directory.
 ---
 
 import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
+
+# Static assets
 
 ## Importing an Asset as URL
 

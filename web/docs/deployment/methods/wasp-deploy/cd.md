@@ -1,8 +1,12 @@
 ---
-title: Continuous deployment
+title: Continuous deployment with Wasp Deploy
+sidebar_label: Continuous deployment
+description: You can use CI/CD platforms like GitHub Actions to re-deploy your application automatically on each push to your repository.
 ---
 
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
+
+# Continuous deployment
 
 You can use CI/CD platforms like Github Actions to re-deploy your application automatically whenever changes are pushed to your repository.
 

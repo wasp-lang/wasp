@@ -1,5 +1,7 @@
 ---
-title: Microsoft
+title: "Microsoft auth in Wasp: Entra ID login and user data"
+sidebar_label: Microsoft
+description: "Add Microsoft login to a Wasp app with Microsoft Entra ID: choose a tenant type for personal or work accounts, register the app and set env vars."
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -13,6 +15,8 @@ import { CardLink } from '@site/src/components/CardLink';
 import MicrosoftData from '../entities/_microsoft-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+
+# Microsoft
 
 Wasp supports Microsoft Authentication out of the box.
 

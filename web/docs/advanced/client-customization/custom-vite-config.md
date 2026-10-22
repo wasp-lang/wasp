@@ -1,9 +1,13 @@
 ---
-title: Custom Vite config
+title: "Custom Vite config: plugins and options in Wasp"
+sidebar_label: Custom Vite config
+description: "Customize vite.config.ts in a Wasp app: add the required wasp() plugin first, then your own plugins and dev server or build options."
 ---
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { Optional } from '@site/src/components/Tag'
+
+# Custom Vite config
 
 Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.{js,ts}` file in your project root directory.
 
