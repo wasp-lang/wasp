@@ -170,6 +170,16 @@ const routesMapping = {
       }
     },
   },
+  ClientErrorsRoute: {
+    lazy: async () => {
+      const Component = await import("./src/features/errors/pages/ClientErrorsPage").then(m => m.ClientErrorsPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
   CrudListRoute: {
     lazy: async () => {
       const Component = await import("./src/features/crud/pages/ListPage").then(m => m.ListPage);

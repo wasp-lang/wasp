@@ -1,6 +1,7 @@
 import type { ErrorMessage } from "@wasp.sh/lib-auth/browser";
 import { getErrorMessage } from "../../../errors.js";
 import { HttpError } from "../../../HttpError.js";
+import { handleClientError } from "../../errors.js";
 
 export function getAuthErrorMessage(error: unknown): ErrorMessage {
   if (error instanceof HttpError) {
@@ -11,8 +12,8 @@ export function getAuthErrorMessage(error: unknown): ErrorMessage {
       description: typeof description === "string" ? description : undefined,
     };
   }
-  // We only expect HTTP errors here, so we log anything else,
+  // We only expect HTTP errors here, so we report anything else,
   // like a network failure, for the developer.
-  console.error(error);
+  handleClientError(error, { source: "authForm" });
   return { title: getErrorMessage(error) };
 }
