@@ -4,7 +4,7 @@
 
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { randomUUID } from "crypto";
-import { performLogin, setupTestUser } from "../auth.js";
+import { isRunningInDevMode, performLogin, setupTestUser } from "../auth.js";
 
 test.describe(
   "basic only",
@@ -36,6 +36,27 @@ test.describe(
           page.getByText("Your app is up and running"),
         ).toBeVisible();
         await expect(page.getByText("Not logged in")).toBeVisible();
+      });
+
+      test("should create a sample user and log in with it", async ({
+        page,
+      }) => {
+        test.skip(
+          !isRunningInDevMode(),
+          "The sample user is only available in development.",
+        );
+        await page.goto("/");
+
+        await page
+          .getByRole("button", { name: "Create a sample user" })
+          .click();
+        await expect(page.getByText("sample@example.com")).toBeVisible();
+
+        await performLogin(page, {
+          email: "sample@example.com",
+          password: "password123",
+        });
+        await expect(page.getByText("Logged in as sampleuser")).toBeVisible();
       });
     });
 
