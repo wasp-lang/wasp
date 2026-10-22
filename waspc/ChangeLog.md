@@ -8,7 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
-- Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts`, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
+- Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts`, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) moved to the `@wasp.sh/test-utils` package. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 
 ### 🎉 New Features
 
