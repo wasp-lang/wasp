@@ -27,7 +27,7 @@ export function reportUnexpectedServerError(
  * Sends anything thrown while handling a request as a JSON error response.
  *
  * - An `HttpError` is thrown on purpose, so we send its status code,
- *   message, and data.
+ *   headers, message, and data.
  * - Errors from Express and other middleware keep their status code and
  *   headers, the same as with Express's default error handler. We only send
  *   their message when they mark it as safe to show.
@@ -39,9 +39,8 @@ export function reportUnexpectedServerError(
  */
 export function sendErrorResponse(response: Response, error: unknown): void {
   const httpError = toHttpError(error);
-  const headers = httpErrors.getHeaders(error);
-  if (headers) {
-    response.set(headers);
+  if (httpError.headers) {
+    response.set(httpError.headers);
   }
   response
     .status(httpError.statusCode)

@@ -444,6 +444,14 @@ If you do want to pass additional error information to the client, you can const
 The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
 This happens for every status code, so only put information in them that is safe to show to the user.
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 ### Using Entities in Queries
 
 In most cases, resources used in Queries will be [Entities](../entities.md).

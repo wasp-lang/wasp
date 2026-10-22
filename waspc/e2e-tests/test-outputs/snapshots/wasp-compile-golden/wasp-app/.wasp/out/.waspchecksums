@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "7a081a214fe778c8bbfecf6ba385a7addcbff0b0ab429157aa314008d6fabcfc"
+        "6ae17fba6b36d52cf2935c276abf9389fe8b492cbe222d5184e3daf3edacdd0e"
     ],
     [
         [
@@ -340,14 +340,14 @@
             "file",
             "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "18ff741d34f28fe417a505c02c693bd85a8f9df8e770e1917ed243effd2c6e4f"
+        "2e513012dd77885ea20aeef29dbe50ffdf9f8ba267a8f90f00e17bcf3e1d5400"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "e2994e44ae1cbed48cb480a1b5f261a9638770643626cd9508feb888d4027e7d"
+        "b61727edce37b38e87bc25f0c922bd9a2aef1640ec3b65cf8ac1b25cd6c921e7"
     ],
     [
         [

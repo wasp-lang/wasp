@@ -426,6 +426,14 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 ### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](../entities.md).

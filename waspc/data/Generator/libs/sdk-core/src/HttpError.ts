@@ -1,12 +1,17 @@
+export interface HttpErrorOptions extends ErrorOptions {
+  headers?: Record<string, string>;
+}
+
 export class HttpError extends Error {
   public statusCode: number;
   public data: unknown;
+  public headers: Record<string, string> | undefined;
 
   constructor(
     statusCode: number,
     message?: string,
     data?: Record<string, unknown>,
-    options?: ErrorOptions,
+    options?: HttpErrorOptions,
   ) {
     super(message, options);
 
@@ -26,5 +31,7 @@ export class HttpError extends Error {
     if (data) {
       this.data = data;
     }
+
+    this.headers = options?.headers;
   }
 }
