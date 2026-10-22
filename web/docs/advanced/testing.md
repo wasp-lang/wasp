@@ -1,7 +1,7 @@
 ---
 title: Testing Wasp client code with Vitest
 sidebar_label: Testing
-description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, run them with wasp test client, and mock queries and APIs.
+description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, and mock queries and APIs.
 ---
 
 # Testing
