@@ -76,7 +76,7 @@
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",
-    {=! Users: Vitest helpers. Requires the user to install vitest, msw, and @testing-library/react. =}
+    {=! Users: Vitest helpers from @wasp.sh/lib-test-utils. Its vitest, msw, and @testing-library/react peer dependencies are optional, so users install them when they write tests. =}
     "./client/test": "./dist/client/test/index.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
