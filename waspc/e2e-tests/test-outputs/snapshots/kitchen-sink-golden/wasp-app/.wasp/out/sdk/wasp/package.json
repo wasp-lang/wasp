@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "@lucia-auth/adapter-prisma": "^4.0.0",
-    "@prisma/client": "5.19.1",
+    "@prisma/client": "6.19.3",
     "@socket.io/component-emitter": "^4.0.0",
     "@tanstack/react-query": "~4.42.0",
+    "@vitejs/plugin-react": "^6.0.3",
     "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.27.0.tgz",
     "@wasp.sh/lib-sdk-core": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz",
     "@wasp.sh/lib-test-utils": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz",
@@ -14,7 +14,7 @@
     "lucia": "^3.0.1",
     "nodemailer": "^8.0.1",
     "pg-boss": "^8.4.2",
-    "prisma": "5.19.1",
+    "prisma": "6.19.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",
@@ -27,10 +27,10 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
+    "@types/node": "^24.0.0",
     "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
     "typescript": "6.0.3"
   },
   "exports": {
@@ -78,7 +78,9 @@
   },
   "license": "ISC",
   "name": "wasp",
-  "peerDependencies": {},
+  "peerDependencies": {
+    "vite": "^8.1.0"
+  },
   "private": true,
   "scripts": {
     "build": "tsc && node ./scripts/copy-assets.js",
