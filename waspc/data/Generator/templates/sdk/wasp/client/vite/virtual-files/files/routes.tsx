@@ -1,6 +1,8 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "@wasp.sh/lib-sdk-core/browser";
+// Virtual files are part of the user's app, which depends on `wasp` but not
+// on Wasp's internal libraries, so we import through `wasp/...`.
+import { initializeQueryClient } from "wasp/client/operations";
 {=^ rootComponent.isDefined =}
 import { Outlet } from "react-router"
 {=/ rootComponent.isDefined =}

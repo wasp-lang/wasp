@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
+- The Wasp client no longer fails to start with `Cannot find module '@wasp.sh/lib-sdk-core/browser'` when npm doesn't install Wasp's internal libraries at the project root.
 
 ## 0.26.0
 
