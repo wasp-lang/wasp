@@ -1,3 +1,9 @@
+---
+title: "Microsoft auth in Wasp: Entra ID login and user data"
+sidebar_label: Microsoft
+description: "Add Microsoft login to a Wasp app with Microsoft Entra ID: choose a tenant type for personal or work accounts, register the app and set env vars."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';

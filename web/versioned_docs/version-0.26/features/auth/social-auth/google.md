@@ -1,3 +1,9 @@
+---
+title: "Google auth in Wasp: login setup and user data"
+sidebar_label: Google
+description: "Add Google login to a Wasp app: create an OAuth client in Google Auth Platform, set the client ID and secret, then add the login page."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';

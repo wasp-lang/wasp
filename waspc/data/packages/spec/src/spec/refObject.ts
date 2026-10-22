@@ -1,5 +1,6 @@
 import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Used by a JSDoc {@link}.
 import type * as WaspSpec from "./publicApi/waspSpec.js";
 import { normalizeRefObjectPath } from "./refObjectPath.js";
 import { WaspSpecUserError } from "./waspSpecUserError.js";

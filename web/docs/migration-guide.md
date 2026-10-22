@@ -175,7 +175,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 1. Install Vitest, the testing libraries your tests use, and Wasp's testing helpers:
 
    ```bash
-   npm install -D vitest jsdom @testing-library/jest-dom @wasp.sh/test-utils
+   npm install -D vitest jsdom@29 @testing-library/jest-dom @wasp.sh/test-utils
    ```
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).

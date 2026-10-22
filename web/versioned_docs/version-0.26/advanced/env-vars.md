@@ -1,3 +1,9 @@
+---
+title: "Environment variables in Wasp: client and server"
+sidebar_label: Environment variables
+description: Define client and server environment variables in Wasp with .env.client and .env.server files, read them with the env object and validate them with Zod.
+---
+
 import ClientEnvVarsNote from './_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'

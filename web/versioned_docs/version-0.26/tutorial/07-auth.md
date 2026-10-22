@@ -1,3 +1,9 @@
+---
+title: "7. Adding authentication: Wasp tutorial"
+sidebar_label: "7. Adding authentication"
+description: "Add username and password auth to the Wasp Todo app: a User entity, login and signup pages, a protected main page, per-user tasks and a logout button."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';

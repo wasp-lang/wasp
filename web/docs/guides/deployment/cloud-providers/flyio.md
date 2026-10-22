@@ -1,4 +1,7 @@
 ---
+title: "Fly.io: deploy a Wasp server and database by hand"
+sidebar_label: Fly.io
+description: Deploy the server and database of a Wasp app to Fly.io by hand with the fly CLI. Wasp Deploy does the client, server and database with one command.
 comments: true
 ---
 

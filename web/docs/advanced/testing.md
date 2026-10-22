@@ -1,3 +1,9 @@
+---
+title: Testing Wasp client code with Vitest
+sidebar_label: Testing
+description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, and mock queries and APIs.
+---
+
 # Testing
 
 Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/) in the `@wasp.sh/test-utils` package.
@@ -9,11 +15,11 @@ Wasp provides helpers for testing your client code with [Vitest](https://vitest.
 Install Vitest and the testing libraries:
 
 ```bash
-npm install -D vitest jsdom @testing-library/jest-dom @wasp.sh/test-utils
+npm install -D vitest jsdom@29 @testing-library/jest-dom @wasp.sh/test-utils
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
-- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
+- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests. Version 29 supports all Node.js versions Wasp supports, while version 30 needs Node.js 24.15 or newer.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
 - [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries the helpers build on along with it:
   - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
