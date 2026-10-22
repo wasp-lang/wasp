@@ -1,27 +1,23 @@
 # Testing
 
 Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/) in the `@wasp.sh/test-utils` package.
-Server-side testing is not yet supported, but you can track its progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
 
 ## Setting up Vitest for client tests
 
 ### Installing the packages
 
-Install Vitest, a browser environment, and Wasp's testing helpers:
+Install Vitest and the testing libraries:
 
 ```bash
-npm install -D vitest jsdom @wasp.sh/test-utils
+npm install -D vitest jsdom @testing-library/jest-dom @wasp.sh/test-utils
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
+- [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
 - [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries the helpers build on along with it:
   - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
   - [`msw`](https://mswjs.io/): mocks HTTP requests.
-
-:::note
-When Wasp compiles your app, it type-checks the test files in your `src` folder like the rest of your code. Install the testing packages before you add tests, or compiling fails because it can't find their imports.
-:::
 
 ### Configuring Vitest
 
@@ -37,20 +33,20 @@ export default defineConfig({
   // highlight-start
   test: {
     environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
   },
   // highlight-end
 });
 ```
-With this config, Vitest runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`) in `jsdom`, a simulated browser.
 
-If you plan to test React components, install [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom) for DOM matchers like `toBeInTheDocument()`:
+With this config, Vitest:
 
-```bash
-npm install -D @testing-library/jest-dom
-```
+- runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`),
+- runs them in `jsdom`, a simulated browser, so your components can render,
+- runs `src/test/setup.ts` before each test file.
 
-Then create a setup file that adds the DOM matchers and removes the rendered components after each test:
+Create that setup file:
 
 ```ts title="src/test/setup.ts" auto-js
 import "@testing-library/jest-dom/vitest";
@@ -62,22 +58,10 @@ afterEach(() => {
 });
 ```
 
-And tell Vitest to run it before your tests:
+It prepares every test file in two ways:
 
-```ts title="vite.config.ts" auto-js
-import { defineConfig } from "vitest/config";
-import { wasp } from "wasp/client/vite";
-
-export default defineConfig({
-  plugins: [wasp()],
-  test: {
-    environment: "jsdom",
-    // highlight-next-line
-    setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
-  },
-});
-```
+- It adds matchers for checking the page, like `expect(button).toBeInTheDocument()`.
+- It removes what a test rendered when the test ends, so the next test starts with an empty page.
 
 ### Running your tests
 
@@ -105,13 +89,20 @@ wasp compile
 npm test
 ```
 
-If you prefer a UI for your test results, install [`@vitest/ui`](https://vitest.dev/guide/ui) and run `npx vitest --ui`.
+### Running tests visually
+
+Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in the browser. Install it and start Vitest with it:
+
+```sh
+npm install -D @vitest/ui
+npx vitest --ui
+```
 
 ## Testing your client code
 
 ### Testing plain functions
 
-Functions that don't use React or Wasp need no setup. Import them and test them like in any other project:
+Functions that don't render components or call your server (through queries, actions, or APIs) need no extra setup. Import them and test them like in any other project:
 
 ```ts title="src/tasks/helpers.ts" auto-js
 import type { Task } from "wasp/entities";
@@ -253,7 +244,7 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`@wasp.sh/test-utils` exports these helpers. It needs `vitest`, `msw`, and `@testing-library/react` as peer dependencies, which npm installs along with it.
+`@wasp.sh/test-utils` exports these helpers.
 
 - `renderInContext(ui, options?)`
 
@@ -270,3 +261,7 @@ test("shows the stats", async () => {
 - `WaspTestWrapper`
 
   The component `renderInContext` wraps your element in. Pass it as the `wrapper` option when you call [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#wrapper) or `renderHook` yourself.
+
+## Testing server code
+
+Wasp doesn't provide helpers for testing server code yet. You can follow the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
