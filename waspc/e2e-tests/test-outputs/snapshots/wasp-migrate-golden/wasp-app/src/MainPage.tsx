@@ -6,9 +6,7 @@ export function MainPage() {
     <main className="container">
       <img className="logo" src={Logo} alt="Wasp logo" />
 
-      <h1 className="title">
-        Welcome to <span className="highlight">Wasp</span>
-      </h1>
+      <h2 className="title">Welcome to Wasp!</h2>
 
       <p className="content">
         This is page <code>MainPage</code> located at route <code>/</code>.
@@ -18,7 +16,7 @@ export function MainPage() {
 
       <div className="buttons">
         <a
-          className="button button-primary"
+          className="button button-filled"
           href="https://wasp.sh/docs/tutorial/create"
           target="_blank"
           rel="noreferrer noopener"
@@ -26,7 +24,7 @@ export function MainPage() {
           Take the Tutorial
         </a>
         <a
-          className="button button-secondary"
+          className="button button-outlined"
           href="https://discord.com/invite/rzdnErX"
           target="_blank"
           rel="noreferrer noopener"

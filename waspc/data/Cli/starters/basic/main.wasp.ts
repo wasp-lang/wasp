@@ -8,7 +8,6 @@ import { SignupPage } from "./src/auth/email/SignupPage" with { type: "ref" };
 import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref" };
 import { tagsSpec } from "./src/tags/tags.wasp";
 import { tasksSpec } from "./src/tasks/task.wasp";
-import { welcomeSpec } from "./src/welcome/welcome.wasp";
 
 export default app({
   name: "__waspAppName__",
@@ -42,7 +41,6 @@ export default app({
     rootComponent: App,
   },
   spec: [
-    welcomeSpec,
     tasksSpec,
     tagsSpec,
     route("LoginRoute", "/login", page(LoginPage)),
