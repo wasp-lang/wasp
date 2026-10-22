@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "ddbc54189edf79f9009e2f0657bc25b28c571d95256d35543b017e9a347566bd"
+        "4bbc653d557409fce290b2fb23f56e20469d705e490d96e9eff4a3616433f9e0"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "461f35b62fc05d0060aa9dcffb5b31ec0b1c4988399bb802f9c8dd453892c5b2"
+        "eee6593f748cbb5b87ce9e4fdd4fb581891fc56dafbd06c07f7a1f8d82e9922f"
     ],
     [
         [
@@ -298,7 +298,7 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "8207d5bd3389edd8eb1542eef9fd05693fd760e06b0a898405ea1880333864de"
+        "9c1ed8f6d23be1f1d517ae9b25267532c4809d691149bdc5ac5beb1d57919f82"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "f36873f454bfc5c3635fd1f86f01a18e5ce7fa99f6ef0a44a1864b823c6e5e82"
+        "9de9c25b6b2fe1d1dabbab762249976c0129c276a6d0ff0b48b51d97d55550c4"
     ],
     [
         [
@@ -536,14 +536,14 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "c1f5639079fdc9860463228e7a68b5a8b82db324cee5514eb5833a7226dbd343"
+        "5ad6de017e3f8a9be4042b6a04fd9913b1b337d128cfb9fd94ade46639d905b2"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "9e08ebea7dd5326b1dca716d26ba052e3a13b3a2571e46cd7710dd1d9e0593db"
+        "b8b5bd4e0d2099a1cc1089e5d2a4ca34fcb59ea3857f5d1a9139432ba9bdfa25"
     ],
     [
         [

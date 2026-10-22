@@ -53,6 +53,11 @@ export {
   type UseActionFor,
   type UseQueryFor,
 } from "./crud/operations.js";
+export {
+  handleClientError,
+  listenForUncaughtClientErrors,
+  type ClientErrorContext,
+} from "./errors.js";
 export { useEffectOnce } from "./hooks.js";
 export { type ActionFor } from "./operations/actions.js";
 export {
