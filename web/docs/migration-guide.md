@@ -90,7 +90,7 @@ The `wasp test` command is gone, and Wasp no longer installs testing libraries o
 
 Follow the part that matches your app.
 
-#### If you don't use Vitest
+#### If you don't use `wasp test client`
 
 Wasp no longer needs `vitest`, so you can remove it from your project:
 
@@ -170,7 +170,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-#### If you use Vitest
+#### If you use `wasp test client`
 
 1. Install Vitest and the testing libraries your tests use:
 
