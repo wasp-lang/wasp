@@ -12,7 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🎉 New Features
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
-- New projects created with `wasp new -t basic` now open on a welcome page that walks you through creating a user, managing tasks, inspecting your data, and deploying. The tasks page moved to `/tasks`. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
+- The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 
 ### 🐞 Bug fixes
 
