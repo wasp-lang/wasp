@@ -14,7 +14,7 @@ export function TaskList() {
   }
 
   if (!isSuccess) {
-    return <p className="text-red-500">Error loading tasks.</p>;
+    return <p className="text-red-600">Error loading tasks.</p>;
   }
 
   const completedTasks = tasks.filter((task) => task.isDone);
@@ -28,18 +28,18 @@ export function TaskList() {
   }
 
   if (tasks.length === 0) {
-    return <p className="text-neutral-500">No tasks found.</p>;
+    return <p className="text-gray">No tasks found.</p>;
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <ul className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
+      <ul className="card divide-y-2 divide-black">
         {tasks.map((task) => (
           <TaskListItem task={task} key={task.id} />
         ))}
       </ul>
-      <div className="flex h-5 items-center justify-between">
-        <div className="text-sm text-neutral-500">
+      <div className="flex min-h-10 items-center justify-between">
+        <div className="text-sm text-gray">
           <span>
             {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
           </span>
@@ -47,16 +47,12 @@ export function TaskList() {
           <span>{completedTasks.length} completed</span>
         </div>
         {completedTasks.length > 0 && (
-          <Button
-            className="flex items-center gap-2"
-            size="sm"
-            onClick={handleDeleteCompletedTasks}
-          >
+          <Button size="sm" onClick={handleDeleteCompletedTasks}>
             Clear completed
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 -960 960 960"
-              className="size-5 fill-black"
+              className="size-5 fill-current"
             >
               <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
             </svg>

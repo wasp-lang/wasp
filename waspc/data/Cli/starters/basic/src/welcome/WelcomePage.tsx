@@ -61,7 +61,7 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
         <div>
           <Link
             to="/tasks"
-            className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
+            className="inline-flex items-center gap-2 border-2 border-black bg-yellow px-5 py-3 font-bold text-black hover:bg-yellow-dark"
           >
             Go to your tasks
           </Link>
@@ -127,7 +127,7 @@ $ wasp db studio`}
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="hover:bg-primary-100 flex justify-between border border-neutral-900 px-3 py-2 font-mono text-xs font-semibold"
+                className="flex justify-between border-2 border-black bg-white px-3 py-2 text-xs font-bold hover:bg-yellow"
               >
                 {link.label} <span aria-hidden>→</span>
               </a>
@@ -171,7 +171,7 @@ export default app({
               href="https://wasp.sh/docs/features/data/databases#migrating-from-sqlite-to-postgresql"
               target="_blank"
               rel="noreferrer"
-              className="font-semibold underline"
+              className="font-bold underline"
             >
               Move from SQLite to PostgreSQL
             </a>
@@ -182,7 +182,7 @@ export default app({
               href="https://wasp.sh/docs/features/email#providers"
               target="_blank"
               rel="noreferrer"
-              className="font-semibold underline"
+              className="font-bold underline"
             >
               Pick a real email provider
             </a>{" "}
@@ -194,7 +194,7 @@ export default app({
             href="https://wasp.sh/docs/deployment/methods/wasp-deploy/overview"
             target="_blank"
             rel="noreferrer"
-            className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
+            className="inline-flex items-center gap-2 border-2 border-black bg-yellow px-5 py-3 font-bold text-black hover:bg-yellow-dark"
           >
             Deploy your app <span aria-hidden>→</span>
           </a>
@@ -219,11 +219,10 @@ export function WelcomePage() {
     <div className="flex justify-center px-6 py-12 lg:px-12">
       <div className="flex w-full max-w-(--breakpoint-lg) min-w-0 flex-col gap-10">
         <div className="flex flex-col items-start gap-4">
-          <h1 className="text-4xl leading-tight font-extrabold tracking-tight uppercase lg:text-5xl">
-            Your app is{" "}
-            <span className="bg-primary-500 px-2">up and running</span>
-          </h1>
-          <p className="max-w-2xl text-neutral-600">
+          <h2 className="text-3xl leading-tight font-bold uppercase lg:text-4xl">
+            Your app is <span className="bg-yellow px-2">up and running</span>
+          </h2>
+          <p className="max-w-2xl text-gray">
             Follow these steps to get to know your new app. This page lives in{" "}
             <InlineCode>src/welcome/</InlineCode>, so feel free to change it, or
             delete it once you&apos;re done (the{" "}

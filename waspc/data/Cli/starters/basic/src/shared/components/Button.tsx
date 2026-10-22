@@ -2,8 +2,8 @@ import { ComponentProps } from "react";
 import { ClassNameValue, twJoin } from "tailwind-merge";
 import { Link } from "wasp/client/router";
 
-type ButtonSize = "md" | "sm" | "xs";
-type ButtonVariant = "primary" | "danger" | "ghost";
+type ButtonSize = "md" | "sm";
+type ButtonVariant = "primary" | "ghost";
 
 interface ButtonProps extends ComponentProps<"button"> {
   size?: ButtonSize;
@@ -69,7 +69,7 @@ function getButtonClasses({
   className: ClassNameValue;
 }): string {
   return twJoin(
-    "rounded-md font-semibold",
+    "inline-flex cursor-pointer items-center justify-center gap-2 border-2 font-bold disabled:cursor-not-allowed disabled:opacity-50",
     variantStyles[variant],
     sizeStyles[size],
     className,
@@ -77,15 +77,11 @@ function getButtonClasses({
 }
 
 const sizeStyles: Record<ButtonSize, ClassNameValue> = {
-  md: "px-4 py-2",
-  sm: "px-3 py-1.5 text-sm",
-  xs: "px-2 py-1 text-xs",
+  md: "px-5 py-3",
+  sm: "px-4 py-2",
 };
 
 const variantStyles: Record<ButtonVariant, ClassNameValue> = {
-  primary:
-    "bg-primary-500 hover:bg-primary-400 active:bg-primary-300 text-neutral-800",
-  danger: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800",
-  ghost:
-    "bg-transparent text-neutral-800 hover:bg-neutral-100 active:bg-neutral-200",
+  primary: "border-black bg-yellow text-black hover:bg-yellow-dark",
+  ghost: "border-transparent bg-transparent text-black hover:border-black",
 };

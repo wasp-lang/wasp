@@ -1,32 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --text-tiny: 0.625rem; /* Font size is 10px */
-  --text-tiny--line-height: 1rem;
+  --color-yellow: #f5c842;
+  --color-yellow-dark: #d4a930;
+  --color-black: #111;
+  --color-gray: #555;
+  --color-cream: #f7f5f0;
+  --color-white: #fafafa;
 
-  /* Created using https://www.tints.dev */
-  /* Defaults settings, #f5c842 locked at 500 */
-  --color-primary-50: #fef9ef;
-  --color-primary-100: #fef2df;
-  --color-primary-200: #fde9c3;
-  --color-primary-300: #fcdc97;
-  --color-primary-400: #fcd26a;
-  --color-primary-500: #f5c842;
-  --color-primary-600: #c09c32;
-  --color-primary-700: #8c7122;
-  --color-primary-800: #5e4b13;
-  --color-primary-900: #322706;
-  --color-primary-950: #1e1703;
+  --font-mono:
+    ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --shadow-card: 6px 6px 0 var(--color-yellow);
 }
 
-body {
-  @apply has-[dialog:open]:overflow-hidden;
+@layer base {
+  body {
+    @apply bg-cream font-mono text-black has-[dialog:open]:overflow-hidden;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-black;
+  }
 }
 
 @utility card {
-  @apply rounded-xl border border-neutral-200 bg-white shadow-xs transition-all duration-200;
+  @apply border-2 border-black bg-white shadow-card;
 }
 
 @utility label {
-  @apply text-sm font-medium text-neutral-700;
+  @apply text-sm font-bold;
 }

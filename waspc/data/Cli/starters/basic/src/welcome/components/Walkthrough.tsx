@@ -13,31 +13,25 @@ export function Walkthrough({ steps }: { steps: WalkthroughStep[] }) {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <div className="grid grid-cols-1 border border-neutral-900 bg-white lg:grid-cols-12">
-      <ol className="lg:col-span-5 lg:border-r lg:border-neutral-900">
+    <div className="card grid grid-cols-1 lg:grid-cols-12">
+      <ol className="divide-y-2 divide-black lg:col-span-5 lg:border-r-2 lg:border-black">
         {steps.map((step, index) => {
           const isOpen = index === openIndex;
           return (
-            <li
-              key={step.title}
-              className={twJoin(
-                "border-b border-neutral-200 last:border-b-0",
-                isOpen && "bg-primary-50",
-              )}
-            >
+            <li key={step.title} className={twJoin(isOpen && "bg-cream")}>
               <button
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => setOpenIndex(index)}
-                className="hover:bg-primary-50 flex w-full items-center gap-3 px-5 py-4 text-left"
+                className="flex w-full cursor-pointer items-center gap-3 px-5 py-4 text-left hover:bg-cream"
               >
-                <StepMarker number={index + 1} />
-                <span className="font-mono text-sm font-bold tracking-wide uppercase">
+                <StepMarker number={index + 1} isOpen={isOpen} />
+                <span className="text-sm font-bold uppercase">
                   {step.title}
                 </span>
               </button>
               {isOpen && (
-                <div className="flex flex-col gap-4 pr-5 pb-5 pl-14 text-sm text-neutral-700">
+                <div className="flex flex-col gap-4 pr-5 pb-5 pl-14 text-sm">
                   {step.content}
                   <div className="lg:hidden">{step.media}</div>
                 </div>
@@ -46,16 +40,21 @@ export function Walkthrough({ steps }: { steps: WalkthroughStep[] }) {
           );
         })}
       </ol>
-      <div className="hidden items-center bg-neutral-100 p-8 lg:col-span-7 lg:flex">
+      <div className="hidden items-center bg-cream p-8 lg:col-span-7 lg:flex">
         {steps[openIndex].media}
       </div>
     </div>
   );
 }
 
-function StepMarker({ number }: { number: number }) {
+function StepMarker({ number, isOpen }: { number: number; isOpen: boolean }) {
   return (
-    <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-neutral-900 font-mono text-xs">
+    <span
+      className={twJoin(
+        "flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-black text-xs font-bold",
+        isOpen && "bg-yellow",
+      )}
+    >
       {number}
     </span>
   );

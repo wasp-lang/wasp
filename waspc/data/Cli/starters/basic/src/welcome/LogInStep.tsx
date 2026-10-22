@@ -17,13 +17,13 @@ export function LogInStep() {
         verification. The pages in <InlineCode>src/auth</InlineCode> use our
         built-in Auth UI to let users sign up and log in.
       </p>
-      <p>Sign up to try the whole flow.</p>
+      <p>You can create a sample user by going to the Sign Up page:</p>
       <div>
         <Link
           to="/signup"
-          className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
+          className="inline-flex items-center gap-2 border-2 border-black bg-yellow px-5 py-3 font-bold text-black hover:bg-yellow-dark"
         >
-          Sign up
+          Create your first user
         </Link>
       </div>
     </>
@@ -32,11 +32,11 @@ export function LogInStep() {
 
 function AuthStatus({ user }: { user: AuthUser | null }) {
   return (
-    <p className="flex items-center gap-2 font-mono text-xs uppercase">
+    <p className="flex items-center gap-2 text-xs font-bold uppercase">
       <span
         className={twJoin(
           "size-2 rounded-full",
-          user ? "bg-green-500" : "bg-neutral-400",
+          user ? "bg-green-600" : "bg-gray",
         )}
       />
       {user ? `Logged in as ${user.username}` : "Not logged in"}

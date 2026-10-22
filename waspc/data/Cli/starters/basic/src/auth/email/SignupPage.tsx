@@ -22,9 +22,9 @@ export function SignupPage() {
         ]}
       />
       <br />
-      <span className="text-sm font-medium text-neutral-900">
+      <span className="text-sm">
         Already have an account?{" "}
-        <Link to="/login" className="font-semibold underline">
+        <Link to="/login" className="font-bold underline">
           Go to login
         </Link>
         .

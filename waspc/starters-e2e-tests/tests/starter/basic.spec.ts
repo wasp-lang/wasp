@@ -17,11 +17,7 @@ test.describe(
     }
 
     function getTasksSection(page: Page): Locator {
-      return page
-        .locator(
-          "section.card.flex.w-full.max-w-3xl.flex-col.gap-6.p-4.lg\\:p-6",
-        )
-        .nth(1);
+      return page.locator("#tasks");
     }
 
     function getTagDialog(page: Page): Locator {

@@ -7,40 +7,44 @@ export function Header() {
   const { data: user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex justify-center border-b border-neutral-200 bg-white shadow-sm">
-      <div className="flex w-full max-w-(--breakpoint-lg) items-center justify-between p-4 px-12">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={Logo} alt="Wasp logo" className="h-10 w-10" />
-          <h1 className="text-2xl font-semibold">ToDo App</h1>
-        </Link>
-        <nav>
-          <ul className="flex items-center gap-4 font-semibold">
-            {user ? (
-              <>
-                <li>
-                  <ButtonLink to="/tasks" variant="ghost">
-                    My tasks
-                  </ButtonLink>
-                </li>
-                <li>
-                  <Button onClick={logout}>Log out</Button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <ButtonLink to="/signup">Sign up</ButtonLink>
-                </li>
-                <li>
-                  <ButtonLink to="/login" variant="ghost">
-                    Login
-                  </ButtonLink>
-                </li>
-              </>
-            )}
-          </ul>
-        </nav>
-      </div>
+    <header className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-black bg-white px-6 py-3">
+      <Link to="/">
+        <h1 className="flex items-center gap-2 text-xl font-bold">
+          <img src={Logo} alt="Wasp logo" className="h-10" />
+          ToDo App
+        </h1>
+      </Link>
+      <nav>
+        <ul className="flex items-center gap-2">
+          {user ? (
+            <>
+              <li>
+                <ButtonLink to="/tasks" variant="ghost" size="sm">
+                  My tasks
+                </ButtonLink>
+              </li>
+              <li>
+                <Button onClick={logout} size="sm">
+                  Log out
+                </Button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <ButtonLink to="/signup" size="sm">
+                  Sign up
+                </ButtonLink>
+              </li>
+              <li>
+                <ButtonLink to="/login" variant="ghost" size="sm">
+                  Login
+                </ButtonLink>
+              </li>
+            </>
+          )}
+        </ul>
+      </nav>
     </header>
   );
 }
