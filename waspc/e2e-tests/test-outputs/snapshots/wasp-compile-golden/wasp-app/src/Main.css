@@ -8,8 +8,10 @@
 
 body {
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Helvetica Neue", sans-serif;
+  color: #171717;
+  background-color: #fafafa;
 }
 
 #root {
@@ -31,73 +33,73 @@ body {
 }
 
 .logo {
-  max-height: 200px;
-  margin-bottom: 1rem;
+  max-height: 120px;
+  margin-bottom: 2rem;
 }
 
 .title {
-  font-size: 4rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
   margin-bottom: 1rem;
 }
 
+.highlight {
+  background-color: #f5c842;
+  padding: 0 0.5rem;
+}
+
 .content {
-  font-size: 1.2rem;
-  font-weight: 400;
-  line-height: 2;
-  margin-bottom: 3rem;
+  color: #525252;
+  line-height: 1.75;
+  margin-bottom: 2rem;
 }
 
 .buttons {
   display: flex;
-  flex-direction: row;
-  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
+/* Button styles based on the wasp.sh website. */
 .button {
-  font-size: 1.2rem;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #171717;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: #171717;
   text-decoration: none;
-  padding: 1.2rem 1.5rem;
-  border-radius: 10px;
+  transition: background-color 0.15s ease-in-out;
 }
 
-.button-filled {
-  color: black;
+.button-primary {
+  font-weight: 600;
   background-color: #f5c842;
-  border: 2px solid #f5c842;
-
-  transition: all 0.2s ease-in-out;
 }
 
-.button-filled:hover {
-  filter: brightness(0.95);
+.button-primary:hover {
+  background-color: #c09c32;
 }
 
-.button-outlined {
-  color: black;
+.button-secondary {
   background-color: transparent;
-  border: 2px solid #f5c842;
-
-  transition: all 0.2s ease-in-out;
 }
 
-.button-outlined:hover {
-  filter: brightness(0.95);
+.button-secondary:hover {
+  background-color: #f5f5f5;
 }
 
 code {
-  border-radius: 5px;
-  border: 1px solid #f5c842;
-  padding: 0.2rem;
-  background: #f5c84244;
+  padding: 0.125rem 0.25rem;
+  background-color: #f5f5f5;
+  color: #171717;
+  font-size: 0.9em;
   font-family:
-    Menlo,
-    Monaco,
-    Lucida Console,
-    Liberation Mono,
-    DejaVu Sans Mono,
-    Bitstream Vera Sans Mono,
-    Courier New,
-    monospace;
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 }

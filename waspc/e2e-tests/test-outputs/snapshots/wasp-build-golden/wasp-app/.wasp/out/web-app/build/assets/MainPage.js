@@ -12,9 +12,12 @@ function MainPage() {
 				src: wasp_logo_rounded_default,
 				alt: "Wasp logo"
 			}),
-			/* @__PURE__ */ jsx("h2", {
+			/* @__PURE__ */ jsxs("h1", {
 				className: "title",
-				children: "Welcome to Wasp!"
+				children: ["Welcome to ", /* @__PURE__ */ jsx("span", {
+					className: "highlight",
+					children: "Wasp"
+				})]
 			}),
 			/* @__PURE__ */ jsxs("p", {
 				className: "content",
@@ -33,13 +36,13 @@ function MainPage() {
 			/* @__PURE__ */ jsxs("div", {
 				className: "buttons",
 				children: [/* @__PURE__ */ jsx("a", {
-					className: "button button-filled",
+					className: "button button-primary",
 					href: "https://wasp.sh/docs/tutorial/create",
 					target: "_blank",
 					rel: "noreferrer noopener",
 					children: "Take the Tutorial"
 				}), /* @__PURE__ */ jsx("a", {
-					className: "button button-outlined",
+					className: "button button-secondary",
 					href: "https://discord.com/invite/rzdnErX",
 					target: "_blank",
 					rel: "noreferrer noopener",
