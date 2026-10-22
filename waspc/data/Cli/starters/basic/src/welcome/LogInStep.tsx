@@ -2,7 +2,6 @@ import { twJoin } from "tailwind-merge";
 import { type AuthUser } from "wasp/auth";
 import { useAuth } from "wasp/client/auth";
 import { Link } from "wasp/client/router";
-import { primaryButtonClasses } from "./components/buttonStyles";
 import { InlineCode } from "./components/InlineCode";
 
 export function LogInStep() {
@@ -20,7 +19,10 @@ export function LogInStep() {
       </p>
       <p>Sign up to try the whole flow.</p>
       <div>
-        <Link to="/signup" className={primaryButtonClasses}>
+        <Link
+          to="/signup"
+          className="bg-primary-500 hover:bg-primary-600 inline-flex items-center gap-2 border border-neutral-900 px-3 py-2 text-sm leading-4 font-semibold text-neutral-900 transition"
+        >
           Sign up
         </Link>
       </div>

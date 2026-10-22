@@ -440,8 +440,6 @@ The default template: a to-do app with email and password auth, tasks and tags, 
 
 When you run it for the first time, it opens on a welcome page that walks you through the app: creating a user and logging in, managing tasks, inspecting your app and data with `wasp studio` and `wasp db studio`, finding the docs for each Wasp feature, and deploying.
 
-The welcome page lives in `src/welcome/` and is only meant for development, so `wasp build` fails until you remove it. The project's `README.md` explains how.
-
 Use this template:
 
 ```
