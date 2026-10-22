@@ -2,7 +2,6 @@ import ky from 'ky'
 import { config } from '../client/config.js'
 import { getSessionId, clearSessionId } from '@wasp.sh/lib-sdk-core/browser'
 export { getSessionId, setSessionId, clearSessionId, removeLocalUserData, handleApiError } from '@wasp.sh/lib-sdk-core/browser'
-export { WaspHttpError } from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
 /**
@@ -11,8 +10,8 @@ export { WaspHttpError } from '@wasp.sh/lib-sdk-core'
  * Automatically prepends the API base URL, adds authentication headers,
  * and handles session invalidation on 401 responses. Non-2xx responses
  * cause ky to throw an `HTTPError`; pass it through `handleApiError` to
- * get a `WaspHttpError` carrying the server's status code, message, and
- * response body.
+ * get an `HttpError` carrying the server's status code, message, and
+ * data.
  */
 export const api = ky.extend({
   prefix: config.apiUrl,

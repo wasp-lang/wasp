@@ -112,6 +112,7 @@ genSdk spec =
       C.genFileCopy [relfile|types/register.ts|],
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
+      C.genFileCopy [relfile|errors/index.ts|],
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/errors/index.ts|],
       C.genFileCopy [relfile|server/errors/httpErrors.ts|],

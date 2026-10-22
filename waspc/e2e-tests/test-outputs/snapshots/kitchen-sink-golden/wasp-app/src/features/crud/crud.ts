@@ -1,5 +1,5 @@
 import { type Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { tasks } from "wasp/server/crud";
 
 export const getTask = (async (args, context) => {

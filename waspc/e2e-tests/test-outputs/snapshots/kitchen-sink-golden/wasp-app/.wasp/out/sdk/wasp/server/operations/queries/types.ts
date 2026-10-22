@@ -67,6 +67,15 @@ export type GetTextUppercaseRequests<Input extends Payload = never, Output exten
   >
 
 // PUBLIC API
+export type GetTeapot<Input extends Payload = never, Output extends Payload = Payload> = 
+  UnauthenticatedQueryDefinition<
+    [
+    ],
+    Input,
+    Output
+  >
+
+// PUBLIC API
 export type GetDate<Input extends Payload = never, Output extends Payload = Payload> = 
   AuthenticatedQueryDefinition<
     [

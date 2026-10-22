@@ -1,4 +1,5 @@
-import { config, HttpError } from '../../index.js'
+import { HttpError } from '@wasp.sh/lib-sdk-core'
+import { config } from '../../index.js'
 import { reportUnexpectedServerError } from "../../errors/index.js";
 
 // PRIVATE API (server)

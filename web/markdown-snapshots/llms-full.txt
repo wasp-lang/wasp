@@ -1504,7 +1504,7 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 
 ```ts title="src/queries.ts"
 import type { Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
@@ -1520,7 +1520,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 type CreateTaskPayload = Pick<Task, "description">;
@@ -2692,13 +2692,16 @@ For a detailed specification of the `useQuery` hook, check the [API Reference](#
 
 #### Error Handling
 
-For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed. Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+
+To send error details to the client, throw an `HttpError`:
 
 ```ts title="src/queries.ts"
 import { type GetAllTasks } from "wasp/server/operations"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 export const getAllTasks: GetAllTasks = async (args, context) => {
   throw new HttpError(
@@ -2709,7 +2712,23 @@ export const getAllTasks: GetAllTasks = async (args, context) => {
 }
 ```
 
-The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields. This happens for every status code, so only put information in them that is safe to show to the user.
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+```tsx title="src/MainPage.tsx"
+import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+export const MainPage = () => {
+  const { data: tasks, error } = useQuery(getAllTasks);
+
+  if (error instanceof HttpError && error.statusCode === 403) {
+    return <div>{error.message}</div>;
+  }
+  // ...
+};
+```
 
 #### Using Entities in Queries
 
@@ -3130,13 +3149,16 @@ await markTaskAsDone({ id: 1 }, { user })
 
 #### Error Handling
 
-For security reasons, all exceptions thrown in the Action's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed. Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Action's NodeJS implementation throws an error, the client sees one of two things:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+
+To send error details to the client, throw an `HttpError`:
 
 ```ts title="src/actions.ts"
 import { type CreateTask } from "wasp/server/operations"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 export const createTask: CreateTask = async (args, context) => {
   throw new HttpError(
@@ -3144,6 +3166,25 @@ export const createTask: CreateTask = async (args, context) => {
     "You can't do this!", // message
     { foo: "bar" } // data
   )
+}
+```
+
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+```ts title="src/NewTaskForm.tsx"
+import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+async function handleSubmit(description: string) {
+  try {
+    await createTask({ description });
+  } catch (error: unknown) {
+    if (error instanceof HttpError && error.statusCode === 403) {
+      window.alert(error.message);
+    }
+  }
 }
 ```
 
@@ -3576,7 +3617,7 @@ Here's the `src/tasks.ts` file:
 ```ts title="src/tasks.ts"
 import { type Tasks } from "wasp/server/crud"
 import { type Task } from "wasp/entities"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 type CreateTaskInput = { description: string; isDone: boolean }
 
@@ -4639,7 +4680,7 @@ When authentication is enabled, all [queries and actions](https://wasp.sh/docs/f
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
 import type { CreateTask } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 type CreateTaskPayload = Pick<Task, "description">;
 
@@ -9555,7 +9596,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 import type { OnBeforeSignupHook } from "wasp/server/auth"
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -9752,7 +9793,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 import type { OnBeforeLoginHook } from "wasp/server/auth"
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({
@@ -10161,7 +10202,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
@@ -10171,7 +10212,7 @@ export const onBeforeSignup = async () => {
 
 ```ts title="src/auth/signup.ts"
 import type { CustomSignup } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   createEmailVerificationLink,
   createProviderId,
@@ -10302,7 +10343,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
@@ -15345,7 +15386,53 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 3. Enjoy your updated Wasp app
+#### 3. Import `HttpError` from `wasp/errors`
+
+The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+
+**Before**
+
+```ts title="src/queries.ts"
+import { HttpError } from "wasp/server"
+```
+
+**After**
+
+```ts title="src/queries.ts"
+import { HttpError } from "wasp/errors"
+```
+
+#### 4. Read `HttpError` data directly on the client
+
+On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. Its `data` is now the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
+
+**Before**
+
+```ts title="src/SignupPage.tsx"
+try {
+  await signup({ username, password })
+} catch (error: any) {
+  if (error.statusCode === 422) {
+    setErrorMessage(error.data.data.message)
+  }
+}
+```
+
+**After**
+
+```ts title="src/SignupPage.tsx"
+import { HttpError } from "wasp/errors"
+
+try {
+  await signup({ username, password })
+} catch (error: unknown) {
+  if (error instanceof HttpError && error.statusCode === 422) {
+    setErrorMessage(String(error.data?.message))
+  }
+}
+```
+
+#### 5. Enjoy your updated Wasp app
 
 That's it!
 

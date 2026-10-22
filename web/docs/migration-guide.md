@@ -78,6 +78,60 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 3. Enjoy your updated Wasp app
+### 3. Import `HttpError` from `wasp/errors`
+
+The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    import { HttpError } from "wasp/server"
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+    ```
+  </TabItem>
+</Tabs>
+
+### 4. Read `HttpError` data directly on the client
+
+On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server.
+Its `data` is now the `data` you passed on the server.
+Before, `data` held the whole response body, so you had to read `error.data.data`.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/SignupPage.tsx"
+    try {
+      await signup({ username, password })
+    } catch (error: any) {
+      if (error.statusCode === 422) {
+        setErrorMessage(error.data.data.message)
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/SignupPage.tsx"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+
+    try {
+      await signup({ username, password })
+    } catch (error: unknown) {
+      // highlight-next-line
+      if (error instanceof HttpError && error.statusCode === 422) {
+        // highlight-next-line
+        setErrorMessage(String(error.data?.message))
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 5. Enjoy your updated Wasp app
 
 That's it!

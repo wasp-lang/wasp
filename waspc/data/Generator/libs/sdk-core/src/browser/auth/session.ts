@@ -1,5 +1,5 @@
 import { isHTTPError } from "ky";
-import { WaspHttpError } from "../../WaspHttpError.js";
+import { fromHttpErrorBody } from "../../HttpError.js";
 import { storage } from "../storage.js";
 import { apiEventsEmitter } from "./events.js";
 
@@ -46,32 +46,19 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Takes an error returned by the app's API (as thrown by ky), and transforms it into a more
- * standard format to be further used by the client. It is also assumed that given API
- * error has been formatted as implemented by HttpError on the server.
+ * Takes an error thrown by ky and turns an HTTP error response into the
+ * same `HttpError` the server threw. Any other error, e.g. a network
+ * failure, is returned unchanged.
  */
 export function handleApiError(error: unknown): unknown {
   if (isHTTPError(error)) {
-    // If error came from HTTP response, we capture most informative message
-    // and also add .statusCode information to it.
-    // If error had JSON response, we assume it is of format { message, data } and
-    // add that info to the error.
-    // TODO: We might want to use HttpError here instead of just Error, since
-    //   HttpError is also used on server to throw errors like these.
-    //   That would require copying HttpError code to web-app also and using it here.
-    const responseJson = error.data as
-      | { message?: string; data?: unknown }
-      | undefined;
-    const responseStatusCode = error.response.status;
-    return new WaspHttpError(
-      responseStatusCode,
-      responseJson?.message ?? error.message,
-      responseJson,
-    );
-  } else {
-    // If any other error, we just propagate it.
-    return error;
+    return fromHttpErrorBody({
+      statusCode: error.response.status,
+      body: error.data,
+      fallbackMessage: error.message,
+    });
   }
+  return error;
 }
 
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";

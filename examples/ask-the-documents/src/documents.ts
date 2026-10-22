@@ -10,7 +10,8 @@ import {
   type SearchDocuments,
 } from "wasp/server/operations";
 
-import { HttpError, env, prisma } from "wasp/server";
+import { HttpError } from "wasp/errors";
+import { env, prisma } from "wasp/server";
 // @ts-ignore
 import openai from "openai";
 import { toSql } from "pgvector/utils";
