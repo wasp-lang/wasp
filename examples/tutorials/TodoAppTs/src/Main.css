@@ -14,7 +14,6 @@
   box-sizing: border-box;
 }
 
-/* Browsers draw input borders as "inset" by default, make them flat. */
 input {
   border-style: solid;
 }

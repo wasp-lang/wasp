@@ -135,7 +135,6 @@ First, replace the starter styles in `src/Main.css` with the styles for the Todo
   box-sizing: border-box;
 }
 
-/* Browsers draw input borders as "inset" by default, make them flat. */
 input {
   border-style: solid;
 }

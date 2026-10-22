@@ -1,8 +1,8 @@
 diff --git a/src/Main.css b/src/Main.css
-index a3332a3..65ecca4 100644
+index a3332a3..e242897 100644
 --- a/src/Main.css
 +++ b/src/Main.css
-@@ -1,103 +1,151 @@
+@@ -1,103 +1,150 @@
 +:root {
 +  --yellow: #f5c842;
 +  --yellow-dark: #d4a930;
@@ -23,7 +23,6 @@ index a3332a3..65ecca4 100644
 -  padding: 0;
 +}
 +
-+/* Browsers draw input borders as "inset" by default, make them flat. */
 +input {
 +  border-style: solid;
  }
