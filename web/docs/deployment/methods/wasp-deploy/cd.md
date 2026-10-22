@@ -27,10 +27,7 @@ The workflow needs to include the following steps:
 1. Checkout the code from the repository
 2. Install Node.js and the Wasp CLI
 3. Install any provider-specific dependencies
-4. Install app dependencies with `wasp install`
-5. Deploy the application using `wasp deploy <provider> deploy`
-
-The installed Wasp CLI version must satisfy the version declared in `main.wasp.ts`. When deploying an example from the Wasp repository, check out the matching release tag instead of `main`, which may require an unreleased version.
+4. Deploy the application using `wasp deploy <provider> deploy`
 
 To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the
 environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
@@ -72,9 +69,6 @@ jobs:
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Install app dependencies
-        run: wasp install
 
       - name: Deploy
         run: wasp deploy fly deploy
@@ -120,9 +114,6 @@ jobs:
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-
-      - name: Install app dependencies
-        run: wasp install
 
       - name: Deploy
         run: wasp deploy railway deploy $RAILWAY_PROJECT_NAME --existing-project-id $RAILWAY_PROJECT_ID
