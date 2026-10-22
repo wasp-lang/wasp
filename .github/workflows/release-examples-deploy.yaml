@@ -13,6 +13,9 @@ on:
       FLY_GITHUB_PRODUCTION_TOKEN:
         description: "Fly API token for deploying apps"
         required: true
+      RAILWAY_GITHUB_PRODUCTION_TOKEN:
+        description: "Railway account token for deploying production apps"
+        required: true
 
   # Allow calling this workflow manually from the GitHub UI
   workflow_dispatch:
@@ -111,3 +114,80 @@ jobs:
           }
           wait_for_url "${SERVER_URL}/up"
           wait_for_url "${CLIENT_URL}/"
+
+  deploy-railway:
+    name: Deploy ask-the-documents to Railway
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    environment:
+      name: examples/ask-the-documents-railway-production
+      url: https://client-production-0be2.up.railway.app
+
+    env:
+      RAILWAY_PROJECT_ID: d5be4f30-4193-4c2e-9f0c-fa9444654693
+      RAILWAY_ENVIRONMENT: production
+      SERVER_URL: https://server-production-c9b6.up.railway.app
+      CLIENT_URL: https://client-production-0be2.up.railway.app
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup-tools
+
+      - name: Install Wasp
+        env:
+          WASP_VERSION: ${{ inputs.version }}
+        run:
+          # zizmor: ignore[adhoc-packages]
+          npm i -g "@wasp.sh/wasp-cli@${WASP_VERSION}"
+
+      - name: Install app dependencies
+        working-directory: examples/ask-the-documents
+        run: wasp install
+
+      - name: Deploy to Railway
+        working-directory: examples/ask-the-documents
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_PRODUCTION_TOKEN }}
+        run: |
+          wasp deploy railway deploy ask-the-documents \
+            --existing-project-id "$RAILWAY_PROJECT_ID" \
+            --custom-server-url "$SERVER_URL"
+
+      - name: Verify Railway deployments
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_PRODUCTION_TOKEN }}
+        run: |
+          wait_for_deployment() {
+            local service="$1"
+            local deployments deployment_id status current_id
+            deployments=$(railway deployment list --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT" --service "$service" --limit 1 --json)
+            deployment_id=$(jq -er '.[0].id' <<< "$deployments")
+
+            for attempt in $(seq 1 60); do
+              deployments=$(railway deployment list --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT" --service "$service" --limit 1 --json)
+              current_id=$(jq -er '.[0].id' <<< "$deployments")
+              status=$(jq -er '.[0].status' <<< "$deployments")
+              if [ "$current_id" != "$deployment_id" ]; then
+                echo "$service deployment was superseded"
+                return 1
+              fi
+              case "$status" in
+                SUCCESS) return 0 ;;
+                FAILED|CRASHED|REMOVED|SKIPPED)
+                  echo "$service deployment $deployment_id ended with $status"
+                  return 1
+                  ;;
+              esac
+              echo "Attempt $attempt/60: $service deployment is $status"
+              sleep 10
+            done
+            echo "Timed out waiting for $service deployment $deployment_id"
+            return 1
+          }
+          wait_for_deployment ask-the-documents-server
+          wait_for_deployment ask-the-documents-client
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 10 --max-time 10 "$SERVER_URL/up"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 10 --max-time 10 --output /dev/null "$CLIENT_URL/"

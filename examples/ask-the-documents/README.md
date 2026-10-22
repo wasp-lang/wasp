@@ -2,7 +2,7 @@
 
 ![Ask The Documents Cover](./github.png)
 
-Live at https://ask-the-documents-client.fly.dev/
+Live on [Fly](https://ask-the-documents-client.fly.dev/) and [Railway](https://client-production-0be2.up.railway.app/).
 
 ## What does it do?
 
@@ -53,3 +53,22 @@ This is an example Wasp app that supports:
    ```bash
    wasp start
    ```
+
+## Deploying
+
+Use the app source from the release tag that matches your installed Wasp CLI version.
+
+```bash
+wasp install
+wasp deploy fly deploy --org wasp
+```
+
+To update the existing Railway deployment:
+
+```bash
+wasp deploy railway deploy ask-the-documents --existing-project-id d5be4f30-4193-4c2e-9f0c-fa9444654693
+```
+
+The Railway production services are `ask-the-documents-server` and `ask-the-documents-client`. Configure server secrets on `ask-the-documents-server`.
+
+The **Release - Deploy examples** workflow deploys this app to both providers. Run it from the matching release tag. Its Railway job uses the `examples/ask-the-documents-railway-production` GitHub environment and requires the `RAILWAY_GITHUB_PRODUCTION_TOKEN` secret, supplied as `RAILWAY_API_TOKEN`. Use an account token with access to the existing Railway project.
