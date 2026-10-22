@@ -1,6 +1,7 @@
 .root {
   position: relative;
   margin-bottom: var(--ifm-leading);
+  scroll-margin-top: calc(var(--ifm-navbar-height) + 1rem);
 }
 
 .root :global(.theme-code-block) {
