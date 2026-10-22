@@ -1,5 +1,4 @@
-import { type Spec, api, page, route } from "@wasp.sh/spec";
-import { createSampleUser } from "./sampleUser/apis" with { type: "ref" };
+import { type Spec, page, route } from "@wasp.sh/spec";
 import { WelcomePage } from "./WelcomePage" with { type: "ref" };
 
 // Wasp evaluates the spec with NODE_ENV set to "development" for `wasp start`
@@ -15,5 +14,4 @@ if (process.env.NODE_ENV !== "development") {
 
 export const welcomeSpec: Spec = [
   route("WelcomeRoute", "/", page(WelcomePage)),
-  api("POST", "/dev/sample-user", createSampleUser, { auth: false }),
 ];
