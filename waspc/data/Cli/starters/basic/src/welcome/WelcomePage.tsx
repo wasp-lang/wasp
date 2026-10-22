@@ -30,17 +30,23 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
     content: <LogInStep />,
     media: (
       <CodeWindow
-        title="terminal"
-        code={`$ wasp start
-...
-╔═══════════════════════╗
-║ Dummy email sender    ║
-╚═══════════════════════╝
-From:    Basic App <hello@example.com>
-To:      you@example.com
-Subject: Verify your email
-═════════ Text ═════════
-Click the link below to verify your email: http://localhost:3000/email-verification?token=...`}
+        title="main.wasp.ts"
+        code={`export default app({
+  // ...
+  auth: {
+    userEntity: "User",
+    methods: {
+      email: {
+        userSignupFields,
+        emailVerification: { clientRoute: "EmailVerificationRoute" },
+        passwordReset: { clientRoute: "PasswordResetRoute" },
+        // ...
+      },
+    },
+    onAuthSucceededRedirectTo: "/",
+  },
+  emailSender: { provider: "Dummy" },
+});`}
       />
     ),
   },

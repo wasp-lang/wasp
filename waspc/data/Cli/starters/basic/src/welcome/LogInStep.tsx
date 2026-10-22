@@ -13,9 +13,15 @@ export function LogInStep() {
     <>
       <AuthStatus user={user ?? null} />
       <p>
-        This app uses email and password auth. In development, Wasp doesn&apos;t
-        send real emails: the verification link is printed in the terminal where{" "}
-        <InlineCode>wasp start</InlineCode> is running.
+        The <InlineCode>auth</InlineCode> field in{" "}
+        <InlineCode>main.wasp.ts</InlineCode> sets up email and password login.
+        Wasp takes care of the rest: storing users, sessions, and email
+        verification. The pages in <InlineCode>src/auth</InlineCode> use our
+        built-in Auth UI to let users sign up and log in.
+      </p>
+      <p>
+        Sign up to try the whole flow, or let us automatically create a sample
+        user in one click.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <Link to="/signup" className={primaryButtonClasses}>
