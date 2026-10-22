@@ -39,7 +39,7 @@
     "@types/uuid": "^9.0.8",
     "@wasp.sh/spec": "file:.wasp/spec",
     "@wasp.sh/wasp-app-runner": "^0.0.18",
-    "jsdom": "^30.1.2",
+    "jsdom": "^29.1.1",
     "msw": "^3.0.3",
     "prisma": "6.19.3",
     "typescript": "6.0.3",

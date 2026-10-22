@@ -48,7 +48,7 @@ vitestTest =
     ]
   where
     installTestingLibraries :: ShellCommandBuilder WaspProjectContext ShellCommand
-    installTestingLibraries = return "npm install -D vitest jsdom @testing-library/react msw"
+    installTestingLibraries = return "npm install -D vitest jsdom@29 @testing-library/react msw"
 
     writeProjectFile :: Path' (Rel WaspProjectDir) File' -> T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
     writeProjectFile fileInProject content = do
