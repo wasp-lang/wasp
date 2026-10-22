@@ -122,13 +122,13 @@ jobs:
 
     environment:
       name: examples/ask-the-documents-railway-production
-      url: https://client-production-0be2.up.railway.app
+      url: https://ask-the-documents-client.up.railway.app
 
     env:
       RAILWAY_PROJECT_ID: d5be4f30-4193-4c2e-9f0c-fa9444654693
       RAILWAY_ENVIRONMENT: production
-      SERVER_URL: https://server-production-c9b6.up.railway.app
-      CLIENT_URL: https://client-production-0be2.up.railway.app
+      SERVER_URL: https://ask-the-documents-server.up.railway.app
+      CLIENT_URL: https://ask-the-documents-client.up.railway.app
 
     steps:
       - uses: actions/checkout@v7

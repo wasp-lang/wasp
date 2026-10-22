@@ -2,7 +2,7 @@
 
 ![Ask The Documents Cover](./github.png)
 
-Live on [Fly](https://ask-the-documents-client.fly.dev/) and [Railway](https://client-production-0be2.up.railway.app/).
+Live on [Fly](https://ask-the-documents-client.fly.dev/) and [Railway](https://ask-the-documents-client.up.railway.app/).
 
 ## What does it do?
 
@@ -70,5 +70,7 @@ wasp deploy railway deploy ask-the-documents --existing-project-id d5be4f30-4193
 ```
 
 The Railway production services are `ask-the-documents-server` and `ask-the-documents-client`. Configure server secrets on `ask-the-documents-server`.
+
+The server URL is `https://ask-the-documents-server.up.railway.app`. The Google OAuth client must allow `https://ask-the-documents-server.up.railway.app/auth/google/callback` as a redirect URI.
 
 The **Release - Deploy examples** workflow deploys this app to both providers. Run it from the matching release tag. Its Railway job uses the `examples/ask-the-documents-railway-production` GitHub environment and requires the `RAILWAY_GITHUB_PRODUCTION_TOKEN` secret, supplied as `RAILWAY_API_TOKEN`. Use an account token with access to the existing Railway project.
