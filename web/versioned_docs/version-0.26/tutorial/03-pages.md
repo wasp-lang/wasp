@@ -1,3 +1,9 @@
+---
+title: "3. Pages and routes: Wasp tutorial"
+sidebar_label: "3. Pages and routes"
+description: Step 3 of the Wasp tutorial explains the page and route specs in main.wasp.ts, adds a second page with a URL parameter and cleans up the starter project.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'

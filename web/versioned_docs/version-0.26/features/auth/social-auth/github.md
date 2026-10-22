@@ -1,3 +1,9 @@
+---
+title: "GitHub auth in Wasp: login setup and user data"
+sidebar_label: GitHub
+description: Add GitHub login to a Wasp app, a good choice for developer apps. Create a GitHub App, set the client ID and secret, and request a scope to read emails.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
