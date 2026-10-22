@@ -411,15 +411,17 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ### Error Handling
 
-For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
-Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+
+To send error details to the client, throw an `HttpError`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/queries.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks = async (args, context) => {
       throw new HttpError(
@@ -434,7 +436,7 @@ If you do want to pass additional error information to the client, you can const
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
     import { type GetAllTasks } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
       throw new HttpError(
@@ -447,8 +449,23 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
-The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
-This happens for every status code, so only put information in them that is safe to show to the user.
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+```tsx title="src/MainPage.tsx" auto-js
+import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+export const MainPage = () => {
+  const { data: tasks, error } = useQuery(getAllTasks);
+
+  if (error instanceof HttpError && error.statusCode === 403) {
+    return <div>{error.message}</div>;
+  }
+  // ...
+};
+```
 
 ### Using Entities in Queries
 

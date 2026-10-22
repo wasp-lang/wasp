@@ -36,7 +36,12 @@ export {
 } from "./env/validation.js";
 export { getErrorMessage } from "./errors.js";
 export { HttpMethod, type Route } from "./http.js";
-export { HttpError } from "./HttpError.js";
+export {
+  HttpError,
+  fromHttpErrorBody,
+  toHttpErrorBody,
+  type HttpErrorBody,
+} from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
 export {
   makeOperationRoute,
@@ -88,4 +93,3 @@ export {
   isValidAbsoluteURL,
   throwIfNotValidAbsoluteURL,
 } from "./utils/validators.js";
-export { WaspHttpError } from "./WaspHttpError.js";

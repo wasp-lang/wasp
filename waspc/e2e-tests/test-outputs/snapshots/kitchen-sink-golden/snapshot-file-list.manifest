@@ -396,6 +396,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/env/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/env/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/env/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/env/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
@@ -627,6 +631,7 @@ wasp-app/.wasp/out/sdk/wasp/dist/types/register.js
 wasp-app/.wasp/out/sdk/wasp/dist/types/register.js.map
 wasp-app/.wasp/out/sdk/wasp/entities/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/index.ts
+wasp-app/.wasp/out/sdk/wasp/errors/index.ts
 wasp-app/.wasp/out/sdk/wasp/package.json
 wasp-app/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 wasp-app/.wasp/out/sdk/wasp/scripts/copy-assets.js
@@ -759,6 +764,7 @@ wasp-app/.wasp/out/server/src/queries/getOldestTask.ts
 wasp-app/.wasp/out/server/src/queries/getSerializedObjects.ts
 wasp-app/.wasp/out/server/src/queries/getTask.ts
 wasp-app/.wasp/out/server/src/queries/getTasks.ts
+wasp-app/.wasp/out/server/src/queries/getTeapot.ts
 wasp-app/.wasp/out/server/src/queries/getTextUppercaseRequests.ts
 wasp-app/.wasp/out/server/src/queries/getTrueVoid.ts
 wasp-app/.wasp/out/server/src/routes/apis/index.ts
@@ -787,6 +793,7 @@ wasp-app/.wasp/out/server/src/routes/operations/getOldestTask.js
 wasp-app/.wasp/out/server/src/routes/operations/getSerializedObjects.js
 wasp-app/.wasp/out/server/src/routes/operations/getTask.js
 wasp-app/.wasp/out/server/src/routes/operations/getTasks.js
+wasp-app/.wasp/out/server/src/routes/operations/getTeapot.js
 wasp-app/.wasp/out/server/src/routes/operations/getTextUppercaseRequests.js
 wasp-app/.wasp/out/server/src/routes/operations/getTrueVoid.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
@@ -830,6 +837,7 @@ wasp-app/e2e-tests/tests/liveness.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/oauth-callback.spec.ts
+wasp-app/e2e-tests/tests/operation-errors.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
@@ -904,6 +912,8 @@ wasp-app/src/features/db/prisma.ts
 wasp-app/src/features/db/seeds.ts
 wasp-app/src/features/errors/apis.ts
 wasp-app/src/features/errors/errors.wasp.ts
+wasp-app/src/features/errors/pages/ErrorsPage.tsx
+wasp-app/src/features/errors/queries.ts
 wasp-app/src/features/jobs/bar.js
 wasp-app/src/features/jobs/jobs.wasp.ts
 wasp-app/src/features/jobs/pages/JobsPage.tsx

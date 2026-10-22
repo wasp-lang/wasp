@@ -8,9 +8,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
+- `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
+- On the client, an `HttpError`'s `data` is now the `data` it was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 
 ### 🎉 New Features
 
+- The Wasp server and client now work with the same `HttpError` class, exported from `wasp/errors`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 
 ### 🐞 Bug fixes

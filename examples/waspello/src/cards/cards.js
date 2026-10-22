@@ -1,4 +1,4 @@
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 export const createCard = async ({ title, listId, pos }, context) => {
   if (!context.user) {

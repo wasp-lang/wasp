@@ -111,7 +111,7 @@ export function MainPage() {
     name: "tasks.ts",
     language: "typescript",
     source: `import { type GetTasks } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { Task } from "wasp/entities";
 
 export const getTasks: GetTasks<void, Task[]> = async (

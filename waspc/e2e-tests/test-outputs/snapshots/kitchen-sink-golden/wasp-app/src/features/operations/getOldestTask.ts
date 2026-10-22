@@ -1,4 +1,4 @@
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { GetOldestTask } from "wasp/server/operations";
 
 // Default-exported on purpose, it is the only operation in this app that Wasp
