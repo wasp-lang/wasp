@@ -12,6 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🎉 New Features
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
+- The `minimal` starter has a refreshed look in the style of [wasp.sh](https://wasp.sh). ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
 
 ### 🐞 Bug fixes
 
