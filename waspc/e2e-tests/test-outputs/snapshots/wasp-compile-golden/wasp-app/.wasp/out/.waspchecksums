@@ -340,14 +340,14 @@
             "file",
             "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "fe6b70a5c968ff0fcadd05f0cf47b41a8b38af1880f3f7df4ba939800fc6012d"
+        "18ff741d34f28fe417a505c02c693bd85a8f9df8e770e1917ed243effd2c6e4f"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "1f819a815df123b9156d77af2d5640e1275218ffc5d5a97b220521a8aa3e71fe"
+        "e2994e44ae1cbed48cb480a1b5f261a9638770643626cd9508feb888d4027e7d"
     ],
     [
         [

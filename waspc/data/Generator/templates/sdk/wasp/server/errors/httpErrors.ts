@@ -8,11 +8,38 @@
  * @see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
  */
 
+import * as Wasp from "@wasp.sh/lib-sdk-core";
+import { STATUS_CODES } from "node:http";
+
 // PRIVATE API (server)
+/**
+ * Turns an error thrown by Express or other Express middleware into a
+ * `Wasp.HttpError`.
+ *
+ * - It keeps the status code, or uses 500 when there isn't one.
+ * - It only keeps the message when `expose` marks it as safe to show.
+ * - With `includeErrorDetails`, a hidden error's message and stack go into
+ *   `data`, like Express's default error handler shows them on its HTML page.
+ */
+export function toWaspHttpError(
+  error: unknown,
+  { includeErrorDetails }: { includeErrorDetails: boolean },
+): Wasp.HttpError {
+  const statusCode = getStatusCode(error) ?? 500;
+  if (isMessageExposed(error)) {
+    return new Wasp.HttpError(statusCode, error.message);
+  }
+  return new Wasp.HttpError(
+    statusCode,
+    STATUS_CODES[statusCode],
+    includeErrorDetails ? getErrorDetails(error) : undefined,
+  );
+}
+
 /**
  * The response status code, from `status` (or `statusCode`).
  */
-export function getStatusCode(error: unknown): number | undefined {
+function getStatusCode(error: unknown): number | undefined {
   if (typeof error !== "object" || error === null) {
     return undefined;
   }
@@ -25,12 +52,11 @@ export function getStatusCode(error: unknown): number | undefined {
   return undefined;
 }
 
-// PRIVATE API (server)
 /**
  * Whether the message is safe to show to the client, from `expose`.
  * `http-errors` sets it by default for 4xx errors.
  */
-export function isMessageExposed(error: unknown): error is Error {
+function isMessageExposed(error: unknown): error is Error {
   return error instanceof Error && "expose" in error && error.expose === true;
 }
 
@@ -58,4 +84,14 @@ function isErrorStatusCode(value: unknown): value is number {
     value >= 400 &&
     value < 600
   );
+}
+
+function getErrorDetails(error: unknown): {
+  message: string;
+  stack: string | undefined;
+} {
+  return {
+    message: Wasp.getErrorMessage(error),
+    stack: error instanceof Error ? error.stack : undefined,
+  };
 }
