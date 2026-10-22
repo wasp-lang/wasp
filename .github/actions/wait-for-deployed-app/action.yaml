@@ -18,5 +18,18 @@ runs:
         SERVER_URL: ${{ inputs.server-url }}
         CLIENT_URL: ${{ inputs.client-url }}
       run: |
-        curl --fail --silent --show-error --retry 29 --retry-all-errors --retry-delay 10 --max-time 10 --output /dev/null "${SERVER_URL%/}/up"
-        curl --fail --silent --show-error --retry 29 --retry-all-errors --retry-delay 10 --max-time 10 --output /dev/null "${CLIENT_URL%/}/"
+        function wait_for_url() {
+          url="$1"
+          for attempt in $(seq 1 30); do
+            if curl -fsS -o /dev/null --max-time 10 "$url"; then
+              echo "$url is ready"
+              return 0
+            fi
+            echo "Attempt $attempt/30: $url not ready, retrying in 10s"
+            sleep 10
+          done
+          echo "Timed out waiting for $url"
+          return 1
+        }
+        wait_for_url "${SERVER_URL%/}/up"
+        wait_for_url "${CLIENT_URL%/}/"
