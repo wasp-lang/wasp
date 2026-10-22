@@ -4,11 +4,11 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
-import { WaspApp } from "wasp/client/app";
 import {
   handleClientError,
   listenForUncaughtClientErrors,
-} from "@wasp.sh/lib-sdk-core/browser";
+  WaspApp,
+} from "wasp/client/app";
 
 import { routeObjects } from "/@wasp/routes.tsx"
 
