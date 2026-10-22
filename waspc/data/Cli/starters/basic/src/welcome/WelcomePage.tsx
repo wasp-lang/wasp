@@ -1,7 +1,8 @@
 // A getting-started page for your new app. See "Removing the welcome page" in
 // `README.md` for how to remove it once you no longer need it.
 
-import { ButtonLink } from "../shared/components/Button";
+import { Link } from "wasp/client/router";
+import { primaryButtonClasses } from "./components/buttonStyles";
 import { CodeWindow } from "./components/CodeWindow";
 import { InlineCode } from "./components/InlineCode";
 import { Walkthrough, type WalkthroughStep } from "./components/Walkthrough";
@@ -53,9 +54,9 @@ Click the link below to verify your email: http://localhost:3000/email-verificat
           page, queries, and actions behind it.
         </p>
         <div>
-          <ButtonLink to="/tasks" size="sm">
+          <Link to="/tasks" className={primaryButtonClasses}>
             Go to your tasks
-          </ButtonLink>
+          </Link>
         </div>
       </>
     ),
@@ -185,7 +186,7 @@ export default app({
             href="https://wasp.sh/docs/deployment/methods/wasp-deploy/overview"
             target="_blank"
             rel="noreferrer"
-            className="bg-primary-500 hover:bg-primary-400 inline-block border-2 border-neutral-900 px-4 py-2 font-mono text-sm font-bold text-neutral-900"
+            className={primaryButtonClasses}
           >
             Deploy your app <span aria-hidden>→</span>
           </a>
@@ -210,9 +211,6 @@ export function WelcomePage() {
     <div className="flex justify-center px-6 py-12 lg:px-12">
       <div className="flex w-full max-w-(--breakpoint-lg) min-w-0 flex-col gap-10">
         <div className="flex flex-col items-start gap-4">
-          <span className="border border-neutral-400 px-3 py-1 font-mono text-[11px] tracking-[3px] text-neutral-600 uppercase">
-            Welcome to Wasp
-          </span>
           <h1 className="text-4xl leading-tight font-extrabold tracking-tight uppercase lg:text-5xl">
             Your app is{" "}
             <span className="bg-primary-500 px-2">up and running</span>

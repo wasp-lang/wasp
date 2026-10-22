@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { api } from "wasp/client/api";
 import { Link } from "wasp/client/router";
-import { Button } from "../../shared/components/Button";
+import { secondaryButtonClasses } from "../components/buttonStyles";
 import { InlineCode } from "../components/InlineCode";
 import type { SampleUser } from "./apis";
 
@@ -25,15 +25,14 @@ export function SampleUserButton() {
 
   return (
     <>
-      <Button
-        size="sm"
-        variant="ghost"
-        className="border border-neutral-900 disabled:cursor-not-allowed disabled:opacity-40"
+      <button
+        type="button"
+        className={secondaryButtonClasses}
         onClick={createSampleUser}
         disabled={isLoading}
       >
         Create a sample user
-      </Button>
+      </button>
       {sampleUser && (
         <p className="w-full">
           <Link to="/login" className="font-semibold underline">

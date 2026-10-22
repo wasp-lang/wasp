@@ -1,7 +1,8 @@
 import { twJoin } from "tailwind-merge";
 import { type AuthUser } from "wasp/auth";
 import { useAuth } from "wasp/client/auth";
-import { ButtonLink } from "../shared/components/Button";
+import { Link } from "wasp/client/router";
+import { primaryButtonClasses } from "./components/buttonStyles";
 import { InlineCode } from "./components/InlineCode";
 import { SampleUserButton } from "./sampleUser/SampleUserButton";
 
@@ -17,9 +18,9 @@ export function LogInStep() {
         <InlineCode>wasp start</InlineCode> is running.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <ButtonLink to="/signup" size="sm">
+        <Link to="/signup" className={primaryButtonClasses}>
           Sign up
-        </ButtonLink>
+        </Link>
         <SampleUserButton />
       </div>
     </>

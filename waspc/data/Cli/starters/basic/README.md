@@ -36,6 +36,7 @@ The welcome page in `src/welcome/` walks you through the app on your first run. 
 
 1. Delete the `src/welcome/` folder.
 2. Remove `welcomeSpec` and its import from `main.wasp.ts`.
+3. Make the tasks page your home page: in `src/tasks/task.wasp.ts`, change the `TasksRoute` path from `/tasks` to `/`, and update the "My tasks" link in `src/shared/components/Header.tsx` to point to `/`.
 
 ## Learn more
 

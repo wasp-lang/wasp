@@ -8,8 +8,8 @@ import { WelcomePage } from "./WelcomePage" with { type: "ref" };
 if (process.env.NODE_ENV !== "development") {
   throw new Error(
     "The welcome page in `src/welcome/` is only meant for development. " +
-      "Before building for production, delete the `src/welcome/` folder " +
-      "and remove `welcomeSpec` from `main.wasp.ts`.",
+      "Before building for production, remove it by following the " +
+      '"Removing the welcome page" steps in `README.md`.',
   );
 }
 
