@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 import { Terminal } from "react-feather";
+import { trackEventAttributes } from "../../lib/analytics";
 import { InstallBlock, VCSection } from "./vcWrappers";
 
 const steps = [
@@ -12,11 +13,13 @@ const steps = [
     number: "2",
     title: "Add agent skills",
     command: "npx skills add wasp-lang/wasp-agent-plugins",
+    trackEvent: { event: "Agent Plugin: Copy", kind: "skills_cli" },
   },
   {
     number: "3",
     title: "Describe what you want",
     command: "Create a new Todo app with email login and a Postgres db",
+    trackEvent: { event: "Agent Plugin: Copy", kind: "example_prompt" },
   },
 ];
 
@@ -49,6 +52,7 @@ const VCWorkflow = () => {
             {step.command && (
               <InstallBlock
                 command={step.command}
+                trackEvent={step.trackEvent}
                 className="mb-3 block border-2 border-neutral-300"
               />
             )}
@@ -58,7 +62,10 @@ const VCWorkflow = () => {
       </div>
 
       <div className="mt-12 text-center">
-        <Link to="/docs/quick-start">
+        <Link
+          to="/docs/quick-start"
+          {...trackEventAttributes({ event: "Get Started: Click" })}
+        >
           <button className={buttonClass}>
             <Terminal size={16} />
             <span>Start Building</span>

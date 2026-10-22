@@ -19,6 +19,8 @@ keywords:
 description: "Wasp 0.25 adds Resend as a first-class email sender provider: set provider to Resend, add your API key, and start sending emails from your full-stack app."
 ---
 
+import Trackable from "@site/src/components/Trackable";
+
 Wasp 0.25 adds [Resend](https://resend.com) as a first-class email sender provider, right next to Mailgun, SendGrid, and SMTP. Set `provider: "Resend"`, add your API key, and you're sending emails. Big thanks to community contributor [Jamie Davenport](https://github.com/jamiedavenport), who built the whole thing!
 
 {/* truncate */}
@@ -84,9 +86,13 @@ If you'd like to see your name here next time, check out our [contributing guide
 
 Resend support is live in Wasp 0.25. If you're not on it yet, update your Wasp CLI:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 Then set `provider: "Resend"`, add your API key, and send your first email. Check out the [email sending docs](/docs/features/email#resend) for the full reference.
 

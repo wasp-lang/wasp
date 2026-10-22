@@ -21003,7 +21003,7 @@ When you make updates and need to redeploy:
    ```
 
 
-## Deployment / Self-Hosted / Caprover
+## Deployment / Self-Hosted / CapRover
 
 :::note
 Last checked with Wasp 0.24 and Caprover 1.14.1.

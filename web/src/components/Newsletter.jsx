@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
 import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import { ArrowUpRight, Mail } from "react-feather";
+import { trackPlacementAttributes } from "../lib/analytics";
 import SectionContainer from "./Layouts/SectionContainer";
 import SubscribeForm from "./SubscribeForm";
 
@@ -30,7 +31,7 @@ const Newsletter = () => {
   useBrokenLinks().collectAnchor(NEWSLETTER_ID);
 
   return (
-    <div className="bg-wasp-yellow">
+    <div className="bg-wasp-yellow" {...trackPlacementAttributes("newsletter")}>
       <SectionContainer id={NEWSLETTER_ID}>
         {/* NOTE(matija): Three flow items (intro, preview, form). On mobile they stack in
             this DOM order: intro -> preview -> form (see the feature, then sign up).

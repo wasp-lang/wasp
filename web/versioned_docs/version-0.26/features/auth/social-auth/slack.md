@@ -1,3 +1,9 @@
+---
+title: "Slack auth in Wasp: login setup, HTTPS and user data"
+sidebar_label: Slack
+description: "Add Slack login to a Wasp app: create a Slack app, set the client ID and secret, use HTTPS in development with localtunnel, and store Slack user data."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';

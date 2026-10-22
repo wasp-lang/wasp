@@ -1,3 +1,9 @@
+---
+title: "Custom Vite config: plugins and options in Wasp"
+sidebar_label: Custom Vite config
+description: "Customize vite.config.ts in a Wasp app: add the required wasp() plugin first, then your own plugins and dev server or build options."
+---
+
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { Optional } from '@site/src/components/Tag'
 

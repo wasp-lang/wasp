@@ -1,3 +1,9 @@
+---
+title: Prerendering Wasp routes for SEO and AI crawlers
+sidebar_label: Prerendering
+description: Prerender Wasp routes to static HTML at build time, so search engines and AI crawlers can read them without JavaScript. Auth-required pages cannot use it.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 
 # Prerendering

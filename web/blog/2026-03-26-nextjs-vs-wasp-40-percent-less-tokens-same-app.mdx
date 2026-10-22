@@ -10,6 +10,7 @@ description: "We gave Claude Code the same feature prompt for two identical SaaS
 import { ImgWithCaption } from './components/ImgWithCaption';
 import { CodeSnippet } from './components/CodeSnippet';
 import { CodeSnippetSideBySide } from './components/CodeSnippetSideBySide';
+import Trackable from '@site/src/components/Trackable';
 
 <img src="/img/nextjs-wasp-tokens/nextjs-vs-wasp-tokens.webp" />
 
@@ -302,9 +303,13 @@ We used [Anthropic's API pricing](https://www.anthropic.com/pricing) as of March
 
 **Want to try Wasp?** Get started with:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli@latest
 ```
+
+</Trackable>
 
 Then start a new Wasp app:
 

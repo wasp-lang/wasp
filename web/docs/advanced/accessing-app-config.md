@@ -1,3 +1,9 @@
+---
+title: "Accessing the configuration: Wasp config objects"
+sidebar_label: Accessing the configuration
+description: Read the server config (frontendUrl) and the client config (apiUrl) of a Wasp app, and set them with WASP_WEB_CLIENT_URL and REACT_APP_API_URL.
+---
+
 # Accessing the configuration
 
 Whenever you start a Wasp app, you are starting two processes.
