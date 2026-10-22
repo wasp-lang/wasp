@@ -62,11 +62,11 @@
                 },
                 {
                     "name": "@testing-library/jest-dom",
-                    "version": "^6.9.1"
+                    "version": "^7.0.1"
                 },
                 {
                     "name": "@testing-library/react",
-                    "version": "^16.3.1"
+                    "version": "^16.3.3"
                 },
                 {
                     "name": "@types/chai",
@@ -102,11 +102,11 @@
                 },
                 {
                     "name": "jsdom",
-                    "version": "^27.4.0"
+                    "version": "^30.1.2"
                 },
                 {
                     "name": "msw",
-                    "version": "^2.12.7"
+                    "version": "^3.0.3"
                 },
                 {
                     "name": "prisma",
