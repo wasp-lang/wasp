@@ -1,3 +1,9 @@
+---
+title: "Accessing user data: the AuthUser object in Wasp"
+sidebar_label: Accessing user data
+description: Read the logged-in user's data from the AuthUser object in Wasp, with helpers such as getEmail, and see the Auth, AuthIdentity and Session entities.
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from './_multiple-identities-warning.md';

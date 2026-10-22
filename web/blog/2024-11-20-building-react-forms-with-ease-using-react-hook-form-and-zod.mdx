@@ -3,6 +3,7 @@ title: 'Building React Forms with Ease Using React Hook Form, Zod and Shadcn'
 authors: [martinovicdev]
 image: /img/forms/banner.webp
 tags: [webdev, wasp, react, forms]
+description: "Build a React user form with React Hook Form, Zod and Shadcn: required fields, an email check, no future dates and custom error messages."
 ---
 
 Forms are something every developer encounters, whether as a user or on the developer side. They’re essential on most websites, but their complexity can vary wildly—from simple 3-field contact forms to giga-monster-t-rex, multi-page forms with 150 fields, dynamic validation, and asynchronous checks.
@@ -15,7 +16,7 @@ In this post, we’ll explore how React Hook Form, Zod, and Shadcn can be used t
 
 ## The form we’ll be building
 
-Here’s the form we’ll be developing in this post. I plan on writing another post about an advanced use of forms that will have even more complexity as a follow-up, so stay tuned 😃
+Here’s the form we’ll be developing in this post. I plan on writing another post about an advanced use of forms that will have even more complexity as a follow-up, so stay tuned 😃 Update: the follow-up is out, [advanced validation with React Hook Form, Zod and shadcn](/blog/2025/01/22/advanced-react-hook-form-zod-shadcn).
 
 ![example form](/img/forms/form.png)
 
@@ -168,6 +169,6 @@ const form = useForm<FormData>({
   )} />
 ```
 
-If you’re curious to see the complete application, check out the GitHub repository here: [GitHub Repo](https://github.com/martinovicdev/wasp-form-tutorial). I hope this article has made working with forms easier, and if you're interested in more form-related content, stay tuned for part two! In the next part, we'll dive into advanced patterns and validation techniques to enhance your applications.
+If you’re curious to see the complete application, check out the GitHub repository here: [GitHub Repo](https://github.com/martinovicdev/wasp-form-tutorial). I hope this article has made working with forms easier, and if you're interested in more form-related content, read [part two of this React Hook Form series](/blog/2025/01/22/advanced-react-hook-form-zod-shadcn), where we dive into advanced patterns and validation techniques to enhance your applications.
 
 Please consider starring [**Wasp**](https://github.com/wasp-lang/wasp) on GitHub if you liked this post! Your support helps us continue making web development easier and smoother for everyone. 🐝

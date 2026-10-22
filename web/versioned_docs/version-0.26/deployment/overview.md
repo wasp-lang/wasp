@@ -1,6 +1,12 @@
+---
+title: "Deployment overview: the three parts of a Wasp app"
+sidebar_label: Overview
+description: "A deployed Wasp app has three parts: a React client, an Express server and a PostgreSQL database. Host the client and server on one server or two."
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
-# Overview
+# Deployment overview
 
 After developing your app locally on your machine, the next step is to deploy it to the web so that others can access it.
 

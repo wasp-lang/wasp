@@ -1,3 +1,9 @@
+---
+title: Testing locally with wasp build start
+sidebar_label: Testing locally
+description: Run the production build of your Wasp app on your machine with wasp build start. Pass the env vars it needs and find problems before you deploy.
+---
+
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 
 # Testing locally

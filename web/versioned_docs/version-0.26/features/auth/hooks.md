@@ -1,4 +1,6 @@
 ---
+title: "Auth hooks: run custom code on signup and login"
+description: Run custom code at stages of the Wasp auth flow with hooks like onBeforeSignup and onAfterLogin, to block certain emails or send a welcome email.
 sidebar_label: Hooks
 ---
 
