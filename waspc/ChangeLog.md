@@ -12,6 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🎉 New Features
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
+- `wasp start`, `wasp compile`, `wasp build` and the `wasp db` commands now install your project's dependencies when they are missing or outdated, so you no longer need to run `wasp install` after cloning a project, running `wasp clean`, or upgrading Wasp. ([#5037](https://github.com/wasp-lang/wasp/pull/5037))
 
 ### 🐞 Bug fixes
 
@@ -53,7 +54,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 - Custom `api`s can now use the `PATCH` and `HEAD` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860), [#4867](https://github.com/wasp-lang/wasp/pull/4867))
 - `wasp uninstall` now accepts `--force` to skip the confirmation prompt. ([#5003](https://github.com/wasp-lang/wasp/pull/5003))
-- `wasp start`, `wasp compile`, `wasp build` and the `wasp db` commands now install your project's dependencies when they are missing or outdated, so you no longer need to run `wasp install` after cloning a project, running `wasp clean`, or upgrading Wasp. ([#5037](https://github.com/wasp-lang/wasp/pull/5037))
 
 ### 🐞 Bug fixes
 
