@@ -65,7 +65,7 @@
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email": "./dist/server/email/index.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
-    "./server/errors": "./dist/server/errors.js",
+    "./server/errors": "./dist/server/errors/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     "./server/middleware": "./dist/server/middleware/index.js",

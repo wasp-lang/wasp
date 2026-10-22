@@ -1,8 +1,8 @@
+import { getErrorMessage, HttpError } from "@wasp.sh/lib-sdk-core";
 import type { Response } from "express";
 import { STATUS_CODES } from "node:http";
-import { getErrorMessage } from "../errors/index.js";
-import config from "./config.js";
-import { HttpError } from "./HttpError.js";
+import config from "../config.js";
+import * as httpErrors from "./httpErrors.js";
 
 // PRIVATE API (server)
 export type ServerErrorContext =
@@ -39,7 +39,7 @@ export function reportUnexpectedServerError(
  */
 export function sendErrorResponse(response: Response, error: unknown): void {
   const httpError = toHttpError(error);
-  const headers = getMiddlewareErrorHeaders(error);
+  const headers = httpErrors.getHeaders(error);
   if (headers) {
     response.set(headers);
   }
@@ -53,12 +53,12 @@ function toHttpError(error: unknown): HttpError {
     return error;
   }
 
-  const statusCode = getMiddlewareErrorStatusCode(error) ?? 500;
+  const statusCode = httpErrors.getStatusCode(error) ?? 500;
   if (statusCode >= 500) {
     reportUnexpectedServerError(error, { source: "request" });
   }
 
-  if (isMiddlewareErrorExposed(error)) {
+  if (httpErrors.isMessageExposed(error)) {
     return new HttpError(statusCode, error.message);
   }
   return new HttpError(
@@ -76,66 +76,6 @@ function getDevelopmentErrorDetails(error: unknown): {
     message: getErrorMessage(error),
     stack: error instanceof Error ? error.stack : undefined,
   };
-}
-
-/**
- * Express and its middleware create errors with the `http-errors` package,
- * which puts the response status code in `status` (or `statusCode`).
- *
- * @see https://github.com/jshttp/http-errors#error-properties
- * @see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
- */
-function getMiddlewareErrorStatusCode(error: unknown): number | undefined {
-  if (typeof error !== "object" || error === null) {
-    return undefined;
-  }
-  for (const key of ["status", "statusCode"]) {
-    const statusCode = (error as Record<string, unknown>)[key];
-    if (isErrorStatusCode(statusCode)) {
-      return statusCode;
-    }
-  }
-  return undefined;
-}
-
-/**
- * `http-errors` sets `expose: true` when the message is safe to show to the
- * client, which is the default for 4xx errors.
- *
- * @see https://github.com/jshttp/http-errors#error-properties
- */
-function isMiddlewareErrorExposed(error: unknown): error is Error {
-  return error instanceof Error && "expose" in error && error.expose === true;
-}
-
-/**
- * `http-errors` lets an error carry response headers, e.g. `Retry-After`
- * on a 429.
- *
- * @see https://github.com/jshttp/http-errors#error-properties
- */
-function getMiddlewareErrorHeaders(
-  error: unknown,
-): Record<string, string> | undefined {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "headers" in error &&
-    typeof error.headers === "object" &&
-    error.headers !== null
-  ) {
-    return error.headers as Record<string, string>;
-  }
-  return undefined;
-}
-
-function isErrorStatusCode(value: unknown): value is number {
-  return (
-    typeof value === "number" &&
-    Number.isInteger(value) &&
-    value >= 400 &&
-    value < 600
-  );
 }
 
 function formatContext({ source, ...details }: ServerErrorContext): string {

@@ -284,13 +284,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-<<<<<<< HEAD
-        "3dd144c11af85f940a8065c9705f8a59351460f902947de6eba5e90a027cfbd6"
-||||||| parent of 2dfc483aa (Handle server errors in one place)
-        "54c2d762d1f734b3a0ddfb6c00cc056a558aa7c93e596699f9fb34a27480670a"
-=======
-        "98bb984110adba0805eaa3f441e3177f17398993654461433597938cdcf06e41"
->>>>>>> 2dfc483aa (Handle server errors in one place)
+        "82cdb6f7ff9b4269600f67441556d671559cb1dc925fb7ce90af89b8b4b0421d"
     ],
     [
         [
@@ -346,20 +340,21 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-<<<<<<< HEAD
         "074c8e95b661c3abc0e2834ed606ea69f2c23d3f2f43f69ed6427f205ad5bc0f"
-||||||| parent of 2dfc483aa (Handle server errors in one place)
-        "f3ef4efbc08161e36b6374937c0c11ea57c3591f79470495158b92a13a54196b"
-=======
-        "f3ef4efbc08161e36b6374937c0c11ea57c3591f79470495158b92a13a54196b"
     ],
     [
         [
             "file",
-            "sdk/wasp/server/errors.ts"
+            "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "c54dcf86dc8443a0432cf355358b39a95dadcd60488ba92e908547f29f7b4037"
->>>>>>> 2dfc483aa (Handle server errors in one place)
+        "fe6b70a5c968ff0fcadd05f0cf47b41a8b38af1880f3f7df4ba939800fc6012d"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/index.ts"
+        ],
+        "1f819a815df123b9156d77af2d5640e1275218ffc5d5a97b220521a8aa3e71fe"
     ],
     [
         [
@@ -520,7 +515,7 @@
             "file",
             "server/src/app.js"
         ],
-        "eb8ea614bffaaf32abe39742019f4b226ec3331d5d31e13308ef9e4bf105ae0c"
+        "bd16da1d89d3b49580c7ff1e33191159bab7610e314bfcdaff7eb5653c7c862e"
     ],
     [
         [
@@ -576,7 +571,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "03447d3fdd07567b8cfee32133c2683eded41fcd788338e37b4dbb107f0c56eb"
+        "fb7d3e5b74d6e3dbf5544f7d03d9af02e4c2de97ff6747603c1a0297ddd669cd"
     ],
     [
         [

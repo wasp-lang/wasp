@@ -1,5 +1,5 @@
 import { config, HttpError } from '../../index.js'
-import { reportUnexpectedServerError } from "../../errors.js";
+import { reportUnexpectedServerError } from "../../errors/index.js";
 
 // PRIVATE API (server)
 export const loginPath = 'login'

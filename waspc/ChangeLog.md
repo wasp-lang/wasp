@@ -18,6 +18,11 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
+- The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
+
+### 🔧 Small improvements
+
+- The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 
 ## 0.26.0
 
@@ -56,7 +61,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 
 ### 🐞 Bug fixes
 
-- The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
@@ -67,7 +71,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.26/migration-
 
 ### 🔧 Small improvements
 
-- The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.12, which fixes [CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078), [CVE-2026-15603](https://www.cve.org/CVERecord?id=CVE-2026-15603) and [CVE-2026-87859](https://www.cve.org/CVERecord?id=CVE-2026-87859). Wasp's usage was unaffected by the vulnerabilities. ([#4573](https://github.com/wasp-lang/wasp/pull/4573), [#5032](https://github.com/wasp-lang/wasp/pull/5032))

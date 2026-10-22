@@ -1,8 +1,7 @@
+import { getErrorMessage, HttpError } from "@wasp.sh/lib-sdk-core";
 import type { Response } from "express";
 import { STATUS_CODES } from "node:http";
-import { getErrorMessage } from "../../errors/index.js";
 import config from "../config.js";
-import { HttpError } from "../HttpError.js";
 import * as httpErrors from "./httpErrors.js";
 
 // PRIVATE API (server)
