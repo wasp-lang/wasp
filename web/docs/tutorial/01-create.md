@@ -5,6 +5,8 @@ description: "Start the Wasp Todo app tutorial: create a project from the minima
 ---
 
 import { TutorialAction } from './TutorialAction';
+import introGif from './img/todo-app-intro.gif';
+import starterScreenshot from './img/wasp-new-screenshot.webp';
 
 # 1. Creating a new project
 
@@ -14,7 +16,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-<img alt="How the Todo App will work once it is finished" src={require('./img/todo-app-intro.gif').default} className="tutorial-image" />
+<img alt="How the Todo App will work once it is finished" src={introGif} className="tutorial-image" />
 
 <br />
 
@@ -51,7 +53,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
-<img alt="Screenshot of the Wasp minimal starter app" src={require('./img/wasp-new-screenshot.webp').default} className="tutorial-image" />
+<img alt="Screenshot of the Wasp minimal starter app" src={starterScreenshot} className="tutorial-image" />
 
 <br />
 

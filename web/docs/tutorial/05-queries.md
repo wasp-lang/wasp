@@ -6,6 +6,7 @@ description: "Step 5 of the Wasp tutorial: declare a getTasks Query in main.wasp
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import noTasksScreenshot from './img/todo-app-no-tasks.webp';
 
 # 5. Querying the database
 
@@ -185,6 +186,6 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-<img alt="Todo App - No Tasks" src={require('./img/todo-app-no-tasks.webp').default} className="tutorial-image" />
+<img alt="Todo App - No Tasks" src={noTasksScreenshot} className="tutorial-image" />
 
 We'll create a form to add tasks in the next step 🪄

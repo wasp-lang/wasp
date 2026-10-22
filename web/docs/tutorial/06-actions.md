@@ -7,6 +7,7 @@ description: Add a Wasp Action that creates a task in the Todo app, call it from
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import Collapse from '@site/src/components/Collapse';
 import { TutorialAction } from './TutorialAction';
+import newTaskScreenshot from './img/todo-app-new-task.webp';
 
 # 6. Modifying data
 
@@ -179,7 +180,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-<img alt="Todo App - creating new task" src={require('./img/todo-app-new-task.webp').default} className="tutorial-image" />
+<img alt="Todo App - creating new task" src={newTaskScreenshot} className="tutorial-image" />
 
 <br />
 

@@ -6,6 +6,8 @@ description: "Add username and password auth to the Wasp Todo app: a User entity
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import userInDbGif from './img/wasp_user_in_db.gif';
+import dbDemonstrationGif from './img/wasp_db_demonstration.gif';
 
 # 7. Adding authentication
 
@@ -231,7 +233,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-<img alt="Database demonstration - password hashing" src={require('./img/wasp_user_in_db.gif').default} className="tutorial-image" />
+<img alt="Database demonstration - password hashing" src={userInDbGif} className="tutorial-image" />
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -369,7 +371,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-<img alt="Database demonstration" src={require('./img/wasp_db_demonstration.gif').default} className="tutorial-image" />
+<img alt="Database demonstration" src={dbDemonstrationGif} className="tutorial-image" />
 
 You will see that each user has their tasks, just as we specified in our code!
 

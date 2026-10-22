@@ -8,6 +8,7 @@ import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'
 import TypescriptServerNote from '../_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
+import helloWorldScreenshot from './img/todo-app-hello-world.webp';
 
 # 3. Pages and routes
 
@@ -293,7 +294,7 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={require('./img/todo-app-hello-world.webp').default} className="tutorial-image" />
+<img alt="Todo App - Hello World" src={helloWorldScreenshot} className="tutorial-image" />
 
 You can now delete `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 

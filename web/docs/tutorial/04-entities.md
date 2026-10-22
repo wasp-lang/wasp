@@ -5,6 +5,7 @@ description: Define the Task entity of the Wasp Todo app as a Prisma model in sc
 ---
 
 import { TutorialAction } from './TutorialAction';
+import dbStudioTaskScreenshot from './img/todo-app-db-studio-task-entity.webp';
 
 # 4. Database entities
 
@@ -48,6 +49,6 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-<img alt="Todo App - Db studio showing Task schema" src={require('./img/todo-app-db-studio-task-entity.webp').default} className="tutorial-image" />
+<img alt="Todo App - Db studio showing Task schema" src={dbStudioTaskScreenshot} className="tutorial-image" />
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
