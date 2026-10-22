@@ -41,6 +41,12 @@ export function validateEnv(
           // the temporary server anyway.
           .filter((plugin) => !plugin.name.startsWith("vite:"))
 
+          // Ignore Vitest plugins since validation doesn't need them, and some
+          // of them keep the resolved config in a closure. Running their
+          // `configResolved` hook for the temporary server would overwrite
+          // the config of the main one.
+          .filter((plugin) => !plugin.name.startsWith("vitest"))
+
           // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
           // wire long-lived behavior into a dev or preview server: middleware,
           // websocket handlers, file watchers, and similar background tasks.

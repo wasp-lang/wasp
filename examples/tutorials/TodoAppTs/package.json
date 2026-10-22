@@ -23,7 +23,6 @@
     "@wasp.sh/wasp-app-runner": "^0.0.18",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
-    "vite": "^8.1.0",
-    "vitest": "^4.1.9"
+    "vite": "^8.1.0"
   }
 }
