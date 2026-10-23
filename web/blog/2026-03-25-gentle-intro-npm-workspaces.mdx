@@ -1,7 +1,7 @@
 ---
 title: "A gentle intro to npm workspaces, with visuals"
 authors: [cprecioso]
-image: /img/inside-npm-workspaces/banner.png
+image: /img/blog/2026-03-25-gentle-intro-npm-workspaces/banner.png
 tags: [wasp, inside-wasp, open-source, wasp-citizen]
 keywords:
   - npm workspaces
@@ -45,7 +45,7 @@ Workspaces are a feature in npm, Yarn, pnpm, and others that let you organize mu
 
 <div style={{ float: "right", maxWidth: "50%" }}>
 
-![Diagram comparing dependency management with and without workspaces. Without workspaces two separate projects each install their own copy of their dependencies, and are isolated from one another. With workspaces the same two projects share their common dependencies, can call each other.](/img/inside-npm-workspaces/intro.png)
+![Diagram comparing dependency management with and without workspaces. Without workspaces two separate projects each install their own copy of their dependencies, and are isolated from one another. With workspaces the same two projects share their common dependencies, can call each other.](/img/blog/2026-03-25-gentle-intro-npm-workspaces/intro.png)
 
 </div>
 
@@ -57,7 +57,7 @@ The building blocks are interesting and require a dive into how package managers
 
 It seems like the second half of the 2010s was when the professionalization of JS development started to trickle down to the average developer. The rise of [Babel](https://babeljs.io/) and [Webpack](https://webpack.js.org/) gave us a modern development experience, one that more closely resembled what other languages had enjoyed for years. We finally had a proper module system, and the ability to target newer language versions, while still supporting older runtimes.
 
-![](/img/inside-npm-workspaces/timeline.png)
+![](/img/blog/2026-03-25-gentle-intro-npm-workspaces/timeline.png)
 
 Our history of workspaces starts in 2015, when the 6to5 project [realized](https://babeljs.io/blog/2015/02/15/not-born-to-die) they didn't want to work only on ES6 code, but also on everything that came after it. They renamed themselves to Babel and started working on [modularizing the codebase](https://babeljs.io/blog/2015/10/29/6.0.0#modularization), knowing they'd need well-separated concerns to keep up with the ever-evolving language.
 

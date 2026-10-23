@@ -1,7 +1,7 @@
 ---
 title: "On the Importance of RFCs in Programming"
 authors: [matijasos]
-image: /img/writing-rfcs/rfc-prophet.png
+image: /img/blog/2023-12-05-writing-rfcs/rfc-prophet.png
 tags: [programming, clean-code]
 ---
 
@@ -15,7 +15,7 @@ Imagine you’ve been tasked to implement a sizeable new feature for the product
 
 If only there were **a way of knowing about X and Y before implementing everything**. Well, it is, and it’s called RFC!
 
-<ImgWithCaption alt="The revelation of RFC" source="img/writing-rfcs/rfc-prophet.png" />
+<ImgWithCaption alt="The revelation of RFC" source="img/blog/2023-12-05-writing-rfcs/rfc-prophet.png" />
 
 We’ll learn about it through the example of [RFC about implementing an authentication system in a web framework Wasp](https://wasp-lang.notion.site/RFC-Auth-without-user-defined-entities-6d2925439627456ab01b74ff4b4cd087?pvs=4). [Wasp](https://github.com/wasp-lang/wasp) is a full-stack web framework built on top of React, Node.js and Prisma. It is used by [MAGE](https://usemage.ai/), a free GPT-powered codebase generator, which has been used to start over 30,000 applications.
 
@@ -25,7 +25,7 @@ Let's dive in!
 
 RFC (_Request For Comments_) is, simply explained, a document proposing a codebase change to solve a specific problem. **Its main purpose is to find the best way to solve a problem, as a team effort, before the implementation starts**. RFCs were first adopted by the open-source community, but today, they are used in almost any type of developer organization.
 
-<ImgWithCaption alt="RFC overivew" source="img/writing-rfcs/rfc-overview.png" caption="A simplified schema of a typical RFC." />
+<ImgWithCaption alt="RFC overivew" source="img/blog/2023-12-05-writing-rfcs/rfc-overview.png" caption="A simplified schema of a typical RFC." />
 
 There are other names for this type of document you might encounter in the industry, like TDD (_Technical Design Document_) or SDD (_Software Design Document_). Some people argue over the distinction between them, but we won’t.
 
@@ -33,7 +33,7 @@ There are other names for this type of document you might encounter in the indus
 
 ## When should I write RFC, and when can I skip it?
 
-<ImgWithCaption alt="RFC overivew" source="img/writing-rfcs/rfc-meme-when.png" />
+<ImgWithCaption alt="RFC overivew" source="img/blog/2023-12-05-writing-rfcs/rfc-meme-when.png" />
 
 So, why bother writing about what you will eventually code, instead of saving time and simply doing it? **If you’re dealing with a bug or a relatively simple feature, where it’s very clear what you must do and doesn’t affect project structure, then there’s no need for an RFC - fire up that IDE and get cracking!**
 
@@ -41,7 +41,7 @@ But, if you are introducing a completely new concept (e.g., introducing a role-b
 
 All the above being said, sometimes it's not easy to figure out if you should write an RFC or not. Maybe it’s a more prominent feature, but you’ve done something similar before, and you’ve already mapped everything out in your head and pretty much have no questions. To help with that, here’s a simple heuristic I like to use: **Is there more than one obvious way to implement this feature? Is there a new library/service we have to pick?** If the answer to both of these is “No", you probably don’t need an RFC. Otherwise, there’s a discussion to be had, and RFC is the way to do it.
 
-<ImgWithCaption alt="RFC decision flowchart" source="img/writing-rfcs/rfc-flowchart.png" />
+<ImgWithCaption alt="RFC decision flowchart" source="img/blog/2023-12-05-writing-rfcs/rfc-flowchart.png" />
 
 ## It sounds useful. But what’s in it for me?
 
@@ -72,13 +72,13 @@ Let’s now go over each of these and see what they look like in practice, on ou
 
 ## Metadata ⌗
 
-<ImgWithCaption alt="RFC metadata" source="img/writing-rfcs/rfc-metadata.png" />
+<ImgWithCaption alt="RFC metadata" source="img/blog/2023-12-05-writing-rfcs/rfc-metadata.png" />
 
 This one is pretty self-explanatory - you will want to track some basic info about your RFCs - status, date of creation, etc.
 
 Some templates also explicitly list the reviewers and the status of their “approval” of the RFC, similar to the PR review process - we don’t have it since we’re a small team where communication happens fast, but it can be handy for larger teams where not everybody knows everybody, and you want to have a bit more of a process in place (e.g. when mentoring junior developers).
 
-<ImgWithCaption alt="RFC reviewer status" source="img/writing-rfcs/rfc-reviewer-status-example.png" caption="Some RFCs require explicit approval by each reviewer." />
+<ImgWithCaption alt="RFC reviewer status" source="img/blog/2023-12-05-writing-rfcs/rfc-reviewer-status-example.png" caption="Some RFCs require explicit approval by each reviewer." />
 
 ## The problem 🤔
 
@@ -86,7 +86,7 @@ This is where things get interesting. **The better you define the problem or the
 
 By doing this, you will also very likely get first hints and pointers on the possible solutions, and develop a rough sense of the problem space you’re in.
 
-<ImgWithCaption alt="RFC problem definition" source="img/writing-rfcs/rfc-problem.png" />
+<ImgWithCaption alt="RFC problem definition" source="img/blog/2023-12-05-writing-rfcs/rfc-problem.png" />
 
 Here are a few tips from the example above:
 
@@ -117,7 +117,7 @@ It’s better to start at the higher level, and then go deeper when you realize 
 
 ### Find out how are others doing it
 
-<ImgWithCaption alt="See what others are doing" source="img/writing-rfcs/existing-solutions.png" />
+<ImgWithCaption alt="See what others are doing" source="img/blog/2023-12-05-writing-rfcs/existing-solutions.png" />
 
 How you find this out may differ depending on the type of product you’re developing, but there is almost always a way to do it. If you’re developing an open-source tool like [Wasp](https://github.com/wasp-lang/wasp) you can simply check out other popular solutions (that are also open-source) and learn how they did it. If you’re working on a SaaS and need to figure out whether to use cookies or JWTs for the authentication, you likely have some friends who have done it before, and you can ask them. Lastly, simply Google/GPT it.
 
