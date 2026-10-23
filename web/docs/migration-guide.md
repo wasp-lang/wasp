@@ -29,7 +29,11 @@ In development, setting the ports manually in the env vars or the Vite config no
 
 ### 1. Upgrade Node.js to 24.22.1 or later
 
-Wasp 0.26.1 requires Node.js >= 24.22.1 (previously >= 24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). Make sure to upgrade before continuing:
+Wasp 0.26.1 requires Node.js >= 24.22.1 (previously >= 24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
+
+The most severe one is a remote code execution bug in Node.js's Brotli decoder (CVE-2026-111497). If you deploy with the Dockerfile Wasp generates, rebuilding with Wasp 0.26.1 also moves your server image to `node:24.22.1-alpine3.23`. If you use a custom Dockerfile or a platform that picks its own Node.js version, make sure it runs 24.22.1 or newer.
+
+Make sure to upgrade before continuing:
 
 ```shell
 node -v
