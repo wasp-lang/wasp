@@ -27,7 +27,7 @@ In development, setting the ports manually in the env vars or the Vite config no
 
 ## How to migrate?
 
-### 1. Upgrade Node.js to 24.22.1 or later
+### 1. Upgrade Node.js to 24.22.1 or later {#upgrade-nodejs}
 
 Wasp 0.26.1 requires Node.js >= 24.22.1 (previously >= 24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
 
