@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/spec",
-  "version": "0.26.0",
+  "version": "0.26.1",
   "type": "module",
   "description": "Wasp Spec definitions",
   "repository": {
@@ -19,7 +19,7 @@
   "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
   "license": "MIT",
   "engines": {
-    "node": ">=24.14.1"
+    "node": ">=24.22.1"
   },
   "bin": {
     "__internal_wasp_spec__": "dist/src/run.js"
