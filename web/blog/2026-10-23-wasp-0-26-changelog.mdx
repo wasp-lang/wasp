@@ -1,0 +1,177 @@
+---
+title: "Wasp 0.26: parallel worktrees, wasp show, docs updates, and safer auth defaults"
+title_meta: "Wasp 0.26: parallel worktrees for coding agents"
+authors: [viborc]
+image: /img/wasp-0-26-changelog/banner.webp
+tags: [wasp, update, changelog, ai agents, webdev]
+keywords:
+  [
+    "wasp 0.26",
+    "wasp release",
+    "wasp changelog",
+    "git worktrees coding agents",
+    "run multiple dev servers in parallel",
+    "parallel coding agents",
+    "wasp start ports",
+    "wasp show spec",
+    "wasp docs structure",
+    "wasp auth password reset",
+    "full-stack react node framework",
+  ]
+description: "Wasp 0.26 gives each app its own set of ports, so each coding agent can run your app in its own Git worktree. It also adds wasp show."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+import { WaspV1Signup } from './components/WaspV1Signup';
+
+<ImgWithCaption
+  alt="The command wasp version printing 0.26.0"
+  source="img/wasp-0-26-changelog/banner.webp"
+/>
+
+On our [road to Wasp 1.0](/blog/2026/10/20/wasp-1-0-is-coming), we are shipping incremental releases, each adding more toward our vision of Wasp as a full-stack JS/TS framework that is liked and useful for humans and agents alike.
+
+Wasp 0.26 is out.
+
+This release lets you run several Wasp apps on one machine at once, so each coding agent can work in its own worktree.
+
+Additionally, each app in a parallel worktree now gets its own set of ports, auth flows are getting safer defaults, the docs structure has been revamped, and `wasp show` now prints your app as Wasp sees it.
+
+More on these below, so let’s dive in! 🐝
+
+{/* truncate */}
+
+## Parallel worktrees, ports and AI-assisted dev friendliness
+
+When you run several coding agents like Claude Code or Codex in parallel, a common setup is to give each one its own Git worktree. Until this release, only one of those worktrees could run your app.
+
+That’s because `wasp start` would always use the fixed ports `3000` and `3001`, and `wasp start db` would always use `5432`.
+
+In reality, users ran multiple instances and port clashing was a real issue: `wasp start db`, for example, would simply give up when `5432` was taken. So now, `wasp start` picks the first available ports on its own. It’ll start with `3000` and `3001` as before and then work its way up. Similarly, `wasp start db` will do the same, starting at `5432`, and `wasp start` will then find the port your database ended up on.
+
+This also means that each agent can get its own DB instance and can avoid the hassle of sharing the data.
+
+Once you’ve created a new worktree, to set it up, you can just run `wasp install` and copy your `.env` files. If your `.env.server` has a `DATABASE_URL`, leave it out, so the worktree gets its own dev database instead of the shared one. Then start the database in one terminal and the app in another:
+
+```bash
+# Terminal 1: keeps the database running
+wasp start db
+```
+
+```bash
+# Terminal 2
+wasp db migrate-dev
+wasp start
+```
+
+If you need a fixed port, that’s also possible and you can pass `--client-port`, `--server-port` or `--db-port` values. A special h/t to our community contributor for the last one, [@Nihal-Ahamed-MS](https://github.com/Nihal-Ahamed-MS).
+
+Also, Wasp now manages your dev ports and URLs, so if you set `WASP_SERVER_URL` or `WASP_WEB_CLIENT_URL` in `.env.server`, `REACT_APP_API_URL` in `.env.client`, or `server.port` in `vite.config.ts` manually, it will now fail.
+
+We explain more and what to remove in [our migration guide to 0.26](https://wasp.sh/docs/0.26/migration-guide).
+
+And your coding agent can benefit from the same setup - you can just prompt it to start the app in its own worktree and check the changes it’s making there, while your app can stay open and running in another one.
+
+To upgrade, run the following:
+
+```bash
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+We also suggest you take a look at [our worktree guide](/docs/advanced/git-worktrees#running-worktrees-at-the-same-time) and if you get stuck or want to share your experiences with us, drop by [our Discord server](https://discord.gg/PjSTK4Mz4n).
+
+## The `wasp show` command
+
+We’ve seen users having very large Wasp app’s spec files and others have had specs spanning multiple other files making it difficult to see all your routes or queries in one place.
+
+We changed that by introducing `wasp show spec` command. Running it will now print out your app the same way Wasp sees it - all your pages, routes, entities, actions, queries, APIs, CRUDs and even jobs.
+
+```bash
+$ wasp show spec
+...
+Routes
+  Name         Path     Destination  Loading
+  LoginRoute   /login   LoginPage    Lazy
+  RootRoute    /        MainPage     Lazy
+  SignupRoute  /signup  SignupPage   Lazy
+
+Queries
+  Name      Import                             Entities
+  getTasks  { getTasks } from "./src/queries"  Task
+ ...
+```
+
+If you want to see more information about your last build, you can run `wasp show build`.
+
+Just remember to run both of these commands in your project folder and if you want the output in a more structured way, just add `--json` and get it like that.
+
+The new wasp show replaces our older wasp info so if you depend on it and your code gets the value from it, switch it to `wasp show build --json` and then read the value from `lastCompile.waspVersion`.
+
+And, again, agents will benefit from this structured output, too. You can quickly ask them which pages require auth or which queries and actions use a specific entity before changing that entity, avoiding conflicts and issues down the road.
+
+You can find both commands in our [CLI reference](/docs/advanced/cli#project-commands).
+
+## Improved docs structure
+
+<ImgWithCaption
+  alt="The six sections of the Wasp 0.26 docs sidebar: Getting started, Tutorial, Features, Advanced, Deployment and Migration guides"
+  source="img/wasp-0-26-changelog/docs-sidebar-0-26.webp"
+  caption="The new docs sidebar in Wasp 0.26"
+/>
+
+We improved our [docs](/docs) structure significantly as well.
+
+In our previous version, 0.25, we had 11 top-level sections like Data Model, Project Setup or Miscellaneous. In 0.26 we regrouped them so it’s faster to find a page when you know what you are looking for.
+
+The structure is now streamlined to 6 sections: Getting started, Tutorial, Features, Advanced, Deployment, and Migration guides.
+
+We also shortened the names of numerous pages - for example, Custom HTTP API Endpoints is now just API routes.
+
+Older links still work, all the newly moved pages redirect correctly, and the older docs keep their structure. Agents will also see the same structure since our [llms.txt](https://wasp.sh/llms.txt) files follow the new sidebar.
+
+## Safer auth defaults
+
+Our users trust Wasp when it comes to auth - we make all those flows for you, so figuring out any issues and polishing some rough edges is our job. In 0.26 we are fixing several of those.
+
+When you reset your password now, the account will be logged out on every device. Password reset will check the token before the new password, so someone without a valid link can’t probe your password rules.
+
+Also, the resend limit for verification emails will now check the time when the last verification email went out, and not the last password reset email.
+
+We also improved how we are handling more global and internationalized addresses like `jürgen@münchen.de` or those written in UPPERCASE. Additionally, `onBeforeSignup` now runs before `userSignupFields` for every supported signup method.
+
+All this ships by default in 0.26 and no changes are needed from your side. The only thing that could possibly break your e2e tests is that email fields now use `type="text"`, so select them with `input[name="email"]` instead of `input[type="email"]` if those were part of your testing scripts.
+
+You can read more in our [auth docs](/docs/features/auth/overview).
+
+## On our road to Wasp 1.0
+
+Before we get to the upgrade details: as we said at the top, we're on our [road to Wasp 1.0](/blog/2026/10/20/wasp-1-0-is-coming). If you want to know the moment it lands, leave your email below and we'll let you know.
+
+<WaspV1Signup source="Blog: Wasp 0.26 changelog" />
+
+## Before you upgrade
+
+With 0.26, we have introduced some more breaking changes. Our [0.26 migration guide](https://wasp.sh/docs/0.26/migration-guide) covers most of them, but here are a few for your reference.
+
+- Wasp now type-checks your code directly when it compiles, so `wasp compile`, `wasp start` and `wasp build` stop on TypeScript errors. It checked your code before too, so most apps won't see new errors. If you get any, fix them before you continue.
+- `tsconfig.src.json` needs an update, and custom Dockerfiles must copy the generated `types` directory.
+- Deployed servers now need a `PORT` environment variable.
+- The server's liveness check moved from `GET /` to `GET /up`. Point your health checks at `/up`.
+- The database flags of `wasp deploy fly` now start with `db-`, for example `--db-vm-size`. Fly CLI 0.4.82 and Railway CLI 5.28.0 are the new minimum versions.
+- Internal server-only import paths moved under `wasp/server/...`. If your app imported one, switch to a documented import such as `wasp/server/auth`.
+
+## Full list of changes and improvements
+
+- Custom APIs now support the `PATCH` and `HEAD` methods.
+- New Fly.io and Railway databases now use PostgreSQL 18. `wasp deploy fly` also has new `--db-vm-memory`, `--db-vm-cpus` and `--db-vm-cpu-kind` options.
+- You can now change more of `tsconfig.src.json`, such as `strict`, `target` and `lib`.
+- `Link` and `NavLink` now accept the same `search` values as `routes.X.build`, and `wasp/client/router` exports `LinkProps` and `NavLinkProps`.
+- New projects no longer open the browser on `wasp start`.
+- We fixed Wasp commands in projects with many files under `src/`. Previously, they could fail with "Too many open files".
+- We fixed `wasp start` and `wasp db` commands that hung in some edge cases.
+- We fixed TypeScript incremental builds. Previously, they could miss updated types.
+- The compiler now escapes user input in the code it generates.
+- We fixed Railway databases created with `--db-image`. Previously, they had no persistent volume. Existing databases are unchanged.
+- We upgraded the internal `morgan` package to fix three CVEs. Wasp's usage was not affected.
+
+The full list is in the [GitHub release notes](https://github.com/wasp-lang/wasp/releases/tag/v0.26.0).
