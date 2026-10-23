@@ -91,5 +91,7 @@ We use `playwright` for e2e tests.
 Run the e2e tests with:
 
 ```sh
-npm run test
+npm run test:e2e
 ```
+
+`npm run test` runs both the unit tests and the e2e tests.

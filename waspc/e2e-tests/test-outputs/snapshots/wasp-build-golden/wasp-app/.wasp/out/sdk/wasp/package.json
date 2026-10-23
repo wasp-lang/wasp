@@ -2,18 +2,13 @@
   "dependencies": {
     "@prisma/client": "6.19.3",
     "@tanstack/react-query": "~4.42.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.1",
     "@vitejs/plugin-react": "^6.0.3",
-    "@vitest/ui": "^4.1.9",
     "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.27.0.tgz",
     "@wasp.sh/lib-sdk-core": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz",
     "@wasp.sh/lib-test-utils": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz",
     "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz",
     "express": "~5.1.0",
-    "jsdom": "^27.4.0",
     "ky": "^2.0.0",
-    "msw": "^2.12.7",
     "prisma": "6.19.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
@@ -46,7 +41,6 @@
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",
     "./client/test": "./dist/client/test/index.js",
-    "./client/test/setup": "./dist/client/test/setup.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     "./core/serialization": "./dist/core/serialization/index.js",
@@ -72,13 +66,13 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
+    "./test": "./dist/test/index.js",
     "./types": "./dist/types/index.js"
   },
   "license": "ISC",
   "name": "wasp",
   "peerDependencies": {
-    "vite": "^8.1.0",
-    "vitest": "^4.1.9"
+    "vite": "^8.1.0"
   },
   "private": true,
   "scripts": {

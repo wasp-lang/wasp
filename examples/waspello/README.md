@@ -40,7 +40,7 @@ Copy `env.server` to `.env.server` and fill in the values.
 Waspello uses Playwright for e2e tests. Run them with:
 
 ```sh
-npm run test
+npm run test:e2e
 ```
 
 The e2e suite lives in `e2e-tests/` and is also what CI runs on every PR.

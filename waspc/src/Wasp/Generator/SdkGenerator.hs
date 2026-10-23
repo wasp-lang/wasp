@@ -44,7 +44,6 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
     viteVersionRange,
-    vitestVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -113,9 +112,9 @@ genSdk spec =
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|server/index.ts|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/index.ts|],
+      C.genFileCopy [relfile|client/test/index.ts|],
+      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
@@ -212,7 +211,6 @@ npmDepsForSdk spec =
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
-          ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEnvValidation
           ++ waspLibsNpmDeps,
@@ -227,26 +225,15 @@ npmDepsForSdk spec =
             ("@types/react-dom", show reactDomTypesVersionRange)
           ]
           ++ devDepsRequiredByEmail spec,
-      -- The SDK imports these at runtime, but they must be the same instances
-      -- the user's project uses, so the user's package.json provides them.
+      -- The SDK imports `vite` at runtime, but it must be the same instance
+      -- the user's project uses, so the user's package.json provides it.
       N.peerDependencies =
         Npm.Dependency.fromList
-          [ ("vite", show viteVersionRange),
-            ("vitest", show vitestVersionRange)
+          [ ("vite", show viteVersionRange)
           ]
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
-
-depsRequiredForTesting :: [Npm.Dependency.Dependency]
-depsRequiredForTesting =
-  Npm.Dependency.fromList
-    [ ("@vitest/ui", "^4.1.9"),
-      ("jsdom", "^27.4.0"),
-      ("@testing-library/react", "^16.3.1"),
-      ("@testing-library/jest-dom", "^6.9.1"),
-      ("msw", "^2.12.7")
-    ]
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =

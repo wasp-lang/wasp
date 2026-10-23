@@ -84,7 +84,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm test
+        run: npm run test:e2e
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
@@ -188,7 +188,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm test
+        run: npm run test:e2e
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project

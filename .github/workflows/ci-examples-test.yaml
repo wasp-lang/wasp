@@ -41,9 +41,9 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         run: wasp-cli compile
 
-      - name: Run client tests for ${{ matrix.example }}
+      - name: Run unit tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
-        run: wasp-cli test client run --passWithNoTests
+        run: npm run test:unit --if-present
 
       - name: Setup project environment for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
@@ -69,7 +69,7 @@ jobs:
           WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
-        run: npm run test
+        run: npm run test:e2e
 
       - name: Run BUILD e2e tests for ${{ matrix.example }}
         # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
@@ -79,4 +79,4 @@ jobs:
           WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
-        run: npm run test
+        run: npm run test:e2e

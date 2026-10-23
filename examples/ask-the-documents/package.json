@@ -8,7 +8,8 @@
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server",
-    "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
+    "test": "npm run test:e2e",
+    "test:e2e": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
     "test:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}"
   },
   "dependencies": {
@@ -36,7 +37,6 @@
     "@wasp.sh/wasp-app-runner": "^0.0.18",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
-    "vite": "^8.1.0",
-    "vitest": "^4.1.9"
+    "vite": "^8.1.0"
   }
 }
