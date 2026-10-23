@@ -20,6 +20,13 @@ export function validateEnv(
     },
     // We validate just before any artifacts are built.
     async buildStart() {
+      // Vitest only passes the test's env variables (`test.env`) to the test
+      // workers, not to this server. The env module still validates them when
+      // the tests import it.
+      if (process.env["VITEST"]) {
+        return;
+      }
+
       // We need to import the client env schema validation module
       // through a Vite server, because both the user and the Wasp schema
       // modules may depend on bundler features.
@@ -40,6 +47,12 @@ export function validateEnv(
           // Ignore `vite:`-prefixed plugins since Vite will recreate them for
           // the temporary server anyway.
           .filter((plugin) => !plugin.name.startsWith("vite:"))
+
+          // Ignore Vitest plugins since validation doesn't need them, and some
+          // of them keep the resolved config in a closure. Running their
+          // `configResolved` hook for the temporary server would overwrite
+          // the config of the main one.
+          .filter((plugin) => !plugin.name.startsWith("vitest"))
 
           // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
           // wire long-lived behavior into a dev or preview server: middleware,

@@ -3,7 +3,7 @@ import { serialize } from "../../core/serialization/index.js";
 import { config } from "../config.js";
 
 // PUBLIC API
-export { renderInContext } from "@wasp.sh/lib-test-utils";
+export { renderInContext, WaspTestWrapper } from "@wasp.sh/lib-test-utils";
 
 // PUBLIC API
 /**

@@ -5,6 +5,9 @@ import { wasp } from "wasp/client/vite";
 export default defineConfig({
   plugins: [wasp(), tailwindcss()],
   test: {
-    exclude: ["./e2e-tests/**"],
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
   },
 });

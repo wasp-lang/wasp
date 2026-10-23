@@ -1,385 +1,278 @@
 ---
 title: Testing Wasp client code with Vitest
 sidebar_label: Testing
-description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, run them with wasp test client, and mock queries and APIs.
+description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, and mock queries and APIs.
 ---
 
 # Testing
 
-:::info
-Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly some changes with testing support in the future. If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
-:::
+Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/).
 
-## Testing Your React App
+## Setting up Vitest for client tests
 
-Wasp enables you to quickly and easily write both unit tests and React component tests for your frontend code. Because Wasp uses [Vite](https://vitejs.dev/), we support testing web apps through [Vitest](https://vitest.dev/).
+### Installing the packages
 
-Make sure your `devDependencies` include the Vitest dependency. Wasp starters come with Vitest included:
+Install Vitest and the libraries for testing React components:
+
+```bash
+npm install -D vitest jsdom@29 @testing-library/react @testing-library/jest-dom msw
+```
+
+- [`vitest`](https://vitest.dev/): the test runner.
+- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests. Version 29 supports all Node.js versions Wasp supports, while version 30 needs Node.js 24.15 or newer.
+- [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
+- [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
+- [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
+
+### Configuring Vitest
+
+Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it, built with Wasp's `waspTestConfig` helper:
+
+```ts title="vite.config.ts" auto-js
+// highlight-next-line
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+// highlight-next-line
+import { waspTestConfig } from "wasp/test";
+
+export default defineConfig({
+  plugins: [wasp()],
+  // highlight-start
+  test: waspTestConfig({
+    setupFiles: ["./src/test/setup.ts"],
+  }),
+  // highlight-end
+});
+```
+
+`waspTestConfig` sets the Vitest options a Wasp app needs, so Vitest:
+
+- runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`),
+- runs them in `jsdom`, a simulated browser, so your components can render,
+- gives your client code a placeholder server URL, since your tests mock the server instead of running it.
+
+The options you pass to `waspTestConfig` are regular [Vitest options](https://vitest.dev/config/), and they override Wasp's. Here, `setupFiles` runs `src/test/setup.ts` before each test file. Create it:
+
+```ts title="src/test/setup.ts" auto-js
+import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+afterEach(() => {
+  cleanup();
+});
+```
+
+It prepares every test file in two ways:
+
+- It adds matchers for checking the page, like `expect(button).toBeInTheDocument()`.
+- It removes what a test rendered when the test ends, so the next test starts with an empty page.
+
+### Running your tests
+
+Add a script for running your tests to your `package.json`:
 
 ```json title="package.json"
 {
-  "devDependencies": {
-    "vitest": "^4.1.9"
+  "scripts": {
+    "test": "vitest"
   }
 }
 ```
 
-<details>
-  <summary>Testing Libraries</summary>
+Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app.
+Keep `wasp start` running in one terminal, and run your tests in another:
 
-  <div>
-    [`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support.
+```sh
+npm test
+```
 
-    [`@vitest/ui`](https://www.npmjs.com/package/@vitest/ui): A nice UI for seeing your test results.
+Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `wasp compile` before running the tests:
 
-    [`jsdom`](https://www.npmjs.com/package/jsdom): A web browser test environment for Node.js.
+```sh
+wasp compile
+npm test
+```
 
-    [`@testing-library/react`](https://www.npmjs.com/package/@testing-library/react) / [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom): Testing helpers.
+### Running tests visually
 
-    [`msw`](https://www.npmjs.com/package/msw): A server mocking library.
-  </div>
-</details>
+Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in the browser. Install it and start Vitest with it:
 
-### Writing Tests
+```sh
+npm install -D @vitest/ui
+npx vitest --ui
+```
 
-For Wasp to pick up your tests, they should be placed within the `src` directory and use an extension that matches [these glob patterns](https://vitest.dev/config#include). Some of the file names that Wasp will pick up as tests:
+## Testing your client code
 
-- `yourFile.test.ts`
-- `YourComponent.spec.jsx`
+### Testing plain functions
 
-Within test files, you can import your other source files as usual. For example, if you have a component `Counter.jsx`, you test it by creating a file in the same directory called `Counter.test.jsx` and import the component with `import Counter from './Counter'`.
+Functions that don't render components or call your server (through queries, actions, or APIs) need no extra setup. Import them and test them like in any other project:
 
-### Running Tests
+```ts title="src/tasks/helpers.ts" auto-js
+import type { Task } from "wasp/entities";
 
-Running `wasp test client` will start Vitest in watch mode and recompile your Wasp project when changes are made.
+export function areThereAnyTasks(tasks: Task[]): boolean {
+  return tasks.length !== 0;
+}
+```
 
-- If you want to see a real-time UI, pass `--ui` as an option.
-- To run the tests just once, use `wasp test client run`.
+```ts title="src/tasks/helpers.test.ts" auto-js
+import { expect, test } from "vitest";
+import { areThereAnyTasks } from "./helpers";
 
-All arguments after `wasp test client` are passed directly to the Vitest CLI, so check out [their documentation](https://vitest.dev/guide/cli.html) for all of the options.
+test("areThereAnyTasks", () => {
+  expect(areThereAnyTasks([])).toBe(false);
+});
+```
 
-:::warning Be Careful
-You should not run `wasp test` while `wasp start` is running. Both will try to compile your project to `.wasp/out`.
-:::
+### Testing components
 
-### React Testing Helpers
+Wasp wraps every page of your app in providers: React Query for queries and actions, and React Router for links.
+A component that uses queries, actions, or links fails to render without them.
 
-Wasp provides several functions to help you write React tests:
+`renderInContext` from `wasp/client/test` renders a component inside the same providers:
 
-- `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it. This is the function you should use to render components in your React component tests.
+```tsx title="src/tasks/TasksHeader.tsx" auto-js
+import { Link } from "wasp/client/router";
 
-  ```js
-  import { renderInContext } from "wasp/client/test";
+export function TasksHeader() {
+  return (
+    <div>
+      <h1>Your tasks</h1>
+      <Link to="/">Back home</Link>
+    </div>
+  );
+}
+```
 
-  renderInContext(<MainPage />);
-  ```
+```tsx title="src/tasks/TasksHeader.test.tsx" auto-js
+import { screen } from "@testing-library/react";
+import { expect, test } from "vitest";
+import { renderInContext } from "wasp/client/test";
+import { TasksHeader } from "./TasksHeader";
 
-- `mockServer`: Sets up the mock server and returns an object containing the `mockQuery` and `mockApi` utilities. This should be called outside of any test case, in each file that wants to use those helpers.
+test("links back home", () => {
+  renderInContext(<TasksHeader />);
 
-  ```js
-  import { mockServer } from "wasp/client/test";
+  expect(screen.getByRole("link", { name: "Back home" })).toBeInTheDocument();
+});
+```
 
-  const { mockQuery, mockApi } = mockServer();
-  ```
+### Mocking your queries
 
-  - `mockQuery`: Takes a Wasp [query](../features/data/operations/queries) to mock and the JSON data it should return.
+A component that calls `useQuery` sends a request to your server. To test the component without running the server, mock the query's response.
 
-    ```js
-    import { getTasks } from "wasp/client/operations";
+Call `mockServer` once at the top of your test file. It starts a mock server for the file and returns `mockQuery`, which takes a query and the data it should return:
 
-    mockQuery(getTasks, []);
-    ```
+```tsx title="src/tasks/TaskList.tsx" auto-js
+import { getTasks, useQuery } from "wasp/client/operations";
 
-    - Helpful when your component uses `useQuery`.
-    - Behind the scenes, Wasp uses [`msw`](https://npmjs.com/package/msw) to create a server request handle that responds with the specified data.
-    - Mock are cleared between each test.
+export function TaskList() {
+  const { data: tasks } = useQuery(getTasks);
 
-  - `mockApi`: Similar to `mockQuery`, but for [APIs](../features/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
+  return (
+    <ul>
+      {tasks?.map((task) => (
+        <li key={task.id}>
+          <input type="checkbox" checked={task.isDone} readOnly />
+          {task.description}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
 
-    ```js
-    import { HttpMethod } from "wasp/client";
+```tsx title="src/tasks/TaskList.test.tsx" auto-js
+import { screen } from "@testing-library/react";
+import { expect, test } from "vitest";
+import { getTasks } from "wasp/client/operations";
+import { mockServer, renderInContext } from "wasp/client/test";
+import { TaskList } from "./TaskList";
 
-    mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
-    ```
+const { mockQuery } = mockServer();
 
-## Testing Your Server-Side Code
+test("shows the tasks", async () => {
+  mockQuery(getTasks, [
+    { id: 1, description: "Buy milk", isDone: true, userId: 1 },
+  ]);
 
-Wasp currently does not provide a way to test your server-side code, but we will be adding support soon. You can track the progress at [this GitHub issue](https://github.com/wasp-lang/wasp/issues/110) and express your interest by commenting.
+  renderInContext(<TaskList />);
 
-## Examples
+  await screen.findByText("Buy milk");
+  expect(screen.getByRole("checkbox")).toBeChecked();
+});
+```
 
-You can see some tests in a Wasp project [here](https://github.com/wasp-lang/wasp/blob/release/waspc/examples/todoApp/src/pages/auth/helpers.test.ts).
+`mockServer` resets the mocks after each test, so every test mocks the data it needs.
 
-### Client Unit Tests
+### Mocking your APIs
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/helpers.js"
-    export function areThereAnyTasks(tasks) {
-      return tasks.length !== 0;
-    }
-    ```
+If your component calls one of your [APIs](../features/apis.md), mock the API with `mockApi`. It takes the API's HTTP method and path, and the JSON it should respond with:
 
-    ```js title="src/helpers.test.js"
-    import { test, expect } from "vitest";
+```tsx title="src/tasks/TaskStats.tsx" auto-js
+import { useEffect, useState } from "react";
+import { api } from "wasp/client/api";
 
-    import { areThereAnyTasks } from "./helpers";
+export function TaskStats() {
+  const [doneTasks, setDoneTasks] = useState<number>();
 
-    test("areThereAnyTasks", () => {
-      expect(areThereAnyTasks([])).toBe(false);
-    });
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/helpers.ts"
-    import { type Task } from "wasp/entities";
-
-    export function areThereAnyTasks(tasks: Task[]): boolean {
-      return tasks.length !== 0;
-    }
-    ```
-
-    ```ts title="src/helpers.test.ts"
-    import { test, expect } from "vitest";
-
-    import { areThereAnyTasks } from "./helpers";
-
-    test("areThereAnyTasks", () => {
-      expect(areThereAnyTasks([])).toBe(false);
-    });
-    ```
-  </TabItem>
-</Tabs>
-
-### React Component Tests
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/Todo.jsx"
-    import { useQuery, getTasks } from "wasp/client/operations";
-
-    const Todo = (_props) => {
-      const { data: tasks } = useQuery(getTasks);
-      return (
-        <ul>
-          {tasks &&
-            tasks.map((task) => (
-              <li key={task.id}>
-                <input type="checkbox" checked={task.isDone} />
-                {task.description}
-              </li>
-            ))}
-        </ul>
-      );
-    };
-    ```
-
-    ```js title="src/Todo.test.jsx"
-    import { test, expect } from "vitest";
-    import { screen } from "@testing-library/react";
-
-    import { mockServer, renderInContext } from "wasp/client/test";
-    import { getTasks } from "wasp/client/operations";
-    import Todo from "./Todo";
-
-    const { mockQuery } = mockServer();
-
-    const mockTasks = [
-      {
-        id: 1,
-        description: "test todo 1",
-        isDone: true,
-        userId: 1,
-      },
-    ];
-
-    test("handles mock data", async () => {
-      mockQuery(getTasks, mockTasks);
-
-      renderInContext(<Todo />);
-
-      await screen.findByText("test todo 1");
-
-      expect(screen.getByRole("checkbox")).toBeChecked();
-
-      screen.debug();
-    });
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/Todo.tsx"
-    import { useQuery, getTasks } from "wasp/client/operations";
-
-    const Todo = (_props: {}) => {
-      const { data: tasks } = useQuery(getTasks);
-
-      return (
-        <ul>
-          {tasks &&
-            tasks.map((task) => (
-              <li key={task.id}>
-                <input type="checkbox" checked={task.isDone} />
-                {task.description}
-              </li>
-            ))}
-        </ul>
-      );
-    };
-    ```
-
-    ```tsx title="src/Todo.test.tsx"
-    import { test, expect } from "vitest";
-    import { screen } from "@testing-library/react";
-
-    import { mockServer, renderInContext } from "wasp/client/test";
-    import { getTasks } from "wasp/client/operations";
-    import Todo from "./Todo";
-
-    const { mockQuery } = mockServer();
-
-    const mockTasks = [
-      {
-        id: 1,
-        description: "test todo 1",
-        isDone: true,
-        userId: 1,
-      },
-    ];
-
-    test("handles mock data", async () => {
-      mockQuery(getTasks, mockTasks);
-
-      renderInContext(<Todo />);
-
-      await screen.findByText("test todo 1");
-
-      expect(screen.getByRole("checkbox")).toBeChecked();
-
-      screen.debug();
-    });
-    ```
-  </TabItem>
-</Tabs>
-
-### Testing With Mocked APIs
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/Todo.jsx"
-    import { api } from "wasp/client/api";
-
-    const Todo = (_props) => {
-      const [tasks, setTasks] = useState([]);
-      useEffect(() => {
-        api.get("/tasks").json()
-          .then((tasks) => setTasks(tasks))
-          .catch((err) => window.alert(err));
-      });
-
-      return (
-        <ul>
-          {tasks &&
-            tasks.map((task) => (
-              <li key={task.id}>
-                <input type="checkbox" checked={task.isDone} />
-                {task.description}
-              </li>
-            ))}
-        </ul>
-      );
-    };
-    ```
-
-    ```jsx title="src/Todo.test.jsx"
-    import { test, expect } from "vitest";
-    import { screen } from "@testing-library/react";
-
-    import { mockServer, renderInContext } from "wasp/client/test";
-    import Todo from "./Todo";
-
-    const { mockApi } = mockServer();
-
-    const mockTasks = [
-      {
-        id: 1,
-        description: "test todo 1",
-        isDone: true,
-        userId: 1,
-      },
-    ];
-
-    test("handles mock data", async () => {
-      mockApi("/tasks", { res: mockTasks });
-
-      renderInContext(<Todo />);
-
-      await screen.findByText("test todo 1");
-
-      expect(screen.getByRole("checkbox")).toBeChecked();
-
-      screen.debug();
-    });
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/Todo.tsx"
-    import { type Task } from "wasp/entities";
-    import { api } from "wasp/client/api";
-
-    const Todo = (_props: {}) => {
-      const [tasks, setTasks] = useState<Task>([]);
-      useEffect(() => {
-        api.get("/tasks").json<Task[]>()
-          .then((tasks) => setTasks(tasks))
-          .catch((err) => window.alert(err));
-      });
-
-      return (
-        <ul>
-          {tasks &&
-            tasks.map((task) => (
-              <li key={task.id}>
-                <input type="checkbox" checked={task.isDone} />
-                {task.description}
-              </li>
-            ))}
-        </ul>
-      );
-    };
-    ```
-
-    ```tsx title="src/Todo.test.tsx"
-    import { test, expect } from "vitest";
-    import { screen } from "@testing-library/react";
-
-    import { mockServer, renderInContext } from "wasp/client/test";
-    import Todo from "./Todo";
-
-    const { mockApi } = mockServer();
-
-    const mockTasks = [
-      {
-        id: 1,
-        description: "test todo 1",
-        isDone: true,
-        userId: 1,
-      },
-    ];
-
-    test("handles mock data", async () => {
-      mockApi("/tasks", mockTasks);
-
-      renderInContext(<Todo />);
-
-      await screen.findByText("test todo 1");
-
-      expect(screen.getByRole("checkbox")).toBeChecked();
-
-      screen.debug();
-    });
-    ```
-  </TabItem>
-</Tabs>
+  useEffect(() => {
+    api
+      .get("/stats")
+      .json<{ doneTasks: number }>()
+      .then((stats) => setDoneTasks(stats.doneTasks));
+  }, []);
+
+  return <p>{doneTasks} tasks done</p>;
+}
+```
+
+```tsx title="src/tasks/TaskStats.test.tsx" auto-js
+import { screen } from "@testing-library/react";
+import { test } from "vitest";
+import { HttpMethod } from "wasp/client";
+import { mockServer, renderInContext } from "wasp/client/test";
+import { TaskStats } from "./TaskStats";
+
+const { mockApi } = mockServer();
+
+test("shows the stats", async () => {
+  mockApi({ method: HttpMethod.Get, path: "/stats" }, { doneTasks: 3 });
+
+  renderInContext(<TaskStats />);
+
+  await screen.findByText("3 tasks done");
+});
+```
+
+## API reference
+
+`wasp/test` exports the helper for your Vitest config:
+
+- `waspTestConfig(options?)`
+
+  Returns Vitest's `test` options with the defaults a Wasp app needs: `environment: "jsdom"`, test files in `src`, and a placeholder `REACT_APP_API_URL` in `env`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults, and the variables you pass in `env` are added to Wasp's.
+
+`wasp/client/test` exports the helpers for your tests:
+
+- `renderInContext(ui, options?)`
+
+  Renders a React element inside the providers Wasp's client code needs. It takes the same options as [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#render), except `wrapper`, and returns the same result.
+
+- `mockServer()`
+
+  Starts an [MSW](https://mswjs.io/) server for the current test file and resets its mocks after each test. Call it once, at the top level of the test file. It returns:
+
+  - `mockQuery(query, data)`: makes `query` return `data`.
+  - `mockApi(route, data)`: makes the API at `route` (an object with `method` and `path`) respond with `data` as JSON.
+  - `server`: the underlying MSW server, for mocking any other request.
+
+- `WaspTestWrapper`
+
+  The component `renderInContext` wraps your element in. Pass it as the `wrapper` option when you call [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#wrapper) or `renderHook` yourself.
+
+## Testing server code
+
+Wasp doesn't provide helpers for testing server code yet. You can follow the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
