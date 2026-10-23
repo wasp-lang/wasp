@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "7a081a214fe778c8bbfecf6ba385a7addcbff0b0ab429157aa314008d6fabcfc"
+        "43469e5922aad43e6e4c872a95517166d2c8372a0cc721da4ca5f72be3d3ed02"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "3dd144c11af85f940a8065c9705f8a59351460f902947de6eba5e90a027cfbd6"
+        "82cdb6f7ff9b4269600f67441556d671559cb1dc925fb7ce90af89b8b4b0421d"
     ],
     [
         [
@@ -341,6 +341,34 @@
             "sdk/wasp/server/env.ts"
         ],
         "074c8e95b661c3abc0e2834ed606ea69f2c23d3f2f43f69ed6427f205ad5bc0f"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/httpErrors.ts"
+        ],
+        "6934b094db57fca5233fb86bf420f36215c939fab2f59fdf45acae7610e44fa6"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/index.ts"
+        ],
+        "c371323a97a2fbbf79e6114920a4733ef3ec1a9abb37f259ad629c491c4881f3"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/unknownErrors.ts"
+        ],
+        "e7bda9eaed5c13f473fdc23129bf0dd67c87c5e9f31dfbd14166e7842bf64868"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/utils.ts"
+        ],
+        "373f67e3b554d68dc154351dd57fd98af0e443be0ca712a45b5c8713e5ecffa7"
     ],
     [
         [
@@ -501,7 +529,7 @@
             "file",
             "server/src/app.js"
         ],
-        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
+        "bd16da1d89d3b49580c7ff1e33191159bab7610e314bfcdaff7eb5653c7c862e"
     ],
     [
         [
@@ -557,7 +585,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
+        "fb7d3e5b74d6e3dbf5544f7d03d9af02e4c2de97ff6747603c1a0297ddd669cd"
     ],
     [
         [

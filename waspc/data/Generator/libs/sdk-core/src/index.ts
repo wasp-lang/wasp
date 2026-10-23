@@ -36,7 +36,11 @@ export {
 } from "./env/validation.js";
 export { getErrorMessage } from "./errors.js";
 export { HttpMethod, type Route } from "./http.js";
-export { HttpError } from "./HttpError.js";
+export {
+  HttpError,
+  type HttpErrorHeaders,
+  type HttpErrorOptions,
+} from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
 export {
   makeOperationRoute,
