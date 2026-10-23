@@ -42,9 +42,9 @@ RUN npm install && cd .wasp/out/server && npm install
 # Building the server should come after Prisma generation.
 RUN cd .wasp/out/server && npm run bundle
 
-# Depending on `npm`'s dependency resolution, this folder may or may not exist.
-# We ensure they are created so that the COPY instruction later does not fail.
-RUN mkdir -p ./.wasp/out/server/node_modules
+# Copy the bundle and only the files it needs at runtime into
+# `.wasp/out/server/production`. See `traceProductionDeps.js`.
+RUN cd .wasp/out/server && node traceProductionDeps.js
 
 
 # TODO: Use pm2?
@@ -54,15 +54,9 @@ FROM base AS server-production
 RUN apk add --no-cache python3
 ENV NODE_ENV=production
 WORKDIR /app
-# Copying the top level 'node_modules' because it contains the Prisma packages
-# necessary for migrating the database.
-COPY --from=server-builder /app/node_modules ./node_modules
-# Copying 'server/node_modules' because we require dotenv package to
-# load environment variables
-# TODO: replace dotenv with native Node.js environment variable loading
-COPY --from=server-builder /app/.wasp/out/server/node_modules .wasp/out/server/node_modules
-COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
-COPY --from=server-builder /app/.wasp/out/server/package*.json .wasp/out/server/
+# The traced output holds the bundle, a minimal `node_modules` and the
+# production `package.json`. Nothing gets installed in this stage.
+COPY --from=server-builder /app/.wasp/out/server/production .wasp/out/server
 COPY db/ .wasp/out/db/
 EXPOSE ${PORT}
 WORKDIR /app/.wasp/out/server

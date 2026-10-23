@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "8e676c12e62f04f9023161cc054b457c70d6b2ba86686088b50c96ab13e2cb3f"
+        "6ff7d93371fdd8be394ff292b29cda59bf16068951e8f4af169f7b3ad9e3fe52"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "server/package.json"
         ],
-        "beaff769ef2eb85711d8542f0f49c660a05de824a26f75122c1cce90eb45aee2"
+        "ab893713e31b352b5a3f6e02a50dc497b975f9f8109f4321ee1046b53f1cafea"
     ],
     [
         [
@@ -551,6 +551,13 @@
             "server/src/server.ts"
         ],
         "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
+    ],
+    [
+        [
+            "file",
+            "server/traceProductionDeps.js"
+        ],
+        "1c27a03d288e126f5e73c57f83c6e1c2f0b284185178910d5f85859a1243d53f"
     ],
     [
         [

@@ -78,6 +78,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
       genFileCopy [relfile|src/createRollupBundle.js|],
+      genFileCopy [relfile|traceProductionDeps.js|],
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -184,7 +185,9 @@ npmDepsFromWasp spec =
               ("@types/cors", "^2.8.5"),
               ("rollup", "^4.9.6"),
               ("rollup-plugin-esbuild", "^6.1.1"),
-              ("@rollup/plugin-node-resolve", "^16.0.0")
+              ("@rollup/plugin-node-resolve", "^16.0.0"),
+              -- Used by `traceProductionDeps.js` when building the Docker image.
+              ("nf3", "0.4.2")
             ],
         peerDependencies = []
       }
