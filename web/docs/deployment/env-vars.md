@@ -12,7 +12,7 @@ While developing our app on our machine, we had the option of using `.env.client
 
 However, when we are deploying our app, **`.env.client` and `.env.server` files will be ignored, and we need to provide env vars differently.**
 
-![Env vars usage in development and production](/img/env/prod_dev_fade_2.svg)
+![Env vars usage in development and production](/img/docs/deployment/env-vars/prod_dev_fade_2.svg)
 
 ### Client Env Vars {#client-env-vars}
 

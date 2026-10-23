@@ -32,9 +32,10 @@ export default [
       "no-empty": "warn",
       "no-constant-condition": "warn",
       "object-shorthand": "warn",
-      "no-empty-object-type": {
-        allowInterfaces: "always",
-      },
+      "@typescript-eslint/no-empty-object-type": [
+        "error",
+        { allowInterfaces: "always" },
+      ],
     },
   },
 ];

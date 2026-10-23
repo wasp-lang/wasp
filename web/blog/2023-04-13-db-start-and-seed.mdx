@@ -1,7 +1,7 @@
 ---
 title: 'Wasp steps up its database game with Fully Managed Dev DB & DB Seeding'
 authors: [martinsos]
-image: /img/db-start-and-seed/wasp-db-improvements.png
+image: /img/blog/2023-04-13-db-start-and-seed/wasp-db-improvements.png
 tags: [database, wasp, webdev, prisma]
 ---
 
@@ -17,7 +17,7 @@ Since Wasp knows so much about your database, that puts us in a good position to
 1. Wasp running the dev database for you with no config needed → **Fully Managed Dev Database** 🚀
 2. Wasp helping you to initialize the database with some data → **Db Seeding** 🌱
 
-<ImgWithCaption caption="Wasp now has `wasp start db` and `wasp db seed`!" alt="strong wasp database" source="img/db-start-and-seed/wasp-db-improvements.png" />
+<ImgWithCaption caption="Wasp now has `wasp start db` and `wasp db seed`!" alt="strong wasp database" source="img/blog/2023-04-13-db-start-and-seed/wasp-db-improvements.png" />
 
 {/* truncate */}
 
@@ -33,7 +33,7 @@ This can get tedious quickly, especially if you are visiting your Wasp project t
 
 This is where `wasp start db` comes in!
 
-<ImgWithCaption caption="wasp start db in action, running a posgtres dev db for you" alt="wasp start db running in terminal" source="img/db-start-and-seed/wasp-start-db-terminal.png" />
+<ImgWithCaption caption="wasp start db in action, running a posgtres dev db for you" alt="wasp start db running in terminal" source="img/blog/2023-04-13-db-start-and-seed/wasp-start-db-terminal.png" />
 
 Now, all you need to do to run the development database, is run `wasp start db`, and Wasp will run it for you and will know how to connect to it during development.
 
@@ -56,7 +56,7 @@ There is one big drawback to both of the approaches I mentioned above though: th
 
 This is where `wasp db seed` comes in! Now, Wasp allows you to write a JS/TS function, import any server logic (including Actions) into it as you wish, and then seed the database with it.
 
-<ImgWithCaption caption="wasp db seed in action, initializing the db with dev data" alt="wasp db seed running in terminal" source="img/db-start-and-seed/wasp-db-seed-terminal.png" />
+<ImgWithCaption caption="wasp db seed in action, initializing the db with dev data" alt="wasp db seed running in terminal" source="img/blog/2023-04-13-db-start-and-seed/wasp-db-seed-terminal.png" />
 
 Registering seed functions in Wasp is easy:
 

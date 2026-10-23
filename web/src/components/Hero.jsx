@@ -273,7 +273,7 @@ const Hero = () => {
         />
         <img
           className='w-32 md:w-[180px]'
-          src='img/lp/yc-logo.webp'
+          src='img/site/logos/yc-logo.webp'
           alt='YC'
         />
       </div>

@@ -1,0 +1,3046 @@
+[
+  {
+    "from": "/img/1000-gh-stars/1k_gh_stars_chart.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/1k_gh_stars_chart.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/first-docs.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/first-docs.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/first-hn-launch.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/first-hn-launch.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/ph-launch.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/ph-launch.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/reddit-big-break.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/reddit-big-break.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/stic-project-page.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/stic-project-page.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/wasp-cust-dev-start-and-setup.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/wasp-cust-dev-start-and-setup.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/wasp-reddit-first-post.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/wasp-reddit-first-post.png"
+  },
+  {
+    "from": "/img/1000-gh-stars/yc-hn-launch.png",
+    "to": "/img/blog/2022-09-29-journey-to-1000-gh-stars/yc-hn-launch.png"
+  },
+  {
+    "from": "/img/I-quit.gif",
+    "to": "/img/blog/2022-06-01-gitpod-hackathon-guide/I-quit.gif"
+  },
+  {
+    "from": "/img/accessible-website-excuse.jpg",
+    "to": "/img/blog/2022-09-05-dev-excuses-app-tutrial/accessible-website-excuse.jpg"
+  },
+  {
+    "from": "/img/always-has-been-copilot.png",
+    "to": "/img/blog/2022-06-24-ML-code-gen-vs-coding-by-hand-future/always-has-been-copilot.png"
+  },
+  {
+    "from": "/img/amicus-usecase/amicus-dashboard.png",
+    "to": "/img/blog/2022-11-26-erlis-amicus-usecase/amicus-dashboard.png"
+  },
+  {
+    "from": "/img/amicus-usecase/amicus-hero-shot.png",
+    "to": "/img/blog/2022-11-26-erlis-amicus-usecase/amicus-hero-shot.png"
+  },
+  {
+    "from": "/img/amicus-usecase/amicus-homepage.png",
+    "to": "/img/blog/2023-02-14-amicus-indiehacker-interview/amicus-homepage.png"
+  },
+  {
+    "from": "/img/armadajs-2024/1.webp",
+    "to": "/img/blog/2024-12-11-armadajs-2024-a-conference-that-feels-like-home/1.webp"
+  },
+  {
+    "from": "/img/armadajs-2024/2.webp",
+    "to": "/img/blog/2024-12-11-armadajs-2024-a-conference-that-feels-like-home/2.webp"
+  },
+  {
+    "from": "/img/armadajs-2024/3.webp",
+    "to": "/img/blog/2024-12-11-armadajs-2024-a-conference-that-feels-like-home/3.webp"
+  },
+  {
+    "from": "/img/armadajs-2024/4.webp",
+    "to": "/img/blog/2024-12-11-armadajs-2024-a-conference-that-feels-like-home/4.webp"
+  },
+  {
+    "from": "/img/armadajs-2024/5.webp",
+    "to": "/img/blog/2024-12-11-armadajs-2024-a-conference-that-feels-like-home/5.webp"
+  },
+  {
+    "from": "/img/armadajs-2024/6.webp",
+    "to": "/img/blog/2024-12-11-armadajs-2024-a-conference-that-feels-like-home/6.webp"
+  },
+  {
+    "from": "/img/atp/atp-apply-here.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-apply-here.png"
+  },
+  {
+    "from": "/img/atp/atp-bad-parts.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-bad-parts.png"
+  },
+  {
+    "from": "/img/atp/atp-feedback-quality.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-feedback-quality.png"
+  },
+  {
+    "from": "/img/atp/atp-feedback-survey-exp.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-feedback-survey-exp.png"
+  },
+  {
+    "from": "/img/atp/atp-good-parts.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-good-parts.png"
+  },
+  {
+    "from": "/img/atp/atp-intro-survey-yoe.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-intro-survey-yoe.png"
+  },
+  {
+    "from": "/img/atp/atp-shipment-returned-email.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-shipment-returned-email.png"
+  },
+  {
+    "from": "/img/atp/atp-shipment-returned.jpg",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-shipment-returned.jpg"
+  },
+  {
+    "from": "/img/atp/atp-usage-spike.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/atp-usage-spike.png"
+  },
+  {
+    "from": "/img/atp/swag-groups-twitter.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/swag-groups-twitter.png"
+  },
+  {
+    "from": "/img/atp/timeboxing.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/timeboxing.png"
+  },
+  {
+    "from": "/img/atp/welcome-to-atp-notion.png",
+    "to": "/img/blog/2022-11-16-alpha-testing-program-post-mortem/welcome-to-atp-notion.png"
+  },
+  {
+    "from": "/img/auth-entities/model-example.png",
+    "to": "/img/docs/features/auth/entities/model-example.png"
+  },
+  {
+    "from": "/img/auth-entities/model.png",
+    "to": "/img/docs/features/auth/entities/model.png"
+  },
+  {
+    "from": "/img/auth-hero.png",
+    "to": "/img/blog/2022-11-15-auth-feature-announcement/auth-hero.png"
+  },
+  {
+    "from": "/img/auth-hooks/email_verification_flow_with_hooks.png",
+    "to": "/img/docs/features/auth/hooks/email_verification_flow_with_hooks.png"
+  },
+  {
+    "from": "/img/auth-hooks/login_flow_with_hooks.png",
+    "to": "/img/docs/features/auth/hooks/login_flow_with_hooks.png"
+  },
+  {
+    "from": "/img/auth-hooks/oauth_flow_with_hooks.png",
+    "to": "/img/docs/features/auth/hooks/oauth_flow_with_hooks.png"
+  },
+  {
+    "from": "/img/auth-hooks/signup_flow_with_hooks.png",
+    "to": "/img/docs/features/auth/hooks/signup_flow_with_hooks.png"
+  },
+  {
+    "from": "/img/auth-ui/auth-customize-code.png",
+    "to": "/img/blog/2023-04-12-auth-ui/auth-customize-code.png"
+  },
+  {
+    "from": "/img/auth-ui/auth-demo-compiler.gif",
+    "to": "/img/blog/2023-04-12-auth-ui/auth-demo-compiler.gif"
+  },
+  {
+    "from": "/img/auth-ui/auth-ui-demo.png",
+    "to": "/img/blog/2023-04-12-auth-ui/auth-ui-demo.png"
+  },
+  {
+    "from": "/img/auth-ui/mind-explosion.gif",
+    "to": "/img/blog/2023-04-12-auth-ui/mind-explosion.gif"
+  },
+  {
+    "from": "/img/auth/discord.png",
+    "to": "/img/docs/features/auth/social-auth/discord/discord.png"
+  },
+  {
+    "from": "/img/auth/github.png",
+    "to": "/img/docs/features/auth/social-auth/github/github.png"
+  },
+  {
+    "from": "/img/auth/google.png",
+    "to": "/img/docs/features/auth/social-auth/google/google.png"
+  },
+  {
+    "from": "/img/auth/keycloak/1-keycloak.png",
+    "to": "/img/docs/features/auth/social-auth/keycloak/1-keycloak.png"
+  },
+  {
+    "from": "/img/auth/keycloak/2-keycloak.png",
+    "to": "/img/docs/features/auth/social-auth/keycloak/2-keycloak.png"
+  },
+  {
+    "from": "/img/auth/keycloak/3-keycloak.png",
+    "to": "/img/docs/features/auth/social-auth/keycloak/3-keycloak.png"
+  },
+  {
+    "from": "/img/auth/keycloak/4-keycloak.png",
+    "to": "/img/docs/features/auth/social-auth/keycloak/4-keycloak.png"
+  },
+  {
+    "from": "/img/auth/keycloak/5-keycloak.png",
+    "to": "/img/docs/features/auth/social-auth/keycloak/5-keycloak.png"
+  },
+  {
+    "from": "/img/auth/microsoft.jpeg",
+    "to": "/img/docs/features/auth/social-auth/microsoft/microsoft.jpeg"
+  },
+  {
+    "from": "/img/auth/slack.png",
+    "to": "/img/docs/features/auth/social-auth/slack/slack.png"
+  },
+  {
+    "from": "/img/authui/all_screens.gif",
+    "to": "/img/docs/features/auth/all_screens.gif"
+  },
+  {
+    "from": "/img/authui/custom_login.gif",
+    "to": "/img/docs/features/auth/ui/custom_login.gif"
+  },
+  {
+    "from": "/img/authui/email_verification.png",
+    "to": "/img/docs/features/auth/email_verification.png"
+  },
+  {
+    "from": "/img/authui/forgot_password.png",
+    "to": "/img/docs/features/auth/ui/forgot_password.png"
+  },
+  {
+    "from": "/img/authui/forgot_password_after.png",
+    "to": "/img/docs/features/auth/email/overview/forgot_password_after.png"
+  },
+  {
+    "from": "/img/authui/login.png",
+    "to": "/img/docs/features/auth/login.png"
+  },
+  {
+    "from": "/img/authui/multiple_providers.png",
+    "to": "/img/docs/features/auth/ui/multiple_providers.png"
+  },
+  {
+    "from": "/img/authui/reset_password.png",
+    "to": "/img/docs/features/auth/ui/reset_password.png"
+  },
+  {
+    "from": "/img/authui/reset_password_after.png",
+    "to": "/img/docs/features/auth/email/overview/reset_password_after.png"
+  },
+  {
+    "from": "/img/authui/signup.png",
+    "to": "/img/docs/features/auth/signup.png"
+  },
+  {
+    "from": "/img/authui/vertical_social_buttons.png",
+    "to": "/img/docs/features/auth/ui/vertical_social_buttons.png"
+  },
+  {
+    "from": "/img/best-framework/hierarchy-of-dev-needs.png",
+    "to": "/img/blog/2023-02-02-no-best-framework/hierarchy-of-dev-needs.png"
+  },
+  {
+    "from": "/img/best-framework/midwitwasp.jpeg",
+    "to": "/img/blog/2023-02-02-no-best-framework/midwitwasp.jpeg"
+  },
+  {
+    "from": "/img/best-framework/pretending.png",
+    "to": "/img/blog/2023-02-02-no-best-framework/pretending.png"
+  },
+  {
+    "from": "/img/best-framework/state-of-js.png",
+    "to": "/img/blog/2023-02-02-no-best-framework/state-of-js.png"
+  },
+  {
+    "from": "/img/beta-ann/beta-banner.png",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/beta-banner.png"
+  },
+  {
+    "from": "/img/beta-ann/hackathon-banner.gif",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/hackathon-banner.gif"
+  },
+  {
+    "from": "/img/beta-ann/launch-party.png",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/launch-party.png"
+  },
+  {
+    "from": "/img/beta-ann/nic-cage-tailwind.gif",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/nic-cage-tailwind.gif"
+  },
+  {
+    "from": "/img/beta-ann/no-opt-updates.gif",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/no-opt-updates.gif"
+  },
+  {
+    "from": "/img/beta-ann/thank-you-god.gif",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/thank-you-god.gif"
+  },
+  {
+    "from": "/img/beta-ann/ts-wanted.png",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/ts-wanted.png"
+  },
+  {
+    "from": "/img/beta-ann/wasp-loves-vscode.png",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/wasp-loves-vscode.png"
+  },
+  {
+    "from": "/img/beta-ann/wls-demo.gif",
+    "to": "/img/blog/2022-11-26-wasp-beta-launch-week/wls-demo.gif"
+  },
+  {
+    "from": "/img/beta-ide-improvements/wasp-cli-waspls.png",
+    "to": "/img/blog/2022-12-01-beta-ide-improvements/wasp-cli-waspls.png"
+  },
+  {
+    "from": "/img/beta-ide-improvements/wasp-vscode-extension.png",
+    "to": "/img/blog/2022-12-01-beta-ide-improvements/wasp-vscode-extension.png"
+  },
+  {
+    "from": "/img/beta-ide-improvements/wls-autocompletion.gif",
+    "to": "/img/blog/2022-12-01-beta-ide-improvements/wls-autocompletion.gif"
+  },
+  {
+    "from": "/img/beta-ide-improvements/wls-demo.gif",
+    "to": "/img/blog/2022-12-01-beta-ide-improvements/wls-demo.gif"
+  },
+  {
+    "from": "/img/beta-ide-improvements/wls-live-errors.gif",
+    "to": "/img/blog/2022-12-01-beta-ide-improvements/wls-live-errors.gif"
+  },
+  {
+    "from": "/img/beta-ide-improvements/wls-snippets.gif",
+    "to": "/img/blog/2022-12-01-beta-ide-improvements/wls-snippets.gif"
+  },
+  {
+    "from": "/img/beta-launch-review/all-time-stats.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/all-time-stats.png"
+  },
+  {
+    "from": "/img/beta-launch-review/beta-feedback.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/beta-feedback.png"
+  },
+  {
+    "from": "/img/beta-launch-review/hackathon-tweet.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/hackathon-tweet.png"
+  },
+  {
+    "from": "/img/beta-launch-review/how-it-started.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/how-it-started.png"
+  },
+  {
+    "from": "/img/beta-launch-review/launch-schedule.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/launch-schedule.png"
+  },
+  {
+    "from": "/img/beta-launch-review/launch-timeline.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/launch-timeline.png"
+  },
+  {
+    "from": "/img/beta-launch-review/launch-week-visitors.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/launch-week-visitors.png"
+  },
+  {
+    "from": "/img/beta-launch-review/prelaunch-tweets.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/prelaunch-tweets.png"
+  },
+  {
+    "from": "/img/beta-launch-review/wau-monthly.png",
+    "to": "/img/blog/2023-01-31-wasp-beta-launch-review/wau-monthly.png"
+  },
+  {
+    "from": "/img/beta/wasp-beta-banner.png",
+    "to": "/img/blog/2022-11-29-wasp-beta/wasp-beta-banner.png"
+  },
+  {
+    "from": "/img/betathon/betathonpage.png",
+    "to": "/img/blog/2023-01-11-betathon-review/betathonpage.png"
+  },
+  {
+    "from": "/img/betathon/chris.png",
+    "to": "/img/blog/2023-01-11-betathon-review/chris.png"
+  },
+  {
+    "from": "/img/betathon/emmanuel.png",
+    "to": "/img/blog/2023-01-11-betathon-review/emmanuel.png"
+  },
+  {
+    "from": "/img/betathon/github.png",
+    "to": "/img/blog/2023-01-11-betathon-review/github.png"
+  },
+  {
+    "from": "/img/betathon/keyboard.png",
+    "to": "/img/blog/2023-01-11-betathon-review/keyboard.png"
+  },
+  {
+    "from": "/img/betathon/richard.png",
+    "to": "/img/blog/2023-01-11-betathon-review/richard.png"
+  },
+  {
+    "from": "/img/betathon/tim.png",
+    "to": "/img/blog/2023-01-11-betathon-review/tim.png"
+  },
+  {
+    "from": "/img/blog-default-img.png",
+    "to": "/img/blog/default-cover.png"
+  },
+  {
+    "from": "/img/build-saas-with-ai/banner.webp",
+    "to": "/img/blog/2026-06-03-build-a-saas-with-ai-without-getting-stuck/banner.webp"
+  },
+  {
+    "from": "/img/build-saas-with-ai/context.webp",
+    "to": "/img/blog/2026-06-03-build-a-saas-with-ai-without-getting-stuck/context.webp"
+  },
+  {
+    "from": "/img/build-saas-with-ai/reddit-vibe-coded-disaster.webp",
+    "to": "/img/blog/2026-06-03-build-a-saas-with-ai-without-getting-stuck/reddit-vibe-coded-disaster.webp"
+  },
+  {
+    "from": "/img/build-saas-with-ai/stripe-llms-txt.webp",
+    "to": "/img/blog/2026-06-03-build-a-saas-with-ai-without-getting-stuck/stripe-llms-txt.webp"
+  },
+  {
+    "from": "/img/build-saas-with-ai/what-is-vertical-slice.webp",
+    "to": "/img/blog/2026-06-03-build-a-saas-with-ai-without-getting-stuck/what-is-vertical-slice.webp"
+  },
+  {
+    "from": "/img/build-with-wasp/amicus.png",
+    "to": "/img/blog/2023-06-28-what-can-you-build-with-wasp/amicus.png"
+  },
+  {
+    "from": "/img/build-with-wasp/build-with-wasp-banner.png",
+    "to": "/img/blog/2023-06-28-what-can-you-build-with-wasp/build-with-wasp-banner.png"
+  },
+  {
+    "from": "/img/build-with-wasp/cover-letter-gpt.png",
+    "to": "/img/blog/2023-06-28-what-can-you-build-with-wasp/cover-letter-gpt.png"
+  },
+  {
+    "from": "/img/build-with-wasp/description-generator.png",
+    "to": "/img/blog/2023-06-28-what-can-you-build-with-wasp/description-generator.png"
+  },
+  {
+    "from": "/img/build-with-wasp/tweet-bot.png",
+    "to": "/img/blog/2023-06-28-what-can-you-build-with-wasp/tweet-bot.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%201.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-1.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%2010.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-10.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%2011.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-11.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%202.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-2.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%203.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-3.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%204.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-4.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%205.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-5.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%206.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-6.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%207.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-7.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%208.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-8.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled%209.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled-9.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/Untitled.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/Untitled.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/twitter-agent-add-note.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/twitter-agent-add-note.png"
+  },
+  {
+    "from": "/img/build-your-own-twitter-agent/twitter-agent-logo.png",
+    "to": "/img/blog/2023-06-27-build-your-own-twitter-agent-langchain/twitter-agent-logo.png"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp.jpg",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/building-a-full-stack-app-supabase-vs-wasp.jpg"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp/italian.gif",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/italian.gif"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp/phrase_tutor.gif",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/phrase_tutor.gif"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp/phrases.png",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/phrases.png"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp/supabase.png",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/supabase.png"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp/thank_you.png",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/thank_you.png"
+  },
+  {
+    "from": "/img/building-a-full-stack-app-supabase-vs-wasp/wasp.png",
+    "to": "/img/blog/2023-03-08-building-a-full-stack-app-supabase-vs-wasp/wasp.png"
+  },
+  {
+    "from": "/img/buzz-wasp-one-message-app/banner.webp",
+    "to": "/img/blog/2026-07-30-buzz-wasp-one-message-app/banner.webp"
+  },
+  {
+    "from": "/img/buzz-wasp-one-message-app/crm.webp",
+    "to": "/img/blog/2026-07-30-buzz-wasp-one-message-app/crm.webp"
+  },
+  {
+    "from": "/img/buzz-wasp-one-message-app/pipeline.webp",
+    "to": "/img/blog/2026-07-30-buzz-wasp-one-message-app/pipeline.webp"
+  },
+  {
+    "from": "/img/buzz-wasp-one-message-app/podcast.webp",
+    "to": "/img/blog/2026-07-30-buzz-wasp-one-message-app/podcast.webp"
+  },
+  {
+    "from": "/img/buzz-wasp-one-message-app/prompt.webp",
+    "to": "/img/blog/2026-07-30-buzz-wasp-one-message-app/prompt.webp"
+  },
+  {
+    "from": "/img/carlos/563c97b4-4043-44d0-b1c7-037d3c28c73d.gif",
+    "to": "/img/blog/2025-04-07-meet-carlos-engineer-at-wasp/563c97b4-4043-44d0-b1c7-037d3c28c73d.gif"
+  },
+  {
+    "from": "/img/carlos/baby-carlos.webp",
+    "to": "/img/blog/2025-04-07-meet-carlos-engineer-at-wasp/baby-carlos.webp"
+  },
+  {
+    "from": "/img/carlos/carlos.png",
+    "to": "/img/blog/2025-04-07-meet-carlos-engineer-at-wasp/carlos.png"
+  },
+  {
+    "from": "/img/carlos/chair.webp",
+    "to": "/img/blog/2025-04-07-meet-carlos-engineer-at-wasp/chair.webp"
+  },
+  {
+    "from": "/img/carlos/mentoring.jpeg",
+    "to": "/img/blog/2025-04-07-meet-carlos-engineer-at-wasp/mentoring.jpeg"
+  },
+  {
+    "from": "/img/case-studies/ctobox.png",
+    "to": "/img/blog/2025-07-17-three-saas-case-studies-wasp/ctobox.png"
+  },
+  {
+    "from": "/img/case-studies/saas-w-wasp.png",
+    "to": "/img/blog/2025-07-17-three-saas-case-studies-wasp/saas-w-wasp.png"
+  },
+  {
+    "from": "/img/cc-plugin/banner.webp",
+    "to": "/img/blog/2025-12-23-wasp-claude-code-plugin/banner.webp"
+  },
+  {
+    "from": "/img/cc-plugin/fetching-docs.webp",
+    "to": "/img/blog/2025-12-23-wasp-claude-code-plugin/fetching-docs.webp"
+  },
+  {
+    "from": "/img/cc-plugin/plugin-init.webp",
+    "to": "/img/blog/2025-12-23-wasp-claude-code-plugin/plugin-init.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/background-tasks-demo.mp4",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/background-tasks-demo.mp4"
+  },
+  {
+    "from": "/img/claude-code-fullstack/banner.webp",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/banner.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/browser-automation-login.mp4",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/browser-automation-login.mp4"
+  },
+  {
+    "from": "/img/claude-code-fullstack/context-usage-tip.webp",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/context-usage-tip.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/llmstxt-comparison.mp4",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/llmstxt-comparison.mp4"
+  },
+  {
+    "from": "/img/claude-code-fullstack/llmstxt-example.webp",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/llmstxt-example.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/mcp-servers-list.webp",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/mcp-servers-list.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/plugin-in-action.webp",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/plugin-in-action.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/subtasks-fullstack-demo.mp4",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/subtasks-fullstack-demo.mp4"
+  },
+  {
+    "from": "/img/claude-code-fullstack/wasp-visual-representation.webp",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/wasp-visual-representation.webp"
+  },
+  {
+    "from": "/img/claude-code-fullstack/workflow-without-vision.mp4",
+    "to": "/img/blog/2026-01-29-claude-code-fullstack-development-essentials/workflow-without-vision.mp4"
+  },
+  {
+    "from": "/img/compiling.png",
+    "to": "/img/blog/2022-09-05-dev-excuses-app-tutrial/compiling.png"
+  },
+  {
+    "from": "/img/copilot-example-sentiment.gif",
+    "to": "/img/blog/2022-06-24-ML-code-gen-vs-coding-by-hand-future/copilot-example-sentiment.gif"
+  },
+  {
+    "from": "/img/cover-letter-gpt-yt.png",
+    "to": "/img/blog/2023-04-17-How-I-Built-CoverLetterGPT/cover-letter-gpt-yt.png"
+  },
+  {
+    "from": "/img/coverlettergpt.png",
+    "to": "/img/blog/2023-04-17-How-I-Built-CoverLetterGPT/coverlettergpt.png"
+  },
+  {
+    "from": "/img/cron-jobs/boi-postgress.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/boi-postgress.webp"
+  },
+  {
+    "from": "/img/cron-jobs/boss.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/boss.webp"
+  },
+  {
+    "from": "/img/cron-jobs/image.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/image.webp"
+  },
+  {
+    "from": "/img/cron-jobs/image1.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/image1.webp"
+  },
+  {
+    "from": "/img/cron-jobs/image2.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/image2.webp"
+  },
+  {
+    "from": "/img/cron-jobs/image3.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/image3.webp"
+  },
+  {
+    "from": "/img/cron-jobs/image4.webp",
+    "to": "/img/blog/2025-05-28-how-to-run-cron-jobs-in-postgress-without-extra-infrastructure/image4.webp"
+  },
+  {
+    "from": "/img/crud-guide.gif",
+    "to": "/img/docs/features/data/crud/crud-guide.gif"
+  },
+  {
+    "from": "/img/crud_diagram.png",
+    "to": "/img/docs/features/data/crud/crud_diagram.png"
+  },
+  {
+    "from": "/img/data-model/prisma_in_wasp.png",
+    "to": "/img/docs/features/data/prisma-file/prisma_in_wasp.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-17_at_11.56.51.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_11.56.51.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-17_at_12.23.40.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_12.23.40.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-17_at_13.33.24.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_13.33.24.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-17_at_13.34.38.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_13.34.38.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-17_at_13.48.23.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_13.48.23.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-17_at_17.18.19.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_17.18.19.png"
+  },
+  {
+    "from": "/img/database-migrations/Screenshot_2025-03-22_at_11.43.19.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-22_at_11.43.19.png"
+  },
+  {
+    "from": "/img/database-migrations/database-migrations.webp",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/database-migrations.webp"
+  },
+  {
+    "from": "/img/database-migrations/ec_step_1.gif",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/ec_step_1.gif"
+  },
+  {
+    "from": "/img/database-migrations/ec_step_2.gif",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/ec_step_2.gif"
+  },
+  {
+    "from": "/img/database-migrations/ec_step_3.gif",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/ec_step_3.gif"
+  },
+  {
+    "from": "/img/database-migrations/migrations.jpg",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/migrations.jpg"
+  },
+  {
+    "from": "/img/database-migrations/old-format.jpg",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/old-format.jpg"
+  },
+  {
+    "from": "/img/database-migrations/score_page.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/score_page.png"
+  },
+  {
+    "from": "/img/database-migrations/score_page_public_toggle.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/score_page_public_toggle.png"
+  },
+  {
+    "from": "/img/database-migrations/shapes_at_25-03-25_17.27.40.png",
+    "to": "/img/blog/2025-04-02-an-introduction-to-database-migrations/shapes_at_25-03-25_17.27.40.png"
+  },
+  {
+    "from": "/img/db-start-and-seed/wasp-db-improvements.png",
+    "to": "/img/blog/2023-04-13-db-start-and-seed/wasp-db-improvements.png"
+  },
+  {
+    "from": "/img/db-start-and-seed/wasp-db-seed-terminal.png",
+    "to": "/img/blog/2023-04-13-db-start-and-seed/wasp-db-seed-terminal.png"
+  },
+  {
+    "from": "/img/db-start-and-seed/wasp-start-db-terminal.png",
+    "to": "/img/blog/2023-04-13-db-start-and-seed/wasp-start-db-terminal.png"
+  },
+  {
+    "from": "/img/deploying/fly-db.png",
+    "to": "/img/docs/guides/deployment/cloud-providers/flyio/fly-db.png"
+  },
+  {
+    "from": "/img/deploying/railway-rename.png",
+    "to": "/img/docs/deployment/deployment-methods/paas/railway-rename.png"
+  },
+  {
+    "from": "/img/deploying/self-hosting.png",
+    "to": "/img/docs/deployment/methods/self-hosted/self-hosting.png"
+  },
+  {
+    "from": "/img/deploying/wasp-app-flow.gif",
+    "to": "/img/docs/deployment/overview/wasp-app-flow.gif"
+  },
+  {
+    "from": "/img/design-ai-thon-winners/adam-entry.mp4",
+    "to": "/img/blog/2025-11-10-design-ai-thon-winners/adam-entry.mp4"
+  },
+  {
+    "from": "/img/design-ai-thon-winners/design-ai-thon-banner.png",
+    "to": "/img/blog/2025-11-10-design-ai-thon-winners/design-ai-thon-banner.png"
+  },
+  {
+    "from": "/img/design-ai-thon-winners/etienne-fun.mp4",
+    "to": "/img/blog/2025-11-10-design-ai-thon-winners/etienne-fun.mp4"
+  },
+  {
+    "from": "/img/design-ai-thon-winners/zeke-bois.png",
+    "to": "/img/blog/2025-11-10-design-ai-thon-winners/zeke-bois.png"
+  },
+  {
+    "from": "/img/design-ai-thon-winners/zeke-entry.mp4",
+    "to": "/img/blog/2025-11-10-design-ai-thon-winners/zeke-entry.mp4"
+  },
+  {
+    "from": "/img/design-ai-thon/banner.png",
+    "to": "/img/blog/2025-10-08-design-ai-thon/banner.png"
+  },
+  {
+    "from": "/img/design-ai-thon/boi-painter.png",
+    "to": "/img/blog/2025-10-08-design-ai-thon/boi-painter.png"
+  },
+  {
+    "from": "/img/design-ai-thon/prizes.png",
+    "to": "/img/blog/2025-10-08-design-ai-thon/prizes.png"
+  },
+  {
+    "from": "/img/discord-introduction-example.png",
+    "to": "/img/blog/2021-04-29-discord-bot-introduction/discord-introduction-example.png"
+  },
+  {
+    "from": "/img/discord-logo.webp",
+    "to": "/img/site/logos/discord-logo.webp"
+  },
+  {
+    "from": "/img/django-vs-wasp/mindblown.gif",
+    "to": "/img/blog/2024-08-20-django-vs-wasp/mindblown.gif"
+  },
+  {
+    "from": "/img/django-vs-wasp/usemage.png",
+    "to": "/img/blog/2024-08-20-django-vs-wasp/usemage.png"
+  },
+  {
+    "from": "/img/django-vs-wasp/wasp-cli-menu.png",
+    "to": "/img/blog/2024-08-20-django-vs-wasp/wasp-cli-menu.png"
+  },
+  {
+    "from": "/img/django-vs-wasp/wasp-django-banner.png",
+    "to": "/img/blog/2024-08-20-django-vs-wasp/wasp-django-banner.png"
+  },
+  {
+    "from": "/img/django-vs-wasp/wasp-todo-app.gif",
+    "to": "/img/blog/2024-08-20-django-vs-wasp/wasp-todo-app.gif"
+  },
+  {
+    "from": "/img/email/email-cover.jpg",
+    "to": "/img/blog/2024-09-24-why-your-emails-arent-getting-delivered-and-how-to-fix-this-problem/email-cover.jpg"
+  },
+  {
+    "from": "/img/email/meme.jpg",
+    "to": "/img/blog/2024-09-24-why-your-emails-arent-getting-delivered-and-how-to-fix-this-problem/meme.jpg"
+  },
+  {
+    "from": "/img/env/prod_dev_fade.svg",
+    "to": "/img/docs/advanced/env-vars/prod_dev_fade.svg"
+  },
+  {
+    "from": "/img/env/prod_dev_fade_2.svg",
+    "to": "/img/docs/deployment/env-vars/prod_dev_fade_2.svg"
+  },
+  {
+    "from": "/img/farnance-screenshot.png",
+    "to": "/img/blog/2021-11-21-seed-round/farnance-screenshot.png"
+  },
+  {
+    "from": "/img/farnance/farnance-dashboard.png",
+    "to": "/img/blog/2022-10-28-farnance-hackathon-winner/farnance-dashboard.png"
+  },
+  {
+    "from": "/img/farnance/farnance-hero-shot.png",
+    "to": "/img/blog/2022-10-28-farnance-hackathon-winner/farnance-hero-shot.png"
+  },
+  {
+    "from": "/img/farnance/julian-discord-testimonial.png",
+    "to": "/img/blog/2022-10-28-farnance-hackathon-winner/julian-discord-testimonial.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/bad-editor.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/bad-editor.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/da-boi-dress-rehearsal.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/da-boi-dress-rehearsal.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/da-boi-in-a-fast-car.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/da-boi-in-a-fast-car.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/github-actions-deploy.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/github-actions-deploy.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/new-wasp-new.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/new-wasp-new.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/scared-to-release.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/scared-to-release.png"
+  },
+  {
+    "from": "/img/faster-wasp-dev/todo-app-sidebar.png",
+    "to": "/img/blog/2025-07-18-faster-wasp-dev/todo-app-sidebar.png"
+  },
+  {
+    "from": "/img/filip-headshot-min.jpeg",
+    "to": "/img/blog/2022-08-26-how-and-why-i-got-started-with-haskell/filip-headshot-min.jpeg"
+  },
+  {
+    "from": "/img/filip-intro-banner.png",
+    "to": "/img/blog/2022-05-31-filip-intro/filip-intro-banner.png"
+  },
+  {
+    "from": "/img/final-excuse-app.png",
+    "to": "/img/blog/2022-09-05-dev-excuses-app-tutrial/final-excuse-app.png"
+  },
+  {
+    "from": "/img/final-result.png",
+    "to": "/img/blog/2022-09-05-dev-excuses-app-tutrial/final-result.png"
+  },
+  {
+    "from": "/img/fizz-buzz-copilot-stop.gif",
+    "to": "/img/blog/2022-06-24-ML-code-gen-vs-coding-by-hand-future/fizz-buzz-copilot-stop.gif"
+  },
+  {
+    "from": "/img/flue-open-saas/agent-updates-ui.webp",
+    "to": "/img/blog/2026-08-18-flue-react-for-agents/agent-updates-ui.webp"
+  },
+  {
+    "from": "/img/flue-open-saas/banner.webp",
+    "to": "/img/blog/2026-08-18-flue-react-for-agents/banner.webp"
+  },
+  {
+    "from": "/img/forms/advanced-react.jpeg",
+    "to": "/img/blog/2025-01-22-advanced-react-hook-form-zod-shadcn/advanced-react.jpeg"
+  },
+  {
+    "from": "/img/forms/banner.webp",
+    "to": "/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/banner.webp"
+  },
+  {
+    "from": "/img/forms/data.png",
+    "to": "/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/data.png"
+  },
+  {
+    "from": "/img/forms/form-2.png",
+    "to": "/img/blog/2025-01-22-advanced-react-hook-form-zod-shadcn/form-2.png"
+  },
+  {
+    "from": "/img/forms/form-error.png",
+    "to": "/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/form-error.png"
+  },
+  {
+    "from": "/img/forms/form.png",
+    "to": "/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/form.png"
+  },
+  {
+    "from": "/img/forms/meme.webp",
+    "to": "/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/meme.webp"
+  },
+  {
+    "from": "/img/franjo/1.webp",
+    "to": "/img/blog/2025-03-20-meet-franjo-engineer-at-wasp/1.webp"
+  },
+  {
+    "from": "/img/franjo/2.webp",
+    "to": "/img/blog/2025-03-20-meet-franjo-engineer-at-wasp/2.webp"
+  },
+  {
+    "from": "/img/franjo/3.webp",
+    "to": "/img/blog/2025-03-20-meet-franjo-engineer-at-wasp/3.webp"
+  },
+  {
+    "from": "/img/franjo/franjo.png",
+    "to": "/img/blog/2025-03-20-meet-franjo-engineer-at-wasp/franjo.png"
+  },
+  {
+    "from": "/img/github-social-login/github-app-1.png",
+    "to": "/img/docs/features/auth/social-auth/github/github-app-1.png"
+  },
+  {
+    "from": "/img/github-social-login/github-app-2.png",
+    "to": "/img/docs/features/auth/social-auth/github/github-app-2.png"
+  },
+  {
+    "from": "/img/github-social-login/github-app-3.png",
+    "to": "/img/docs/features/auth/social-auth/github/github-app-3.png"
+  },
+  {
+    "from": "/img/github-social-login/github-app-4.png",
+    "to": "/img/docs/features/auth/social-auth/github/github-app-4.png"
+  },
+  {
+    "from": "/img/gitpod-hackathon-preview.png",
+    "to": "/img/blog/2022-06-01-gitpod-hackathon-guide/gitpod-hackathon-preview.png"
+  },
+  {
+    "from": "/img/gitpod-ide.jpg",
+    "to": "/img/blog/2022-06-01-gitpod-hackathon-guide/gitpod-ide.jpg"
+  },
+  {
+    "from": "/img/gitpod-roadmap.png",
+    "to": "/img/blog/2022-06-01-gitpod-hackathon-guide/gitpod-roadmap.png"
+  },
+  {
+    "from": "/img/gitpod-share.jpg",
+    "to": "/img/blog/2022-06-01-gitpod-hackathon-guide/gitpod-share.jpg"
+  },
+  {
+    "from": "/img/gpt-wasp/gpt-wasp-thumbnail.png",
+    "to": "/img/blog/2023-07-10-gpt-web-app-generator/gpt-wasp-thumbnail.png"
+  },
+  {
+    "from": "/img/gpt-wasp/how-it-works.gif",
+    "to": "/img/blog/2023-07-10-gpt-web-app-generator/how-it-works.gif"
+  },
+  {
+    "from": "/img/gpt-wasp/my-plants.png",
+    "to": "/img/blog/2023-07-10-gpt-web-app-generator/my-plants.png"
+  },
+  {
+    "from": "/img/gpt-wasp/thumbnail-yellow.png",
+    "to": "/img/blog/2023-07-10-gpt-web-app-generator/thumbnail-yellow.png"
+  },
+  {
+    "from": "/img/gpt-wasp/todo-app.png",
+    "to": "/img/blog/2023-07-10-gpt-web-app-generator/todo-app.png"
+  },
+  {
+    "from": "/img/hackathon-pennywise.jpg",
+    "to": "/img/blog/2022-06-01-gitpod-hackathon-guide/hackathon-pennywise.jpg"
+  },
+  {
+    "from": "/img/hackathon2/bee-pretty.svg",
+    "to": "/img/blog/2023-05-19-hackathon-2-review/bee-pretty.svg"
+  },
+  {
+    "from": "/img/hackathon2/hackathon-2-homepage.png",
+    "to": "/img/blog/2023-05-19-hackathon-2-review/hackathon-2-homepage.png"
+  },
+  {
+    "from": "/img/hackathon2/hackathon-banner-winner.png",
+    "to": "/img/blog/2023-05-19-hackathon-2-review/hackathon-banner-winner.png"
+  },
+  {
+    "from": "/img/hackathon2/hackathon-banner.png",
+    "to": "/img/blog/2023-04-27-wasp-hackathon-two/hackathon-banner.png"
+  },
+  {
+    "from": "/img/hackathon2/lw2-short.png",
+    "to": "/img/blog/2023-04-27-wasp-hackathon-two/lw2-short.png"
+  },
+  {
+    "from": "/img/hackathon2/office-wars.png",
+    "to": "/img/blog/2023-05-19-hackathon-2-review/office-wars.png"
+  },
+  {
+    "from": "/img/hackathon2/storai.png",
+    "to": "/img/blog/2023-05-19-hackathon-2-review/storai.png"
+  },
+  {
+    "from": "/img/hackathon2/typergotchi.png",
+    "to": "/img/blog/2023-05-19-hackathon-2-review/typergotchi.png"
+  },
+  {
+    "from": "/img/hacktoberfest-wrap-up/code-lines-history.png",
+    "to": "/img/blog/2022-11-17-hacktoberfest-wrap-up/code-lines-history.png"
+  },
+  {
+    "from": "/img/hacktoberfest-wrap-up/content-marketing-in-a-nutshell.png",
+    "to": "/img/blog/2022-11-17-hacktoberfest-wrap-up/content-marketing-in-a-nutshell.png"
+  },
+  {
+    "from": "/img/hacktoberfest-wrap-up/hf-gh-entry-point.png",
+    "to": "/img/blog/2022-11-17-hacktoberfest-wrap-up/hf-gh-entry-point.png"
+  },
+  {
+    "from": "/img/hacktoberfest-wrap-up/oss-reddit-post.png",
+    "to": "/img/blog/2022-11-17-hacktoberfest-wrap-up/oss-reddit-post.png"
+  },
+  {
+    "from": "/img/hacktoberfest-wrap-up/pr-history.png",
+    "to": "/img/blog/2022-11-17-hacktoberfest-wrap-up/pr-history.png"
+  },
+  {
+    "from": "/img/hard-truths-junior-devs.png",
+    "to": "/img/blog/2023-03-03-ten-hard-truths-junior-developers-need-to-hear/hard-truths-junior-devs.png"
+  },
+  {
+    "from": "/img/hireveld/banner.webp",
+    "to": "/img/blog/2026-03-29-hireveld-from-10-stacks-to-production-with-wasp/banner.webp"
+  },
+  {
+    "from": "/img/hireveld/hireveld-hero.png",
+    "to": "/img/blog/2026-03-29-hireveld-from-10-stacks-to-production-with-wasp/hireveld-hero.png"
+  },
+  {
+    "from": "/img/hireveld/hireveld-search.png",
+    "to": "/img/blog/2026-03-29-hireveld-from-10-stacks-to-production-with-wasp/hireveld-search.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/gen-logs-fixing.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/gen-logs-fixing.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/gen-logs-generating.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/gen-logs-generating.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/gen-logs-planning.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/gen-logs-planning.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/generator-logs-yellow.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/generator-logs-yellow.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/generator-logs.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/generator-logs.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/todo-input.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/todo-input.png"
+  },
+  {
+    "from": "/img/how-we-built-gpt-wasp/todo-results.png",
+    "to": "/img/blog/2023-07-17-how-we-built-gpt-web-app-generator/todo-results.png"
+  },
+  {
+    "from": "/img/how-we-test-a-web-framework/dot-error.png",
+    "to": "/img/blog/2025-10-07-how-we-test-a-web-framework/dot-error.png"
+  },
+  {
+    "from": "/img/how-we-test-a-web-framework/kitchen-sink-login.png",
+    "to": "/img/blog/2025-10-07-how-we-test-a-web-framework/kitchen-sink-login.png"
+  },
+  {
+    "from": "/img/how-we-test-a-web-framework/mustache-typescript.png",
+    "to": "/img/blog/2025-10-07-how-we-test-a-web-framework/mustache-typescript.png"
+  },
+  {
+    "from": "/img/how-we-test-a-web-framework/wasp-app-variants-factory.png",
+    "to": "/img/blog/2025-10-07-how-we-test-a-web-framework/wasp-app-variants-factory.png"
+  },
+  {
+    "from": "/img/how-we-test-a-web-framework/wasp-overview.png",
+    "to": "/img/blog/2025-10-07-how-we-test-a-web-framework/wasp-overview.png"
+  },
+  {
+    "from": "/img/iceberg-of-web-app-dev.png",
+    "to": "/img/blog/2021-03-02-wasp-alpha/iceberg-of-web-app-dev.png"
+  },
+  {
+    "from": "/img/init-page.png",
+    "to": "/img/blog/2022-09-05-dev-excuses-app-tutrial/init-page.png"
+  },
+  {
+    "from": "/img/inside-npm-workspaces/banner.png",
+    "to": "/img/blog/2026-03-25-gentle-intro-npm-workspaces/banner.png"
+  },
+  {
+    "from": "/img/inside-npm-workspaces/intro.png",
+    "to": "/img/blog/2026-03-25-gentle-intro-npm-workspaces/intro.png"
+  },
+  {
+    "from": "/img/inside-npm-workspaces/timeline.png",
+    "to": "/img/blog/2026-03-25-gentle-intro-npm-workspaces/timeline.png"
+  },
+  {
+    "from": "/img/integrations-discord-1.png",
+    "to": "/img/docs/features/auth/social-auth/discord/integrations-discord-1.png"
+  },
+  {
+    "from": "/img/integrations-google-1.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-1.jpg"
+  },
+  {
+    "from": "/img/integrations-google-10.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-10.jpg"
+  },
+  {
+    "from": "/img/integrations-google-11.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-11.jpg"
+  },
+  {
+    "from": "/img/integrations-google-12.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-12.jpg"
+  },
+  {
+    "from": "/img/integrations-google-13.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-13.jpg"
+  },
+  {
+    "from": "/img/integrations-google-14.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-14.jpg"
+  },
+  {
+    "from": "/img/integrations-google-2.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-2.jpg"
+  },
+  {
+    "from": "/img/integrations-google-3.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-3.jpg"
+  },
+  {
+    "from": "/img/integrations-google-4.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-4.jpg"
+  },
+  {
+    "from": "/img/integrations-google-5.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-5.jpg"
+  },
+  {
+    "from": "/img/integrations-google-6.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-6.jpg"
+  },
+  {
+    "from": "/img/integrations-google-7.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-7.jpg"
+  },
+  {
+    "from": "/img/integrations-google-8.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-8.jpg"
+  },
+  {
+    "from": "/img/integrations-google-9.jpg",
+    "to": "/img/docs/auth/social-auth/google/integrations-google-9.jpg"
+  },
+  {
+    "from": "/img/integrations-google-v2-1.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-1.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-10.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-10.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-11.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-11.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-12.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-12.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-13.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-13.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-14.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-14.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-15.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-15.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-2.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-2.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-3.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-3.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-4.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-4.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-5.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-5.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-6.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-6.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-7.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-7.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-8.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-8.png"
+  },
+  {
+    "from": "/img/integrations-google-v2-9.png",
+    "to": "/img/docs/features/auth/social-auth/google/integrations-google-v2-9.png"
+  },
+  {
+    "from": "/img/integrations-microsoft-1.png",
+    "to": "/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-1.png"
+  },
+  {
+    "from": "/img/integrations-microsoft-2.png",
+    "to": "/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-2.png"
+  },
+  {
+    "from": "/img/integrations-microsoft-3.png",
+    "to": "/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-3.png"
+  },
+  {
+    "from": "/img/integrations-microsoft-4.png",
+    "to": "/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-4.png"
+  },
+  {
+    "from": "/img/integrations-microsoft-5.png",
+    "to": "/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-5.png"
+  },
+  {
+    "from": "/img/integrations-slack-1.png",
+    "to": "/img/docs/features/auth/social-auth/slack/integrations-slack-1.png"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/banner.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/banner.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/fsm.mp4",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/fsm.mp4"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/full-stack-modules-tier-list.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/full-stack-modules-tier-list.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/installing-wasp-full-stack-module.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/installing-wasp-full-stack-module.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/matt-pocock-deep-modules.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/matt-pocock-deep-modules.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/module-registry.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/module-registry.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/npm-full-stack-module.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/npm-full-stack-module.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/open-saas.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/open-saas.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/payments-module-frameworks.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/payments-module-frameworks.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/technical-layers-vs-vertical-slices.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/technical-layers-vs-vertical-slices.webp"
+  },
+  {
+    "from": "/img/javascript-still-cant-ship-a-full-stack-module/wasp-spec-file.webp",
+    "to": "/img/blog/2026-06-22-javascript-still-cant-ship-a-full-stack-module/wasp-spec-file.webp"
+  },
+  {
+    "from": "/img/jobs-arch.png",
+    "to": "/img/blog/2022-06-15-jobs-feature-announcement/jobs-arch.png"
+  },
+  {
+    "from": "/img/jobs-eyes.gif",
+    "to": "/img/blog/2022-06-15-jobs-feature-announcement/jobs-eyes.gif"
+  },
+  {
+    "from": "/img/jobs-oprah.gif",
+    "to": "/img/blog/2022-06-15-jobs-feature-announcement/jobs-oprah.gif"
+  },
+  {
+    "from": "/img/jobs-snippet2.png",
+    "to": "/img/blog/2022-06-15-jobs-feature-announcement/jobs-snippet2.png"
+  },
+  {
+    "from": "/img/jobs-spinner.gif",
+    "to": "/img/blog/2022-06-15-jobs-feature-announcement/jobs-spinner.gif"
+  },
+  {
+    "from": "/img/jobs-storytime.gif",
+    "to": "/img/blog/2022-06-15-jobs-feature-announcement/jobs-storytime.gif"
+  },
+  {
+    "from": "/img/junior-misconceptions/bothering-questions.png",
+    "to": "/img/blog/2023-02-21-junior-developer-misconceptions/bothering-questions.png"
+  },
+  {
+    "from": "/img/junior-misconceptions/come-back-later.png",
+    "to": "/img/blog/2023-02-21-junior-developer-misconceptions/come-back-later.png"
+  },
+  {
+    "from": "/img/junior-misconceptions/everything-takes-longer.png",
+    "to": "/img/blog/2023-02-21-junior-developer-misconceptions/everything-takes-longer.png"
+  },
+  {
+    "from": "/img/junior-misconceptions/juniors-misconceptions.png",
+    "to": "/img/blog/2023-02-21-junior-developer-misconceptions/juniors-misconceptions.png"
+  },
+  {
+    "from": "/img/junior-misconceptions/senior-knows-all.png",
+    "to": "/img/blog/2023-02-21-junior-developer-misconceptions/senior-knows-all.png"
+  },
+  {
+    "from": "/img/junior-misconceptions/touch-all-code.png",
+    "to": "/img/blog/2023-02-21-junior-developer-misconceptions/touch-all-code.png"
+  },
+  {
+    "from": "/img/language-lifecycle-copilot.png",
+    "to": "/img/blog/2022-06-24-ML-code-gen-vs-coding-by-hand-future/language-lifecycle-copilot.png"
+  },
+  {
+    "from": "/img/laravel-for-js.png",
+    "to": "/img/blog/2024-05-29-why-we-dont-have-laravel-for-javascript-yet/laravel-for-js.png"
+  },
+  {
+    "from": "/img/lighthouse-report-overview.png",
+    "to": "/img/docs/guides/optimization/seo/lighthouse-report-overview.png"
+  },
+  {
+    "from": "/img/lighthouse-report-seo.png",
+    "to": "/img/docs/guides/optimization/seo/lighthouse-report-seo.png"
+  },
+  {
+    "from": "/img/lp/daboi.webp",
+    "to": "/img/site/daboi.webp"
+  },
+  {
+    "from": "/img/lp/docker-logo.svg",
+    "to": "/img/site/logos/docker-logo.svg"
+  },
+  {
+    "from": "/img/lp/examples/kivo.webp",
+    "to": "/img/site/examples/kivo.webp"
+  },
+  {
+    "from": "/img/lp/examples/messync.webp",
+    "to": "/img/messync.webp"
+  },
+  {
+    "from": "/img/lp/examples/microinfluencers.webp",
+    "to": "/img/site/examples/microinfluencers.webp"
+  },
+  {
+    "from": "/img/lp/examples/peakmastering.webp",
+    "to": "/img/blog/2026-04-23-14k-stars-open-saas-ai-era/peakmastering.webp"
+  },
+  {
+    "from": "/img/lp/examples/plottree.webp",
+    "to": "/img/blog/2026-04-23-14k-stars-open-saas-ai-era/plottree.webp"
+  },
+  {
+    "from": "/img/lp/examples/promptpanda.webp",
+    "to": "/img/site/examples/promptpanda.webp"
+  },
+  {
+    "from": "/img/lp/examples/reviewradar.webp",
+    "to": "/img/site/examples/reviewradar.webp"
+  },
+  {
+    "from": "/img/lp/examples/scribeist.webp",
+    "to": "/img/site/examples/scribeist.webp"
+  },
+  {
+    "from": "/img/lp/examples/searchcraft.webp",
+    "to": "/img/site/examples/searchcraft.webp"
+  },
+  {
+    "from": "/img/lp/prisma-logo.svg",
+    "to": "/img/site/logos/prisma-logo.svg"
+  },
+  {
+    "from": "/img/lp/wasp-compilation-diagram.png",
+    "to": "/img/docs/getting-started/introduction/wasp-compilation-diagram.png"
+  },
+  {
+    "from": "/img/lp/wasp-compilation-diagram.webp",
+    "to": "/img/blog/2025-10-07-how-we-test-a-web-framework/wasp-compilation-diagram.webp"
+  },
+  {
+    "from": "/img/lp/wasp-logo.webp",
+    "to": "/img/wasp-logo.webp"
+  },
+  {
+    "from": "/img/lp/yc-logo-rounded.webp",
+    "to": "/img/site/logos/yc-logo-rounded.webp"
+  },
+  {
+    "from": "/img/lp/yc-logo.webp",
+    "to": "/img/site/logos/yc-logo.webp"
+  },
+  {
+    "from": "/img/lua-auth/comparison.png",
+    "to": "/img/blog/2024-08-13-how-to-add-auth-with-lucia-to-your-react-nextjs-app/comparison.png"
+  },
+  {
+    "from": "/img/lua-auth/lucia-auth-banner.png",
+    "to": "/img/blog/2024-08-13-how-to-add-auth-with-lucia-to-your-react-nextjs-app/lucia-auth-banner.png"
+  },
+  {
+    "from": "/img/lw10/lw10-banner.png",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/lw10-banner.png"
+  },
+  {
+    "from": "/img/lw10/lw10-instructions.png",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/lw10-instructions.png"
+  },
+  {
+    "from": "/img/lw10/monty-twitter.png",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/monty-twitter.png"
+  },
+  {
+    "from": "/img/lw10/noir-detective.gif",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/noir-detective.gif"
+  },
+  {
+    "from": "/img/lw10/open-saas-redesign.jpeg",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/open-saas-redesign.jpeg"
+  },
+  {
+    "from": "/img/lw10/railway-deploy-cmd.png",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/railway-deploy-cmd.png"
+  },
+  {
+    "from": "/img/lw10/railway-merged.png",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/railway-merged.png"
+  },
+  {
+    "from": "/img/lw10/thirty-speed.jpg",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/thirty-speed.jpg"
+  },
+  {
+    "from": "/img/lw10/wasp-roadmap.png",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/wasp-roadmap.png"
+  },
+  {
+    "from": "/img/lw10/words.gif",
+    "to": "/img/blog/2025-07-07-wasp-launch-week-10/words.gif"
+  },
+  {
+    "from": "/img/lw11/dwarves-cheers.gif",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/dwarves-cheers.gif"
+  },
+  {
+    "from": "/img/lw11/lw11-banner.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/lw11-banner.png"
+  },
+  {
+    "from": "/img/lw11/lw11-register.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/lw11-register.png"
+  },
+  {
+    "from": "/img/lw11/ninja.gif",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/ninja.gif"
+  },
+  {
+    "from": "/img/lw11/opensaas-railway.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/opensaas-railway.png"
+  },
+  {
+    "from": "/img/lw11/os-cc.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/os-cc.png"
+  },
+  {
+    "from": "/img/lw11/rachie-testimonial.jpg",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/rachie-testimonial.jpg"
+  },
+  {
+    "from": "/img/lw11/runescape-sales.webp",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/runescape-sales.webp"
+  },
+  {
+    "from": "/img/lw11/testing-meme.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/testing-meme.png"
+  },
+  {
+    "from": "/img/lw11/wasp-artest.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/wasp-artest.png"
+  },
+  {
+    "from": "/img/lw11/wasp-build-start.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/wasp-build-start.png"
+  },
+  {
+    "from": "/img/lw11/wasp-mastra-railway.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/wasp-mastra-railway.png"
+  },
+  {
+    "from": "/img/lw11/wasp-mastra.png",
+    "to": "/img/blog/2025-09-28-wasp-launch-week-11/wasp-mastra.png"
+  },
+  {
+    "from": "/img/lw12/dsl-ts-issue.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/dsl-ts-issue.webp"
+  },
+  {
+    "from": "/img/lw12/lw12-banner.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/lw12-banner.webp"
+  },
+  {
+    "from": "/img/lw12/lw12-register.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/lw12-register.webp"
+  },
+  {
+    "from": "/img/lw12/ts-spec-example.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/ts-spec-example.webp"
+  },
+  {
+    "from": "/img/lw12/wasp-new-lp-screenshot.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/wasp-new-lp-screenshot.webp"
+  },
+  {
+    "from": "/img/lw12/wasp-prerendering.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/wasp-prerendering.webp"
+  },
+  {
+    "from": "/img/lw12/wasp-testimonial-kyle.webp",
+    "to": "/img/blog/2026-06-05-wasp-launch-week-12-ts-spec/wasp-testimonial-kyle.webp"
+  },
+  {
+    "from": "/img/lw2/auth-ui-demo.gif",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/auth-ui-demo.gif"
+  },
+  {
+    "from": "/img/lw2/custom-api-route.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/custom-api-route.png"
+  },
+  {
+    "from": "/img/lw2/deployment-before-now.gif",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/deployment-before-now.gif"
+  },
+  {
+    "from": "/img/lw2/discord-event-info.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/discord-event-info.png"
+  },
+  {
+    "from": "/img/lw2/email-sending-code.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/email-sending-code.png"
+  },
+  {
+    "from": "/img/lw2/hackathon.gif",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/hackathon.gif"
+  },
+  {
+    "from": "/img/lw2/laurence-fishburne-pigeons.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/laurence-fishburne-pigeons.png"
+  },
+  {
+    "from": "/img/lw2/lw2-banner.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/lw2-banner.png"
+  },
+  {
+    "from": "/img/lw2/type-fu.gif",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/type-fu.gif"
+  },
+  {
+    "from": "/img/lw2/vitest.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/vitest.png"
+  },
+  {
+    "from": "/img/lw2/wasp-db-seed.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/wasp-db-seed.png"
+  },
+  {
+    "from": "/img/lw2/wasp-deploy-fly.jpeg",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/wasp-deploy-fly.jpeg"
+  },
+  {
+    "from": "/img/lw2/wasp-saas-template.png",
+    "to": "/img/blog/2023-04-11-wasp-launch-week-two/wasp-saas-template.png"
+  },
+  {
+    "from": "/img/lw3/future-is-now.gif",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/future-is-now.gif"
+  },
+  {
+    "from": "/img/lw3/hug.gif",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/hug.gif"
+  },
+  {
+    "from": "/img/lw3/lw-event-how-to-join.png",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/lw-event-how-to-join.png"
+  },
+  {
+    "from": "/img/lw3/lw2-event-screenshot.png",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/lw2-event-screenshot.png"
+  },
+  {
+    "from": "/img/lw3/lw3-banner.png",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/lw3-banner.png"
+  },
+  {
+    "from": "/img/lw3/magic.gif",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/magic.gif"
+  },
+  {
+    "from": "/img/lw3/realtime.jpg",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/realtime.jpg"
+  },
+  {
+    "from": "/img/lw3/tools.gif",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/tools.gif"
+  },
+  {
+    "from": "/img/lw3/waspularity.png",
+    "to": "/img/blog/2023-06-22-wasp-launch-week-three/waspularity.png"
+  },
+  {
+    "from": "/img/lw4/grown_up.gif",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/grown_up.gif"
+  },
+  {
+    "from": "/img/lw4/hacking.gif",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/hacking.gif"
+  },
+  {
+    "from": "/img/lw4/karate-kid.gif",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/karate-kid.gif"
+  },
+  {
+    "from": "/img/lw4/kevin-waste-time.gif",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/kevin-waste-time.gif"
+  },
+  {
+    "from": "/img/lw4/lw3-party-screenshot.jpeg",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/lw3-party-screenshot.jpeg"
+  },
+  {
+    "from": "/img/lw4/lw4-banner.png",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/lw4-banner.png"
+  },
+  {
+    "from": "/img/lw4/lw4-event-instructions.png",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/lw4-event-instructions.png"
+  },
+  {
+    "from": "/img/lw4/power-rangers.gif",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/power-rangers.gif"
+  },
+  {
+    "from": "/img/lw4/safety-first.gif",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/safety-first.gif"
+  },
+  {
+    "from": "/img/lw4/web-if-wasp.jpg",
+    "to": "/img/blog/2023-10-13-wasp-launch-week-four/web-if-wasp.jpg"
+  },
+  {
+    "from": "/img/lw5/dont-leave.gif",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/dont-leave.gif"
+  },
+  {
+    "from": "/img/lw5/lw5-banner.png",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/lw5-banner.png"
+  },
+  {
+    "from": "/img/lw5/mage-hiw.gif",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/mage-hiw.gif"
+  },
+  {
+    "from": "/img/lw5/nice-testimonial.png",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/nice-testimonial.png"
+  },
+  {
+    "from": "/img/lw5/open_saas_freedom.png",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/open_saas_freedom.png"
+  },
+  {
+    "from": "/img/lw5/real-framework.gif",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/real-framework.gif"
+  },
+  {
+    "from": "/img/lw5/say-my-name.gif",
+    "to": "/img/blog/2024-01-23-wasp-launch-week-five/say-my-name.gif"
+  },
+  {
+    "from": "/img/lw6/auth-discord.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/auth-discord.png"
+  },
+  {
+    "from": "/img/lw6/auth-hooks.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/auth-hooks.png"
+  },
+  {
+    "from": "/img/lw6/its-happening.gif",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/its-happening.gif"
+  },
+  {
+    "from": "/img/lw6/lw6-banner.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/lw6-banner.png"
+  },
+  {
+    "from": "/img/lw6/lw6-join-kickoff.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/lw6-join-kickoff.png"
+  },
+  {
+    "from": "/img/lw6/opensaas-banner.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/opensaas-banner.png"
+  },
+  {
+    "from": "/img/lw6/prisma-split.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/prisma-split.png"
+  },
+  {
+    "from": "/img/lw6/ts-sdk.png",
+    "to": "/img/blog/2024-07-15-wasp-launch-week-six/ts-sdk.png"
+  },
+  {
+    "from": "/img/lw7/charnold.png",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/charnold.png"
+  },
+  {
+    "from": "/img/lw7/cookie-wheel.gif",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/cookie-wheel.gif"
+  },
+  {
+    "from": "/img/lw7/dont-go.gif",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/dont-go.gif"
+  },
+  {
+    "from": "/img/lw7/excited.webp",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/excited.webp"
+  },
+  {
+    "from": "/img/lw7/level-up.webp",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/level-up.webp"
+  },
+  {
+    "from": "/img/lw7/lw7-banner.png",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/lw7-banner.png"
+  },
+  {
+    "from": "/img/lw7/lw7-discord-event.png",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/lw7-discord-event.png"
+  },
+  {
+    "from": "/img/lw7/see-you-first.gif",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/see-you-first.gif"
+  },
+  {
+    "from": "/img/lw7/ts-sdk.png",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/ts-sdk.png"
+  },
+  {
+    "from": "/img/lw7/upgrading-me.webp",
+    "to": "/img/blog/2024-09-30-wasp-launch-week-7/upgrading-me.webp"
+  },
+  {
+    "from": "/img/lw8/buckle-up.webp",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/buckle-up.webp"
+  },
+  {
+    "from": "/img/lw8/deployment-games.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/deployment-games.png"
+  },
+  {
+    "from": "/img/lw8/i-love-wasp.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/i-love-wasp.png"
+  },
+  {
+    "from": "/img/lw8/join-event-instructions.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/join-event-instructions.png"
+  },
+  {
+    "from": "/img/lw8/lw8-banner.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/lw8-banner.png"
+  },
+  {
+    "from": "/img/lw8/opensaas-video.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/opensaas-video.png"
+  },
+  {
+    "from": "/img/lw8/tsconfig-wasp.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/tsconfig-wasp.png"
+  },
+  {
+    "from": "/img/lw8/turboreel.webp",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/turboreel.webp"
+  },
+  {
+    "from": "/img/lw8/wasp-app-flow.gif",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/wasp-app-flow.gif"
+  },
+  {
+    "from": "/img/lw8/zod-env-validation.png",
+    "to": "/img/blog/2025-01-09-wasp-launch-week-8/zod-env-validation.png"
+  },
+  {
+    "from": "/img/lw9/alpha-testing.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/alpha-testing.png"
+  },
+  {
+    "from": "/img/lw9/big-thinking-time.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/big-thinking-time.png"
+  },
+  {
+    "from": "/img/lw9/lw9-banner.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/lw9-banner.png"
+  },
+  {
+    "from": "/img/lw9/lw9-event-instructions.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/lw9-event-instructions.png"
+  },
+  {
+    "from": "/img/lw9/os-shadcn.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/os-shadcn.png"
+  },
+  {
+    "from": "/img/lw9/pepe-10k-stars.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/pepe-10k-stars.png"
+  },
+  {
+    "from": "/img/lw9/tastes-good.gif",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/tastes-good.gif"
+  },
+  {
+    "from": "/img/lw9/team-photo.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/team-photo.png"
+  },
+  {
+    "from": "/img/lw9/wasp-app-gallery.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/wasp-app-gallery.png"
+  },
+  {
+    "from": "/img/lw9/wasp-testimonial.png",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/wasp-testimonial.png"
+  },
+  {
+    "from": "/img/lw9/yun-gravy.gif",
+    "to": "/img/blog/2025-04-09-wasp-launch-week-9/yun-gravy.gif"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/app-brick.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/app-brick.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/app-chatbuster.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/app-chatbuster.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/app-cutcue.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/app-cutcue.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/app-planrelief.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/app-planrelief.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/brick-editor.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/brick-editor.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/chatbuster-reviews.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/chatbuster-reviews.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/cutcue-demo-video.mp4",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/cutcue-demo-video.mp4"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/made-with-wasp-vol2-banner.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/made-with-wasp-vol2-banner.webp"
+  },
+  {
+    "from": "/img/made-with-wasp-vol2/planrelief-lesson-options.webp",
+    "to": "/img/blog/2026-06-17-made-with-wasp-vol-2/planrelief-lesson-options.webp"
+  },
+  {
+    "from": "/img/memerator-banner-tall.gif",
+    "to": "/img/blog/2023-09-17-ai-meme-generator-how-to-use-openai-function-call/memerator-banner-tall.gif"
+  },
+  {
+    "from": "/img/michael-curry-usecase/grabbit-hero-shot.png",
+    "to": "/img/blog/2022-11-26-michael-curry-usecase/grabbit-hero-shot.png"
+  },
+  {
+    "from": "/img/miho-interview/image.png",
+    "to": "/img/blog/2024-12-24-meet-miho-founding-engineer-wasp/image.png"
+  },
+  {
+    "from": "/img/miho-interview/miho-cover.png",
+    "to": "/img/blog/2024-12-24-meet-miho-founding-engineer-wasp/miho-cover.png"
+  },
+  {
+    "from": "/img/miho-interview/miho.jpg",
+    "to": "/img/blog/2024-12-24-meet-miho-founding-engineer-wasp/miho.jpg"
+  },
+  {
+    "from": "/img/new-language-mistake/banner.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/banner.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/developer-love.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/developer-love.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/first-landing-page.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/first-landing-page.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/github-stars.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/github-stars.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/haskell-love.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/haskell-love.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/haskell-positioning.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/haskell-positioning.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/hn-launch.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/hn-launch.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/vscode-extension.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/vscode-extension.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/wasp-architecture.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/wasp-architecture.webp"
+  },
+  {
+    "from": "/img/new-language-mistake/wasp-studio.webp",
+    "to": "/img/blog/2026-05-13-new-language-for-web-dev-was-a-mistake/wasp-studio.webp"
+  },
+  {
+    "from": "/img/new-lsp/dict-completion.gif",
+    "to": "/img/blog/2023-06-29-new-wasp-lsp/dict-completion.gif"
+  },
+  {
+    "from": "/img/new-lsp/goto-definition.gif",
+    "to": "/img/blog/2023-06-29-new-wasp-lsp/goto-definition.gif"
+  },
+  {
+    "from": "/img/new-lsp/import-diagnostics.gif",
+    "to": "/img/blog/2023-06-29-new-wasp-lsp/import-diagnostics.gif"
+  },
+  {
+    "from": "/img/new-lsp/new-lsp-banner.png",
+    "to": "/img/blog/2023-06-29-new-wasp-lsp/new-lsp-banner.png"
+  },
+  {
+    "from": "/img/new-lsp/type-hints.gif",
+    "to": "/img/blog/2023-06-29-new-wasp-lsp/type-hints.gif"
+  },
+  {
+    "from": "/img/new-react-docs/evan-you-no-vite.png",
+    "to": "/img/blog/2023-03-17-new-react-docs-pretend-spas-dont-exist/evan-you-no-vite.png"
+  },
+  {
+    "from": "/img/new-react-docs/react-new-project.png",
+    "to": "/img/blog/2023-03-17-new-react-docs-pretend-spas-dont-exist/react-new-project.png"
+  },
+  {
+    "from": "/img/new-react-docs/spas-have-place.png",
+    "to": "/img/blog/2023-03-17-new-react-docs-pretend-spas-dont-exist/spas-have-place.png"
+  },
+  {
+    "from": "/img/new-react-docs/your-app-unusual.png",
+    "to": "/img/blog/2023-03-17-new-react-docs-pretend-spas-dont-exist/your-app-unusual.png"
+  },
+  {
+    "from": "/img/nextjs-wasp-tokens/nextjs-vs-wasp-tokens.webp",
+    "to": "/img/blog/2026-03-26-nextjs-vs-wasp-40-percent-less-tokens-same-app/nextjs-vs-wasp-tokens.webp"
+  },
+  {
+    "from": "/img/nextjs-wasp-tokens/saas-wasp.webp",
+    "to": "/img/blog/2026-03-26-nextjs-vs-wasp-40-percent-less-tokens-same-app/saas-wasp.webp"
+  },
+  {
+    "from": "/img/nuloapp/app.png",
+    "to": "/img/blog/2024-09-17-from-idea-to-20k-in-days-how-wasp-accelerated-nuloapps-launch/app.png"
+  },
+  {
+    "from": "/img/nuloapp/vid.mp4",
+    "to": "/img/blog/2024-09-17-from-idea-to-20k-in-days-how-wasp-accelerated-nuloapps-launch/vid.mp4"
+  },
+  {
+    "from": "/img/nuloapp/wasp-friends.webp",
+    "to": "/img/blog/2024-09-17-from-idea-to-20k-in-days-how-wasp-accelerated-nuloapps-launch/wasp-friends.webp"
+  },
+  {
+    "from": "/img/on-importance-of-naming-in-programming/bad-name-bad-code-scooby.png",
+    "to": "/img/blog/2023-10-12-on-importance-of-naming-in-programming/bad-name-bad-code-scooby.png"
+  },
+  {
+    "from": "/img/on-importance-of-naming-in-programming/naming-banish-thee-white.png",
+    "to": "/img/blog/2023-10-12-on-importance-of-naming-in-programming/naming-banish-thee-white.png"
+  },
+  {
+    "from": "/img/on-importance-of-naming-in-programming/variables-naming-pet-white.png",
+    "to": "/img/blog/2023-10-12-on-importance-of-naming-in-programming/variables-naming-pet-white.png"
+  },
+  {
+    "from": "/img/open-saas/claude-design.webp",
+    "to": "/img/blog/2026-04-23-14k-stars-open-saas-ai-era/claude-design.webp"
+  },
+  {
+    "from": "/img/open-saas/open-saas-14k-annotated.webp",
+    "to": "/img/blog/2026-04-23-14k-stars-open-saas-ai-era/open-saas-14k-annotated.webp"
+  },
+  {
+    "from": "/img/open-saas/open-saas-14k-banner.webp",
+    "to": "/img/blog/2026-04-23-14k-stars-open-saas-ai-era/open-saas-14k-banner.webp"
+  },
+  {
+    "from": "/img/open-saas/open-saas-14k.webp",
+    "to": "/img/blog/2026-04-23-14k-stars-open-saas-ai-era/open-saas-14k.webp"
+  },
+  {
+    "from": "/img/open-saas/open-saas-ph.png",
+    "to": "/img/blog/2024-01-30-open-saas-free-open-source-starter-react-nodejs/open-saas-ph.png"
+  },
+  {
+    "from": "/img/open-source-contribute.gif",
+    "to": "/img/blog/2023-10-04-contributing-open-source-land-a-job/open-source-contribute.gif"
+  },
+  {
+    "from": "/img/open-vibe/banner.webp",
+    "to": "/img/blog/2026-04-29-introducing-open-vibe/banner.webp"
+  },
+  {
+    "from": "/img/open-vibe/diagram-example.webp",
+    "to": "/img/blog/2026-04-29-introducing-open-vibe/diagram-example.webp"
+  },
+  {
+    "from": "/img/open-vibe/open-saas.webp",
+    "to": "/img/blog/2026-04-29-introducing-open-vibe/open-saas.webp"
+  },
+  {
+    "from": "/img/opt-updates-banner.png",
+    "to": "/img/blog/2022-11-30-optimistic-update-feature-announcement/opt-updates-banner.png"
+  },
+  {
+    "from": "/img/optimistic-update-feature-announcement-fixed.gif",
+    "to": "/img/blog/2022-11-30-optimistic-update-feature-announcement/optimistic-update-feature-announcement-fixed.gif"
+  },
+  {
+    "from": "/img/optimistic-update-feature-announcement-lag.gif",
+    "to": "/img/blog/2022-11-30-optimistic-update-feature-announcement/optimistic-update-feature-announcement-lag.gif"
+  },
+  {
+    "from": "/img/optimistic-update-feature-announcement-normal.gif",
+    "to": "/img/blog/2022-11-30-optimistic-update-feature-announcement/optimistic-update-feature-announcement-normal.gif"
+  },
+  {
+    "from": "/img/os-interviews/pg-boss-banner.jpeg",
+    "to": "/img/blog/2024-09-03-OS-builders-interview-with-tim-jones-pgboss/pg-boss-banner.jpeg"
+  },
+  {
+    "from": "/img/os-interviews/pilcrow_banner.png",
+    "to": "/img/blog/2024-10-24-pilcrow-os-maintainers-interview/pilcrow_banner.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/abac-diagram.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/abac-diagram.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/access-control-poll.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/access-control-poll.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/auth-spidermen.jpg",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/auth-spidermen.jpg"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/auth-terms-diagram.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/auth-terms-diagram.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/backend-permissions-check-example.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/backend-permissions-check-example.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/casl-react-example.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/casl-react-example.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/comic-centralize-logic.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/comic-centralize-logic.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/data-model-permissions-gql.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/data-model-permissions-gql.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/dolphin_artist.webp",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/dolphin_artist.webp"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/frontend-server-db-access-control.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/frontend-server-db-access-control.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/imposter-of-the-vent.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/imposter-of-the-vent.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/organic-code-meme.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/organic-code-meme.png"
+  },
+  {
+    "from": "/img/permissions-in-web-apps/users-roles-permissions.png",
+    "to": "/img/blog/2022-11-29-permissions-in-web-apps/users-roles-permissions.png"
+  },
+  {
+    "from": "/img/prd/outsmarting-ai-1600.gif",
+    "to": "/img/blog/2023-08-23-using-product-requirement-documents-generate-better-web-apps-with-ai/outsmarting-ai-1600.gif"
+  },
+  {
+    "from": "/img/prerendering-announcement-banner.webp",
+    "to": "/img/blog/2026-05-25-wasp-static-prerendering/prerendering-announcement-banner.webp"
+  },
+  {
+    "from": "/img/prerendering-diagram.png",
+    "to": "/img/docs/guides/optimization/seo/prerendering-diagram.png"
+  },
+  {
+    "from": "/img/public-wasp-dev-roadmap/it-is-all-gh-issues.webp",
+    "to": "/img/blog/2025-07-14-public-wasp-dev-roadmap/it-is-all-gh-issues.webp"
+  },
+  {
+    "from": "/img/public-wasp-dev-roadmap/old-planning-diagram.webp",
+    "to": "/img/blog/2025-07-14-public-wasp-dev-roadmap/old-planning-diagram.webp"
+  },
+  {
+    "from": "/img/public-wasp-dev-roadmap/roadmap-screenshot-fire-cover.png",
+    "to": "/img/blog/2025-07-14-public-wasp-dev-roadmap/roadmap-screenshot-fire-cover.png"
+  },
+  {
+    "from": "/img/public-wasp-dev-roadmap/roadmap-screenshot-fire.png",
+    "to": "/img/blog/2025-07-14-public-wasp-dev-roadmap/roadmap-screenshot-fire.png"
+  },
+  {
+    "from": "/img/public-wasp-dev-roadmap/wasp-daboi-campfire.png",
+    "to": "/img/blog/2025-07-14-public-wasp-dev-roadmap/wasp-daboi-campfire.png"
+  },
+  {
+    "from": "/img/public-wasp-dev-roadmap/wasp-roadmap-circle-diagram.webp",
+    "to": "/img/blog/2025-07-14-public-wasp-dev-roadmap/wasp-roadmap-circle-diagram.webp"
+  },
+  {
+    "from": "/img/railway-deployment/example-app.png",
+    "to": "/img/blog/2025-07-15-railway-deployment/example-app.png"
+  },
+  {
+    "from": "/img/railway-deployment/grandma.gif",
+    "to": "/img/blog/2025-07-15-railway-deployment/grandma.gif"
+  },
+  {
+    "from": "/img/railway-deployment/railway-command-terminal.png",
+    "to": "/img/blog/2025-07-15-railway-deployment/railway-command-terminal.png"
+  },
+  {
+    "from": "/img/railway-deployment/railway-cover.png",
+    "to": "/img/blog/2025-07-15-railway-deployment/railway-cover.png"
+  },
+  {
+    "from": "/img/railway-deployment/railway-dashboard.jpg",
+    "to": "/img/blog/2025-07-15-railway-deployment/railway-dashboard.jpg"
+  },
+  {
+    "from": "/img/resend-provider/banner.webp",
+    "to": "/img/blog/2026-08-03-wasp-resend-email-provider/banner.webp"
+  },
+  {
+    "from": "/img/resources/best-fullstack-framework-2026/banner.webp",
+    "to": "/img/resources/2026-02-24-best-frameworks-web-dev-2026/banner.webp"
+  },
+  {
+    "from": "/img/resources/laravel-for-javascript-2026/banner.webp",
+    "to": "/img/resources/2026-09-09-laravel-for-javascript-2026/banner.webp"
+  },
+  {
+    "from": "/img/resources/redwoodjs-alternatives-2026/banner.webp",
+    "to": "/img/resources/2026-09-09-redwoodjs-alternatives-2026/banner.webp"
+  },
+  {
+    "from": "/img/roll-your-own-file-based-router/banner.webp",
+    "to": "/img/blog/2026-07-01-roll-your-own-file-based-router/banner.webp"
+  },
+  {
+    "from": "/img/searchcraft-vektron/searchcraft-architecture.webp",
+    "to": "/img/blog/2026-07-20-made-with-wasp-searchcraft/searchcraft-architecture.webp"
+  },
+  {
+    "from": "/img/searchcraft-vektron/searchcraft-hero.webp",
+    "to": "/img/blog/2026-07-20-made-with-wasp-searchcraft/searchcraft-hero.webp"
+  },
+  {
+    "from": "/img/searchcraft-vektron/vektron-app-searches.webp",
+    "to": "/img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-app-searches.webp"
+  },
+  {
+    "from": "/img/searchcraft-vektron/vektron-dashboard-analytics.webp",
+    "to": "/img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-dashboard-analytics.webp"
+  },
+  {
+    "from": "/img/searchcraft-vektron/vektron-documents-onboarding.webp",
+    "to": "/img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-documents-onboarding.webp"
+  },
+  {
+    "from": "/img/searchcraft-vektron/vektron-subscription-settings.mp4",
+    "to": "/img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-subscription-settings.mp4"
+  },
+  {
+    "from": "/img/security-incident/security-incident.png",
+    "to": "/img/blog/2025-06-20-oauth-security-incident/security-incident.png"
+  },
+  {
+    "from": "/img/selling-saas.png",
+    "to": "/img/blog/2024-07-03-building-selling-saas-in-5-months/selling-saas.png"
+  },
+  {
+    "from": "/img/shayne-intro-banner.png",
+    "to": "/img/blog/2021-12-21-shayne-intro/shayne-intro-banner.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%201.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-1.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%202.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-2.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%203.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-3.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%204.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-4.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%205.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-5.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%206.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-6.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%207.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-7.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled%208.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-8.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/Untitled.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/smol-ai-tweet.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/smol-ai-tweet.png"
+  },
+  {
+    "from": "/img/smol-ai-vs-wasp-ai/smol-vs-wasp-banner.png",
+    "to": "/img/blog/2023-08-01-smol-ai-vs-wasp-ai/smol-vs-wasp-banner.png"
+  },
+  {
+    "from": "/img/starter-templates/embeddings-client.png",
+    "to": "/img/docs/project/starter-templates/embeddings-client.png"
+  },
+  {
+    "from": "/img/starter-templates/gptsaastemplate.png",
+    "to": "/img/docs/project/starter-templates/gptsaastemplate.png"
+  },
+  {
+    "from": "/img/starter-templates/open-saas-banner.png",
+    "to": "/img/docs/getting-started/starter-templates/open-saas-banner.png"
+  },
+  {
+    "from": "/img/tailwind-1.png",
+    "to": "/img/blog/2022-11-16-tailwind-feature-announcement/tailwind-1.png"
+  },
+  {
+    "from": "/img/tailwind-2.png",
+    "to": "/img/blog/2022-11-16-tailwind-feature-announcement/tailwind-2.png"
+  },
+  {
+    "from": "/img/tailwind-3.png",
+    "to": "/img/blog/2022-11-16-tailwind-feature-announcement/tailwind-3.png"
+  },
+  {
+    "from": "/img/tech-job-2024.png",
+    "to": "/img/blog/2024-05-22-how-to-get-a-web-dev-job-2024/tech-job-2024.png"
+  },
+  {
+    "from": "/img/todo-app-db-studio-task-entity.png",
+    "to": "/img/docs/tutorial/04-entities/todo-app-db-studio-task-entity.png"
+  },
+  {
+    "from": "/img/todo-app-hello-world.png",
+    "to": "/img/docs/tutorial/03-pages/todo-app-hello-world.png"
+  },
+  {
+    "from": "/img/todo-app-new-task.png",
+    "to": "/img/docs/tutorial/06-actions/todo-app-new-task.png"
+  },
+  {
+    "from": "/img/todo-app-no-tasks.png",
+    "to": "/img/docs/tutorial/05-queries/todo-app-no-tasks.png"
+  },
+  {
+    "from": "/img/todo-app-tutorial-intro.gif",
+    "to": "/img/docs/tutorial/01-create/todo-app-tutorial-intro.gif"
+  },
+  {
+    "from": "/img/tutorial-jam/keyboard.png",
+    "to": "/img/blog/2023-06-30-tutorial-jam/keyboard.png"
+  },
+  {
+    "from": "/img/tutorial-jam/tutorial-jam-banner.png",
+    "to": "/img/blog/2023-06-30-tutorial-jam/tutorial-jam-banner.png"
+  },
+  {
+    "from": "/img/typescript-errors.png",
+    "to": "/img/blog/2022-11-29-typescript-feature-announcement/typescript-errors.png"
+  },
+  {
+    "from": "/img/uncle-ben-great-power.jpg",
+    "to": "/img/blog/2022-06-24-ML-code-gen-vs-coding-by-hand-future/uncle-ben-great-power.jpg"
+  },
+  {
+    "from": "/img/update-dec-23/banner.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/banner.png"
+  },
+  {
+    "from": "/img/update-dec-23/da-boi.jpg",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/da-boi.jpg"
+  },
+  {
+    "from": "/img/update-dec-23/gh-discussions.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/gh-discussions.png"
+  },
+  {
+    "from": "/img/update-dec-23/gh-stars.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/gh-stars.png"
+  },
+  {
+    "from": "/img/update-dec-23/github-auth.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/github-auth.png"
+  },
+  {
+    "from": "/img/update-dec-23/next-launch.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/next-launch.png"
+  },
+  {
+    "from": "/img/update-dec-23/pistol-fingers.gif",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/pistol-fingers.gif"
+  },
+  {
+    "from": "/img/update-dec-23/tskaggs-tweet.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/tskaggs-tweet.png"
+  },
+  {
+    "from": "/img/update-dec-23/wasp-youtube.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/wasp-youtube.png"
+  },
+  {
+    "from": "/img/update-dec-23/yt-cta.png",
+    "to": "/img/blog/2023-01-18-wasp-beta-update-dec/yt-cta.png"
+  },
+  {
+    "from": "/img/update-feb-23/98-css.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/98-css.png"
+  },
+  {
+    "from": "/img/update-feb-23/ballmer-launch.gif",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/ballmer-launch.gif"
+  },
+  {
+    "from": "/img/update-feb-23/banner.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/banner.png"
+  },
+  {
+    "from": "/img/update-feb-23/da-boi-call.jpeg",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/da-boi-call.jpeg"
+  },
+  {
+    "from": "/img/update-feb-23/deploy-fly.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/deploy-fly.png"
+  },
+  {
+    "from": "/img/update-feb-23/fullstack-ts.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/fullstack-ts.png"
+  },
+  {
+    "from": "/img/update-feb-23/gh-stars.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/gh-stars.png"
+  },
+  {
+    "from": "/img/update-feb-23/motion-canvas.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/motion-canvas.png"
+  },
+  {
+    "from": "/img/update-feb-23/phrase-tutor.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/phrase-tutor.png"
+  },
+  {
+    "from": "/img/update-feb-23/sokoban-10loc.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/sokoban-10loc.png"
+  },
+  {
+    "from": "/img/update-feb-23/tell-me-now.gif",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/tell-me-now.gif"
+  },
+  {
+    "from": "/img/update-feb-23/types-buzz.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/types-buzz.png"
+  },
+  {
+    "from": "/img/update-feb-23/wasp-discord-meme.jpeg",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/wasp-discord-meme.jpeg"
+  },
+  {
+    "from": "/img/update-feb-23/yt-junior-devs.png",
+    "to": "/img/blog/2023-03-02-wasp-beta-update-feb/yt-junior-devs.png"
+  },
+  {
+    "from": "/img/update-may-23/auto-crud.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/auto-crud.png"
+  },
+  {
+    "from": "/img/update-may-23/banner.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/banner.png"
+  },
+  {
+    "from": "/img/update-may-23/beautiful.gif",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/beautiful.gif"
+  },
+  {
+    "from": "/img/update-may-23/github-stars.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/github-stars.png"
+  },
+  {
+    "from": "/img/update-may-23/goodbye-dramatic.gif",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/goodbye-dramatic.gif"
+  },
+  {
+    "from": "/img/update-may-23/gpt-wasp-joke.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/gpt-wasp-joke.png"
+  },
+  {
+    "from": "/img/update-may-23/muscles.gif",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/muscles.gif"
+  },
+  {
+    "from": "/img/update-may-23/new-lsp.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/new-lsp.png"
+  },
+  {
+    "from": "/img/update-may-23/testimonial-hackathon.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/testimonial-hackathon.png"
+  },
+  {
+    "from": "/img/update-may-23/testimonial-jon.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/testimonial-jon.png"
+  },
+  {
+    "from": "/img/update-may-23/typergotchi.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/typergotchi.png"
+  },
+  {
+    "from": "/img/update-may-23/web-sockets.png",
+    "to": "/img/blog/2023-06-07-wasp-beta-update-may-23/web-sockets.png"
+  },
+  {
+    "from": "/img/us-at-ycombinator.jpg",
+    "to": "/img/blog/2021-02-23-journey-to-ycombinator/us-at-ycombinator.jpg"
+  },
+  {
+    "from": "/img/wasp-1-0-is-coming-banner.webp",
+    "to": "/img/blog/2026-10-20-wasp-1-0-is-coming/wasp-1-0-is-coming-banner.webp"
+  },
+  {
+    "from": "/img/wasp-cli-output.png",
+    "to": "/img/blog/2021-03-02-wasp-alpha/wasp-cli-output.png"
+  },
+  {
+    "from": "/img/wasp-compilation.png",
+    "to": "/img/blog/2021-03-02-wasp-alpha/wasp-compilation.png"
+  },
+  {
+    "from": "/img/wasp-fundraise-chart.png",
+    "to": "/img/blog/2021-11-22-fundraising-learnings/wasp-fundraise-chart.png"
+  },
+  {
+    "from": "/img/wasp-fundraise-funnel.png",
+    "to": "/img/blog/2021-11-22-fundraising-learnings/wasp-fundraise-funnel.png"
+  },
+  {
+    "from": "/img/wasp-gh-stars-raise.png",
+    "to": "/img/blog/2021-11-21-seed-round/wasp-gh-stars-raise.png"
+  },
+  {
+    "from": "/img/wasp-guest-vs-waspeteer.png",
+    "to": "/img/blog/2021-04-29-discord-bot-introduction/wasp-guest-vs-waspeteer.png"
+  },
+  {
+    "from": "/img/wasp-llm/give-me-auth.png",
+    "to": "/img/blog/2025-04-01-wasp-first-full-stack-framework-powered-by-llm/give-me-auth.png"
+  },
+  {
+    "from": "/img/wasp-llm/jquery-code-example.png",
+    "to": "/img/blog/2025-04-01-wasp-first-full-stack-framework-powered-by-llm/jquery-code-example.png"
+  },
+  {
+    "from": "/img/wasp-llm/wasp-ai-first-diagram.png",
+    "to": "/img/blog/2025-04-01-wasp-first-full-stack-framework-powered-by-llm/wasp-ai-first-diagram.png"
+  },
+  {
+    "from": "/img/wasp-llm/wasp-llm-banner.png",
+    "to": "/img/blog/2025-04-01-wasp-first-full-stack-framework-powered-by-llm/wasp-llm-banner.png"
+  },
+  {
+    "from": "/img/wasp-logo-wide.png",
+    "to": "/img/blog/2021-03-02-wasp-alpha/wasp-logo-wide.png"
+  },
+  {
+    "from": "/img/wasp-new-screenshot.png",
+    "to": "/img/docs/tutorial/01-create/wasp-new-screenshot.png"
+  },
+  {
+    "from": "/img/wasp-rebrand/alpha-landing-atf.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/alpha-landing-atf.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/broken-how-it-works.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/broken-how-it-works.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/concept-1.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/concept-1.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/concept-2.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/concept-2.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/concept-3.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/concept-3.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/concept-4.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/concept-4.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/current-wasp-sh.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/current-wasp-sh.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/martin-gh-roadmap-on-landing.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/martin-gh-roadmap-on-landing.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/matija-nano-banana-mockup.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/matija-nano-banana-mockup.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/pre-rebrand-landing-atf.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/pre-rebrand-landing-atf.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/rebrand-banner.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/rebrand-banner.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/rebrand-brandbook.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/rebrand-brandbook.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/rebrand-logo-progression-real.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/rebrand-logo-progression-real.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/rebrand-system.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/rebrand-system.webp"
+  },
+  {
+    "from": "/img/wasp-rebrand/stic-landing-page.webp",
+    "to": "/img/blog/2026-07-13-why-design-matters-for-a-web-framework/stic-landing-page.webp"
+  },
+  {
+    "from": "/img/wasp-studio/auth-node.png",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/auth-node.png"
+  },
+  {
+    "from": "/img/wasp-studio/baby-sleep-tracker-studio.png",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/baby-sleep-tracker-studio.png"
+  },
+  {
+    "from": "/img/wasp-studio/baby-tracker-full.png",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/baby-tracker-full.png"
+  },
+  {
+    "from": "/img/wasp-studio/opensaas-studio.png",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/opensaas-studio.png"
+  },
+  {
+    "from": "/img/wasp-studio/pg-tweet.png",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/pg-tweet.png"
+  },
+  {
+    "from": "/img/wasp-studio/potential.gif",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/potential.gif"
+  },
+  {
+    "from": "/img/wasp-studio/wasp-auth-ui.gif",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/wasp-auth-ui.gif"
+  },
+  {
+    "from": "/img/wasp-studio/wasp-diagram.png",
+    "to": "/img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/wasp-diagram.png"
+  },
+  {
+    "from": "/img/wasp-ts-banner.png",
+    "to": "/img/blog/2022-11-29-typescript-feature-announcement/wasp-ts-banner.png"
+  },
+  {
+    "from": "/img/wasp-typescript-spec/banner.webp",
+    "to": "/img/blog/2026-06-15-wasp-typescript-spec/banner.webp"
+  },
+  {
+    "from": "/img/wasp_db_demonstration.gif",
+    "to": "/img/docs/tutorial/07-auth/wasp_db_demonstration.gif"
+  },
+  {
+    "from": "/img/wasp_db_hash_demonstration.gif",
+    "to": "/img/docs/tutorial/07-auth/wasp_db_hash_demonstration.gif"
+  },
+  {
+    "from": "/img/wasp_user_in_db.gif",
+    "to": "/img/docs/tutorial/07-auth/wasp_user_in_db.gif"
+  },
+  {
+    "from": "/img/waspello-client-being-brave.gif",
+    "to": "/img/blog/2021-12-02-waspello/waspello-client-being-brave.gif"
+  },
+  {
+    "from": "/img/waspello-code-anatomy.png",
+    "to": "/img/blog/2021-12-02-waspello/waspello-code-anatomy.png"
+  },
+  {
+    "from": "/img/waspello-in-action.gif",
+    "to": "/img/blog/2021-12-02-waspello/waspello-in-action.gif"
+  },
+  {
+    "from": "/img/waspello-no-opt-UI-updates.gif",
+    "to": "/img/blog/2021-12-02-waspello/waspello-no-opt-UI-updates.gif"
+  },
+  {
+    "from": "/img/waspello-propaganda.png",
+    "to": "/img/blog/2021-12-02-waspello/waspello-propaganda.png"
+  },
+  {
+    "from": "/img/waspello-screenshot.png",
+    "to": "/img/blog/2021-12-02-waspello/waspello-screenshot.png"
+  },
+  {
+    "from": "/img/waspleau-metrics.png",
+    "to": "/img/blog/2022-01-27-waspleau/waspleau-metrics.png"
+  },
+  {
+    "from": "/img/waspleau-rickroll.gif",
+    "to": "/img/blog/2022-01-27-waspleau/waspleau-rickroll.gif"
+  },
+  {
+    "from": "/img/waspleau-sad.png",
+    "to": "/img/blog/2022-01-27-waspleau/waspleau-sad.png"
+  },
+  {
+    "from": "/img/waspleau-screenshot.png",
+    "to": "/img/blog/2022-01-27-waspleau/waspleau-screenshot.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%201.gif",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-1.gif"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%201.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-1.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%202.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-2.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%203.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-3.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%204.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-4.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%205.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-5.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%206.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-6.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled%207.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-7.png"
+  },
+  {
+    "from": "/img/websockets-app/Untitled.gif",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled.gif"
+  },
+  {
+    "from": "/img/websockets-app/Untitled.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled.png"
+  },
+  {
+    "from": "/img/websockets-app/websockets-banner.png",
+    "to": "/img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/websockets-banner.png"
+  },
+  {
+    "from": "/img/why-we-chose-prisma/wasp-loves-prisma.png",
+    "to": "/img/blog/2022-11-28-why-we-chose-prisma/wasp-loves-prisma.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-end-of-nomad-2-min.jpeg",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-end-of-nomad-2-min.jpeg"
+  },
+  {
+    "from": "/img/worth-joining/canny-end-of-nomad-min.jpeg",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-end-of-nomad-min.jpeg"
+  },
+  {
+    "from": "/img/worth-joining/canny-founder-stories-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-founder-stories-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-hacking-in-denver-min.jpeg",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-hacking-in-denver-min.jpeg"
+  },
+  {
+    "from": "/img/worth-joining/canny-instagram-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-instagram-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-million-arr-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-million-arr-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-sarah-tweet-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-sarah-tweet-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-team-bios-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-team-bios-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-why-work-post-comments-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-why-work-post-comments-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-year-in-review-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-year-in-review-min.png"
+  },
+  {
+    "from": "/img/worth-joining/canny-year-of-retreats-min.jpeg",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/canny-year-of-retreats-min.jpeg"
+  },
+  {
+    "from": "/img/worth-joining/fibery-about-us-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-about-us-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-anxiety-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-anxiety-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-challenges-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-challenges-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-chris-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-chris-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-hn-1-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-hn-1-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-hn-2-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-hn-2-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-open-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-open-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-startup-diary-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-startup-diary-min.png"
+  },
+  {
+    "from": "/img/worth-joining/fibery-what-customers-say-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/fibery-what-customers-say-min.png"
+  },
+  {
+    "from": "/img/worth-joining/illustration-1-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/illustration-1-min.png"
+  },
+  {
+    "from": "/img/worth-joining/illustration-2-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/illustration-2-min.png"
+  },
+  {
+    "from": "/img/worth-joining/illustration-3-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/illustration-3-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-james-bio-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-james-bio-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-james-readme-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-james-readme-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-james-video-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-james-video-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-lottie-video-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-lottie-video-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-story-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-story-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-team-1-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-team-1-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-team-2-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-team-2-min.png"
+  },
+  {
+    "from": "/img/worth-joining/posthog-values-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/posthog-values-min.png"
+  },
+  {
+    "from": "/img/worth-joining/wasp-fundraising-learnings-post-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/wasp-fundraising-learnings-post-min.png"
+  },
+  {
+    "from": "/img/worth-joining/wasp-meet-the-team-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/wasp-meet-the-team-min.png"
+  },
+  {
+    "from": "/img/worth-joining/wasp-monthly-newsletter-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/wasp-monthly-newsletter-min.png"
+  },
+  {
+    "from": "/img/worth-joining/wasp-vibe-blog-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/wasp-vibe-blog-min.png"
+  },
+  {
+    "from": "/img/worth-joining/wasp-vibe-tshirts-min.jpeg",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/wasp-vibe-tshirts-min.jpeg"
+  },
+  {
+    "from": "/img/worth-joining/wasp-who-we-are-min.png",
+    "to": "/img/blog/2022-08-15-how-to-communicate-why-your-startup-is-worth-joining/wasp-who-we-are-min.png"
+  },
+  {
+    "from": "/img/writing-rfcs/existing-solutions.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/existing-solutions.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-flowchart.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-flowchart.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-meme-when.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-meme-when.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-metadata.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-metadata.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-overview.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-overview.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-problem.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-problem.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-prophet.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-prophet.png"
+  },
+  {
+    "from": "/img/writing-rfcs/rfc-reviewer-status-example.png",
+    "to": "/img/blog/2023-12-05-writing-rfcs/rfc-reviewer-status-example.png"
+  },
+  {
+    "from": "/img/wsl-guide/wsl-guide-banner.jpeg",
+    "to": "/img/blog/2023-11-21-guide-windows-development-wasp-wsl/wsl-guide-banner.jpeg"
+  },
+  {
+    "from": "/img/xmas-launch/cc-wasp-plugin.png",
+    "to": "/img/blog/2025-12-17-wasp-xmas-launch/cc-wasp-plugin.png"
+  },
+  {
+    "from": "/img/xmas-launch/polar-code-example.png",
+    "to": "/img/blog/2025-12-17-wasp-xmas-launch/polar-code-example.png"
+  },
+  {
+    "from": "/img/xmas-launch/react19-testimonial.png",
+    "to": "/img/blog/2025-12-17-wasp-xmas-launch/react19-testimonial.png"
+  },
+  {
+    "from": "/img/xmas-launch/xmas-launch-banner.png",
+    "to": "/img/blog/2025-12-17-wasp-xmas-launch/xmas-launch-banner.png"
+  },
+  {
+    "from": "/img/year-review-2025/banner.png",
+    "to": "/img/blog/2025-12-30-wasp-2025-year-in-review/banner.png"
+  },
+  {
+    "from": "/img/year-review-2025/open-saas.png",
+    "to": "/img/blog/2025-12-30-wasp-2025-year-in-review/open-saas.png"
+  },
+  {
+    "from": "/img/year-review-2025/rails-for-js.png",
+    "to": "/img/blog/2025-12-30-wasp-2025-year-in-review/rails-for-js.png"
+  },
+  {
+    "from": "/img/year-review-2025/roadmap.png",
+    "to": "/img/blog/2025-12-30-wasp-2025-year-in-review/roadmap.png"
+  },
+  {
+    "from": "/img/year-review-2025/wasp-team.jpeg",
+    "to": "/img/blog/2025-12-30-wasp-2025-year-in-review/wasp-team.jpeg"
+  }
+]

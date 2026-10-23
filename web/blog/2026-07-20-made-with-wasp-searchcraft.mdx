@@ -1,7 +1,7 @@
 ---
 title: "Made with Wasp: how Searchcraft built a full-stack SaaS around their Rust search engine"
 authors: [matijasos]
-image: /img/searchcraft-vektron/searchcraft-hero.webp
+image: /img/blog/2026-07-20-made-with-wasp-searchcraft/searchcraft-hero.webp
 tags: [showcase, wasp, saas, rust, web dev]
 keywords: ["rust search engine", "algolia alternative", "elasticsearch alternative", "self-hosted search engine", "open source search engine alternative", "wasp framework production app", "full-stack react node prisma app", "saas dashboard framework", "open saas template", "search engine on raspberry pi", "build saas dashboard fast", "rust and react architecture", "multi-tenant saas example", "wasp use case"]
 description: "How Searchcraft, a Rust-based Algolia alternative, built their full-stack customer dashboard with Wasp and the Open SaaS template."
@@ -11,7 +11,7 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 import { VideoWithCaption } from './components/VideoWithCaption';
 
 <ImgWithCaption
-    source="img/searchcraft-vektron/searchcraft-hero.webp"
+    source="img/blog/2026-07-20-made-with-wasp-searchcraft/searchcraft-hero.webp"
     alt="Searchcraft - a Rust-based search engine, with its Wasp-powered customer dashboard"
 />
 
@@ -38,7 +38,7 @@ And they're in production. Their first customer is a publisher running 22 local 
 ## Every engine needs a chassis - so they chose Wasp
 
 <ImgWithCaption
-    source="img/searchcraft-vektron/vektron-documents-onboarding.webp"
+    source="img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-documents-onboarding.webp"
     alt="The onboarding screen: import documents from a feed URL, a file, or WordPress"
     caption="The onboarding screen - Searchcraft's design is super cool!"
 />
@@ -56,19 +56,19 @@ The dashboard is Searchcraft's control room, "a product within a product," where
 Three moments show what's actually running under the UI, because the dashboard isn't a static admin panel, it's a full-stack app where Wasp is doing real work end to end:
 
 <ImgWithCaption
-    source="img/searchcraft-vektron/vektron-dashboard-analytics.webp"
+    source="img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-dashboard-analytics.webp"
     alt="Organization dashboard with live usage stats, conversion and retention scores"
     caption="What's behind this screen: server-side queries turning raw search events into live stats and multi-tenant access control, all in one Wasp codebase."
 />
 
 <ImgWithCaption
-    source="img/searchcraft-vektron/vektron-app-searches.webp"
+    source="img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-app-searches.webp"
     alt="Application view with the index registry and total searches chart"
     caption="What's behind this screen: a multi-tenant index registry in Prisma, kept in sync with the Rust engine over one API, with search events rolled up into the time windows above. The chart is React; the plumbing is Wasp's type-safe operations."
 />
 
 <VideoWithCaption
-    source="img/searchcraft-vektron/vektron-subscription-settings.mp4"
+    source="img/blog/2026-07-20-made-with-wasp-searchcraft/vektron-subscription-settings.mp4"
     alt="Organization settings with subscription plans and upgrades"
     caption="What's behind this screen: subscription plans and upgrades, the billing machinery every SaaS needs and nobody wants to hand-roll, running in the same Wasp app and wired into the quotas from the first screen."
 />
@@ -82,7 +82,7 @@ The shape is the interesting part. On one side, the Searchcraft engine and its s
 Here's the architecture, drawn by the Searchcraft team:
 
 <ImgWithCaption
-    source="img/searchcraft-vektron/searchcraft-architecture.webp"
+    source="img/blog/2026-07-20-made-with-wasp-searchcraft/searchcraft-architecture.webp"
     alt="Architecture diagram: the customer dashboard (Wasp app), Searchcraft Server (Rust), provisioning and ingestion services (Rust), SDKs, customer apps"
     caption="The dashboard, a Wasp app, handles users, configuration, and analytics; the Searchcraft engine and its Rust services do the search. One API connects them, and customer apps reach search through the SDKs."
 />
