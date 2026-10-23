@@ -21,7 +21,7 @@ This project uses the Wasp framework.
 
 - Run `wasp install` before other Wasp commands in a fresh clone or worktree.
 - Set up `.env.server` and `.env.client` from the example files or the project README.
-- Run `wasp db migrate-dev`. Check the project README to see whether you also need to run a seed.
+- Run `wasp db migrate-dev --db-image pgvector/pgvector:pg18`. Pass `--db-image pgvector/pgvector:pg18` to `wasp start` and other commands that automatically start the development database.
 
 ### Verification
 
