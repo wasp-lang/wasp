@@ -1,31 +1,20 @@
 @import "tailwindcss";
+/* The minimal starter's styles, in the base layer so Tailwind utilities can override them. */
+@import "./Main.css" layer(base);
 
 @theme {
-  --color-yellow: #f5c842;
-  --color-yellow-dark: #d4a930;
-  --color-black: #111;
+  --color-yellow: var(--yellow);
+  --color-yellow-dark: var(--yellow-dark);
+  --color-black: var(--black);
   --color-gray: #555;
-  --color-cream: #f7f5f0;
-  --color-white: #fafafa;
-
-  --font-mono:
-    ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-
-  --shadow-card: 6px 6px 0 var(--color-yellow);
+  --color-cream: var(--cream);
+  --color-white: var(--white);
 }
 
 @layer base {
   body {
-    @apply bg-cream font-mono text-black has-[dialog:open]:overflow-hidden;
+    @apply has-[dialog:open]:overflow-hidden;
   }
-
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-black;
-  }
-}
-
-@utility card {
-  @apply border-2 border-black bg-white shadow-card;
 }
 
 @utility label {

@@ -7,10 +7,10 @@ export function Header() {
   const { data: user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-black bg-white px-6 py-3">
+    <header className="sticky top-0 z-10">
       <Link to="/">
-        <h1 className="flex items-center gap-2 text-xl font-bold">
-          <img src={Logo} alt="Wasp logo" className="h-10" />
+        <h1 className="font-bold">
+          <img src={Logo} alt="Wasp logo" />
           ToDo App
         </h1>
       </Link>

@@ -33,7 +33,7 @@ export function TaskList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ul className="card divide-y-2 divide-black">
+      <ul className="card divide-y-2 divide-black p-0">
         {tasks.map((task) => (
           <TaskListItem task={task} key={task.id} />
         ))}

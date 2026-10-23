@@ -15,10 +15,10 @@ export function CreateTagDialog() {
       </Button>
       {tagDialogOpen && (
         <Dialog open={tagDialogOpen} onClose={() => setTagDialogOpen(false)}>
-          <section className="card flex min-h-0 flex-col">
-            <header className="px-4 py-6 lg:px-6 lg:py-8">
-              <h2 className="text-xl font-bold uppercase">Create a new tag</h2>
-            </header>
+          <section className="card flex min-h-0 flex-col p-0">
+            <div className="px-4 py-6 lg:px-6 lg:py-8">
+              <h2 className="text-xl font-bold">Create a new tag</h2>
+            </div>
             <div className="min-h-0 overflow-y-auto p-4 lg:p-6">
               <CreateTagForm
                 id={formId}

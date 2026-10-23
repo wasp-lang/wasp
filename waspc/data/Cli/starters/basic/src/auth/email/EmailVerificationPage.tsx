@@ -6,14 +6,13 @@ export function EmailVerificationPage() {
   return (
     <AuthLayout>
       <VerifyEmailForm />
-      <br />
-      <span className="text-sm">
+      <p className="text-sm">
         If everything is okay,{" "}
         <Link to="/login" className="font-bold underline">
           go to login
         </Link>
         .
-      </span>
+      </p>
     </AuthLayout>
   );
 }

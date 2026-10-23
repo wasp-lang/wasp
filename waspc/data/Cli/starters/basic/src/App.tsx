@@ -4,11 +4,9 @@ import { Header } from "./shared/components/Header";
 
 export function App() {
   return (
-    <>
+    <div className="page">
       <Header />
-      <main>
-        <Outlet />
-      </main>
-    </>
+      <Outlet />
+    </div>
   );
 }

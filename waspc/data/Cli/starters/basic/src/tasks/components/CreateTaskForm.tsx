@@ -57,7 +57,7 @@ export function CreateTaskForm() {
       className="flex w-full flex-col gap-6"
       id="create-task"
     >
-      <h2 className="text-xl font-bold uppercase">Create a new task</h2>
+      <h2 className="text-xl font-bold">Create a new task</h2>
       <Controller
         name="description"
         control={control}

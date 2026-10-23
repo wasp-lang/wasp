@@ -13,7 +13,7 @@ export function Walkthrough({ steps }: { steps: WalkthroughStep[] }) {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <div className="card grid grid-cols-1 lg:grid-cols-12">
+    <div className="card grid grid-cols-1 p-0 lg:grid-cols-12">
       <ol className="divide-y-2 divide-black lg:col-span-5 lg:border-r-2 lg:border-black">
         {steps.map((step, index) => {
           const isOpen = index === openIndex;

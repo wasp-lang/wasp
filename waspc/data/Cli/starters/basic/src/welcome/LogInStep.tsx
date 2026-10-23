@@ -18,14 +18,9 @@ export function LogInStep() {
         built-in Auth UI to let users sign up and log in.
       </p>
       <p>You can create a sample user by going to the Sign Up page:</p>
-      <div>
-        <Link
-          to="/signup"
-          className="inline-flex items-center gap-2 border-2 border-black bg-yellow px-5 py-3 font-bold text-black hover:bg-yellow-dark"
-        >
-          Create your first user
-        </Link>
-      </div>
+      <Link to="/signup" className="button self-start">
+        Create your first user
+      </Link>
     </>
   );
 }

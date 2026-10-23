@@ -58,14 +58,9 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
           and tags, then open <InlineCode>src/tasks/</InlineCode> to see the
           page, queries, and actions behind it.
         </p>
-        <div>
-          <Link
-            to="/tasks"
-            className="inline-flex items-center gap-2 border-2 border-black bg-yellow px-5 py-3 font-bold text-black hover:bg-yellow-dark"
-          >
-            Go to your tasks
-          </Link>
-        </div>
+        <Link to="/tasks" className="button self-start">
+          Go to your tasks
+        </Link>
       </>
     ),
     media: (
@@ -189,16 +184,14 @@ export default app({
             instead of the Dummy one.
           </li>
         </ul>
-        <div>
-          <a
-            href="https://wasp.sh/docs/deployment/methods/wasp-deploy/overview"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 border-2 border-black bg-yellow px-5 py-3 font-bold text-black hover:bg-yellow-dark"
-          >
-            Deploy your app <span aria-hidden>→</span>
-          </a>
-        </div>
+        <a
+          href="https://wasp.sh/docs/deployment/methods/wasp-deploy/overview"
+          target="_blank"
+          rel="noreferrer"
+          className="button self-start"
+        >
+          Deploy your app <span aria-hidden>→</span>
+        </a>
       </>
     ),
     media: (
@@ -216,21 +209,19 @@ $ wasp deploy fly launch my-wasp-app dfw`}
 
 export function WelcomePage() {
   return (
-    <div className="flex justify-center px-6 py-12 lg:px-12">
-      <div className="flex w-full max-w-(--breakpoint-lg) min-w-0 flex-col gap-10">
-        <div className="flex flex-col items-start gap-4">
-          <h2 className="text-3xl leading-tight font-bold uppercase lg:text-4xl">
-            Your app is <span className="bg-yellow px-2">up and running</span>
-          </h2>
-          <p className="max-w-2xl text-gray">
-            Follow these steps to get to know your new app. This page lives in{" "}
-            <InlineCode>src/welcome/</InlineCode>, so feel free to change it, or
-            delete it once you&apos;re done (the{" "}
-            <InlineCode>README.md</InlineCode> explains how).
-          </p>
-        </div>
-        <Walkthrough steps={WALKTHROUGH_STEPS} />
+    <main className="w-[min(64rem,100%-3rem)] min-w-0 gap-10 self-start">
+      <div className="flex flex-col items-start gap-4">
+        <h2 className="text-3xl leading-tight font-bold lg:text-4xl">
+          Your app is <span className="bg-yellow px-2">up and running</span>
+        </h2>
+        <p className="max-w-2xl text-gray">
+          Follow these steps to get to know your new app. This page lives in{" "}
+          <InlineCode>src/welcome/</InlineCode>, so feel free to change it, or
+          delete it once you&apos;re done (the{" "}
+          <InlineCode>README.md</InlineCode> explains how).
+        </p>
       </div>
-    </div>
+      <Walkthrough steps={WALKTHROUGH_STEPS} />
+    </main>
   );
 }

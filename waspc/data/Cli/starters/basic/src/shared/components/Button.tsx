@@ -69,7 +69,7 @@ function getButtonClasses({
   className: ClassNameValue;
 }): string {
   return twJoin(
-    "inline-flex cursor-pointer items-center justify-center gap-2 border-2 font-bold disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex cursor-pointer items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50",
     variantStyles[variant],
     sizeStyles[size],
     className,
@@ -82,6 +82,6 @@ const sizeStyles: Record<ButtonSize, ClassNameValue> = {
 };
 
 const variantStyles: Record<ButtonVariant, ClassNameValue> = {
-  primary: "border-black bg-yellow text-black hover:bg-yellow-dark",
-  ghost: "border-transparent bg-transparent text-black hover:border-black",
+  primary: "button",
+  ghost: "border-2 border-transparent font-bold hover:border-black",
 };
