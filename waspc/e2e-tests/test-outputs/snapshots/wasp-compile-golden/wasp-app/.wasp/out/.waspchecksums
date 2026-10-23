@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "8e676c12e62f04f9023161cc054b457c70d6b2ba86686088b50c96ab13e2cb3f"
+        "58fbf010dff6379d26375006d59c931f034b53a06d9da76210cad8c5e43f7c12"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "server/package.json"
         ],
-        "beaff769ef2eb85711d8542f0f49c660a05de824a26f75122c1cce90eb45aee2"
+        "f19adbf07a3f7cf4216ed8f16ea6382a8b396080d05f93e8cac9eafb55eebe2e"
     ],
     [
         [
