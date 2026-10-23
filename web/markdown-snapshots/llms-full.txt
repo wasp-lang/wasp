@@ -523,7 +523,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-![How the Todo App will work once it is finished](https://wasp.sh/img/docs/tutorial/01-create/todo-app-tutorial-intro.gif)
+![How the Todo App will work once it is finished](https://wasp.sh/assets/images/todo-app-intro-7e610e7980f8534af6624e9ceef5ef38.gif)
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
@@ -550,7 +550,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
-![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/docs/tutorial/01-create/wasp-new-screenshot.png)
+![Screenshot of the Wasp minimal starter app](https://wasp.sh/assets/images/wasp-new-screenshot-aff877c2caaaea554ce2475581820ffb.webp)
 
 Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
 
@@ -749,19 +749,109 @@ Now that you've seen how Wasp deals with Routes and Pages, it's finally time to 
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
-First, remove most of the code from the `MainPage` component:
+The starter already comes with the base styles for the Todo app. You only need to add the styles for the task list and its form. You don't need to understand them to follow the tutorial. They only make the app look nice.
+
+Add these styles to the end of `src/Main.css`:
+
+```css title="src/Main.css"
+input {
+  border-style: solid;
+}
+
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--yellow);
+}
+
+button,
+input[type="submit"] {
+  padding: 0.75rem 1.25rem;
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--black);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background: var(--yellow-dark);
+}
+
+header button {
+  padding: 0.5rem 1rem;
+}
+
+.new-task-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.new-task-form input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: var(--border);
+  background: var(--white);
+  font: inherit;
+}
+
+.tasks {
+  margin: 0;
+  padding: 0;
+  border: var(--border);
+  background: var(--white);
+  box-shadow: 6px 6px 0 var(--yellow);
+  list-style: none;
+}
+
+.tasks li + li {
+  border-top: var(--border);
+}
+
+.tasks label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.tasks label:has(input:checked) {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+```
+
+Then, replace the `MainPage` component with the skeleton of the Todo app, a header with the app title and an empty main area:
 
 ```tsx title="src/MainPage.tsx"
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
+
 export const MainPage = () => {
-  return <div>Hello world!</div>;
+  return (
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>Hello world!</main>
+    </>
+  );
 };
 ```
 
 At this point, the main page should look like this:
 
-![Todo App - Hello World](https://wasp.sh/img/docs/tutorial/03-pages/todo-app-hello-world.png)
+*(Inlined image: Todo App - Hello World)*
 
-You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
+You can now delete `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.tsx` no longer exists, remove its route from the `main.wasp.ts` file.
 
@@ -825,7 +915,7 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-![Todo App - Db studio showing Task schema](https://wasp.sh/img/docs/tutorial/04-entities/todo-app-db-studio-task-entity.png)
+![Todo App - Db studio showing Task schema](https://wasp.sh/assets/images/todo-app-db-studio-task-entity-ca7deaa0d8fe5eec314cf0c4474c402b.webp)
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
 
@@ -920,26 +1010,39 @@ This makes it easy for us to use the `getTasks` Query we just created in our Rea
 ```tsx title="src/MainPage.tsx"
 import type { Task } from "wasp/entities";
 import { getTasks, useQuery } from "wasp/client/operations";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      {tasks && <TasksList tasks={tasks} />}
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-    </div>
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
 const TaskView = ({ task }: { task: Task }) => {
   return (
-    <div>
-      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-      {task.description}
-    </div>
+    <li>
+      <label>
+        <input type="checkbox" checked={task.isDone} />
+        {task.description}
+      </label>
+    </li>
   );
 };
 
@@ -947,11 +1050,11 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   if (!tasks?.length) return <div>No tasks</div>;
 
   return (
-    <div>
+    <ul className="tasks">
       {tasks.map((task, idx) => (
         <TaskView task={task} key={idx} />
       ))}
-    </div>
+    </ul>
   );
 };
 ```
@@ -968,7 +1071,7 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-![Todo App - No Tasks](https://wasp.sh/img/docs/tutorial/05-queries/todo-app-no-tasks.png)
+*(Inlined image: Todo App - No Tasks)*
 
 We'll create a form to add tasks in the next step 🪄
 
@@ -1061,8 +1164,13 @@ const NewTaskForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="description" type="text" defaultValue="" />
+    <form className="new-task-form" onSubmit={handleSubmit}>
+      <input
+        name="description"
+        type="text"
+        placeholder="What needs to be done?"
+        defaultValue=""
+      />
       <input type="submit" value="Create task" />
     </form>
   );
@@ -1079,17 +1187,28 @@ All that's left now is adding this form to the page component:
 import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      <NewTaskForm />
-      {tasks && <TasksList tasks={tasks} />}
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        <NewTaskForm />
+        {tasks && <TasksList tasks={tasks} />}
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
@@ -1104,7 +1223,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-![Todo App - creating new task](https://wasp.sh/img/docs/tutorial/06-actions/todo-app-new-task.png)
+![Todo App - creating new task](https://wasp.sh/assets/images/todo-app-new-task-c56988ad64a4602ec0ab1ce169277ac9.webp)
 
 :::note[Automatic Query Invalidation]
 When you create a new task, the list of tasks is automatically updated to display the new task, even though you haven't written any code that does that! Wasp handles these automatic updates under the hood.
@@ -1192,15 +1311,16 @@ const TaskView = ({ task }: { task: Task }) => {
   };
 
   return (
-    <div>
-      <input
-        type="checkbox"
-        id={String(task.id)}
-        checked={task.isDone}
-        onChange={handleIsDoneChange}
-      />
-      {task.description}
-    </div>
+    <li>
+      <label>
+        <input
+          type="checkbox"
+          checked={task.isDone}
+          onChange={handleIsDoneChange}
+        />
+        {task.description}
+      </label>
+    </li>
   );
 };
 
@@ -1318,16 +1438,16 @@ Here's the React code for the pages you've just imported:
 ```tsx title="src/LoginPage.tsx"
 import { Link } from "react-router";
 import { LoginForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <LoginForm />
-      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -1337,16 +1457,16 @@ The signup page is very similar to the login page:
 ```tsx title="src/SignupPage.tsx"
 import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <SignupForm />
-      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -1403,7 +1523,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-![Database demonstration - password hashing](https://wasp.sh/img/docs/tutorial/07-auth/wasp_user_in_db.gif)
+![Database demonstration - password hashing](https://wasp.sh/assets/images/wasp_user_in_db-512c2a3ee0c92b442a9e3ebe55b461f7.gif)
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -1516,7 +1636,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-![Database demonstration](https://wasp.sh/img/docs/tutorial/07-auth/wasp_db_demonstration.gif)
+![Database demonstration](https://wasp.sh/assets/images/wasp_db_demonstration-e6386a38573e1bca9e0476e9ff301cd9.gif)
 
 You will see that each user has their tasks, just as we specified in our code!
 
@@ -1532,10 +1652,16 @@ import { logout } from "wasp/client/auth";
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
-    <div>
-      {/* ... */}
-      <button onClick={logout}>Logout</button>
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+        <button onClick={logout}>Logout</button>
+      </header>
+      <main>{/* ... */}</main>
+    </>
   );
 };
 ```
