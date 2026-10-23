@@ -27,20 +27,17 @@ export function reportUnexpectedServerError(
 /**
  * Sends anything thrown while handling a request as a JSON error response.
  *
- * - An `HttpError` is thrown on purpose, so we send its status code,
- *   headers, message, and data.
- * - Errors from Express and other middleware keep their status code and
- *   headers, the same as with Express's default error handler. We only send
- *   their message when they mark it as safe to show.
- * - Other errors keep their status code and headers if they carry a valid
- *   status code, like with Express's default error handler, or become a 500.
- *   We never send their message, so we don't leak internal details to the
- *   client.
+ * - Wasp's `HttpError`s are thrown on purpose, so we return them as is.
+ * - `http-errors` package errors, which are thrown by `express`, are
+ *   properly transformed into `HttpError`s.
+ * - For the rest of errors, we try to make a choice based on their fields.
+ *   If we manage to find a valid status code, we return a best bet `HttpError`,
+ *   otherwise we default to a generic 500 error.
  *
- * We report every error other than an `HttpError` that ends up as a 5xx.
+ * Every error, that wasn't a `HttpError` originally, logs if it's an 5xx error.
  *
- * In development, a hidden error's message and stack go into `data`, like
- * Express's default error handler shows them on its HTML page.
+ * In development, we purposely attach otherwise hidden data (message, stack traces)
+ * where possible.
  */
 export function sendErrorResponse(response: Response, error: unknown): void {
   const httpError = toHttpError(error);
@@ -58,10 +55,12 @@ function toHttpError(error: unknown): HttpError {
   }
 
   const options = { includeErrorDetails: config.isDevelopment };
+
   // `express` uses `http-errors` package to create errors
   const httpError = httpErrors.isHttpErrorsError(error)
     ? httpErrors.toWaspHttpError(error, options)
     : unknownErrors.toWaspHttpError(error, options);
+
   if (httpError.statusCode >= 500) {
     reportUnexpectedServerError(error, { source: "request" });
   }

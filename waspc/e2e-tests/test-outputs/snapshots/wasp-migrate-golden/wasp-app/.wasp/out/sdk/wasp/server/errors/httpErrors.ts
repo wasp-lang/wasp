@@ -1,7 +1,5 @@
 /**
- * This module is concerned with handling `http-errors` package errors specifically,
- * not HTTP errors in general.
- *
+ * This module is concerned with handling `http-errors` package errors specifically.
  * `http-errors` is what `express` uses.
  *
  * @see https://github.com/jshttp/http-errors#error-properties
@@ -22,7 +20,7 @@ export interface HttpErrorsError extends Error {
 // PRIVATE API (server)
 /**
  * The same check as `http-errors`'s own `isHttpError`, plus a check that the
- * status code is an error one, which `http-errors` doesn't guarantee.
+ * status code is valid.
  *
  * @see https://github.com/jshttp/http-errors/blob/v2.0.1/index.js#L176-L188
  */
@@ -40,13 +38,10 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
 
 // PRIVATE API (server)
 /**
- * Turns an error thrown by Express or other Express middleware into a
- * `Wasp.HttpError`.
+ * Turns an `http-errors` error into a `Wasp.HttpError`.
  *
- * - It keeps the status code and headers, e.g. `Retry-After` on a 429.
+ * - It keeps the status code and headers.
  * - It only keeps the message when `expose` marks it as safe to show.
- * - With `includeErrorDetails`, a hidden error's message and stack go into
- *   `data`, like Express's default error handler shows them on its HTML page.
  */
 export function toWaspHttpError(
   error: HttpErrorsError,

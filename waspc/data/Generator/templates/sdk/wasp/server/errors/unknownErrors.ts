@@ -1,6 +1,5 @@
 /**
- * This module is concerned with errors we don't recognize: neither Wasp's
- * `HttpError` nor an `http-errors` error.
+ * This module is concerned with errors we don't recognize.
  *
  * Like Express's default error handler, we respect their status code and
  * headers when they carry a valid status code. We can't know whether their
@@ -15,13 +14,11 @@ import { getErrorDetails, isErrorStatusCode } from "./utils.js";
 
 // PRIVATE API (server)
 /**
- * Turns an error we don't recognize into a `Wasp.HttpError`.
+ * Turns an unkown error into a `Wasp.HttpError`.
  *
  * - It keeps the status code and headers when there is a valid status code,
- *   or uses 500 without headers when there isn't.
+ *   otherwise defaults to a generic 500 error.
  * - It always hides the message behind the status code's generic one.
- * - With `includeErrorDetails`, the message and stack go into `data`, like
- *   Express's default error handler shows them on its HTML page.
  */
 export function toWaspHttpError(
   error: unknown,
@@ -37,9 +34,6 @@ export function toWaspHttpError(
   });
 }
 
-/**
- * The response status code, from `status` (or `statusCode`).
- */
 function findStatusCode(error: unknown): number | undefined {
   if (typeof error !== "object" || error === null) {
     return undefined;
@@ -51,9 +45,7 @@ function findStatusCode(error: unknown): number | undefined {
   return [status, statusCode].find(isErrorStatusCode);
 }
 
-/**
- * The response headers, from `headers`.
- */
+
 function findHeaders(error: unknown): Wasp.HttpErrorHeaders | undefined {
   if (
     typeof error === "object" &&
