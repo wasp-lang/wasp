@@ -8,11 +8,11 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, require, runCommand)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (defaultCompileOptions, withSetupGoals)
+import qualified Wasp.Cli.Command.Db.DevDb as DevDb
+import Wasp.Cli.Command.Db.StartOptions (dbStartOptionsParser)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Command.Start.Db (dbStartOptionsParser)
-import qualified Wasp.Cli.Command.Start.Db as Start.Db
 import Wasp.Cli.Compile (waitEnsureCompile)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Generator.Setup (SetupGoal)
@@ -23,7 +23,7 @@ runCommandThatRequiresDbRunning parser command args =
   where
     databaseArgsParser = parser {optParser = (,) <$> dbStartOptionsParser <*> parser.optParser}
     run (dbStartOptions, commandArgs) =
-      Start.Db.withDevDb dbStartOptions $ \_ -> command commandArgs
+      DevDb.withDevDb dbStartOptions $ \_ -> command commandArgs
 
 -- | Prepares what a db command needs before it runs: a compile,
 --   post-compile setup, and a reachable database.
