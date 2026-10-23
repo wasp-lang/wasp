@@ -15233,6 +15233,10 @@ npm i -g @wasp.sh/wasp-cli@0.27
 
 Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) for the full list of changes.
 
+#### Smaller Docker images
+
+The Dockerfile Wasp generates for the server now copies only the files the server needs at runtime into the final image, instead of the whole `node_modules` folder. This makes the image about half the size.
+
 ### How to migrate?
 
 #### 1. Bump the Wasp version
@@ -15291,7 +15295,21 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 3. Enjoy your updated Wasp app
+#### 3. Update your custom Dockerfile
+
+**If you don't use a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile), you can skip this step.**
+
+The final stage of the generated Dockerfile (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`.
+
+If your custom Dockerfile adds steps to the `server-production` stage that use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
+
+```dockerfile title="Dockerfile"
+FROM server-production
+COPY --from=server-builder /app/node_modules /app/node_modules
+# ...
+```
+
+#### 4. Enjoy your updated Wasp app
 
 That's it!
 
