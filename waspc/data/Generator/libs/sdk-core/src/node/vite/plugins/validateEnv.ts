@@ -20,6 +20,13 @@ export function validateEnv(
     },
     // We validate just before any artifacts are built.
     async buildStart() {
+      // Vitest only passes the test's env variables (`test.env`) to the test
+      // workers, not to this server. The env module still validates them when
+      // the tests import it.
+      if (process.env["VITEST"]) {
+        return;
+      }
+
       // We need to import the client env schema validation module
       // through a Vite server, because both the user and the Wasp schema
       // modules may depend on bundler features.

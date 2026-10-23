@@ -78,6 +78,8 @@
     "./client/router": "./dist/client/router/index.js",
     {=! Users: Vitest helpers from @wasp.sh/lib-test-utils. Its vitest, msw, and @testing-library/react peer dependencies are optional, so users install them when they write tests. =}
     "./client/test": "./dist/client/test/index.js",
+    {=! Users: the Vitest config helper, imported in vite.config.ts. =}
+    "./client/test/config": "./dist/client/test/config.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     {=! Users: entity types. =}

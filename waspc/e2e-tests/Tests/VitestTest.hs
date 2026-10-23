@@ -135,14 +135,12 @@ vitestTest =
     viteConfigTs =
       [trimming|
         import { defineConfig } from "vitest/config";
+        import { waspTestConfig } from "wasp/client/test/config";
         import { wasp } from "wasp/client/vite";
 
         export default defineConfig({
           plugins: [wasp()],
-          test: {
-            environment: "jsdom",
-            include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
-          },
+          test: waspTestConfig(),
         });
       |]
 

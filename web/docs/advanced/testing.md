@@ -26,47 +26,37 @@ npm install -D vitest jsdom@29 @testing-library/react @testing-library/jest-dom 
 
 ### Configuring Vitest
 
-Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it:
+Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it, built with Wasp's `waspTestConfig` helper:
 
 ```ts title="vite.config.ts" auto-js
 // highlight-next-line
 import { defineConfig } from "vitest/config";
+// highlight-next-line
+import { waspTestConfig } from "wasp/client/test/config";
 import { wasp } from "wasp/client/vite";
 
 export default defineConfig({
   plugins: [wasp()],
   // highlight-start
-  test: {
-    environment: "jsdom",
+  test: waspTestConfig({
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
-  },
+  }),
   // highlight-end
 });
 ```
 
-With this config, Vitest:
+`waspTestConfig` sets the Vitest options a Wasp app needs, so Vitest:
 
 - runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`),
 - runs them in `jsdom`, a simulated browser, so your components can render,
-- runs `src/test/setup.ts` before each test file.
+- provides `test`, `expect`, and the other test functions globally, which also lets Testing Library remove what a test rendered when the test ends,
+- gives your client code a placeholder server URL, since your tests mock the server instead of running it.
 
-Create that setup file:
+The options you pass to `waspTestConfig` are regular [Vitest options](https://vitest.dev/config/), and they override Wasp's. Here, `setupFiles` runs `src/test/setup.ts` before each test file. Create it to add matchers for checking the page, like `expect(button).toBeInTheDocument()`:
 
 ```ts title="src/test/setup.ts" auto-js
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
-
-afterEach(() => {
-  cleanup();
-});
 ```
-
-It prepares every test file in two ways:
-
-- It adds matchers for checking the page, like `expect(button).toBeInTheDocument()`.
-- It removes what a test rendered when the test ends, so the next test starts with an empty page.
 
 ### Running your tests
 
@@ -249,7 +239,13 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`wasp/client/test` exports these helpers.
+`wasp/client/test/config` exports the helper for your Vitest config:
+
+- `waspTestConfig(options?)`
+
+  Returns Vitest's `test` options with the defaults a Wasp app needs: `globals: true`, `environment: "jsdom"`, test files in `src`, and a placeholder `REACT_APP_API_URL` in `env`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults, and the variables you pass in `env` are added to Wasp's.
+
+`wasp/client/test` exports the helpers for your tests:
 
 - `renderInContext(ui, options?)`
 

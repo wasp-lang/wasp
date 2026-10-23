@@ -180,7 +180,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
 
-2. Add the options Wasp used to set for you to your `vite.config.ts`:
+2. Set up Vitest in your `vite.config.ts` with Wasp's `waspTestConfig` helper. It sets the options Wasp used to set for you:
 
    <Tabs sideBySide>
      <TabItem value="before" label="Before">
@@ -197,33 +197,26 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
        ```ts title="vite.config.ts"
        // highlight-next-line
        import { defineConfig } from "vitest/config";
+       // highlight-next-line
+       import { waspTestConfig } from "wasp/client/test/config";
        import { wasp } from "wasp/client/vite";
 
        export default defineConfig({
          plugins: [wasp()],
          // highlight-start
-         test: {
-           globals: true,
-           environment: "jsdom",
+         test: waspTestConfig({
            setupFiles: ["./src/test/setup.ts"],
-           include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
-         },
+         }),
          // highlight-end
        });
        ```
      </TabItem>
    </Tabs>
 
-3. Create the setup file you referenced in `setupFiles`:
+3. Create the setup file you referenced in `setupFiles`. It adds the DOM matchers, like `toBeInTheDocument()`:
 
    ```ts title="src/test/setup.ts"
    import "@testing-library/jest-dom/vitest";
-   import { cleanup } from "@testing-library/react";
-   import { afterEach } from "vitest";
-
-   afterEach(() => {
-     cleanup();
-   });
    ```
 
 4. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
