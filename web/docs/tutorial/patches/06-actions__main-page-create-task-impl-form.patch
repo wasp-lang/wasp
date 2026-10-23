@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index efe9dbd..92dba70 100644
+index 5600668..0b1f858 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,5 +1,6 @@
@@ -10,7 +10,7 @@ index efe9dbd..92dba70 100644
  import Logo from "./assets/wasp-logo-rounded.svg";
  import "./Main.css";
  
-@@ -45,3 +46,29 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
+@@ -47,3 +48,29 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
      </ul>
    );
  };

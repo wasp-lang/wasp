@@ -162,23 +162,19 @@ header button {
   list-style: none;
 }
 
-.tasks li {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-}
-
 .tasks li + li {
   border-top: var(--border);
 }
 
 .tasks label {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
 }
 
-.tasks li:has(input:checked) label {
+.tasks label:has(input:checked) {
   opacity: 0.6;
   text-decoration: line-through;
 }

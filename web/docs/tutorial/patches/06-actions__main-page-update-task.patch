@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index c122334..42baa27 100644
+index ebba061..5c95ee1 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,6 +1,6 @@
@@ -11,7 +11,7 @@ index c122334..42baa27 100644
  import Logo from "./assets/wasp-logo-rounded.svg";
  import "./Main.css";
  
-@@ -28,9 +28,25 @@ export const MainPage = () => {
+@@ -28,10 +28,25 @@ export const MainPage = () => {
  };
  
  const TaskView = ({ task }: { task: Task }) => {
@@ -28,13 +28,13 @@ index c122334..42baa27 100644
 +
    return (
      <li>
--      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-+      <input
-+        type="checkbox"
-+        id={String(task.id)}
-+        checked={task.isDone}
-+        onChange={handleIsDoneChange}
-+      />
-       <label htmlFor={String(task.id)}>{task.description}</label>
+       <label>
+-        <input type="checkbox" checked={task.isDone} />
++        <input
++          type="checkbox"
++          checked={task.isDone}
++          onChange={handleIsDoneChange}
++        />
+         {task.description}
+       </label>
      </li>
-   );

@@ -523,7 +523,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-![How the Todo App will work once it is finished](https://wasp.sh/assets/images/todo-app-intro-58a83977aff98d22dcb1b9b04c5f68cf.gif)
+![How the Todo App will work once it is finished](https://wasp.sh/assets/images/todo-app-intro-7e610e7980f8534af6624e9ceef5ef38.gif)
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
@@ -808,23 +808,19 @@ header button {
   list-style: none;
 }
 
-.tasks li {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-}
-
 .tasks li + li {
   border-top: var(--border);
 }
 
 .tasks label {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
 }
 
-.tasks li:has(input:checked) label {
+.tasks label:has(input:checked) {
   opacity: 0.6;
   text-decoration: line-through;
 }
@@ -1042,8 +1038,10 @@ export const MainPage = () => {
 const TaskView = ({ task }: { task: Task }) => {
   return (
     <li>
-      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-      <label htmlFor={String(task.id)}>{task.description}</label>
+      <label>
+        <input type="checkbox" checked={task.isDone} />
+        {task.description}
+      </label>
     </li>
   );
 };
@@ -1314,13 +1312,14 @@ const TaskView = ({ task }: { task: Task }) => {
 
   return (
     <li>
-      <input
-        type="checkbox"
-        id={String(task.id)}
-        checked={task.isDone}
-        onChange={handleIsDoneChange}
-      />
-      <label htmlFor={String(task.id)}>{task.description}</label>
+      <label>
+        <input
+          type="checkbox"
+          checked={task.isDone}
+          onChange={handleIsDoneChange}
+        />
+        {task.description}
+      </label>
     </li>
   );
 };

@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 685536e..efe9dbd 100644
+index 685536e..5600668 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,7 +1,11 @@
@@ -14,7 +14,7 @@ index 685536e..efe9dbd 100644
    return (
      <>
        <header>
-@@ -10,7 +14,34 @@ export const MainPage = () => {
+@@ -10,7 +14,36 @@ export const MainPage = () => {
            Todo App
          </h1>
        </header>
@@ -33,8 +33,10 @@ index 685536e..efe9dbd 100644
 +const TaskView = ({ task }: { task: Task }) => {
 +  return (
 +    <li>
-+      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-+      <label htmlFor={String(task.id)}>{task.description}</label>
++      <label>
++        <input type="checkbox" checked={task.isDone} />
++        {task.description}
++      </label>
 +    </li>
 +  );
 +};

@@ -49,13 +49,14 @@ const TaskView = ({ task }: { task: Task }) => {
 
   return (
     <li>
-      <input
-        type="checkbox"
-        id={String(task.id)}
-        checked={task.isDone}
-        onChange={handleIsDoneChange}
-      />
-      <label htmlFor={String(task.id)}>{task.description}</label>
+      <label>
+        <input
+          type="checkbox"
+          checked={task.isDone}
+          onChange={handleIsDoneChange}
+        />
+        {task.description}
+      </label>
     </li>
   );
 };
