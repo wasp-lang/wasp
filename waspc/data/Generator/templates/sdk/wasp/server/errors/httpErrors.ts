@@ -5,95 +5,66 @@
  * `http-errors` is what `express` uses.
  *
  * @see https://github.com/jshttp/http-errors#error-properties
- * @see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
  */
 
 import * as Wasp from "@wasp.sh/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
+import { getErrorDetails, isErrorStatusCode } from "./utils.js";
+
+// PRIVATE API (server)
+export interface HttpErrorsError extends Error {
+  status: number;
+  statusCode: number;
+  expose: boolean;
+  headers?: Record<string, string>;
+}
+
+// PRIVATE API (server)
+/**
+ * The same check as `http-errors`'s own `isHttpError`, plus a check that the
+ * status code is an error one, which `http-errors` doesn't guarantee.
+ *
+ * @see https://github.com/jshttp/http-errors/blob/v2.0.1/index.js#L176-L188
+ */
+export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
+  return (
+    error instanceof Error &&
+    "expose" in error &&
+    typeof error.expose === "boolean" &&
+    "statusCode" in error &&
+    isErrorStatusCode(error.statusCode) &&
+    "status" in error &&
+    error.status === error.statusCode
+  );
+}
 
 // PRIVATE API (server)
 /**
  * Turns an error thrown by Express or other Express middleware into a
  * `Wasp.HttpError`.
  *
- * - It keeps the status code, or uses 500 when there isn't one.
- * - It keeps the headers, e.g. `Retry-After` on a 429.
+ * - It keeps the status code and headers, e.g. `Retry-After` on a 429.
  * - It only keeps the message when `expose` marks it as safe to show.
  * - With `includeErrorDetails`, a hidden error's message and stack go into
  *   `data`, like Express's default error handler shows them on its HTML page.
  */
 export function toWaspHttpError(
-  error: unknown,
+  error: HttpErrorsError,
   { includeErrorDetails }: { includeErrorDetails: boolean },
 ): Wasp.HttpError {
-  const statusCode = getStatusCode(error) ?? 500;
-  const options = { headers: getHeaders(error) };
-  if (isMessageExposed(error)) {
-    return new Wasp.HttpError(statusCode, error.message, undefined, options);
+  const options = { headers: error.headers };
+  if (error.expose) {
+    return new Wasp.HttpError(
+      error.statusCode,
+      error.message,
+      undefined,
+      options,
+    );
   }
   return new Wasp.HttpError(
-    statusCode,
-    STATUS_CODES[statusCode],
+    error.statusCode,
+    STATUS_CODES[error.statusCode],
     includeErrorDetails ? getErrorDetails(error) : undefined,
     options,
   );
-}
-
-/**
- * The response status code, from `status` (or `statusCode`).
- */
-function getStatusCode(error: unknown): number | undefined {
-  if (typeof error !== "object" || error === null) {
-    return undefined;
-  }
-  for (const key of ["status", "statusCode"]) {
-    const statusCode = (error as Record<string, unknown>)[key];
-    if (isErrorStatusCode(statusCode)) {
-      return statusCode;
-    }
-  }
-  return undefined;
-}
-
-/**
- * Whether the message is safe to show to the client, from `expose`.
- * `http-errors` sets it by default for 4xx errors.
- */
-function isMessageExposed(error: unknown): error is Error {
-  return error instanceof Error && "expose" in error && error.expose === true;
-}
-
-/**
- * The response headers, from `headers`, e.g. `Retry-After` on a 429.
- */
-function getHeaders(error: unknown): Record<string, string> | undefined {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "headers" in error &&
-    typeof error.headers === "object" &&
-    error.headers !== null
-  ) {
-    return error.headers as Record<string, string>;
-  }
-  return undefined;
-}
-
-function isErrorStatusCode(value: unknown): value is number {
-  return (
-    typeof value === "number" &&
-    Number.isInteger(value) &&
-    value >= 400 &&
-    value < 600
-  );
-}
-
-function getErrorDetails(error: unknown): {
-  message: string;
-  stack: string | undefined;
-} {
-  return {
-    message: Wasp.getErrorMessage(error),
-    stack: error instanceof Error ? error.stack : undefined,
-  };
 }

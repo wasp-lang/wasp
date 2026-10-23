@@ -2,6 +2,7 @@ import { HttpError } from "@wasp.sh/lib-sdk-core";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
+import * as unknownErrors from "./unknownErrors.js";
 
 // PRIVATE API (server)
 // TODO: Refactor this once Wasp has proper logging.
@@ -31,8 +32,12 @@ export function reportUnexpectedServerError(
  * - Errors from Express and other middleware keep their status code and
  *   headers, the same as with Express's default error handler. We only send
  *   their message when they mark it as safe to show.
- * - We report everything else and hide it behind a generic 500, so we don't
- *   leak internal details to the client.
+ * - Other errors keep their status code and headers if they carry a valid
+ *   status code, like with Express's default error handler, or become a 500.
+ *   We never send their message, so we don't leak internal details to the
+ *   client.
+ *
+ * We report every error that ends up as a 5xx.
  *
  * In development, a hidden error's message and stack go into `data`, like
  * Express's default error handler shows them on its HTML page.
@@ -52,10 +57,11 @@ function toHttpError(error: unknown): HttpError {
     return error;
   }
 
+  const options = { includeErrorDetails: config.isDevelopment };
   // `express` uses `http-errors` package to create errors
-  const httpError = httpErrors.toWaspHttpError(error, {
-    includeErrorDetails: config.isDevelopment,
-  });
+  const httpError = httpErrors.isHttpErrorsError(error)
+    ? httpErrors.toWaspHttpError(error, options)
+    : unknownErrors.toWaspHttpError(error, options);
   if (httpError.statusCode >= 500) {
     reportUnexpectedServerError(error, { source: "request" });
   }

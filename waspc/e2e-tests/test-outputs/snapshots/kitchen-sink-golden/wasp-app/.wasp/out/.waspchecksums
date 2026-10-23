@@ -858,14 +858,28 @@
             "file",
             "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "2e513012dd77885ea20aeef29dbe50ffdf9f8ba267a8f90f00e17bcf3e1d5400"
+        "74baf546612599748a036d0d3eda1d31471a1c4e59393b015f3f46c55752b21e"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "b61727edce37b38e87bc25f0c922bd9a2aef1640ec3b65cf8ac1b25cd6c921e7"
+        "f63d4ffb73ed591e13aa30cda9bd0b3cc0535f779b01c6e6895369a3d2e29349"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/unknownErrors.ts"
+        ],
+        "1c8ad227b69f8c262e445afac43fc0c642c53b88411249a39a821a295b9551b5"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/utils.ts"
+        ],
+        "373f67e3b554d68dc154351dd57fd98af0e443be0ca712a45b5c8713e5ecffa7"
     ],
     [
         [

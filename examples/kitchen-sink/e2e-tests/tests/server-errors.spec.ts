@@ -51,10 +51,13 @@ test.describe("server errors", () => {
     });
   });
 
-  test("a middleware 5xx error keeps its status", async ({ request }) => {
+  test("an unknown error keeps its status and headers but hides its message", async ({
+    request,
+  }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/unavailable`);
 
     expect(response.status()).toBe(503);
+    expect(response.headers()["retry-after"]).toBe("60");
     expect(await response.json()).toEqual({
       message: "Service Unavailable",
       ...expectedDevelopmentDetails("Internal detail of a 503"),
