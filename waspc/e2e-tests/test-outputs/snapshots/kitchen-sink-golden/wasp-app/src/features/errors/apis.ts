@@ -40,6 +40,9 @@ export const throwRateLimitError: ThrowRateLimitError = async () => {
 export const throwUnavailableError: ThrowUnavailableError = async () => {
   throw Object.assign(new Error("Internal detail of a 503"), {
     status: 503,
-    headers: { "Retry-After": "60" },
+    headers: {
+      "Retry-After": 60,
+      "Set-Cookie": ["first=1; Path=/", "second=2; Path=/"],
+    },
   });
 };

@@ -58,6 +58,12 @@ test.describe("server errors", () => {
 
     expect(response.status()).toBe(503);
     expect(response.headers()["retry-after"]).toBe("60");
+    expect(
+      response
+        .headersArray()
+        .filter(({ name }) => name.toLowerCase() === "set-cookie")
+        .map(({ value }) => value),
+    ).toEqual(["first=1; Path=/", "second=2; Path=/"]);
     expect(await response.json()).toEqual({
       message: "Service Unavailable",
       ...expectedDevelopmentDetails("Internal detail of a 503"),

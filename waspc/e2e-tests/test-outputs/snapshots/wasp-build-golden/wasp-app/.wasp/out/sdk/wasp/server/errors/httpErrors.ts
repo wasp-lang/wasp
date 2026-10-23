@@ -16,7 +16,7 @@ export interface HttpErrorsError extends Error {
   status: number;
   statusCode: number;
   expose: boolean;
-  headers?: Record<string, string>;
+  headers?: Wasp.HttpErrorHeaders;
 }
 
 // PRIVATE API (server)

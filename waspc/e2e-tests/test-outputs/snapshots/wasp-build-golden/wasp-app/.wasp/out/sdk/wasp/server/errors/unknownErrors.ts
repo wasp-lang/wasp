@@ -52,22 +52,17 @@ function findStatusCode(error: unknown): number | undefined {
 }
 
 /**
- * The response headers, from `headers`. We only keep string values, so
- * setting them on the response can't throw.
+ * The response headers, from `headers`.
  */
-function findHeaders(error: unknown): Record<string, string> | undefined {
+function findHeaders(error: unknown): Wasp.HttpErrorHeaders | undefined {
   if (
-    typeof error !== "object" ||
-    error === null ||
-    !("headers" in error) ||
-    typeof error.headers !== "object" ||
-    error.headers === null
+    typeof error === "object" &&
+    error !== null &&
+    "headers" in error &&
+    typeof error.headers === "object" &&
+    error.headers !== null
   ) {
-    return undefined;
+    return error.headers as Wasp.HttpErrorHeaders;
   }
-  return Object.fromEntries(
-    Object.entries(error.headers).filter(
-      (entry): entry is [string, string] => typeof entry[1] === "string",
-    ),
-  );
+  return undefined;
 }
