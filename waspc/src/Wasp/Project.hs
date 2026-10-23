@@ -3,6 +3,7 @@
 module Wasp.Project
   ( WaspProjectDir,
     compile,
+    generateCode,
     CompileError,
     CompileWarning,
     analyzeWaspProject,
@@ -16,11 +17,14 @@ import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
+import Wasp.Generator.DevEnvironment (DevEnvironment (..))
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project.Db (makeDevDatabaseUrl)
 import qualified Wasp.Project.Env as Project.Env
 
 compile ::
@@ -48,9 +52,18 @@ generateCode ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 generateCode appSpec outDir options = do
+  devEnvironment <- resolveDevEnvironment appSpec
   (generatorWarnings, generatorErrors) <-
-    Generator.writeWebAppCode appSpec outDir (sendMessage options) (setupGoals options)
+    Generator.writeWebAppCode appSpec devEnvironment outDir (sendMessage options) (setupGoals options)
   return (show <$> generatorWarnings, show <$> generatorErrors)
+
+resolveDevEnvironment :: AS.AppSpec -> IO DevEnvironment
+resolveDevEnvironment spec = do
+  managedDatabaseUrl <-
+    if AS.isProduction spec
+      then return Nothing
+      else makeDevDatabaseUrl spec.waspProjectDir (ASV.getValidDbSystem spec) spec.decls
+  return DevEnvironment {managedDatabaseUrl}
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do

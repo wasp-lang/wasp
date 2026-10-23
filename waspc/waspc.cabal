@@ -217,6 +217,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DepVersions
+    Wasp.Generator.DevEnvironment
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.FileDraft

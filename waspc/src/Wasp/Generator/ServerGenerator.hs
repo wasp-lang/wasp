@@ -48,6 +48,7 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
   )
+import Wasp.Generator.DevEnvironment (DevEnvironment (managedDatabaseUrl))
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
@@ -72,8 +73,8 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> Generator [FileDraft]
-genServer spec =
+genServer :: AppSpec -> DevEnvironment -> Generator [FileDraft]
+genServer spec devEnvironment =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
@@ -86,7 +87,7 @@ genServer spec =
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
-    <++> genDotEnv spec
+    <++> genDotEnv spec devEnvironment
     <++> genJobs spec
     <++> genApis spec
     <++> genCrud spec
@@ -94,11 +95,11 @@ genServer spec =
     genFileCopy = return . C.mkTmplFd
     npmDeps = npmDepsFromWasp spec
 
-genDotEnv :: AppSpec -> Generator [FileDraft]
+genDotEnv :: AppSpec -> DevEnvironment -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
 -- development.
-genDotEnv spec | AS.isProduction spec = return []
-genDotEnv spec =
+genDotEnv spec _ | AS.isProduction spec = return []
+genDotEnv spec devEnvironment =
   return
     [ createTextFileDraft
         (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
@@ -107,7 +108,7 @@ genDotEnv spec =
   where
     envVars = waspEnvVars ++ userEnvVars
     userEnvVars = spec.devEnvVarsServer
-    waspEnvVars = case spec.devDatabaseUrl of
+    waspEnvVars = case devEnvironment.managedDatabaseUrl of
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
     isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
