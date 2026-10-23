@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "b6bc4880048ee27f92f31e1f312b26e9f6e8dea60a203d6114b0e761a03a6d4a"
+        "b49e7af3a6a5e965def0902ea6320812f28679951e30a0c2335a936ed86d9329"
     ],
     [
         [
@@ -1061,7 +1061,7 @@
             "file",
             "server/package.json"
         ],
-        "f8b30e95274fa7015ce72b603cd37e63af0baefc386b4e64b9334a824aa61f9f"
+        "9962da0809b3ac51f64396f17fee19fec6e8800c97a36f68a9982fa1de3c9988"
     ],
     [
         [
@@ -1825,6 +1825,13 @@
             "server/src/webSocket/initialization.ts"
         ],
         "9751b972d652ab2c10cab508dac5a61845c63460a0a3e53356e122d7aadf644d"
+    ],
+    [
+        [
+            "file",
+            "server/traceProductionDeps.js"
+        ],
+        "1c27a03d288e126f5e73c57f83c6e1c2f0b284185178910d5f85859a1243d53f"
     ],
     [
         [
