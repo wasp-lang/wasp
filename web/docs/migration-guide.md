@@ -197,9 +197,9 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
        ```ts title="vite.config.ts"
        // highlight-next-line
        import { defineConfig } from "vitest/config";
-       // highlight-next-line
-       import { waspTestConfig } from "wasp/client/test/config";
        import { wasp } from "wasp/client/vite";
+       // highlight-next-line
+       import { waspTestConfig } from "wasp/test";
 
        export default defineConfig({
          plugins: [wasp()],
@@ -213,10 +213,18 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-3. Create the setup file you referenced in `setupFiles`. It adds the DOM matchers, like `toBeInTheDocument()`:
+   Wasp used to make `test`, `expect`, and the other test functions available globally. If your tests use them without importing them from `vitest`, pass `globals: true` to `waspTestConfig`, or add the imports to your tests.
+
+3. Create the setup file you referenced in `setupFiles`. It adds the DOM matchers, like `toBeInTheDocument()`, and removes what a test rendered when the test ends:
 
    ```ts title="src/test/setup.ts"
    import "@testing-library/jest-dom/vitest";
+   import { cleanup } from "@testing-library/react";
+   import { afterEach } from "vitest";
+
+   afterEach(() => {
+     cleanup();
+   });
    ```
 
 4. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:

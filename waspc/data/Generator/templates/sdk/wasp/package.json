@@ -76,10 +76,8 @@
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",
-    {=! Users: Vitest helpers from @wasp.sh/lib-test-utils. Its vitest, msw, and @testing-library/react peer dependencies are optional, so users install them when they write tests. =}
+    {=! Users: Vitest helpers. Has optional peer dependencies: vitest, msw, and @testing-library/react. =}
     "./client/test": "./dist/client/test/index.js",
-    {=! Users: the Vitest config helper, imported in vite.config.ts. =}
-    "./client/test/config": "./dist/client/test/config.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     {=! Users: entity types. =}
@@ -102,6 +100,8 @@
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
     {=! Server: type ServerType. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
+    {=! Users: the Vitest config helper. =}
+    "./test": "./dist/test/index.js",
 
     {=!
       ===============================================================

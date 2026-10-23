@@ -135,8 +135,8 @@ vitestTest =
     viteConfigTs =
       [trimming|
         import { defineConfig } from "vitest/config";
-        import { waspTestConfig } from "wasp/client/test/config";
         import { wasp } from "wasp/client/vite";
+        import { waspTestConfig } from "wasp/test";
 
         export default defineConfig({
           plugins: [wasp()],
