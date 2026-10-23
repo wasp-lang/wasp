@@ -85,7 +85,7 @@ function makeRefObject(
         kind: "named",
         refObject: {
           import: getStringValue(specifier.imported),
-          alias: getStringValue(specifier.local),
+          alias: specifier.local.name,
           from: importSource,
         },
       };
@@ -93,14 +93,14 @@ function makeRefObject(
       return {
         kind: "default",
         refObject: {
-          importDefault: getStringValue(specifier.local),
+          importDefault: specifier.local.name,
           from: importSource,
         },
       };
     case "ImportNamespaceSpecifier":
       return {
         kind: "namespace",
-        alias: getStringValue(specifier.local),
+        alias: specifier.local.name,
         from: importSource,
       };
     default:

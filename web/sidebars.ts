@@ -220,6 +220,7 @@ const sidebars: SidebarsConfig = {
           "0.23",
           "0.24",
           "0.25",
+          "0.26",
         ]),
       ],
     },

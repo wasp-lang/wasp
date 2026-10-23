@@ -2,39 +2,6 @@
 
 lockfile_version = 2
 
-[[tools.cabal]]
-version = "3.16.1.0"
-backend = "aqua:haskell/cabal/cabal-install"
-specifiers = ["3.16.1.0"]
-
-[tools.cabal."platforms.linux-arm64"]
-checksum = "sha256:9a49d42a0d4962c960feab3ec2bcf6956bcc4ef04699237e4c0ab50037341f68"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-aarch64-linux-alpine3_22.tar.xz"
-
-[tools.cabal."platforms.linux-arm64-musl"]
-checksum = "sha256:9a49d42a0d4962c960feab3ec2bcf6956bcc4ef04699237e4c0ab50037341f68"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-aarch64-linux-alpine3_22.tar.xz"
-
-[tools.cabal."platforms.linux-x64"]
-checksum = "sha256:5ebe58932e7856dd08e5617414597c5d07799d72796faf24d23f2355ca37b3df"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-x86_64-linux-alpine3_12.tar.xz"
-
-[tools.cabal."platforms.linux-x64-musl"]
-checksum = "sha256:5ebe58932e7856dd08e5617414597c5d07799d72796faf24d23f2355ca37b3df"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-x86_64-linux-alpine3_12.tar.xz"
-
-[tools.cabal."platforms.macos-arm64"]
-checksum = "sha256:e02f4561fbce72b198a3c6c81b9f211f9c7cbf40c073f8f2ee59f835dd1dd502"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-aarch64-darwin.tar.xz"
-
-[tools.cabal."platforms.macos-x64"]
-checksum = "sha256:e09fec9aa6379d79a749d337446fa72f03f880a577d149c7b039592860bea095"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-x86_64-darwin.tar.xz"
-
-[tools.cabal."platforms.windows-x64"]
-checksum = "sha256:7f760fd4afde9bf3f592d71055c1ad6068d297c45244a3f71a5d7cad484d5afd"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.16.1.0/cabal-install-3.16.1.0-x86_64-windows.zip"
-
 [[tools.ghcup]]
 version = "0.2.6.2"
 backend = "aqua:haskell/ghcup-hs"
@@ -165,15 +132,20 @@ version = "0.2.1.0"
 backend = "mise-cabal:stan"
 specifiers = ["0.2.1.0"]
 
+[[tools."mise-ghcup:cabal"]]
+version = "3.16.1.0"
+backend = "mise-ghcup:cabal"
+specifiers = ["recommended"]
+
 [[tools."mise-ghcup:ghc"]]
 version = "9.6.7"
 backend = "mise-ghcup:ghc"
-specifiers = ["9.6.7"]
+specifiers = ["recommended"]
 
 [[tools."mise-ghcup:hls"]]
 version = "2.14.0.0"
 backend = "mise-ghcup:hls"
-specifiers = ["2.14.0.0"]
+specifiers = ["recommended"]
 
 [[tools.node]]
 version = "24.14.1"

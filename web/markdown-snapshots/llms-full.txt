@@ -434,6 +434,8 @@ wasp new <project-name> -t saas
 
 #### Minimal Template
 
+![Minimal Template](https://wasp.sh/assets/images/minimal-main-page-f6b9642187df1eb8600589b53feee998.png)
+
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 
 Use this template:
@@ -2655,7 +2657,15 @@ export const getAllTasks: GetAllTasks = async (args, context) => {
 }
 ```
 
-If the status code is `4xx`, the client will receive a response object with the corresponding `message` and `data` fields, and it will rethrow the error (including these fields). To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
+The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields. This happens for every status code, so only put information in them that is safe to show to the user.
+
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
 
 #### Using Entities in Queries
 
@@ -3091,6 +3101,14 @@ export const createTask: CreateTask = async (args, context) => {
     { foo: "bar" } // data
   )
 }
+```
+
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
 ```
 
 #### Using Entities in Actions
@@ -15213,6 +15231,89 @@ For the server, we are using Node.js and the battle-tested Express.js framework.
 Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
 
 
+## Migration guides / From 0.26 to 0.27
+
+To install the latest Wasp version, open your terminal and run:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+You can install Wasp 0.27 specifically by passing the version to the install script:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.27
+```
+
+### What's new in 0.27?
+
+#### Prisma 6
+
+Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) for the full list of changes.
+
+### How to migrate?
+
+#### 1. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.27.0`.
+
+**Before**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.26.0" },
+  // ...
+});
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+export default app({
+  wasp: { version: "^0.27.0" },
+  // ...
+});
+```
+
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
+
+#### 2. Upgrade to Prisma 6
+
+Update the `prisma` version in your `package.json`:
+
+**Before**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "prisma": "5.19.1"
+  }
+}
+```
+
+**After**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "prisma": "6.19.3"
+  }
+}
+```
+
+If you also list `@prisma/client` in your `package.json`, update it to the same version. Then run `wasp install`.
+
+Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+#### 3. Enjoy your updated Wasp app
+
+That's it!
+
+
 ## Migration guides / From 0.25 to 0.26
 
 To install the latest Wasp version, open your terminal and run:
@@ -15393,7 +15494,7 @@ PORT=3001
 
 #### 5. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
+If you are using a [custom Dockerfile](https://wasp.sh/docs/0.26/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
 **Before**
 
@@ -15435,7 +15536,7 @@ Wasp used `/` for the liveness check before, but it behaved differently per envi
 
 We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it. In production, `GET /` is no longer set by Wasp.
 
-This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
+This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/0.26/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
 
 **Before**
 

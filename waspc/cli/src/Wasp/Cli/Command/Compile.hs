@@ -7,7 +7,7 @@ module Wasp.Cli.Command.Compile
     compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
-    withSetupGoal,
+    withSetupGoals,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
     analyze,
@@ -32,10 +32,10 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
-import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
+import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -47,7 +47,7 @@ import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
 compileCommand :: Command ([CompileWarning], AS.AppSpec)
-compileCommand = withProjectLock compile
+compileCommand = ProjectLock.acquireExclusive compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
@@ -160,11 +160,11 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      setupGoal = GeneratedAppReady
+      setupGoals = allSetupGoals
     }
 
-withSetupGoal :: SetupGoal -> CompileOptions -> CompileOptions
-withSetupGoal goal options = options {setupGoal = goal}
+withSetupGoals :: [SetupGoal] -> CompileOptions -> CompileOptions
+withSetupGoals goals options = options {setupGoals = goals}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do
