@@ -41,7 +41,7 @@ When you have a good idea for a new product, you don't want to waste your time o
 
 ### OpenSaaS.sh template
 
-![SaaS Template](/img/starter-templates/open-saas-banner.png)
+![SaaS Template](/img/docs/getting-started/starter-templates/open-saas-banner.png)
 
 Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
 
@@ -55,7 +55,7 @@ wasp new <project-name> -t saas
 
 ### Vector Similarity Search Template
 
-![Vector Similarity Search Template](/img/starter-templates/embeddings-client.png)
+![Vector Similarity Search Template](/img/docs/project/starter-templates/embeddings-client.png)
 
 A template for generating embeddings and performing vector similarity search on your text data!
 

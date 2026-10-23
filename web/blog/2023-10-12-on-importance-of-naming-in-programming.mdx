@@ -1,7 +1,7 @@
 ---
 title: "On the Importance of Naming in Programming"
 authors: [martinsos]
-image: /img/on-importance-of-naming-in-programming/variables-naming-pet-white.png
+image: /img/blog/2023-10-12-on-importance-of-naming-in-programming/variables-naming-pet-white.png
 tags: [programming, clean-code]
 ---
 
@@ -13,7 +13,7 @@ I firmly believe writing code is not much different: through finding good names 
 
 {/* truncate */}
 
-<ImgWithCaption alt="The power of correct naming in programming" source="img/on-importance-of-naming-in-programming/naming-banish-thee-white.png" />
+<ImgWithCaption alt="The power of correct naming in programming" source="img/blog/2023-10-12-on-importance-of-naming-in-programming/naming-banish-thee-white.png" />
 
 I would go as far as to say that **90% of writing clean code is “just” naming things correctly**.
 Sounds simple, but it is really not!
@@ -107,7 +107,7 @@ async function procureFreeMachineAndSetUpTheDockerWorkerThenStartExecutingTheJob
 
 The thing is, **you can't give a good name if you don't have clean code behind it**. So a bad name is not just a naming mishap, but often also an indicator of problematic code behind it, a failure in design. Code so problematic, that you don’t even know what to name it → there is no straightforward name to give to it, because it is not a straightforward code!
 
-<ImgWithCaption alt="Bad name is hiding bad code" source="img/on-importance-of-naming-in-programming/bad-name-bad-code-scooby.png" />
+<ImgWithCaption alt="Bad name is hiding bad code" source="img/blog/2023-10-12-on-importance-of-naming-in-programming/bad-name-bad-code-scooby.png" />
 
 In our case, the problem is that this **function is trying to do too much at once**. A long name and many arguments are indicators of this, although these can be okay in some situations. Stronger indicators are the usage of words “and” and “then” in the name, as well as argument names that can be grouped by prefixes (`machine`, `worker`).
 
@@ -144,7 +144,7 @@ Also, **context is king:** you can’t evaluate the name without the context in 
 
 The best advice is maybe not to give a name, but instead to **find out** a name. You shouldn’t be making up an original name, as if you are naming a pet or a child; **you are instead looking for the essence of the thing you are naming, and the name should present itself based on it**. If you don’t like the name you discovered, it means you don’t like the thing you are naming, and you should change that thing by improving the design of your code (as we did in the example #2).
 
-<ImgWithCaption alt="You shouldn't name your variables the same way you name your pets, and vice versa" source="img/on-importance-of-naming-in-programming/variables-naming-pet-white.png" />
+<ImgWithCaption alt="You shouldn't name your variables the same way you name your pets, and vice versa" source="img/blog/2023-10-12-on-importance-of-naming-in-programming/variables-naming-pet-white.png" />
 
 ## Things to look out for when figuring out a name
 
