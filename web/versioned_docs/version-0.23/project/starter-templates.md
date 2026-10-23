@@ -42,7 +42,7 @@ When you have a good idea for a new product, you don't want to waste your time o
 
 ### OpenSaaS.sh template
 
-![SaaS Template](/img/starter-templates/open-saas-banner.png)
+![SaaS Template](/img/docs/getting-started/starter-templates/open-saas-banner.png)
 
 Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
 

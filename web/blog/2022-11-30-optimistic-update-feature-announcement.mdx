@@ -1,7 +1,7 @@
 ---
 title: Feature Release Announcement - Wasp Optimistic Updates
 authors: [sodic]
-image: /img/opt-updates-banner.png
+image: /img/blog/2022-11-30-optimistic-update-feature-announcement/opt-updates-banner.png
 tags: [webdev, wasp, feature, optimistic, updates]
 description: "Wasp actions support optimistic updates: the UI changes before the server replies and rolls back if the action fails. A Todo app shows the setup."
 ---
@@ -11,7 +11,7 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 We’re excited to announce that Wasp actions now feature native support for optimistic updates!
 Continue reading to find out what optimistic updates are and how Wasp implements them.
 
-<ImgWithCaption alt="Wasp TS support" source="img/opt-updates-banner.png" />
+<ImgWithCaption alt="Wasp TS support" source="img/blog/2022-11-30-optimistic-update-feature-announcement/opt-updates-banner.png" />
 
 {/* truncate */}
 
@@ -108,11 +108,11 @@ function Task({ id, isDone, description }) {
 
 Let's first see how updating a task looks when everything works as expected (i.e., we're on a fast connection):
 
-<ImgWithCaption alt="Normal todo list" source="img/optimistic-update-feature-announcement-normal.gif" />
+<ImgWithCaption alt="Normal todo list" source="img/blog/2022-11-30-optimistic-update-feature-announcement/optimistic-update-feature-announcement-normal.gif" />
 
 So far, so good! But what happens when our connection is not as fast?
 
-<ImgWithCaption alt="Todo list with lag" source="img/optimistic-update-feature-announcement-lag.gif" />
+<ImgWithCaption alt="Todo list with lag" source="img/blog/2022-11-30-optimistic-update-feature-announcement/optimistic-update-feature-announcement-lag.gif" />
 
 Hmm, this isn't quite as smooth as we'd like it to be.
 The user has to wait for several seconds before seeing their their changes reflected by the UI.
@@ -160,7 +160,7 @@ Those are all the changes we need, the rest of the code (i.e., `main.wasp`, `que
 
 Finally, let's see how this version of the app looks in action:
 
-<ImgWithCaption alt="Optimistically updated todo list" source="img/optimistic-update-feature-announcement-fixed.gif" />
+<ImgWithCaption alt="Optimistically updated todo list" source="img/blog/2022-11-30-optimistic-update-feature-announcement/optimistic-update-feature-announcement-fixed.gif" />
 
 Our app no longer waits for the server before rendering the changes. Instead, it updates the cache optimistically, continues waiting for the response, and rolls back the changes if the action fails (Wasp internally handles all of this). As previously mentioned, simple changes such as this one rarely fail. Therefore, most of the time, the user enjoys their snappier experience without ever knowing anything special is happening in the background.
 

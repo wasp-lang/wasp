@@ -1,7 +1,7 @@
 ---
 title: 'How we built a GPT code agent that generates full-stack web apps in React & Node.js, explained simply'
 authors: [martinsos]
-image: /img/how-we-built-gpt-wasp/generator-logs.png
+image: /img/blog/2023-07-17-how-we-built-gpt-web-app-generator/generator-logs.png
 tags: [mage, wasp-ai, GPT]
 description: "How we built the GPT Web App Generator: a code agent that plans, generates and fixes full-stack React, Node.js and Prisma apps with Wasp."
 ---
@@ -10,7 +10,7 @@ import Link from '@docusaurus/Link';
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
-<ImgWithCaption source="img/how-we-built-gpt-wasp/generator-logs-yellow.png" />
+<ImgWithCaption source="img/blog/2023-07-17-how-we-built-gpt-web-app-generator/generator-logs-yellow.png" />
 
 We created [GPT Web App Generator](https://usemage.ai/), which lets you shortly describe the web app you would like to create, and in a matter of minutes, a full-stack codebase, written in React, Node.js, Prisma, and Wasp, will be generated right in front of you, and available to download and run locally!
 
@@ -18,7 +18,7 @@ We created [GPT Web App Generator](https://usemage.ai/), which lets you shortly 
 
 We started this as an experiment, to see how well we could use GPT to generate full-stack web apps in [Wasp](https://wasp.sh/), the open-source JS web app framework that we are developing. Since we launched, we had more than 3000 apps generated in just a couple of days!
 
-<ImgWithCaption source="img/gpt-wasp/how-it-works.gif" caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀" />
+<ImgWithCaption source="img/blog/2023-07-10-gpt-web-app-generator/how-it-works.gif" caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀" />
 
 Check out [this blog post](https://wasp.sh/blog/2023/07/10/gpt-web-app-generator) to see GPT Web App Generator in action, including a one-minute demo video, few example apps, and learn a bit more about our plans for the future. Or, try it out yourself at https://usemage.ai/ !
 
@@ -32,17 +32,17 @@ First, let’s quickly explain what we ended up with and how it performs.
 
 Input into our Generator is the app name, app description (free form text), and a couple of simple options such as primary app color, temperature, auth method, and GPT model to use.
 
-<ImgWithCaption source="img/how-we-built-gpt-wasp/todo-input.png" caption="Input for generating a Todo app" />
+<ImgWithCaption source="img/blog/2023-07-17-how-we-built-gpt-web-app-generator/todo-input.png" caption="Input for generating a Todo app" />
 
 As an output, Generator spits out the whole JS codebase of a working full-stack web app: frontend, backend, and database. Frontend is React + Tailwind, the backend is NodeJS with Express, and for working with the database we used Prisma. This is all connected together with the Wasp framework.
 
 You can see an example of generated codebase here: [https://usemage.ai/result/07ed440a-3155-4969-b3f5-2031fb1f622f](https://usemage.ai/result/07ed440a-3155-4969-b3f5-2031fb1f622f) .
 
-<ImgWithCaption source="img/how-we-built-gpt-wasp/todo-results.png" caption="Result of generating a Todo app" />
+<ImgWithCaption source="img/blog/2023-07-17-how-we-built-gpt-web-app-generator/todo-results.png" caption="Result of generating a Todo app" />
 
 Generator does its best to produce code that works out of the box → you can download it to your machine and run it. For simpler apps, such as [TodoApp](https://usemage.ai/result/07ed440a-3155-4969-b3f5-2031fb1f622f) or [MyPlants](https://usemage.ai/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c), it often generates code with no mistakes, and you can run them out of the box.
 
-<ImgWithCaption source="img/gpt-wasp/todo-app.png" caption="What generated TodoApp looks like" />
+<ImgWithCaption source="img/blog/2023-07-10-gpt-web-app-generator/todo-app.png" caption="What generated TodoApp looks like" />
 
 For a bit more complex apps, like a blog with posts and comments, it still generates a reasonable codebase but there are some mistakes to be expected here and there. For even more complex apps, it usually doesn’t follow up completely, but stops at some level of complexity and fills in the rest with TODOs or omits functionality, so it is kind of like a simplified model of what was asked for. Overall, it is optimized for producing CRUD business web apps.
 
@@ -93,7 +93,7 @@ A Wasp app consists of Entities (Prisma data models), Operations (NodeJS Queries
 
 Once given an app description and title, **the code agent first generates a Plan**: it is a list of Entities, Operations (Queries and Actions), and Pages that comprise the app. So kind of like an initial draft of the app. It doesn’t generate the code yet → instead, it comes up with their names and some other details, including a short description of what they should behave like.
 
-<ImgWithCaption source="img/how-we-built-gpt-wasp/gen-logs-planning.png" />
+<ImgWithCaption source="img/blog/2023-07-17-how-we-built-gpt-web-app-generator/gen-logs-planning.png" />
 
 This is done via a single API request toward GPT, where the prompt consists of the following:
 
@@ -287,7 +287,7 @@ We put the original user prompt at the end because then we can tell GPT in the s
 
 After producing the Plan, Generator goes step by step through the Plan and asks GPT to generate each web app piece, while providing it with docs, examples, and guidelines. Each time a web app piece is generated, Generator fits it into the whole app. This is where most of our work comes in: **equipping GPT with the right information at the right moment**.
 
-<ImgWithCaption source="img/how-we-built-gpt-wasp/gen-logs-generating.png" />
+<ImgWithCaption source="img/blog/2023-07-17-how-we-built-gpt-web-app-generator/gen-logs-generating.png" />
 
 In our case, we do it for all the Operations in the Plan (Actions and Queries: NodeJs code), and also for all the Pages in the Plan (React code), with one prompt for each. So if we have 2 queries, 3 actions, and 2 pages, that will be 2+3+2 = 7 GPT prompts/requests. Prompts are designed as explained previously.
 
@@ -305,7 +305,7 @@ Regarding detecting mistakes to report to GPT, **ideally, you would have a full 
 
 In our case, running the whole project through the TypeScript compiler was not feasible for us with the time limits we put on ourselves, but **we used some simpler static analysis tools** like Wasp’s compiler (for the .wasp file) and `prisma format` for Prisma model schemas, and sent those to GPT to fix them. We also wrote some **simple heuristics of our own that are able to detect some of the common mistakes**.
 
-<ImgWithCaption source="img/how-we-built-gpt-wasp/gen-logs-fixing.png" />
+<ImgWithCaption source="img/blog/2023-07-17-how-we-built-gpt-web-app-generator/gen-logs-fixing.png" />
 
 [Our code (& prompt) for fixing a Page](https://github.com/wasp-lang/wasp/blob/737ab428edf38f245cd9f8db60b637b723352e55/waspc/src/Wasp/AI/GenerateNewProject/PageComponentFile.hs#L122).
 

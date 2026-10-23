@@ -1,7 +1,7 @@
 ---
 title: 'Permissions (access control) in web apps'
 authors: [martinsos]
-image: /img/permissions-in-web-apps/auth-spidermen.jpg
+image: /img/blog/2022-11-29-permissions-in-web-apps/auth-spidermen.jpg
 tags: [webdev, wasp]
 description: "Access control in web apps: authentication vs authorization, why permission checks belong on the server, RBAC vs ABAC vs ReBAC, and OWASP advice."
 ---
@@ -29,7 +29,7 @@ So, if you are new to access control in web apps, or have been doing it for some
 
 Unless your web app is mostly about static content or is a form of art, it will likely have a notion of users and user accounts.
 
-<ImgWithCaption alt="Artistic dolphin painting with brush" source="img/permissions-in-web-apps/dolphin_artist.webp" caption="This dolphin doesn't need users" />
+<ImgWithCaption alt="Artistic dolphin painting with brush" source="img/blog/2022-11-29-permissions-in-web-apps/dolphin_artist.webp" caption="This dolphin doesn't need users" />
 
 In such a case, you will need to know which user has permissions to do what -> who can access which resources, and who can execute which operations.
 
@@ -45,7 +45,7 @@ Some common examples of permissions in action:
 
 There are different terms out there (authentication, authorization, access control, permissions) that are often confused for each other, so let's quickly clarify what each one of them stands for.
 
-<ImgWithCaption alt="Spidermen representing authN, authZ, AC and permissions pointing at each other" source="img/permissions-in-web-apps/auth-spidermen.jpg" caption="They all look the same!" width="500px" />
+<ImgWithCaption alt="Spidermen representing authN, authZ, AC and permissions pointing at each other" source="img/blog/2022-11-29-permissions-in-web-apps/auth-spidermen.jpg" caption="They all look the same!" width="500px" />
 
 ### 1) Authentication (or as cool kids would say: authN)
 
@@ -84,7 +84,7 @@ A more general/informal term, closest in meaning to "authorization" when used in
 
 ### All together
 
-<ImgWithCaption alt="Diagram of authN, authZ, AC and permissions relationship" source="img/permissions-in-web-apps/auth-terms-diagram.png" width="350px" />
+<ImgWithCaption alt="Diagram of authN, authZ, AC and permissions relationship" source="img/blog/2022-11-29-permissions-in-web-apps/auth-terms-diagram.png" width="350px" />
 
 Let’s see these terms used in a sentence by observing the following imagined pull request (PR):
 
@@ -104,7 +104,7 @@ In a typical web app, you will have a frontend, backend (server), and database.
 
 The frontend will be issuing commands to the server, which then executes operations and possibly modifies the database (on their behalf). Since **users don’t have direct access to the database**, and since the **frontend is inherently not secure**, that leaves the **server as the central place where all the crucial access control needs to happen**.
 
-<ImgWithCaption alt="A real-life photo of frontend, server, and database performing access control." source="img/permissions-in-web-apps/frontend-server-db-access-control.png" caption="A real-life photo of frontend, server, and database performing access control." width="600px" />
+<ImgWithCaption alt="A real-life photo of frontend, server, and database performing access control." source="img/blog/2022-11-29-permissions-in-web-apps/frontend-server-db-access-control.png" caption="A real-life photo of frontend, server, and database performing access control." width="600px" />
 
 ### Frontend (browser)
 
@@ -114,7 +114,7 @@ The frontend is here to help users issue commands towards the server via which u
 
 Since users can manipulate the frontend code as they wish, we can't really do any permissions checks in the frontend code, we can't trust it!
 
-<ImgWithCaption alt="Imposter of the vent warning that frontend can't be trusted" source="img/permissions-in-web-apps/imposter-of-the-vent.png" width="300px" />
+<ImgWithCaption alt="Imposter of the vent warning that frontend can't be trusted" source="img/blog/2022-11-29-permissions-in-web-apps/imposter-of-the-vent.png" width="300px" />
 
 Any permission checks we do on the frontend, we will need to repeat on the server in any case.
 If that is so, should we at all check permissions on the frontend, and what is the purpose of that?
@@ -122,7 +122,7 @@ If that is so, should we at all check permissions on the frontend, and what is t
 
 So, for example, our frontend code can hide/omit certain fields in the UI form if the user shouldn't be able to access them, it can prevent opening certain pages, or hide/omit certain buttons if they trigger operations that the user is not allowed to perform.
 
-<ImgWithCaption alt="Example of using casl.js in React" source="img/permissions-in-web-apps/casl-react-example.png" caption="Example of using casl.js in React to show button only if the user has permission." />
+<ImgWithCaption alt="Example of using casl.js in React" source="img/blog/2022-11-29-permissions-in-web-apps/casl-react-example.png" caption="Example of using casl.js in React to show button only if the user has permission." />
 
 **Takeaway: Permission checks on frontend are not there for security, but only for ergonomics / improving user experience.**
 
@@ -132,13 +132,13 @@ The server is **a crucial place to implement access control**. It exposes an API
 
 At its core, permissions checks on the server are here to **check for each API endpoint** if the caller is allowed to execute it. Often they are executed at the very start of the API endpoint logic, but often they are also intertwined with the rest of the endpoint handler logic.
 
-<ImgWithCaption alt="Example of permissions check in backend." source="img/permissions-in-web-apps/backend-permissions-check-example.png" caption="Example of doing permission check at the start of API endpoint (is user authenticated) and then also doing another check as part of the database query (is user owner of the article they are trying to delete)." />
+<ImgWithCaption alt="Example of permissions check in backend." source="img/blog/2022-11-29-permissions-in-web-apps/backend-permissions-check-example.png" caption="Example of doing permission check at the start of API endpoint (is user authenticated) and then also doing another check as part of the database query (is user owner of the article they are trying to delete)." />
 
 Besides defining checks at API/operation level, they are also often defined at the **data/model level**. This means that they are tied to specific data models (normally from the database), as part of data access logic (ORM), and are defining who can access specific field(s), or even the whole data model.
 
 Example of attaching permission checks to the data model directly in the GraphQL schema ([from this blog post](https://www.prisma.io/blog/graphql-directive-permissions-authorization-made-easy-54c076b5368e)):
 
-<ImgWithCaption alt="Example of attaching permission checks to the data model directly in the GraphQL schema" source="img/permissions-in-web-apps/data-model-permissions-gql.png" />
+<ImgWithCaption alt="Example of attaching permission checks to the data model directly in the GraphQL schema" source="img/blog/2022-11-29-permissions-in-web-apps/data-model-permissions-gql.png" />
 
 For a more sophisticated RBAC approach, with an additional layer of indirection (permissions), read on.
 
@@ -158,7 +158,7 @@ Roles rule :D! In [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control
 
 Pro advice (thanks Karan!): While we could be checking the user’s roles directly in the permission checks, it is even better (and recommended by OWASP) to add a layer of indirection → permissions. **So roles are attached to users, permissions are attached to roles, and permission checks check permissions** (who would expect that :)!?).
 
-<ImgWithCaption alt="Users -> Roles -> Permissions" source="img/permissions-in-web-apps/users-roles-permissions.png" />
+<ImgWithCaption alt="Users -> Roles -> Permissions" source="img/blog/2022-11-29-permissions-in-web-apps/users-roles-permissions.png" />
 
 For example, a user might have role `admin`, and role `admin` has permissions `updateArticle` and `deleteArticle` attached to it. Then, when determining if a user can delete the article, we first fetch his role, then we fetch the permissions attached to that role, and finally check if `deleteArticle` is present among those → if so, they can continue with the deletion!
 
@@ -179,7 +179,7 @@ Rule attributes can be anything, but usually, they fall into 4 categories:
 3. **Object**: resources they want to operate on (i.e. an Article),
 4. **Environment/context:** i.e. current time of the day or number of previous requests that the user did in the last hour.
 
-<ImgWithCaption alt="ABAC diagram" source="img/permissions-in-web-apps/abac-diagram.png" />
+<ImgWithCaption alt="ABAC diagram" source="img/blog/2022-11-29-permissions-in-web-apps/abac-diagram.png" />
 
 Let’s observe the example from before where we wanted to know if user is allowed to delete an article.
 In ABAC, we could define an action “deleteArticle”, and then define a rule that takes user(subject), action, object, and additional context. That rule would check if action is “deleteArticle” → if so, it would evaluate if user is allowed to delete the article specified as an object, by checking some properties of user, maybe even role, or by checking if user is owner of that article.
@@ -214,11 +214,11 @@ From their materials I extracted a couple of main points that made the most sens
 - **Deny access by default.**
 - **Prefer ABAC over RBAC.**
 
-<ImgWithCaption alt="You should centralize your access control logic - Nyehhh" source="img/permissions-in-web-apps/comic-centralize-logic.png" />
+<ImgWithCaption alt="You should centralize your access control logic - Nyehhh" source="img/blog/2022-11-29-permissions-in-web-apps/comic-centralize-logic.png" />
 
 ## 5. Implementing access control in practice
 
-<ImgWithCaption alt="Poll on how do people implement access control" source="img/permissions-in-web-apps/access-control-poll.png" caption="" />
+<ImgWithCaption alt="Poll on how do people implement access control" source="img/blog/2022-11-29-permissions-in-web-apps/access-control-poll.png" caption="" />
 
 Here’s a Reddit [poll I did on r/webdev](https://www.reddit.com/r/webdev/comments/vhaglx/what_do_you_use_for_access_control_permission/).
 An interesting finding is that even though the sample is pretty small, it is clear that devs prefer RBAC over OWASP-recommended ABAC.
@@ -227,7 +227,7 @@ It does seem that ABAC is picking up recently though, so it would be interesting
 
 ### Organic development
 
-<ImgWithCaption alt="Organic growth of my code (meme)" source="img/permissions-in-web-apps/organic-code-meme.png" caption="" />
+<ImgWithCaption alt="Organic growth of my code (meme)" source="img/blog/2022-11-29-permissions-in-web-apps/organic-code-meme.png" caption="" />
 
 Often, we add permission checks to our web app one by one, as needed. For example, if we are using NodeJS with ExpressJS for our server and writing middleware that handles HTTP API requests, we will add a bit of logic into that middleware that does some checks to ensure a user can actually perform that action. Or maybe we will embed “checks” into our database queries so that we query only what the user is allowed to access. Often a combination.
 
