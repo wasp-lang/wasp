@@ -1,114 +1,16 @@
 diff --git a/src/Main.css b/src/Main.css
-index a3332a3..e242897 100644
+index 4ef35f7..e486889 100644
 --- a/src/Main.css
 +++ b/src/Main.css
-@@ -1,103 +1,150 @@
-+:root {
-+  --yellow: #f5c842;
-+  --yellow-dark: #d4a930;
-+  --black: #111;
-+  --gray: #555;
-+  --cream: #f7f5f0;
-+  --white: #fafafa;
-+  --font-mono:
-+    ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-+  --border: 2px solid var(--black);
-+}
-+
- * {
--  -webkit-font-smoothing: antialiased;
--  -moz-osx-font-smoothing: grayscale;
-   box-sizing: border-box;
--  margin: 0;
--  padding: 0;
-+}
+@@ -107,3 +107,78 @@ code {
+ .button:hover {
+   background: var(--yellow-dark);
+ }
 +
 +input {
 +  border-style: solid;
- }
- 
- body {
--  font-family:
--    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
--    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-+  margin: 0;
-+  background: var(--cream);
-+  color: var(--black);
-+  font-family: var(--font-mono);
-+  line-height: 1.5;
- }
- 
--#root {
--  min-height: 100vh;
-+header {
-   display: flex;
--  flex-direction: column;
--  justify-content: center;
-   align-items: center;
-+  justify-content: space-between;
-+  padding: 0.75rem 1.5rem;
-+  border-bottom: var(--border);
-+  background: var(--white);
- }
- 
--.container {
--  margin: 3rem 3rem 10rem 3rem;
--  max-width: 726px;
-+main {
-   display: flex;
-   flex-direction: column;
--  justify-content: center;
-+  gap: 1rem;
-+  width: min(32rem, 100% - 2rem);
-+  margin: 3rem auto;
 +}
 +
-+h1 {
-+  display: flex;
-   align-items: center;
--  text-align: center;
-+  gap: 0.5rem;
-+  margin: 0;
-+  font-size: 1.25rem;
- }
- 
--.logo {
--  max-height: 200px;
--  margin-bottom: 1rem;
-+h1 img {
-+  height: 2.5rem;
- }
- 
--.title {
--  font-size: 4rem;
--  font-weight: 700;
--  margin-bottom: 1rem;
-+h2 {
-+  margin: 0;
-+  font-size: 1.5rem;
-+  text-transform: uppercase;
- }
- 
--.content {
--  font-size: 1.2rem;
--  font-weight: 400;
--  line-height: 2;
--  margin-bottom: 3rem;
-+a {
-+  color: var(--black);
- }
- 
--.buttons {
--  display: flex;
--  flex-direction: row;
--  gap: 1rem;
-+:focus-visible {
-+  outline: 2px solid var(--black);
-+  outline-offset: 2px;
- }
- 
--.button {
--  font-size: 1.2rem;
 +input[type="checkbox"] {
 +  width: 1.25rem;
 +  height: 1.25rem;
@@ -123,17 +25,10 @@ index a3332a3..e242897 100644
 +  background: var(--yellow);
 +  color: var(--black);
 +  font: inherit;
-   font-weight: 700;
--  text-decoration: none;
--  padding: 1.2rem 1.5rem;
--  border-radius: 10px;
++  font-weight: 700;
 +  cursor: pointer;
- }
- 
--.button-filled {
--  color: black;
--  background-color: #f5c842;
--  border: 2px solid #f5c842;
++}
++
 +button:hover,
 +input[type="submit"]:hover {
 +  background: var(--yellow-dark);
@@ -142,25 +37,7 @@ index a3332a3..e242897 100644
 +header button {
 +  padding: 0.5rem 1rem;
 +}
- 
--  transition: all 0.2s ease-in-out;
-+.card,
-+.tasks {
-+  border: var(--border);
-+  background: var(--white);
-+  box-shadow: 6px 6px 0 var(--yellow);
- }
- 
--.button-filled:hover {
--  filter: brightness(0.95);
-+.card {
-+  padding: 1rem 2rem 2rem;
- }
- 
--.button-outlined {
--  color: black;
--  background-color: transparent;
--  border: 2px solid #f5c842;
++
 +.new-task-form {
 +  display: flex;
 +  gap: 0.5rem;
@@ -178,6 +55,9 @@ index a3332a3..e242897 100644
 +.tasks {
 +  margin: 0;
 +  padding: 0;
++  border: var(--border);
++  background: var(--white);
++  box-shadow: 6px 6px 0 var(--yellow);
 +  list-style: none;
 +}
 +
@@ -187,85 +67,67 @@ index a3332a3..e242897 100644
 +  gap: 0.75rem;
 +  padding: 0.75rem 1rem;
 +}
- 
--  transition: all 0.2s ease-in-out;
++
 +.tasks li + li {
 +  border-top: var(--border);
- }
- 
--.button-outlined:hover {
--  filter: brightness(0.95);
++}
++
 +.tasks label {
 +  flex: 1;
 +  cursor: pointer;
- }
- 
--code {
--  border-radius: 5px;
--  border: 1px solid #f5c842;
--  padding: 0.2rem;
--  background: #f5c84244;
--  font-family:
--    Menlo,
--    Monaco,
--    Lucida Console,
--    Liberation Mono,
--    DejaVu Sans Mono,
--    Bitstream Vera Sans Mono,
--    Courier New,
--    monospace;
++}
++
 +.tasks li:has(input:checked) label {
-+  color: var(--gray);
++  opacity: 0.6;
 +  text-decoration: line-through;
- }
++}
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 39d1f4c..685536e 100644
+index 9e8b325..685536e 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -1,37 +1,16 @@
+@@ -1,41 +1,16 @@
  import Logo from "./assets/wasp-logo-rounded.svg";
  import "./Main.css";
  
 -export function MainPage() {
 +export const MainPage = () => {
    return (
--    <main className="container">
--      <img className="logo" src={Logo} alt="Wasp logo" />
--
--      <h2 className="title">Welcome to Wasp!</h2>
--
--      <p className="content">
--        This is page <code>MainPage</code> located at route <code>/</code>.
--        <br />
--        Open <code>src/MainPage.tsx</code> to edit it.
--      </p>
--
--      <div className="buttons">
--        <a
--          className="button button-filled"
--          href="https://wasp.sh/docs/tutorial/create"
--          target="_blank"
--          rel="noreferrer noopener"
--        >
--          Take the Tutorial
--        </a>
--        <a
--          className="button button-outlined"
--          href="https://discord.com/invite/rzdnErX"
--          target="_blank"
--          rel="noreferrer noopener"
--        >
--          Chat on Discord
--        </a>
--      </div>
--    </main>
+-    <div className="page">
 +    <>
-+      <header>
-+        <h1>
-+          <img src={Logo} alt="Wasp logo" />
+       <header>
+         <h1>
+           <img src={Logo} alt="Wasp logo" />
+-          My Wasp App
 +          Todo App
-+        </h1>
-+      </header>
+         </h1>
+       </header>
+-      <main className="card">
+-        <h2>Welcome to Wasp!</h2>
+-
+-        <p>
+-          This is page <code>MainPage</code> located at route <code>/</code>.
+-          Open <code>src/MainPage.tsx</code> to edit it.
+-        </p>
+-
+-        <div className="links">
+-          <a
+-            className="button"
+-            href="https://wasp.sh/docs/tutorial/create"
+-            target="_blank"
+-            rel="noreferrer noopener"
+-          >
+-            Take the Tutorial
+-          </a>
+-          <a
+-            href="https://discord.com/invite/rzdnErX"
+-            target="_blank"
+-            rel="noreferrer noopener"
+-          >
+-            Chat on Discord
+-          </a>
+-        </div>
+-      </main>
+-    </div>
 +      <main>Hello world!</main>
 +    </>
    );
