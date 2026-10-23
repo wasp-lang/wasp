@@ -34,7 +34,7 @@ cabal = "3.16.1.0"
 # - The wasp-cli package templates: /scripts/make-npm-packages/templates/*/package.json
 # - The embedded packages: /waspc/data/packages/*/package.json
 # (Also just grep for the version in case we forgot somewhere.)
-"node" = "24.14.1"
+"node" = "24.22.1"
 
 jq = "1.8.2"
 

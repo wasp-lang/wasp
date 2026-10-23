@@ -212,15 +212,15 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
+                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
             }
         ],
         "devDependencies": [
@@ -263,15 +263,15 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.1.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
+                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz"
             },
             {
                 "name": "cookie-parser",
