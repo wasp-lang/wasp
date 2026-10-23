@@ -66,6 +66,7 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
+    "./test": "./dist/test/index.js",
     "./types": "./dist/types/index.js"
   },
   "license": "ISC",

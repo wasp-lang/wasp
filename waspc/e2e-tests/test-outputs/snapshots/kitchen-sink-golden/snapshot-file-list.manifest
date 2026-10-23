@@ -603,6 +603,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/webSocket/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/webSocket/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/webSocket/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/webSocket/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/test/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/test/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/test/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/test/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/tsconfig.tsbuildinfo
 wasp-app/.wasp/out/sdk/wasp/dist/types/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/types/index.d.ts.map
@@ -669,6 +673,7 @@ wasp-app/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 wasp-app/.wasp/out/sdk/wasp/server/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/webSocket/index.ts
+wasp-app/.wasp/out/sdk/wasp/test/index.ts
 wasp-app/.wasp/out/sdk/wasp/tsconfig.json
 wasp-app/.wasp/out/sdk/wasp/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/types/register.ts

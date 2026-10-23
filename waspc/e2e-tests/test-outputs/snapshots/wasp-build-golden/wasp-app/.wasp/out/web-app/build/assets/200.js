@@ -268,9 +268,7 @@ function stripTrailingSlash(url) {
 var userClientEnvSchema = z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
 z.object({ "REACT_APP_API_URL": serverUrlSchema });
-var waspProdClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
-z.object({ "REACT_APP_API_URL": serverUrlSchema.default("http://localhost:3001") });
-var waspClientEnvSchema = waspProdClientEnvSchema;
+var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
 	"BASE_URL": "/",
 	"DEV": false,
