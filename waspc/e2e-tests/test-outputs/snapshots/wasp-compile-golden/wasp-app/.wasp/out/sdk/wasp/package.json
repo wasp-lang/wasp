@@ -1,18 +1,20 @@
 {
   "dependencies": {
-    "@prisma/client": "5.19.1",
+    "@prisma/client": "6.19.3",
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
+    "@vitejs/plugin-react": "^6.0.3",
     "@vitest/ui": "^4.1.9",
-    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.26.1.tgz",
-    "@wasp.sh/lib-sdk-core": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz",
-    "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz",
+    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.27.0.tgz",
+    "@wasp.sh/lib-sdk-core": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz",
+    "@wasp.sh/lib-test-utils": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz",
+    "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
     "ky": "^2.0.0",
     "msw": "^2.12.7",
-    "prisma": "5.19.1",
+    "prisma": "6.19.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",
@@ -23,9 +25,9 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
+    "@types/node": "^24.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
     "typescript": "6.0.3"
   },
   "exports": {
@@ -63,6 +65,7 @@
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email": "./dist/server/email/index.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
+    "./server/errors": "./dist/server/errors/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     "./server/middleware": "./dist/server/middleware/index.js",
@@ -74,7 +77,10 @@
   },
   "license": "ISC",
   "name": "wasp",
-  "peerDependencies": {},
+  "peerDependencies": {
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
+  },
   "private": true,
   "scripts": {
     "build": "tsc && node ./scripts/copy-assets.js",

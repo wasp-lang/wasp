@@ -58,6 +58,8 @@ wasp new <project-name> -t saas
 
 ### Minimal Template
 
+![Minimal Template](/img/docs/getting-started/starter-templates/minimal-main-page.png)
+
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 
 Use this template:
