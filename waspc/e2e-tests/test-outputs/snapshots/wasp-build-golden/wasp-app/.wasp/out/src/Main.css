@@ -21,6 +21,12 @@ body {
   line-height: 1.5;
 }
 
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+}
+
 header {
   display: flex;
   align-items: center;
@@ -34,6 +40,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-self: center;
   width: min(32rem, 100% - 2rem);
   margin: 3rem auto;
 }

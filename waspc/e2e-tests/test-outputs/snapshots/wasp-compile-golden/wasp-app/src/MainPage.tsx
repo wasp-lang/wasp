@@ -3,7 +3,7 @@ import "./Main.css";
 
 export function MainPage() {
   return (
-    <>
+    <div className="page">
       <header>
         <h1>
           <img src={Logo} alt="Wasp logo" />
@@ -36,6 +36,6 @@ export function MainPage() {
           </a>
         </div>
       </main>
-    </>
+    </div>
   );
 }
