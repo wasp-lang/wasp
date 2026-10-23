@@ -49,6 +49,13 @@ That’s because `wasp start` would always use the fixed ports `3000` and `3001`
 
 In reality, users ran multiple instances and port clashing was a real issue: `wasp start db`, for example, would simply give up when `5432` was taken. So now, `wasp start` picks the first available ports on its own. It’ll start with `3000` and `3001` as before and then work its way up. Similarly, `wasp start db` will do the same, starting at `5432`, and `wasp start` will then find the port your database ended up on.
 
+<ImgWithCaption
+  alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001 and 3000, and the second one failed with port taken errors. After Wasp 0.26, the second worktree gets 5433, 3002 and 3003."
+  source="img/blog/2026-10-23-wasp-0-26-changelog/commands-in-different-projects-dark.svg"
+  caption="Two worktrees running at the same time: each process now takes the next free port."
+  width="100%"
+/>
+
 This also means that each agent can get its own DB instance and can avoid the hassle of sharing the data.
 
 Once you’ve created a new worktree, to set it up, you can just run `wasp install` and copy your `.env` files. If your `.env.server` has a `DATABASE_URL`, leave it out, so the worktree gets its own dev database instead of the shared one. Then start the database in one terminal and the app in another:
