@@ -5,6 +5,7 @@ import {
   type ThrowRateLimitError,
   type ThrowUnavailableError,
   type ThrowUnexpectedError,
+  type ThrowUpstreamError,
 } from "wasp/server/api";
 
 export const throwUnexpectedError: ThrowUnexpectedError = async () => {
@@ -44,5 +45,14 @@ export const throwUnavailableError: ThrowUnavailableError = async () => {
       "Retry-After": 60,
       "Set-Cookie": ["first=1; Path=/", "second=2; Path=/"],
     },
+  });
+};
+
+// Errors from API clients like OpenAI's carry the upstream response's
+// headers as a `Headers` instance, which we don't forward.
+export const throwUpstreamError: ThrowUpstreamError = async () => {
+  throw Object.assign(new Error("Internal detail of a 502"), {
+    status: 502,
+    headers: new Headers({ "X-Upstream": "1" }),
   });
 };

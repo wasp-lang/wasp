@@ -648,7 +648,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "904339f2a0d40160abe560568b923ac6730ba3d3f867d446810530699e7b80fd"
+        "3e4d5c07d860c2c3ae26c8a8e2df3d9b456096b2c94b44645dfc7201059e39a9"
     ],
     [
         [
@@ -865,14 +865,14 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "f63d4ffb73ed591e13aa30cda9bd0b3cc0535f779b01c6e6895369a3d2e29349"
+        "890688bde2f30baa5753bf1cfcedd08a4d88c3ac2acc4a934ca42d9b30d3689a"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/unknownErrors.ts"
         ],
-        "b9a0f706e5f0c5019560257b7caf992ee753eb93c0d34fce4e824862a7381273"
+        "611f110a94ac4fc8a72ea3307349d0c60ca0be3672cbcee62e0b7c4ed6cc2a0a"
     ],
     [
         [
@@ -1558,7 +1558,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "4c46f1902851bc258cd59ab53460392e1fe2b6779d69168a2e24fb99ca2f4759"
+        "ab101afc1dcc6d5d0d7a14eb3eb02359f49746ff302b8aea29e93b657723d7f9"
     ],
     [
         [

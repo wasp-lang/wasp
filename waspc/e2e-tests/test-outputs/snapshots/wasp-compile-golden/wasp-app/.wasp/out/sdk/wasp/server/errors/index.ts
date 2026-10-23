@@ -37,7 +37,7 @@ export function reportUnexpectedServerError(
  *   We never send their message, so we don't leak internal details to the
  *   client.
  *
- * We report every error that ends up as a 5xx.
+ * We report every error other than an `HttpError` that ends up as a 5xx.
  *
  * In development, a hidden error's message and stack go into `data`, like
  * Express's default error handler shows them on its HTML page.

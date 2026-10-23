@@ -6,6 +6,7 @@ import {
   throwRateLimitError,
   throwUnavailableError,
   throwUnexpectedError,
+  throwUpstreamError,
 } from "./apis" with { type: "ref" };
 
 export const errorsSpec: Spec = [
@@ -14,4 +15,5 @@ export const errorsSpec: Spec = [
   api("GET", "/errors/concealed", throwConcealedError, { auth: false }),
   api("GET", "/errors/unavailable", throwUnavailableError, { auth: false }),
   api("GET", "/errors/rate-limit", throwRateLimitError, { auth: false }),
+  api("GET", "/errors/upstream", throwUpstreamError, { auth: false }),
 ];

@@ -70,6 +70,19 @@ test.describe("server errors", () => {
     });
   });
 
+  test("an unknown error doesn't forward a Headers instance", async ({
+    request,
+  }) => {
+    const response = await request.get(`${WASP_SERVER_URL}/errors/upstream`);
+
+    expect(response.status()).toBe(502);
+    expect(response.headers()["x-upstream"]).toBeUndefined();
+    expect(await response.json()).toEqual({
+      message: "Bad Gateway",
+      ...expectedDevelopmentDetails("Internal detail of a 502"),
+    });
+  });
+
   test("a middleware error keeps its headers", async ({ request }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/rate-limit`);
 

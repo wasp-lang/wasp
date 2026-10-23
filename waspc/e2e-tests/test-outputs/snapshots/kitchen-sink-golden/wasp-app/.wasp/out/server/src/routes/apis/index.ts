@@ -20,6 +20,7 @@ import { throwHttpError as _waspthrowHttpErrorfn } from "../../../../../../src/f
 import { throwConcealedError as _waspthrowConcealedErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwUnavailableError as _waspthrowUnavailableErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwRateLimitError as _waspthrowRateLimitErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwUpstreamError as _waspthrowUpstreamErrorfn } from "../../../../../../src/features/errors/apis"
 import { streamingText as _waspstreamingTextfn } from "../../../../../../src/features/streaming/api"
 
 const idFn: MiddlewareConfigFn = x => x
@@ -32,6 +33,7 @@ const _waspthrowHttpErrormiddlewareConfigFn = idFn
 const _waspthrowConcealedErrormiddlewareConfigFn = idFn
 const _waspthrowUnavailableErrormiddlewareConfigFn = idFn
 const _waspthrowRateLimitErrormiddlewareConfigFn = idFn
+const _waspthrowUpstreamErrormiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
@@ -209,6 +211,23 @@ router.get(
         },
       }
       return _waspthrowRateLimitErrorfn(req, res, context)
+    }
+  )
+)
+const throwUpstreamErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowUpstreamErrormiddlewareConfigFn)
+router.get(
+  "/errors/upstream",
+  throwUpstreamErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowUpstreamErrorfn>[0],
+      res: Parameters<typeof _waspthrowUpstreamErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowUpstreamErrorfn(req, res, context)
     }
   )
 )

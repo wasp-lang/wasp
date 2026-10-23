@@ -52,7 +52,11 @@ function findStatusCode(error: unknown): number | undefined {
 }
 
 /**
- * The response headers, from `headers`.
+ * The response headers, from `headers`. Like Express's default error
+ * handler, we copy only their own keys, so we drop a `Headers` instance
+ * instead of setting its methods as headers.
+ *
+ * @see https://github.com/pillarjs/finalhandler/blob/v2.1.0/index.js#L139-L145
  */
 function findHeaders(error: unknown): Wasp.HttpErrorHeaders | undefined {
   if (
@@ -62,7 +66,7 @@ function findHeaders(error: unknown): Wasp.HttpErrorHeaders | undefined {
     typeof error.headers === "object" &&
     error.headers !== null
   ) {
-    return error.headers as Wasp.HttpErrorHeaders;
+    return { ...error.headers } as Wasp.HttpErrorHeaders;
   }
   return undefined;
 }
