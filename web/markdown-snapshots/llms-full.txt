@@ -21012,7 +21012,7 @@ When you make updates and need to redeploy:
 ## Deployment / Cloud Providers / Zerops
 
 :::note
-Last checked with Wasp 0.25 and Zerops (as of Sep 16, 2026).
+Last checked with Wasp 0.26 and Zerops (as of Oct 23, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21082,7 +21082,7 @@ zerops:
       readinessCheck:
         httpGet:
           port: 3001
-          path: /auth/me
+          path: /up
     run:
       base: nodejs@24
       os: ubuntu
@@ -21102,25 +21102,25 @@ zerops:
       start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
 ```
 
-Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.25`).
+Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).
 
 The `prod-client` setup runs `wasp install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
 The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
 
-| Variable              | Value                         | Notes                                                      |
-| --------------------- | ----------------------------- | ---------------------------------------------------------- |
-| `DATABASE_URL`        | `postgresql://${db_user}:...` | Zerops injects `db` service credentials automatically      |
-| `WASP_SERVER_URL`     | `${API_URL}`                  | Public API URL, including `https://`                       |
-| `WASP_WEB_CLIENT_URL` | `${APP_URL}`                  | Public client URL, including `https://`                    |
-| `JWT_SECRET`          | `${APP_SECRET}`               | At least 32 characters - set `APP_SECRET` in `import.yaml` |
-| `PORT`                | `3001`                        | Must match `API_URL` and the readiness check               |
+| Variable              | Value                         | Notes                                                 |
+| --------------------- | ----------------------------- | ----------------------------------------------------- |
+| `DATABASE_URL`        | `postgresql://${db_user}:...` | Zerops injects `db` service credentials automatically |
+| `WASP_SERVER_URL`     | `${API_URL}`                  | Public API URL, including `https://`                  |
+| `WASP_WEB_CLIENT_URL` | `${APP_URL}`                  | Public client URL, including `https://`               |
+| `JWT_SECRET`          | `${APP_SECRET}`               | At least 32 characters                                |
+| `PORT`                | `3001`                        | Must match `API_URL` and the readiness check          |
 
 Do not self-reference Wasp keys in `zerops.yaml` (for example `${WASP_SERVER_URL}`). Only value-store keys (`APP_URL`, `API_URL`, `APP_SECRET`) and Zerops service keys (`${db_password}`, ...) resolve.
 
 #### Create the import.yaml
 
-`import.yaml` defines which services exist and the project **value store** - generic `APP_URL`, `API_URL`, and `APP_SECRET` that `zerops.yaml` maps into Wasp's env var names. Do not put `envVariables` on service blocks in `import.yaml`.
+`import.yaml` defines which services exist and the project **value store** - generic `APP_URL` and `API_URL` that `zerops.yaml` maps into Wasp's env var names. Do not put `envVariables` on service blocks in `import.yaml`.
 
 ```yaml title="import.yaml"
 #yamlPreprocessor=on
@@ -21185,7 +21185,7 @@ This example uses the **Small Production** topology (two containers each). For a
 #### Verify your deployment
 
 - **Client:** open the `app` URL - the SPA loads.
-- **API:** `GET /auth/me` on port 3001 responds (this is the readiness check).
+- **API:** `GET /up` on port 3001 responds (this is the readiness check).
 - **Auth:** if login fails, check that `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` match the public client and API URLs in the project value store.
 
 #### Redeploying after changes

@@ -9,7 +9,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Zerops
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.25", Zerops: new Date("2026-09-16") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Zerops: new Date("2026-10-23") }} />
 
 ## Deploy Wasp on Zerops <Server /> <Client /> <Database />
 
@@ -76,7 +76,7 @@ zerops:
       readinessCheck:
         httpGet:
           port: 3001
-          path: /auth/me
+          path: /up
     run:
       base: nodejs@24
       os: ubuntu
@@ -96,7 +96,7 @@ zerops:
       start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
 ```
 
-Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.25`).
+Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).
 
 The `prod-client` setup runs `wasp install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
@@ -107,14 +107,14 @@ The `prod-api` setup bundles the server, then on each new deploy version `zsc ex
 | `DATABASE_URL` | `postgresql://${db_user}:...` | Zerops injects `db` service credentials automatically |
 | `WASP_SERVER_URL` | `${API_URL}` | Public API URL, including `https://` |
 | `WASP_WEB_CLIENT_URL` | `${APP_URL}` | Public client URL, including `https://` |
-| `JWT_SECRET` | `${APP_SECRET}` | At least 32 characters - set `APP_SECRET` in `import.yaml` |
+| `JWT_SECRET` | `${APP_SECRET}` | At least 32 characters |
 | `PORT` | `3001` | Must match `API_URL` and the readiness check |
 
 Do not self-reference Wasp keys in `zerops.yaml` (for example `${WASP_SERVER_URL}`). Only value-store keys (`APP_URL`, `API_URL`, `APP_SECRET`) and Zerops service keys (`${db_password}`, ...) resolve.
 
 ### Create the import.yaml
 
-`import.yaml` defines which services exist and the project **value store** - generic `APP_URL`, `API_URL`, and `APP_SECRET` that `zerops.yaml` maps into Wasp's env var names. Do not put `envVariables` on service blocks in `import.yaml`.
+`import.yaml` defines which services exist and the project **value store** - generic `APP_URL` and `API_URL` that `zerops.yaml` maps into Wasp's env var names. Do not put `envVariables` on service blocks in `import.yaml`.
 
 ```yaml title="import.yaml"
 #yamlPreprocessor=on
@@ -177,7 +177,7 @@ This example uses the **Small Production** topology (two containers each). For a
 ### Verify your deployment
 
 - **Client:** open the `app` URL - the SPA loads.
-- **API:** `GET /auth/me` on port 3001 responds (this is the readiness check).
+- **API:** `GET /up` on port 3001 responds (this is the readiness check).
 - **Auth:** if login fails, check that `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` match the public client and API URLs in the project value store.
 
 ### Redeploying after changes
