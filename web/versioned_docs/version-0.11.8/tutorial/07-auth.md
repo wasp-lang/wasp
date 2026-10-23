@@ -257,7 +257,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-<img alt="Database demonstration - password hashing" src={useBaseUrl('img/wasp_db_hash_demonstration.gif')} style={{ border: "1px solid black" }} />
+<img alt="Database demonstration - password hashing" src={useBaseUrl('img/docs/tutorial/07-auth/wasp_db_hash_demonstration.gif')} style={{ border: "1px solid black" }} />
 
 We see there is a user and that its password is already hashed 🤯
 
@@ -420,7 +420,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-<img alt="Database demonstration" src={useBaseUrl('img/wasp_db_demonstration.gif')} style={{ border: "1px solid black" }} />
+<img alt="Database demonstration" src={useBaseUrl('img/docs/tutorial/07-auth/wasp_db_demonstration.gif')} style={{ border: "1px solid black" }} />
 
 You will see that each user has their tasks, just as we specified in our code!
 

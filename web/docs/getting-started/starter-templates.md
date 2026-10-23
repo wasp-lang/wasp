@@ -1,3 +1,9 @@
+---
+title: "Starter templates for Wasp: basic, minimal and SaaS"
+sidebar_label: Starter templates
+description: "Create a new Wasp project from a template with wasp new: basic, minimal, or the OpenSaaS.sh template with auth, Stripe payments, Tailwind and cron jobs."
+---
+
 # Starter templates
 
 We created a few starter templates to help you get started with Wasp. Check out the list [below](#available-templates).
@@ -38,7 +44,7 @@ When you have a good idea for a new product, you don't want to waste your time o
 
 ### OpenSaaS.sh template
 
-![SaaS Template](/img/starter-templates/open-saas-banner.png)
+![SaaS Template](/img/docs/getting-started/starter-templates/open-saas-banner.png)
 
 Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
 
@@ -52,7 +58,7 @@ wasp new <project-name> -t saas
 
 ### Basic Template
 
-![Basic Template](/img/starter-templates/basic-welcome-page.png)
+![Basic Template](/img/docs/getting-started/starter-templates/basic-welcome-page.png)
 
 The default template: a to-do app with email and password auth, tasks and tags, styled with Tailwind. It covers the features most apps need, like pages, auth, entities, queries, and actions.
 
@@ -65,6 +71,8 @@ wasp new <project-name> -t basic
 ```
 
 ### Minimal Template
+
+![Minimal Template](/img/docs/getting-started/starter-templates/minimal-main-page.png)
 
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 

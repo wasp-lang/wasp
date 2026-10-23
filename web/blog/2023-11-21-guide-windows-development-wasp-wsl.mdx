@@ -1,13 +1,14 @@
 ---
 title: 'A Guide to Windows Development with Wasp & WSL'
 authors: [martinovicdev]
-image: /img/wsl-guide/wsl-guide-banner.jpeg
+image: /img/blog/2023-11-21-guide-windows-development-wasp-wsl/wsl-guide-banner.jpeg
 tags: [wsl, windows, tutorial]
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
+import Trackable from '@site/src/components/Trackable';
 
-<ImgWithCaption alt="WSL Guide Banner" source="/img/wsl-guide/wsl-guide-banner.jpeg" />
+<ImgWithCaption alt="WSL Guide Banner" source="/img/blog/2023-11-21-guide-windows-development-wasp-wsl/wsl-guide-banner.jpeg" />
 
 If you are having a hard time with Wasp development on Windows, don't be afraid! We will go through all necessary steps to set up your dev environment and get you started with Wasp development in Windows in no time.
 
@@ -96,9 +97,13 @@ After this, we have both Node.js and NVM set up in our system.
 
 Next up is installing Wasp on our Linux environment. Wasp installation is also pretty straightforward and easy. So just copy and paste this command:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 and wait for the installer to finish up its thing. Great! But, if you did your WSL setup from 0, you will notice the following warning underneath: It looks like '/home/boris/.local/bin' is not on your PATH! You will not be able to invoke wasp from the terminal by its name.
 

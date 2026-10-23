@@ -20,6 +20,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 
+### 🔧 Small improvements
+
+- The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
+
 ## 0.26.0
 
 ### ⚠️ Breaking Changes
