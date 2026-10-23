@@ -8,7 +8,7 @@ To make using authentication in your app as easy as possible, Wasp generates the
 
 Below we cover all of the available UI components and how to use them.
 
-![Auth UI](/img/authui/all_screens.gif)
+![Auth UI](/img/docs/features/auth/all_screens.gif)
 
 :::note
 
@@ -54,7 +54,7 @@ Based on the authentication providers you enabled in your `main.wasp` file, the 
 
 You'll get the following UI:
 
-![Auth UI](/img/authui/login.png)
+![Auth UI](/img/docs/features/auth/login.png)
 
 And then if you enable Google and Github:
 
@@ -94,7 +94,7 @@ And then if you enable Google and Github:
 
 The form will automatically update to look like this:
 
-![Auth UI](/img/authui/multiple_providers.png)
+![Auth UI](/img/docs/features/auth/ui/multiple_providers.png)
 
 Let's go through all of the available components and how to use them.
 
@@ -112,7 +112,7 @@ The following components are available for you to use in your app:
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
 
-![Login form](/img/authui/login.png)
+![Login form](/img/docs/features/auth/login.png)
 
 You can use the `LoginForm` component to build your login page:
 
@@ -164,7 +164,7 @@ It will automatically show the correct authentication providers based on your `m
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
 
-![Signup form](/img/authui/signup.png)
+![Signup form](/img/docs/features/auth/signup.png)
 
 You can use the `SignupForm` component to build your signup page:
 
@@ -220,7 +220,7 @@ Used with <EmailPill /> authentication.
 
 If users forget their password, they can use this form to reset it.
 
-![Forgot password form](/img/authui/forgot_password.png)
+![Forgot password form](/img/docs/features/auth/ui/forgot_password.png)
 
 You can use the `ForgotPasswordForm` component to build your own forgot password page:
 
@@ -272,7 +272,7 @@ Used with <EmailPill /> authentication.
 
 After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
 
-![Reset password form](/img/authui/reset_password.png)
+![Reset password form](/img/docs/features/auth/ui/reset_password.png)
 
 You can use the `ResetPasswordForm` component to build your reset password page:
 
@@ -324,7 +324,7 @@ Used with <EmailPill /> authentication.
 
 After users sign up, they will receive an email with a link to this form where they can verify their email.
 
-![Verify email form](/img/authui/email_verification.png)
+![Verify email form](/img/docs/features/auth/email_verification.png)
 
 You can use the `VerifyEmailForm` component to build your email verification page:
 
@@ -526,7 +526,7 @@ If we pass in `vertical`:
 
 We get this:
 
-![Vertical social buttons](/img/authui/vertical_social_buttons.png)
+![Vertical social buttons](/img/docs/features/auth/ui/vertical_social_buttons.png)
 
 ### Let's Put Everything Together 🪄
 
@@ -585,5 +585,5 @@ If we provide the logo and custom colors:
 We get a form looking like this:
 
 <div style={{ textAlign: 'center' }}>
-  <img src="/img/authui/custom_login.gif" alt="Custom login form" />
+  <img src="/img/docs/features/auth/ui/custom_login.gif" alt="Custom login form" />
 </div>

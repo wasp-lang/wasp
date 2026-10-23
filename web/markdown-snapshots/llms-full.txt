@@ -49,7 +49,7 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 At the core is the Wasp compiler which takes the Wasp Spec and your Javascript code and outputs the client app, server app and deployment code.
 
-![](https://wasp.sh/img/lp/wasp-compilation-diagram.png)
+![](https://wasp.sh/img/docs/getting-started/introduction/wasp-compilation-diagram.png)
 
 How the magic happens 🌈
 
@@ -521,7 +521,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-![How the Todo App will work once it is finished](https://wasp.sh/img/todo-app-tutorial-intro.gif)
+![How the Todo App will work once it is finished](https://wasp.sh/img/docs/tutorial/01-create/todo-app-tutorial-intro.gif)
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
@@ -548,7 +548,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
-![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/wasp-new-screenshot.png)
+![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/docs/tutorial/01-create/wasp-new-screenshot.png)
 
 Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
 
@@ -757,7 +757,7 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-![Todo App - Hello World](https://wasp.sh/img/todo-app-hello-world.png)
+![Todo App - Hello World](https://wasp.sh/img/docs/tutorial/03-pages/todo-app-hello-world.png)
 
 You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
 
@@ -823,7 +823,7 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-![Todo App - Db studio showing Task schema](https://wasp.sh/img/todo-app-db-studio-task-entity.png)
+![Todo App - Db studio showing Task schema](https://wasp.sh/img/docs/tutorial/04-entities/todo-app-db-studio-task-entity.png)
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
 
@@ -966,7 +966,7 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-![Todo App - No Tasks](https://wasp.sh/img/todo-app-no-tasks.png)
+![Todo App - No Tasks](https://wasp.sh/img/docs/tutorial/05-queries/todo-app-no-tasks.png)
 
 We'll create a form to add tasks in the next step 🪄
 
@@ -1102,7 +1102,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-![Todo App - creating new task](https://wasp.sh/img/todo-app-new-task.png)
+![Todo App - creating new task](https://wasp.sh/img/docs/tutorial/06-actions/todo-app-new-task.png)
 
 :::note[Automatic Query Invalidation]
 When you create a new task, the list of tasks is automatically updated to display the new task, even though you haven't written any code that does that! Wasp handles these automatic updates under the hood.
@@ -1401,7 +1401,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-![Database demonstration - password hashing](https://wasp.sh/img/wasp_user_in_db.gif)
+![Database demonstration - password hashing](https://wasp.sh/img/docs/tutorial/07-auth/wasp_user_in_db.gif)
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -1514,7 +1514,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-![Database demonstration](https://wasp.sh/img/wasp_db_demonstration.gif)
+![Database demonstration](https://wasp.sh/img/docs/tutorial/07-auth/wasp_db_demonstration.gif)
 
 You will see that each user has their tasks, just as we specified in our code!
 
@@ -3419,7 +3419,7 @@ export default app({
 
 Here's what it looks like when visualized:
 
-![Automatic CRUD with Wasp](https://wasp.sh/img/crud_diagram.png)
+![Automatic CRUD with Wasp](https://wasp.sh/img/docs/features/data/crud/crud_diagram.png)
 
 Visualization of the Tasks crud spec
 
@@ -3431,7 +3431,7 @@ Keep reading for an example of Automatic CRUD in action, or skip ahead for the [
 
 Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](https://wasp.sh/docs/features/auth/username-and-pass/overview) based auth.
 
-![Automatic CRUD with Wasp](https://wasp.sh/img/crud-guide.gif)
+![Automatic CRUD with Wasp](https://wasp.sh/img/docs/features/data/crud/crud-guide.gif)
 
 We are building a simple tasks app with username based auth
 
@@ -4148,7 +4148,7 @@ The `datasource` block defines which database you want to use (PostgreSQL in thi
 
 The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
 
-![Relationship between Wasp file and Prisma file](https://wasp.sh/img/data-model/prisma_in_wasp.png)
+![Relationship between Wasp file and Prisma file](https://wasp.sh/img/docs/features/data/prisma-file/prisma_in_wasp.png)
 
 Relationship between Wasp file and Prisma file
 
@@ -5409,7 +5409,7 @@ export function LoginPage() {
 
 We get a form looking like this:
 
-![Custom login form](https://wasp.sh/img/authui/custom_login.gif)
+![Custom login form](https://wasp.sh/img/docs/features/auth/ui/custom_login.gif)
 
 
 ## Features / Auth / Username and password / Overview
@@ -7844,7 +7844,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 3. Click "From scratch"
 4. Enter App Name and select workspace that should host your app.
 
-![Slack Applications Screenshot](https://wasp.sh/img/integrations-slack-1.png)
+![Slack Applications Screenshot](https://wasp.sh/img/docs/features/auth/social-auth/slack/integrations-slack-1.png)
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
 
@@ -8212,7 +8212,7 @@ To use Discord as an authentication method, you'll first need to create a Discor
 2. Select **New Application**.
 3. Supply required information.
 
-![Discord Applications Screenshot](https://wasp.sh/img/integrations-discord-1.png)
+![Discord Applications Screenshot](https://wasp.sh/img/docs/features/auth/social-auth/discord/integrations-discord-1.png)
 
 4. Go to the **OAuth2** tab on the sidebar and click **Add Redirect**
 
@@ -9183,7 +9183,7 @@ You can also use the user entity to define the relations between users and other
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
 
-![Auth Entities in a Wasp App](https://wasp.sh/img/auth-entities/model.png)
+![Auth Entities in a Wasp App](https://wasp.sh/img/docs/features/auth/entities/model.png)
 
 Auth Entities in a Wasp App
 
@@ -9200,7 +9200,7 @@ Let's imagine we created a simple tasks management app:
 
 Let's look at how would that look in the database:
 
-![Example of Auth Entities](https://wasp.sh/img/auth-entities/model-example.png)
+![Example of Auth Entities](https://wasp.sh/img/docs/features/auth/entities/model-example.png)
 
 Example of Auth Entities
 
@@ -9414,11 +9414,11 @@ The following auth hooks are available in Wasp:
 
 We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the auth flows:
 
-![Signup Flow with Hooks](https://wasp.sh/img/auth-hooks/signup_flow_with_hooks.png)
+![Signup Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/signup_flow_with_hooks.png)
 
 Signup Flow with Hooks
 
-![Login Flow with Hooks](https://wasp.sh/img/auth-hooks/login_flow_with_hooks.png)
+![Login Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/login_flow_with_hooks.png)
 
 Login Flow with Hooks \*
 
@@ -9426,13 +9426,13 @@ Login Flow with Hooks \*
 
 Users registering with [email](https://wasp.sh/docs/features/auth/email/overview) must verify it before they can log in. This verification triggers the Email verification flow:
 
-![Email Verification Flow with Hooks](https://wasp.sh/img/auth-hooks/email_verification_flow_with_hooks.png)
+![Email Verification Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/email_verification_flow_with_hooks.png)
 
 Email Verification Flow with Hooks
 
 Users signing in with [OAuth](https://wasp.sh/docs/features/auth/social-auth/overview) must authorize access before completing login. This authorization triggers the OAuth consent flow:
 
-![OAuth Flow with Hooks](https://wasp.sh/img/auth-hooks/oauth_flow_with_hooks.png)
+![OAuth Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/oauth_flow_with_hooks.png)
 
 OAuth Flow with Hooks
 
@@ -13619,7 +13619,7 @@ What we call a "Wasp app" consists of three different parts:
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-![Wasp app structure](https://wasp.sh/img/deploying/wasp-app-flow.gif)
+![Wasp app structure](https://wasp.sh/img/docs/deployment/overview/wasp-app-flow.gif)
 
 Data flow in a typical deployed Wasp app where all three parts are deployed separately
 
@@ -14954,7 +14954,7 @@ To self-host your Wasp app, you'll follow these general steps:
 5. Serve the **client app** with a static file server.
 6. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
 
-![One of many possible self-hosting setups](https://wasp.sh/img/deploying/self-hosting.png)
+![One of many possible self-hosting setups](https://wasp.sh/img/docs/deployment/methods/self-hosted/self-hosting.png)
 
 One possible self-hosting setup
 
@@ -19971,7 +19971,7 @@ What does it look like when your DB is deployed correctly?
 
 When your DB is deployed correctly, you'll see it in the [Fly.io dashboard](https://fly.io/dashboard):
 
-![image](https://wasp.sh/img/deploying/fly-db.png)
+![image](https://wasp.sh/img/docs/guides/deployment/cloud-providers/flyio/fly-db.png)
 :::
 
 Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
