@@ -27,7 +27,17 @@ In development, setting the ports manually in the env vars or the Vite config no
 
 ## How to migrate?
 
-### 1. Bump the Wasp version
+### 1. Upgrade Node.js to 24.22.1 or later
+
+Wasp 0.26.1 requires Node.js >= 24.22.1 (previously >= 24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). Make sure to upgrade before continuing:
+
+```shell
+node -v
+# If below 24.22.1, upgrade:
+nvm install 24
+```
+
+### 2. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.26.0`.
 
@@ -58,7 +68,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Update your TypeScript config
+### 3. Update your TypeScript config
 
 Due to `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
 
@@ -89,7 +99,7 @@ In `tsconfig.src.json`, update the `include` field:
   </TabItem>
 </Tabs>
 
-### 3. Stop setting the dev ports and URLs yourself
+### 4. Stop setting the dev ports and URLs yourself
 
 Wasp now picks the ports your app runs on in development and derives its URLs from them, so it fails if you also set them.
 
@@ -175,7 +185,7 @@ wasp start \
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
 :::
 
-### 4. Set `PORT` in deployment
+### 5. Set `PORT` in deployment
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
@@ -187,7 +197,7 @@ Most deployment platforms set `PORT` for you, but it's worth it to check it in t
 PORT=3001
 ```
 
-### 5. Update your custom Dockerfile
+### 6. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
 you'll have to add a one new additional line to it:
@@ -214,7 +224,7 @@ you'll have to add a one new additional line to it:
 </Tabs>
 
 
-### 6. Update Fly database deployment flags
+### 7. Update Fly database deployment flags
 
 If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
 
@@ -224,7 +234,7 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 7. Point liveness checks at `/up`
+### 8. Point liveness checks at `/up`
 
 Wasp now serves a liveness check at `GET /up` in both development and production.
 
@@ -263,20 +273,20 @@ This breaks the Caddy setup from the [VPS deployment guide](./guides/deployment/
 
 If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
 
-### 8. Update deployment CLIs
+### 9. Update deployment CLIs
 
 Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both locally and in CI, if you use them.
 
-### 9. Replace `wasp info` with `wasp show`
+### 10. Replace `wasp info` with `wasp show`
 
 `wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
 
-### 10. Update selectors for email auth fields
+### 11. Update selectors for email auth fields
 
 If you are running e2e tests on your app, update selectors from `input[type="email"]` to `input[name="email"]`.
 
 Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
 
-### 11. Enjoy your updated Wasp app
+### 12. Enjoy your updated Wasp app
 
 That's it!
