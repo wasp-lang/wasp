@@ -20,6 +20,7 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
+import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
@@ -38,7 +39,6 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
@@ -151,7 +151,7 @@ printUsage =
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall [--force]   Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
+        cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>] [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
@@ -210,10 +210,10 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
-  "seed" : seedArgs -> runCommand $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
-  "studio" : studioArgs -> runCommand $ withArguments (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
+  "reset" : resetArgs -> runCommandThatRequiresDbRunning Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
+  "seed" : seedArgs -> runCommandThatRequiresDbRunning Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
+  "studio" : studioArgs -> runCommandThatRequiresDbRunning Command.Db.Studio.studioArgsParser (const Command.Db.Studio.studio) studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
@@ -228,7 +228,7 @@ printDbUsage =
         cmd $ intercalate "\n" [
               "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
-              "                               Starts managed development database for you.",
+              "                               Runs a development database and streams its logs until Ctrl+C.",
               "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                               If the port is not specified, Wasp picks the first free port when the default one is taken."
         ],
@@ -243,9 +243,19 @@ printDbUsage =
               "                                   supplied migration name or asking for one.",
               "    OPTIONS:",
               "      --name [migration-name]",
-              "      --create-only"
+              "      --create-only",
+              "      --db-port <port>",
+              "      --db-image <image>",
+              "      --db-volume-mount-path <path>"
         ],
         cmd   "  studio                       GUI for inspecting your database.",
+              "",
+        title "DATABASE OPTIONS",
+              "  --db-port <port>             Host port when starting managed PostgreSQL.",
+              "  --db-image <image>           Docker image when starting managed PostgreSQL.",
+              "  --db-volume-mount-path <path>",
+              "                               Data path inside a new PostgreSQL container.",
+              "  These options also work with reset, seed, migrate-dev, and studio.",
               "",
         title "EXAMPLES",
               "  wasp db migrate-dev",

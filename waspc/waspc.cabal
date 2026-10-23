@@ -473,6 +473,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
+    Wasp.Cli.Command.Db.Docker
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
@@ -652,6 +653,7 @@ test-suite wasp-cli-tests
     hspec,
     network,
     network-uri,
+    optparse-applicative,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -659,6 +661,7 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
+    DbMigrateTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest
