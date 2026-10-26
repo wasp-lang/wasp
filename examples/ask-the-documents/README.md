@@ -2,7 +2,7 @@
 
 ![Ask The Documents Cover](./github.png)
 
-Live at https://ask-the-documents-client.fly.dev/
+Live on [Fly](https://ask-the-documents-client.fly.dev/) and [Railway](https://ask-the-documents-client.up.railway.app/).
 
 ## What does it do?
 

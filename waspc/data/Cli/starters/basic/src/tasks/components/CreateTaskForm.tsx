@@ -57,7 +57,7 @@ export function CreateTaskForm() {
       className="flex w-full flex-col gap-6"
       id="create-task"
     >
-      <h2 className="text-xl font-semibold">Create a new task</h2>
+      <h2 className="text-xl font-bold">Create a new task</h2>
       <Controller
         name="description"
         control={control}
@@ -81,7 +81,11 @@ export function CreateTaskForm() {
             <ul className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <li key={tag.id}>
-                  <button type="button" onClick={() => toggleTag(tag.id)}>
+                  <button
+                    type="button"
+                    className="cursor-pointer"
+                    onClick={() => toggleTag(tag.id)}
+                  >
                     <TagLabel
                       tag={tag}
                       isActive={tagIds.includes(tag.id)}

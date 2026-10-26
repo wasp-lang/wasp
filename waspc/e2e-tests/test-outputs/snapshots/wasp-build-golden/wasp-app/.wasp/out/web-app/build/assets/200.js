@@ -92,11 +92,22 @@ function FullPageWrapper({ children, className }) {
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
 //#endregion
 //#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
+//#endregion
+//#region node_modules/@wasp.sh/lib-sdk-core/dist/WaspHttpError.mjs
+var WaspHttpError = class extends Error {
+	statusCode;
+	data;
+	constructor(statusCode, message, data) {
+		super(message);
+		this.statusCode = statusCode;
+		this.data = data;
+	}
+};
 //#endregion
 //#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
@@ -151,14 +162,31 @@ function createLocalStorageDataStore(prefix) {
 }
 //#endregion
 //#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
-var defaultQueryClientConfig = {};
+var MAX_QUERY_RETRIES = 3;
+var RETRYABLE_CLIENT_ERROR_STATUS_CODES = /* @__PURE__ */ new Set([408, 429]);
 var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
 function initializeQueryClient() {
-	const queryClient = new QueryClient(defaultQueryClientConfig);
+	const queryClient = new QueryClient(withWaspQueryDefaults({}));
 	resolveQueryClientInitialized(queryClient);
+}
+function withWaspQueryDefaults(config) {
+	return {
+		...config,
+		defaultOptions: {
+			...config.defaultOptions,
+			queries: {
+				retry: shouldRetryQuery,
+				...config.defaultOptions?.queries
+			}
+		}
+	};
+}
+function shouldRetryQuery(failureCount, error) {
+	if (failureCount >= MAX_QUERY_RETRIES) return false;
+	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
 }
 //#endregion
 //#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs

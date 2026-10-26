@@ -432,6 +432,20 @@ Use this template:
 wasp new <project-name> -t saas
 ```
 
+#### Basic Template
+
+![Basic Template](https://wasp.sh/assets/images/basic-welcome-page-d793a48af9038253a6bd8b0b1dd9b425.png)
+
+The default template: a to-do app with email and password auth, tasks and tags, styled with Tailwind. It covers the features most apps need, like pages, auth, entities, queries, and actions.
+
+When you run it for the first time, it opens on a welcome page that walks you through the app: creating a user and logging in, managing tasks, inspecting your app and data with `wasp studio` and `wasp db studio`, finding the docs for each Wasp feature, and deploying.
+
+Use this template:
+
+```
+wasp new <project-name> -t basic
+```
+
 #### Minimal Template
 
 ![Minimal Template](https://wasp.sh/assets/images/minimal-main-page-1509ada21308e3edccb8882dda90fafb.png)
@@ -2794,6 +2808,8 @@ throw new HttpError(429, "Too many requests", undefined, {
   headers: { "Retry-After": "60" },
 })
 ```
+
+When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. To change this, set `retry` for a [single Query](#the-usequery-hook-1) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
 
 #### Using Entities in Queries
 
@@ -12930,7 +12946,7 @@ export default async function mySetupFunction(): Promise<void> {
 You can change the options for a **single** Query using the `options` object, as described [here](https://wasp.sh/docs/features/data/operations/queries#the-usequery-hook-1).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)).
 
 If you do need to change the global defaults, you can do so inside the client setup function.
 
@@ -13483,7 +13499,7 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 Once [installed](https://wasp.sh/docs/quick-start), you can use the wasp command from your command line.
 
-If you run the `wasp` command without any arguments, it will show you a list of available commands and their descriptions:
+If you run `wasp help` (or `wasp` without any arguments), it will show you a list of available commands and their descriptions:
 
 ```
 USAGE
@@ -13496,6 +13512,7 @@ COMMANDS
         -t|--template <template-name>
            Available starter templates are: basic, minimal, saas.
 
+    help                  Prints this help message.
     version               Prints current version of CLI.
     doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).
     completion            Prints help on bash completion.
@@ -13511,7 +13528,7 @@ COMMANDS
                           Starts managed development database for you.
                           Optionally specify a custom port, Docker image, or Docker volume mount path.
                           If the port is not specified, Wasp picks the first free port when the default one is taken.
-    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
+    db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
@@ -14679,6 +14696,8 @@ wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
 #### The `deploy` command
 
 The `deploy` command deploys your client and server apps to Railway.
+
+It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
 
 ```shell
 wasp deploy railway deploy <project-name>
