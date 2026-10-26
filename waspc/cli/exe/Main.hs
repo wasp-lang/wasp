@@ -24,6 +24,7 @@ import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
 import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
+import qualified Wasp.Cli.Command.Db.Start as Command.Db.Start
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
@@ -33,7 +34,6 @@ import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
-import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
@@ -54,7 +54,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
-        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["install"] -> Command.Call.Install
@@ -84,7 +83,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.Start startArgs -> runCommand $ start startArgs
-    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compileCommand
@@ -157,10 +155,6 @@ printUsage =
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
               "                          Optionally specify the URLs the client and the server are reachable at,",
               "                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).",
-        cmd   "    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                          Starts managed development database for you.",
-              "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
-              "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -208,7 +202,7 @@ printVersion = do
 dbCli :: [String] -> IO ()
 dbCli args = case args of
   -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
+  "start" : optionalStartArgs -> runCommand $ Command.Db.Start.start optionalStartArgs
   -- These commands require an existing and running database.
   "reset" : resetArgs -> runCommandThatRequiresDbRunning Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
@@ -227,7 +221,6 @@ printDbUsage =
         title "COMMANDS",
         cmd $ intercalate "\n" [
               "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                               Alias for `wasp start db`.",
               "                               Runs a development database and streams its logs until Ctrl+C.",
               "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                               If the port is not specified, Wasp picks the first free port when the default one is taken."
