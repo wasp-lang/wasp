@@ -38,6 +38,10 @@ concurrency:
 # defined, so we don't want to define them here. Each workflow is also checked
 # by zizmor separately, so it is moderately safe to ignore the warnings here.
 
+# macOS Intel runners are scarce, so PRs skip them and don't hold up releases.
+# Pushes to `main` and `release`, release tags, and manual runs still build and
+# test on every platform.
+
 jobs:
   deploy-test: # zizmor: ignore[excessive-permissions]
     needs: waspc-build-linux
@@ -79,6 +83,7 @@ jobs:
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
       exclude-os: linux
+      exclude-runner: ${{ github.event_name == 'pull_request' && 'macos-15-intel' || '' }}
 
   # Merges the outputs of all the build workflows, for the jobs that need every
   # binary.
@@ -99,6 +104,7 @@ jobs:
     with:
       waspc-version: ${{ needs.waspc-build-all.outputs.waspc_version }}
       override-npm-package-version: ${{ inputs.override-npm-package-version }}
+      exclude-build: ${{ github.event_name == 'pull_request' && 'macos-x86_64' || '' }}
 
   npm-package-publish: # zizmor: ignore[excessive-permissions]
     needs: npm-package-build
@@ -110,10 +116,13 @@ jobs:
     secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
       data-files-list: ${{ needs.waspc-build-all.outputs.data_files_list }}
+      exclude-runner: ${{ github.event_name == 'pull_request' && 'macos-15-intel' || '' }}
 
   waspc-test: # zizmor: ignore[excessive-permissions]
     uses: $/.github/workflows/ci-waspc-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
+    with:
+      exclude-runner: ${{ github.event_name == 'pull_request' && 'macos-15-intel' || '' }}
 
   actions-check: # zizmor: ignore[excessive-permissions]
     uses: $/.github/workflows/ci-actions-check.yaml
