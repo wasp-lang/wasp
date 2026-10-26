@@ -98,9 +98,27 @@ Opening paragraph that hooks the reader and stands alone as an excerpt.
 {/* truncate */}
 ```
 
+### Install and CLI Commands
+
+When a post tells a new user to install Wasp or to create a first project, put that code block in `<Trackable>`, so the website counts its copies. Do not label upgrade commands or commands for current users, because they would mix with the counts of new users. Import the component once, after the frontmatter:
+
+````mdx
+import Trackable from '@site/src/components/Trackable';
+
+<Trackable event="Install Command: Copy">
+
+```shell
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+</Trackable>
+````
+
+Keep the empty lines around the code block. `DECLARED_EVENTS` in `src/lib/analytics.ts` lists the events and values that a label can use, and the build fails on any other.
+
 ### CTA Resources
 
-- Install the Wasp CLI globally: `npm i -g @wasp.sh/wasp-cli`
+- Install the Wasp CLI globally: `npm i -g @wasp.sh/wasp-cli@latest`
 - GitHub: https://github.com/wasp-lang/wasp
 - Discord: https://discord.gg/rzdnErX
 
