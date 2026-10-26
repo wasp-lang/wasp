@@ -458,6 +458,10 @@ throw new HttpError(429, "Too many requests", undefined, {
 })
 ```
 
+When a Query fails, `useQuery` retries it a few times before giving up.
+Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away.
+To change this, set `retry` for a [single Query](#the-usequery-hook-1) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
+
 ### Using Entities in Queries
 
 In most cases, resources used in Queries will be [Entities](../entities.md).

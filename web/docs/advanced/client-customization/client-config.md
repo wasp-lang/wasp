@@ -218,7 +218,7 @@ export default async function mySetupFunction(): Promise<void> {
 You can change the options for a **single** Query using the `options` object, as described [here](../../features/data/operations/queries#the-usequery-hook-1).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that unauthorized requests don't try again (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
 
 If you do need to change the global defaults, you can do so inside the client setup function.
 
