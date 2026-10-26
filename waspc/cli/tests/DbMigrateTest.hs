@@ -3,7 +3,7 @@ module DbMigrateTest where
 import qualified Options.Applicative as Opt
 import Test.Hspec
 import Wasp.Cli.Command.Db.Migrate (migrateArgsParser)
-import Wasp.Cli.Command.Start.Db (DbStartOptions (..), dbStartOptionsParser)
+import Wasp.Cli.Command.Db.StartOptions (DbStartOptions (..), dbStartOptionsParser)
 import Wasp.Cli.Util.Parser (ArgsParser (optParser))
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 
