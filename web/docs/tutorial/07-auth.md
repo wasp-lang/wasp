@@ -92,7 +92,7 @@ By doing this, Wasp will create:
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), and [email](../features/auth/email/overview), with more on the way!
+Wasp also supports authentication using [email](../features/auth/email/overview) and social providers like [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), [Discord](../features/auth/social-auth/discord), [Microsoft](../features/auth/social-auth/microsoft), [Slack](../features/auth/social-auth/slack), and [Keycloak](../features/auth/social-auth/keycloak).
 :::
 
 ## Adding Login and Signup Pages
@@ -173,7 +173,7 @@ export const SignupPage = () => {
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
+  Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 
@@ -431,7 +431,7 @@ Looking for inspiration?
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
+If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](../contributing.md).
 :::
 
 Oh, and do [**subscribe to our newsletter**](/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

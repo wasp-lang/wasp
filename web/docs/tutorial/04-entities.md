@@ -32,7 +32,7 @@ model Task {
 Read more about how Wasp Entities work in the [Entities](../features/data/entities.md) section or how Wasp uses the `schema.prisma` file in the [Prisma schema file](../features/data/prisma-file.md) section.
 :::
 
-To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:
+To update the database schema to include this entity, run:
 
 <TutorialAction id="migration-add-task" action="MIGRATE_DB" />
 ```sh

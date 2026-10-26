@@ -100,7 +100,7 @@ The arguments the caller passes to the Query.
 
   An object with extra information injected by Wasp. Its type depends on the Query specification.
 
-Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/orm/fundamentals/reading-data) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and Actions are NodeJS functions executed on the server.
@@ -160,8 +160,8 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
 
   return (
     <ul className="tasks">
-      {tasks.map((task, idx) => (
-        <TaskView task={task} key={idx} />
+      {tasks.map((task) => (
+        <TaskView task={task} key={task.id} />
       ))}
     </ul>
   );
@@ -173,12 +173,12 @@ Most of this code is regular React, the only exception being the <ShowForJs>two<
 
 <ShowForJs>
   - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-  - `useQuery` - Wasp's [useQuery](../features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+  - `useQuery` - Wasp's [useQuery](../features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [TanStack Query](https://tanstack.com/query/latest)'s hook with the same name.
 </ShowForJs>
 
 <ShowForTs>
   - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-  - `useQuery` - Wasp's [useQuery](../features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+  - `useQuery` - Wasp's [useQuery](../features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [TanStack Query](https://tanstack.com/query/latest)'s hook with the same name.
   - `Task` - The type for the Task entity defined in `schema.prisma`.
 
 Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
