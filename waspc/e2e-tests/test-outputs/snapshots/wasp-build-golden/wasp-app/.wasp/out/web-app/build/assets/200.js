@@ -92,7 +92,7 @@ function FullPageWrapper({ children, className }) {
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
 //#endregion
 //#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
