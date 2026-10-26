@@ -11,7 +11,7 @@ export function Header() {
       <Link to="/">
         <h1 className="font-bold">
           <img src={Logo} alt="Wasp logo" />
-          ToDo App
+          To-Do App
         </h1>
       </Link>
       <nav>
