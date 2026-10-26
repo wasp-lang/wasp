@@ -10,7 +10,7 @@ module Wasp.Util.Docker
   )
 where
 
-import Control.Exception (SomeException, try)
+import Control.Exception (IOException, SomeException, try)
 import Data.List.Extra (takeWhileEnd)
 import Network.Socket (PortNumber)
 import System.Exit (ExitCode (..))
@@ -41,7 +41,7 @@ checkDockerDaemonConnection = do
   return $ case result of
     Right (ExitSuccess, _stdout, _stderr) -> Right ()
     Right (ExitFailure _, _stdout, stderr) -> Left $ trim stderr
-    Left (e :: SomeException) -> Left $ show e
+    Left (e :: IOException) -> Left $ show e
 
 -- | Parses the output of @docker port \<container\> \<port\>@ into the host port.
 -- The output has a line per network interface, e.g. "0.0.0.0:5433\n[::]:5433\n".
