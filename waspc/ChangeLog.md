@@ -8,6 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
+- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about a third of the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 
 ### 🎉 New Features
 
@@ -30,7 +31,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
 - During development, errors from the Vite dev server are now also logged to the browser console and shown on the error page. ([#5136](https://github.com/wasp-lang/wasp/pull/5136))
 - The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
-- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about a third of the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 
 ## 0.26.1
 
