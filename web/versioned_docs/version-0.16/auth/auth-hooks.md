@@ -20,9 +20,9 @@ The following auth hooks are available in Wasp:
 
 We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the auth flows:
 
-<ImgWithCaption source="/img/auth-hooks/signup_flow_with_hooks.png" alt="Signup Flow with Hooks" caption="Signup Flow with Hooks" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/signup_flow_with_hooks.png" alt="Signup Flow with Hooks" caption="Signup Flow with Hooks" />
 
-<ImgWithCaption source="/img/auth-hooks/login_flow_with_hooks.png" alt="Login Flow with Hooks" caption="Login Flow with Hooks *" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/login_flow_with_hooks.png" alt="Login Flow with Hooks" caption="Login Flow with Hooks *" />
 
 <small>
   \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
@@ -30,7 +30,7 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 
 If you are using OAuth, the flow includes extra steps before the auth flow:
 
-<ImgWithCaption source="/img/auth-hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
 
 ## Using hooks
 

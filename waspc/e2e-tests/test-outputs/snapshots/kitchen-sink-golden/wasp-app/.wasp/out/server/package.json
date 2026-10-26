@@ -29,7 +29,7 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=24.14.1"
+    "node": ">=24.22.1"
   },
   "name": "@wasp.sh/generated-server",
   "nodemonConfig": {

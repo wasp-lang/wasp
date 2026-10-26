@@ -18,6 +18,7 @@ import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
 import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";
 import { crudSpec } from "./src/features/crud/crud.wasp";
 import { db } from "./src/features/db/db.wasp";
+import { errorsSpec } from "./src/features/errors/errors.wasp";
 import { jobsSpec } from "./src/features/jobs/jobs.wasp";
 import { lazyLoadingSpec } from "./src/features/lazy-loading/lazyLoading.wasp";
 import { operationsSpec } from "./src/features/operations/operations.wasp";
@@ -59,6 +60,7 @@ export default app({
     operationsSpec,
     jobsSpec,
     apisSpec,
+    errorsSpec,
     crudSpec,
     streamingSpec,
     chatSpec,

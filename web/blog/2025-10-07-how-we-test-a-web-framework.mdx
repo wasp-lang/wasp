@@ -2,7 +2,7 @@
 title: "How we test a web framework"
 description: "A sneak peek into how we test our compiler-driven full-stack web framework at Wasp."
 authors: [franjomindek]
-image: /img/how-we-test-a-web-framework/wasp-overview.png
+image: /img/blog/2025-10-07-how-we-test-a-web-framework/wasp-overview.png
 tags: [testing, wasp]
 ---
 
@@ -10,7 +10,7 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 
 <ImgWithCaption
     alt="Overview of Wasp ecosystem"
-    source="img/how-we-test-a-web-framework/wasp-overview.png"
+    source="img/blog/2025-10-07-how-we-test-a-web-framework/wasp-overview.png"
 />
 
 **Wasp is a compiler-driven full-stack web framework**; it takes configuration and source files with your unique logic, and it generates the complete source code your the web app. Think of a Rails-like framework for React, Node.js and Prisma. 
@@ -90,7 +90,7 @@ At the core of our framework sits the compiler, written in Haskell. It takes a c
 
 <ImgWithCaption
     alt="Overview of Wasp compilation process"
-    source="img/lp/wasp-compilation-diagram.webp"
+    source="img/blog/2025-10-07-how-we-test-a-web-framework/wasp-compilation-diagram.webp"
 />
 
 Although Haskell has excellent reliability and type safety (e.g., check out [our library for type-safe paths](https://hackage.haskell.org/package/strong-path/docs/StrongPath.html)), **tests are still necessary**. We use unit tests to ensure our compiler’s logic is correct. But the compiler’s most important product is the generated code that exists outside the Haskell domain. To verify the generated code, we use the end-to-end (e2e) tests.
@@ -144,7 +144,7 @@ Suppose while modifying a feature, we accidentally added a stray character (e.g.
 
 <ImgWithCaption
     alt="A terminal window showing a stray character diff"
-    source="img/how-we-test-a-web-framework/dot-error.png"
+    source="img/blog/2025-10-07-how-we-test-a-web-framework/dot-error.png"
 />
 
 Now we can check the change and accept it if it was expected, or fix it if not. Finally, when we are satisfied with the current snapshot, we record it as a new golden snapshot.
@@ -157,7 +157,7 @@ While this gave us a lot of control and flexibility while generating the code, i
 
 <ImgWithCaption
     alt="Mustache template TypeScript file opened in code editor showcasing broken linters and formatters"
-    source="img/how-we-test-a-web-framework/mustache-typescript.png"
+    source="img/blog/2025-10-07-how-we-test-a-web-framework/mustache-typescript.png"
 />
 
 This inconvenience made our usual development workflow consist of generating a Wasp app, making modifications to the generated files, and carrying over the changes back to the template. Repeat the process until we get it right.
@@ -188,7 +188,7 @@ The kitchen sink app is the "holy grail" of example apps. We test most of the fr
 
 <ImgWithCaption
     alt="Login page of the kitchen-sink application"
-    source="img/how-we-test-a-web-framework/kitchen-sink-login.png"
+    source="img/blog/2025-10-07-how-we-test-a-web-framework/kitchen-sink-login.png"
 />
 
 Kitchen sink is also one of the applications we snapshot in [our snapshot tests](#tracking-each-and-every-change). So, `kitchen-sink` not only serves to test that **the code works in the runtime**, but also **tracks any changes** to the code generation.
@@ -205,7 +205,7 @@ This is how our “variants” idea sparked. The idea is to build variants on to
 
 <ImgWithCaption
     alt="An AI generated image of Wasp mascot putting Wasp app variants on the coveyor belt to the testing pipeline"
-    source="img/how-we-test-a-web-framework/wasp-app-variants-factory.png"
+    source="img/blog/2025-10-07-how-we-test-a-web-framework/wasp-app-variants-factory.png"
 />
 
 **For each possible feature that exists, a Wasp application of that feature should exist**. It's something we haven't yet solved, but we plan to address it as we approach the Wasp 1.0 release. For now, the `kitchen-sink` app serves us well enough.
