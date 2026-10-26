@@ -28,6 +28,7 @@
 Use the same URL pattern as the versioned documentation maps: https://wasp.sh/llms-full-{version}.txt
 
 ## Wasp Blog: tutorials, updates and case studies
+- [Wasp 0.26: parallel worktrees, wasp show, docs updates, and safer auth defaults](https://wasp.sh/blog/2026/10/23/wasp-0-26-changelog.md)
 - [Wasp 1.0 is coming](https://wasp.sh/blog/2026/10/20/wasp-1-0-is-coming.md)
 - [How to Build a Secure AI Agent for Your SaaS (with Flue)](https://wasp.sh/blog/2026/08/18/flue-react-for-agents.md)
 - [Wasp now supports Resend for sending emails](https://wasp.sh/blog/2026/08/03/wasp-resend-email-provider.md)

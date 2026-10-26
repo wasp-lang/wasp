@@ -2572,6 +2572,14 @@
     "to": "/img/blog/2021-02-23-journey-to-ycombinator/us-at-ycombinator.jpg"
   },
   {
+    "from": "/img/wasp-0-26-changelog/banner.webp",
+    "to": "/img/blog/2026-10-23-wasp-0-26-changelog/banner.webp"
+  },
+  {
+    "from": "/img/wasp-0-26-changelog/docs-sidebar-0-26.webp",
+    "to": "/img/blog/2026-10-23-wasp-0-26-changelog/docs-sidebar-0-26.webp"
+  },
+  {
     "from": "/img/wasp-1-0-is-coming-banner.webp",
     "to": "/img/blog/2026-10-20-wasp-1-0-is-coming/wasp-1-0-is-coming-banner.webp"
   },
