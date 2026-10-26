@@ -1,0 +1,15 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+
+[tasks.build]
+extends = "wasp:package:build"
+sources = [
+  "src/**",
+  "__tests__/**",
+  "package.json",
+  "package-lock.json",
+  ".npmrc",
+  "tsconfig.json",
+]
+
+[tasks.test]
+extends = "wasp:package:test"

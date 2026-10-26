@@ -1,0 +1,7 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+
+[tasks.test]
+description = "Run the starter templates' e2e tests with the local Wasp CLI"
+depends = ["^build"]
+env = { WASP_CLI_CMD = "{{vars.wasp_cli_dev}}", WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}" }
+run = ["npm install", "npm run test:dev"]

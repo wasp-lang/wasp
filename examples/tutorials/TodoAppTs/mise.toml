@@ -1,0 +1,4 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+
+[tasks.test]
+extends = "wasp:example:test"

@@ -110,6 +110,11 @@ Keep in mind:
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
+Add a `mise.toml` to the lib with `build` and `test` tasks that extend the
+`wasp:lib:*` templates, like the other libs do. Then register the lib in the root
+`mise.toml`, under `[monorepo.projects]`, and add it to the `wasp:waspc` project's
+`depends`.
+
 The package will be packaged using `npm pack` by the `./run build:libs` script.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`

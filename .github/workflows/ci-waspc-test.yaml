@@ -93,5 +93,7 @@ jobs:
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
+        # Not `mise x <tool> -- ./run ...`, since the `mise run` inside
+        # `./run` would switch back to the tools configured in `mise.toml`.
         run: |
-          mise x ${EXTRA_TOOLS:+"$EXTRA_TOOLS"} -- bash ./run test:waspc:e2e
+          mise run ${EXTRA_TOOLS:+--tool "$EXTRA_TOOLS"} //waspc:test:waspc:e2e

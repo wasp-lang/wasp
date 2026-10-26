@@ -6,7 +6,6 @@ set -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
-REPOSITORY_ROOT=$(cd "$PROJECT_ROOT"/.. && pwd)
 COMMAND=${1:-watch}
 [ $# -gt 0 ] && shift
 ARGS=("$@") # NOTE: This is a bash array!
@@ -19,15 +18,10 @@ GREEN="\033[32m"
 RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
-# Building
-WASP_PACKAGES_COMPILE="node ${SCRIPT_DIR}/tools/packages/build.ts"
-WASP_LIBS_COMPILE="node ${SCRIPT_DIR}/tools/libs/build.ts"
-WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
-BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
-BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
-BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
-
-INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
+# Commands defined as mise tasks in `mise.toml`, which also know about the
+# tasks they depend on in the rest of the repo.
+MISE_TASK_CMD="mise run //waspc:${COMMAND}"
+[ ${#ARGS[@]} -gt 0 ] && MISE_TASK_CMD+=" --$(printf ' %q' "${ARGS[@]}")"
 
 # Wasp CLI
 # A single executable that runs the locally-built CLI via `cabal run`.
@@ -37,73 +31,9 @@ WASP_CLI_CMD="${PROJECT_ROOT}/tools/wasp-cli-dev"
 WASP_CLI_RUN_CMD="${WASP_CLI_CMD} ${ARGS[@]}"
 WASP_CLI_INSTALL_CMD="${WASP_CLI_CMD} install"
 
-# Testing
-WASPC_UNIT_TESTS_CMD="cabal test waspc-tests --test-options='--hide-successes'"
-WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests --test-options='--hide-successes'"
-WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/snapshots/*-golden"
-WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
-WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
-
-WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
-
-LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
-
-PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
-
-# Wasp App Runner
-# Utility used for running e2e tests in Wasp apps, we use it for testing
-# e.g. examples and starters.
-WASP_APP_RUNNER_DIR="$REPOSITORY_ROOT/wasp-app-runner"
-WASP_APP_RUNNER_BUILD_CMD="(cd $WASP_APP_RUNNER_DIR && npm install && npm run build)"
-# By exporting this, we are telling all of our e2e tests to use the local
-# version of Wasp App Runner, built by WASP_APP_RUNNER_BUILD_CMD (tests should
-# make sure to call that one before).
-export WASP_APP_RUNNER_CLI_CMD="$WASP_APP_RUNNER_DIR/bin/index.js"
-
-KITCHEN_SINK_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
-
-STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run test:dev"
-
-# Copies .env.server.example to .env.server in the current directory,
-# but only if the example exists and .env.server isn't already present.
-function copy_env_server_example_if_needed() {
-  [ ! -f .env.server.example ] || [ -f .env.server ] || cp .env.server.example .env.server
-}
-
-function run_examples_e2e_tests() {
-  local paths=(
-    "examples/tutorials/TodoApp"
-    "examples/tutorials/TodoAppTs"
-    "examples/waspello"
-    "examples/waspleau"
-    "examples/websockets-realtime-voting"
-    "examples/ask-the-documents"
-    "examples/kitchen-sink"
-  )
-
-  eval "$WASP_APP_RUNNER_BUILD_CMD" || return 1
-
-  for path in "${paths[@]}"; do
-    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_CLI_INSTALL_CMD && npm run test)"; then
-      echo -e "${RED}E2E tests failed in $path${RESET}"
-      return 1
-    fi
-  done
-}
-EXAMPLES_E2E_TESTS_CMD="run_examples_e2e_tests"
-
-TEST_CMD="cabal test && \
-  echo 'Running e2e tests' && \
-  $STARTERS_E2E_TESTS_CMD && \
-  $EXAMPLES_E2E_TESTS_CMD && \
-  $LIBS_TESTS_CMD && \
-  $PACKAGES_TESTS_CMD && \
-  echo 'ALL TESTS PASSED' || \
-  { echo 'SOME TESTS FAILED'; exit 1; }"
-
 # Utility
 GHCID_CMD="ghcid --command=cabal repl"
-STAN_CMD="$BUILD_HS_FULL_CMD && stan report ${ARGS[*]}"
+STAN_CMD="mise run //waspc:stan"
 HLINT_CMD="hlint . ${ARGS[*]}"
 PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
 PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
@@ -256,20 +186,11 @@ exitStatusToString() {
 }
 
 case $COMMAND in
-  build)
-    echo_and_eval "$BUILD_ALL_CMD"
-    ;;
-  build:hs)
-    echo_and_eval "$BUILD_HS_CMD"
-    ;;
-  build:packages)
-    echo_and_eval "$WASP_PACKAGES_COMPILE"
-    ;;
-  build:libs)
-    echo_and_eval "$WASP_LIBS_COMPILE"
-    ;;
-  install)
-    echo_and_eval "$INSTALL_CMD"
+  build | build:hs | build:packages | build:libs | install | \
+    test | test:waspc | test:waspc:unit | test:waspc:e2e | test:waspc:e2e:accept-all | \
+    test:cli | test:libs | test:packages | test:kitchen-sink | test:examples | test:starters | \
+    stan)
+    echo_and_eval "$MISE_TASK_CMD"
     ;;
   ghcid)
     echo_and_eval "$GHCID_CMD"
@@ -279,51 +200,6 @@ case $COMMAND in
     # NOTE: I did not put this into variable because I was not able to put single quotes
     #   around :main --color always that way and it was not working.
     ghcid -T=':main --color always' --command=cabal repl tests/TastyDiscoverDriver.hs
-    ;;
-  test)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$TEST_CMD"
-    ;;
-  test:waspc)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$WASPC_TESTS_CMD"
-    ;;
-  test:waspc:unit)
-    TEST_PATTERN="${ARGS[0]}"
-    if [[ -z "$TEST_PATTERN" ]]; then
-      echo_and_eval "$WASPC_UNIT_TESTS_CMD"
-    else
-      echo_and_eval "$WASPC_UNIT_TESTS_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
-    fi
-    ;;
-  test:waspc:e2e)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$WASPC_E2E_TESTS_CMD"
-    ;;
-  test:waspc:e2e:accept-all)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD"
-    ;;
-  test:cli)
-    echo_and_eval "$WASP_CLI_TESTS_CMD"
-    ;;
-  test:libs)
-    echo_and_eval "$LIBS_TESTS_CMD"
-    ;;
-  test:packages)
-    echo_and_eval "$PACKAGES_TESTS_CMD"
-    ;;
-  test:kitchen-sink)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$KITCHEN_SINK_E2E_TESTS_CMD"
-    ;;
-  test:examples)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$EXAMPLES_E2E_TESTS_CMD"
-    ;;
-  test:starters)
-    export WASP_CLI_CMD="$WASP_CLI_CMD"
-    echo_and_eval "$STARTERS_E2E_TESTS_CMD"
     ;;
   wasp-cli)
     echo_and_eval "$WASP_CLI_RUN_CMD"
@@ -341,9 +217,6 @@ case $COMMAND in
 
     # The --force flag tells `npm` to ignore local cache when installing packages.
     npm install --force
-    ;;
-  stan)
-    echo_and_eval "$STAN_CMD"
     ;;
   hlint)
     echo_and_eval "$HLINT_CMD"
