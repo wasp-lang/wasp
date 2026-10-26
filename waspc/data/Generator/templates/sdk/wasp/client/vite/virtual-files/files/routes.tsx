@@ -1,9 +1,7 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
-{=^ rootComponent.isDefined =}
 import { Outlet } from "react-router"
-{=/ rootComponent.isDefined =}
 
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
@@ -66,7 +64,11 @@ const rootElement =
   // keep it for backwards compatibility with older Wasp versions.
   <div id="root">
     {=# rootComponent.isDefined =}
-    <{= rootComponent.importIdentifier =} />
+    {/* Users usually render `Outlet`, but we also pass it as `children`, as
+    it's a common convention for layout components. */}
+    <{= rootComponent.importIdentifier =}>
+      <Outlet />
+    </{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}
     {=^ rootComponent.isDefined =}
     <Outlet />
