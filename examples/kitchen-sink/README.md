@@ -46,25 +46,21 @@ npm run env:push
 
 The `kitchen-sink` app runs like any other Wasp application.
 
-1. Start the database:
-
-```sh
-wasp start db
-```
-
-2. Migrate the database (if needed, in a separate terminal):
+1. Migrate the database (if needed):
 
 ```sh
 wasp db migrate-dev
 ```
 
-3. Start the app (in a separate terminal):
+2. Start the app:
 
 ```sh
 wasp start
 ```
 
-4. Open `localhost:3000` in the browser to see the app!
+Wasp starts the development database automatically.
+
+3. Open `localhost:3000` in the browser to see the app!
 
 ### Development
 
@@ -74,13 +70,13 @@ For example:
 
 ```sh
 # From inside the kitchen-sink directory:
-../../waspc/run wasp-cli start db
+../../waspc/run wasp-cli start
 
 # Or use an alias with the absolute path to the script:
-wrun wasp-cli start db
+wrun wasp-cli start
 
 # Or if you installed the development `waspc` binary globally:
-wasp-cli start db
+wasp-cli start
 ```
 
 ## Testing
