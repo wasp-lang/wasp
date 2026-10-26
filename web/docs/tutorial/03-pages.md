@@ -111,7 +111,7 @@ Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 ## Cleaning Up
 
-Now that you've seen how Wasp deals with Routes and Pages, it's finally time to build the Todo app.
+Now that you've seen how Wasp deals with Routes and Pages, it's time to build something useful: a full-stack Todo app where users sign up, log in, and manage their own tasks stored in a database.
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 

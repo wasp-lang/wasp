@@ -83,7 +83,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.ts`:
 
 - `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
-- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`. Wasp named the type after the `getTasks` function you used in your implementation, with the first letter capitalized. See [reference imports](../features/spec.md#reference-imports) for how Wasp connects the two.
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
