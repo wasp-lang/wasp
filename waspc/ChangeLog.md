@@ -26,6 +26,9 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))
+- `useQuery` no longer retries Queries that fail with a `4xx` status code (other than `408` and `429`), so client errors show up right away. ([#5131](https://github.com/wasp-lang/wasp/pull/5131))
+- Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
+- During development, errors from the Vite dev server are now also logged to the browser console and shown on the error page. ([#5136](https://github.com/wasp-lang/wasp/pull/5136))
 - The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
 - The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about a third of the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 

@@ -3,7 +3,7 @@
     "target": "esnext",
     "lib": ["esnext", "dom", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
@@ -22,5 +22,5 @@
     "allowJs": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }
