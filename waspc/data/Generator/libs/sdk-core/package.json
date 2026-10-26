@@ -27,8 +27,9 @@
   "scripts": {
     "build": "tsdown",
     "prepare": "npm run build",
-    "test": "npm run test:types",
-    "test:types": "tsc --noEmit"
+    "test": "npm run test:types && npm run test:unit",
+    "test:types": "tsc --noEmit",
+    "test:unit": "vitest run"
   },
   "peerDependencies": {
     "@tanstack/react-query": "~4.42.0",
@@ -77,6 +78,7 @@
     "tsdown": "^0.21.5",
     "typescript": "^6.0.3",
     "vite": "^8.1.0",
+    "vitest": "^4.1.12",
     "zod": "^4.3.6"
   },
   "sideEffects": [
