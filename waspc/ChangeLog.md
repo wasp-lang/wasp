@@ -28,6 +28,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))
 - `useQuery` no longer retries Queries that fail with a `4xx` status code (other than `408` and `429`), so client errors show up right away. ([#5131](https://github.com/wasp-lang/wasp/pull/5131))
 - Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
+- During development, errors from the Vite dev server are now also logged to the browser console and shown on the error page. ([#5136](https://github.com/wasp-lang/wasp/pull/5136))
 
 ### 🔧 Small improvements
 
