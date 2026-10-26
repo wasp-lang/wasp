@@ -32,6 +32,10 @@ export type AnalyticsEvents = {
   "GitHub: Click": { target: GitHubTarget };
   // A click on a link to `opensaas.sh` or `docs.opensaas.sh`.
   "Open SaaS: Click": Record<string, never>;
+  // Plausible gets both. PostHog gets "Accept" only when it already runs on
+  // the page, and it never gets "Reject".
+  "Cookie Consent: Accept": Record<string, never>;
+  "Cookie Consent: Reject": Record<string, never>;
 };
 
 export type AnalyticsEventName = keyof AnalyticsEvents;
@@ -83,6 +87,10 @@ const PLACEMENTS = [
   "sidebar",
   "doc_footer",
   "footer",
+  // The cookie banner when it shows by itself, and when a visitor opens it
+  // again with the "Cookie settings" link.
+  "cookie_banner",
+  "cookie_settings",
   // Anywhere else.
   "body",
 ] as const;

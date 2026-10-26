@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
 
 import { trackPlacementAttributes } from "../lib/analytics";
+import { COOKIE_SETTINGS_HREF } from "../lib/cookie-consent";
 import SectionContainer from "./Layouts/SectionContainer";
 import SubscribeForm from "./SubscribeForm";
 
@@ -130,6 +131,12 @@ const Footer = () => {
             <p className="mt-4 text-xs text-neutral-400">
               © Wasp, Inc. All rights reserved.
             </p>
+            <a
+              href={COOKIE_SETTINGS_HREF}
+              className="mt-4 text-xs text-neutral-400 transition-colors hover:text-neutral-500"
+            >
+              Cookie settings
+            </a>
             {/* <DarkModeToggle /> */}
           </div>
         </div>
