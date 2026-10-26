@@ -4,6 +4,7 @@ module Wasp.Cli.Util.HttpUrlArgument
   )
 where
 
+import Data.Char (toLower)
 import Data.Either (isRight)
 import Data.Maybe (isJust)
 import Network.URI (URI (..), URIAuth (..), parseAbsoluteURI)
@@ -22,7 +23,7 @@ httpUrlParser optionName helpText =
 -- | Parses an absolute http(s) URL with a host, and without a query or a
 -- fragment.
 parseHttpUrl :: String -> Either String URI
-parseHttpUrl input = case parseAbsoluteURI input of
+parseHttpUrl input = case lowercaseScheme <$> parseAbsoluteURI input of
   Nothing -> Left $ show input ++ " is not a valid absolute URL"
   Just uri
     | uriScheme uri `notElem` ["http:", "https:"] -> Left $ show input ++ " must start with http:// or https://"
@@ -31,6 +32,10 @@ parseHttpUrl input = case parseAbsoluteURI input of
     | not (null $ uriQuery uri) || not (null $ uriFragment uri) -> Left $ show input ++ " must not contain a query or a fragment"
     | otherwise -> Right uri
   where
+    -- Schemes are case-insensitive, but the server compares the client URL
+    -- with the browser's (lowercase) origin as a plain string.
+    lowercaseScheme uri = uri {uriScheme = map toLower $ uriScheme uri}
+
     hasHost uri = isJust $ uriAuthority uri >>= nonEmpty . uriRegName
     nonEmpty "" = Nothing
     nonEmpty s = Just s

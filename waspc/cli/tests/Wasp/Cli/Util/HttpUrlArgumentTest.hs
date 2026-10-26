@@ -13,6 +13,10 @@ spec_parseHttpUrl = do
       parseHttpUrl "http://192.168.1.39.nip.io:3000" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000")
       parseHttpUrl "https://my-app.loca.lt" `shouldBe` Right (fromJust $ parseURI "https://my-app.loca.lt")
 
+    it "accepts upper-case schemes and lowercases them" $ do
+      parseHttpUrl "HTTP://example.com" `shouldBe` Right (fromJust $ parseURI "http://example.com")
+      parseHttpUrl "Https://example.com" `shouldBe` Right (fromJust $ parseURI "https://example.com")
+
     it "accepts URLs with a path" $ do
       parseHttpUrl "http://192.168.1.39.nip.io:3000/app/" `shouldBe` Right (fromJust $ parseURI "http://192.168.1.39.nip.io:3000/app/")
 
