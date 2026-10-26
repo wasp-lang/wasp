@@ -17,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🐞 Bug fixes
 
+- The Auth UI reset password form now shows the error for an empty new password. ([#5138](https://github.com/wasp-lang/wasp/pull/5138))
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
