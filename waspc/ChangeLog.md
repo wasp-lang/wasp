@@ -21,7 +21,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🔧 Small improvements
 
-- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
+- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about a third of the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 
 ## 0.26.0
 

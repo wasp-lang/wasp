@@ -16,7 +16,9 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 ### Smaller Docker images
 
-The Dockerfile Wasp generates for the server now copies only the files the server needs at runtime into the final image, instead of the whole `node_modules` folder. This makes the image about half the size.
+The Dockerfile Wasp generates for the server now copies only the files the server needs at runtime into the final image, instead of the whole `node_modules` folder. This makes the image about a third of the size, and a code change no longer reinstalls the server's npm packages when the image is rebuilt.
+
+If a package misses files at runtime, list it in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image).
 
 ## How to migrate?
 
@@ -94,6 +96,15 @@ If your custom Dockerfile adds steps to the `server-production` stage that use o
 FROM server-production
 # highlight-next-line
 COPY --from=server-builder /app/node_modules /app/node_modules
+# ...
+```
+
+The `server-production` stage also no longer installs `python3`, because the Wasp server doesn't use it. If your app runs Python, install it yourself:
+
+```dockerfile title="Dockerfile"
+FROM server-production
+# highlight-next-line
+RUN apk add --no-cache python3
 # ...
 ```
 

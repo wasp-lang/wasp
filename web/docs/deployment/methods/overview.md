@@ -77,3 +77,29 @@ wasp dockerfile
 ```
 
 Join our [Discord](https://discord.gg/rzdnErX) if you have any questions, or if you need more customization than this hook provides.
+
+## Missing files in the Docker image
+
+The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder.
+Wasp finds these files by following the server's imports.
+A package that loads files by a path it computes at runtime, like a native binary, can end up missing some of them.
+You'll notice this as a "file not found" error when the server starts, even though the app works with `wasp start`.
+
+Use the `server.traceDeps` field to fix it:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  server: {
+    traceDeps: ["some-native-pkg*"],
+  },
+})
+```
+
+Each entry is a package name with an optional prefix or suffix:
+
+- `"pkg"` adds the package even when the server doesn't import it.
+- `"pkg*"` copies all of the package's files.
+- `"!pkg"` stops copying all files of a package Wasp copies fully by default.
+
+Wasp already copies some packages fully, like `aws-crt` and `sodium-native`.

@@ -149,6 +149,12 @@ You can configure the global middleware via the `middlewareConfigFn`. This will 
 
 Read more in the [configuring middleware section](./middleware#1-customize-global-middleware).
 
+## Trace Dependencies
+
+If the server's Docker image misses files from a package, list the package in `traceDeps`.
+
+Read more in the [deployment section](../../deployment/methods/overview#missing-files-in-the-docker-image).
+
 ## API Reference
 
 <CardLink

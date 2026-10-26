@@ -28,7 +28,8 @@
   "include": [
     "src",
     "rollup.config.js",
-    "rollup.dbSeed.config.js"
+    "rollup.dbSeed.config.js",
+    "traceProductionDeps.ts"
   ],
   "references": [
     { "path": "{= srcTsConfigPath =}" }

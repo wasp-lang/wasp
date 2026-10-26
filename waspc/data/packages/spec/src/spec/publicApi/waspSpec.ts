@@ -550,6 +550,28 @@ export interface Server {
    * See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
    */
   envValidationSchema?: Reference<ZodSchema>;
+  /**
+   * Extra packages to copy into the server's Docker image.
+   *
+   * The Docker image contains only the files the server imports. A package
+   * that loads files by a path computed at runtime (for example, a native
+   * binary) can miss some of them. Each entry is a package name with an
+   * optional prefix or suffix:
+   *
+   * - `"pkg"` traces the package even when the server doesn't import it.
+   * - `"pkg*"` copies all of the package's files.
+   * - `"!pkg"` stops copying all files of a package Wasp copies fully by
+   *   default.
+   *
+   * @example
+   * ```ts
+   * traceDeps: ["some-native-pkg*"]
+   * ```
+   *
+   * See [Missing files in the Docker
+   * image](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image).
+   */
+  traceDeps?: string[];
 }
 
 /**

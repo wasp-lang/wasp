@@ -13133,6 +13133,12 @@ You can configure the global middleware via the `middlewareConfigFn`. This will 
 
 Read more in the [configuring middleware section](https://wasp.sh/docs/advanced/server-customization/middleware#1-customize-global-middleware).
 
+### Trace Dependencies
+
+If the server's Docker image misses files from a package, list the package in `traceDeps`.
+
+Read more in the [deployment section](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image).
+
 ### API Reference
 
 [API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server)
@@ -13965,6 +13971,29 @@ wasp dockerfile
 ```
 
 Join our [Discord](https://discord.gg/rzdnErX) if you have any questions, or if you need more customization than this hook provides.
+
+### Missing files in the Docker image
+
+The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder. Wasp finds these files by following the server's imports. A package that loads files by a path it computes at runtime, like a native binary, can end up missing some of them. You'll notice this as a "file not found" error when the server starts, even though the app works with `wasp start`.
+
+Use the `server.traceDeps` field to fix it:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  server: {
+    traceDeps: ["some-native-pkg*"],
+  },
+})
+```
+
+Each entry is a package name with an optional prefix or suffix:
+
+- `"pkg"` adds the package even when the server doesn't import it.
+- `"pkg*"` copies all of the package's files.
+- `"!pkg"` stops copying all files of a package Wasp copies fully by default.
+
+Wasp already copies some packages fully, like `aws-crt` and `sodium-native`.
 
 
 ## Deployment / Methods / Wasp Deploy / Overview
@@ -15235,7 +15264,9 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 #### Smaller Docker images
 
-The Dockerfile Wasp generates for the server now copies only the files the server needs at runtime into the final image, instead of the whole `node_modules` folder. This makes the image about half the size.
+The Dockerfile Wasp generates for the server now copies only the files the server needs at runtime into the final image, instead of the whole `node_modules` folder. This makes the image about a third of the size, and a code change no longer reinstalls the server's npm packages when the image is rebuilt.
+
+If a package misses files at runtime, list it in [`server.traceDeps`](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image).
 
 ### How to migrate?
 
@@ -15306,6 +15337,14 @@ If your custom Dockerfile adds steps to the `server-production` stage that use o
 ```dockerfile title="Dockerfile"
 FROM server-production
 COPY --from=server-builder /app/node_modules /app/node_modules
+# ...
+```
+
+The `server-production` stage also no longer installs `python3`, because the Wasp server doesn't use it. If your app runs Python, install it yourself:
+
+```dockerfile title="Dockerfile"
+FROM server-production
+RUN apk add --no-cache python3
 # ...
 ```
 

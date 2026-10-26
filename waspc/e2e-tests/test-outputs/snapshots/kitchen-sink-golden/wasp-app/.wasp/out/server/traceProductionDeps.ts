@@ -5,33 +5,46 @@
 // - `bundle/server.js`: the bundled server. Its externals are what we need.
 // - `dotenv/config`: preloaded with `node -r dotenv/config` in the `start` script.
 // - The Prisma CLI, but only when `start-production` runs migrations.
+// - The packages from `app.server.traceDeps`.
+//
+// Node runs this file as is, because it only uses the TypeScript syntax Node
+// can strip: type annotations and type-only imports.
+import type { TracedLayout } from "nf3";
 import { traceNodeModules } from "nf3";
+import { FullTracePackages } from "nf3/db";
 import {
   cpSync,
+  existsSync,
   globSync,
   mkdirSync,
   readFileSync,
   realpathSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
-/** @typedef {import("nf3").TracedLayout} TracedLayout */
+type ServerPackageJson = {
+  name: string;
+  scripts: Record<string, string>;
+};
 
-/**
- * @typedef {object} ServerPackageJson
- * @property {string} name
- * @property {Record<string, string>} scripts
- */
+type TraceSelection = {
+  /** Packages to trace even when nothing imports them. */
+  traceInclude: string[];
+  /** Packages to copy in full. */
+  fullTraceInclude: string[];
+};
+
+const userTraceDeps: string[] = [];
 
 const serverDir = import.meta.dirname;
 const outDir = path.join(serverDir, "production");
 const requireFromServer = createRequire(path.join(serverDir, "package.json"));
 
-/** @type {ServerPackageJson} */
-const serverPackageJson = JSON.parse(
+const serverPackageJson: ServerPackageJson = JSON.parse(
   readFileSync(path.join(serverDir, "package.json"), "utf8"),
 );
 const runsMigrations =
@@ -39,6 +52,8 @@ const runsMigrations =
 const prismaCliEntry = runsMigrations
   ? requireFromServer.resolve("prisma/build/index.js")
   : undefined;
+
+const { traceInclude, fullTraceInclude } = resolveTraceDeps(userTraceDeps);
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
@@ -49,7 +64,14 @@ const layout = await traceNodeModules(
     requireFromServer.resolve("dotenv/config"),
     ...(prismaCliEntry ? [prismaCliEntry] : []),
   ],
-  { rootDir: serverDir, outDir, chmod: true },
+  {
+    rootDir: serverDir,
+    outDir,
+    chmod: true,
+    traceInclude,
+    fullTraceInclude,
+    nft: { ignore: isTypescriptCompiler },
+  },
 );
 if (prismaCliEntry) {
   copyPrismaCliEngines(layout);
@@ -64,15 +86,65 @@ console.log(
 );
 
 /**
+ * Splits `app.server.traceDeps` into nf3 options, the same way Nitro does:
+ * `pkg` traces the package, `pkg*` copies all its files, and `!pkg` removes a
+ * package from nf3's built-in list of packages to copy in full.
+ *
+ * @see https://nitro.build/config#tracedeps
+ */
+function resolveTraceDeps(traceDeps: string[]): TraceSelection {
+  const excluded = new Set<string>();
+  const traceInclude: string[] = [];
+  const userFullTraceInclude: string[] = [];
+
+  for (const selector of traceDeps) {
+    if (selector.startsWith("!")) {
+      excluded.add(selector.slice(1));
+    } else if (selector.endsWith("*")) {
+      const packageName = selector.slice(0, -1);
+      traceInclude.push(packageName);
+      userFullTraceInclude.push(packageName);
+    } else {
+      traceInclude.push(selector);
+    }
+  }
+
+  const fullTraceInclude = [
+    ...new Set([...FullTracePackages, ...userFullTraceInclude]),
+  ].filter((packageName) => !excluded.has(packageName));
+
+  return {
+    traceInclude: traceInclude.filter(
+      (packageName) => !excluded.has(packageName),
+    ),
+    fullTraceInclude,
+  };
+}
+
+/**
+ * The Prisma CLI has an optional `require("typescript")` that it never reaches
+ * when running migrations, but the tracer follows it and would copy the whole
+ * compiler. We skip it unless the user listed it in `app.server.traceDeps`.
+ */
+function isTypescriptCompiler(filePath: string): boolean {
+  return (
+    filePath.includes("node_modules/typescript/") &&
+    !traceInclude.includes("typescript")
+  );
+}
+
+/**
  * The tracer misses the Prisma CLI's engine binaries (the schema engine and
  * the CLI's own copy of the query engine), because the CLI finds them by path
  * at runtime instead of importing them. Without them, the CLI downloads them
  * on every container start, or crashes when there's no internet access.
  *
- * @param {TracedLayout} layout
+ * The generated Prisma client already brings the same query engine, so we
+ * link the CLI's copy to it instead of shipping the binary twice.
+ *
  * @see https://github.com/unjs/nf3#readme
  */
-function copyPrismaCliEngines(layout) {
+function copyPrismaCliEngines(layout: TracedLayout): void {
   const prismaPkgDir = realpathSync(
     path.dirname(requireFromServer.resolve("prisma/package.json")),
   );
@@ -88,25 +160,29 @@ function copyPrismaCliEngines(layout) {
     getHoistedOutPath(layout, "@prisma/engines") ??
       "node_modules/@prisma/engines",
   );
+  const clientOutDir = path.join(outDir, "node_modules/.prisma/client");
 
   mkdirSync(enginesOutDir, { recursive: true });
   for (const engine of globSync(["schema-engine-*", "libquery_engine-*"], {
     cwd: enginesPkgDir,
   })) {
-    cpSync(path.join(enginesPkgDir, engine), path.join(enginesOutDir, engine));
+    const engineInClient = path.join(clientOutDir, engine);
+    const engineOutPath = path.join(enginesOutDir, engine);
+    if (existsSync(engineInClient)) {
+      symlinkSync(path.relative(enginesOutDir, engineInClient), engineOutPath);
+    } else {
+      cpSync(path.join(enginesPkgDir, engine), engineOutPath);
+    }
   }
 }
 
 /**
  * `npm run` puts `node_modules/.bin` on the PATH, but the traced output has
  * no `.bin` folder, so we call the Prisma CLI through its entry file instead.
- *
- * @param {TracedLayout} layout
  */
-function writeProductionPackageJson(layout) {
+function writeProductionPackageJson(layout: TracedLayout): void {
   const { scripts } = serverPackageJson;
-  /** @type {Record<string, string>} */
-  const productionScripts = {
+  const productionScripts: Record<string, string> = {
     start: scripts.start,
     "start-production": scripts["start-production"],
   };
@@ -134,12 +210,11 @@ function writeProductionPackageJson(layout) {
   );
 }
 
-/**
- * @param {TracedLayout} layout
- * @param {string} packageName
- * @returns {string | undefined} The package's path in `outDir`, if traced.
- */
-function getHoistedOutPath(layout, packageName) {
+/** Returns the package's path in `outDir`, if the tracer copied it. */
+function getHoistedOutPath(
+  layout: TracedLayout,
+  packageName: string,
+): string | undefined {
   const versions = layout.packages[packageName]?.versions ?? {};
   return Object.values(versions).find((version) => version.hoisted)?.outPath;
 }

@@ -15,7 +15,8 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (isJust)
+import qualified Data.Aeson.Text as Aeson.Text
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File,
@@ -78,7 +79,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
       genFileCopy [relfile|src/createRollupBundle.js|],
-      genFileCopy [relfile|traceProductionDeps.js|],
+      genTraceProductionDeps spec,
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -186,7 +187,7 @@ npmDepsFromWasp spec =
               ("rollup", "^4.9.6"),
               ("rollup-plugin-esbuild", "^6.1.1"),
               ("@rollup/plugin-node-resolve", "^16.0.0"),
-              -- Used by `traceProductionDeps.js` when building the Docker image.
+              -- Used by `traceProductionDeps.ts` when building the Docker image.
               ("nf3", "0.4.2")
             ],
         peerDependencies = []
@@ -232,6 +233,15 @@ genNodemon =
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
       waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
+
+genTraceProductionDeps :: AppSpec -> Generator FileDraft
+genTraceProductionDeps spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|traceProductionDeps.ts|]
+      (Just $ object ["traceDeps" .= Aeson.Text.encodeToLazyText traceDeps])
+  where
+    traceDeps = fromMaybe [] $ AS.App.server (getApp spec) >>= AS.App.Server.traceDeps
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
