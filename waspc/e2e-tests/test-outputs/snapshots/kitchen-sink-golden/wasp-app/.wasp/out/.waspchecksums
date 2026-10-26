@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "1550799b4762713fa061a785820e4d59b6a498dda23c497e2513bbd1bf9ecc1e"
+        "342ceffc3102c85dddbdec8a4dad9bf3ae9693a42120f202ec97724e6a6e7f03"
     ],
     [
         [
@@ -165,7 +165,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "fb07cfa9b62347f0f45553cd39051f8bec9bb98a352dad5a83fd97be280708e1"
+        "8be9424467a0e4119efefd10f35cecf6ce155b5332dee4651256ebe21cd656ab"
     ],
     [
         [
