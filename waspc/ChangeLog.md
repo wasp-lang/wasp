@@ -26,7 +26,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))
-- Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. (FIXME PR LINK)
+- Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
 
 ### 🔧 Small improvements
 
