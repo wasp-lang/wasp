@@ -554,9 +554,9 @@ export interface Server {
    * Extra packages to copy into the server's Docker image.
    *
    * The Docker image contains only the files the server imports. A package
-   * that loads files by a path computed at runtime (for example, a native
-   * binary) can miss some of them. Each entry is a package name with an
-   * optional prefix or suffix, the same syntax as Nitro's `traceDeps`:
+   * that loads files another way (for example, static assets it serves from
+   * its own folder) can miss some of them. Each entry is a package name with
+   * an optional prefix or suffix, the same syntax as Nitro's `traceDeps`:
    *
    * - `"pkg"` traces the package even when the server doesn't import it.
    * - `"pkg*"` copies all of the package's files.
@@ -568,7 +568,7 @@ export interface Server {
    *
    * @example
    * ```ts
-   * traceDeps: ["some-native-pkg*"]
+   * traceDeps: ["swagger-ui-dist*"]
    * ```
    *
    * @see https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image

@@ -53,17 +53,19 @@ fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll mak
 ## Missing files in the Docker image
 
 The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder.
-Wasp finds these files by following the server's imports.
-A package that loads files by a path it computes at runtime, like a native binary, can end up missing some of them.
-You'll notice this as a "file not found" error when the server starts, even though the app works with `wasp start`.
+Wasp finds those files by following the server's imports, the way Next.js and Nuxt do for their server builds.
 
-Use the `server.traceDeps` field to fix it:
+A package that loads files another way can end up without them in the image.
+A common case is a package that serves static assets from its own folder: `swagger-ui-express` serves the files of `swagger-ui-dist` this way, so the Swagger UI page comes up broken in production even though it works with `wasp start`.
+A package that reads a file it can't find usually fails with a "file not found" error instead.
+
+Use `server.traceDeps` to copy such files:
 
 ```ts title="main.wasp.ts"
 export default app({
   // ...
   server: {
-    traceDeps: ["some-native-pkg*"],
+    traceDeps: ["swagger-ui-dist*"],
   },
 })
 ```

@@ -146,7 +146,7 @@ genPackageJson spec waspDependencies =
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
-                .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
+                .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
                    ),
               "dbSeedNpmScriptName" .= dbSeedNpmScriptName
@@ -154,8 +154,6 @@ genPackageJson spec waspDependencies =
       )
   where
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
-
-    hasEntities = AS.Util.hasEntities spec
 
 npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
@@ -239,9 +237,19 @@ genTraceProductionDeps spec =
   return $
     C.mkTmplFdWithData
       [relfile|traceProductionDeps.ts|]
-      (Just $ object ["traceDeps" .= Aeson.Text.encodeToLazyText traceDeps])
+      ( Just $
+          object
+            [ "traceDeps" .= Aeson.Text.encodeToLazyText traceDeps,
+              "runsMigrations" .= Aeson.Text.encodeToLazyText (runsMigrationsOnStart spec)
+            ]
+      )
   where
     traceDeps = fromMaybe [] $ AS.App.server (getApp spec) >>= AS.App.Server.traceDeps
+
+-- | Whether the server's `start-production` script runs the database
+-- migrations before starting, which is the case when the app has entities.
+runsMigrationsOnStart :: AppSpec -> Bool
+runsMigrationsOnStart = AS.Util.hasEntities
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
