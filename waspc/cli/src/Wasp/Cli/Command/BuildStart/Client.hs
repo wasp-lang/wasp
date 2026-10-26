@@ -6,22 +6,21 @@ where
 
 import System.Exit (ExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import qualified Wasp.Job as Job
 
 buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
   Job.fromProc
-    . addEnvVarsOverride envVars
+    . Job.addEnvVarsOverride envVars
     . Job.setCwd config.projectDir
     $ Job.proc "vite" ["build"]
   where
-    envVars = getEnvVars config.clientRunConfig
+    envVars = config.mergedClientEnvVars
 
 startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
   Job.fromProc
-    . addEnvVarsOverride envVars
+    . Job.addEnvVarsOverride envVars
     . Job.setCwd config.projectDir
     $ Job.proc
       "vite"
@@ -29,4 +28,4 @@ startClient config =
         "--strictPort" -- This will make it fail if the port is already in use.
       ]
   where
-    envVars = getEnvVars config.clientRunConfig
+    envVars = config.mergedClientEnvVars

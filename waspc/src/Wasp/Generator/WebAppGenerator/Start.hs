@@ -5,15 +5,15 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode)
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig (..))
+import Wasp.Generator.WebAppGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
-startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
-startWebApp webAppRunConfig waspProjectDir =
+startWebApp :: ProjectRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
+startWebApp projectRunConfig waspProjectDir =
   J.fromProc
-    . addEnvVarsOverride (getEnvVars webAppRunConfig)
+    . J.addEnvVarsOverride (makeEnvVars projectRunConfig)
     -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
     . J.markInteractive
     . J.setCwd waspProjectDir
