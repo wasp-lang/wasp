@@ -434,7 +434,7 @@ wasp new <project-name> -t saas
 
 #### Minimal Template
 
-![Minimal Template](https://wasp.sh/assets/images/minimal-main-page-a40ff821771bd0b173b761fceb491ba4.png)
+![Minimal Template](https://wasp.sh/assets/images/minimal-main-page-1509ada21308e3edccb8882dda90fafb.png)
 
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 
