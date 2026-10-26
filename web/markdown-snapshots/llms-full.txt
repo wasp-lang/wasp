@@ -14113,9 +14113,9 @@ Do you have a Wasp app running in production? If yes, we'd love to send some swa
 
 ### Missing files in the Docker image
 
-The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder. Wasp finds those files by following the server's imports, the way Next.js and Nuxt do for their server builds.
+The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder. Wasp finds those files by following the server's imports.
 
-A package that loads files another way can end up without them in the image. A common case is a package that serves static assets from its own folder: `swagger-ui-express` serves the files of `swagger-ui-dist` this way, so the Swagger UI page comes up broken in production even though it works with `wasp start`. A package that reads a file it can't find usually fails with a "file not found" error instead.
+A package that loads files another way can end up without them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
 Use `server.traceDeps` to copy such files:
 
@@ -14134,7 +14134,7 @@ Each entry is a package name with an optional prefix or suffix, the same syntax 
 - `"pkg*"` copies all of the package's files.
 - `"!pkg"` stops copying all files of a package Wasp copies fully by default.
 
-Wasp already copies all files of the packages [nf3 knows need it](https://github.com/unjs/nf3/blob/main/src/db.ts), like `aws-crt` and `sodium-native`.
+Wasp already copies all files of the packages [nf3 knows need it](https://github.com/unjs/nf3/blob/main/src/db.ts), like `youch` and `aws-crt`.
 
 ### Customizing the Dockerfile
 
@@ -15497,7 +15497,7 @@ Prisma 6 changed how some things are stored in the database, so run `wasp db mig
 
 **If your server doesn't use packages that serve or load files from their own folder, like `swagger-ui-express`, you can skip this step.**
 
-The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files another way misses them in the image. A common case is `swagger-ui-express`, which serves the files of `swagger-ui-dist` from a folder, so the Swagger UI page comes up broken in production even though it works with `wasp start`.
+The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files another way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
 List such packages in [`server.traceDeps`](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image) to copy all of their files:
 
@@ -15517,23 +15517,19 @@ export default app({
 The generated Dockerfile no longer installs `python3` in the final image, because the Wasp server doesn't use it. If your app runs Python, install it in a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile):
 
 ```dockerfile title="Dockerfile"
-FROM server-production
 RUN apk add --no-cache python3
-# ...
 ```
 
 #### 5. Update your custom Dockerfile
 
 **If you don't use a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile), you can skip this step.**
 
-The generated Dockerfile changed. Run `wasp dockerfile` to see the new one combined with yours, and check that your steps still apply.
+The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
 
 The final stage (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`. If your steps use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
 
 ```dockerfile title="Dockerfile"
-FROM server-production
 COPY --from=server-builder /app/node_modules /app/node_modules
-# ...
 ```
 
 #### 6. Enjoy your updated Wasp app

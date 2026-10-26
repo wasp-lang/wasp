@@ -53,11 +53,10 @@ fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll mak
 ## Missing files in the Docker image
 
 The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder.
-Wasp finds those files by following the server's imports, the way Next.js and Nuxt do for their server builds.
+Wasp finds those files by following the server's imports.
 
 A package that loads files another way can end up without them in the image.
-A common case is a package that serves static assets from its own folder: `swagger-ui-express` serves the files of `swagger-ui-dist` this way, so the Swagger UI page comes up broken in production even though it works with `wasp start`.
-A package that reads a file it can't find usually fails with a "file not found" error instead.
+A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
 Use `server.traceDeps` to copy such files:
 
@@ -76,7 +75,7 @@ Each entry is a package name with an optional prefix or suffix, the same syntax 
 - `"pkg*"` copies all of the package's files.
 - `"!pkg"` stops copying all files of a package Wasp copies fully by default.
 
-Wasp already copies all files of the packages [nf3 knows need it](https://github.com/unjs/nf3/blob/main/src/db.ts), like `aws-crt` and `sodium-native`.
+Wasp already copies all files of the packages [nf3 knows need it](https://github.com/unjs/nf3/blob/main/src/db.ts), like `youch` and `aws-crt`.
 
 ## Customizing the Dockerfile
 

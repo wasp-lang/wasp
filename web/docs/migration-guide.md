@@ -88,7 +88,7 @@ Prisma 6 changed how some things are stored in the database, so run `wasp db mig
 
 **If your server doesn't use packages that serve or load files from their own folder, like `swagger-ui-express`, you can skip this step.**
 
-The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files another way misses them in the image. A common case is `swagger-ui-express`, which serves the files of `swagger-ui-dist` from a folder, so the Swagger UI page comes up broken in production even though it works with `wasp start`.
+The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files another way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
 List such packages in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image) to copy all of their files:
 
@@ -108,25 +108,19 @@ export default app({
 The generated Dockerfile no longer installs `python3` in the final image, because the Wasp server doesn't use it. If your app runs Python, install it in a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile):
 
 ```dockerfile title="Dockerfile"
-FROM server-production
-# highlight-next-line
 RUN apk add --no-cache python3
-# ...
 ```
 
 ### 5. Update your custom Dockerfile
 
 **If you don't use a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), you can skip this step.**
 
-The generated Dockerfile changed. Run `wasp dockerfile` to see the new one combined with yours, and check that your steps still apply.
+The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
 
 The final stage (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`. If your steps use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
 
 ```dockerfile title="Dockerfile"
-FROM server-production
-# highlight-next-line
 COPY --from=server-builder /app/node_modules /app/node_modules
-# ...
 ```
 
 ### 6. Enjoy your updated Wasp app

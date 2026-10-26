@@ -564,7 +564,7 @@ export interface Server {
    *   default.
    *
    * Wasp already copies all files of the packages nf3 knows need it, like
-   * `sodium-native`.
+   * `youch` and `aws-crt`.
    *
    * @example
    * ```ts
