@@ -1,14 +1,17 @@
-// Copies the server bundle and only the files it needs at runtime into
-// `production/`, so the final Docker image doesn't need the full `node_modules`.
-//
-// We trace:
-// - `bundle/server.js`: the bundled server. Rollup leaves the packages it
-//   imports out of the bundle, so following those imports finds the files the
-//   server needs at runtime.
-// - `dotenv/config`: preloaded with `node -r dotenv/config` in the `start` script.
-// - The Prisma CLI, but only when `start-production` runs migrations.
-// - The packages the user lists in `app.server.traceDeps`.
-import type { TracedLayout } from "nf3";
+/*
+  Copies the server bundle and only the files it needs at runtime into
+  `production/`, so the final Docker image doesn't need the full `node_modules`.
+
+  We trace:
+  - `bundle/server.js`: the bundled server. Rollup leaves the packages it
+    imports out of the bundle, so following those imports finds the files the
+    server needs at runtime.
+  - `dotenv/config`: preloaded with `node -r dotenv/config` in the `start` script.
+  - The Prisma CLI, but only when `start-production` runs migrations.
+  - The packages the user lists in `app.server.traceDeps`.
+
+  TODO: Research whether we can keep the Prisma CLI out of the production image.
+*/
 import { traceNodeModules } from "nf3";
 import { FullTracePackages } from "nf3/db";
 import {
@@ -16,18 +19,17 @@ import {
   existsSync,
   globSync,
   mkdirSync,
-  readFileSync,
-  realpathSync,
   rmSync,
   symlinkSync,
-  writeFileSync,
 } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
-type ServerPackageJson = {
-  name: string;
-  scripts: Record<string, string>;
+type TraceOptions = {
+  /** The packages the user listed in `app.server.traceDeps`. */
+  traceDeps: string[];
+  /** Whether `start-production` runs the migrations, which needs the Prisma CLI. */
+  runsMigrations: boolean;
 };
 
 type TraceSelection = {
@@ -37,43 +39,25 @@ type TraceSelection = {
   fullTraceInclude: string[];
 };
 
-type PrismaCliEnginesOptions = {
-  layout: TracedLayout;
-  outDir: string;
-  requireFromServer: NodeJS.Require;
-};
+const serverDir = import.meta.dirname;
+const outDir = path.join(serverDir, "production");
+const requireFromServer = createRequire(path.join(serverDir, "package.json"));
 
-type ProductionPackageJsonOptions = {
-  layout: TracedLayout;
-  serverDir: string;
-  outDir: string;
-  serverPackageJson: ServerPackageJson;
-  /** The Prisma CLI's entry file, when the image runs migrations. */
-  prismaCliEntry: string | undefined;
-};
+await traceProductionDeps({
+  traceDeps: [],
+  runsMigrations: true,
+});
 
-await traceProductionDeps([]);
-
-/**
- * @param userTraceDeps The packages the user listed in `app.server.traceDeps`.
- */
-async function traceProductionDeps(userTraceDeps: string[]): Promise<void> {
-  const serverDir = import.meta.dirname;
-  const outDir = path.join(serverDir, "production");
-  const requireFromServer = createRequire(path.join(serverDir, "package.json"));
-  const serverPackageJson: ServerPackageJson = JSON.parse(
-    readFileSync(path.join(serverDir, "package.json"), "utf8"),
-  );
-  const runsMigrations =
-    serverPackageJson.scripts["start-production"].includes("db-migrate-prod");
+async function traceProductionDeps({
+  traceDeps,
+  runsMigrations,
+}: TraceOptions): Promise<void> {
   const prismaCliEntry = runsMigrations
     ? requireFromServer.resolve("prisma/build/index.js")
     : undefined;
-  const { traceInclude, fullTraceInclude } = resolveTraceDeps(userTraceDeps);
+  const { traceInclude, fullTraceInclude } = resolveTraceDeps(traceDeps);
 
   rmSync(outDir, { recursive: true, force: true });
-  mkdirSync(outDir, { recursive: true });
-
   const layout = await traceNodeModules(
     [
       path.join(serverDir, "bundle/server.js"),
@@ -86,24 +70,14 @@ async function traceProductionDeps(userTraceDeps: string[]): Promise<void> {
       chmod: true,
       traceInclude,
       fullTraceInclude,
-      nft: {
-        ignore: (filePath: string) =>
-          isTypescriptCompiler(filePath, traceInclude),
-      },
     },
   );
   if (prismaCliEntry) {
-    copyPrismaCliEngines({ layout, outDir, requireFromServer });
+    copyPrismaCliEngines();
+    linkPrismaCliBin(layout.files[prismaCliEntry]);
   }
   cpSync(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
     recursive: true,
-  });
-  writeProductionPackageJson({
-    layout,
-    serverDir,
-    outDir,
-    serverPackageJson,
-    prismaCliEntry,
   });
 
   console.log(
@@ -115,6 +89,8 @@ async function traceProductionDeps(userTraceDeps: string[]): Promise<void> {
  * Splits `app.server.traceDeps` into nf3 options, the same way Nitro does:
  * `pkg` traces the package, `pkg*` copies all its files, and `!pkg` removes a
  * package from nf3's built-in list of packages to copy in full.
+ *
+ * TODO: Remove once we migrate to Nitro, which parses `traceDeps` itself.
  *
  * @see https://nitro.build/config#tracedeps
  */
@@ -148,21 +124,6 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
 }
 
 /**
- * The Prisma CLI has an optional `require("typescript")` that it never reaches
- * when running migrations, but the tracer follows it and would copy the whole
- * compiler. We skip it unless the user listed it in `app.server.traceDeps`.
- */
-function isTypescriptCompiler(
-  filePath: string,
-  traceInclude: string[],
-): boolean {
-  return (
-    filePath.includes("node_modules/typescript/") &&
-    !traceInclude.includes("typescript")
-  );
-}
-
-/**
  * The tracer misses the Prisma CLI's engine binaries (the schema engine and
  * the CLI's own copy of the query engine), because the CLI finds them by path
  * at runtime instead of importing them. Without them, the CLI downloads them
@@ -171,31 +132,19 @@ function isTypescriptCompiler(
  * The generated Prisma client already brings the same query engine, so we
  * link the CLI's copy to it instead of shipping the binary twice.
  *
- * @see https://github.com/unjs/nf3#readme
+ * Wasp pins a single Prisma version, so both packages sit at their usual
+ * paths in the traced output.
  */
-function copyPrismaCliEngines({
-  layout,
-  outDir,
-  requireFromServer,
-}: PrismaCliEnginesOptions): void {
-  const prismaPkgDir = realpathSync(
-    path.dirname(requireFromServer.resolve("prisma/package.json")),
+function copyPrismaCliEngines(): void {
+  const requireFromPrisma = createRequire(
+    requireFromServer.resolve("prisma/package.json"),
   );
-  const enginesPkgDir = realpathSync(
-    path.dirname(
-      createRequire(path.join(prismaPkgDir, "package.json")).resolve(
-        "@prisma/engines/package.json",
-      ),
-    ),
+  const enginesPkgDir = path.dirname(
+    requireFromPrisma.resolve("@prisma/engines/package.json"),
   );
-  const enginesOutDir = path.join(
-    outDir,
-    getHoistedOutPath(layout, "@prisma/engines") ??
-      "node_modules/@prisma/engines",
-  );
+  const enginesOutDir = path.join(outDir, "node_modules/@prisma/engines");
   const clientOutDir = path.join(outDir, "node_modules/.prisma/client");
 
-  mkdirSync(enginesOutDir, { recursive: true });
   for (const engine of globSync(["schema-engine-*", "libquery_engine-*"], {
     cwd: enginesPkgDir,
   })) {
@@ -210,50 +159,16 @@ function copyPrismaCliEngines({
 }
 
 /**
- * `npm run` puts `node_modules/.bin` on the PATH, but the traced output has
- * no `.bin` folder, so we call the Prisma CLI through its entry file instead.
+ * `production/` has no `node_modules/.bin`, because `npm install` never ran in
+ * `production/`. We add the link the production scripts use.
+ *
+ * @param prismaCliInOutDir The Prisma CLI's entry file, relative to `outDir`.
  */
-function writeProductionPackageJson({
-  layout,
-  serverDir,
-  outDir,
-  serverPackageJson,
-  prismaCliEntry,
-}: ProductionPackageJsonOptions): void {
-  const { scripts } = serverPackageJson;
-  const productionScripts: Record<string, string> = {
-    start: scripts.start,
-    "start-production": scripts["start-production"],
-  };
-  if (prismaCliEntry) {
-    const prismaCliInOutDir =
-      layout.files[prismaCliEntry] ?? path.relative(serverDir, prismaCliEntry);
-    productionScripts["db-migrate-prod"] = scripts["db-migrate-prod"].replace(
-      /^prisma /,
-      `node ${prismaCliInOutDir} `,
-    );
-  }
-
-  writeFileSync(
-    path.join(outDir, "package.json"),
-    JSON.stringify(
-      {
-        name: serverPackageJson.name,
-        private: true,
-        type: "module",
-        scripts: productionScripts,
-      },
-      null,
-      2,
-    ),
+function linkPrismaCliBin(prismaCliInOutDir: string): void {
+  const binDir = path.join(outDir, "node_modules/.bin");
+  mkdirSync(binDir, { recursive: true });
+  symlinkSync(
+    path.relative(binDir, path.join(outDir, prismaCliInOutDir)),
+    path.join(binDir, "prisma"),
   );
-}
-
-/** Returns the package's path in `outDir`, if the tracer copied it. */
-function getHoistedOutPath(
-  layout: TracedLayout,
-  packageName: string,
-): string | undefined {
-  const versions = layout.packages[packageName]?.versions ?? {};
-  return Object.values(versions).find((version) => version.hoisted)?.outPath;
 }

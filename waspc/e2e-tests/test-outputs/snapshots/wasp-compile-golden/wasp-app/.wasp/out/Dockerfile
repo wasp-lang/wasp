@@ -65,7 +65,7 @@ WORKDIR /app/.wasp/out/server
 # bundle changes with every code change while `node_modules` changes only
 # with the dependencies.
 COPY --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
-COPY --from=server-builder /app/.wasp/out/server/production/package.json ./
+COPY server/package.json ./
 COPY db/ /app/.wasp/out/db/
 COPY --from=server-builder /app/.wasp/out/server/production/bundle ./bundle
 ENTRYPOINT ["npm", "run", "start-production"]
