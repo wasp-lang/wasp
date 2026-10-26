@@ -556,20 +556,24 @@ export interface Server {
    * The Docker image contains only the files the server imports. A package
    * that loads files by a path computed at runtime (for example, a native
    * binary) can miss some of them. Each entry is a package name with an
-   * optional prefix or suffix:
+   * optional prefix or suffix, the same syntax as Nitro's `traceDeps`:
    *
    * - `"pkg"` traces the package even when the server doesn't import it.
    * - `"pkg*"` copies all of the package's files.
    * - `"!pkg"` stops copying all files of a package Wasp copies fully by
    *   default.
    *
+   * Wasp already copies all files of the packages nf3 knows need it, like
+   * `sodium-native`.
+   *
    * @example
    * ```ts
    * traceDeps: ["some-native-pkg*"]
    * ```
    *
-   * See [Missing files in the Docker
-   * image](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image).
+   * @see https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image
+   * @see https://nitro.build/config#tracedeps for the entry syntax.
+   * @see https://github.com/unjs/nf3/blob/main/src/db.ts for the packages copied in full by default.
    */
   traceDeps?: string[];
 }

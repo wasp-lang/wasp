@@ -3,13 +3,12 @@
 // `production/`, so the final Docker image doesn't need the full `node_modules`.
 //
 // We trace:
-// - `bundle/server.js`: the bundled server. Its externals are what we need.
+// - `bundle/server.js`: the bundled server. Rollup leaves the packages it
+//   imports out of the bundle, so following those imports finds the files the
+//   server needs at runtime.
 // - `dotenv/config`: preloaded with `node -r dotenv/config` in the `start` script.
 // - The Prisma CLI, but only when `start-production` runs migrations.
-// - The packages from `app.server.traceDeps`.
-//
-// Node runs this file as is, because it only uses the TypeScript syntax Node
-// can strip: type annotations and type-only imports.
+// - The packages the user lists in `app.server.traceDeps`.
 import type { TracedLayout } from "nf3";
 import { traceNodeModules } from "nf3";
 import { FullTracePackages } from "nf3/db";
@@ -39,52 +38,79 @@ type TraceSelection = {
   fullTraceInclude: string[];
 };
 
-const userTraceDeps: string[] = {=& traceDeps =};
+type PrismaCliEnginesOptions = {
+  layout: TracedLayout;
+  outDir: string;
+  requireFromServer: NodeJS.Require;
+};
 
-const serverDir = import.meta.dirname;
-const outDir = path.join(serverDir, "production");
-const requireFromServer = createRequire(path.join(serverDir, "package.json"));
+type ProductionPackageJsonOptions = {
+  layout: TracedLayout;
+  serverDir: string;
+  outDir: string;
+  serverPackageJson: ServerPackageJson;
+  /** The Prisma CLI's entry file, when the image runs migrations. */
+  prismaCliEntry: string | undefined;
+};
 
-const serverPackageJson: ServerPackageJson = JSON.parse(
-  readFileSync(path.join(serverDir, "package.json"), "utf8"),
-);
-const runsMigrations =
-  serverPackageJson.scripts["start-production"].includes("db-migrate-prod");
-const prismaCliEntry = runsMigrations
-  ? requireFromServer.resolve("prisma/build/index.js")
-  : undefined;
+await traceProductionDeps({=& traceDeps =});
 
-const { traceInclude, fullTraceInclude } = resolveTraceDeps(userTraceDeps);
+/**
+ * @param userTraceDeps The packages the user listed in `app.server.traceDeps`.
+ */
+async function traceProductionDeps(userTraceDeps: string[]): Promise<void> {
+  const serverDir = import.meta.dirname;
+  const outDir = path.join(serverDir, "production");
+  const requireFromServer = createRequire(path.join(serverDir, "package.json"));
+  const serverPackageJson: ServerPackageJson = JSON.parse(
+    readFileSync(path.join(serverDir, "package.json"), "utf8"),
+  );
+  const runsMigrations =
+    serverPackageJson.scripts["start-production"].includes("db-migrate-prod");
+  const prismaCliEntry = runsMigrations
+    ? requireFromServer.resolve("prisma/build/index.js")
+    : undefined;
+  const { traceInclude, fullTraceInclude } = resolveTraceDeps(userTraceDeps);
 
-rmSync(outDir, { recursive: true, force: true });
-mkdirSync(outDir, { recursive: true });
+  rmSync(outDir, { recursive: true, force: true });
+  mkdirSync(outDir, { recursive: true });
 
-const layout = await traceNodeModules(
-  [
-    path.join(serverDir, "bundle/server.js"),
-    requireFromServer.resolve("dotenv/config"),
-    ...(prismaCliEntry ? [prismaCliEntry] : []),
-  ],
-  {
-    rootDir: serverDir,
+  const layout = await traceNodeModules(
+    [
+      path.join(serverDir, "bundle/server.js"),
+      requireFromServer.resolve("dotenv/config"),
+      ...(prismaCliEntry ? [prismaCliEntry] : []),
+    ],
+    {
+      rootDir: serverDir,
+      outDir,
+      chmod: true,
+      traceInclude,
+      fullTraceInclude,
+      nft: {
+        ignore: (filePath: string) =>
+          isTypescriptCompiler(filePath, traceInclude),
+      },
+    },
+  );
+  if (prismaCliEntry) {
+    copyPrismaCliEngines({ layout, outDir, requireFromServer });
+  }
+  cpSync(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
+    recursive: true,
+  });
+  writeProductionPackageJson({
+    layout,
+    serverDir,
     outDir,
-    chmod: true,
-    traceInclude,
-    fullTraceInclude,
-    nft: { ignore: isTypescriptCompiler },
-  },
-);
-if (prismaCliEntry) {
-  copyPrismaCliEngines(layout);
-}
-cpSync(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
-  recursive: true,
-});
-writeProductionPackageJson(layout);
+    serverPackageJson,
+    prismaCliEntry,
+  });
 
-console.log(
-  `Traced ${Object.keys(layout.packages).length} packages into ${outDir}`,
-);
+  console.log(
+    `Traced ${Object.keys(layout.packages).length} packages into ${outDir}`,
+  );
+}
 
 /**
  * Splits `app.server.traceDeps` into nf3 options, the same way Nitro does:
@@ -127,7 +153,10 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
  * when running migrations, but the tracer follows it and would copy the whole
  * compiler. We skip it unless the user listed it in `app.server.traceDeps`.
  */
-function isTypescriptCompiler(filePath: string): boolean {
+function isTypescriptCompiler(
+  filePath: string,
+  traceInclude: string[],
+): boolean {
   return (
     filePath.includes("node_modules/typescript/") &&
     !traceInclude.includes("typescript")
@@ -145,7 +174,11 @@ function isTypescriptCompiler(filePath: string): boolean {
  *
  * @see https://github.com/unjs/nf3#readme
  */
-function copyPrismaCliEngines(layout: TracedLayout): void {
+function copyPrismaCliEngines({
+  layout,
+  outDir,
+  requireFromServer,
+}: PrismaCliEnginesOptions): void {
   const prismaPkgDir = realpathSync(
     path.dirname(requireFromServer.resolve("prisma/package.json")),
   );
@@ -181,7 +214,13 @@ function copyPrismaCliEngines(layout: TracedLayout): void {
  * `npm run` puts `node_modules/.bin` on the PATH, but the traced output has
  * no `.bin` folder, so we call the Prisma CLI through its entry file instead.
  */
-function writeProductionPackageJson(layout: TracedLayout): void {
+function writeProductionPackageJson({
+  layout,
+  serverDir,
+  outDir,
+  serverPackageJson,
+  prismaCliEntry,
+}: ProductionPackageJsonOptions): void {
   const { scripts } = serverPackageJson;
   const productionScripts: Record<string, string> = {
     start: scripts.start,

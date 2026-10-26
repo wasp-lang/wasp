@@ -18,8 +18,6 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 The Dockerfile Wasp generates for the server now copies only the files the server needs at runtime into the final image, instead of the whole `node_modules` folder. This makes the image about a third of the size, and a code change no longer reinstalls the server's npm packages when the image is rebuilt.
 
-If a package misses files at runtime, list it in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image).
-
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -84,9 +82,17 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 3. Update your custom Dockerfile
+### 3. Rebuild your server's Docker image
 
-**If you don't use a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), you can skip this step.**
+Wasp generates a new Dockerfile for the server. `wasp build` and `wasp deploy` regenerate it, so your next build or deploy picks it up. To see what it looks like, combined with your custom Dockerfile if you have one, run:
+
+```shell
+wasp dockerfile
+```
+
+If a package misses files at runtime, the server fails to start with a "file not found" error, even though the app works with `wasp start`. List the package in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image) to copy its files into the image.
+
+**If you don't use a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), you can skip the rest of this step.**
 
 The final stage of the generated Dockerfile (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`.
 
