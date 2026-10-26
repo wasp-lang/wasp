@@ -43,12 +43,12 @@ const serverDir = import.meta.dirname;
 const outDir = path.join(serverDir, "production");
 const requireFromServer = createRequire(path.join(serverDir, "package.json"));
 
-await traceProductionDeps({
+await prepareProduction({
   traceDeps: [],
-  runsMigrations: true,
+  runsMigrations: false,
 });
 
-async function traceProductionDeps({
+async function prepareProduction({
   traceDeps,
   runsMigrations,
 }: TraceOptions): Promise<void> {

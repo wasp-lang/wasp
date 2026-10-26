@@ -11,6 +11,10 @@ FROM node:24.22.1-alpine3.23 AS node
 # and just copy what we need from server-builder, avoiding intermediate
 # artifacts and any settings / pollution we don't need in production
 # but only for building.
+#
+# Docker reuses a layer only while every file copied before it is unchanged,
+# so each stage copies files in the order they change least to most often.
+# A code change then rebuilds only the steps that depend on the code.
 
 
 FROM node AS base
@@ -26,32 +30,20 @@ FROM base AS server-builder
 # `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
-# Docker reuses a layer only while every file copied before it is unchanged,
-# so we copy files in the order they change least to most often: package
-# manifests, then the Prisma schema, then the code. This way a code change
-# rebuilds only the bundle, and `npm install` runs again only when the
-# dependencies change.
-#
-# `npm install` needs the project's manifests, the manifest of every npm
-# workspace the lockfile lists, and the Wasp lib tarballs they point to.
 COPY package.json package-lock.json ./
 COPY server/package.json .wasp/out/server/
 COPY sdk/wasp/package.json .wasp/out/sdk/wasp/
 COPY libs .wasp/out/libs
 RUN npm install
 WORKDIR /app/.wasp/out/server
-# Since the framework code in /.wasp/out/server imports the user code in /src
-# using relative imports, we must mirror the same directory structure in the
-# Docker image.
+# We mirror the same directory structure as the Wasp project.
 COPY tsconfig*.json /app/
 COPY types /app/.wasp/out/types
 COPY sdk /app/.wasp/out/sdk
 COPY server ./
 COPY src /app/src
 # Building the server should come after Prisma generation.
-# `traceProductionDeps.ts` then copies the bundle and the files it imports at
-# runtime into `production/`. See the script for more details.
-RUN npm run bundle && node traceProductionDeps.ts
+RUN npm run bundle && node prepareProduction.ts
 
 
 # TODO: Use pm2?
@@ -60,10 +52,7 @@ FROM base AS server-production
 ENV NODE_ENV=production
 WORKDIR /app/.wasp/out/server
 # `production/` already contains every package the server needs, so this
-# stage needs no `npm install`. We copy `node_modules` first and the bundle
-# last because Docker reuses the layers copied before a change, and the
-# bundle changes with every code change while `node_modules` changes only
-# with the dependencies.
+# stage needs no `npm install`.
 COPY --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
 COPY server/package.json ./
 COPY db/ /app/.wasp/out/db/

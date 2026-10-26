@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "5b2f531be268182aa23679b1f60a54731221a034ff133ecb0c212ff7cc7838d6"
+        "9e44e609b6b8f6c61033d649ff9d37a7c561ec41da71930af6f6c93424e4a582"
     ],
     [
         [
@@ -520,6 +520,13 @@
     [
         [
             "file",
+            "server/prepareProduction.ts"
+        ],
+        "94e6b3796e56bf7b69b2b9f3e49032da077494f25a5e21711c8f955ae667fa60"
+    ],
+    [
+        [
+            "file",
             "server/rollup.config.js"
         ],
         "0c2087431871f99755e8d04cfeaf370b665b63894943c1f58136d30ba4bbcdfc"
@@ -597,16 +604,9 @@
     [
         [
             "file",
-            "server/traceProductionDeps.ts"
-        ],
-        "09f70b393cc7e80c45b4cae3fd44a0ce39024c62dad9ad168e399e9cddc97904"
-    ],
-    [
-        [
-            "file",
             "server/tsconfig.json"
         ],
-        "3d2b9752759e3e5db84f1383a9d711f0c25869ce5a3ed8e61c70adb2db7b16c3"
+        "35e1a119e2e59dbf95d613db38e466fcd6611067b7ecf10b3aba9bcbfedf70a8"
     ],
     [
         [

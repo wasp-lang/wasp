@@ -28,7 +28,7 @@
     "src",
     "rollup.config.js",
     "rollup.dbSeed.config.js",
-    "traceProductionDeps.ts"
+    "prepareProduction.ts"
   ],
   "references": [
     { "path": "../../../tsconfig.src.json" }
