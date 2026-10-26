@@ -95,7 +95,7 @@ wasp start
 
 ## Running worktrees at the same time
 
-`wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](./cli.md#project-commands).
+`wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](./cli.md#project-commands), and if your app needs to be reachable at a URL other than `http://localhost:<port>`, use [`--client-url` and `--server-url`](./cli.md#project-commands).
 
 `wasp start db` does the same for the dev database: it starts on port `5432` or the first free port after it, and `wasp start` finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](./cli.md#project-commands).
 
