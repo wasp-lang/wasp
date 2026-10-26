@@ -3,6 +3,7 @@ module Wasp.Util.Docker
     DockerImageName,
     DockerVolumeMountPath,
     discoverHostPortForDockerContainersInternalPort,
+    checkDockerDaemonConnection,
 
     -- * Exported for testing only
     parseDockerPortOutput,
@@ -15,6 +16,7 @@ import Network.Socket (PortNumber)
 import System.Exit (ExitCode (..))
 import System.Process (readProcessWithExitCode)
 import Text.Read (readMaybe)
+import Wasp.Util (trim)
 
 type DockerContainerName = String
 
@@ -30,6 +32,16 @@ discoverHostPortForDockerContainersInternalPort containerName containerPort = do
     Right (ExitSuccess, stdout, _stderr) -> parseDockerPortOutput stdout
     Right (ExitFailure _, _stdout, _stderr) -> Nothing
     Left (_ :: SomeException) -> Nothing
+
+-- | Checks that the Docker daemon is running and that we can connect to it.
+-- If we can't, returns the error that Docker reported.
+checkDockerDaemonConnection :: IO (Either String ())
+checkDockerDaemonConnection = do
+  result <- try $ readProcessWithExitCode "docker" ["info"] ""
+  return $ case result of
+    Right (ExitSuccess, _stdout, _stderr) -> Right ()
+    Right (ExitFailure _, _stdout, stderr) -> Left $ trim stderr
+    Left (e :: SomeException) -> Left $ show e
 
 -- | Parses the output of @docker port \<container\> \<port\>@ into the host port.
 -- The output has a line per network interface, e.g. "0.0.0.0:5433\n[::]:5433\n".
