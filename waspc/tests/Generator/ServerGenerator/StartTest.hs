@@ -183,7 +183,8 @@ projectRunConfig =
     { clientUrl = makeLocalUrl 3000 Nothing,
       serverUrl = makeLocalUrl 0 Nothing,
       clientPort = 3000,
-      serverPort = 0
+      serverPort = 0,
+      databaseUrl = Nothing
     }
 
 data ServerFixture = ServerFixture
