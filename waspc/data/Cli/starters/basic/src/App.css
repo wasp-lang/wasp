@@ -1,5 +1,4 @@
 @import "tailwindcss";
-/* The minimal starter's styles, in the base layer so Tailwind utilities can override them. */
 @import "./Main.css" layer(base);
 
 @theme {
