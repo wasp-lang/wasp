@@ -12,16 +12,28 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🎉 New Features
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
+- `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 
 ### 🐞 Bug fixes
 
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
+- The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
+
+### 🔧 Small improvements
+
+- The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 
 ### 🔧 Small improvements
 
 - The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
+
+## 0.26.1
+
+### ⚠️ Breaking Changes
+
+- Wasp now requires Node.js >=24.22.1 (previously >=24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). ([#5113](https://github.com/wasp-lang/wasp/pull/5113))
 
 ## 0.26.0
 

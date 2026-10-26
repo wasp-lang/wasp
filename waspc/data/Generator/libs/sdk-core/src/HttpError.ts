@@ -1,12 +1,23 @@
+/**
+ * The header values Node's `response.setHeader` accepts, e.g. a list of
+ * `Set-Cookie` values.
+ */
+export type HttpErrorHeaders = Record<string, string | number | string[]>;
+
+export interface HttpErrorOptions extends ErrorOptions {
+  headers?: HttpErrorHeaders;
+}
+
 export class HttpError extends Error {
   public statusCode: number;
   public data: unknown;
+  public headers: HttpErrorHeaders | undefined;
 
   constructor(
     statusCode: number,
     message?: string,
     data?: Record<string, unknown>,
-    options?: ErrorOptions,
+    options?: HttpErrorOptions,
   ) {
     super(message, options);
 
@@ -26,5 +37,7 @@ export class HttpError extends Error {
     if (data) {
       this.data = data;
     }
+
+    this.headers = options?.headers;
   }
 }

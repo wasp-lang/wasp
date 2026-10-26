@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "b6bc4880048ee27f92f31e1f312b26e9f6e8dea60a203d6114b0e761a03a6d4a"
+        "64944787a133365880964d0ca19ba39a63ba82fe1ef8abf27a0ae9cc0c1f3cb6"
     ],
     [
         [
@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "7a081a214fe778c8bbfecf6ba385a7addcbff0b0ab429157aa314008d6fabcfc"
+        "43469e5922aad43e6e4c872a95517166d2c8372a0cc721da4ca5f72be3d3ed02"
     ],
     [
         [
@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "12b9089a590e7e031fbd56b7e83b993b142b652fa85e80606a42bb0106696d1f"
+        "c7eb7fca973e9a4eca893efb17c82eb54e7abce13f4de90a97251aa5a43cae21"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "ca8207ba3b7db869085f26cdc5e8bdee53ef21a36f419bfd04e5e8ba08a8dd24"
+        "3e4d5c07d860c2c3ae26c8a8e2df3d9b456096b2c94b44645dfc7201059e39a9"
     ],
     [
         [
@@ -746,7 +746,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/redirect.ts"
         ],
-        "912ed66e1f591ef7ce6c511db457b990f4346b652c8ae92087382fb3f5590dbe"
+        "70fa83f939362b20385b843df598e2adbfb0118bd3bf65d65415a1039385b1db"
     ],
     [
         [
@@ -856,6 +856,34 @@
     [
         [
             "file",
+            "sdk/wasp/server/errors/httpErrors.ts"
+        ],
+        "6934b094db57fca5233fb86bf420f36215c939fab2f59fdf45acae7610e44fa6"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/index.ts"
+        ],
+        "c371323a97a2fbbf79e6114920a4733ef3ec1a9abb37f259ad629c491c4881f3"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/unknownErrors.ts"
+        ],
+        "e7bda9eaed5c13f473fdc23129bf0dd67c87c5e9f31dfbd14166e7842bf64868"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/utils.ts"
+        ],
+        "373f67e3b554d68dc154351dd57fd98af0e443be0ca712a45b5c8713e5ecffa7"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/index.ts"
         ],
         "b8c4696141ef961af47ccf276223564504fe3370a091e317957b8aa1d2ac44fd"
@@ -879,7 +907,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "f7e06b06bdebd6b7665bb444f507388b7290bde6fcbff06f0559e9ca5a22b97f"
+        "22ab46a75b7330b69b7a485a34bd3a07a6bad4ce404a35d98985e36c0744364c"
     ],
     [
         [
@@ -1061,7 +1089,7 @@
             "file",
             "server/package.json"
         ],
-        "f8b30e95274fa7015ce72b603cd37e63af0baefc386b4e64b9334a824aa61f9f"
+        "e08176532edc559b039d1d421dd6636d44c4757429e7e1503a9d2682583d3ae1"
     ],
     [
         [
@@ -1208,7 +1236,7 @@
             "file",
             "server/src/app.js"
         ],
-        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
+        "bd16da1d89d3b49580c7ff1e33191159bab7610e314bfcdaff7eb5653c7c862e"
     ],
     [
         [
@@ -1320,7 +1348,7 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "8c087b4a5fed66c878ef5183f4e4368802e46c752245a1697d34052c80651aae"
+        "d46a9a950d2ba172ef9e7ae18c7361561e0e07a76bc0f1bb555a1e836c3ec1dc"
     ],
     [
         [
@@ -1376,7 +1404,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "a4b6d0c64726087ee7347270a732409504080ac3558f10ccdd8736353eff30cb"
+        "fa1ab2adddbee4b0785116c1faea86abe3b2668d9c1094f98e28ac5c150237be"
     ],
     [
         [
@@ -1530,7 +1558,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "2a05bf13877ac8bc97ec7209c72ea56949e65808ba814b625e8061350b063c70"
+        "ab101afc1dcc6d5d0d7a14eb3eb02359f49746ff302b8aea29e93b657723d7f9"
     ],
     [
         [
@@ -1810,7 +1838,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "4d18c15acc22d4ab6519c973c04afc77dbf2ba0986143e7509ea3edac1645061"
+        "49d12abf8119bf9e2e59b9e4999f356647d6bf135f5b5190046ace7c8ba65580"
     ],
     [
         [
@@ -1824,7 +1852,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "9751b972d652ab2c10cab508dac5a61845c63460a0a3e53356e122d7aadf644d"
+        "77a0bfb8ce02893ee3534205d5655cb45f66f7a8a2656552ac1f4b5aaae7c649"
     ],
     [
         [
