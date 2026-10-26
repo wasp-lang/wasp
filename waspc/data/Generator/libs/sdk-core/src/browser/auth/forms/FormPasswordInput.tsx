@@ -1,6 +1,7 @@
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
+  type MouseEvent,
   forwardRef,
   useState,
 } from "react";
@@ -28,9 +29,9 @@ export const FormPasswordInput = forwardRef<
         type="button"
         className={styles.toggleButton}
         onClick={() => setIsPasswordVisible((isVisible) => !isVisible)}
+        onMouseDown={keepFocusInInput}
         disabled={disabled}
         aria-label={toggleLabel}
-        title={toggleLabel}
       >
         {isPasswordVisible ? <HidePasswordIcon /> : <ShowPasswordIcon />}
       </button>
@@ -38,8 +39,14 @@ export const FormPasswordInput = forwardRef<
   );
 });
 
-// Icons from the Carbon icon set by IBM, Apache 2.0.
-// https://github.com/carbon-design-system/carbon/tree/main/packages/icons
+function keepFocusInInput(event: MouseEvent<HTMLButtonElement>) {
+  event.preventDefault();
+}
+
+/*!
+ * Icons from the Carbon icon set by IBM, licensed under Apache 2.0.
+ * https://github.com/carbon-design-system/carbon/tree/main/packages/icons
+ */
 const ShowPasswordIcon = () => (
   <svg
     className={styles.icon}

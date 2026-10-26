@@ -45,7 +45,7 @@ export default app({
 
 You'll get the following UI:
 
-![Auth UI](/img/docs/features/auth/login.png)
+![Auth UI](/img/docs/features/auth/login.webp)
 
 And then if you enable Google and Github:
 
@@ -71,7 +71,7 @@ export default app({
 
 The form will automatically update to look like this:
 
-![Auth UI](/img/docs/features/auth/ui/multiple_providers.png)
+![Auth UI](/img/docs/features/auth/ui/multiple_providers.webp)
 
 Let's go through all of the available components and how to use them.
 
@@ -89,7 +89,7 @@ The following components are available for you to use in your app:
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
 
-![Login form](/img/docs/features/auth/login.png)
+![Login form](/img/docs/features/auth/login.webp)
 
 You can use the `LoginForm` component to build your login page:
 
@@ -135,7 +135,7 @@ It will automatically show the correct authentication providers based on your `m
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
 
-![Signup form](/img/docs/features/auth/signup.png)
+![Signup form](/img/docs/features/auth/signup.webp)
 
 You can use the `SignupForm` component to build your signup page:
 
@@ -235,7 +235,7 @@ Used with <EmailPill /> authentication.
 
 After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
 
-![Reset password form](/img/docs/features/auth/ui/reset_password.png)
+![Reset password form](/img/docs/features/auth/ui/reset_password.webp)
 
 You can use the `ResetPasswordForm` component to build your reset password page:
 
@@ -477,7 +477,7 @@ If we pass in `vertical`:
 
 We get this:
 
-![Vertical social buttons](/img/docs/features/auth/ui/vertical_social_buttons.png)
+![Vertical social buttons](/img/docs/features/auth/ui/vertical_social_buttons.webp)
 
 ### Let's Put Everything Together 🪄
 
@@ -536,5 +536,5 @@ If we provide the logo and custom colors:
 We get a form looking like this:
 
 <div style={{ textAlign: 'center' }}>
-  <img src="/img/docs/features/auth/ui/custom_login.gif" alt="Custom login form" />
+  <img src="/img/docs/features/auth/ui/custom_login.webp" alt="Custom login form" />
 </div>

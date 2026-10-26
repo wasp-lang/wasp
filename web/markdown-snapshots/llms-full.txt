@@ -5240,7 +5240,7 @@ export default app({
 
 You'll get the following UI:
 
-![Auth UI](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
+![Auth UI](https://wasp.sh/assets/images/login-3a3c5ce5bdfe193dcf4780c52029b6f8.webp)
 
 And then if you enable Google and Github:
 
@@ -5264,7 +5264,7 @@ export default app({
 
 The form will automatically update to look like this:
 
-![Auth UI](https://wasp.sh/assets/images/multiple_providers-7418552f1647875e5dd9495a27503ea8.png)
+![Auth UI](https://wasp.sh/assets/images/multiple_providers-5a7bcc6b5ae995932b7cb2b173a3b0b7.webp)
 
 Let's go through all of the available components and how to use them.
 
@@ -5282,7 +5282,7 @@ The following components are available for you to use in your app:
 
 Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), [Email](https://wasp.sh/docs/features/auth/email/overview), [Github](https://wasp.sh/docs/features/auth/social-auth/github), [Google](https://wasp.sh/docs/features/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) and [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) authentication.
 
-![Login form](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
+![Login form](https://wasp.sh/assets/images/login-3a3c5ce5bdfe193dcf4780c52029b6f8.webp)
 
 You can use the `LoginForm` component to build your login page:
 
@@ -5313,7 +5313,7 @@ It will automatically show the correct authentication providers based on your `m
 
 Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), [Email](https://wasp.sh/docs/features/auth/email/overview), [Github](https://wasp.sh/docs/features/auth/social-auth/github), [Google](https://wasp.sh/docs/features/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) and [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) authentication.
 
-![Signup form](https://wasp.sh/assets/images/signup-6d04c4e24d598ce3552a5603aebea0df.png)
+*(Inlined image: Signup form)*
 
 You can use the `SignupForm` component to build your signup page:
 
@@ -5383,7 +5383,7 @@ Used with [Email](https://wasp.sh/docs/features/auth/email/overview) authenticat
 
 After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
 
-![Reset password form](https://wasp.sh/assets/images/reset_password-8bd14c7e859201528a18ecc773d51e1d.png)
+![Reset password form](https://wasp.sh/assets/images/reset_password-7a919e5c0a8a2d4b91e78112dabf880b.webp)
 
 You can use the `ResetPasswordForm` component to build your reset password page:
 
@@ -5524,7 +5524,7 @@ export function LoginPage() {
 
 We get this:
 
-![Vertical social buttons](https://wasp.sh/assets/images/vertical_social_buttons-0cab6b68a60bdb32e421bd99b96942f6.png)
+![Vertical social buttons](https://wasp.sh/assets/images/vertical_social_buttons-8229fe829682de420651f692a6b86141.webp)
 
 #### Let's Put Everything Together 🪄
 
@@ -5555,7 +5555,7 @@ export function LoginPage() {
 
 We get a form looking like this:
 
-![Custom login form](https://wasp.sh/img/docs/features/auth/ui/custom_login.gif)
+![Custom login form](https://wasp.sh/img/docs/features/auth/ui/custom_login.webp)
 
 
 ## Features / Auth / Username and password / Overview
@@ -6165,11 +6165,11 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 #### Login
 
-![Auth UI](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
+![Auth UI](https://wasp.sh/assets/images/login-3a3c5ce5bdfe193dcf4780c52029b6f8.webp)
 
 #### Signup
 
-![Auth UI](https://wasp.sh/assets/images/signup-6d04c4e24d598ce3552a5603aebea0df.png)
+*(Inlined image: Auth UI)*
 
 Some of the behavior you get out of the box:
 
