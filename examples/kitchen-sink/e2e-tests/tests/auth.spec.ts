@@ -17,6 +17,19 @@ test.describe("auth", () => {
     ).toBeVisible();
   });
 
+  test("reset password form shows the new password error under its own field", async ({
+    page,
+  }) => {
+    await page.goto("/password-reset");
+
+    await page
+      .locator("input[name='passwordConfirmation']")
+      .fill("only-the-confirmation");
+    await page.getByRole("button", { name: "Reset password" }).click();
+
+    await expect(page.locator("body")).toContainText("Password is required");
+  });
+
   test.describe("signup and login", () => {
     // These tests require Mailcrab for email verification.
     test.skip(
