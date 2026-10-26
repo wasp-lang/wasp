@@ -7,6 +7,7 @@ description: Step 3 of the Wasp tutorial explains the page and route specs in ma
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'
 import TypescriptServerNote from '../_TypescriptServerNote.md'
+import CollapsibleCode from '@site/src/components/CollapsibleCode';
 import { TutorialAction } from './TutorialAction';
 import helloWorldScreenshot from './img/todo-app-hello-world.webp';
 
@@ -120,6 +121,8 @@ The starter already comes with the base styles for the Todo app. You only need t
 
 Add these styles to the end of `src/Main.css`:
 
+<CollapsibleCode>
+
 ```css title="src/Main.css"
 /* ... existing styles */
 
@@ -194,6 +197,8 @@ header button {
   text-decoration: line-through;
 }
 ```
+
+</CollapsibleCode>
 
 Then, replace the `MainPage` component with the skeleton of the Todo app, a header with the app title and an empty main area:
 
