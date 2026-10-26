@@ -246,8 +246,7 @@ genPrepareProduction spec =
   where
     traceDeps = fromMaybe [] $ AS.App.server (getApp spec) >>= AS.App.Server.traceDeps
 
--- | Whether the server's `start-production` script runs the database
--- migrations before starting, which is the case when the app has entities.
+-- | The server runs DB migrations on start when the app has entities.
 runsMigrationsOnStart :: AppSpec -> Bool
 runsMigrationsOnStart = AS.Util.hasEntities
 
