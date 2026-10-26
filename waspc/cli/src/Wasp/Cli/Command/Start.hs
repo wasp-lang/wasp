@@ -12,9 +12,9 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
-import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
@@ -22,7 +22,7 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectPorts (findProjectPorts)
-import Wasp.Cli.ProjectRunConfig (makeProjectRunConfig, showRunConfigUrls)
+import Wasp.Cli.ProjectRunConfig (makeDevProjectRunConfig, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Env (EnvVar)
 import qualified Wasp.Generator
@@ -57,12 +57,12 @@ start = withArguments startArgsParser $ \args ->
     (warnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
-    let projectRunConfig = makeProjectRunConfig appSpec ports (args.clientUrl, args.serverUrl)
+    projectRunConfig <- liftIO $ makeDevProjectRunConfig appSpec ports (args.clientUrl, args.serverUrl)
     assertImplicitEnvVarsDontOverrideWaspEnvVars
       waspProjectDir
       (WebAppGenerator.makeEnvVars projectRunConfig, ServerGenerator.makeEnvVars projectRunConfig)
 
-    DbConnectionEstablished <- require
+    throwIfDbConnectionNotEstablished projectRunConfig
 
     cliSendMessageC $ Msg.Start "Listening for file changes..."
     cliSendMessageC $ Msg.Start "Starting up generated project..."

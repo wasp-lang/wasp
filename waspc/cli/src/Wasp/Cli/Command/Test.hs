@@ -39,7 +39,7 @@ watchAndTest testRunner = ProjectLock.acquireWatcher $ \projectLock -> do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
-  let projectRunConfig = makeDefaultDevProjectRunConfig appSpec
+  projectRunConfig <- liftIO $ makeDefaultDevProjectRunConfig appSpec
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 

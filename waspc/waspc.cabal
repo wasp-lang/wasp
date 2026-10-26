@@ -329,6 +329,7 @@ library
     Wasp.Project.BuildType
     Wasp.Project.Common
     Wasp.Project.Db
+    Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Db.Migrations
@@ -487,7 +488,6 @@ library cli-lib
     Wasp.Cli.Command.News.Fetching
     Wasp.Cli.Command.News.Listing
     Wasp.Cli.Command.News.LocalNewsState
-    Wasp.Cli.Command.Require.DbConnectionEstablished
     Wasp.Cli.Command.Require.GeneratedApp
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
@@ -597,6 +597,7 @@ test-suite waspc-tests
     JsImportTest
     Node.InternalTest
     Paths_waspc
+    Project.Db.DevTest
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
