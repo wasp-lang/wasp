@@ -8,6 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
+- The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#4968](https://github.com/wasp-lang/wasp/issues/4968)) (FIXME PR LINK)
 
 ### 🎉 New Features
 

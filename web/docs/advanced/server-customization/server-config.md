@@ -149,6 +149,16 @@ You can configure the global middleware via the `middlewareConfigFn`. This will 
 
 Read more in the [configuring middleware section](./middleware#1-customize-global-middleware).
 
+## Working Directory
+
+The server runs with your project's root directory as its working directory, both with `wasp start` and in production. Relative paths in your server code, like `fs.readFile("src/data/countries.json")` or an `uploads/` folder for file uploads, resolve from the project root.
+
+In the Docker image that `wasp build` generates, the project root is `/app`. The image doesn't include your project's files, so if your server reads any of them at runtime, keep them in `src/` and copy them into the image with a [custom Dockerfile](../../deployment/methods/overview.md#customizing-the-dockerfile):
+
+```dockerfile title="Dockerfile"
+COPY src/data/ /app/src/data/
+```
+
 ## API Reference
 
 <CardLink

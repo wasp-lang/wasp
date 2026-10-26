@@ -78,6 +78,12 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 3. Enjoy your updated Wasp app
+### 3. Check relative paths in your server code
+
+The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
+
+If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
+
+### 4. Enjoy your updated Wasp app
 
 That's it!

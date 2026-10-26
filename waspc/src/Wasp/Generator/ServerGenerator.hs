@@ -67,7 +67,14 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common
+  ( SrcTsConfigFile,
+    UserSrcDir,
+    WaspProjectDir,
+    generatedAppDirInWaspProjectDir,
+    srcDirInWaspProjectDir,
+    waspProjectDirFromGeneratedAppComponentDir,
+  )
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -147,10 +154,25 @@ genPackageJson spec waspDependencies =
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
                    ),
-              "dbSeedNpmScriptName" .= dbSeedNpmScriptName
+              "dbSeedNpmScriptName" .= dbSeedNpmScriptName,
+              "runNodeFromWaspProjectDir" .= runNodeFromWaspProjectDir,
+              "serverDirFromWaspProjectDir" .= SP.fromRelDir serverDirFromWaspProjectDir
             ]
       )
   where
+    -- The server runs with the Wasp project dir as its working directory, so that
+    -- relative paths in the user's code resolve from where the user expects them to.
+    runNodeFromWaspProjectDir =
+      "cd "
+        ++ SP.fromRelDir waspProjectDirFromServerDir
+        ++ " && DOTENV_CONFIG_PATH="
+        ++ SP.fromRelFile (serverDirFromWaspProjectDir </> dotEnvInServerRootDir)
+        ++ " node --enable-source-maps -r dotenv/config"
+    waspProjectDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspProjectDir) =
+      waspProjectDirFromGeneratedAppComponentDir
+    serverDirFromWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir ServerRootDir) =
+      generatedAppDirInWaspProjectDir </> C.serverRootDirInGeneratedAppDir
+
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
 
     hasEntities = AS.Util.hasEntities spec
