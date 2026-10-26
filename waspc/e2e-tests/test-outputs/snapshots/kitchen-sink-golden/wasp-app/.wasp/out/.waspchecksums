@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "74732acc952103cdc3268d79f3cba3502e75708edfda74fc9780106910f58a7f"
+        "f3346f57096217b6c98e127b06ace2040cb6c1961f97d96d4055782dde72ef59"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "78f66ec88277a85e7aa5775ff4ef2da687c4f6551f8636857d64fd017846e0dc"
+        "19e69852a06e3c9d6478f3498c34709d500fd7735b9a3a1b9004e14f6ddd63d6"
     ],
     [
         [

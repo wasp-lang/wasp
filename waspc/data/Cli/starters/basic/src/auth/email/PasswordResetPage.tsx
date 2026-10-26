@@ -6,14 +6,13 @@ export function PasswordResetPage() {
   return (
     <AuthLayout>
       <ResetPasswordForm />
-      <br />
-      <span className="text-sm font-medium text-neutral-900">
+      <p className="text-sm">
         If everything is okay,{" "}
-        <Link to="/login" className="font-semibold underline">
+        <Link to="/login" className="font-bold underline">
           go to login
         </Link>
         .
-      </span>
+      </p>
     </AuthLayout>
   );
 }

@@ -12,6 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🎉 New Features
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
+- The `basic` starter has a refreshed look, and a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 
 ### 🐞 Bug fixes
@@ -24,6 +25,9 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🔧 Small improvements
 
 - The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
+- The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))
+- `useQuery` no longer retries Queries that fail with a `4xx` status code (other than `408` and `429`), so client errors show up right away. ([#5131](https://github.com/wasp-lang/wasp/pull/5131))
+- Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
 - During development, errors from the Vite dev server are now also logged to the browser console and shown on the error page. ([#5136](https://github.com/wasp-lang/wasp/pull/5136))
 
 ### 🔧 Small improvements

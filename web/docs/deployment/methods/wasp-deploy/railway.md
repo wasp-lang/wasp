@@ -144,6 +144,8 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 
 The `deploy` command deploys your client and server apps to Railway.
 
+It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
+
 ```shell
 wasp deploy railway deploy <project-name>
 ```
