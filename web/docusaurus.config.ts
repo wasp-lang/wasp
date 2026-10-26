@@ -62,13 +62,10 @@ const config: Config = {
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {
-        /*
-        margin: 24,
-        background: '#BADA55',
-        scrollOffset: 0,
-        container: '#zoom-container',
-        template: '#zoom-template',
-        */
+        // medium-zoom defaults to a white overlay, which shows through images
+        // with transparent backgrounds. The overlay lives on <body>, so a CSS
+        // variable resolves to the current theme's page background.
+        background: "var(--ifm-background-color)",
       },
     },
     navbar: {

@@ -23,8 +23,9 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 import { Terminal } from './components/Terminal';
 
 <ImgWithCaption
-    alt="Agents from Men in Black"
+    alt="The Wasp logo connected to three terminal windows, each running wasp start in a different Git worktree on its own port."
     source="img/wasp-agent-friendly/banner.webp"
+    sourceDark="img/wasp-agent-friendly/banner-dark.webp"
 />
 
 Wasp 0.26 improves support for agent orchestrators and running multiple instances of a Wasp project in Git worktrees:
@@ -54,7 +55,8 @@ Developers use agent orchestrators to simultaneously work on multiple features. 
 
 ## What's new in Wasp?
 
-Wasp used to have poor support for orchestrator workflows. You technically _could_ set them up, but it was a whole ordeal.
+Previous versions of Wasp didn't have great out-of-the-box support for orchestrator workflows.
+You _could_ set them up, but the process was more involved than we would have liked.
 
 With Wasp 0.26, you can let your agents loose in as many Git worktrees as you want.
 They'll stay out of each other's way.
@@ -129,7 +131,7 @@ wasp start db
 ```
 
 <ImgWithCaption
-    alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the second worktree gets 5433, 3002, and 3003."
+    alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the database in the second worktree gets 5433, the client 3002, and the server 3003."
     source="img/wasp-agent-friendly/commands-in-different-projects.svg"
     sourceDark="img/wasp-agent-friendly/commands-in-different-projects-dark.svg"
     width="100%"
