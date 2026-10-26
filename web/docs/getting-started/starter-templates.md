@@ -44,7 +44,7 @@ When you have a good idea for a new product, you don't want to waste your time o
 
 ### OpenSaaS.sh template
 
-![SaaS Template](/img/starter-templates/open-saas-banner.png)
+![SaaS Template](/img/docs/getting-started/starter-templates/open-saas-banner.png)
 
 Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
 
@@ -56,7 +56,23 @@ Use this template:
 wasp new <project-name> -t saas
 ```
 
+### Basic Template
+
+![Basic Template](/img/docs/getting-started/starter-templates/basic-welcome-page.png)
+
+The default template: a to-do app with email and password auth, tasks and tags, styled with Tailwind. It covers the features most apps need, like pages, auth, entities, queries, and actions.
+
+When you run it for the first time, it opens on a welcome page that walks you through the app: creating a user and logging in, managing tasks, inspecting your app and data with `wasp studio` and `wasp db studio`, finding the docs for each Wasp feature, and deploying.
+
+Use this template:
+
+```
+wasp new <project-name> -t basic
+```
+
 ### Minimal Template
+
+![Minimal Template](/img/docs/getting-started/starter-templates/minimal-main-page.png)
 
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 

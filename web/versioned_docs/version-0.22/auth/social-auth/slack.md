@@ -83,7 +83,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 3. Click "From scratch"
 3. Enter App Name and select workspace that should host your app.
 
-<img alt="Slack Applications Screenshot" src={useBaseUrl('img/integrations-slack-1.png')} width="400px" />
+<img alt="Slack Applications Screenshot" src={useBaseUrl('img/docs/features/auth/social-auth/slack/integrations-slack-1.png')} width="400px" />
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
     - Enter the value `https://<subdomain>.loca.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
@@ -134,7 +134,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 Yay, we've successfully set up Slack Auth! 🎉
 
-![Slack Auth](/img/auth/slack.png)
+![Slack Auth](/img/docs/features/auth/social-auth/slack/slack.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).

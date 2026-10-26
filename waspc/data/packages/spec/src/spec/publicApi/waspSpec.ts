@@ -599,7 +599,8 @@ export interface Server {
 export interface Client {
   /**
    * Wrapper React component rendered at the root of the client app. Must
-   * render `Outlet` from `react-router` to show the current page.
+   * render either `<Outlet>` from `react-router` or the `children` prop to show
+   * the current page.
    *
    * Useful for layouts, providers (Redux, theme, etc.), and global UI.
    *

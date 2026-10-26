@@ -4,9 +4,9 @@ sidebar_label: "5. Querying the database"
 description: "Step 5 of the Wasp tutorial: declare a getTasks Query in main.wasp.ts, read the tasks with the Prisma client and list them on the main page with useQuery."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import noTasksScreenshot from './img/todo-app-no-tasks.webp';
 
 # 5. Querying the database
 
@@ -118,27 +118,40 @@ This makes it easy for us to use the `getTasks` Query we just created in our Rea
 import type { Task } from "wasp/entities";
 // highlight-next-line
 import { getTasks, useQuery } from "wasp/client/operations";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = () => {
   // highlight-next-line
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      {tasks && <TasksList tasks={tasks} />}
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-    </div>
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
 const TaskView = ({ task }: { task: Task }) => {
   return (
-    <div>
-      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-      {task.description}
-    </div>
+    <li>
+      <label>
+        <input type="checkbox" checked={task.isDone} />
+        {task.description}
+      </label>
+    </li>
   );
 };
 
@@ -146,11 +159,11 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   if (!tasks?.length) return <div>No tasks</div>;
 
   return (
-    <div>
+    <ul className="tasks">
       {tasks.map((task, idx) => (
         <TaskView task={task} key={idx} />
       ))}
-    </div>
+    </ul>
   );
 };
 ```
@@ -175,6 +188,6 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-<img alt="Todo App - No Tasks" src={useBaseUrl('img/todo-app-no-tasks.png')} className="tutorial-image" />
+<img alt="Todo App - No Tasks" src={noTasksScreenshot} className="tutorial-image" />
 
 We'll create a form to add tasks in the next step 🪄

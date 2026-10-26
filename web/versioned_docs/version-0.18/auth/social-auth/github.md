@@ -157,7 +157,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 Yay, we've successfully set up GitHub Auth! 🎉
 
-![GitHub Auth](/img/auth/github.png)
+![GitHub Auth](/img/docs/features/auth/social-auth/github/github.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).

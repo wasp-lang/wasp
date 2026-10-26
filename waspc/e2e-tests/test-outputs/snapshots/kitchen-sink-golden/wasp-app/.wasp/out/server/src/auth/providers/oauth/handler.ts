@@ -118,7 +118,6 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
           rethrowPossibleAuthError(e)
         }
       } catch (e) {
-        console.error(e)
         const redirectUri = handleOAuthErrorAndGetRedirectUri(e)
         // Redirect to the client with the error
         redirect(res, redirectUri.toString())
