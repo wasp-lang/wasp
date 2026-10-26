@@ -4,9 +4,10 @@ sidebar_label: "7. Adding authentication"
 description: "Add username and password auth to the Wasp Todo app: a User entity, login and signup pages, a protected main page, per-user tasks and a logout button."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import userInDbGif from './img/wasp_user_in_db.gif';
+import dbDemonstrationGif from './img/wasp_db_demonstration.gif';
 
 # 7. Adding authentication
 
@@ -133,16 +134,16 @@ Here's the React code for the pages you've just imported:
 ```tsx title="src/LoginPage.tsx" auto-js
 import { Link } from "react-router";
 import { LoginForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <LoginForm />
-      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -155,16 +156,16 @@ The signup page is very similar to the login page:
 ```tsx title="src/SignupPage.tsx" auto-js
 import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <SignupForm />
-      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -232,7 +233,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-<img alt="Database demonstration - password hashing" src={useBaseUrl('img/docs/tutorial/07-auth/wasp_user_in_db.gif')} className="tutorial-image" />
+<img alt="Database demonstration - password hashing" src={userInDbGif} className="tutorial-image" />
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -370,7 +371,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-<img alt="Database demonstration" src={useBaseUrl('img/docs/tutorial/07-auth/wasp_db_demonstration.gif')} className="tutorial-image" />
+<img alt="Database demonstration" src={dbDemonstrationGif} className="tutorial-image" />
 
 You will see that each user has their tasks, just as we specified in our code!
 
@@ -389,11 +390,17 @@ import { logout } from "wasp/client/auth";
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
-    <div>
-      {$HOLE$}
-      // highlight-next-line
-      <button onClick={logout}>Logout</button>
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+        // highlight-next-line
+        <button onClick={logout}>Logout</button>
+      </header>
+      <main>{$HOLE$}</main>
+    </>
   );
 };
 ```
