@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError, getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
+import { Form, FormItemGroup, FormLabel, FormPasswordInput, SubmitButton, FormError, getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
 
 type ResetPasswordFormFields = { password: string; passwordConfirmation: string };
 
@@ -46,11 +46,10 @@ export const ResetPasswordForm = () => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <FormItemGroup>
           <FormLabel>New password</FormLabel>
-          <FormInput
+          <FormPasswordInput
             {...register('password', {
               required: 'Password is required',
             })}
-            type="password"
             disabled={isLoading}
           />
           {errors.passwordConfirmation && (
@@ -59,11 +58,10 @@ export const ResetPasswordForm = () => {
         </FormItemGroup>
         <FormItemGroup>
           <FormLabel>Confirm new password</FormLabel>
-          <FormInput
+          <FormPasswordInput
             {...register('passwordConfirmation', {
               required: 'Password confirmation is required',
             })}
-            type="password"
             disabled={isLoading}
           />
           {errors.passwordConfirmation && (

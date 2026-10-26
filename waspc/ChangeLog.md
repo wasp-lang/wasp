@@ -13,6 +13,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
+- Password fields in the generated auth forms now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
 
 ### 🐞 Bug fixes
 
