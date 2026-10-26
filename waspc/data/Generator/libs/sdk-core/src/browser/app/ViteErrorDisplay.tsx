@@ -51,15 +51,21 @@ export function ViteErrorDisplay({ outerError }: { outerError: unknown }) {
     () => null,
   );
 
-  // The Vite error goes first: when a module fails to load, `outerError` is
-  // just a generic "Failed to fetch dynamically imported module".
-  const displayedError =
-    (viteError ? formatViteError(viteError) : null) ||
-    (outerError ? getErrorMessage(outerError) : null);
-
-  return displayedError ? (
-    <pre style={detailsStyles}>{displayedError}</pre>
-  ) : null;
+  // We show both errors: when a module fails to load, `outerError` is just a
+  // generic "Failed to fetch dynamically imported module", but the Vite error
+  // stays around until the next update, so it might be unrelated to the
+  // current `outerError`.
+  return (
+    <>
+      <pre style={detailsStyles}>{getErrorMessage(outerError)}</pre>
+      {viteError && (
+        <>
+          <div>Vite reported this error:</div>
+          <pre style={detailsStyles}>{formatViteError(viteError)}</pre>
+        </>
+      )}
+    </>
+  );
 }
 
 const detailsStyles: CSSProperties = {
