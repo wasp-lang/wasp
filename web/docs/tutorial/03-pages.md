@@ -121,6 +121,8 @@ The starter already comes with the base styles for the Todo app. You only need t
 Add these styles to the end of `src/Main.css`:
 
 ```css title="src/Main.css"
+/* ... existing styles */
+
 input {
   border-style: solid;
 }
