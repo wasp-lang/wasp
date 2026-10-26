@@ -8,7 +8,7 @@ import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
 import Network.URI (URI)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
+import Wasp.Cli.ProjectRunConfig (defaultDevClientPort, defaultDevServerPort)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
 import Wasp.Cli.Util.HttpUrlArgument (httpUrlParser)
 import Wasp.Cli.Util.Parser (ArgsParser (..))

@@ -21,7 +21,7 @@ import System.Environment (getEnvironment)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
 import Wasp.Cli.Util.PathArgument (getFilePath)
-import Wasp.Env (EnvVar, EnvVarName, HasEnvVars, addEnvVarsUnique, parseDotEnvFile)
+import Wasp.Env (EnvVar, EnvVarName, addEnvVarsUnique, parseDotEnvFile)
 
 type EnvVarWithCtx = (EnvVarCtx, EnvVar)
 
@@ -49,9 +49,9 @@ showEnvVarWithCtx :: EnvVarWithCtx -> String
 showEnvVarWithCtx (EnvVarCtx {sourceDescription}, (envVarName, _)) =
   envVarName ++ " (received from " ++ sourceDescription ++ ")"
 
-addEnvVarsUniqueC :: (HasEnvVars a) => [EnvVarWithCtx] -> a -> Command a
-addEnvVarsUniqueC incomingEnvVarSources x =
-  addEnvVarsUnique incomingEnvVars x
+addEnvVarsUniqueC :: [EnvVarWithCtx] -> [EnvVar] -> Command [EnvVar]
+addEnvVarsUniqueC incomingEnvVarSources existing =
+  addEnvVarsUnique incomingEnvVars existing
     & either (throwOverriddenVarsError incomingEnvVarSources) return
   where
     incomingEnvVars = snd <$> incomingEnvVarSources

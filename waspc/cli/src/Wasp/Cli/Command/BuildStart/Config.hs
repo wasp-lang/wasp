@@ -16,23 +16,25 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.AppComponentUrls (makeAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
-import Wasp.Cli.RunConfigs (makeRunConfigs)
+import Wasp.Cli.ProjectRunConfig (makeProjectRunConfig)
 import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage)
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
+import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
+import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientRunConfig :: WebAppRunConfig,
-    serverRunConfig :: ServerRunConfig,
+    projectRunConfig :: ProjectRunConfig,
+    mergedClientEnvVars :: [EnvVar],
+    mergedServerEnvVars :: [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -49,19 +51,21 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  let appComponentUrls = makeAppComponentUrls appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
-      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs appComponentUrls
+  let projectRunConfig = makeProjectRunConfig appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl)
+      waspClientEnvVars = WebAppGenerator.makeEnvVars projectRunConfig
+      waspServerEnvVars = ServerGenerator.makeEnvVars projectRunConfig
 
-  clientRunConfig' <- userClientEnvVars `addEnvVarsUniqueC` baseClientRunConfig
-  serverRunConfig' <- userServerEnvVars `addEnvVarsUniqueC` baseServerRunConfig
+  mergedClientEnvVars <- userClientEnvVars `addEnvVarsUniqueC` waspClientEnvVars
+  mergedServerEnvVars <- userServerEnvVars `addEnvVarsUniqueC` waspServerEnvVars
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        serverRunConfig = serverRunConfig',
-        clientRunConfig = clientRunConfig'
+        projectRunConfig,
+        mergedServerEnvVars,
+        mergedClientEnvVars
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' app.name

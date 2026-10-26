@@ -159,7 +159,6 @@ library
 
   other-modules: Paths_waspc
   exposed-modules:
-    Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
@@ -342,6 +341,7 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
+    Wasp.Project.RunConfig
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -448,8 +448,6 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
-    Wasp.Cli.AppComponentPorts
-    Wasp.Cli.AppComponentUrls
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -521,7 +519,8 @@ library cli-lib
     Wasp.Cli.ProjectLock
     Wasp.Cli.ProjectLock.Data
     Wasp.Cli.ProjectLock.Handle
-    Wasp.Cli.RunConfigs
+    Wasp.Cli.ProjectPorts
+    Wasp.Cli.ProjectRunConfig
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
@@ -561,7 +560,6 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
-    network-uri,
     parsec,
     strong-path,
     tasty ^>=1.5.3,
@@ -572,7 +570,6 @@ test-suite waspc-tests
     waspc,
 
   other-modules:
-    AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -606,6 +603,7 @@ test-suite waspc-tests
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest
     Project.ExternalConfig.WaspTsConfigTest
+    Project.RunConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
