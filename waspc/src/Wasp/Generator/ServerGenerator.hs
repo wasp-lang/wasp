@@ -79,7 +79,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
       genFileCopy [relfile|src/createRollupBundle.js|],
-      genTraceProductionDeps spec,
+      genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -185,7 +185,7 @@ npmDepsFromWasp spec =
               ("rollup", "^4.9.6"),
               ("rollup-plugin-esbuild", "^6.1.1"),
               ("@rollup/plugin-node-resolve", "^16.0.0"),
-              -- Used by `traceProductionDeps.ts` when building the Docker image.
+              -- Used by `prepareProduction.ts` when building the Docker image.
               ("nf3", "0.4.2")
             ],
         peerDependencies = []
@@ -232,11 +232,11 @@ genNodemon =
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
       waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
-genTraceProductionDeps :: AppSpec -> Generator FileDraft
-genTraceProductionDeps spec =
+genPrepareProduction :: AppSpec -> Generator FileDraft
+genPrepareProduction spec =
   return $
     C.mkTmplFdWithData
-      [relfile|traceProductionDeps.ts|]
+      [relfile|prepareProduction.ts|]
       ( Just $
           object
             [ "traceDeps" .= Aeson.Text.encodeToLazyText traceDeps,
