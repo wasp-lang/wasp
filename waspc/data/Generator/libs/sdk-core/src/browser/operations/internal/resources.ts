@@ -1,21 +1,25 @@
-import { hashQueryKey } from "@tanstack/react-query";
+import { hashQueryKey, type QueryKey } from "@tanstack/react-query";
+import type { SpecificOptimisticUpdateDefinition } from "../hooks.js";
 import { queryClientInitialized } from "../queryClient.js";
-import { makeUpdateHandlersMap } from "./updateHandlersMap";
+import { makeUpdateHandlersMap } from "./updateHandlersMap.js";
 
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
-const resourceToQueryCacheKeys = new Map();
+const resourceToQueryCacheKeys = new Map<string, Set<QueryKey>>();
 
 const updateHandlers = makeUpdateHandlersMap(hashQueryKey);
 
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.
- * @param {string[]} queryCacheKey - Unique key under used to identify query in the cache.
- * @param {string[]} resources - Names of resources that query is using.
+ * @param queryCacheKey - Unique key under used to identify query in the cache.
+ * @param resources - Names of resources that query is using.
  */
-export function addResourcesUsedByQuery(queryCacheKey, resources) {
+export function addResourcesUsedByQuery(
+  queryCacheKey: QueryKey,
+  resources: string[],
+): void {
   for (const resource of resources) {
     let cacheKeys = resourceToQueryCacheKeys.get(resource);
     if (!cacheKeys) {
@@ -26,24 +30,31 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
   }
 }
 
-export function registerActionInProgress(optimisticUpdateTuples) {
+export function registerActionInProgress(
+  optimisticUpdateTuples: SpecificOptimisticUpdateDefinition<any>[],
+): void {
   optimisticUpdateTuples.forEach(({ queryKey, updateQuery }) =>
     updateHandlers.add(queryKey, updateQuery),
   );
 }
 
-export async function registerActionDone(resources, optimisticUpdateTuples) {
+export async function registerActionDone(
+  resources: string[],
+  optimisticUpdateTuples: SpecificOptimisticUpdateDefinition<any>[],
+): Promise<void> {
   optimisticUpdateTuples.forEach(({ queryKey }) =>
     updateHandlers.remove(queryKey),
   );
   await invalidateQueriesUsing(resources);
 }
 
-export function getActiveOptimisticUpdates(queryKey) {
+export function getActiveOptimisticUpdates(
+  queryKey: QueryKey,
+): SpecificOptimisticUpdateDefinition<any>["updateQuery"][] {
   return updateHandlers.getUpdateHandlers(queryKey);
 }
 
-export async function invalidateAndRemoveQueries() {
+export async function invalidateAndRemoveQueries(): Promise<void> {
   const queryClient = await queryClientInitialized;
   // If we don't reset the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
@@ -60,9 +71,9 @@ export async function invalidateAndRemoveQueries() {
 
 /**
  * Invalidates all queries that are using specified resources.
- * @param {string[]} resources - Names of resources.
+ * @param resources - Names of resources.
  */
-async function invalidateQueriesUsing(resources) {
+async function invalidateQueriesUsing(resources: string[]) {
   const queryClient = await queryClientInitialized;
 
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources);
@@ -74,13 +85,13 @@ async function invalidateQueriesUsing(resources) {
 }
 
 /**
- * @param {string} resource - Resource name.
- * @returns {string[]} Array of "query cache keys" of queries that use specified resource.
+ * @param resource - Resource name.
+ * @returns Array of "query cache keys" of queries that use specified resource.
  */
-function getQueriesUsingResource(resource) {
+function getQueriesUsingResource(resource: string) {
   return Array.from(resourceToQueryCacheKeys.get(resource) || []);
 }
 
-function getQueriesUsingResources(resources) {
+function getQueriesUsingResources(resources: string[]) {
   return Array.from(new Set(resources.flatMap(getQueriesUsingResource)));
 }
