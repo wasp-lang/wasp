@@ -34,6 +34,7 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
+import qualified Wasp.Util.Docker as Docker
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
@@ -128,11 +129,26 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+  throwIfDockerDaemonIsNotReachable
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
     Nothing -> startDbOnPort =<< resolveDevDbPort
   where
+    throwIfDockerDaemonIsNotReachable :: Command ()
+    throwIfDockerDaemonIsNotReachable =
+      liftIO Docker.checkDockerDaemonConnection >>= \case
+        Right () -> return ()
+        Left dockerError ->
+          E.throwError $
+            CommandError
+              "Couldn't connect to the Docker daemon"
+              ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
+                  <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
+                  <> "Docker reported:\n"
+                  <> dockerError
+              )
+
     resolveDevDbPort :: Command PortNumber
     resolveDevDbPort =
       resolvePort

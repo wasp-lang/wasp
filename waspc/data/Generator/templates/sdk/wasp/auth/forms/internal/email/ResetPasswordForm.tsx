@@ -52,8 +52,8 @@ export const ResetPasswordForm = () => {
             })}
             disabled={isLoading}
           />
-          {errors.passwordConfirmation && (
-            <FormError>{errors.passwordConfirmation.message}</FormError>
+          {errors.password && (
+            <FormError>{errors.password.message}</FormError>
           )}
         </FormItemGroup>
         <FormItemGroup>
