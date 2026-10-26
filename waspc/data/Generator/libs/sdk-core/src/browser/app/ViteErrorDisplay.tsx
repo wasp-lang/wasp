@@ -51,10 +51,6 @@ export function ViteErrorDisplay({ outerError }: { outerError: unknown }) {
     () => null,
   );
 
-  // We show both errors: when a module fails to load, `outerError` is just a
-  // generic "Failed to fetch dynamically imported module", but the Vite error
-  // stays around until the next update, so it might be unrelated to the
-  // current `outerError`.
   return (
     <>
       <pre style={detailsStyles}>{getErrorMessage(outerError)}</pre>
