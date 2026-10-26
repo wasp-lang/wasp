@@ -24,7 +24,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🔧 Small improvements
 
 - The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
-- The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#4964](https://github.com/wasp-lang/wasp/issues/4964))
+- The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))
 
 ### 🔧 Small improvements
 
