@@ -20,7 +20,7 @@ npm uninstall -g @wasp.sh/wasp-cli
 
 ### New npm package names
 
-Wasp's npm packages moved from the `@wasp.sh` scope to `@wasp`. The CLI is now `@wasp/wasp-cli`, and the Wasp Spec is `@wasp/spec`.
+Wasp's npm packages moved from the `@wasp.sh` scope to `@wasp`. The CLI is now `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
 
 ### Prisma 6
 
