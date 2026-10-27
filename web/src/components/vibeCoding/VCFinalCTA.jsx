@@ -26,7 +26,7 @@ const VCFinalCTA = () => {
         </p>
 
         <InstallBlock
-          command="npm i -g @wasp/wasp-cli@latest"
+          command="npm i -g @wasp/cli@latest"
           className="my-8 block"
         />
 
