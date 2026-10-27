@@ -4,49 +4,41 @@ var wasp_logo_rounded_default = "data:image/svg+xml,%3csvg%20width='1520'%20heig
 //#endregion
 //#region src/MainPage.tsx
 function MainPage() {
-	return /* @__PURE__ */ jsxs("main", {
-		className: "container",
-		children: [
-			/* @__PURE__ */ jsx("img", {
-				className: "logo",
-				src: wasp_logo_rounded_default,
-				alt: "Wasp logo"
-			}),
-			/* @__PURE__ */ jsx("h2", {
-				className: "title",
-				children: "Welcome to Wasp!"
-			}),
-			/* @__PURE__ */ jsxs("p", {
-				className: "content",
-				children: [
+	return /* @__PURE__ */ jsxs("div", {
+		className: "page",
+		children: [/* @__PURE__ */ jsx("header", { children: /* @__PURE__ */ jsxs("h1", { children: [/* @__PURE__ */ jsx("img", {
+			src: wasp_logo_rounded_default,
+			alt: "Wasp logo"
+		}), "My Wasp App"] }) }), /* @__PURE__ */ jsxs("main", {
+			className: "card",
+			children: [
+				/* @__PURE__ */ jsx("h2", { children: "Welcome to Wasp!" }),
+				/* @__PURE__ */ jsxs("p", { children: [
 					"This is page ",
 					/* @__PURE__ */ jsx("code", { children: "MainPage" }),
 					" located at route ",
 					/* @__PURE__ */ jsx("code", { children: "/" }),
-					".",
-					/* @__PURE__ */ jsx("br", {}),
-					"Open ",
+					". Open ",
 					/* @__PURE__ */ jsx("code", { children: "src/MainPage.tsx" }),
 					" to edit it."
-				]
-			}),
-			/* @__PURE__ */ jsxs("div", {
-				className: "buttons",
-				children: [/* @__PURE__ */ jsx("a", {
-					className: "button button-filled",
-					href: "https://wasp.sh/docs/tutorial/create",
-					target: "_blank",
-					rel: "noreferrer noopener",
-					children: "Take the Tutorial"
-				}), /* @__PURE__ */ jsx("a", {
-					className: "button button-outlined",
-					href: "https://discord.com/invite/rzdnErX",
-					target: "_blank",
-					rel: "noreferrer noopener",
-					children: "Chat on Discord"
-				})]
-			})
-		]
+				] }),
+				/* @__PURE__ */ jsxs("div", {
+					className: "links",
+					children: [/* @__PURE__ */ jsx("a", {
+						className: "button",
+						href: "https://wasp.sh/docs/tutorial/create",
+						target: "_blank",
+						rel: "noreferrer noopener",
+						children: "Take the Tutorial"
+					}), /* @__PURE__ */ jsx("a", {
+						href: "https://discord.com/invite/rzdnErX",
+						target: "_blank",
+						rel: "noreferrer noopener",
+						children: "Chat on Discord"
+					})]
+				})
+			]
+		})]
 	});
 }
 //#endregion

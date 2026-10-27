@@ -1,3 +1,9 @@
+---
+title: "3. Pages and routes: Wasp tutorial"
+sidebar_label: "3. Pages and routes"
+description: Step 3 of the Wasp tutorial explains the page and route specs in main.wasp.ts, adds a second page with a URL parameter and cleans up the starter project.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../_WaspStartNote.md'
@@ -120,7 +126,7 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
+<img alt="Todo App - Hello World" src={useBaseUrl('img/docs/tutorial/03-pages/todo-app-hello-world.png')} className="tutorial-image" />
 
 You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 

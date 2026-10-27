@@ -199,6 +199,6 @@ Next, we'll remove most of the code from the `MainPage` component:
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} style={{ border: "1px solid black" }} />
+<img alt="Todo App - Hello World" src={useBaseUrl('img/docs/tutorial/03-pages/todo-app-hello-world.png')} style={{ border: "1px solid black" }} />
 
 In the next section, we'll start implementing some features of the Todo app!

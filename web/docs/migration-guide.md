@@ -10,7 +10,9 @@ import InstallInstructions from './_install-instructions.md'
 
 ## What's new in 0.27?
 
-<!-- Nothing here yet -->
+### Prisma 6
+
+Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) for the full list of changes.
 
 ## How to migrate?
 
@@ -45,6 +47,37 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Enjoy your updated Wasp app
+### 2. Upgrade to Prisma 6
+
+Update the `prisma` version in your `package.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "prisma": "5.19.1"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "prisma": "6.19.3"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+If you also list `@prisma/client` in your `package.json`, update it to the same version. Then run `wasp install`.
+
+Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+### 3. Enjoy your updated Wasp app
 
 That's it!

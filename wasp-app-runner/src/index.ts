@@ -49,6 +49,13 @@ async function runWaspApp({
 }): Promise<void> {
   await checkDependencies();
 
+  if (await isWaspTypescriptConfigProject(pathToApp)) {
+    await waspInstall({
+      waspCliCmd,
+      pathToApp,
+    });
+  }
+
   const { appName, dbType } = await waspInfo({
     waspCliCmd,
     pathToApp,
@@ -61,13 +68,6 @@ async function runWaspApp({
     process.exit(1);
   }
   const dbImage = dbImageArg ?? defaultPostgresDbImage;
-
-  if (await isWaspTypescriptConfigProject(pathToApp)) {
-    await waspInstall({
-      waspCliCmd,
-      pathToApp,
-    });
-  }
 
   logger.info(
     `Starting "${appName}" app (mode: ${mode}) using "${[waspCliCmd.cmd, ...waspCliCmd.args].join(" ")}" command`,

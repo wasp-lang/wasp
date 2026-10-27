@@ -19,7 +19,7 @@ data CompileOptions = CompileOptions
     -- invokes the compiler (such as the CLI) can then implement a way
     -- to display these messages.
     sendMessage :: SendMessage,
-    -- How far to set up the generated app after the code is generated
-    -- (npm install, Prisma client, SDK build, ...).
-    setupGoal :: SetupGoal
+    -- What the generated app needs to be set up for after the code is
+    -- generated (Prisma CLI, SDK, ...).
+    setupGoals :: [SetupGoal]
   }

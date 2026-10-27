@@ -24,9 +24,9 @@ import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
 
--- Runs `npm install` in the user's Wasp project directory.
--- Thanks to npm workspaces, this single install covers the user's project deps,
--- the generated server deps, and the Wasp SDK.
+-- Installs the npm deps of the user's project and its workspaces (the generated server and the
+-- Wasp SDK). Skips the install if `node_modules` exists and the installed npm deps log matches
+-- the current deps. Saves the log after a successful install.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
   Path' Abs (Dir GeneratedAppDir) ->
@@ -59,7 +59,8 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
     waspProjectDirPath = waspProjectDir spec
 
--- Installs npm dependencies from the user's package.json, by running `npm install` .
+-- Runs `npm install` in the user's Wasp project directory, which also installs the deps of all of
+-- its npm workspaces (the generated server and the Wasp SDK).
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir =
@@ -99,15 +100,11 @@ reportInstallationProgress =
         "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
       ]
 
--- | Figure out if installation of npm deps is needed, be it for npm workspace deps (top level
--- package.json + server), or for wasp sdk npm deps.
+-- | Checks if the deps of the user's project, the generated server, and the Wasp SDK differ from
+-- the ones recorded in the installed npm deps log during the last successful install.
 --
--- To this end, this code keeps track of the dependencies installed with a metadata file, which it
--- updates after each install.
---
--- Note: Here, we do a single check for all the deps, as the npm workspace ensures `npm install`
--- takes care of the user project and server, all at once. The SDK is also installed as
--- part of our installation logic, so we don't need to check it separately.
+-- Note: A single check covers all of them because the server and the SDK are npm workspaces of the
+-- user's project, so one `npm install` installs them all at once.
 areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir

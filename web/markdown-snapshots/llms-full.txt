@@ -49,7 +49,7 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 At the core is the Wasp compiler which takes the Wasp Spec and your Javascript code and outputs the client app, server app and deployment code.
 
-![](https://wasp.sh/img/lp/wasp-compilation-diagram.png)
+![](https://wasp.sh/img/docs/getting-started/introduction/wasp-compilation-diagram.png)
 
 How the magic happens 🌈
 
@@ -313,7 +313,7 @@ If you get stuck with a weird error while developing with Wasp, try running `was
 
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
 
-A version of Node.js must be >= 24.14.1.
+A version of Node.js must be >= 24.22.1.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -432,7 +432,23 @@ Use this template:
 wasp new <project-name> -t saas
 ```
 
+#### Basic Template
+
+![Basic Template](https://wasp.sh/assets/images/basic-welcome-page-d793a48af9038253a6bd8b0b1dd9b425.png)
+
+The default template: a to-do app with email and password auth, tasks and tags, styled with Tailwind. It covers the features most apps need, like pages, auth, entities, queries, and actions.
+
+When you run it for the first time, it opens on a welcome page that walks you through the app: creating a user and logging in, managing tasks, inspecting your app and data with `wasp studio` and `wasp db studio`, finding the docs for each Wasp feature, and deploying.
+
+Use this template:
+
+```
+wasp new <project-name> -t basic
+```
+
 #### Minimal Template
+
+![Minimal Template](https://wasp.sh/assets/images/minimal-main-page-1509ada21308e3edccb8882dda90fafb.png)
 
 A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 
@@ -516,12 +532,12 @@ Check out the [Wasp Agent Plugins repository](https://github.com/wasp-lang/wasp-
 ## Tutorial / 1. Creating a new project
 
 :::info
-You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](https://wasp.sh/docs/quick-start) guide!
+You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [Quick start](https://wasp.sh/docs/quick-start) guide!
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-![How the Todo App will work once it is finished](https://wasp.sh/img/todo-app-tutorial-intro.gif)
+![How the Todo App will work once it is finished](https://wasp.sh/assets/images/todo-app-intro-7e610e7980f8534af6624e9ceef5ef38.gif)
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
@@ -548,7 +564,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 
-![Screenshot of the Wasp minimal starter app](https://wasp.sh/img/wasp-new-screenshot.png)
+![Screenshot of the Wasp minimal starter app](https://wasp.sh/assets/images/wasp-new-screenshot-aff877c2caaaea554ce2475581820ffb.webp)
 
 Wasp has generated for you the full front-end and back-end code of the app! Next, we'll take a closer look at how the project is structured.
 
@@ -738,28 +754,120 @@ export const HelloPage = () => {
 Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 :::tip[Type-safe links]
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component) for more details.
+Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component) for more details.
 :::
 
 ### Cleaning Up
 
-Now that you've seen how Wasp deals with Routes and Pages, it's finally time to build the Todo app.
+Now that you've seen how Wasp deals with Routes and Pages, it's time to build something useful: a full-stack Todo app where users sign up, log in, and manage their own tasks stored in a database.
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
-First, remove most of the code from the `MainPage` component:
+The starter already comes with the base styles for the Todo app. You only need to add the styles for the task list and its form. You don't need to understand them to follow the tutorial. They only make the app look nice.
+
+Add these styles to the end of `src/Main.css`:
+
+```css title="src/Main.css"
+/* ... existing styles */
+
+input {
+  border-style: solid;
+}
+
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--yellow);
+}
+
+button,
+input[type="submit"] {
+  padding: 0.75rem 1.25rem;
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--black);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background: var(--yellow-dark);
+}
+
+header button {
+  padding: 0.5rem 1rem;
+}
+
+.new-task-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.new-task-form input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: var(--border);
+  background: var(--white);
+  font: inherit;
+}
+
+.tasks {
+  margin: 0;
+  padding: 0;
+  border: var(--border);
+  background: var(--white);
+  box-shadow: 6px 6px 0 var(--yellow);
+  list-style: none;
+}
+
+.tasks li + li {
+  border-top: var(--border);
+}
+
+.tasks label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.tasks label:has(input:checked) {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+```
+
+Then, replace the `MainPage` component with the skeleton of the Todo app, a header with the app title and an empty main area:
 
 ```tsx title="src/MainPage.tsx"
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
+
 export const MainPage = () => {
-  return <div>Hello world!</div>;
+  return (
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>Hello world!</main>
+    </>
+  );
 };
 ```
 
 At this point, the main page should look like this:
 
-![Todo App - Hello World](https://wasp.sh/img/todo-app-hello-world.png)
+*(Inlined image: Todo App - Hello World)*
 
-You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
+You can now delete `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.tsx` no longer exists, remove its route from the `main.wasp.ts` file.
 
@@ -807,7 +915,7 @@ model Task {
 Read more about how Wasp Entities work in the [Entities](https://wasp.sh/docs/features/data/entities) section or how Wasp uses the `schema.prisma` file in the [Prisma schema file](https://wasp.sh/docs/features/data/prisma-file) section.
 :::
 
-To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:
+To update the database schema to include this entity, run:
 
 ```sh
 wasp db migrate-dev
@@ -823,7 +931,7 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-![Todo App - Db studio showing Task schema](https://wasp.sh/img/todo-app-db-studio-task-entity.png)
+![Todo App - Prisma Studio showing Task schema](https://wasp.sh/assets/images/todo-app-db-studio-task-entity-ca7deaa0d8fe5eec314cf0c4474c402b.webp)
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
 
@@ -887,7 +995,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.ts`:
 
 - `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
-- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`. Wasp named the type after the `getTasks` function you used in your implementation, with the first letter capitalized. See [reference imports](https://wasp.sh/docs/features/spec#reference-imports) for how Wasp connects the two.
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
@@ -903,7 +1011,7 @@ The arguments the caller passes to the Query.
 
   An object with extra information injected by Wasp. Its type depends on the Query specification.
 
-Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/orm/fundamentals/reading-data) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and Actions are NodeJS functions executed on the server.
@@ -918,26 +1026,39 @@ This makes it easy for us to use the `getTasks` Query we just created in our Rea
 ```tsx title="src/MainPage.tsx"
 import type { Task } from "wasp/entities";
 import { getTasks, useQuery } from "wasp/client/operations";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      {tasks && <TasksList tasks={tasks} />}
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-    </div>
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
 const TaskView = ({ task }: { task: Task }) => {
   return (
-    <div>
-      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-      {task.description}
-    </div>
+    <li>
+      <label>
+        <input type="checkbox" checked={task.isDone} />
+        {task.description}
+      </label>
+    </li>
   );
 };
 
@@ -945,11 +1066,11 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   if (!tasks?.length) return <div>No tasks</div>;
 
   return (
-    <div>
-      {tasks.map((task, idx) => (
-        <TaskView task={task} key={idx} />
+    <ul className="tasks">
+      {tasks.map((task) => (
+        <TaskView task={task} key={task.id} />
       ))}
-    </div>
+    </ul>
   );
 };
 ```
@@ -957,7 +1078,7 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
 Most of this code is regular React, the only exception being the three special `wasp` imports:
 
 - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-- `useQuery` - Wasp's [useQuery](https://wasp.sh/docs/features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+- `useQuery` - Wasp's [useQuery](https://wasp.sh/docs/features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [TanStack Query](https://tanstack.com/query/latest)'s hook with the same name.
 - `Task` - The type for the Task entity defined in `schema.prisma`.
 
 Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
@@ -966,7 +1087,7 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-![Todo App - No Tasks](https://wasp.sh/img/todo-app-no-tasks.png)
+*(Inlined image: Todo App - No Tasks)*
 
 We'll create a form to add tasks in the next step 🪄
 
@@ -1024,7 +1145,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 };
 ```
 
-Once again, we've annotated the Action with the `CreateTask` and `Task` types generated by Wasp. Just like with queries, defining the types on the implementation makes them available on the frontend, giving us **full-stack type safety**.
+Once again, we've annotated the Action with the `CreateTask` and `Task` types generated by Wasp. As with `GetTasks`, the `CreateTask` type is named after the `createTask` function, with the first letter capitalized. Just like with queries, defining the types on the implementation makes them available on the frontend, giving us **full-stack type safety**.
 
 :::tip
 We put the function in a new file `src/actions.ts`, but we could have put it anywhere we wanted! There are no limitations here, as long as the reference import in `main.wasp.ts` points to it and the file is located within the `src` directory.
@@ -1059,8 +1180,13 @@ const NewTaskForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="description" type="text" defaultValue="" />
+    <form className="new-task-form" onSubmit={handleSubmit}>
+      <input
+        name="description"
+        type="text"
+        placeholder="What needs to be done?"
+        defaultValue=""
+      />
       <input type="submit" value="Create task" />
     </form>
   );
@@ -1077,17 +1203,28 @@ All that's left now is adding this form to the page component:
 import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
-    <div>
-      <NewTaskForm />
-      {tasks && <TasksList tasks={tasks} />}
-      {isLoading && "Loading..."}
-      {error && "Error: " + error}
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+      </header>
+      <main>
+        <h2>Tasks</h2>
+        <NewTaskForm />
+        {tasks && <TasksList tasks={tasks} />}
+        {isLoading && "Loading..."}
+        {error && "Error: " + error}
+      </main>
+    </>
   );
 };
 
@@ -1102,7 +1239,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-![Todo App - creating new task](https://wasp.sh/img/todo-app-new-task.png)
+![Todo App - creating new task](https://wasp.sh/assets/images/todo-app-new-task-c56988ad64a4602ec0ab1ce169277ac9.webp)
 
 :::note[Automatic Query Invalidation]
 When you create a new task, the list of tasks is automatically updated to display the new task, even though you haven't written any code that does that! Wasp handles these automatic updates under the hood.
@@ -1190,15 +1327,16 @@ const TaskView = ({ task }: { task: Task }) => {
   };
 
   return (
-    <div>
-      <input
-        type="checkbox"
-        id={String(task.id)}
-        checked={task.isDone}
-        onChange={handleIsDoneChange}
-      />
-      {task.description}
-    </div>
+    <li>
+      <label>
+        <input
+          type="checkbox"
+          checked={task.isDone}
+          onChange={handleIsDoneChange}
+        />
+        {task.description}
+      </label>
+    </li>
   );
 };
 
@@ -1279,11 +1417,11 @@ By doing this, Wasp will create:
 
 - [Auth UI](https://wasp.sh/docs/features/auth/ui) with login and signup forms.
 - A `logout()` action.
-- A React hook `useAuth()`.
+- A `useAuth()` hook on the client.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](https://wasp.sh/docs/features/auth/social-auth/google), [GitHub](https://wasp.sh/docs/features/auth/social-auth/github), and [email](https://wasp.sh/docs/features/auth/email/overview), with more on the way!
+Wasp also supports authentication using [email](https://wasp.sh/docs/features/auth/email/overview) and social providers like [Google](https://wasp.sh/docs/features/auth/social-auth/google), [GitHub](https://wasp.sh/docs/features/auth/social-auth/github), [Discord](https://wasp.sh/docs/features/auth/social-auth/discord), [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft), [Slack](https://wasp.sh/docs/features/auth/social-auth/slack), and [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak).
 :::
 
 ### Adding Login and Signup Pages
@@ -1316,16 +1454,16 @@ Here's the React code for the pages you've just imported:
 ```tsx title="src/LoginPage.tsx"
 import { Link } from "react-router";
 import { LoginForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <LoginForm />
-      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -1335,22 +1473,22 @@ The signup page is very similar to the login page:
 ```tsx title="src/SignupPage.tsx"
 import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <SignupForm />
-      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
 
 :::tip[Type-safe links]
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component) for more details.
+Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component) for more details.
 :::
 
 ### Update the Main Page to Require Auth
@@ -1401,7 +1539,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-![Database demonstration - password hashing](https://wasp.sh/img/wasp_user_in_db.gif)
+![Database demonstration - password hashing](https://wasp.sh/assets/images/wasp_user_in_db-512c2a3ee0c92b442a9e3ebe55b461f7.gif)
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -1488,33 +1626,31 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
-export const updateTask: UpdateTask<
-  UpdateTaskPayload,
-  { count: number }
-> = async (args, context) => {
+export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+  { id, isDone },
+  context,
+) => {
   if (!context.user) {
     throw new HttpError(401);
   }
-  return context.entities.Task.updateMany({
-    where: { id: args.id, user: { id: context.user.id } },
-    data: { isDone: args.isDone },
+  return context.entities.Task.update({
+    where: { id, user: { id: context.user.id } },
+    data: {
+      isDone: isDone,
+    },
   });
 };
 ```
 
-:::note
-Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
-:::
-
 With these changes, each user should have a list of tasks that only they can see and edit.
 
-Try playing around, adding a few users and some tasks for each of them. Then open the DB studio:
+Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
 ```sh
 wasp db studio
 ```
 
-![Database demonstration](https://wasp.sh/img/wasp_db_demonstration.gif)
+![Database demonstration](https://wasp.sh/assets/images/wasp_db_demonstration-e6386a38573e1bca9e0476e9ff301cd9.gif)
 
 You will see that each user has their tasks, just as we specified in our code!
 
@@ -1530,10 +1666,16 @@ import { logout } from "wasp/client/auth";
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
-    <div>
-      {/* ... */}
-      <button onClick={logout}>Logout</button>
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+        <button onClick={logout}>Logout</button>
+      </header>
+      <main>{/* ... */}</main>
+    </>
   );
 };
 ```
@@ -2334,8 +2476,10 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
 import { prisma } from "wasp/server"
 
 prisma.task.create({
+  data: {
     description: "Read the Entities doc",
     isDone: true // almost :)
+  }
 })
 ```
 
@@ -2655,7 +2799,17 @@ export const getAllTasks: GetAllTasks = async (args, context) => {
 }
 ```
 
-If the status code is `4xx`, the client will receive a response object with the corresponding `message` and `data` fields, and it will rethrow the error (including these fields). To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
+The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields. This happens for every status code, so only put information in them that is safe to show to the user.
+
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
+When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. To change this, set `retry` for a [single Query](#the-usequery-hook-1) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
 
 #### Using Entities in Queries
 
@@ -3093,6 +3247,14 @@ export const createTask: CreateTask = async (args, context) => {
 }
 ```
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 #### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your Action, add it to the `action` spec in Wasp:
@@ -3419,7 +3581,7 @@ export default app({
 
 Here's what it looks like when visualized:
 
-![Automatic CRUD with Wasp](https://wasp.sh/img/crud_diagram.png)
+![Automatic CRUD with Wasp](https://wasp.sh/img/docs/features/data/crud/crud_diagram.png)
 
 Visualization of the Tasks crud spec
 
@@ -3431,7 +3593,7 @@ Keep reading for an example of Automatic CRUD in action, or skip ahead for the [
 
 Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](https://wasp.sh/docs/features/auth/username-and-pass/overview) based auth.
 
-![Automatic CRUD with Wasp](https://wasp.sh/img/crud-guide.gif)
+![Automatic CRUD with Wasp](https://wasp.sh/img/docs/features/data/crud/crud-guide.gif)
 
 We are building a simple tasks app with username based auth
 
@@ -4148,7 +4310,7 @@ The `datasource` block defines which database you want to use (PostgreSQL in thi
 
 The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
 
-![Relationship between Wasp file and Prisma file](https://wasp.sh/img/data-model/prisma_in_wasp.png)
+![Relationship between Wasp file and Prisma file](https://wasp.sh/img/docs/features/data/prisma-file/prisma_in_wasp.png)
 
 Relationship between Wasp file and Prisma file
 
@@ -5094,7 +5256,7 @@ export default app({
 
 You'll get the following UI:
 
-![Auth UI](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
+![Auth UI](https://wasp.sh/assets/images/login-3a3c5ce5bdfe193dcf4780c52029b6f8.webp)
 
 And then if you enable Google and Github:
 
@@ -5118,7 +5280,7 @@ export default app({
 
 The form will automatically update to look like this:
 
-![Auth UI](https://wasp.sh/assets/images/multiple_providers-7418552f1647875e5dd9495a27503ea8.png)
+![Auth UI](https://wasp.sh/assets/images/multiple_providers-5a7bcc6b5ae995932b7cb2b173a3b0b7.webp)
 
 Let's go through all of the available components and how to use them.
 
@@ -5136,7 +5298,7 @@ The following components are available for you to use in your app:
 
 Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), [Email](https://wasp.sh/docs/features/auth/email/overview), [Github](https://wasp.sh/docs/features/auth/social-auth/github), [Google](https://wasp.sh/docs/features/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) and [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) authentication.
 
-![Login form](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
+![Login form](https://wasp.sh/assets/images/login-3a3c5ce5bdfe193dcf4780c52029b6f8.webp)
 
 You can use the `LoginForm` component to build your login page:
 
@@ -5167,7 +5329,7 @@ It will automatically show the correct authentication providers based on your `m
 
 Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), [Email](https://wasp.sh/docs/features/auth/email/overview), [Github](https://wasp.sh/docs/features/auth/social-auth/github), [Google](https://wasp.sh/docs/features/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) and [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) authentication.
 
-![Signup form](https://wasp.sh/assets/images/signup-6d04c4e24d598ce3552a5603aebea0df.png)
+*(Inlined image: Signup form)*
 
 You can use the `SignupForm` component to build your signup page:
 
@@ -5237,7 +5399,7 @@ Used with [Email](https://wasp.sh/docs/features/auth/email/overview) authenticat
 
 After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
 
-![Reset password form](https://wasp.sh/assets/images/reset_password-8bd14c7e859201528a18ecc773d51e1d.png)
+![Reset password form](https://wasp.sh/assets/images/reset_password-7a919e5c0a8a2d4b91e78112dabf880b.webp)
 
 You can use the `ResetPasswordForm` component to build your reset password page:
 
@@ -5378,7 +5540,7 @@ export function LoginPage() {
 
 We get this:
 
-![Vertical social buttons](https://wasp.sh/assets/images/vertical_social_buttons-0cab6b68a60bdb32e421bd99b96942f6.png)
+![Vertical social buttons](https://wasp.sh/assets/images/vertical_social_buttons-8229fe829682de420651f692a6b86141.webp)
 
 #### Let's Put Everything Together 🪄
 
@@ -5409,7 +5571,7 @@ export function LoginPage() {
 
 We get a form looking like this:
 
-![Custom login form](https://wasp.sh/img/authui/custom_login.gif)
+![Custom login form](https://wasp.sh/img/docs/features/auth/ui/custom_login.webp)
 
 
 ## Features / Auth / Username and password / Overview
@@ -6019,11 +6181,11 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 #### Login
 
-![Auth UI](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
+![Auth UI](https://wasp.sh/assets/images/login-3a3c5ce5bdfe193dcf4780c52029b6f8.webp)
 
 #### Signup
 
-![Auth UI](https://wasp.sh/assets/images/signup-6d04c4e24d598ce3552a5603aebea0df.png)
+*(Inlined image: Auth UI)*
 
 Some of the behavior you get out of the box:
 
@@ -7844,7 +8006,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 3. Click "From scratch"
 4. Enter App Name and select workspace that should host your app.
 
-![Slack Applications Screenshot](https://wasp.sh/img/integrations-slack-1.png)
+![Slack Applications Screenshot](https://wasp.sh/img/docs/features/auth/social-auth/slack/integrations-slack-1.png)
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
 
@@ -8212,7 +8374,7 @@ To use Discord as an authentication method, you'll first need to create a Discor
 2. Select **New Application**.
 3. Supply required information.
 
-![Discord Applications Screenshot](https://wasp.sh/img/integrations-discord-1.png)
+![Discord Applications Screenshot](https://wasp.sh/img/docs/features/auth/social-auth/discord/integrations-discord-1.png)
 
 4. Go to the **OAuth2** tab on the sidebar and click **Add Redirect**
 
@@ -9183,7 +9345,7 @@ You can also use the user entity to define the relations between users and other
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
 
-![Auth Entities in a Wasp App](https://wasp.sh/img/auth-entities/model.png)
+![Auth Entities in a Wasp App](https://wasp.sh/img/docs/features/auth/entities/model.png)
 
 Auth Entities in a Wasp App
 
@@ -9200,7 +9362,7 @@ Let's imagine we created a simple tasks management app:
 
 Let's look at how would that look in the database:
 
-![Example of Auth Entities](https://wasp.sh/img/auth-entities/model-example.png)
+![Example of Auth Entities](https://wasp.sh/img/docs/features/auth/entities/model-example.png)
 
 Example of Auth Entities
 
@@ -9414,11 +9576,11 @@ The following auth hooks are available in Wasp:
 
 We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the auth flows:
 
-![Signup Flow with Hooks](https://wasp.sh/img/auth-hooks/signup_flow_with_hooks.png)
+![Signup Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/signup_flow_with_hooks.png)
 
 Signup Flow with Hooks
 
-![Login Flow with Hooks](https://wasp.sh/img/auth-hooks/login_flow_with_hooks.png)
+![Login Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/login_flow_with_hooks.png)
 
 Login Flow with Hooks \*
 
@@ -9426,13 +9588,13 @@ Login Flow with Hooks \*
 
 Users registering with [email](https://wasp.sh/docs/features/auth/email/overview) must verify it before they can log in. This verification triggers the Email verification flow:
 
-![Email Verification Flow with Hooks](https://wasp.sh/img/auth-hooks/email_verification_flow_with_hooks.png)
+![Email Verification Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/email_verification_flow_with_hooks.png)
 
 Email Verification Flow with Hooks
 
 Users signing in with [OAuth](https://wasp.sh/docs/features/auth/social-auth/overview) must authorize access before completing login. This authorization triggers the OAuth consent flow:
 
-![OAuth Flow with Hooks](https://wasp.sh/img/auth-hooks/oauth_flow_with_hooks.png)
+![OAuth Flow with Hooks](https://wasp.sh/img/docs/features/auth/hooks/oauth_flow_with_hooks.png)
 
 OAuth Flow with Hooks
 
@@ -9786,11 +9948,11 @@ import type { OnAfterLoginHook } from "wasp/server/auth"
 import { google } from "wasp/server/auth"
 
 export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-  if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+  if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
     const newTokens = await google.oAuthClient.refreshAccessToken(
       oauth.tokens.refreshToken
     )
-    log("new tokens", newTokens)
+    console.log("new tokens", newTokens)
   }
 }
 ```
@@ -12251,6 +12413,7 @@ const Todo = (_props: {}) => {
 import { test, expect } from "vitest";
 import { screen } from "@testing-library/react";
 
+import { HttpMethod } from "wasp/client";
 import { mockServer, renderInContext } from "wasp/client/test";
 import Todo from "./Todo";
 
@@ -12266,7 +12429,7 @@ const mockTasks = [
 ];
 
 test("handles mock data", async () => {
-  mockApi("/tasks", mockTasks);
+  mockApi({ method: HttpMethod.Get, path: "/tasks" }, mockTasks);
 
   renderInContext(<Todo />);
 
@@ -12784,7 +12947,7 @@ export default async function mySetupFunction(): Promise<void> {
 You can change the options for a **single** Query using the `options` object, as described [here](https://wasp.sh/docs/features/data/operations/queries#the-usequery-hook-1).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)).
 
 If you do need to change the global defaults, you can do so inside the client setup function.
 
@@ -13197,7 +13360,7 @@ You have three places where you can customize middleware:
 Below is the actual definitions of default middleware which you can override.
 
 ```ts
-export type MiddlewareConfig = Map<string, express.RequestHandler>
+type MiddlewareConfig = Map<string, express.RequestHandler>
 
 // Used in the examples below 👇
 export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
@@ -13337,7 +13500,7 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 Once [installed](https://wasp.sh/docs/quick-start), you can use the wasp command from your command line.
 
-If you run the `wasp` command without any arguments, it will show you a list of available commands and their descriptions:
+If you run `wasp help` (or `wasp` without any arguments), it will show you a list of available commands and their descriptions:
 
 ```
 USAGE
@@ -13350,6 +13513,7 @@ COMMANDS
         -t|--template <template-name>
            Available starter templates are: basic, minimal, saas.
 
+    help                  Prints this help message.
     version               Prints current version of CLI.
     doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).
     completion            Prints help on bash completion.
@@ -13365,7 +13529,7 @@ COMMANDS
                           Starts managed development database for you.
                           Optionally specify a custom port, Docker image, or Docker volume mount path.
                           If the port is not specified, Wasp picks the first free port when the default one is taken.
-    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
+    db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
@@ -13536,7 +13700,7 @@ Running Wasp doctor...
 
 [✓] Wasp: 0.14.0 (git v0.23.0-136-g874e208c13)
 [✓] System: darwin 25.5.0 aarch64
-[✓] Node.js: 24.14.1
+[✓] Node.js: 24.22.1
 [✓] npm: 11.16.0
 [✓] Docker: running
 ```
@@ -13619,7 +13783,7 @@ What we call a "Wasp app" consists of three different parts:
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-![Wasp app structure](https://wasp.sh/img/deploying/wasp-app-flow.gif)
+![Wasp app structure](https://wasp.sh/img/docs/deployment/overview/wasp-app-flow.gif)
 
 Data flow in a typical deployed Wasp app where all three parts are deployed separately
 
@@ -14534,6 +14698,8 @@ wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
 
 The `deploy` command deploys your client and server apps to Railway.
 
+It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
+
 ```shell
 wasp deploy railway deploy <project-name>
 ```
@@ -14732,7 +14898,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.14.1"
+          node-version: "24.22.1"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
@@ -14776,7 +14942,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.14.1"
+          node-version: "24.22.1"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
@@ -14842,6 +15008,12 @@ We have step-by-step guides for deploying your Wasp app to some of the most popu
 #### [Deploying Wasp on Render »](https://wasp.sh/docs/guides/deployment/cloud-providers/render)
 
 [Uses Render, Blueprint (IaC)](https://wasp.sh/docs/guides/deployment/cloud-providers/render)
+
+[Guide](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops)
+
+#### [Deploying Wasp on Zerops »](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops)
+
+[One-click recipe deploys client, server, and PostgreSQL](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops)
 
 If your desired provider isn't on the list, no worries, you can still deploy your app - it just means we don't yet have a step-by-step guide for you to follow. Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/guides/deployment/cloud-providers) if you'd like to write one yourself :)
 
@@ -14954,7 +15126,7 @@ To self-host your Wasp app, you'll follow these general steps:
 5. Serve the **client app** with a static file server.
 6. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
 
-![One of many possible self-hosting setups](https://wasp.sh/img/deploying/self-hosting.png)
+![One of many possible self-hosting setups](https://wasp.sh/img/docs/deployment/methods/self-hosted/self-hosting.png)
 
 One possible self-hosting setup
 
@@ -15229,6 +15401,10 @@ npm i -g @wasp.sh/wasp-cli@0.27
 
 ### What's new in 0.27?
 
+#### Prisma 6
+
+Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) for the full list of changes.
+
 ### How to migrate?
 
 #### 1. Bump the Wasp version
@@ -15259,7 +15435,35 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-#### 2. Enjoy your updated Wasp app
+#### 2. Upgrade to Prisma 6
+
+Update the `prisma` version in your `package.json`:
+
+**Before**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "prisma": "5.19.1"
+  }
+}
+```
+
+**After**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "prisma": "6.19.3"
+  }
+}
+```
+
+If you also list `@prisma/client` in your `package.json`, update it to the same version. Then run `wasp install`.
+
+Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+#### 3. Enjoy your updated Wasp app
 
 That's it!
 
@@ -15297,7 +15501,21 @@ In development, setting the ports manually in the env vars or the Vite config no
 
 ### How to migrate?
 
-#### 1. Bump the Wasp version
+#### 1. Upgrade Node.js to 24.22.1 or later {#upgrade-nodejs}
+
+Wasp 0.26.1 requires Node.js >= 24.22.1 (previously >= 24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
+
+The most severe one is a remote code execution bug in Node.js's Brotli decoder (CVE-2026-111497). If you deploy with the Dockerfile Wasp generates, rebuilding with Wasp 0.26.1 also moves your server image to `node:24.22.1-alpine3.23`. If you use a custom Dockerfile or a platform that picks its own Node.js version, make sure it runs 24.22.1 or newer.
+
+Make sure to upgrade before continuing:
+
+```shell
+node -v
+# If below 24.22.1, upgrade:
+nvm install 24
+```
+
+#### 2. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.26.0`.
 
@@ -15325,7 +15543,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-#### 2. Update your TypeScript config
+#### 3. Update your TypeScript config
 
 Due to `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
 
@@ -15353,7 +15571,7 @@ In `tsconfig.src.json`, update the `include` field:
 }
 ```
 
-#### 3. Stop setting the dev ports and URLs yourself
+#### 4. Stop setting the dev ports and URLs yourself
 
 Wasp now picks the ports your app runs on in development and derives its URLs from them, so it fails if you also set them.
 
@@ -15430,7 +15648,7 @@ wasp start \
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
 :::
 
-#### 4. Set `PORT` in deployment
+#### 5. Set `PORT` in deployment
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
@@ -15442,7 +15660,7 @@ Most deployment platforms set `PORT` for you, but it's worth it to check it in t
 PORT=3001
 ```
 
-#### 5. Update your custom Dockerfile
+#### 6. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](https://wasp.sh/docs/0.26/deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
@@ -15465,7 +15683,7 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 6. Update Fly database deployment flags
+#### 7. Update Fly database deployment flags
 
 If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
 
@@ -15475,7 +15693,7 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size` |
 | `--volume-size`          | `--db-volume-size`          |
 
-#### 7. Point liveness checks at `/up`
+#### 8. Point liveness checks at `/up`
 
 Wasp now serves a liveness check at `GET /up` in both development and production.
 
@@ -15512,21 +15730,21 @@ api.myapp.com {
 
 If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
 
-#### 8. Update deployment CLIs
+#### 9. Update deployment CLIs
 
 Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both locally and in CI, if you use them.
 
-#### 9. Replace `wasp info` with `wasp show`
+#### 10. Replace `wasp info` with `wasp show`
 
 `wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
 
-#### 10. Update selectors for email auth fields
+#### 11. Update selectors for email auth fields
 
 If you are running e2e tests on your app, update selectors from `input[type="email"]` to `input[name="email"]`.
 
 Wasp's login, signup, and password reset forms now use `type="text"` for email fields to support internationalized addresses.
 
-#### 11. Enjoy your updated Wasp app
+#### 12. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19927,7 +20145,7 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v5
         with:
-          node-version: "24.14.1"
+          node-version: "24.22.1"
 
       - name: Install Wasp
         run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
@@ -20022,7 +20240,7 @@ What does it look like when your DB is deployed correctly?
 
 When your DB is deployed correctly, you'll see it in the [Fly.io dashboard](https://fly.io/dashboard):
 
-![image](https://wasp.sh/img/deploying/fly-db.png)
+![image](https://wasp.sh/img/docs/guides/deployment/cloud-providers/flyio/fly-db.png)
 :::
 
 Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
@@ -20298,7 +20516,7 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v5
         with:
-          node-version: "24.14.1"
+          node-version: "24.22.1"
 
       - name: Install Wasp
         run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
@@ -20917,7 +21135,246 @@ When you make updates and need to redeploy:
    ```
 
 
-## Deployment / Self-Hosted / Caprover
+## Deployment / Cloud Providers / Zerops
+
+:::note
+Last checked with Wasp 0.26 and Zerops (as of Oct 23, 2026).
+
+This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
+:::
+
+### Deploy Wasp on Zerops server client database {#deploy-wasp-on-zerops---}
+
+This guide shows you how to deploy the server, the client, and provision a database on [Zerops](https://zerops.io/).
+
+Zerops builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define the project topology in an `import.yaml` and the build/deploy pipeline in a `zerops.yaml`. Wasp maps to three Zerops services: a static client (`app`), a Node.js API (`api`), and PostgreSQL (`db`).
+
+#### Prerequisites
+
+To get started, follow these steps:
+
+1. Create a [Zerops](https://zerops.io/) account.
+2. Push your Wasp project to a Git repository.
+3. Generate your initial database migrations locally by running `wasp db migrate-dev` and commit the `migrations/` directory. Zerops needs these migration files in the repo to set up your database.
+
+#### Create the zerops.yaml
+
+Create a `zerops.yaml` in the root of your repository:
+
+```yaml title="zerops.yaml"
+# yaml-language-server: $schema=https://api.app-prg1.zerops.io/api/rest/public/settings/zerops-yaml-json-schema.json
+
+zerops:
+  # React client - Wasp + Vite build, then Nginx serves the static files
+  - setup: prod-client
+    build:
+      base: nodejs@24
+      buildCommands:
+        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - export PATH="$(npm prefix -g)/bin:$PATH"
+        - wasp install
+        - wasp build
+        - npx vite build
+      envVariables:
+        # Vite embeds this at build time - must be the public API URL
+        REACT_APP_API_URL: ${API_URL}
+      deployFiles:
+        # ~ strips the path prefix so index.html is the Nginx docroot
+        - .wasp/out/web-app/build/~
+      cache:
+        - node_modules
+    run:
+      base: static
+
+  # Node.js API - Wasp build, Prisma generate, bundle, then run the server
+  - setup: prod-api
+    build:
+      base: nodejs@24
+      os: ubuntu
+      buildCommands:
+        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - export PATH="$(npm prefix -g)/bin:$PATH"
+        - wasp install
+        - wasp build
+        - cd .wasp/out/server && npm install
+        - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
+        - cd .wasp/out/server && npm run bundle
+      deployFiles:
+        # Keep the .wasp/out tree - runtime commands cd into .wasp/out/server
+        - .wasp/out
+      cache:
+        - node_modules
+    deploy:
+      readinessCheck:
+        httpGet:
+          port: 3001
+          path: /up
+    run:
+      base: nodejs@24
+      os: ubuntu
+      initCommands:
+        # Runs once per new app version (key includes ${appVersionId})
+        - zsc execOnce ${appVersionId}-migrate --retryUntilSuccessful -- sh -c 'cd .wasp/out/server && npx prisma migrate deploy --schema=../db/schema.prisma'
+      ports:
+        - port: 3001
+          httpSupport: true
+      envVariables:
+        NODE_ENV: production
+        PORT: 3001
+        DATABASE_URL: postgresql://${db_user}:${db_password}@${db_hostname}:${db_port}/${db_dbName}
+        JWT_SECRET: ${APP_SECRET}
+        WASP_SERVER_URL: ${API_URL}
+        WASP_WEB_CLIENT_URL: ${APP_URL}
+      start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
+```
+
+Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).
+
+The `prod-client` setup runs `wasp install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
+
+The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
+
+| Variable              | Value                         | Notes                                                 |
+| --------------------- | ----------------------------- | ----------------------------------------------------- |
+| `DATABASE_URL`        | `postgresql://${db_user}:...` | Zerops injects `db` service credentials automatically |
+| `WASP_SERVER_URL`     | `${API_URL}`                  | Public API URL, including `https://`                  |
+| `WASP_WEB_CLIENT_URL` | `${APP_URL}`                  | Public client URL, including `https://`               |
+| `JWT_SECRET`          | `${APP_SECRET}`               | At least 32 characters                                |
+| `PORT`                | `3001`                        | Must match `API_URL` and the readiness check          |
+
+Do not self-reference Wasp keys in `zerops.yaml` (for example `${WASP_SERVER_URL}`). Only value-store keys (`APP_URL`, `API_URL`, `APP_SECRET`) and Zerops service keys (`${db_password}`, ...) resolve.
+
+#### Create the import.yaml
+
+`import.yaml` defines which services exist and the project **value store** - generic `APP_URL` and `API_URL` that `zerops.yaml` maps into Wasp's env var names. Do not put `envVariables` on service blocks in `import.yaml`.
+
+```yaml title="import.yaml"
+#yamlPreprocessor=on
+# yaml-language-server: $schema=https://api.app-prg1.zerops.io/api/rest/public/settings/import-project-yaml-json-schema.json
+
+project:
+  name: my-wasp-app-small-prod
+  envVariables:
+    APP_URL: https://app-${zeropsSubdomainHost}.prg1.zerops.app
+    API_URL: https://api-${zeropsSubdomainHost}-3001.prg1.zerops.app
+  envSecrets:
+    # Generated once at import - requires #yamlPreprocessor=on as the first line
+    APP_SECRET: <@generateRandomString(<64>)>
+
+services:
+  - hostname: app
+    type: static
+    priority: 5
+    zeropsSetup: prod-client
+    buildFromGit: https://github.com/<your-org>/<your-wasp-app>
+    enableSubdomainAccess: true
+    minContainers: 2
+
+  - hostname: api
+    type: nodejs@24
+    priority: 5
+    zeropsSetup: prod-api
+    buildFromGit: https://github.com/<your-org>/<your-wasp-app>
+    enableSubdomainAccess: true
+    minContainers: 2
+
+  - hostname: db
+    type: postgresql:single@16
+    profile: oltp-hobby
+    priority: 10
+```
+
+Replace the following values for your app:
+
+| Variable                     | Value                                 | Example                  |
+| ---------------------------- | ------------------------------------- | ------------------------ |
+| `<your-org>/<your-wasp-app>` | Your GitHub repository                | `my-org/my-wasp-app`     |
+| `project.name`               | A unique name for this Zerops project | `my-wasp-app-small-prod` |
+
+The `zeropsSubdomainHost` placeholder is filled in by Zerops at import time. `zeropsSetup` on each service must match a `setup:` name in `zerops.yaml`.
+
+Because `zerops.yaml` maps `JWT_SECRET` to `${APP_SECRET}`, you must supply `APP_SECRET` in the project value store. Setting `JWT_SECRET` in the dashboard will not work - runtime `envVariables` in `zerops.yaml` take precedence over dashboard secrets. Generate `APP_SECRET` at import with the preprocessor above, or add it manually in the dashboard (**Project → Environment variables → Secrets**) as a random string at least 32 characters long:
+
+:::tip[Using an external auth method?]
+If your app is using an external authentication method(s) supported by Wasp (such as [Google](https://wasp.sh/docs/features/auth/social-auth/google#4-adding-environment-variables) or [GitHub](https://wasp.sh/docs/features/auth/social-auth/github#4-adding-environment-variables)), make sure to additionally set the necessary environment variables specifically required by these method(s).
+:::
+
+This example uses the **Small Production** topology (two containers each). For a single-container stage setup, omit `minContainers` on the `app` and `api` services.
+
+#### Deploy
+
+1. Commit `zerops.yaml` and push your repository.
+2. In the Zerops dashboard, create a project and **Import** the `import.yaml`, or run `zcli project project-import`.
+3. Point `buildFromGit` at your repository (or connect the GitHub / GitLab integration so later pushes rebuild automatically).
+4. Wait for `db`, then `api`, then `app` to finish building.
+
+#### Verify your deployment
+
+- **Client:** open the `app` URL - the SPA loads.
+- **API:** `GET /up` on port 3001 responds (this is the readiness check).
+- **Auth:** if login fails, check that `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` match the public client and API URLs in the project value store.
+
+#### Redeploying after changes
+
+When the `app` and `api` services are connected to your Git repository, push to the linked branch:
+
+```bash
+git push origin main
+```
+
+Zerops starts a new build of each connected service. You can also trigger a rebuild from the dashboard or with `zcli service trigger-build`.
+
+If you changed the Prisma schema, run `wasp db migrate-dev` locally first and commit the generated files in `migrations/` along with your code. On the next API deploy, `zsc execOnce` runs `prisma migrate deploy` once for that new app version before the server starts.
+
+Changing `APP_URL` or `API_URL` in the project value store requires a **rebuild** of the client and a **restart** of the API.
+
+#### Official recipe (optional)
+
+Zerops maintains an official [Wasp Hello World recipe](https://app.zerops.io/recipes/wasp-hello-world) that imports a ready-made project with one click. It covers several environments - from AI-assisted development to production:
+
+| Environment                                                                                                               | Best for                                                  |
+| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [**AI Agent**](https://app.zerops.io/recipes/wasp-hello-world?environment=ai-agent)                                       | Coding agents - SSH into dev containers, run `wasp start` |
+| [**Remote (CDE)**](https://app.zerops.io/recipes/wasp-hello-world?environment=remote-cde)                                 | Cloud dev environment over SSH                            |
+| [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environment=local)                                             | Laptop + cloud DB via [zCLI VPN](#local-development)      |
+| [**Stage**](https://app.zerops.io/recipes/wasp-hello-world?environment=stage)                                             | Pre-production / QA                                       |
+| [**Small Production**](https://app.zerops.io/recipes/wasp-hello-world?environment=small-production)                       | Small live apps                                           |
+| [**Highly-available Production**](https://app.zerops.io/recipes/wasp-hello-world?environment=highly-available-production) | Production with HA PostgreSQL                             |
+
+Recipe `import.yaml` files live in the [recipe repo](https://github.com/zeropsio/recipes/tree/main/wasp-hello-world); the [demo app](https://github.com/zerops-recipe-apps/wasp-hello-world-app) provides the reference `zerops.yaml`. The [official recipe's Small Production `import.yaml`](https://github.com/zeropsio/recipes/blob/main/wasp-hello-world/4%20%E2%80%94%20Small%20Production/import.yaml) uses the same service topology but points at the demo app repo and does not define `APP_SECRET` - the demo hardcodes `JWT_SECRET` in its `zerops.yaml` instead. AI Agent and Remote environments use `appstage` as the preview client (not `app`) and add `appdev` / `apidev` containers for live development.
+
+If you start from the recipe and later switch `buildFromGit` to your own repo, add `APP_SECRET` to the project value store first - the recipe `import.yaml` does not include it.
+
+#### Local development
+
+The recipe's [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environment=local) environment deploys client, API, and PostgreSQL on Zerops while you run `wasp start` on your machine.
+
+`zcli vpn up` only gives you network access to project hostnames (so `db:5432` resolves). Zerops does **not** inject environment variables over the VPN - you must pass `DATABASE_URL` yourself.
+
+1. Install [zCLI](https://docs.zerops.io/references/cli) if you haven't already.
+2. In the Zerops dashboard, open the `db` service and copy the PostgreSQL user, password, port, and database name from **Environment variables**.
+3. Connect to the project network, then start Wasp with an explicit URL (do not put production credentials in `.env.server`):
+
+```bash
+zcli vpn up
+DATABASE_URL="postgresql://<user>:<password>@db:<port>/<database>" wasp start
+```
+
+Use the hostname `db` (the service hostname), not a public host - that only works while the VPN is up. If hostname resolution fails, try `db.zerops` as described in the [Zerops VPN docs](https://docs.zerops.io/references/networking/vpn).
+
+#### Resources
+
+- [Wasp Hello World recipe](https://app.zerops.io/recipes/wasp-hello-world)
+- [Recipe repo](https://github.com/zeropsio/recipes/tree/main/wasp-hello-world)
+- [Reference demo app + zerops.yaml](https://github.com/zerops-recipe-apps/wasp-hello-world-app)
+- [Zerops import.yaml reference](https://docs.zerops.io/references/import)
+- [Zerops YAML preprocessor](https://docs.zerops.io/references/import-yaml/pre-processor)
+- [Zerops zerops.yaml specification](https://docs.zerops.io/zerops-yaml/specification)
+- [Wasp env vars](https://wasp.sh/docs/deployment/env-vars)
+- [Cloud provider deployment overview](https://wasp.sh/docs/deployment/methods/cloud-providers)
+
+
+## Deployment / Self-Hosted / CapRover
 
 :::note
 Last checked with Wasp 0.24 and Caprover 1.14.1.
@@ -21076,7 +21533,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.14.1"
+          node-version: "24.22.1"
 
       - name: Install Wasp
         shell: bash
@@ -21317,7 +21774,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.14.1"
+          node-version: "24.22.1"
 
       - name: Install Wasp
         shell: bash
@@ -21512,7 +21969,7 @@ Install Node.js using nvm:
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 source ~/.bashrc
-nvm install 24.14.1
+nvm install 24.22.1
 ```
 
 #### Step 8: Install Wasp CLI

@@ -24,7 +24,7 @@ import Wasp.Util (indent)
 -- NOTE: Don't change Wasp's lowest supported Node version without updating it
 -- in all required places. Check /mise.toml for the full list.
 oldestWaspSupportedNodeVersion :: SV.Version
-oldestWaspSupportedNodeVersion = SV.Version 24 14 1
+oldestWaspSupportedNodeVersion = SV.Version 24 22 1
 
 oldestWaspSupportedNpmVersion :: SV.Version
 oldestWaspSupportedNpmVersion = SV.Version 11 11 0

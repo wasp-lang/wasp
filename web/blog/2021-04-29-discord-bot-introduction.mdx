@@ -2,13 +2,14 @@
 title: How to implement a Discord bot (in NodeJS) that requires new members to introduce themselves
 authors: [martinsos]
 tags: [discord, nodejs]
+description: "Build a Node.js Discord bot that makes new members introduce themselves: a Guest role, an intro command in one channel, then full server access."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
 <ImgWithCaption
   alt="Guest introducing themselves and getting full-access."
-  source="img/discord-introduction-example.png"
+  source="img/blog/2021-04-29-discord-bot-introduction/discord-introduction-example.png"
   caption='A Guest user getting access by introducing themselves in the "introductions" channel.'
 />
 
@@ -32,7 +33,7 @@ Once they introduced themselves in the `introductions` channel, they would get a
 
 <ImgWithCaption
   alt="Channels user can see when Guest vs when full member."
-  source="img/wasp-guest-vs-waspeteer.png"
+  source="img/blog/2021-04-29-discord-bot-introduction/wasp-guest-vs-waspeteer.png"
   height="400px"
   caption="Left: what Guest sees; Right: what Waspeteer sees."
 />

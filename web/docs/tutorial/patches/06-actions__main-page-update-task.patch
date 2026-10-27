@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 7cbfc0c..0669bf2 100644
+index ebba061..5c95ee1 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,6 +1,6 @@
@@ -8,10 +8,10 @@ index 7cbfc0c..0669bf2 100644
  import type { Task } from "wasp/entities";
 -import { createTask, getTasks, useQuery } from "wasp/client/operations";
 +import { createTask, getTasks, updateTask, useQuery } from "wasp/client/operations";
+ import Logo from "./assets/wasp-logo-rounded.svg";
+ import "./Main.css";
  
- export const MainPage = () => {
-   const { data: tasks, isLoading, error } = useQuery(getTasks);
-@@ -17,9 +17,25 @@ export const MainPage = () => {
+@@ -28,10 +28,25 @@ export const MainPage = () => {
  };
  
  const TaskView = ({ task }: { task: Task }) => {
@@ -27,14 +27,14 @@ index 7cbfc0c..0669bf2 100644
 +  };
 +
    return (
-     <div>
--      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-+      <input
-+        type="checkbox"
-+        id={String(task.id)}
-+        checked={task.isDone}
-+        onChange={handleIsDoneChange}
-+      />
-       {task.description}
-     </div>
-   );
+     <li>
+       <label>
+-        <input type="checkbox" checked={task.isDone} />
++        <input
++          type="checkbox"
++          checked={task.isDone}
++          onChange={handleIsDoneChange}
++        />
+         {task.description}
+       </label>
+     </li>

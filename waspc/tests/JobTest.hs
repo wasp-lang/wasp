@@ -3,7 +3,7 @@ module JobTest where
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (IOException, finally, throwIO, try)
-import Control.Monad (when)
+import Control.Monad (unless, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (fromJust)
@@ -13,6 +13,7 @@ import System.Directory (doesFileExist, removeFile)
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
+import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
@@ -56,24 +57,25 @@ spec_Job = do
       timeout (secondsToMicroSeconds 5) (Job.run $ Job.race slowJob (return ("fast" :: String)))
         `shouldReturn` Just (Right "fast")
 
-    it "stops the process of the job that didn't finish" $ do
-      pidPath <- makeTempPath "wasp-race-process"
-      -- The process exits by itself after a while, so that the test fails
-      -- instead of hanging if stopping it doesn't work.
-      let slowProcess = nodeWithArgs (writePidFileScript <> "setTimeout(() => {}, 10000);") [pidPath]
-          jobThatFinishesOnceProcessStarts = liftIO $ waitUntil "the process starts" $ doesFileExist pidPath
-      ( do
-          result <-
-            timeout (secondsToMicroSeconds 5)
-              $ Job.run
-              $ Job.race (Job.fromProc slowProcess) jobThatFinishesOnceProcessStarts
-          case result of
-            Just (Right ()) -> do
-              pid <- readProcessId pidPath
-              waitUntil "the process exits" $ not <$> isProcessAlive pid
-            _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
-        )
-        `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+    unlessOnWindows $
+      it "stops the process of the job that didn't finish" $ do
+        pidPath <- makeTempPath "wasp-race-process"
+        -- The process exits by itself after a while, so that the test fails
+        -- instead of hanging if stopping it doesn't work.
+        let slowProcess = nodeWithArgs (writePidFileScript <> "setTimeout(() => {}, 10000);") [pidPath]
+            jobThatFinishesOnceProcessStarts = liftIO $ waitUntil "the process starts" $ doesFileExist pidPath
+        ( do
+            result <-
+              timeout (secondsToMicroSeconds 5)
+                $ Job.run
+                $ Job.race (Job.fromProc slowProcess) jobThatFinishesOnceProcessStarts
+            case result of
+              Just (Right ()) -> do
+                pid <- readProcessId pidPath
+                waitUntil "the process exits" $ not <$> isProcessAlive pid
+              _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
+          )
+          `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
 
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do
@@ -153,30 +155,32 @@ spec_Job = do
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
-    it "stops the process and fails if emitting its output fails" $ do
-      pidPath <- makeTempPath "wasp-failing-output-process"
-      -- The process exits by itself after a while, so that the test fails
-      -- instead of hanging if stopping it doesn't work.
-      let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('out'); setTimeout(() => {}, 10000);") [pidPath]
-          failOnOutput = Job.observeOutput $ \_ _ -> throwIO $ userError "Emitting output failed"
-      ( do
-          result <- timeout (secondsToMicroSeconds 5) $ tryIOException $ Job.run $ failOnOutput $ Job.fromProc process
-          case result of
-            Just (Left _) -> do
-              pid <- readProcessId pidPath
-              waitUntil "the process exits" $ not <$> isProcessAlive pid
-            _ -> expectationFailure $ "Expected the job to fail, but got: " <> show result
-        )
-        `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+    unlessOnWindows $
+      it "stops the process and fails if emitting its output fails" $ do
+        pidPath <- makeTempPath "wasp-failing-output-process"
+        -- The process exits by itself after a while, so that the test fails
+        -- instead of hanging if stopping it doesn't work.
+        let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('out'); setTimeout(() => {}, 10000);") [pidPath]
+            failOnOutput = Job.observeOutput $ \_ _ -> throwIO $ userError "Emitting output failed"
+        ( do
+            result <- timeout (secondsToMicroSeconds 5) $ tryIOException $ Job.run $ failOnOutput $ Job.fromProc process
+            case result of
+              Just (Left _) -> do
+                pid <- readProcessId pidPath
+                waitUntil "the process exits" $ not <$> isProcessAlive pid
+              _ -> expectationFailure $ "Expected the job to fail, but got: " <> show result
+          )
+          `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
 
-    it "doesn't stop another job's process when one job is stopped" $
-      withRunningProcess "" $ \first firstPid ->
-        withRunningProcess "" $ \second secondPid -> do
-          Async.cancel first
-          waitUntil "the first process exits" $ not <$> isProcessAlive firstPid
-          Async.poll second >>= \case
-            Nothing -> isProcessAlive secondPid `shouldReturn` True
-            Just _ -> expectationFailure "Stopping one job stopped another job's process"
+    unlessOnWindows $
+      it "doesn't stop another job's process when one job is stopped" $
+        withRunningProcess "" $ \first firstPid ->
+          withRunningProcess "" $ \second secondPid -> do
+            Async.cancel first
+            waitUntil "the first process exits" $ not <$> isProcessAlive firstPid
+            Async.poll second >>= \case
+              Nothing -> isProcessAlive secondPid `shouldReturn` True
+              Just _ -> expectationFailure "Stopping one job stopped another job's process"
 
   describe "npmBinProc" $
     it "fails if the executable isn't in any node_modules/.bin directory" $
@@ -184,6 +188,12 @@ spec_Job = do
         let dir = fromJust $ SP.parseAbsDir tempDir
         Job.run (Job.npmBinProc dir "missing-tool" [])
           `shouldThrow` anyIOException
+
+-- | For tests that stop a job's process. On Windows, stopping a job waits for
+-- its process to exit by itself, because reading the process's output can't be
+-- interrupted there.
+unlessOnWindows :: Spec -> Spec
+unlessOnWindows = unless (System.Info.os == "mingw32")
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)

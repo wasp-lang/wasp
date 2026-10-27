@@ -1,11 +1,9 @@
-import { $ } from "zx";
-
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  getClientDeploymentDir,
+  ensureClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
@@ -212,14 +210,11 @@ async function setupClient({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up client app with name ${clientServiceName}`);
 
-  const clientDeploymentDir = getClientDeploymentDir(options.waspProjectDir);
+  const clientDeploymentDir = ensureClientDeploymentDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
     clientDeploymentDir,
   );
-
-  // Having a Staticfile tells Railway to use a static file server.
-  await $({ cwd: clientDeploymentDir })`touch Staticfile`;
 
   await railwayCli(
     [

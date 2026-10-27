@@ -1,11 +1,12 @@
 import { PG_BOSS_EXECUTOR_NAME } from '@wasp.sh/lib-sdk-core/node'
 export { PG_BOSS_EXECUTOR_NAME } from '@wasp.sh/lib-sdk-core/node'
-import PgBoss from 'pg-boss'
-import { pgBossStarted } from './pgBoss.js'
-import { Job, SubmittedJob } from '@wasp.sh/lib-sdk-core'
-import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
-import type { PrismaDelegate } from '../../../_types/index.js'
-import type { JobFn } from './types.js'
+import PgBoss from 'pg-boss';
+import type { JSONObject, JSONValue } from '../../../../core/serialization/index.js';
+import type { PrismaDelegate } from '../../../_types/index.js';
+import { reportUnexpectedServerError } from "../../../errors/index.js";
+import { Job, SubmittedJob } from '@wasp.sh/lib-sdk-core';
+import { pgBossStarted } from './pgBoss.js';
+import type { JobFn } from './types.js';
 
 type JobSchedule = {
   cron: Parameters<PgBoss['schedule']>[1]
@@ -76,7 +77,7 @@ export function registerJob<
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
     await boss.work<Input, Output>(
       job.jobName,
-      pgBossCallbackWrapper<Input, Output, Entities>(jobFn, job.entities)
+      pgBossCallbackWrapper<Input, Output, Entities>(job.jobName, jobFn, job.entities)
     )
 
     // If a job schedule is provided, we should schedule the recurring job.
@@ -184,14 +185,21 @@ function pgBossCallbackWrapper<
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 >(
+  jobName: string,
   // jobFn - The user-defined async job callback function.
   jobFn: JobFn<Input, Output, Entities>,
   // Entities used by job, passed into callback context.
   entities: Entities
 ) {
-  return (args: { data: Input }) => {
+  return async (args: { data: Input }) => {
     const context = { entities }
-    return jobFn(args.data, context)
+    try {
+      return await jobFn(args.data, context);
+    } catch (error: unknown) {
+      reportUnexpectedServerError(error, { source: "job", jobName });
+      // pg-boss marks the job as failed and retries it if configured to.
+      throw error;
+    }
   }
 }
 

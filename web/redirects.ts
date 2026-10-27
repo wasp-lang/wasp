@@ -1,3 +1,4 @@
+import imageRedirects from "./image-redirects.json";
 import type { RedirectRule } from "./src/plugins/cloudflare-redirects";
 import docsVersions from "./versions.json";
 
@@ -19,6 +20,7 @@ export function getRedirects({
   const redirects: RedirectRule[] = [
     ...legacyDocsRedirects,
     ...docsReorganizationRedirects,
+    ...imageReorganizationRedirects,
     ...legacyWildcardRedirects,
   ];
 
@@ -114,6 +116,14 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/wasp-ai/coding-agent-plugin",                        "/docs/getting-started/agent-integration"),
   permanent("/docs/wasp-ai/git-worktrees",                              "/docs/advanced/git-worktrees"),
 ];
+
+// Redirects for the reorganization of `static/img` into `blog/`, `docs/`,
+// `resources/` and `site/` folders. They keep external links to the old image
+// URLs working (social cards, newsletters, other sites).
+// TODO: Consider removing these once traffic to the old URLs dies down.
+const imageReorganizationRedirects: RedirectRule[] = imageRedirects.map(
+  ({ from, to }) => permanent(from, to),
+);
 
 // prettier-ignore
 const legacyWildcardRedirects: RedirectRule[] = [

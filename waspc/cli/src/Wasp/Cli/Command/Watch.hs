@@ -17,6 +17,8 @@ import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
+import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
@@ -37,13 +39,18 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- happens. If there is already something in the MVar, it will get overwritten.
 -- It reports file changes as they happen, and compiles once they finish, to
 -- 'onServerEvent'.
+--
+-- It assumes the project was successfully compiled just before calling it, so
+-- it starts as 'UpToDate', and from then on it uses the given @projectLock@ to
+-- keep other Wasp processes posted about the state of the generated app.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
+  ProjectLock ->
   MVar ([CompileWarning], [CompileError]) ->
   (ServerEvent -> IO ()) ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar onServerEvent = do
+watch waspProjectDir outDir projectLock ongoingCompilationResultMVar onServerEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -51,6 +58,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar onServerEvent = do
     chan <- newChan
     _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
     _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
+    setWatcherStatus projectLock UpToDate
     listenForEvents canonicalWaspProjectDir chan =<< getCurrentTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
@@ -84,6 +92,10 @@ watch waspProjectDir outDir ongoingCompilationResultMVar onServerEvent = do
         then -- Ignore delayed/stale events older than our last compile time.
           listenForEvents canonicalWaspProjectDir chan lastCompileTime
         else do
+          -- Even though we wait for 1s before triggering the recompile, the app
+          -- is already out of date, so we set the status to Compiling
+          -- immediately.
+          setWatcherStatus projectLock Compiling
           -- Recompile, but only after a 1s period of no new events.
           events <- collectEventsUntilQuiet chan lastCompileTime 1 event
           currentTime <- getCurrentTime
@@ -150,6 +162,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar onServerEvent = do
         Left _ -> do
           cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
           return FailedCompile
+      setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
 

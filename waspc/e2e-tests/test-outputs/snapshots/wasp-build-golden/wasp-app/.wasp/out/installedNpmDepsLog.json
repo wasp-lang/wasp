@@ -34,7 +34,7 @@
                 },
                 {
                     "name": "prisma",
-                    "version": "5.19.1"
+                    "version": "6.19.3"
                 },
                 {
                     "name": "typescript",
@@ -56,11 +56,11 @@
         "dependencies": [
             {
                 "name": "@prisma/client",
-                "version": "5.19.1"
+                "version": "6.19.3"
             },
             {
                 "name": "prisma",
-                "version": "5.19.1"
+                "version": "6.19.3"
             },
             {
                 "name": "express",
@@ -95,6 +95,10 @@
                 "version": "^2.2.1"
             },
             {
+                "name": "@vitejs/plugin-react",
+                "version": "^6.0.3"
+            },
+            {
                 "name": "@vitest/ui",
                 "version": "^4.1.9"
             },
@@ -120,25 +124,25 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+                "version": "file:../../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-test-utils",
+                "version": "file:../../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
+                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
             }
         ],
         "devDependencies": [
             {
                 "name": "typescript",
                 "version": "6.0.3"
-            },
-            {
-                "name": "@vitejs/plugin-react",
-                "version": "^6.0.3"
             },
             {
                 "name": "@types/express",
@@ -149,6 +153,10 @@
                 "version": "^5.0.0"
             },
             {
+                "name": "@types/node",
+                "version": "^24.0.0"
+            },
+            {
                 "name": "@types/react",
                 "version": "^19.2.7"
             },
@@ -157,21 +165,34 @@
                 "version": "^19.2.3"
             }
         ],
-        "peerDependencies": []
+        "peerDependencies": [
+            {
+                "name": "vite",
+                "version": "^8.1.0"
+            },
+            {
+                "name": "vitest",
+                "version": "^4.1.9"
+            }
+        ]
     },
     "_waspServerNpmDeps": {
         "dependencies": [
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+                "version": "file:../libs/auth/wasp.sh-lib-auth-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-sdk-core",
-                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
+                "version": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-test-utils",
+                "version": "file:../libs/test-utils/wasp.sh-lib-test-utils-0.27.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
+                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.27.0.tgz"
             },
             {
                 "name": "cookie-parser",

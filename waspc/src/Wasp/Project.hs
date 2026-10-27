@@ -19,7 +19,7 @@ import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
-import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoal))
+import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
@@ -67,7 +67,7 @@ generateCode ::
   IO CompileResult
 generateCode appSpec outDir options = do
   (generatorWarnings, generatorErrors, changedGeneratedAppPaths) <-
-    Generator.writeWebAppCode appSpec outDir (sendMessage options) (setupGoal options)
+    Generator.writeWebAppCode appSpec outDir (sendMessage options) (setupGoals options)
   return
     CompileResult
       { _compileWarnings = show <$> generatorWarnings,

@@ -7,6 +7,7 @@ import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
 describe("Deployment", () => {
   test("allows an omitted mode or split mode", () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- An empty deployment object.
     expectTypeOf<{}>().toExtend<WaspSpec.Deployment>();
     expectTypeOf<{ mode: "split" }>().toExtend<WaspSpec.Deployment>();
   });

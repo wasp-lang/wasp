@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/lib-sdk-core",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -19,10 +19,6 @@
     "./node/vite": {
       "types": "./dist/vite.d.mts",
       "default": "./dist/vite.mjs"
-    },
-    "./browser/test": {
-      "types": "./dist/test.d.mts",
-      "default": "./dist/test.mjs"
     }
   },
   "files": [
@@ -31,15 +27,15 @@
   "scripts": {
     "build": "tsdown",
     "prepare": "npm run build",
-    "test": "npm run test:types",
-    "test:types": "tsc --noEmit"
+    "test": "npm run test:types && npm run test:unit",
+    "test:types": "tsc --noEmit",
+    "test:unit": "vitest run"
   },
   "peerDependencies": {
     "@tanstack/react-query": "~4.42.0",
-    "@testing-library/react": "^16.3.1",
     "@types/express": "^5.0.0",
     "@vitejs/plugin-react": "^6.0.3",
-    "@wasp.sh/lib-auth": "^0.26.0",
+    "@wasp.sh/lib-auth": "^0.27.0",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",
@@ -50,9 +46,6 @@
     "zod": "^4.3.6"
   },
   "peerDependenciesMeta": {
-    "@testing-library/react": {
-      "optional": true
-    },
     "@vitejs/plugin-react": {
       "optional": true
     },
@@ -68,7 +61,6 @@
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
     "@tanstack/react-query": "~4.42.0",
-    "@testing-library/react": "^16.3.1",
     "@tsdown/css": "^0.21.10",
     "@types/express": "^5.0.0",
     "@types/node": "^22.17.1",
@@ -86,6 +78,7 @@
     "tsdown": "^0.21.5",
     "typescript": "^6.0.3",
     "vite": "^8.1.0",
+    "vitest": "^4.1.12",
     "zod": "^4.3.6"
   },
   "sideEffects": [

@@ -1,13 +1,14 @@
 ---
 title: 'Convincing developers to try a new web framework - the effects of launching beta'
 authors: [matijasos]
-image: /img/beta-launch-review/how-it-started.png
+image: /img/blog/2023-01-31-wasp-beta-launch-review/how-it-started.png
 tags: [webdev, wasp, startups, github]
+description: "Launch lessons for a new web framework: a launch week, no Product Hunt on Thanksgiving, and a public date that made the team 3x more productive."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
-<ImgWithCaption alt="Alpha feedback" source="img/beta-launch-review/how-it-started.png" />
+<ImgWithCaption alt="Alpha feedback" source="img/blog/2023-01-31-wasp-beta-launch-review/how-it-started.png" />
 
 We are developing an OSS web framework in a form of a config language (DSL) that works with React & Node.js. Getting developers to use a new tool (especially a web framework) is [a pretty hard thing to do](/blog/2022/09/29/journey-to-1000-gh-stars). We wished there were more stories of how today's mainstream tools got adopted that we could learn from, so that motivated us to document our own.
 
@@ -31,15 +32,15 @@ We [launched Beta](/blog/2022/11/29/wasp-beta) on Nov 27, 2022 in a launch week 
 - 108 new projects started
 - 83 new users (installed Wasp locally and ran it)
 
-<ImgWithCaption alt="Web visitors during beta launch week" source="img/beta-launch-review/launch-week-visitors.png" />
+<ImgWithCaption alt="Web visitors during beta launch week" source="img/blog/2023-01-31-wasp-beta-launch-review/launch-week-visitors.png" />
 
 HN launch caused almost 2x spike in traffic and usage. Also, although our launch week already ended by the start of December, we actually had the most users ever throughout December:
 
-<ImgWithCaption alt="WAU displayed monthly" source="img/beta-launch-review/wau-monthly.png" />
+<ImgWithCaption alt="WAU displayed monthly" source="img/blog/2023-01-31-wasp-beta-launch-review/wau-monthly.png" />
 
 Looking back, this wasn't at all our biggest event in terms of traffic, but it was in terms of usage:
 
-<ImgWithCaption alt="All time stats" source="img/beta-launch-review/all-time-stats.png" />
+<ImgWithCaption alt="All time stats" source="img/blog/2023-01-31-wasp-beta-launch-review/all-time-stats.png" />
 
 One of the main effects of the launch (together with a [few](https://news.ycombinator.com/item?id=32098144) [recent](https://news.ycombinator.com/item?id=32566123) successful HN posts, and the [Alpha Testing Program](/blog/2022/11/16/alpha-testing-program-post-mortem) we ran in Jul '22) is that we managed to move the baseline WAU from ~10 to ~20. Another effect, felt more subjectively, is the change in the community perception.
 
@@ -49,7 +50,7 @@ As mentioned above, although our Alpha launch had higher absolute numbers (websi
 
 Before were mostly getting superficial comments like _“this looks cool, I’ll give it a try once”_, or _“why DSL approach and not the other one”_, and this time we could notice that portion of people already knew Wasp from before (some even used it), and had more specific questions, even proposing next features that we planned but haven’t published yet.
 
-<ImgWithCaption alt="Beta feedback" source="img/beta-launch-review/beta-feedback.png" />
+<ImgWithCaption alt="Beta feedback" source="img/blog/2023-01-31-wasp-beta-launch-review/beta-feedback.png" />
 
 Although the core message (DSL for developing full-stack web apps with React & Node.js) hasn’t changed, there was significantly less pushback to the concept than before. I guess it comes down to the time elapsed and the product being more polished and validated from the outside - Beta, [published use-cases](/#showcases), [testimonials](/#testimonials), …
 
@@ -57,11 +58,11 @@ Although the core message (DSL for developing full-stack web apps with React & N
 
 This was our initial plan:
 
-<ImgWithCaption alt="Launch timeline" source="img/beta-launch-review/launch-timeline.png" />
+<ImgWithCaption alt="Launch timeline" source="img/blog/2023-01-31-wasp-beta-launch-review/launch-timeline.png" />
 
 For 20 days before the launch we were posting daily countdown banners on Twitter + a few polls (e.g. what's your favourite CSS framework) to engage the audience.
 
-<ImgWithCaption alt="Examples of pre-launch tweets" source="img/beta-launch-review/prelaunch-tweets.png" />
+<ImgWithCaption alt="Examples of pre-launch tweets" source="img/blog/2023-01-31-wasp-beta-launch-review/prelaunch-tweets.png" />
 
 [Our Twitter game](https://twitter.com/WaspLang) is still super young (~500 followers) so it didn't have a big effect but it helped to get the team excited and a few people also noticed it and commented/voted.
 
@@ -78,7 +79,7 @@ A few other things we did prior to the launch:
 
 As mentioned, we went with a launch week format - we liked the idea of having a whole week filled with content rather than cramming everything in a single day. We highlighted a new feature every day + launched a hackathon on the last day of the week, to keep the momentum. You can see the full schedule [here](/blog/2022/11/26/wasp-beta-launch-week).
 
-<ImgWithCaption alt="Launch week schedule" source="img/beta-launch-review/launch-schedule.png" />
+<ImgWithCaption alt="Launch week schedule" source="img/blog/2023-01-31-wasp-beta-launch-review/launch-schedule.png" />
 
 We also shared our launch news at different places, most successful being [Product Hunt](https://www.producthunt.com/products/wasp-lang-alpha#wasp-lang-beta), [HackerNews](https://news.ycombinator.com/item?id=33910997) and [Reddit](https://www.reddit.com/r/javascript/comments/z7xo9t/wasp_dsl_framework_for_building_fullstack_js/).
 
@@ -96,7 +97,7 @@ The most disappointing part for us (and especially for the team) was that it fel
 
 Since we introduced all the new features during the launch week, we thought a good way to keep the community engaged and give them a reason to try Wasp Beta out would be to throw a hackathon! It was the first time we did so we weren't sure how it'd go, but it went better than expected!
 
-<ImgWithCaption alt="Tweet about Betathon - our #1 hackathon!" source="img/beta-launch-review/hackathon-tweet.png" />
+<ImgWithCaption alt="Tweet about Betathon - our #1 hackathon!" source="img/blog/2023-01-31-wasp-beta-launch-review/hackathon-tweet.png" />
 
 In the end, it was definitely worth it ([see review and submissions here](https://wasp.sh/blog/2023/01/11/betathon-review)). It was quite lightweight to organize (we even made a [custom web app with Wasp for the hackathon](https://betathon.wasp.sh/) which you can also [use for your hackathon](https://github.com/vincanger/wasp-betathon)) and we got some really nice submissions and community shout-outs.
 
