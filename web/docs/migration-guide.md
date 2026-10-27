@@ -4,10 +4,6 @@ sidebar_label: From 0.26 to 0.27
 
 # Migration from 0.26 to 0.27
 
-import InstallInstructions from './_install-instructions.md'
-
-<InstallInstructions version="0.27" />
-
 ## What's new in 0.27?
 
 ### New npm organization
