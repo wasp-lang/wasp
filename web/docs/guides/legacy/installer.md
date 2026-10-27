@@ -37,8 +37,12 @@ You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greate
 <Trackable event="Install Command: Copy">
 
 ```shell
-# Set x.y.z to the version you want to install, e.g. 0.20.2
+# Set x.y.z to the version you want to install.
+# Wasp 0.27 and newer:
 npm i -g @wasp/cli@x.y.z
+
+# Wasp 0.20.2 to 0.26.x:
+npm i -g @wasp.sh/wasp-cli@x.y.z
 ```
 
 </Trackable>
