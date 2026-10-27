@@ -19,10 +19,10 @@ In `package.json`:
 ```json
 {
   "peerDependencies": {
-    "@wasp/spec": "^0.25.0"
+    "@wasp/spec": "^0.27.0"
   },
   "devDependencies": {
-    "@wasp/spec": "^0.25.0"
+    "@wasp/spec": "^0.27.0"
   }
 }
 ```
