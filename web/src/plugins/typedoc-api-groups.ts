@@ -2,6 +2,7 @@ import {
   Comment,
   CommentTag,
   Converter,
+  ParameterType,
   ReflectionKind,
   type Application,
   type DeclarationReflection,
@@ -17,13 +18,24 @@ const MISSING_EXPORTS_PLUGIN_PRIORITY = 1e9;
 // TypeDoc lists the members of a group with this name without a heading.
 const NO_GROUP = "none";
 
+// Package option that lists the package's exports without TypeDoc's default
+// groups (e.g. "Functions" or "Type Aliases").
+const UNGROUP_EXPORTS_OPTION = "ungroupExports";
+
 /**
- * TypeDoc plugin that lists each module's exports without TypeDoc's default
- * groups (e.g. "Functions" or "Type Aliases"), except for the types documented
- * by `typedoc-plugin-missing-exports`, which go into the
- * {@link API_DOCS_REFERENCED_TYPES_GROUP} group.
+ * TypeDoc plugin that puts the types documented by
+ * `typedoc-plugin-missing-exports` into the
+ * {@link API_DOCS_REFERENCED_TYPES_GROUP} group, and implements the
+ * {@link UNGROUP_EXPORTS_OPTION} option.
  */
 export function load(app: Application): void {
+  app.options.addDeclaration({
+    name: UNGROUP_EXPORTS_OPTION,
+    help: "List the package's exports without TypeDoc's default groups.",
+    type: ParameterType.Boolean,
+    defaultValue: false,
+  });
+
   let isDocumentingMissingExports = false;
   const referencedTypes = new Set<DeclarationReflection>();
 
@@ -66,7 +78,7 @@ export function load(app: Application): void {
           if (usesCategories(reflection.parent)) {
             addTag(reflection, "@category", API_DOCS_REFERENCED_TYPES_GROUP);
           }
-        } else {
+        } else if (app.options.getValue(UNGROUP_EXPORTS_OPTION)) {
           addTag(reflection, "@group", NO_GROUP);
         }
       }

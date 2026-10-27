@@ -15,6 +15,10 @@
   // module.
   "placeInternalsInOwningModule": true,
 
+  // Don't group the exports by kind (e.g. "Functions"), see
+  // `web/src/plugins/typedoc-api-groups.ts`.
+  "ungroupExports": true,
+
   // One module per SDK import path, e.g. `server.d.ts` documents `wasp/server`.
   "entryPoints": ["server.d.ts", "client/operations.d.ts"],
 }
