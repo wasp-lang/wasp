@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "342ceffc3102c85dddbdec8a4dad9bf3ae9693a42120f202ec97724e6a6e7f03"
+        "d066a46a17e6154390669472854bc5789b4a7424bad5c2c6ddcead317b05995a"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "5a0087a39395dac1ca7b498d87d5d5680de1daad79ff7abc28225f29793a1007"
+        "3432c219d5172d4d72e6bf1d7879a62329292342f6efdf0b17cac46fef1f4896"
     ],
     [
         [
