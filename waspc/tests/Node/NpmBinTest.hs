@@ -11,6 +11,8 @@ import qualified System.Process as P
 import Test.Hspec
 import Wasp.Node.NpmBin (findNpmBin, getNpmBinEnvVars)
 
+{- HLINT ignore spec_NodeNpmBin "Avoid npm and npx" -}
+
 spec_NodeNpmBin :: Spec
 spec_NodeNpmBin = do
   describe "findNpmBin" $ do

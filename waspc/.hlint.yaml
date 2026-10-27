@@ -36,16 +36,16 @@
 - error:
     name: Avoid npm and npx
     lhs: '"npm"'
-    rhs: '"node_modules/.bin/<tool>"'
+    rhs: '"<tool>"'
     note: >
-      If you're running an npm script, run its commands directly (finding
-      them with `findNpmBin`, and with `Job.andThen` instead of `&&`), so that
+      If you're running an npm script, run its commands directly (with
+      `Job.npmBinProc`, and with `Job.andThen` instead of `&&`), so that
       signals are forwarded correctly when Wasp stops the process.
 
 - error:
     name: Avoid npm and npx
     lhs: '"npx"'
-    rhs: '"node_modules/.bin/<tool>"'
+    rhs: '"<tool>"'
     note: >
-      Run the tool's binary directly (finding it with `findNpmBin`), so that
-      signals are forwarded correctly when Wasp stops the process.
+      Run the tool's binary directly (with `Job.npmBinProc`), so that signals
+      are forwarded correctly when Wasp stops the process.
