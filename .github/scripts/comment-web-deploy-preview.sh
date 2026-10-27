@@ -2,13 +2,13 @@
 # Creates or updates the PR comment with the status of the web preview deploy.
 # We keep a single comment per PR and update it on every deploy.
 #
-# Required env vars:
-#   GH_TOKEN, GH_REPO, PR_NUMBER, COMMIT_SHA, JOB_STATUS, RUN_URL,
-#   WRANGLER_OUTPUT_FILE_PATH
+# Required env vars (besides the default GitHub Actions ones):
+#   GH_TOKEN, PR_NUMBER, COMMIT_SHA, JOB_STATUS, WRANGLER_OUTPUT_FILE_PATH
 
 set -euo pipefail
 
 COMMENT_MARKER="<!-- web-deploy-preview -->"
+REPO_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
 
 main() {
   local preview_url deployment_url
@@ -45,7 +45,7 @@ render_comment() {
   fi
 
   local rows
-  local commit_url="$GITHUB_SERVER_URL/$GH_REPO/commit/$COMMIT_SHA"
+  local commit_url="$REPO_URL/commit/$COMMIT_SHA"
   rows=$(table_row "Latest commit" "<a href=\"$commit_url\"><code>${COMMIT_SHA:0:7}</code></a>")
   rows+=$(table_row "Status" "$status")
   if [[ -n "$preview_url" ]]; then
@@ -61,7 +61,7 @@ $COMMENT_MARKER
 
 <table>$rows</table>
 
-[View logs]($RUN_URL)
+[View logs]($REPO_URL/actions/runs/$GITHUB_RUN_ID)
 EOF
 }
 
@@ -80,15 +80,15 @@ upsert_comment() {
 
   local existing_comment_id
   existing_comment_id=$(
-    gh api "repos/$GH_REPO/issues/$PR_NUMBER/comments" --paginate \
+    gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" --paginate \
       --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$COMMENT_MARKER\"))) | .id" |
       head -n 1
   )
 
   if [[ -n "$existing_comment_id" ]]; then
-    gh api --method PATCH "repos/$GH_REPO/issues/comments/$existing_comment_id" -f body="$body" >/dev/null
+    gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$existing_comment_id" -f body="$body" >/dev/null
   else
-    gh api --method POST "repos/$GH_REPO/issues/$PR_NUMBER/comments" -f body="$body" >/dev/null
+    gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" -f body="$body" >/dev/null
   fi
 }
 

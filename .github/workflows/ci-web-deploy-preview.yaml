@@ -10,6 +10,7 @@ on:
       - "web/**"
       - "waspc/data/packages/spec/**"
       - ".github/workflows/ci-web-deploy-preview.yaml"
+      - ".github/scripts/comment-web-deploy-preview.sh"
 
   pull_request:
     types: [opened, synchronize, reopened, closed]
@@ -17,6 +18,7 @@ on:
       - "web/**"
       - "waspc/data/packages/spec/**"
       - ".github/workflows/ci-web-deploy-preview.yaml"
+      - ".github/scripts/comment-web-deploy-preview.sh"
 
 concurrency:
   group: "ci-web-deploy-preview-${{ github.ref }}"
@@ -76,11 +78,9 @@ jobs:
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
           JOB_STATUS: ${{ job.status }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
         run: .github/scripts/comment-web-deploy-preview.sh
 
