@@ -23413,7 +23413,11 @@ If you have already switched to npm installation but need to switch back to the 
 1. Uninstall the npm version of Wasp:
 
    ```shell
+   # Wasp 0.27 and newer:
    npm uninstall -g @wasp/cli
+
+   # Wasp 0.20.2 to 0.26.x:
+   npm uninstall -g @wasp.sh/wasp-cli
    ```
 
 2. Make sure that Wasp is uninstalled from your system:
