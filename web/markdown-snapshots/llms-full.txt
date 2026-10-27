@@ -2476,8 +2476,10 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
 import { prisma } from "wasp/server"
 
 prisma.task.create({
+  data: {
     description: "Read the Entities doc",
     isDone: true // almost :)
+  }
 })
 ```
 
@@ -9946,11 +9948,11 @@ import type { OnAfterLoginHook } from "wasp/server/auth"
 import { google } from "wasp/server/auth"
 
 export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-  if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+  if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
     const newTokens = await google.oAuthClient.refreshAccessToken(
       oauth.tokens.refreshToken
     )
-    log("new tokens", newTokens)
+    console.log("new tokens", newTokens)
   }
 }
 ```
@@ -12411,6 +12413,7 @@ const Todo = (_props: {}) => {
 import { test, expect } from "vitest";
 import { screen } from "@testing-library/react";
 
+import { HttpMethod } from "wasp/client";
 import { mockServer, renderInContext } from "wasp/client/test";
 import Todo from "./Todo";
 
@@ -12426,7 +12429,7 @@ const mockTasks = [
 ];
 
 test("handles mock data", async () => {
-  mockApi("/tasks", mockTasks);
+  mockApi({ method: HttpMethod.Get, path: "/tasks" }, mockTasks);
 
   renderInContext(<Todo />);
 
@@ -13357,7 +13360,7 @@ You have three places where you can customize middleware:
 Below is the actual definitions of default middleware which you can override.
 
 ```ts
-export type MiddlewareConfig = Map<string, express.RequestHandler>
+type MiddlewareConfig = Map<string, express.RequestHandler>
 
 // Used in the examples below 👇
 export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
