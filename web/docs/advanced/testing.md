@@ -4,6 +4,8 @@ sidebar_label: Testing
 description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, run them with wasp test client, and mock queries and APIs.
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 # Testing
 
 :::info
@@ -64,43 +66,26 @@ You should not run `wasp test` while `wasp start` is running. Both will try to c
 
 ### React Testing Helpers
 
-Wasp provides several functions to help you write React tests:
+Wasp provides several functions in `wasp/client/test` to help you write React tests:
 
-- `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it. This is the function you should use to render components in your React component tests.
+- `renderInContext` renders a component inside the providers that Wasp's client code needs. Use it to render components in your React component tests.
+- `mockServer` sets up a mock server for the current test file, and returns the `mockQuery` and `mockApi` helpers to mock your Queries and APIs.
 
-  ```js
-  import { renderInContext } from "wasp/client/test";
+See the [examples](#examples) below to learn how to use them.
 
-  renderInContext(<MainPage />);
-  ```
+<CardLink
+  to="../api/wasp/client/test/functions/renderInContext"
+  kind="api"
+  title="renderInContext"
+  description="Render a component with the providers Wasp needs."
+/>
 
-- `mockServer`: Sets up the mock server and returns an object containing the `mockQuery` and `mockApi` utilities. This should be called outside of any test case, in each file that wants to use those helpers.
-
-  ```js
-  import { mockServer } from "wasp/client/test";
-
-  const { mockQuery, mockApi } = mockServer();
-  ```
-
-  - `mockQuery`: Takes a Wasp [query](../features/data/operations/queries) to mock and the JSON data it should return.
-
-    ```js
-    import { getTasks } from "wasp/client/operations";
-
-    mockQuery(getTasks, []);
-    ```
-
-    - Helpful when your component uses `useQuery`.
-    - Behind the scenes, Wasp uses [`msw`](https://npmjs.com/package/msw) to create a server request handle that responds with the specified data.
-    - Mock are cleared between each test.
-
-  - `mockApi`: Similar to `mockQuery`, but for [APIs](../features/apis). Instead of a Wasp query, it takes a route containing an HTTP method and a path.
-
-    ```js
-    import { HttpMethod } from "wasp/client";
-
-    mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
-    ```
+<CardLink
+  to="../api/wasp/client/test/functions/mockServer"
+  kind="api"
+  title="mockServer"
+  description="Set up a mock server and mock your Queries and APIs."
+/>
 
 ## Testing Your Server-Side Code
 

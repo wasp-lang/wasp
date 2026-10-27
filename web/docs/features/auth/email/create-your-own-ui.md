@@ -4,7 +4,7 @@ sidebar_label: Create your own UI
 description: Build your own login, signup, email verification and password reset pages for Wasp email auth, with example code for the functions in wasp/client/auth.
 ---
 
-import { Required } from '@site/src/components/Tag'
+import { CardLink } from '@site/src/components/CardLink'
 
 # Create your own UI
 
@@ -472,77 +472,45 @@ You can import the following functions from `wasp/client/auth`:
 
 ### `login()`
 
-An action for logging in the user. Make sure to do a redirect on success (e.g. to the main page of the app).
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `email: string` <Required />
-
-  - `password: string` <Required />
+<CardLink
+  to="../../../api/wasp/client/auth/functions/login"
+  kind="api"
+  title="login"
+  description="Log the user in with their email and password."
+/>
 
 ### `signup()`
 
-An action for signing up the user and starting the email verification. The user will not be logged in after this, as they still need
-to verify their email.
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `email: string` <Required />
-
-  - `password: string` <Required />
-
-:::info
-By default, Wasp will only save the `email` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../overview.md#customizing-the-signup-process).
-:::
+<CardLink
+  to="../../../api/wasp/client/auth/functions/signup"
+  kind="api"
+  title="signup"
+  description="Sign the user up with their email and password, and send the verification email."
+/>
 
 ### `verifyEmail()`
 
-An action for marking the email as valid and the user account as active. Make sure to do a redirect on success (e.g. to the login page).
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `token: string` <Required />
-
-    The token that was created when signing up. It will be set as a URL Query Parameter named `token`.
+<CardLink
+  to="../../../api/wasp/client/auth/functions/verifyEmail"
+  kind="api"
+  title="verifyEmail"
+  description="Verify the user's email with the token from the verification email."
+/>
 
 ### `requestPasswordReset()`
 
-An action for asking for a password reset email. This doesn't immediately reset their password, just sends the email.
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `email: string` <Required />
+<CardLink
+  to="../../../api/wasp/client/auth/functions/requestPasswordReset"
+  kind="api"
+  title="requestPasswordReset"
+  description="Send the user a password reset email."
+/>
 
 ### `resetPassword()`
 
-An action for confirming a password reset and providing the new password. Make sure to do a redirect on success (e.g. to the login page).
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `token: string` <Required />
-
-    The token that was created when requesting the password reset. It will be set as a URL Query Parameter named `token`.
-
-  - `password: string` <Required />
-
-    The new password for the user.
+<CardLink
+  to="../../../api/wasp/client/auth/functions/resetPassword"
+  kind="api"
+  title="resetPassword"
+  description="Set the user's new password with the token from the password reset email."
+/>

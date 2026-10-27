@@ -4,6 +4,8 @@ sidebar_label: Create your own UI
 description: Build your own social login page in Wasp with the sign-in buttons and URLs that Wasp provides for each supported provider, such as Google and GitHub.
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 # Create your own UI
 
 [Auth UI](../ui.md) is a common name for all high-level auth forms that come with Wasp.
@@ -35,3 +37,12 @@ export const LoginPage = () => {
   );
 };
 ```
+
+## API Reference
+
+<CardLink
+  to="../../../api/wasp/client/auth"
+  kind="api"
+  title="wasp/client/auth"
+  description="The sign-in buttons and URLs of each social auth provider, like GoogleSignInButton and googleSignInUrl."
+/>

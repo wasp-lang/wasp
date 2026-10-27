@@ -5,8 +5,6 @@ description: "Use Queries to fetch data in a Wasp app: declare a query in the sp
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
-import { Required } from '@site/src/components/Tag';
-import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './_superjson-note.md';
 import ReferencingCodeFromSrcNote from '../../../_referencing-code-from-src-note.md';
 
@@ -460,7 +458,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away.
-To change this, set `retry` for a [single Query](#the-usequery-hook-1) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
+To change this, set `retry` for a [single Query](../../../api/wasp/client/operations/functions/useQuery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
 
 ### Using Entities in Queries
 
@@ -533,140 +531,41 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
   description="All the options for declaring a query in the Wasp spec."
 />
 
-Declaring a Query enables you to import and use it anywhere in your code (on the server or the client). For example, for a Query that we declared as `getFoo`, Wasp generates two functions with the same name that you can import and use:
+<CardLink
+  to="../../../api/wasp/client/operations"
+  kind="api"
+  title="wasp/client/operations"
+  description="The functions Wasp generates for calling your Queries on the client."
+/>
 
-```ts
-// Use it on the client
-import { getFoo } from "wasp/client/operations"
-
-// Use it on the server
-import { getFoo } from "wasp/server/operations"
-```
-
-<ShowForTs>
-  It also creates a type you can import on the server:
-
-  ```ts
-  import { type GetFoo } from "wasp/server/operations"
-  ```
-</ShowForTs>
+<CardLink
+  to="../../../api/wasp/server/operations"
+  kind="api"
+  title="wasp/server/operations"
+  description="The functions Wasp generates for calling your Queries on the server, and the types for implementing them."
+/>
 
 ### Implementing Queries
 
-The Query's implementation is a NodeJS function that takes two arguments (it can be an `async` function if you need to use the `await` keyword).
-Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
+<CardLink
+  to="../../../api/wasp/server/operations/type-aliases/AuthenticatedQueryDefinition"
+  kind="api"
+  title="AuthenticatedQueryDefinition"
+  description="The arguments and return value of a Query's implementation, and the generic type Wasp generates for typing it."
+/>
 
-1. `args` (type depends on the Query)
-
-   An object containing the data **passed in when calling the query** (e.g., filtering conditions).
-   Check [the usage examples](#using-queries) to see how to pass this object to the Query.
-
-2. `context` (type depends on the Query)
-
-   An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
-
-<ShowForTs>
-  After you [declare the query](#specifying-queries), Wasp generates a generic type you can use when defining its implementation.
-  For the Query declared as `getSomething`, the generated type is called `GetSomething`:
-
-  ```ts
-  import { type GetSomething } from "wasp/server/operations"
-  ```
-
-  It expects two (optional) type arguments:
-
-  1. `Input`
-
-     The type of the `args` object (the Query's input payload). The default value is `never`.
-
-  2. `Output`
-
-     The type of the Query's return value (the Query's output payload). The default value is `unknown`.
-
-  The defaults were chosen to make the type signature as permissive as possible. If don't want your Query to take/return anything, use `void` as a type argument.
-</ShowForTs>
-
-#### Example
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    The following Query:
-
-    ```ts
-    import { app, query } from "@wasp.sh/spec"
-    import { getFoo } from "./src/queries" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        query(getFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Expects to find a named export `getFoo` from the file `src/queries.js`
-
-    ```js title="src/queries.js"
-    export const getFoo = (args, context) => {
-      // implementation
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    The following Query:
-
-    ```ts
-    import { app, query } from "@wasp.sh/spec"
-    import { getFoo } from "./src/queries" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        query(getFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Expects to find a named export `getFoo` from the file `src/queries.ts`
-
-    You can use the generated type `GetFoo` and specify the Query's inputs and outputs using its type arguments.
-
-    ```ts title="src/queries.ts"
-    import { type GetFoo } from "wasp/server/operations"
-
-    type Foo = // ...
-
-    export const getFoo: GetFoo<{ id: number }, Foo> = (args, context) => {
-      // implementation
-    };
-    ```
-
-    In this case, the Query expects to receive an object with an `id` field of type `number` (this is the type of `args`), and return a value of type `Foo` (this must match the type of the Query's return value).
-  </TabItem>
-</Tabs>
+<CardLink
+  to="../../../api/wasp/server/operations/type-aliases/UnauthenticatedQueryDefinition"
+  kind="api"
+  title="UnauthenticatedQueryDefinition"
+  description="The same, for Queries that don't use auth."
+/>
 
 ### The `useQuery` Hook
 
-Wasp's `useQuery` hook is a thin wrapper around the `useQuery` hook from [_react-query_](https://github.com/tannerlinsley/react-query).
-One key difference is that Wasp doesn't expect you to supply the cache key - it takes care of it under the hood.
-
-Wasp's `useQuery` hook accepts three arguments:
-
-- `queryFn` <Required />
-
-  The client-side query function generated by Wasp based on a `query` spec in your Wasp file.
-
-- `queryFnArgs`
-
-  The arguments object (payload) you wish to pass into the Query. The Query's NodeJS implementation will receive this object as its first positional argument.
-
-- `options`
-
-  A _react-query_ `options` object. Use this to change
-  [the default
-  behavior](https://react-query.tanstack.com/guides/important-defaults) for
-  this particular Query. If you want to change the global defaults, you can do
-  so in the [client setup function](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
-
-For an example of usage, check [this section](#the-usequery-hook).
+<CardLink
+  to="../../../api/wasp/client/operations/functions/useQuery"
+  kind="api"
+  title="useQuery"
+  description="All the arguments of the useQuery hook."
+/>

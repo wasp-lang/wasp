@@ -583,143 +583,36 @@ Read more about the render function in the [API Reference](#signupform-customiza
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
+[API reference](https://wasp.sh/docs/api/wasp/server/auth/functions/defineUserSignupFields)
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+### [defineUserSignupFields »](https://wasp.sh/docs/api/wasp/server/auth/functions/defineUserSignupFields)
 
-export default app({
-  name: "myApp",
-  // ...
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {
-        userSignupFields,
-      },
-    },
-    onAuthFailedRedirectTo: "/login",
-  },
-  // ...
-})
-```
-
-Then we'll export the `userSignupFields` object from the `src/auth/signup.ts` file:
-
-```ts title="src/auth/signup.ts"
-import { defineUserSignupFields } from "wasp/server/auth";
-
-export const userSignupFields = defineUserSignupFields({
-  address: async (data) => {
-    const address = data.address;
-    if (typeof address !== "string") {
-      throw new Error("Address is required");
-    }
-    if (address.length < 5) {
-      throw new Error("Address must be at least 5 characters long");
-    }
-    return address;
-  },
-});
-```
-
-The `userSignupFields` object is an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
-
-If the value that the function received is invalid, the function should throw an error.
-
-\* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
+[Define the extra fields Wasp saves on the user entity when a user signs up.](https://wasp.sh/docs/api/wasp/server/auth/functions/defineUserSignupFields)
 
 ### `SignupForm` Customization
 
-To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth/functions/SignupForm)
 
-```tsx title="src/SignupPage.tsx"
-import {
-  SignupForm,
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from "wasp/client/auth";
+### [SignupForm »](https://wasp.sh/docs/api/wasp/client/auth/functions/SignupForm)
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: "address",
-          label: "Address",
-          type: "input",
-          validations: {
-            required: "Address is required",
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register("phoneNumber", {
-                  required: "Phone number is required",
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          );
-        },
-      ]}
-    />
-  );
-};
-```
+[The signup form component, including its additionalFields prop.](https://wasp.sh/docs/api/wasp/client/auth/functions/SignupForm)
 
-The extra fields can be either **objects** or **render functions** (you can combine them):
+### Auth APIs
 
-1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
+[API reference](https://wasp.sh/docs/api/wasp/auth)
 
-   The objects have the following properties:
+### [wasp/auth »](https://wasp.sh/docs/api/wasp/auth)
 
-   - `name` required
+[The AuthUser type and helpers for reading a user's auth data, on the client and the server.](https://wasp.sh/docs/api/wasp/auth)
 
-     - the name of the field
+[API reference](https://wasp.sh/docs/api/wasp/client/auth)
 
-   - `label` required
+### [wasp/client/auth »](https://wasp.sh/docs/api/wasp/client/auth)
 
-     - the label of the field (used in the UI)
+[Client-side auth APIs, like useAuth, logout, and the Auth UI components.](https://wasp.sh/docs/api/wasp/client/auth)
 
-   - `type` required
+[API reference](https://wasp.sh/docs/api/wasp/server/auth)
 
-     - the type of the field, which can be `input` or `textarea`
+### [wasp/server/auth »](https://wasp.sh/docs/api/wasp/server/auth)
 
-   - `validations`
-
-     - an object with the validation rules for the field. The keys are the validation names, and the values are the validation error messages. Read more about the available validation rules in the [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
-
-2. Render functions receive the `react-hook-form` object and the form state as arguments, and they can use them to render arbitrary UI elements.
-
-   The render function has the following signature:
-
-   ```ts
-   type AdditionalSignupFieldRenderFn = (
-      hookForm: UseFormReturn,
-      formState: FormState
-    ) => React.ReactNode
-   ```
-
-   - `form` required
-
-     The `react-hook-form` object, read more about it in the [react-hook-form docs](https://react-hook-form.com/api/useform). You need to use the `form.register` function to register your fields
-
-   - `state` required
-
-     The form state object, which has the following properties:
-
-     - `isLoading: boolean`
-
-       Whether the form is currently submitting
+[Server-side auth APIs, like the auth hook types and helpers for working with auth identities.](https://wasp.sh/docs/api/wasp/server/auth)

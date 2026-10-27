@@ -157,3 +157,17 @@ Read more in the [configuring middleware section](./middleware#1-customize-globa
   title="Server"
   description="All the options for the server field of the app spec."
 />
+
+<CardLink
+  to="../../api/wasp/server/type-aliases/ServerSetupFn"
+  kind="api"
+  title="ServerSetupFn"
+  description="The type of your setupFn function."
+/>
+
+<CardLink
+  to="../../api/wasp/server/type-aliases/MiddlewareConfigFn"
+  kind="api"
+  title="MiddlewareConfigFn"
+  description="The type of your middlewareConfigFn function."
+/>

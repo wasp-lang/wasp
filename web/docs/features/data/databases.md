@@ -426,6 +426,20 @@ export default app({
   description="All the options for the db field of the app spec."
 />
 
+<CardLink
+  to="../../api/wasp/server/type-aliases/DbSeedFn"
+  kind="api"
+  title="DbSeedFn"
+  description="The type of your seed functions."
+/>
+
+<CardLink
+  to="../../api/wasp/server/variables/prisma"
+  kind="api"
+  title="prisma"
+  description="The Prisma Client instance Wasp uses to access the database."
+/>
+
 ### CLI Commands for Seeding the Database
 
 Use one of the following commands to run the seed functions:
