@@ -1,7 +1,7 @@
 ---
 title: "Wasp Is Now Friendlier To AI Agents"
 authors: [sodic]
-image: /img/wasp-agent-friendly/banner.webp
+image: /img/blog/2026-10-27-wasp-agent-friendly/banner.webp
 tags: [wasp, ai, agents, claude-code, fullstack]
 keywords:
   [
@@ -24,8 +24,8 @@ import { Terminal } from './components/Terminal';
 
 <ImgWithCaption
     alt="The Wasp logo connected to three terminal windows, each running wasp start in a different Git worktree on its own port."
-    source="img/wasp-agent-friendly/banner.webp"
-    sourceDark="img/wasp-agent-friendly/banner-dark.webp"
+    source="img/blog/2026-10-27-wasp-agent-friendly/banner.webp"
+    sourceDark="img/blog/2026-10-27-wasp-agent-friendly/banner-dark.webp"
 />
 
 Wasp 0.26 improves support for agent orchestrators and running multiple instances of a Wasp project in Git worktrees:
@@ -77,8 +77,8 @@ Wasp 0.26 prevents such conflicts:
 
 <ImgWithCaption
     alt="Before Wasp 0.26, wasp start and wasp build both read and wrote .wasp/out and corrupted its contents. After Wasp 0.26, Wasp blocks the second command."
-    source="img/wasp-agent-friendly/commands-in-same-project.svg"
-    sourceDark="img/wasp-agent-friendly/commands-in-same-project-dark.svg"
+    source="img/blog/2026-10-27-wasp-agent-friendly/commands-in-same-project.svg"
+    sourceDark="img/blog/2026-10-27-wasp-agent-friendly/commands-in-same-project-dark.svg"
     width="500px"
     caption="Conflicting commands in the same project: Wasp now blocks the second one instead of letting it corrupt the output."
 />
@@ -132,8 +132,8 @@ wasp start db
 
 <ImgWithCaption
     alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the database in the second worktree gets 5433, the client 3002, and the server 3003."
-    source="img/wasp-agent-friendly/commands-in-different-projects.svg"
-    sourceDark="img/wasp-agent-friendly/commands-in-different-projects-dark.svg"
+    source="img/blog/2026-10-27-wasp-agent-friendly/commands-in-different-projects.svg"
+    sourceDark="img/blog/2026-10-27-wasp-agent-friendly/commands-in-different-projects-dark.svg"
     width="100%"
     caption="Two worktrees running at the same time: each process now takes the next free port."
 />
