@@ -11,6 +11,13 @@ on:
         required: false
         type: string
         default: ""
+      exclude-runner:
+        description: >
+          Runner to skip building on (e.g. `macos-15-intel`). If empty, all
+          builds run.
+        required: false
+        type: string
+        default: ""
 
     outputs:
       waspc_version:
@@ -90,6 +97,8 @@ jobs:
         exclude:
           - env:
               os: ${{ inputs.exclude-os }}
+          - env:
+              runner: ${{ inputs.exclude-runner }}
 
     runs-on: ${{ matrix.env.runner }}
     container:

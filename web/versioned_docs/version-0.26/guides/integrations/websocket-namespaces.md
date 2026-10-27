@@ -1,10 +1,13 @@
 ---
+title: WebSocket namespaces in Wasp with Socket.IO
+sidebar_label: WebSocket Namespaces
+description: "Use Socket.IO namespaces in a Wasp app to split real-time events into channels: create them with io.of on the server and connect with socket.io-client."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# WebSocket Namespaces
+# WebSocket namespaces
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 

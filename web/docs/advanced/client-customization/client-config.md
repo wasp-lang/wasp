@@ -1,3 +1,9 @@
+---
+title: "Client configuration: root component and setupFn"
+sidebar_label: Client configuration
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, query defaults and a base directory."
+---
+
 import BaseDirEnvNote from './_baseDirEnvNote.md'
 
 import { CardLink } from '@site/src/components/CardLink'
@@ -212,7 +218,7 @@ export default async function mySetupFunction(): Promise<void> {
 You can change the options for a **single** Query using the `options` object, as described [here](../../features/data/operations/queries#the-usequery-hook-1).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
 
 If you do need to change the global defaults, you can do so inside the client setup function.
 

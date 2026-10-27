@@ -1,3 +1,9 @@
+---
+title: "Pages and routes in Wasp: URLs, links, layouts"
+sidebar_label: Pages and routes
+description: Declare pages and routes in a Wasp app, read URL parameters, link with type-safe Link and NavLink, require login, share a layout and prerender routes.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 

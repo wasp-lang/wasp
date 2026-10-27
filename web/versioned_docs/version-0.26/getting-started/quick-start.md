@@ -1,8 +1,12 @@
 ---
+title: "Quick start: install Wasp and create your first app"
+sidebar_label: Quick start
+description: Install Wasp with npm, create an app with wasp new and run it with wasp start. Then add the Wasp agent plugin to Claude Code or another coding agent.
 slug: /quick-start
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Trackable from '@site/src/components/Trackable';
 
 # Quick start
 
@@ -14,24 +18,36 @@ Let's create and run our first Wasp app in 3 short steps:
 
 1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
 
+   <Trackable event="Install Command: Copy">
+
    ```shell
    npm i -g @wasp.sh/wasp-cli@latest
    ```
+
+   </Trackable>
 
    ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
 
 2. **Then, create a new app by running:**
 
+   <Trackable event="CLI Command: Copy" command="wasp_new">
+
    ```shell
    wasp new
    ```
 
+   </Trackable>
+
 3. **Finally, run the app:**
+
+   <Trackable event="CLI Command: Copy" command="wasp_start">
 
    ```shell
    cd <my-project-name>
    wasp start
    ```
+
+   </Trackable>
 
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually [http://localhost:3000](http://localhost:3000), unless it's taken) to see it.
 
@@ -40,19 +56,37 @@ But don't stop there! Turn your coding agent into a Wasp framework expert in the
 4. **Install Agent Plugin / Skills:**
 
    **Claude Code:**
+
+    <Trackable event="Agent Plugin: Copy" kind="claude_plugin">
+
     ```bash
     claude plugin marketplace add wasp-lang/wasp-agent-plugins
     claude plugin install wasp@wasp-agent-plugins --scope project
     ```
+
+    </Trackable>
+
    **Other Agents (Cursor, Codex, Gemini, Copilot, OpenCode, etc.):**
+
+    <Trackable event="Agent Plugin: Copy" kind="skills_cli">
+
     ```bash
     npx skills add wasp-lang/wasp-agent-plugins
     ```
+
+    </Trackable>
+
     **Initialize the plugin / skills:**
     Invoke the `/wasp-plugin-init` skill to add Wasp knowledge to your agent's memory file (e.g. `CLAUDE.md`, `AGENTS.md`):
+
+    <Trackable event="Agent Plugin: Copy" kind="plugin_prompt">
+
     ```bash
     Run the '/wasp-plugin-init' skill.
     ```
+
+    </Trackable>
+
    For more info check out the [Wasp Agent Plugin / Skills](./agent-integration.md) page.
 
 :::note Something Unclear?
@@ -81,7 +115,7 @@ You must have Node.js (and NPM) installed on your machine and available in `PATH
   NOTE: Don't change Wasp's lowest supported Node version without updating it in
   all required places. Check /mise.toml for the full list.
 -->
-A version of Node.js must be >= 24.14.1.
+A version of Node.js must be >= 24.22.1.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -132,9 +166,13 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
   <TabItem value="npm">
     Open your terminal and run:
 
+    <Trackable event="Install Command: Copy">
+
     ```shell
     npm i -g @wasp.sh/wasp-cli@latest
     ```
+
+    </Trackable>
 
     :::note Looking for the old installer script?
 

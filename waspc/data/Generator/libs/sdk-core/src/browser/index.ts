@@ -14,6 +14,7 @@ export {
   FormTextarea,
   SubmitButton,
 } from "./auth/forms/Form.js";
+export { FormPasswordInput } from "./auth/forms/FormPasswordInput.js";
 export {
   MessageError as FormMessageError,
   Message,

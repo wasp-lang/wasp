@@ -13,6 +13,7 @@ export { SignInButton as MicrosoftSignInButton } from '../../auth/helpers/Micros
 export {
   FormError,
   FormInput,
+  FormPasswordInput,
   FormTextarea,
   FormItemGroup,
   FormLabel,

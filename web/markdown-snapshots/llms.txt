@@ -27,7 +27,9 @@
 ## Full Concatenated Documentation Files
 Use the same URL pattern as the versioned documentation maps: https://wasp.sh/llms-full-{version}.txt
 
-## Blog
+## Wasp Blog: tutorials, updates and case studies
+- [Wasp 0.26: parallel worktrees, wasp show, docs updates, and safer auth defaults](https://wasp.sh/blog/2026/10/23/wasp-0-26-changelog.md)
+- [Wasp 1.0 is coming](https://wasp.sh/blog/2026/10/20/wasp-1-0-is-coming.md)
 - [How to Build a Secure AI Agent for Your SaaS (with Flue)](https://wasp.sh/blog/2026/08/18/flue-react-for-agents.md)
 - [Wasp now supports Resend for sending emails](https://wasp.sh/blog/2026/08/03/wasp-resend-email-provider.md)
 - [Buzz + Wasp: from one chat message to a deployed full-stack app](https://wasp.sh/blog/2026/07/30/buzz-wasp-one-message-app.md)
@@ -153,7 +155,7 @@ Use the same URL pattern as the versioned documentation maps: https://wasp.sh/ll
 - [Journey to YCombinator](https://wasp.sh/blog/2021/02/23/journey-to-ycombinator.md)
 - [Hello Wasp!](https://wasp.sh/blog/2019/09/01/hello-wasp.md)
 
-## Resources
+## Wasp Resources: guides, comparisons and opinions
 - [Is There a Laravel for JavaScript? AdonisJS, Next.js, and Wasp Compared (2026)](https://wasp.sh/resources/2026/09/09/laravel-for-javascript-2026.md)
 - [RedwoodJS Alternatives in 2026: CedarJS, RedwoodSDK, or Wasp?](https://wasp.sh/resources/2026/09/09/redwoodjs-alternatives-2026.md)
 - [What Are the Best Full-stack Web App Frameworks in 2026?](https://wasp.sh/resources/2026/02/24/best-frameworks-web-dev-2026.md)

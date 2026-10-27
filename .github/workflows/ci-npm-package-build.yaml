@@ -16,6 +16,14 @@ on:
         required: false
         type: string
 
+      exclude-build:
+        description: >
+          Build name to leave out of the npm packages (e.g. `macos-x86_64`), for
+          runs that skip that build. If empty, every build must be present.
+        required: false
+        type: string
+        default: ""
+
 env:
   WASP_TELEMETRY_DISABLE: 1
 
@@ -63,6 +71,7 @@ jobs:
           WASPC_VERSION: ${{ inputs.waspc-version }}
           NPM_TARGETS_JSON: ${{ steps.compute-download-artifact-names.outputs.npm-target }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
+          EXCLUDE_BUILD: ${{ inputs.exclude-build }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
             # We'll list one tarball per build that has an npm target here.
@@ -71,6 +80,7 @@ jobs:
               version: ($overrideVersion // $waspcVersion) | ltrimstr("v"),
               tarballs:
                 $npmTargets
+                | del(.[$excludeBuild])
                 | to_entries
                 | map({ fileName: "wasp-\(.key).tar.gz", target: .value })
             }
@@ -80,6 +90,7 @@ jobs:
             --arg waspcVersion "$WASPC_VERSION" \
             --argjson npmTargets "$NPM_TARGETS_JSON" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
+            --arg excludeBuild "$EXCLUDE_BUILD" \
             "$JQ_PROGRAM" \
             > "$PACKAGES_INPUT_DATA_FILE_PATH"
 
