@@ -56,35 +56,18 @@ NOTE: Files in `static/` dir can override whatever is generate on build. Make su
 
 ### Deployment
 
-We deploy the website to Cloudflare Pages. When you want to deploy changes from the `release` branch, you do it like this:
+We deploy the website to Cloudflare Workers with the [Release - Deploy web](https://github.com/wasp-lang/wasp/actions/workflows/release-web-deploy.yaml) workflow:
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
-2. Check out and pull the `deploy-web` branch:
-```sh
-git checkout deploy-web && git pull
-```sh
-3. Merge the `release` branch into `deploy-web`:
-```sh
-git merge release
-```
-4. Push the `deploy-web` branch to the remote:
-```sh
-git push
-```
-5. Cloudflare Pages will automatically pick up the changes and deploy them.
-6. Check that the [Algolia docs search crawler restart](https://github.com/wasp-lang/wasp/actions/workflows/automation-algolia-restart-crawler.yaml) succeeded.
-7. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
-```sh
-git checkout release
-```
+2. Run the workflow from the GitHub UI and select the `release` branch.
 
-The website should be live within a few minutes at https://wasp.sh.
+The workflow builds the website, deploys it to https://wasp.sh, and restarts the Algolia docs search crawler.
 
-You can track the deployment progress on Cloudflare Pages (https://dash.cloudflare.com/). Credentials are in the 1Password vault.
+The Worker serves the static build and handles markdown content negotiation (`worker.ts`). Its configuration is in `wrangler.jsonc`.
 
 ### Preview docs from the `main` branch
 
-We set up automatic deployment of docs from the `main` branch on Cloudflare Pages. This means that every time you push to the `main` branch, the docs will be built and deployed to https://wasp-docs-on-main.pages.dev.
+The [CI - Deploy web preview](https://github.com/wasp-lang/wasp/actions/workflows/ci-web-deploy-preview.yaml) workflow deploys the docs, including the "current" version, to the `wasp-docs-on-main` Worker on every push to `main`. PRs from this repository get their own Worker Preview, linked in a PR comment.
 
 ### Multiple documentation versions
 

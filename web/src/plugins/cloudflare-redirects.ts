@@ -11,9 +11,9 @@ export interface PluginOptions {
 }
 
 /**
- * Source and destination use Cloudflare Pages redirect syntax, including
+ * Source and destination use Cloudflare redirect syntax, including
  * `*` wildcards and `:splat`/`:placeholder` references.
- * See https://developers.cloudflare.com/pages/configuration/redirects/
+ * See https://developers.cloudflare.com/workers/static-assets/redirects/
  */
 export interface RedirectRule {
   from: string;
@@ -25,8 +25,8 @@ export interface RedirectRule {
 const DEFAULT_CODE = 302;
 
 // Docusaurus copies `static/` files verbatim, but redirects are easier to
-// maintain as typed config. This plugin writes the Cloudflare Pages `_redirects`
-// file (https://developers.cloudflare.com/pages/configuration/redirects/) into
+// maintain as typed config. This plugin writes the Cloudflare `_redirects`
+// file (https://developers.cloudflare.com/workers/static-assets/redirects/) into
 // the build output at build time, so the redirect list can live in code.
 export default function cloudflareRedirectsPlugin(
   options: PluginOptions,
@@ -56,7 +56,7 @@ export default function cloudflareRedirectsPlugin(
 
 function serializeRedirects(redirects: RedirectRule[]): string {
   return [
-    "# Cloudflare Pages server redirects",
+    "# Cloudflare server redirects",
     "# Generated at build time by the cloudflare-redirects plugin.",
     "",
     ...redirects.map(
