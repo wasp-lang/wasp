@@ -24332,12 +24332,7 @@ Auth APIs you can use both on the client and on the server: the [AuthUser](https
 
 Available when your app enables [auth](https://wasp.sh/docs/features/auth/overview).
 
-### Type Aliases
-
 - [AuthUser](https://wasp.sh/docs/api/wasp/auth/type-aliases/AuthUser)
-
-### Functions
-
 - [getEmail](https://wasp.sh/docs/api/wasp/auth/functions/getEmail)
 - [getFirstProviderUserId](https://wasp.sh/docs/api/wasp/auth/functions/getFirstProviderUserId)
 - [getUsername](https://wasp.sh/docs/api/wasp/auth/functions/getUsername)
@@ -24355,8 +24350,6 @@ Types of the extra signup fields you define for your auth methods.
 
 When you define `userSignupFields` for an auth method (see [Customizing the signup process](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process)), Wasp infers the type of the extra fields from it and exports it from this module. Each type only exists if you define `userSignupFields` for its auth method.
 
-### Type Aliases
-
 - [UserEmailSignupFields](https://wasp.sh/docs/api/wasp/auth/providers/type-aliases/UserEmailSignupFields)
 - [UserUsernameAndPasswordSignupFields](https://wasp.sh/docs/api/wasp/auth/providers/type-aliases/UserUsernameAndPasswordSignupFields)
 
@@ -24365,16 +24358,8 @@ When you define `userSignupFields` for an auth method (see [Customizing the sign
 
 An HTTP client for calling your app's server, including your custom APIs.
 
-### Classes
-
 - [WaspHttpError](https://wasp.sh/docs/api/wasp/client/api/classes/WaspHttpError)
-
-### Variables
-
 - [api](https://wasp.sh/docs/api/wasp/client/api/variables/api)
-
-### Functions
-
 - [handleApiError](https://wasp.sh/docs/api/wasp/client/api/functions/handleApiError)
 
 ### Referenced Types
@@ -24391,47 +24376,71 @@ Client-side auth APIs: getting the logged-in user, logging out, the generated [A
 Available when your app enables [auth](https://wasp.sh/docs/features/auth/overview). Some exports depend on the auth methods your app enables:
 
 - With [Email](https://wasp.sh/docs/features/auth/email/overview) auth: the email versions of [login](https://wasp.sh/docs/api/wasp/client/auth/functions/login) and [signup](https://wasp.sh/docs/api/wasp/client/auth/functions/signup), and [requestPasswordReset](https://wasp.sh/docs/api/wasp/client/auth/functions/requestPasswordReset), [resetPassword](https://wasp.sh/docs/api/wasp/client/auth/functions/resetPassword), [verifyEmail](https://wasp.sh/docs/api/wasp/client/auth/functions/verifyEmail), [ForgotPasswordForm](https://wasp.sh/docs/api/wasp/client/auth/functions/ForgotPasswordForm), [ResetPasswordForm](https://wasp.sh/docs/api/wasp/client/auth/functions/ResetPasswordForm), and [VerifyEmailForm](https://wasp.sh/docs/api/wasp/client/auth/functions/VerifyEmailForm).
-- With [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) auth: the username versions of [login](https://wasp.sh/docs/api/wasp/client/auth/functions/login) and [signup](https://wasp.sh/docs/api/wasp/client/auth/functions/signup).
-- With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview) provider: that provider's sign-in URL and button, e.g. [googleSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/googleSignInUrl) and [GoogleSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/GoogleSignInButton) for Google.
 
-### Type Aliases
+- With [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) auth: the username versions of [login](https://wasp.sh/docs/api/wasp/client/auth/functions/login) and [signup](https://wasp.sh/docs/api/wasp/client/auth/functions/signup).
+
+- With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview) provider: that provider's sign-in URL and button, e.g. [googleSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/googleSignInUrl) and [GoogleSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/GoogleSignInButton) for Google.
 
 - [CustomizationOptions](https://wasp.sh/docs/api/wasp/client/auth/type-aliases/CustomizationOptions)
 
-### Variables
-
 - [discordSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/discordSignInUrl)
+
 - [FormError](https://wasp.sh/docs/api/wasp/client/auth/variables/FormError)
+
 - [FormInput](https://wasp.sh/docs/api/wasp/client/auth/variables/FormInput)
+
 - [FormItemGroup](https://wasp.sh/docs/api/wasp/client/auth/variables/FormItemGroup)
+
 - [FormLabel](https://wasp.sh/docs/api/wasp/client/auth/variables/FormLabel)
+
 - [FormTextarea](https://wasp.sh/docs/api/wasp/client/auth/variables/FormTextarea)
+
 - [getMe](https://wasp.sh/docs/api/wasp/client/auth/variables/getMe)
+
 - [githubSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/githubSignInUrl)
+
 - [googleSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/googleSignInUrl)
+
 - [keycloakSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/keycloakSignInUrl)
+
 - [microsoftSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/microsoftSignInUrl)
+
 - [slackSignInUrl](https://wasp.sh/docs/api/wasp/client/auth/variables/slackSignInUrl)
 
-### Functions
-
 - [DiscordSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/DiscordSignInButton)
+
 - [ForgotPasswordForm](https://wasp.sh/docs/api/wasp/client/auth/functions/ForgotPasswordForm)
+
 - [GitHubSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/GitHubSignInButton)
+
 - [GoogleSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/GoogleSignInButton)
+
 - [KeycloakSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/KeycloakSignInButton)
+
 - [login](https://wasp.sh/docs/api/wasp/client/auth/functions/login)
+
 - [LoginForm](https://wasp.sh/docs/api/wasp/client/auth/functions/LoginForm)
+
 - [logout](https://wasp.sh/docs/api/wasp/client/auth/functions/logout)
+
 - [MicrosoftSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/MicrosoftSignInButton)
+
 - [requestPasswordReset](https://wasp.sh/docs/api/wasp/client/auth/functions/requestPasswordReset)
+
 - [resetPassword](https://wasp.sh/docs/api/wasp/client/auth/functions/resetPassword)
+
 - [ResetPasswordForm](https://wasp.sh/docs/api/wasp/client/auth/functions/ResetPasswordForm)
+
 - [signup](https://wasp.sh/docs/api/wasp/client/auth/functions/signup)
+
 - [SignupForm](https://wasp.sh/docs/api/wasp/client/auth/functions/SignupForm)
+
 - [SlackSignInButton](https://wasp.sh/docs/api/wasp/client/auth/functions/SlackSignInButton)
+
 - [useAuth](https://wasp.sh/docs/api/wasp/client/auth/functions/useAuth)
+
 - [verifyEmail](https://wasp.sh/docs/api/wasp/client/auth/functions/verifyEmail)
+
 - [VerifyEmailForm](https://wasp.sh/docs/api/wasp/client/auth/functions/VerifyEmailForm)
 
 ### Referenced Types
@@ -24472,8 +24481,6 @@ export const SomePage = () => {
 };
 ```
 
-### Interfaces
-
 - [Crud](https://wasp.sh/docs/api/wasp/client/crud/interfaces/Crud)
 
 ### Referenced Types
@@ -24486,17 +24493,9 @@ export const SomePage = () => {
 
 Runtime configuration and environment variables of your app's client.
 
-### Enumerations
-
 - [HttpMethod](https://wasp.sh/docs/api/wasp/client/enumerations/HttpMethod)
-
-### Type Aliases
-
 - [ClientConfig](https://wasp.sh/docs/api/wasp/client/type-aliases/ClientConfig)
 - [Route](https://wasp.sh/docs/api/wasp/client/type-aliases/Route)
-
-### Variables
-
 - [config](https://wasp.sh/docs/api/wasp/client/variables/config)
 - [env](https://wasp.sh/docs/api/wasp/client/variables/env)
 
@@ -24527,15 +24526,10 @@ const doneTasks = await getFilteredTasks({ isDone: true });
 const newTask = await createTask({ description: "Learn TypeScript" });
 ```
 
-### Type Aliases
-
 - [Action](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Action)
 - [OptimisticUpdateDefinition](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/OptimisticUpdateDefinition)
 - [Query](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Query)
 - [QueryMetadata](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/QueryMetadata)
-
-### Functions
-
 - [configureQueryClient](https://wasp.sh/docs/api/wasp/client/operations/functions/configureQueryClient)
 - [useAction](https://wasp.sh/docs/api/wasp/client/operations/functions/useAction)
 - [useQuery](https://wasp.sh/docs/api/wasp/client/operations/functions/useQuery)
@@ -24553,18 +24547,10 @@ Type-safe links and URLs for the routes you declare in your Wasp spec.
 
 Wasp generates the [routes](https://wasp.sh/docs/api/wasp/client/router/variables/routes) object and the types of [Link](https://wasp.sh/docs/api/wasp/client/router/functions/Link)'s and [NavLink](https://wasp.sh/docs/api/wasp/client/router/functions/NavLink)'s props from your app's routes, so linking to a route that doesn't exist, or passing the wrong params, is a type error.
 
-### Type Aliases
-
 - [LinkProps](https://wasp.sh/docs/api/wasp/client/router/type-aliases/LinkProps)
 - [NavLinkProps](https://wasp.sh/docs/api/wasp/client/router/type-aliases/NavLinkProps)
 - [RouteEntry](https://wasp.sh/docs/api/wasp/client/router/type-aliases/RouteEntry)
-
-### Variables
-
 - [routes](https://wasp.sh/docs/api/wasp/client/router/variables/routes)
-
-### Functions
-
 - [Link](https://wasp.sh/docs/api/wasp/client/router/functions/Link)
 - [NavLink](https://wasp.sh/docs/api/wasp/client/router/functions/NavLink)
 
@@ -24580,8 +24566,6 @@ Wasp generates the [routes](https://wasp.sh/docs/api/wasp/client/router/variable
 ## wasp/client/test
 
 Helpers for testing your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
-
-### Functions
 
 - [mockServer](https://wasp.sh/docs/api/wasp/client/test/functions/mockServer)
 - [renderInContext](https://wasp.sh/docs/api/wasp/client/test/functions/renderInContext)
@@ -24600,12 +24584,7 @@ Helpers for testing your client code with [Vitest](https://vitest.dev/) and [Rea
 
 The Vite plugin that powers your app's client. Use it in your `vite.config.ts`.
 
-### Interfaces
-
 - [WaspPluginOptions](https://wasp.sh/docs/api/wasp/client/vite/interfaces/WaspPluginOptions)
-
-### Functions
-
 - [wasp](https://wasp.sh/docs/api/wasp/client/vite/functions/wasp)
 
 ### Referenced Types
@@ -24664,13 +24643,8 @@ export const ChatPage = () => {
 
 [Using the WebSocket on the client](https://wasp.sh/docs/features/websockets#using-the-websocket-on-the-client)
 
-### Type Aliases
-
 - [ClientToServerPayload](https://wasp.sh/docs/api/wasp/client/webSocket/type-aliases/ClientToServerPayload)
 - [ServerToClientPayload](https://wasp.sh/docs/api/wasp/client/webSocket/type-aliases/ServerToClientPayload)
-
-### Functions
-
 - [useSocket](https://wasp.sh/docs/api/wasp/client/webSocket/functions/useSocket)
 - [useSocketListener](https://wasp.sh/docs/api/wasp/client/webSocket/functions/useSocketListener)
 
@@ -24707,8 +24681,6 @@ export function ExamplePage() {
 
 [Entities](https://wasp.sh/docs/features/data/entities)
 
-### Type Aliases
-
 - [Entity](https://wasp.sh/docs/api/wasp/entities/type-aliases/Entity)
 - [EntityName](https://wasp.sh/docs/api/wasp/entities/type-aliases/EntityName)
 
@@ -24716,8 +24688,6 @@ export function ExamplePage() {
 ## wasp/env
 
 Helpers for validating your app's environment variables.
-
-### Functions
 
 - [defineEnvValidationSchema](https://wasp.sh/docs/api/wasp/env/functions/defineEnvValidationSchema)
 
@@ -24775,8 +24745,6 @@ export const fooBar: FooBar = (req, res, context) => {
 
 [API routes](https://wasp.sh/docs/features/apis)
 
-### Type Aliases
-
 - [Api](https://wasp.sh/docs/api/wasp/server/api/type-aliases/Api)
 - [AuthenticatedApi](https://wasp.sh/docs/api/wasp/server/api/type-aliases/AuthenticatedApi)
 
@@ -24793,55 +24761,87 @@ Server-side auth APIs: types for your [auth hooks](https://wasp.sh/docs/features
 Available when your app enables [auth](https://wasp.sh/docs/features/auth/overview). Some exports depend on the auth methods your app enables:
 
 - With [Email](https://wasp.sh/docs/features/auth/email/overview) auth: [ensureValidEmail](https://wasp.sh/docs/api/wasp/server/auth/functions/ensureValidEmail), [createEmailVerificationLink](https://wasp.sh/docs/api/wasp/server/auth/functions/createEmailVerificationLink), [sendEmailVerificationEmail](https://wasp.sh/docs/api/wasp/server/auth/functions/sendEmailVerificationEmail), [createPasswordResetLink](https://wasp.sh/docs/api/wasp/server/auth/functions/createPasswordResetLink), [sendPasswordResetEmail](https://wasp.sh/docs/api/wasp/server/auth/functions/sendPasswordResetEmail), [isEmailResendAllowed](https://wasp.sh/docs/api/wasp/server/auth/functions/isEmailResendAllowed), [GetVerificationEmailContentFn](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/GetVerificationEmailContentFn), and [GetPasswordResetEmailContentFn](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/GetPasswordResetEmailContentFn).
+
 - With [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) auth: [ensureValidUsername](https://wasp.sh/docs/api/wasp/server/auth/functions/ensureValidUsername).
+
 - With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview) provider: that provider's object with its OAuth client, e.g. [google](https://wasp.sh/docs/api/wasp/server/auth/variables/google) for Google.
 
-### Type Aliases
-
 - [CreateUserResult](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/CreateUserResult)
+
 - [EmailProviderData](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/EmailProviderData)
+
 - [GetPasswordResetEmailContentFn](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/GetPasswordResetEmailContentFn)
+
 - [GetVerificationEmailContentFn](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/GetVerificationEmailContentFn)
+
 - [OAuthData](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OAuthData)
+
 - [OAuthProviderData](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OAuthProviderData)
+
 - [OnAfterEmailVerifiedHook](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OnAfterEmailVerifiedHook)
+
 - [OnAfterLoginHook](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OnAfterLoginHook)
+
 - [OnAfterSignupHook](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OnAfterSignupHook)
+
 - [OnBeforeLoginHook](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OnBeforeLoginHook)
+
 - [OnBeforeOAuthRedirectHook](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OnBeforeOAuthRedirectHook)
+
 - [OnBeforeSignupHook](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/OnBeforeSignupHook)
+
 - [ProviderId](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/ProviderId)
+
 - [ProviderName](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/ProviderName)
+
 - [UsernameProviderData](https://wasp.sh/docs/api/wasp/server/auth/type-aliases/UsernameProviderData)
 
-### Variables
-
 - [discord](https://wasp.sh/docs/api/wasp/server/auth/variables/discord)
+
 - [github](https://wasp.sh/docs/api/wasp/server/auth/variables/github)
+
 - [google](https://wasp.sh/docs/api/wasp/server/auth/variables/google)
+
 - [keycloak](https://wasp.sh/docs/api/wasp/server/auth/variables/keycloak)
+
 - [microsoft](https://wasp.sh/docs/api/wasp/server/auth/variables/microsoft)
+
 - [slack](https://wasp.sh/docs/api/wasp/server/auth/variables/slack)
 
-### Functions
-
 - [createEmailVerificationLink](https://wasp.sh/docs/api/wasp/server/auth/functions/createEmailVerificationLink)
+
 - [createPasswordResetLink](https://wasp.sh/docs/api/wasp/server/auth/functions/createPasswordResetLink)
+
 - [createProviderId](https://wasp.sh/docs/api/wasp/server/auth/functions/createProviderId)
+
 - [createUser](https://wasp.sh/docs/api/wasp/server/auth/functions/createUser)
+
 - [defineUserSignupFields](https://wasp.sh/docs/api/wasp/server/auth/functions/defineUserSignupFields)
+
 - [ensurePasswordIsPresent](https://wasp.sh/docs/api/wasp/server/auth/functions/ensurePasswordIsPresent)
+
 - [ensureTokenIsPresent](https://wasp.sh/docs/api/wasp/server/auth/functions/ensureTokenIsPresent)
+
 - [ensureValidEmail](https://wasp.sh/docs/api/wasp/server/auth/functions/ensureValidEmail)
+
 - [ensureValidPassword](https://wasp.sh/docs/api/wasp/server/auth/functions/ensureValidPassword)
+
 - [ensureValidUsername](https://wasp.sh/docs/api/wasp/server/auth/functions/ensureValidUsername)
+
 - [findAuthIdentity](https://wasp.sh/docs/api/wasp/server/auth/functions/findAuthIdentity)
+
 - [getProviderData](https://wasp.sh/docs/api/wasp/server/auth/functions/getProviderData)
+
 - [getProviderDataWithPassword](https://wasp.sh/docs/api/wasp/server/auth/functions/getProviderDataWithPassword)
+
 - [isEmailResendAllowed](https://wasp.sh/docs/api/wasp/server/auth/functions/isEmailResendAllowed)
+
 - [sanitizeAndSerializeProviderData](https://wasp.sh/docs/api/wasp/server/auth/functions/sanitizeAndSerializeProviderData)
+
 - [sendEmailVerificationEmail](https://wasp.sh/docs/api/wasp/server/auth/functions/sendEmailVerificationEmail)
+
 - [sendPasswordResetEmail](https://wasp.sh/docs/api/wasp/server/auth/functions/sendPasswordResetEmail)
+
 - [updateAuthIdentityProviderData](https://wasp.sh/docs/api/wasp/server/auth/functions/updateAuthIdentityProviderData)
 
 ### Referenced Types
@@ -24983,15 +24983,10 @@ const info = await emailSender.send({
 
 [Sending emails](https://wasp.sh/docs/features/email)
 
-### Type Aliases
-
 - [Email](https://wasp.sh/docs/api/wasp/server/email/type-aliases/Email)
 - [EmailFromField](https://wasp.sh/docs/api/wasp/server/email/type-aliases/EmailFromField)
 - [EmailSender](https://wasp.sh/docs/api/wasp/server/email/type-aliases/EmailSender)
 - [SentMessageInfo](https://wasp.sh/docs/api/wasp/server/email/type-aliases/SentMessageInfo)
-
-### Variables
-
 - [emailSender](https://wasp.sh/docs/api/wasp/server/email/variables/emailSender)
 
 
@@ -25001,19 +24996,11 @@ Server-side APIs you can use in your Operations, APIs, Jobs, and server setup co
 
 You can only import `wasp/server` in server code.
 
-### Classes
-
 - [HttpError](https://wasp.sh/docs/api/wasp/server/classes/HttpError)
-
-### Type Aliases
-
 - [DbSeedFn](https://wasp.sh/docs/api/wasp/server/type-aliases/DbSeedFn)
 - [MiddlewareConfigFn](https://wasp.sh/docs/api/wasp/server/type-aliases/MiddlewareConfigFn)
 - [PrismaClient](https://wasp.sh/docs/api/wasp/server/type-aliases/PrismaClient)
 - [ServerSetupFn](https://wasp.sh/docs/api/wasp/server/type-aliases/ServerSetupFn)
-
-### Variables
-
 - [config](https://wasp.sh/docs/api/wasp/server/variables/config)
 - [env](https://wasp.sh/docs/api/wasp/server/variables/env)
 - [prisma](https://wasp.sh/docs/api/wasp/server/variables/prisma)
@@ -25052,12 +25039,7 @@ await mySpecialJob.delay(10).submit({ name: "Johnny" });
 
 [Jobs](https://wasp.sh/docs/features/jobs)
 
-### Interfaces
-
 - [PgBossJob](https://wasp.sh/docs/api/wasp/server/jobs/interfaces/PgBossJob)
-
-### Type Aliases
-
 - [JobFn](https://wasp.sh/docs/api/wasp/server/jobs/type-aliases/JobFn)
 
 ### Referenced Types
@@ -25095,8 +25077,6 @@ import { getFoo } from "wasp/server/operations";
 import { type GetFoo } from "wasp/server/operations";
 ```
 
-### Type Aliases
-
 - [AuthenticatedActionDefinition](https://wasp.sh/docs/api/wasp/server/operations/type-aliases/AuthenticatedActionDefinition)
 - [AuthenticatedOperation](https://wasp.sh/docs/api/wasp/server/operations/type-aliases/AuthenticatedOperation)
 - [AuthenticatedQueryDefinition](https://wasp.sh/docs/api/wasp/server/operations/type-aliases/AuthenticatedQueryDefinition)
@@ -25127,12 +25107,7 @@ The event types you define on the server are exposed on the client, in `wasp/cli
 
 [WebSockets](https://wasp.sh/docs/features/websockets)
 
-### Interfaces
-
 - [WaspSocketData](https://wasp.sh/docs/api/wasp/server/webSocket/interfaces/WaspSocketData)
-
-### Type Aliases
-
 - [WebSocketDefinition](https://wasp.sh/docs/api/wasp/server/webSocket/type-aliases/WebSocketDefinition)
 
 ### Referenced Types
