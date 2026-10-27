@@ -20,7 +20,10 @@ DEFAULT_COLOR="\033[39m"
 
 # Commands defined as mise tasks in `mise.toml`, which also know about the
 # tasks they depend on in the rest of the repo.
-MISE_TASK_CMD="mise run //waspc:${COMMAND}"
+# On Windows, Git Bash would turn the leading `//` of the task paths into `/`,
+# thinking they're POSIX paths, so we exclude them from that conversion.
+MISE_RUN_CMD="MSYS2_ARG_CONV_EXCL=// mise run"
+MISE_TASK_CMD="$MISE_RUN_CMD //waspc:${COMMAND}"
 [ ${#ARGS[@]} -gt 0 ] && MISE_TASK_CMD+=" --$(printf ' %q' "${ARGS[@]}")"
 
 # Wasp CLI
@@ -33,7 +36,7 @@ WASP_CLI_INSTALL_CMD="${WASP_CLI_CMD} install"
 
 # Utility
 GHCID_CMD="ghcid --command=cabal repl"
-STAN_CMD="mise run //waspc:stan"
+STAN_CMD="$MISE_RUN_CMD //waspc:stan"
 HLINT_CMD="hlint . ${ARGS[*]}"
 PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
 PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"

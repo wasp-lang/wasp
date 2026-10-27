@@ -93,6 +93,9 @@ jobs:
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
+          # Stops Git Bash on Windows from turning the `//` of the task path
+          # into `/`.
+          MSYS2_ARG_CONV_EXCL: "//"
         # Not `mise x <tool> -- ./run ...`, since the `mise run` inside
         # `./run` would switch back to the tools configured in `mise.toml`.
         run: |
