@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "58fbf010dff6379d26375006d59c931f034b53a06d9da76210cad8c5e43f7c12"
+        "e83d80be3dac96aee5dc709085586913ee521d9801a2f35019993bd42be52a21"
     ],
     [
         [
@@ -499,6 +499,13 @@
     [
         [
             "file",
+            "server/loadDotEnv.cjs"
+        ],
+        "6b1c9d7e2e3d5d23d00a88655167b0116ad5e59d42ef14ed030f45f8a9ee7f86"
+    ],
+    [
+        [
+            "file",
             "server/nodemon.json"
         ],
         "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
@@ -508,7 +515,7 @@
             "file",
             "server/package.json"
         ],
-        "fd0cb0af145a56e500c041126b8f1a6352dd4619ce03d877b10ec164abe1e704"
+        "65cfd4ff4a6ce5b0d08ce5f00992527ad030ae6b630acdcfe7ed661fb847ec1a"
     ],
     [
         [

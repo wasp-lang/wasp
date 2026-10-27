@@ -84,6 +84,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
+      genFileCopy [relfile|loadDotEnv.cjs|],
       genFileCopy [relfile|src/createRollupBundle.js|],
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
@@ -121,6 +122,9 @@ genDotEnv spec =
 
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
+
+loadDotEnvFileInServerRootDir :: Path' (Rel ServerRootDir) File'
+loadDotEnvFileInServerRootDir = [relfile|loadDotEnv.cjs|]
 
 genTsConfigJson :: AppSpec -> Generator FileDraft
 genTsConfigJson spec = do
@@ -165,9 +169,8 @@ genPackageJson spec waspDependencies =
     runNodeFromWaspProjectDir =
       "cd "
         ++ SP.fromRelDir waspProjectDirFromServerDir
-        ++ " && DOTENV_CONFIG_PATH="
-        ++ SP.fromRelFile (serverDirFromWaspProjectDir </> dotEnvInServerRootDir)
-        ++ " node --enable-source-maps -r dotenv/config"
+        ++ " && node --enable-source-maps -r ./"
+        ++ SP.fromRelFile (serverDirFromWaspProjectDir </> loadDotEnvFileInServerRootDir)
     waspProjectDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromGeneratedAppComponentDir
     serverDirFromWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir ServerRootDir) =
