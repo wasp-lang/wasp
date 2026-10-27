@@ -72,28 +72,17 @@ jobs:
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
         run: npx wrangler preview --env on-main --name "$PREVIEW_NAME"
 
-      - name: Comment preview URL on the PR
-        if: github.event_name == 'pull_request'
+      - name: Comment preview status on the PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          JOB_STATUS: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
-        # The preview URL always serves the latest deployment of the PR, so we
-        # only comment it once.
-        run: |
-          preview_url=$(jq -r 'select(.type == "preview") | .preview_urls[0] // empty' "$WRANGLER_OUTPUT_FILE_PATH")
-          if [[ -z "$preview_url" ]]; then
-            echo "No preview URL found in the Wrangler output."
-            exit 1
-          fi
-
-          already_commented=$(gh pr view "$PR_NUMBER" --json comments \
-            --jq "any(.comments[]; .body | contains(\"$preview_url\"))")
-
-          if [[ "$already_commented" != "true" ]]; then
-            gh pr comment "$PR_NUMBER" --body "Docs preview: $preview_url"
-          fi
+        run: .github/scripts/comment-web-deploy-preview.sh
 
   delete-preview:
     name: Delete web preview
