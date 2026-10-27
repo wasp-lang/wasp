@@ -41,7 +41,7 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -70,7 +70,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&

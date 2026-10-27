@@ -11,7 +11,7 @@ import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
 import TextLink from "./TextLink";
 
-const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
+const installCmd = "npm i -g @wasp/wasp-cli@latest";
 
 const InstallCommand = () => {
   const [copied, setCopied] = useState(false);

@@ -65,7 +65,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/wasp-cli@$WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -110,7 +110,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/wasp-cli@$WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli

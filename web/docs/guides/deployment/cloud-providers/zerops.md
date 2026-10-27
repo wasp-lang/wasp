@@ -38,7 +38,7 @@ zerops:
     build:
       base: nodejs@24
       buildCommands:
-        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - npm install -g @wasp/wasp-cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
         - wasp install
         - wasp build
@@ -60,7 +60,7 @@ zerops:
       base: nodejs@24
       os: ubuntu
       buildCommands:
-        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - npm install -g @wasp/wasp-cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
         - wasp install
         - wasp build

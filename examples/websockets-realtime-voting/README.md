@@ -23,7 +23,7 @@ git clone https://github.com/wasp-lang/wasp.git
 Make sure you've downloaded and installed Wasp
 
 ```bash
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/wasp-cli@latest
 ```
 
 Then navigate to the project directory
