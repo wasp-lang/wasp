@@ -38,6 +38,7 @@ ghcup = "0.2.6.2"
 "node" = "24.22.1"
 
 jq = "1.8.2"
+railway = "5.64.2"
 
 "github:tfausak/cabal-gild" = "1.8.4.2"
 

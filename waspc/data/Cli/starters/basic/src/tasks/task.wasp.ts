@@ -8,7 +8,8 @@ import { getTasks } from "./queries" with { type: "ref" };
 import { TasksPage } from "./TasksPage" with { type: "ref" };
 
 export const tasksSpec: Spec = [
-  route("TasksRoute", "/", page(TasksPage, { authRequired: true })),
+  // Only logged-in users can see this page.
+  route("TasksRoute", "/tasks", page(TasksPage, { authRequired: true })),
   query(getTasks, { entities: ["Task", "Tag"] }),
   action(createTask, { entities: ["Task"] }),
   action(updateTaskStatus, { entities: ["Task"] }),

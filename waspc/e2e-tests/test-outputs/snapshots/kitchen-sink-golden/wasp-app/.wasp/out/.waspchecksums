@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "43469e5922aad43e6e4c872a95517166d2c8372a0cc721da4ca5f72be3d3ed02"
+        "5dcfe2fcc6cc771f24c4a40c8dbc0dc531c48272a6c445874afc2ea2df5e72cf"
     ],
     [
         [
@@ -165,7 +165,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "47f5ad6164c3e7d27167ba1cc451a796ac084d478e91707b2a796b4e3df71b1b"
+        "6dad7b142f8c4622c0b2cd7cf2953c2eae132b77571a0c3f387c2e1093eba6aa"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "5a0087a39395dac1ca7b498d87d5d5680de1daad79ff7abc28225f29793a1007"
+        "3432c219d5172d4d72e6bf1d7879a62329292342f6efdf0b17cac46fef1f4896"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "78f66ec88277a85e7aa5775ff4ef2da687c4f6551f8636857d64fd017846e0dc"
+        "19e69852a06e3c9d6478f3498c34709d500fd7735b9a3a1b9004e14f6ddd63d6"
     ],
     [
         [
