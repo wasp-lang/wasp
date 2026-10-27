@@ -144,7 +144,7 @@ They'll run on the first available ports starting from those, so pay attention t
 - Second, since each worktree gets its own database, working in many worktrees means having many databases.
 Databases are not terribly useful without data, so we recommend you [seed them](/docs/features/data/databases#seeding-the-database).
 - Third, because Wasp now manages the ports and URLs in development, setting them yourself (e.g., `server.port` in `vite.config.ts` or `PORT` in `.env.server`) is an error.
-This is a **breaking change.** Check the [migration guide](/docs/0.26/migration-guide) for the full list of changes and how to update your project.
+This is a **breaking change.** Check the [migration guide](/docs/migration-guide) for the full list of changes and how to update your project.
 If your app needs to be reachable at a different address (e.g., a LAN hostname or an HTTPS tunnel), use the new `--client-url` and `--server-url` flags instead.
 
 ### Bonus feature
