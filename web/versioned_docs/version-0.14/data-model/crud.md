@@ -54,7 +54,7 @@ crud Tasks {
 
 Here's what it looks like when visualized:
 
-<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud_diagram.png" caption="Visualization of the Tasks crud declaration" />
+<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/docs/features/data/crud/crud_diagram.png" caption="Visualization of the Tasks crud declaration" />
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
@@ -64,7 +64,7 @@ Keep reading for an example of Automatic CRUD in action, or skip ahead for the [
 
 Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](../auth/username-and-pass) based auth.
 
-<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud-guide.gif" caption="We are building a simple tasks app with username based auth" />
+<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/docs/features/data/crud/crud-guide.gif" caption="We are building a simple tasks app with username based auth" />
 
 ### Creating the App
 

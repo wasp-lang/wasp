@@ -2,9 +2,8 @@ cabal-version: 2.4
 -- TODO:
 --  - Rename wasp-cli back to just wasp.
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
---    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.26.0
+version: 0.27.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -150,6 +149,7 @@ library
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
+    temporary ^>=1.3,
     text ^>=2.1.3,
     time ^>=1.12.2,
     unliftio ^>=0.2.25,
@@ -436,7 +436,7 @@ library cli-lib
     process,
     strong-path,
     tar ^>=0.6.3,
-    temporary ^>=1.3,
+    temporary,
     text,
     time,
     utf8-string,
@@ -511,6 +511,7 @@ library cli-lib
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
+    Wasp.Cli.Compile
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -518,6 +519,8 @@ library cli-lib
     Wasp.Cli.Message
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
+    Wasp.Cli.ProjectLock.Data
+    Wasp.Cli.ProjectLock.Handle
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
@@ -596,6 +599,7 @@ test-suite waspc-tests
     Generator.SetupTest
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
+    Job.IO.PrefixedWriterTest
     JobTest
     JsImportTest
     Node.InternalTest
@@ -660,7 +664,6 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
-    DbMigrateTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest

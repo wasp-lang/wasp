@@ -1,3 +1,9 @@
+---
+title: "Fly.io: deploy a Wasp app with a single command"
+sidebar_label: Fly.io
+description: Deploy a Wasp app to Fly.io with wasp deploy fly launch, which creates client, server and database apps. Then add a custom domain and server secrets.
+---
+
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CiCdMention from './_ci-cd-mention.md'

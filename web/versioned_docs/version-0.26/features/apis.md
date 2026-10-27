@@ -1,3 +1,9 @@
+---
+title: "API routes: custom HTTP endpoints in Wasp"
+sidebar_label: API routes
+description: Add custom HTTP endpoints in Wasp when Operations do not fit. Declare an API in the spec, write an Express handler and call it from the client or outside.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'

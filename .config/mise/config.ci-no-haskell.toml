@@ -9,7 +9,7 @@
 [settings]
 disable_tools = [
   "ghcup",
-  "cabal",
+  "mise-ghcup:cabal",
   "mise-ghcup:ghc",
   "mise-ghcup:hls",
   "mise-cabal:hlint",

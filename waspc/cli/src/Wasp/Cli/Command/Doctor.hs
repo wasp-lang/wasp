@@ -4,19 +4,19 @@ module Wasp.Cli.Command.Doctor
 where
 
 import Control.Monad (forM_, when)
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError, withExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either.Extra (eitherToMaybe)
 import Data.Functor ((<&>))
 import Data.Maybe (catMaybes)
 import System.Directory (findExecutable)
-import System.Exit (ExitCode (ExitSuccess))
-import System.IO.Error (catchIOError, tryIOError)
+import System.IO.Error (tryIOError)
 import qualified System.Info
 import System.Process (readProcessWithExitCode)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (trim)
+import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.GitRev (gitRevDescription)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
@@ -85,16 +85,9 @@ checkSystem =
 checkDocker :: Check ()
 checkDocker =
   checkToolExists "docker"
-    >> liftIO isDockerDaemonRunning
-    >>= \case
-      False -> throwError "docker daemon is not running"
-      True -> return ()
-  where
-    isDockerDaemonRunning =
-      (isExitSuccess <$> readProcessWithExitCode "docker" ["info"] "")
-        `catchIOError` const (return False)
-
-    isExitSuccess (exitCode, _, _) = exitCode == ExitSuccess
+    >> withExceptT
+      (const "docker daemon is not running")
+      (ExceptT Docker.checkDockerDaemonConnection)
 
 checkToolVersion :: SV.Version -> Check SV.Version -> Check SV.Version
 checkToolVersion minVersion getUserVersion = do

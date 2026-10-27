@@ -34,7 +34,7 @@ When you have a good idea for a new product, you don't want to waste your time o
 
 ### Vector Similarity Search Template
 
-![Vector Similarity Search Template](/img/starter-templates/embeddings-client.png)
+![Vector Similarity Search Template](/img/docs/project/starter-templates/embeddings-client.png)
 
 A template for generating embeddings and performing vector similarity search on your text data!
 
@@ -48,7 +48,7 @@ wasp new <project-name> -t embeddings
 
 ### SaaS Template
 
-![SaaS Template](/img/starter-templates/gptsaastemplate.png)
+![SaaS Template](/img/docs/project/starter-templates/gptsaastemplate.png)
 
 A SaaS Template to get your profitable side project started quickly and easily!
 

@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index f7c9fab..e52981d 100644
+index 5600668..0b1f858 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,5 +1,6 @@
@@ -7,11 +7,11 @@ index f7c9fab..e52981d 100644
  import type { Task } from "wasp/entities";
 -import { getTasks, useQuery } from "wasp/client/operations";
 +import { createTask, getTasks, useQuery } from "wasp/client/operations";
+ import Logo from "./assets/wasp-logo-rounded.svg";
+ import "./Main.css";
  
- export const MainPage = () => {
-   const { data: tasks, isLoading, error } = useQuery(getTasks);
-@@ -34,3 +35,24 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
-     </div>
+@@ -47,3 +48,29 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
+     </ul>
    );
  };
 +
@@ -29,8 +29,13 @@ index f7c9fab..e52981d 100644
 +  };
 +
 +  return (
-+    <form onSubmit={handleSubmit}>
-+      <input name="description" type="text" defaultValue="" />
++    <form className="new-task-form" onSubmit={handleSubmit}>
++      <input
++        name="description"
++        type="text"
++        placeholder="What needs to be done?"
++        defaultValue=""
++      />
 +      <input type="submit" value="Create task" />
 +    </form>
 +  );

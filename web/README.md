@@ -59,9 +59,9 @@ NOTE: Files in `static/` dir can override whatever is generate on build. Make su
 We deploy the website to Cloudflare Pages. When you want to deploy changes from the `release` branch, you do it like this:
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
-2. Check out the `deploy-web` branch:
+2. Check out and pull the `deploy-web` branch:
 ```sh
-git checkout deploy-web
+git checkout deploy-web && git pull
 ```sh
 3. Merge the `release` branch into `deploy-web`:
 ```sh

@@ -24,7 +24,7 @@ export function transformRefImportsPlugin(): Plugin {
 
     transform: {
       filter: { id: WASP_SPEC_FILE_REGEX },
-      async handler(code, id, meta) {
+      async handler(code, _id, meta) {
         assert(meta.magicString);
 
         // If the AST is already available, use it; otherwise ask the bundler to

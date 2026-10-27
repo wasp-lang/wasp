@@ -57,7 +57,17 @@ export function getServerDeploymentDir(waspProjectDir: WaspProjectDir): string {
   return path.join(getWaspBuildDir(waspProjectDir), ".");
 }
 
-export function getClientDeploymentDir(waspProjectDir: WaspProjectDir): string {
+// Deployment tooling needs a dir outside of the user project dir where it can
+// create files like a Dockerfile for the static server.
+export function ensureClientDeploymentDir(
+  waspProjectDir: WaspProjectDir,
+): string {
+  const clientDeploymentDir = getClientDeploymentDir(waspProjectDir);
+  fs.mkdirSync(clientDeploymentDir, { recursive: true });
+  return clientDeploymentDir;
+}
+
+function getClientDeploymentDir(waspProjectDir: WaspProjectDir): string {
   // The client is deployed from the `.out/web-app` dir.
   return path.join(getWaspBuildDir(waspProjectDir), "web-app");
 }
