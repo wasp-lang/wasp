@@ -25027,13 +25027,8 @@ You should read Google's guide on creating good content for more tips on what to
 
 Client-side APIs for calling your Queries and Actions.
 
-### Type Aliases
-
 - [Action](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Action)
 - [Query](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Query)
-
-### Functions
-
 - [useAction](https://wasp.sh/docs/api/wasp/client/operations/functions/useAction)
 - [useQuery](https://wasp.sh/docs/api/wasp/client/operations/functions/useQuery)
 
@@ -25064,8 +25059,6 @@ Client-side APIs for calling your Queries and Actions.
 ## wasp/server
 
 Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.
-
-### Classes
 
 - [HttpError](https://wasp.sh/docs/api/wasp/server/classes/HttpError)
 

@@ -323,11 +323,12 @@ const config: Config = {
 
         // Documents types that our packages reference but don't export, e.g.
         // the `@wasp.sh/lib-sdk-core` types used in the Wasp SDK's signatures,
-        // and groups them so we can keep them out of the sidebar.
+        // and groups them so we can keep them out of the sidebar. Lists the
+        // other exports without TypeDoc's default groups (e.g. "Functions").
         plugin: [
           "typedoc-plugin-missing-exports",
           // Loaded by path, so that it shares TypeDoc's instance.
-          "./src/plugins/typedoc-referenced-types.ts",
+          "./src/plugins/typedoc-api-groups.ts",
         ],
 
         // input packages
