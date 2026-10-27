@@ -3,9 +3,9 @@
 posthog.init("CdDd2A0jKTI2vFAsrI9JWm3MqpOcgHz1bMyogAcwsE4", {
   api_host: "https://us.i.posthog.com",
   person_profiles: "identified_only",
-  // Docusaurus opens most pages without a full page load. With this option,
-  // PostHog counts a page view each time the path changes, not only on a full
-  // page load.
+  // Docusaurus uses client-side navigation, so page changes don't trigger a
+  // full page load. This tells PostHog to capture a page view on each path
+  // change.
   capture_pageview: "history_change",
   // The privacy policy does not name these features. These lines keep them
   // off, also when somebody turns them on in the PostHog project.
