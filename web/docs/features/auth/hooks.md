@@ -551,11 +551,11 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log("new tokens", newTokens)
+        console.log("new tokens", newTokens)
       }
     }
     ```
@@ -567,11 +567,11 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log("new tokens", newTokens)
+        console.log("new tokens", newTokens)
       }
     }
     ```

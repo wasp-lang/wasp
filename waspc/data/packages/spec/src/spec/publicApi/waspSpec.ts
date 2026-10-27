@@ -1226,12 +1226,12 @@ export interface CrudOperations {
   getAll?: CrudOperationOptions;
   /**
    * @default
-   * `Entity.create({ data: args.data })`
+   * `Entity.create({ data: args })`
    */
   create?: CrudOperationOptions;
   /**
    * @default
-   * `Entity.update({ where: { id: args.id }, data: args.data })`
+   * `Entity.update({ where: { id }, data })`, where `{ id, ...data } = args`
    */
   update?: CrudOperationOptions;
   /**

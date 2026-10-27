@@ -66,7 +66,7 @@ Below is the actual definitions of default middleware which you can override.
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    export type MiddlewareConfig = Map<string, express.RequestHandler>
+    type MiddlewareConfig = Map<string, express.RequestHandler>
 
     // Used in the examples below 👇
     export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
