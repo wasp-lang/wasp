@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Wasp.Job.Process
   ( fromProc,
   )
@@ -13,17 +15,23 @@ import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Text as CT
 import Data.Text (Text)
-import System.Exit (ExitCode)
+import System.Exit (ExitCode (..))
 import System.IO (Handle, hClose)
-import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import Wasp.Job.Common (Job (..), OutputType (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
+#if !defined(mingw32_HOST_OS)
+import Data.Functor ((<&>))
+import Data.Maybe (mapMaybe)
+import System.IO.Error (tryIOError)
+import qualified System.Posix.Signals as Signals
+import Text.Read (readMaybe)
+#endif
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code.
--- Makes sure to terminate the process (or process group on *nix) if the job is
+-- Makes sure to stop the process (and its descendants on *nix) if the job is
 -- stopped before the process finishes.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
@@ -45,17 +53,51 @@ fromProc jobProcess = Job $ do
       -- Reaps the process once it exits, without making the job wait for it.
       void $ forkIO $ void $ P.waitForProcess processHandle
 
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
-    terminate processHandle =
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
+-- | Stops the process, and on *nix also all its descendants.
+-- We can't count on the process to stop its descendants: e.g. npm and npx run
+-- commands with `sh -c`, and dash (`sh` on Debian and Ubuntu) doesn't forward
+-- the signal to its child.
+-- We don't signal the process group instead: Wasp doesn't start processes in
+-- their own group, so that group would also include Wasp itself, its other
+-- jobs, and whatever started Wasp. And we don't start each process in its own
+-- group either: an interactive process would then get stopped when it reads
+-- from the terminal, and Ctrl+C in the terminal would no longer reach it.
+-- Windows has no signals, so there we terminate just the process.
+terminate :: P.ProcessHandle -> IO ()
+#if defined(mingw32_HOST_OS)
+terminate = P.terminateProcess
+#else
+terminate processHandle = P.getPid processHandle >>= mapM_ interruptProcessTree
+
+-- | Sends SIGINT to the process and all its descendants, which is what Ctrl+C
+-- in the terminal would reach.
+interruptProcessTree :: P.Pid -> IO ()
+interruptProcessTree rootPid = do
+  -- We list the descendants before sending any signal, because once a process
+  -- exits, its children get a new parent. We miss descendants started after
+  -- this, but processes rarely start new ones while they're being stopped.
+  descendantPids <- getDescendantPids rootPid
+  -- Some of the processes might have exited in the meantime, so we ignore errors.
+  mapM_ (tryIOError . Signals.signalProcess Signals.sigINT) (rootPid : descendantPids)
+
+-- | Lists the descendants of the process with `ps`.
+-- If `ps` fails (e.g. it isn't installed, as in Debian's slim images), we list
+-- none, and only signal the process itself.
+getDescendantPids :: P.Pid -> IO [P.Pid]
+getDescendantPids rootPid =
+  tryIOError (P.readProcessWithExitCode "ps" ["-A", "-o", "pid=", "-o", "ppid="] "") <&> \case
+    Right (ExitSuccess, psOutput, _) -> descendantsOf rootPid $ mapMaybe parsePsLine $ lines psOutput
+    _ -> []
+  where
+    parsePsLine line = case mapM readMaybe (words line) of
+      Just [pid, parentPid] -> Just (pid, parentPid)
+      _ -> Nothing
+
+    descendantsOf pid pidsWithParents =
+      concatMap
+        (\childPid -> childPid : descendantsOf childPid pidsWithParents)
+        [childPid | (childPid, parentPid) <- pidsWithParents, parentPid == pid]
+#endif
 
 forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
 forwardOutput _ Nothing = return ()

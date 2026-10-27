@@ -6,6 +6,7 @@
 
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
+- When the web app or server fails during `wasp start`, Wasp no longer interrupts itself and whatever started it (e.g. an npm script or a CI shell) while stopping the rest. (FIXME PR LINK)
 
 ## 0.26.0
 
