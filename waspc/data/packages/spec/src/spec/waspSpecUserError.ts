@@ -10,7 +10,7 @@
  *
  * @example
  * ```ts
- * import { WaspSpecUserError } from "@wasp.sh/spec"
+ * import { WaspSpecUserError } from "@wasp/spec"
  *
  * export function requireEnv(name: string): string {
  *   const value = process.env[name]

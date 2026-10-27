@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { api, handleApiError } from '../../../api/index.js';
-import { SuccessResponseSchema } from '@wasp.sh/lib-sdk-core';
+import { SuccessResponseSchema } from '@wasp/lib-sdk-core';
 {=# isEmailUserSignupFieldsDefined =}
 import type { UserEmailSignupFields } from '../../providers'
 {=/ isEmailUserSignupFieldsDefined =}

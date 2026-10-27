@@ -67,7 +67,7 @@ jobs:
 
           # Install the CLI package (its optional deps pull in the
           # platform-specific sub-package for this runner).
-          npm install "https://pkg.pr.new/@wasp.sh/wasp-cli@$COMMIT_SHA"
+          npm install "https://pkg.pr.new/@wasp/cli@$COMMIT_SHA"
 
       - name: Run Wasp CLI
         run: |
@@ -83,7 +83,7 @@ jobs:
 
           # Find the installed platform sub-package (there should be exactly
           # one matching the runner's os/cpu/libc).
-          pkg_dir=$(ls -d install-test/node_modules/@wasp.sh/wasp-cli-*/data 2>/dev/null | head -1)
+          pkg_dir=$(ls -d install-test/node_modules/@wasp/cli-*/data 2>/dev/null | head -1)
 
           if [ -z "$pkg_dir" ]; then
             echo "::error::No platform sub-package with data directory found"

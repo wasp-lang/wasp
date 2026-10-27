@@ -8,7 +8,7 @@ import {
   FullPageWrapper,
   Loader,
   MessageError,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'
 
 export const createAuthRequiredPage = (Page) => {
   return (props) => {

@@ -76,7 +76,7 @@ Let's start with the `main.wasp.ts` file: it is the central spec file of your ap
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "RecipeApp",
@@ -119,7 +119,7 @@ We do that by defining Operations, in this case, a Query `getRecipes` and Action
 First, we define these Operations in our `main.wasp.ts` file, so Wasp knows about them and can "beef them up":
 
 ```ts title="main.wasp.ts"
-import { action, app, query } from "@wasp.sh/spec"
+import { action, app, query } from "@wasp/spec"
 import { getRecipes, addRecipe } from "./src/recipe/operations" with { type: "ref" }
 
 export default app({
@@ -157,7 +157,7 @@ For the end, let's create a home page of our app.
 First, we define it in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { HomePage } from "./src/pages/HomePage" with { type: "ref" }
 
 export default app({
@@ -246,7 +246,7 @@ Let's create and run our first Wasp app in 3 short steps:
 1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
 
    ```shell
-   npm i -g @wasp.sh/wasp-cli@latest
+   npm i -g @wasp/cli@latest
    ```
 
    ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
@@ -352,7 +352,7 @@ Check NVM repo for more details: <https://github.com/nvm-sh/nvm>.
 Open your terminal and run:
 
 ```shell
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 :::note[Looking for the old installer script?]
@@ -631,7 +631,7 @@ The file exports your app's top-level configuration and a collection of specific
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 // This is a reference to your MainPage component.
 // Read more about how Wasp references your code in the section below.
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -663,11 +663,11 @@ Notice the `with { type: "ref" }` part at the end of the import statement. This 
 
 This Wasp app uses three specifications:
 
-- [**app**](https://wasp.sh/docs/api/@wasp.sh/spec/functions/app): Top-level configuration information about your app.
+- [**app**](https://wasp.sh/docs/api/@wasp/spec/functions/app): Top-level configuration information about your app.
 
-- [**route**](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route): Describes which path each page should be accessible from.
+- [**route**](https://wasp.sh/docs/api/@wasp/spec/functions/route): Describes which path each page should be accessible from.
 
-- [**page**](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
+- [**page**](https://wasp.sh/docs/api/@wasp/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.
 
@@ -677,7 +677,7 @@ In the next section, we'll explore how **route** and **page** work together to b
 In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
@@ -729,7 +729,7 @@ This happens when the TypeScript Language Server gets out of sync with the curre
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
@@ -874,7 +874,7 @@ Since `src/HelloPage.tsx` no longer exists, remove its route from the `main.wasp
 Your Wasp file should now look like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
@@ -958,7 +958,7 @@ We'll create a new Query called `getTasks`. We'll need to declare the Query in t
 We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it exists:
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp.sh/spec"
+import { app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 
@@ -1110,7 +1110,7 @@ Creating an Action is very similar to creating a Query.
 We must first declare the Action in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask } from "./src/actions" with { type: "ref" }
@@ -1262,7 +1262,7 @@ Solution
 Declaring the Action in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -1381,7 +1381,7 @@ model User {
 Next, tell Wasp to use full-stack [authentication](https://wasp.sh/docs/features/auth/overview):
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -1429,7 +1429,7 @@ Wasp also supports authentication using [email](https://wasp.sh/docs/features/au
 Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
@@ -1496,7 +1496,7 @@ Since you are using TypeScript, you can benefit from using Wasp's type-safe `Lin
 We don't want users who are not logged in to access the main page, because they won't be able to create any tasks. So let's make the page private by requiring the user to be logged in:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
@@ -1714,7 +1714,7 @@ You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all 
 ### A quick example
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp.sh/spec";
+import { app, page, query, route } from "@wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -1732,7 +1732,7 @@ export default app({
 
 You build your app by:
 
-1. Importing the building blocks (`app`, `page`, `route`, `query`, ...) from `@wasp.sh/spec`.
+1. Importing the building blocks (`app`, `page`, `route`, `query`, ...) from `@wasp/spec`.
 2. Importing your own components and functions adding the import attribute `with { type: "ref" }`.
 3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `spec` property.
 4. Exporting the result as the **default export** of the file.
@@ -1741,7 +1741,7 @@ You build your app by:
 
 ### `wasp install`
 
-The `@wasp.sh/spec` package doesn't exist on npm, but it is generated by Wasp per project, so we can customize it to fit the needs of your app. We do this through the `wasp install` command, which installs your app's dependencies and sets up the generated Wasp Spec package. You'll have to run it at least once after creating a new Wasp project, but you might also need to run it again later on when the generated spec needs to be updated.
+The `@wasp/spec` package doesn't exist on npm, but it is generated by Wasp per project, so we can customize it to fit the needs of your app. We do this through the `wasp install` command, which installs your app's dependencies and sets up the generated Wasp Spec package. You'll have to run it at least once after creating a new Wasp project, but you might also need to run it again later on when the generated spec needs to be updated.
 
 If the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
 
@@ -1785,10 +1785,10 @@ The vast majority of Wasp apps won't run into these limitations, so we recommend
 
 #### `ref` helper {#reference-objects}
 
-Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp.sh/spec`, then pass it an import object with `import` (or `importDefault`) and `from`:
+Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp/spec`, then pass it an import object with `import` (or `importDefault`) and `from`:
 
 ```ts title="main.wasp.ts"
-import { ref } from "@wasp.sh/spec";
+import { ref } from "@wasp/spec";
 
 export default app({
   // ...
@@ -1804,7 +1804,7 @@ export default app({
 The `from` path is relative to the `*.wasp.ts` file where you call `ref(...)` and must resolve inside your project's `src` directory.
 
 :::note[Limitation]
-You can't re-export `ref` from `@wasp.sh/spec` (`export { ref } from "@wasp.sh/spec"`). Import it first, then re-export it if needed.
+You can't re-export `ref` from `@wasp/spec` (`export { ref } from "@wasp/spec"`). Import it first, then re-export it if needed.
 :::
 
 ### Useful patterns
@@ -1816,7 +1816,7 @@ For larger apps you don't have to keep everything in `main.wasp.ts`. You can mov
 Each feature file exports it's own `Spec`:
 
 ```ts title="src/auth/auth.wasp.ts"
-import { page, route, type Spec } from "@wasp.sh/spec";
+import { page, route, type Spec } from "@wasp/spec";
 
 import { LoginPage } from "./LoginPage" with { type: "ref" };
 import { SignupPage } from "./SignupPage" with { type: "ref" };
@@ -1832,7 +1832,7 @@ The `Spec` annotation gives TypeScript enough information to validate the specif
 Then `main.wasp.ts` imports it and joins in into the `spec`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route } from "@wasp/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { authSpec } from "./src/auth/auth.wasp";
@@ -1874,11 +1874,11 @@ export default app({
 
 ### Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec)
+[API reference](https://wasp.sh/docs/api/@wasp/spec)
 
-#### [@wasp.sh/spec »](https://wasp.sh/docs/api/@wasp.sh/spec)
+#### [@wasp/spec »](https://wasp.sh/docs/api/@wasp/spec)
 
-[A complete overview of all the available configuration options in the Wasp Spec.](https://wasp.sh/docs/api/@wasp.sh/spec)
+[A complete overview of all the available configuration options in the Wasp Spec.](https://wasp.sh/docs/api/@wasp/spec)
 
 
 ## Features / Pages and routes
@@ -1890,7 +1890,7 @@ A **page** is a React component that Wasp renders as a full screen of your app. 
 To show a page at a URL, call `route` with a unique name, the URL path, and the page to render. Wrap your React component with `page` to turn it into a page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 
@@ -1929,7 +1929,7 @@ Most apps have pages whose content depends on the URL, like `/photo/42`. Instead
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -1956,7 +1956,7 @@ Read more in the [React Router docs on dynamic segments](https://reactrouter.com
 Append `?` to a path segment to make it optional. The route matches whether or not the segment is present:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -1989,7 +1989,7 @@ Read more in the [React Router docs on optional segments](https://reactrouter.co
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
@@ -2099,7 +2099,7 @@ export function Navigation() {
 If your app uses [authentication](https://wasp.sh/docs/features/auth/overview), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path defined in `auth.onAuthFailedRedirectTo`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -2131,7 +2131,7 @@ While Wasp checks whether the user is logged in, it shows a loading indicator in
 By default, Wasp renders each page on its own. To give every page a shared header, footer, or set of providers, declare a **root component** in the `client` config and render React Router's `Outlet` where the current page should go:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { Root } from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -2185,7 +2185,7 @@ Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/
 When a visitor opens a URL that no route matches, Wasp shows a generic error screen. To show your own "not found" page instead, add a route with a path of `/*`. The router picks the most specific matching route, so this route only renders when nothing else matches:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { NotFoundPage } from "./src/NotFoundPage" with { type: "ref" }
 
 export default app({
@@ -2204,7 +2204,7 @@ By default, Wasp splits and lazy-loads all pages. This means that, for example, 
 In most apps, you won't notice lazy loading at all. The page's code is usually small and downloads quickly. But when a page has a lot of code, or your users are on slow connections, navigating to it can feel sluggish: the previous page stays on screen until the new page's code arrives. If a page needs to render instantly, like one users open right after landing on your app, set the `lazy: false` option on its `route` spec to include it in the initial bundle:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -2225,7 +2225,7 @@ Disabling lazy loading means that this page's code will always be downloaded by 
 You can prerender specific routes at build time by setting the `prerender` property. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -2242,17 +2242,17 @@ See the [Prerendering](https://wasp.sh/docs/advanced/prerendering) page for the 
 
 #### `page` and `route` specifications
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/page)
 
-#### [page »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
+#### [page »](https://wasp.sh/docs/api/@wasp/spec/functions/page)
 
-[All the options for declaring a page in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
+[All the options for declaring a page in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/page)
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/route)
 
-#### [route »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+#### [route »](https://wasp.sh/docs/api/@wasp/spec/functions/route)
 
-[All the options for declaring a route in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+[All the options for declaring a route in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/route)
 
 #### `Link` Component
 
@@ -2535,7 +2535,7 @@ To create a Query in Wasp, we begin with a `query` spec.
 Let's declare two Queries - one to fetch all tasks, and another to fetch tasks based on a filter, such as whether a task is done:
 
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp.sh/spec"
+import { app, query } from "@wasp/spec"
 import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -2816,7 +2816,7 @@ When a Query fails, `useQuery` retries it a few times before giving up. Client e
 In most cases, resources used in Queries will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your Query, add it to the `query` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp.sh/spec"
+import { app, query } from "@wasp/spec"
 import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -2856,11 +2856,11 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 #### Specifying Queries
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/query)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/query)
 
-#### [query »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/query)
+#### [query »](https://wasp.sh/docs/api/@wasp/spec/functions/query)
 
-[All the options for declaring a query in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/query)
+[All the options for declaring a query in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/query)
 
 Declaring a Query enables you to import and use it anywhere in your code (on the server or the client). For example, for a Query that we declared as `getFoo`, Wasp generates two functions with the same name that you can import and use:
 
@@ -2913,7 +2913,7 @@ The defaults were chosen to make the type signature as permissive as possible. I
 The following Query:
 
 ```ts
-import { app, query } from "@wasp.sh/spec"
+import { app, query } from "@wasp/spec"
 import { getFoo } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -2993,7 +2993,7 @@ Once these two steps are completed, you can use the Action from anywhere in your
 To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -3260,7 +3260,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 In most cases, resources used in Actions will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your Action, add it to the `action` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -3335,11 +3335,11 @@ Here are the key differences between Queries and Actions:
 
 #### Specifying Actions in Wasp Spec
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/action)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/action)
 
-#### [action »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/action)
+#### [action »](https://wasp.sh/docs/api/@wasp/spec/functions/action)
 
-[All the options for declaring an action in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/action)
+[All the options for declaring an action in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/action)
 
 Declaring an Action enables you to import and use it anywhere in your code (on the server or the client). For example, for an Action that we declared as `createFoo`, Wasp generates two functions with the same name that you can import and use:
 
@@ -3392,7 +3392,7 @@ The defaults were chosen to make the type signature as permissive as possible. I
 The following Action:
 
 ```ts
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createFoo } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -3555,7 +3555,7 @@ We can then define a new `crud` called `Tasks`.
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
+import { app, crud } from "@wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -3602,7 +3602,7 @@ We are building a simple tasks app with username based auth
 We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -3655,7 +3655,7 @@ We can then run `wasp db migrate-dev` to create the database and run the migrati
 Let's add the following `crud` spec to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
+import { app, crud } from "@wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -3677,7 +3677,7 @@ We also overrode the `create` operation with a custom implementation. This means
 
 #### Our Custom `create` Operation
 
-We need a custom `create` operation because we want to make sure that the task is connected to the user creating it. Automatic CRUD doesn't yet support this by default. Read more about the default implementations in the [`CrudOperations` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/CrudOperations).
+We need a custom `create` operation because we want to make sure that the task is connected to the user creating it. Automatic CRUD doesn't yet support this by default. Read more about the default implementations in the [`CrudOperations` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/CrudOperations).
 
 Here's the `src/tasks.ts` file:
 
@@ -3828,11 +3828,11 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 #### Specifying CRUD Operations
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/crud)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
 
-#### [crud »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/crud)
+#### [crud »](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
 
-[All the options for declaring CRUD operations in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/crud)
+[All the options for declaring CRUD operations in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
 
 #### Defining the overrides
 
@@ -4076,7 +4076,7 @@ Seeding is most commonly used for:
 You can define as many **seed functions** as you want in an array under the `db.seeds` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
 export default app({
@@ -4171,7 +4171,7 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client). To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance. This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
 export default app({
@@ -4209,11 +4209,11 @@ export const setUpPrisma = () => {
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Db)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
 
-#### [Db »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Db)
+#### [Db »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
 
-[All the options for the db field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Db)
+[All the options for the db field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
 
 #### CLI Commands for Seeding the Database
 
@@ -4228,7 +4228,7 @@ Use one of the following commands to run the seed functions:
   This command runs the seed function with the specified name. Wasp derives this name from the imported function name you list in `db.seeds`. For example, to run the seed function `devSeedSimple` which was defined like this:
 
   ```ts title="main.wasp.ts"
-  import { app } from "@wasp.sh/spec"
+  import { app } from "@wasp/spec"
   import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
   export default app({
@@ -4317,7 +4317,7 @@ Relationship between Wasp file and Prisma file
 Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { api, app, job, query } from "@wasp.sh/spec"
+import { api, app, job, query } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { foo } from "./src/workers/bar" with { type: "ref" }
@@ -4503,7 +4503,7 @@ Auth is an essential piece of any serious application. That's why Wasp provides 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -4609,7 +4609,7 @@ When declaring a page, you can set the `authRequired` property.
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
@@ -4676,7 +4676,7 @@ There are two ways to access the `user` object on the client:
 If the page's spec sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
@@ -4788,7 +4788,7 @@ When users log in, Wasp creates a session for them and stores it in the database
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -4883,7 +4883,7 @@ First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `mai
 For example, if you are using [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -5070,18 +5070,18 @@ Read more about the render function in the [API Reference](#signupform-customiza
 
 #### Auth Fields
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-#### [Auth »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+#### [Auth »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
 #### Signup Fields Customization
 
 If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -5239,7 +5239,7 @@ After Wasp generates the UI components for your auth, you can use it as is, or c
 Based on the authentication providers you enabled in your `main.wasp.ts` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -5261,7 +5261,7 @@ You'll get the following UI:
 And then if you enable Google and Github:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -5303,7 +5303,7 @@ Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-
 You can use the `LoginForm` component to build your login page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 
 export default app({
@@ -5334,7 +5334,7 @@ Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-
 You can use the `SignupForm` component to build your signup page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
@@ -5369,7 +5369,7 @@ If users forget their password, they can use this form to reset it.
 You can use the `ForgotPasswordForm` component to build your own forgot password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
 
 export default app({
@@ -5404,7 +5404,7 @@ After users click on the link in the email they receive after submitting the for
 You can use the `ResetPasswordForm` component to build your reset password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
 
 export default app({
@@ -5435,7 +5435,7 @@ After users sign up, they will receive an email with a link to this form where t
 You can use the `VerifyEmailForm` component to build your email verification page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
 
 export default app({
@@ -5590,7 +5590,7 @@ To set up username authentication we need to:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -5615,7 +5615,7 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -5635,7 +5635,7 @@ export default app({
 })
 ```
 
-Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig).
+Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig).
 
 #### 2. Add the User Entity
 
@@ -5659,7 +5659,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -5754,17 +5754,17 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-#### [Auth »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+#### [Auth »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
 
-#### [UsernameAndPasswordConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig)
+#### [UsernameAndPasswordConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
 
-[All the options for the usernameAndPassword auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig)
+[All the options for the usernameAndPassword auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
 
 Read more about the `userSignupFields` function in the [Auth Overview docs](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
 
@@ -5946,7 +5946,7 @@ We'll need to take the following steps to set up email authentication:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -5974,7 +5974,7 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -6008,7 +6008,7 @@ export default app({
 })
 ```
 
-Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailAuthConfig).
+Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig).
 
 #### 2. Add the User Entity
 
@@ -6032,7 +6032,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import {
   LoginPage,
   SignupPage,
@@ -6231,7 +6231,7 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailFlowConfig#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig#getemailcontentfn).
 
 #### Email Verification Page
 
@@ -6277,7 +6277,7 @@ When the user receives an e-mail, they receive a link that goes to the client ro
 
 Users can enter their new password there.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailFlowConfig#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig#getemailcontentfn).
 
 ##### Password
 
@@ -6315,17 +6315,17 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-#### [Auth »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+#### [Auth »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
 
-#### [EmailAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailAuthConfig)
+#### [EmailAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
 
-[All the options for the email auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailAuthConfig)
+[All the options for the email auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
 
 Read more about the `userSignupFields` function in the [Auth Overview docs](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
 
@@ -6694,7 +6694,7 @@ Wasp requires you to declare a `userEntity` for all `auth` methods (social or ot
 Here's what the full setup looks like:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -6755,7 +6755,7 @@ model User {
 Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -6846,11 +6846,11 @@ Click on each provider for more details.
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the social auth methods.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the social auth methods.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For more information on the provider-specific behavior of the `userSignupFields` and `configFn` functions, check the provider-specific API References:
 
@@ -6902,7 +6902,7 @@ Enabling GitHub Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -6926,7 +6926,7 @@ export default app({
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7000,7 +7000,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -7062,7 +7062,7 @@ Running `wasp db migrate-dev` and `wasp start` should now give you a working app
 Add `gitHub: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7144,7 +7144,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/github" with { type: "ref" }
 
 export default app({
@@ -7210,11 +7210,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the gitHub auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the gitHub auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -7240,7 +7240,7 @@ Enabling Google Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -7264,7 +7264,7 @@ export default app({
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7390,7 +7390,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -7452,7 +7452,7 @@ Running `wasp db migrate-dev` and `wasp start` should now give you a working app
 Add `google: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7521,7 +7521,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -7587,11 +7587,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the google auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the google auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -7617,7 +7617,7 @@ Enabling Keycloak Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -7641,7 +7641,7 @@ export default app({
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7722,7 +7722,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -7782,7 +7782,7 @@ Running `wasp db migrate-dev` and `wasp start` should now give you a working app
 Add `keycloak: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7844,7 +7844,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "ref" }
 
 export default app({
@@ -7910,11 +7910,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the keycloak auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the keycloak auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -7940,7 +7940,7 @@ Enabling Slack Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -7964,7 +7964,7 @@ export default app({
 Now let's properly configure the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8041,7 +8041,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -8127,7 +8127,7 @@ wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8212,7 +8212,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
@@ -8279,11 +8279,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the slack auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the slack auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -8309,7 +8309,7 @@ Enabling Discord Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -8333,7 +8333,7 @@ export default app({
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8401,7 +8401,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -8463,7 +8463,7 @@ Running `wasp db migrate-dev` and `wasp start` should now give you a working app
 Add `discord: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8534,7 +8534,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/discord" with { type: "ref" }
 
 export default app({
@@ -8600,11 +8600,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the discord auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the discord auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -8645,7 +8645,7 @@ Enabling Microsoft Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -8669,7 +8669,7 @@ export default app({
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8764,7 +8764,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -8826,7 +8826,7 @@ Running `wasp db migrate-dev` and `wasp start` should now give you a working app
 Add `microsoft: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8889,7 +8889,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/microsoft" with { type: "ref" }
 
 export default app({
@@ -8955,11 +8955,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
-[All the options for the microsoft auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the microsoft auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -9313,7 +9313,7 @@ When you want to add authentication to your app, you need to specify the `userEn
 For example, you might set it to `User`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -9475,7 +9475,7 @@ In the Advanced section you can see an example for [Email](https://wasp.sh/docs/
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -9603,7 +9603,7 @@ OAuth Flow with Hooks
 To use auth hooks, you must first declare them in the Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,
@@ -9649,7 +9649,7 @@ The `onBeforeSignup` hook can be useful if you want to reject a user based on so
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9702,7 +9702,7 @@ Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook 
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9757,7 +9757,7 @@ The `onAfterEmailVerified` hook receives an `email` string and `user` object, th
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9801,7 +9801,7 @@ The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.
 Works with [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9846,7 +9846,7 @@ The `onBeforeLogin` hook can be useful if you want to reject a user based on som
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9891,7 +9891,7 @@ Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to updat
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9964,7 +9964,7 @@ If you want to refresh the token periodically, use a [Wasp Job](https://wasp.sh/
 ### API Reference
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,
@@ -10249,7 +10249,7 @@ Below you will find a starting point for creating your own actions. The given im
 #### Email
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -10391,7 +10391,7 @@ export const customSignup: CustomSignup<
 #### Username and password
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -10502,7 +10502,7 @@ We suggest using the built-in field validators for your authentication flow. You
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10568,7 +10568,7 @@ To speed up development, Wasp offers a `Dummy` email sender that `console.log`s 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10584,7 +10584,7 @@ export default app({
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10615,7 +10615,7 @@ Some hosting providers (for example, **Railway** on its free tier, or **Hetzner*
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10658,7 +10658,7 @@ As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10686,7 +10686,7 @@ SENDGRID_API_KEY=
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10713,11 +10713,11 @@ RESEND_API_KEY=
 
 #### `emailSender` specification
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailSender)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
 
-#### [EmailSender »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailSender)
+#### [EmailSender »](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
 
-[All the options for the emailSender field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailSender)
+[All the options for the emailSender field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
 
 #### JavaScript API
 
@@ -10792,7 +10792,7 @@ Let's write an example Job that will print a message to the console and return a
 1. Start by creating a Job spec in your Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp.sh/spec"
+import { app, job } from "@wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -10866,7 +10866,7 @@ In our example, `mySpecialJob` takes an argument, but passing arguments to jobs 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job spec:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp.sh/spec"
+import { app, job } from "@wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -10959,11 +10959,11 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 
 #### `job` specification
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/job)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/job)
 
-#### [job »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/job)
+#### [job »](https://wasp.sh/docs/api/@wasp/spec/functions/job)
 
-[All the options for defining a job in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/job)
+[All the options for defining a job in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/job)
 
 #### JavaScript API
 
@@ -11070,7 +11070,7 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({
@@ -11239,11 +11239,11 @@ export const ChatPage = () => {
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/WebSocket)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
 
-#### [WebSocket »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/WebSocket)
+#### [WebSocket »](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
 
-[All the options for the webSocket field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/WebSocket)
+[All the options for the webSocket field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
 
 
 ## Features / API routes
@@ -11266,7 +11266,7 @@ After completing these two steps, you'll be able to call the API from the client
 First, we need to declare the API in the Wasp file and you can easily do this with the `api` function:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11327,7 +11327,7 @@ Let's say you wanted to create some `GET` route that would take an email address
 Define the API in Wasp:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11391,7 +11391,7 @@ You can do this by defining custom middleware for your APIs in the Wasp file.
 For example, an `apiNamespace` is a simple spec used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from "@wasp.sh/spec"
+import { apiNamespace, app } from "@wasp/spec"
 import { apiMiddleware } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11420,7 +11420,7 @@ For more information about middleware configuration, please see: [Middleware Con
 In many cases, resources used in APIs will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your API, add it to the `api` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11456,7 +11456,7 @@ You can use streaming responses to send data to the client in chunks as it becom
 To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { getStreamingText } from "./src/streaming" with { type: "ref" }
 
 export default app({
@@ -11591,17 +11591,17 @@ async function fetchStream(
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/api)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/api)
 
-#### [api »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/api)
+#### [api »](https://wasp.sh/docs/api/@wasp/spec/functions/api)
 
-[All the options for declaring an API endpoint in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/api)
+[All the options for declaring an API endpoint in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/api)
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/functions/apiNamespace)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
 
-#### [apiNamespace »](https://wasp.sh/docs/api/@wasp.sh/spec/functions/apiNamespace)
+#### [apiNamespace »](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
 
-[All the options for declaring an API namespace in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/apiNamespace)
+[All the options for declaring an API namespace in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
 
 
 ## Advanced / Dependencies
@@ -12067,7 +12067,7 @@ export const clientEnvValidationSchema = defineEnvValidationSchema(
 The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -12121,7 +12121,7 @@ export const envValidationSchema = defineEnvValidationSchema(
 The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -12174,7 +12174,7 @@ export const envValidationSchema = defineEnvValidationSchema(
 The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -12521,7 +12521,7 @@ Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp
 For routes with no [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
@@ -12543,7 +12543,7 @@ export default app({
 If your route has [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 export default app({
@@ -12563,7 +12563,7 @@ The prerendered paths must match the route's pattern, with all dynamic segments 
 If you have a lot of dynamic paths to prerender, you can generate the list of paths from your data or other sources. For example, if you want to prerender the routes for your Top 10 countries, you can fetch them from your analytics and generate the paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 async function getTopCountries(): Promise<string[]> {
@@ -12621,7 +12621,7 @@ You can learn more in our SEO guide, which explains exactly how prerendering hel
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashPage } from "./src/DashPage" with { type: "ref" }
 
 export default app({
@@ -12692,11 +12692,11 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ### API reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Route#prerender)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route#prerender)
 
-#### [Route.prerender »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Route#prerender)
+#### [Route.prerender »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route#prerender)
 
-[The full description of the prerender option of the route spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Route#prerender)
+[The full description of the prerender option of the route spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route#prerender)
 
 
 ## Advanced / SEO & GEO
@@ -12737,7 +12737,7 @@ For the full picture, including how to measure your app, where to apply each tec
 Each Wasp project can have only one `app` spec. It is used to configure your app and its components.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "todoApp",
@@ -12758,7 +12758,7 @@ We'll go through some common customizations you might want to do to your app. Fo
 You may want to change the title of your app, which appears in the browser tab, next to the favicon. You can change it by changing the `title` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -12775,7 +12775,7 @@ If you are looking to add additional style sheets or scripts to your app, you ca
 An example of adding extra style sheets and scripts:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -12793,11 +12793,11 @@ export default app({
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
 
-#### [App »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
+#### [App »](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
 
-[All the options for the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
+[All the options for the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
 
 
 ## Advanced / Client customization / Client configuration
@@ -12805,7 +12805,7 @@ export default app({
 You can configure the client using the `client` field inside the `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -12833,7 +12833,7 @@ It can be used for a variety of purposes, but the most common ones are:
 Let's define a common layout for your application:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -12870,7 +12870,7 @@ You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/O
 This is how to set up various providers that your application needs:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -12898,7 +12898,7 @@ export default function Root() {
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-For the full description of the `rootComponent` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client#rootcomponent).
+For the full description of the `rootComponent` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client#rootcomponent).
 
 ### Setup Function
 
@@ -12971,14 +12971,14 @@ export default async function mySetupFunction(): Promise<void> {
 
 Make sure to pass in an object expected by the `QueryClient`'s constructor, as explained in [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client#setupfn).
+For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client#setupfn).
 
 ### Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -12999,11 +12999,11 @@ For example, if you are serving your app from `https://example.com/my-app`, the 
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
 
-#### [Client »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client)
+#### [Client »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
 
-[All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client)
+[All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
 
 
 ## Advanced / Client customization / Static assets
@@ -13213,7 +13213,7 @@ The `wasp()` plugin accepts the following options:
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -13288,7 +13288,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server#setupfn).
+For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server#setupfn).
 
 ### Middleware Config Function
 
@@ -13298,11 +13298,11 @@ Read more in the [configuring middleware section](https://wasp.sh/docs/advanced/
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server)
+[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
 
-#### [Server »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server)
+#### [Server »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
 
-[All the options for the server field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server)
+[All the options for the server field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
 
 
 ## Advanced / Server customization / Middleware
@@ -13380,7 +13380,7 @@ const defaultGlobalMiddleware: MiddlewareConfig = new Map([
 If you would like to modify the middleware for *all* operations and APIs, you can do something like:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
@@ -13408,7 +13408,7 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 If you would like to modify the middleware for a single API, you can do something like:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -13454,7 +13454,7 @@ router.post("/webhook/callback", webhookCallbackMiddleware, ...)
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from "@wasp.sh/spec"
+import { apiNamespace, app } from "@wasp/spec"
 import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -13682,10 +13682,11 @@ $ wasp version
 0.14.0
 
 If you wish to install/switch to the latest version of Wasp, do:
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 
 If you want specific x.y.z version of Wasp, do:
-npm i -g @wasp.sh/wasp-cli@x.y.z
+npm i -g @wasp/cli@x.y.z
+Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 ```
@@ -13721,7 +13722,7 @@ Are you sure you want to continue? [y/N] ▸ y
 ✅ --- Removed Wasp data. ---------------------------------------------------------
 
 To uninstall the Wasp CLI, please run:
-  npm uninstall -g @wasp.sh/wasp-cli
+  npm uninstall -g @wasp/cli
 
 If you have used Wasp to run dev database for you, you might want to make sure you also deleted all the docker volumes it might have created. You can easily list them by doing `docker volume ls | grep wasp-dev-db`.
 ```
@@ -14902,7 +14903,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/cli@$WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -14946,7 +14947,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/cli@$WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
@@ -15387,19 +15388,11 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 ## Migration guides / From 0.26 to 0.27
 
-To install the latest Wasp version, open your terminal and run:
-
-```sh
-npm i -g @wasp.sh/wasp-cli@latest
-```
-
-You can install Wasp 0.27 specifically by passing the version to the install script:
-
-```sh
-npm i -g @wasp.sh/wasp-cli@0.27
-```
-
 ### What's new in 0.27?
+
+#### New npm organization
+
+Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
 
 #### Prisma 6
 
@@ -15407,7 +15400,54 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 ### How to migrate?
 
-#### 1. Bump the Wasp version
+#### 1. Switch to the new Wasp CLI package
+
+The Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
+
+```sh
+npm uninstall -g @wasp.sh/wasp-cli
+npm i -g @wasp/cli@0.27
+```
+
+#### 2. Rename `@wasp.sh/spec` to `@wasp/spec`
+
+Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp Spec dependency in your `package.json`:
+
+**Before**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "@wasp.sh/spec": "file:.wasp/spec"
+  }
+}
+```
+
+**After**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "@wasp/spec": "file:.wasp/spec"
+  }
+}
+```
+
+Then replace `@wasp.sh/spec` with `@wasp/spec` everywhere else in your project. That covers the imports in `main.wasp.ts` and any other `*.wasp.ts` files, and mentions in files like `AGENTS.md` or `CLAUDE.md`:
+
+**Before**
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec";
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp/spec";
+```
+
+#### 3. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.27.0`.
 
@@ -15435,7 +15475,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-#### 2. Upgrade to Prisma 6
+#### 4. Upgrade to Prisma 6
 
 Update the `prisma` version in your `package.json`:
 
@@ -15463,7 +15503,7 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 3. Enjoy your updated Wasp app
+#### 5. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19651,7 +19691,7 @@ By default, Wasp configures CORS to allow requests only from your client URL (de
 Add the server middleware configuration:
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp.sh/spec"
+import { app, page, query, route } from "@wasp/spec"
 import { getSomeData } from "./src/data" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
@@ -20148,7 +20188,7 @@ jobs:
           node-version: "24.22.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
+        run: npm i -g @wasp/cli@^0.26 # Change to your Wasp version
 
       - name: Install Wasp app dependencies
         run: cd ./app && wasp install
@@ -20519,7 +20559,7 @@ jobs:
           node-version: "24.22.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
+        run: npm i -g @wasp/cli@^0.26 # Change to your Wasp version
 
       - name: Wasp Install
         run: wasp install
@@ -20807,7 +20847,7 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -20836,7 +20876,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -21170,7 +21210,7 @@ zerops:
     build:
       base: nodejs@24
       buildCommands:
-        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - npm install -g @wasp/cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
         - wasp install
         - wasp build
@@ -21192,7 +21232,7 @@ zerops:
       base: nodejs@24
       os: ubuntu
       buildCommands:
-        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - npm install -g @wasp/cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
         - wasp install
         - wasp build
@@ -21537,7 +21577,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
 
       - name: Install Wasp app dependencies
         run: wasp install
@@ -21778,7 +21818,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
 
       - name: Install Wasp app dependencies
         run: wasp install
@@ -21977,7 +22017,7 @@ nvm install 24.22.1
 Install the Wasp CLI:
 
 ```bash
-npm i -g @wasp.sh/wasp-cli
+npm i -g @wasp/cli
 ```
 
 Add Wasp to your PATH by adding this line to `~/.bashrc`:
@@ -22215,7 +22255,7 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 Set up the auth configuration and API routes:
 
 ```ts title="main.wasp.ts"
-import { api, app, page, route } from "@wasp.sh/spec"
+import { api, app, page, route } from "@wasp/spec"
 import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -22479,7 +22519,7 @@ npm install --save-dev @types/multer
 Create an API namespace with middleware configuration and the upload endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app, page, route } from "@wasp.sh/spec"
+import { api, apiNamespace, app, page, route } from "@wasp/spec"
 import { configureFileUploadMiddleware, uploadFile } from "./src/apis" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -22651,7 +22691,7 @@ npm install @sentry/node @sentry/react
 Add both the server and client setup functions to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { setupClient } from "./src/clientSetup" with { type: "ref" }
 import { setupServer } from "./src/serverSetup" with { type: "ref" }
 
@@ -22840,7 +22880,7 @@ npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 Add an API namespace for the Swagger UI endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp.sh/spec"
+import { api, apiNamespace, app } from "@wasp/spec"
 import { getStatus } from "./src/apis" with { type: "ref" }
 import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 
@@ -23157,7 +23197,7 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/MainPage" with { type: "ref" }
 import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 
@@ -23359,13 +23399,17 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 Afterwards, you can use [the regular installation instructions](https://wasp.sh/docs/quick-start#detailed-installation) to install Wasp through npm:
 
 ```shell
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
 
 ```shell
-# Set x.y.z to the version you want to install, e.g. 0.20.2
+# Set x.y.z to the version you want to install.
+# Wasp 0.27 and newer:
+npm i -g @wasp/cli@x.y.z
+
+# Wasp 0.20.2 to 0.26.x:
 npm i -g @wasp.sh/wasp-cli@x.y.z
 ```
 
@@ -23407,6 +23451,10 @@ If you have already switched to npm installation but need to switch back to the 
 1. Uninstall the npm version of Wasp:
 
    ```shell
+   # Wasp 0.27 and newer:
+   npm uninstall -g @wasp/cli
+
+   # Wasp 0.20.2 to 0.26.x:
    npm uninstall -g @wasp.sh/wasp-cli
    ```
 
@@ -23537,7 +23585,7 @@ page MainPage {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route } from "@wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 
 export default app({
@@ -23571,7 +23619,7 @@ action createTask {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { action, app, query } from "@wasp.sh/spec";
+import { action, app, query } from "@wasp/spec";
 import { getTasks } from "./src/queries" with { type: "ref" };
 import { createTask } from "./src/actions" with { type: "ref" };
 
@@ -23607,7 +23655,7 @@ api barBaz {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp.sh/spec";
+import { api, apiNamespace, app } from "@wasp/spec";
 import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
 export default app({
@@ -23641,7 +23689,7 @@ job mySpecialJob {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp.sh/spec";
+import { app, job } from "@wasp/spec";
 import { foo } from "./src/jobs/bar" with { type: "ref" };
 
 export default app({
@@ -23673,7 +23721,7 @@ crud tasks {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec";
+import { app, crud } from "@wasp/spec";
 import { createTask } from "./src/actions" with { type: "ref" };
 
 export default app({
@@ -23715,7 +23763,7 @@ app todoApp {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec";
+import { app } from "@wasp/spec";
 import App from "./src/App" with { type: "ref" };
 
 export default app({
@@ -23797,12 +23845,12 @@ Wasp validates the Wasp Spec support files during migration, including the requi
      "devDependencies": {
        // ...
        "@types/node": "^24.0.0",
-       "@wasp.sh/spec": "file:.wasp/spec"
+       "@wasp/spec": "file:.wasp/spec"
      }
    }
    ```
 
-   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp.sh/spec` provides the local Wasp Spec API package.
+   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp/spec` provides the local Wasp Spec API package.
 
 5. Run `wasp install`.
 
@@ -23811,7 +23859,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 7. Create a `main.wasp.ts` file with the following content:
 
    ```ts title="main.wasp.ts"
-   import { app } from "@wasp.sh/spec";
+   import { app } from "@wasp/spec";
 
    export default app({
      name: "myApp",
@@ -23928,7 +23976,7 @@ app({
 });
 ```                                   |
 | Imports                   | `{ import, from }`                                                                                                  | `import { ... } from "./src/..." with { type: "ref" };`                                                 |
-| Package name              | `wasp-config`                                                                                                       | `@wasp.sh/spec`                                                                                         |
+| Package name              | `wasp-config`                                                                                                       | `@wasp/spec`                                                                                            |
 
 ### App and specifications
 
@@ -23958,7 +24006,7 @@ export default app;
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp.sh/spec";
+import { app, page, query, route } from "@wasp/spec";
 import MainPage from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -23994,7 +24042,7 @@ app.api("barBaz", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp.sh/spec";
+import { api, apiNamespace, app } from "@wasp/spec";
 import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
 export default app({
@@ -24026,7 +24074,7 @@ app.job("mySpecialJob", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp.sh/spec";
+import { app, job } from "@wasp/spec";
 import { foo } from "./src/jobs/bar" with { type: "ref" };
 
 export default app({
@@ -24058,7 +24106,7 @@ app.crud("tasks", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec";
+import { app, crud } from "@wasp/spec";
 import { createTask } from "./src/actions" with { type: "ref" };
 
 export default app({
@@ -24105,7 +24153,7 @@ export default app;
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec";
+import { app } from "@wasp/spec";
 import App from "./src/App" with { type: "ref" };
 
 export default app({
@@ -24158,12 +24206,12 @@ Wasp validates the Wasp Spec support files during migration, including the requi
      "devDependencies": {
        // ...
        "@types/node": "^24.0.0",
-       "@wasp.sh/spec": "file:.wasp/spec"
+       "@wasp/spec": "file:.wasp/spec"
      }
    }
    ```
 
-   Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+   Keep your existing dependencies, replace `wasp-config` with `@wasp/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
@@ -24216,7 +24264,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    **After**
 
    ```ts title="main.wasp.ts"
-   import { app } from "@wasp.sh/spec";
+   import { app } from "@wasp/spec";
 
    export default app({
      name: "myApp",
@@ -24267,7 +24315,7 @@ npm install @radix-ui/themes
 Due to how Radix works, we'll need to have a single component that wraps all the pages in our app. In Wasp, this is done through the `rootComponent` configuration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { Layout } from "./src/Layout" with { type: "ref" }
 
 export default app({
@@ -24581,7 +24629,7 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 You can add meta tags to your application using the `head` property in your `app` spec. These tags will be included in the `<head>` section of your HTML.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -24787,7 +24835,7 @@ Search engines and social platforms read `<meta>` tags from your HTML to decide 
 You can set tags for your whole app through the `head` field of your `app` declaration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   // ...
@@ -24852,7 +24900,7 @@ Most search engines (like Google) can also execute JavaScript when indexing a pa
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -25174,86 +25222,86 @@ You should read Google's guide on creating good content for more tips on what to
 
 # API
 
-## @wasp.sh/spec
+## @wasp/spec
 
 ### Wasp Spec
 
-- [App](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
-- [AppConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AppConfig)
-- [app](https://wasp.sh/docs/api/@wasp.sh/spec/functions/app)
+- [App](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
+- [AppConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/AppConfig)
+- [app](https://wasp.sh/docs/api/@wasp/spec/functions/app)
 
 ### Constructors
 
-- [ActionConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ActionConfig)
-- [ApiConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ApiConfig)
-- [ApiNamespaceConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ApiNamespaceConfig)
-- [JobConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobConfig)
-- [PageConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/PageConfig)
-- [QueryConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/QueryConfig)
-- [RouteConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RouteConfig)
-- [action](https://wasp.sh/docs/api/@wasp.sh/spec/functions/action)
-- [api](https://wasp.sh/docs/api/@wasp.sh/spec/functions/api)
-- [apiNamespace](https://wasp.sh/docs/api/@wasp.sh/spec/functions/apiNamespace)
-- [crud](https://wasp.sh/docs/api/@wasp.sh/spec/functions/crud)
-- [job](https://wasp.sh/docs/api/@wasp.sh/spec/functions/job)
-- [page](https://wasp.sh/docs/api/@wasp.sh/spec/functions/page)
-- [query](https://wasp.sh/docs/api/@wasp.sh/spec/functions/query)
-- [route](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
+- [ActionConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ActionConfig)
+- [ApiConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ApiConfig)
+- [ApiNamespaceConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ApiNamespaceConfig)
+- [JobConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/JobConfig)
+- [PageConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/PageConfig)
+- [QueryConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/QueryConfig)
+- [RouteConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/RouteConfig)
+- [action](https://wasp.sh/docs/api/@wasp/spec/functions/action)
+- [api](https://wasp.sh/docs/api/@wasp/spec/functions/api)
+- [apiNamespace](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
+- [crud](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
+- [job](https://wasp.sh/docs/api/@wasp/spec/functions/job)
+- [page](https://wasp.sh/docs/api/@wasp/spec/functions/page)
+- [query](https://wasp.sh/docs/api/@wasp/spec/functions/query)
+- [route](https://wasp.sh/docs/api/@wasp/spec/functions/route)
 
 ### Specifications
 
-- [Action](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Action)
-- [Api](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Api)
-- [ApiNamespace](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/ApiNamespace)
-- [Crud](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Crud)
-- [Job](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Job)
-- [Page](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Page)
-- [Query](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Query)
-- [Route](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Route)
-- [Spec](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Spec)
-- [SpecElement](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/SpecElement)
+- [Action](https://wasp.sh/docs/api/@wasp/spec/interfaces/Action)
+- [Api](https://wasp.sh/docs/api/@wasp/spec/interfaces/Api)
+- [ApiNamespace](https://wasp.sh/docs/api/@wasp/spec/interfaces/ApiNamespace)
+- [Crud](https://wasp.sh/docs/api/@wasp/spec/interfaces/Crud)
+- [Job](https://wasp.sh/docs/api/@wasp/spec/interfaces/Job)
+- [Page](https://wasp.sh/docs/api/@wasp/spec/interfaces/Page)
+- [Query](https://wasp.sh/docs/api/@wasp/spec/interfaces/Query)
+- [Route](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route)
+- [Spec](https://wasp.sh/docs/api/@wasp/spec/type-aliases/Spec)
+- [SpecElement](https://wasp.sh/docs/api/@wasp/spec/type-aliases/SpecElement)
 
 ### References
 
-- [DefaultRefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/DefaultRefObjectDescriptor)
-- [NamedRefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/NamedRefObjectDescriptor)
-- [Reference](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Reference)
-- [RefObject](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RefObject)
-- [RefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RefObjectDescriptor)
-- [ZodSchema](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ZodSchema)
-- [ref](https://wasp.sh/docs/api/@wasp.sh/spec/functions/ref)
+- [DefaultRefObjectDescriptor](https://wasp.sh/docs/api/@wasp/spec/interfaces/DefaultRefObjectDescriptor)
+- [NamedRefObjectDescriptor](https://wasp.sh/docs/api/@wasp/spec/interfaces/NamedRefObjectDescriptor)
+- [Reference](https://wasp.sh/docs/api/@wasp/spec/type-aliases/Reference)
+- [RefObject](https://wasp.sh/docs/api/@wasp/spec/type-aliases/RefObject)
+- [RefObjectDescriptor](https://wasp.sh/docs/api/@wasp/spec/type-aliases/RefObjectDescriptor)
+- [ZodSchema](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ZodSchema)
+- [ref](https://wasp.sh/docs/api/@wasp/spec/functions/ref)
 
 ### Errors
 
-- [WaspSpecUserError](https://wasp.sh/docs/api/@wasp.sh/spec/classes/WaspSpecUserError)
+- [WaspSpecUserError](https://wasp.sh/docs/api/@wasp/spec/classes/WaspSpecUserError)
 
 ### Fields
 
-- [Auth](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
-- [Client](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client)
-- [CrudOperationOptions](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/CrudOperationOptions)
-- [CrudOperations](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/CrudOperations)
-- [Db](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Db)
-- [Deployment](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Deployment)
-- [EmailAuthConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailAuthConfig)
-- [EmailFlowConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailFlowConfig)
-- [EmailFromField](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailFromField)
-- [EmailSender](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EmailSender)
-- [ExecutorOptions](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/ExecutorOptions)
-- [ExternalAuthMethods](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/ExternalAuthMethods)
-- [LocalAuthMethods](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/LocalAuthMethods)
-- [Schedule](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Schedule)
-- [Server](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server)
-- [SocialAuthConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
-- [UsernameAndPasswordConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig)
-- [Wasp](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Wasp)
-- [WebSocket](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/WebSocket)
-- [AuthMethods](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AuthMethods)
-- [DeploymentMode](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/DeploymentMode)
-- [EmailSenderProviderName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/EmailSenderProviderName)
-- [EntityName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/EntityName)
-- [HttpMethod](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/HttpMethod)
-- [JobExecutor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobExecutor)
+- [Auth](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+- [Client](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
+- [CrudOperationOptions](https://wasp.sh/docs/api/@wasp/spec/interfaces/CrudOperationOptions)
+- [CrudOperations](https://wasp.sh/docs/api/@wasp/spec/interfaces/CrudOperations)
+- [Db](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
+- [Deployment](https://wasp.sh/docs/api/@wasp/spec/interfaces/Deployment)
+- [EmailAuthConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
+- [EmailFlowConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig)
+- [EmailFromField](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFromField)
+- [EmailSender](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
+- [ExecutorOptions](https://wasp.sh/docs/api/@wasp/spec/interfaces/ExecutorOptions)
+- [ExternalAuthMethods](https://wasp.sh/docs/api/@wasp/spec/interfaces/ExternalAuthMethods)
+- [LocalAuthMethods](https://wasp.sh/docs/api/@wasp/spec/interfaces/LocalAuthMethods)
+- [Schedule](https://wasp.sh/docs/api/@wasp/spec/interfaces/Schedule)
+- [Server](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
+- [SocialAuthConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+- [UsernameAndPasswordConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
+- [Wasp](https://wasp.sh/docs/api/@wasp/spec/interfaces/Wasp)
+- [WebSocket](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
+- [AuthMethods](https://wasp.sh/docs/api/@wasp/spec/type-aliases/AuthMethods)
+- [DeploymentMode](https://wasp.sh/docs/api/@wasp/spec/type-aliases/DeploymentMode)
+- [EmailSenderProviderName](https://wasp.sh/docs/api/@wasp/spec/type-aliases/EmailSenderProviderName)
+- [EntityName](https://wasp.sh/docs/api/@wasp/spec/type-aliases/EntityName)
+- [HttpMethod](https://wasp.sh/docs/api/@wasp/spec/type-aliases/HttpMethod)
+- [JobExecutor](https://wasp.sh/docs/api/@wasp/spec/type-aliases/JobExecutor)
 
 
 ------

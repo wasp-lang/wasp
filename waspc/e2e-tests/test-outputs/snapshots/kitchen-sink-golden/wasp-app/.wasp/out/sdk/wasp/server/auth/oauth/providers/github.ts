@@ -1,6 +1,6 @@
 import { GitHub  } from 'arctic';
 
-import { defineProvider } from '@wasp.sh/lib-sdk-core/node';
+import { defineProvider } from '@wasp/lib-sdk-core/node';
 import { env } from '../../../env.js';
 
 const id = 'github';

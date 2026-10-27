@@ -1,4 +1,4 @@
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route } from "@wasp/spec";
 
 import { App } from "./src/App" with { type: "ref" };
 import { clientSetup } from "./src/clientSetup" with { type: "ref" };
