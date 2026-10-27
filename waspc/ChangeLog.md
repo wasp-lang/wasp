@@ -23,7 +23,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 - The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
-- `routes.<name>.build()` no longer crashes at runtime when called without arguments on a route with an optional static segment (e.g. `/about/details?`). TypeScript now reports the missing `path` option instead. (FIXME PR LINK)
+- `routes.<name>.build()` no longer crashes at runtime when called without arguments on a route with an optional static segment (e.g. `/about/details?`). TypeScript now reports the missing `path` option instead. ([#5153](https://github.com/wasp-lang/wasp/pull/5153))
 
 ### 🔧 Small improvements
 
