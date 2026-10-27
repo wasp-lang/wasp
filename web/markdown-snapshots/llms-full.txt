@@ -246,7 +246,7 @@ Let's create and run our first Wasp app in 3 short steps:
 1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
 
    ```shell
-   npm i -g @wasp.sh/wasp-cli@latest
+   npm i -g @wasp/wasp-cli@latest
    ```
 
    ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
@@ -352,7 +352,7 @@ Check NVM repo for more details: <https://github.com/nvm-sh/nvm>.
 Open your terminal and run:
 
 ```shell
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/wasp-cli@latest
 ```
 
 :::note[Looking for the old installer script?]
@@ -13682,10 +13682,10 @@ $ wasp version
 0.14.0
 
 If you wish to install/switch to the latest version of Wasp, do:
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/wasp-cli@latest
 
 If you want specific x.y.z version of Wasp, do:
-npm i -g @wasp.sh/wasp-cli@x.y.z
+npm i -g @wasp/wasp-cli@x.y.z
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 ```
@@ -13721,7 +13721,7 @@ Are you sure you want to continue? [y/N] ▸ y
 ✅ --- Removed Wasp data. ---------------------------------------------------------
 
 To uninstall the Wasp CLI, please run:
-  npm uninstall -g @wasp.sh/wasp-cli
+  npm uninstall -g @wasp/wasp-cli
 
 If you have used Wasp to run dev database for you, you might want to make sure you also deleted all the docker volumes it might have created. You can easily list them by doing `docker volume ls | grep wasp-dev-db`.
 ```
@@ -14902,7 +14902,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/wasp-cli@$WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -14946,7 +14946,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/wasp-cli@$WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
@@ -15387,16 +15387,24 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 ## Migration guides / From 0.26 to 0.27
 
+:::caution[Wasp has a new npm package name]
+Starting with 0.27, the Wasp CLI is published as `@wasp/wasp-cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package before installing the new one, otherwise npm fails with an `EEXIST` error:
+
+```sh
+npm uninstall -g @wasp.sh/wasp-cli
+```
+:::
+
 To install the latest Wasp version, open your terminal and run:
 
 ```sh
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/wasp-cli@latest
 ```
 
 You can install Wasp 0.27 specifically by passing the version to the install script:
 
 ```sh
-npm i -g @wasp.sh/wasp-cli@0.27
+npm i -g @wasp/wasp-cli@0.27
 ```
 
 ### What's new in 0.27?
@@ -20148,7 +20156,7 @@ jobs:
           node-version: "24.22.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
+        run: npm i -g @wasp/wasp-cli@^0.26 # Change to your Wasp version
 
       - name: Install Wasp app dependencies
         run: cd ./app && wasp install
@@ -20519,7 +20527,7 @@ jobs:
           node-version: "24.22.1"
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@^0.26 # Change to your Wasp version
+        run: npm i -g @wasp/wasp-cli@^0.26 # Change to your Wasp version
 
       - name: Wasp Install
         run: wasp install
@@ -20807,7 +20815,7 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -20836,7 +20844,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -21170,7 +21178,7 @@ zerops:
     build:
       base: nodejs@24
       buildCommands:
-        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - npm install -g @wasp/wasp-cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
         - wasp install
         - wasp build
@@ -21192,7 +21200,7 @@ zerops:
       base: nodejs@24
       os: ubuntu
       buildCommands:
-        - npm install -g @wasp.sh/wasp-cli@<wasp-version>
+        - npm install -g @wasp/wasp-cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
         - wasp install
         - wasp build
@@ -21537,7 +21545,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+        run: npm i -g @wasp/wasp-cli@${{ env.WASP_VERSION }}
 
       - name: Install Wasp app dependencies
         run: wasp install
@@ -21778,7 +21786,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+        run: npm i -g @wasp/wasp-cli@${{ env.WASP_VERSION }}
 
       - name: Install Wasp app dependencies
         run: wasp install
@@ -21977,7 +21985,7 @@ nvm install 24.22.1
 Install the Wasp CLI:
 
 ```bash
-npm i -g @wasp.sh/wasp-cli
+npm i -g @wasp/wasp-cli
 ```
 
 Add Wasp to your PATH by adding this line to `~/.bashrc`:
@@ -23359,14 +23367,14 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 Afterwards, you can use [the regular installation instructions](https://wasp.sh/docs/quick-start#detailed-installation) to install Wasp through npm:
 
 ```shell
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/wasp-cli@latest
 ```
 
 You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
 
 ```shell
 # Set x.y.z to the version you want to install, e.g. 0.20.2
-npm i -g @wasp.sh/wasp-cli@x.y.z
+npm i -g @wasp/wasp-cli@x.y.z
 ```
 
 ### Keep using the legacy installer {#keep-using}
@@ -23407,7 +23415,7 @@ If you have already switched to npm installation but need to switch back to the 
 1. Uninstall the npm version of Wasp:
 
    ```shell
-   npm uninstall -g @wasp.sh/wasp-cli
+   npm uninstall -g @wasp/wasp-cli
    ```
 
 2. Make sure that Wasp is uninstalled from your system:
