@@ -143,6 +143,8 @@ genPackageJson spec waspDependencies =
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
+              "bundleScript" .= bundleScript,
+              "startScript" .= startScript,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -224,10 +226,22 @@ genNodemon =
   return $
     C.mkTmplFdWithData
       [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
+      ( Just $
+          object
+            [ "relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath,
+              "bundleScript" .= bundleScript,
+              "startScript" .= startScript
+            ]
+      )
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
       waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
+
+-- | The server's `bundle` and `start` scripts in `package.json`. nodemon also
+-- runs them, directly instead of through `npm run`.
+bundleScript, startScript :: String
+bundleScript = "tsc --build && rollup --config --silent"
+startScript = "node --enable-source-maps -r dotenv/config bundle/server.js"
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
