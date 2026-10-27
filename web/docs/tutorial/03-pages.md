@@ -61,7 +61,7 @@ import "./Main.css";
 
 export function MainPage() {
   // ...
-};
+}
 ```
 
 This is a regular functional React component. It also imports some CSS and a logo from the `assets` folder.
@@ -105,13 +105,13 @@ Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
+  Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 
 ## Cleaning Up
 
-Now that you've seen how Wasp deals with Routes and Pages, it's finally time to build the Todo app.
+Now that you've seen how Wasp deals with Routes and Pages, it's time to build something useful: a full-stack Todo app where users sign up, log in, and manage their own tasks stored in a database.
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
