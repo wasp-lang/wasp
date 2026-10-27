@@ -133,7 +133,7 @@ runWaspStartAndStopIt signal ports =
     -- is a wrapper script), so we read it from the project lock file instead.
     stopWaspWithSignal :: ShellCommand
     stopWaspWithSignal =
-      ("kill -" ++ signal ++ " \"$(cat .wasp/.projectlock)\"")
+      ("kill -" ++ signal ++ " \"$(jq .pid .wasp/.projectlock)\"")
         ~&& waitUntilWaspExits ("Wasp didn't stop after SIG" ++ signal ++ ".")
 
 -- | Stores the PID of the background process in `$WASP_START_PID`.
