@@ -259,8 +259,8 @@ genClientConfigFile =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData]
-      ++ maybeToList prismaSerializationFile
+    C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+      : maybeToList prismaSerializationFile
   where
     tmplData =
       object

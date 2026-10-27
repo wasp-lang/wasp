@@ -24,7 +24,7 @@ NOTE: In the future, ideally, WAR would not be needed any more, as Wasp CLI itse
 ### Global dependency:
 
 ```bash
-npm install -g @wasp.sh/wasp-app-runner
+npm install -g @wasp/wasp-app-runner
 
 run-wasp-app dev
 ```
@@ -32,7 +32,7 @@ run-wasp-app dev
 ### Local dependency:
 
 ```bash
-npm i -D @wasp.sh/wasp-app-runner
+npm i -D @wasp/wasp-app-runner
 
 npx run-wasp-app dev
 ```
@@ -54,7 +54,7 @@ Example `package.json`:
 ### One time usage:
 
 ```bash
-npx @wasp.sh/wasp-app-runner dev
+npx @wasp/wasp-app-runner dev
 ```
 
 ### Options
@@ -134,7 +134,7 @@ npm version major
 ### 2. Authenticate with npm
 
 ```bash
-# Login to npm with an account that has access to the @wasp.sh organization
+# Login to npm with an account that has access to the @wasp organization
 npm login
 ```
 
