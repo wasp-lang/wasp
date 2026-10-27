@@ -89,8 +89,8 @@
                     "version": "file:.wasp/spec"
                 },
                 {
-                    "name": "@wasp.sh/wasp-app-runner",
-                    "version": "^0.0.18"
+                    "name": "@wasp/wasp-app-runner",
+                    "version": "^0.0.19"
                 },
                 {
                     "name": "prisma",
