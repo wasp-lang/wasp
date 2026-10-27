@@ -96,7 +96,7 @@ runWaspStartAndStopIt ports =
     -- is a wrapper script), so we read it from the project lock file instead.
     stopWaspWithSigint :: ShellCommand
     stopWaspWithSigint =
-      "kill -INT \"$(cat .wasp/.projectlock)\""
+      "kill -INT \"$(jq .pid .wasp/.projectlock)\""
         ~&& waitUntilWaspExits "Wasp didn't stop after SIGINT."
 
 -- | Stores the PID of the background process in `$WASP_START_PID`.
