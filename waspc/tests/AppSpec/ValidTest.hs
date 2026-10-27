@@ -104,7 +104,7 @@ spec_AppSpecValid = do
                                "To install a specific version of Wasp, do:",
                                "  npm i -g @wasp/cli@x.y.z",
                                "where x.y.z is your desired version.",
-                               "Wasp versions before 0.27 are published as @wasp.sh/wasp-cli instead.",
+                               "Wasp versions before 0.27 are published under \"@wasp.sh/wasp-cli\" instead.",
                                "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
                              ]
                        ]
