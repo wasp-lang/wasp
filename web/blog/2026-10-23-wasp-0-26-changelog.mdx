@@ -49,6 +49,13 @@ That’s because `wasp start` would always use the fixed ports `3000` and `3001`
 
 In reality, users ran multiple instances and port clashing was a real issue: `wasp start db`, for example, would simply give up when `5432` was taken. So now, `wasp start` picks the first available ports on its own. It’ll start with `3000` and `3001` as before and then work its way up. Similarly, `wasp start db` will do the same, starting at `5432`, and `wasp start` will then find the port your database ended up on.
 
+<ImgWithCaption
+  alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the database in the second worktree gets 5433, the client 3002, and the server 3003."
+  source="img/blog/2026-10-23-wasp-0-26-changelog/commands-in-different-projects-dark.svg"
+  caption="Two worktrees running at the same time: each process now takes the next free port."
+  width="100%"
+/>
+
 This also means that each agent can get its own DB instance and can avoid the hassle of sharing the data.
 
 Once you’ve created a new worktree, to set it up, you can just run `wasp install` and copy your `.env` files. If your `.env.server` has a `DATABASE_URL`, leave it out, so the worktree gets its own dev database instead of the shared one. Then start the database in one terminal and the app in another:
@@ -176,3 +183,21 @@ With 0.26, we have introduced some more breaking changes. Our [0.26 migration gu
 - We upgraded the internal `morgan` package to fix three CVEs. Wasp's usage was not affected.
 
 The full list is in the [GitHub release notes](https://github.com/wasp-lang/wasp/releases/tag/v0.26.0).
+
+## Wasp 0.26.1 security follow-up
+
+On October 21, Node.js published its <a href="https://nodejs.org/en/blog/vulnerability/october-2026-security-releases" rel="nofollow noopener noreferrer" target="_blank">October 2026 security releases</a>, with fixes for several vulnerabilities. One of them is a bug in Node's Brotli decoder that can lead to remote code execution.
+
+So on October 23 we shipped Wasp 0.26.1. It raises the minimum Node.js version to 24.22.1, the 24.x release with those fixes. A few things to know:
+
+- Wasp 0.26.0 already works with any newer Node.js, so you can update Node.js on your machine right away.
+- 0.26.1 moves the minimum, so no one stays on a vulnerable Node.js version.
+- If you deploy with the Dockerfile Wasp generates, 0.26.1 also moves your server image to Node.js 24.22.1, so rebuild and redeploy.
+
+To upgrade, run:
+
+```bash
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+More details are in the [0.26.1 release notes](https://github.com/wasp-lang/wasp/releases/tag/v0.26.1).
