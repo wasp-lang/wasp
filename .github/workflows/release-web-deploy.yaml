@@ -47,4 +47,4 @@ jobs:
         run: npx wrangler deploy --env=""
 
       - name: Restart Algolia crawler
-        run: echo "TEMP: skipped Algolia crawler restart while testing"
+        run: echo "TEMP - skipped Algolia crawler restart while testing"
