@@ -21,7 +21,7 @@ The main package uses npm's `optionalDependencies` to install the correct platfo
 
 ### Sub-packages
 
-- Platform-specific packages (e.g., `@wasp/wasp-cli-linux-x64-musl`)
+- Platform-specific packages (e.g., `@wasp/cli-linux-x64-musl`)
 - Each contains a tarball extracted with the native executable
 - Uses npm's `os`, `cpu`, and `libc` fields to ensure correct installation
 
@@ -38,8 +38,8 @@ node src/index.ts \
 - `-h, --help` - Show help and exit
 - `--input-dir` (required) - Directory containing `data.json` and tarballs
 - `--output-dir` (required) - Directory where packages will be created
-- `--main-package-name` - Name of the main package (default: `@wasp/wasp-cli`)
-- `--sub-package-name` - Template for sub-package names (default: `@wasp/wasp-cli-$os-$cpu-$libc`)
+- `--main-package-name` - Name of the main package (default: `@wasp/cli`)
+- `--sub-package-name` - Template for sub-package names (default: `@wasp/cli-$os-$cpu-$libc`)
   - Must include placeholders: `$os`, `$cpu`, `$libc`
 
 ### Input Format

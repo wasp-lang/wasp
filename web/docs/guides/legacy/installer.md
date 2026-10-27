@@ -27,7 +27,7 @@ Afterwards, you can use [the regular installation instructions](../../getting-st
 <Trackable event="Install Command: Copy">
 
 ```shell
-npm i -g @wasp/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 </Trackable>
@@ -38,7 +38,7 @@ You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greate
 
 ```shell
 # Set x.y.z to the version you want to install, e.g. 0.20.2
-npm i -g @wasp/wasp-cli@x.y.z
+npm i -g @wasp/cli@x.y.z
 ```
 
 </Trackable>
@@ -81,7 +81,7 @@ If you have already switched to npm installation but need to switch back to the 
 1. Uninstall the npm version of Wasp:
 
     ```shell
-    npm uninstall -g @wasp/wasp-cli
+    npm uninstall -g @wasp/cli
     ```
 
 2. Make sure that Wasp is uninstalled from your system:

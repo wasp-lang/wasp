@@ -7,7 +7,7 @@ Basic starter is a well-rounded template that showcases the most important bits 
 - **Node.js** (newest LTS version recommended): We recommend install Node through a Node version manager, e.g. `nvm`.
 - **Wasp** (latest version): Install via
   ```sh
-  npm i -g @wasp/wasp-cli@latest
+  npm i -g @wasp/cli@latest
   ```
 
 ## Using the template

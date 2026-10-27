@@ -132,7 +132,7 @@ For more information about Wasp, check [**docs**](https://wasp.sh/docs).
 Run to install Wasp on OSX/Linux/WSL(Win):
 
 ```sh
-npm i -g @wasp/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 From there, follow the instructions to run your first app in less than a minute!
