@@ -197,6 +197,7 @@ npm i -g @wasp/cli@latest
 
 If you want specific x.y.z version of Wasp, do:
 npm i -g @wasp/cli@x.y.z
+Wasp versions before 0.27 are published as @wasp.sh/wasp-cli instead.
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
