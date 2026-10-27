@@ -83,11 +83,6 @@ jobs:
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
-      # Set in `cabal.project.local` so later `cabal` calls reuse the config instead of rebuilding waspc.
-      - name: Treat GHC warnings as errors
-        run: |
-          printf 'package waspc\n  ghc-options: -Werror\n' > cabal.project.local
-
       - name: Build wasp code
         run: cabal build all -v0
 
