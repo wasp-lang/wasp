@@ -1,0 +1,20 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+
+  "readme": "none",
+  "disableSources": true,
+  "excludeInternal": true,
+
+  // Don't document types from `node_modules` (e.g., React Query's or the
+  // built-in TypeScript ones), only the `@wasp.sh/lib-sdk-core` ones, which
+  // `typedoc-plugin-missing-exports` pulls in.
+  "excludeExternals": true,
+
+  // Document the types that `typedoc-plugin-missing-exports` pulls in next to
+  // the exports that reference them, instead of in a separate `<internal>`
+  // module.
+  "placeInternalsInOwningModule": true,
+
+  // One module per SDK import path, e.g. `server.d.ts` documents `wasp/server`.
+  "entryPoints": ["server.d.ts", "client/operations.d.ts"],
+}

@@ -15,6 +15,11 @@
   // `WaspSpecUserError` shouldn't list all built-in `Error` properties.
   "excludeExternals": true,
 
+  // Document the types that `typedoc-plugin-missing-exports` pulls in next to
+  // the exports that reference them, instead of in a separate `<internal>`
+  // module.
+  "placeInternalsInOwningModule": true,
+
   "entryPoints": ["src/index.ts"],
 
   // For exports with no category

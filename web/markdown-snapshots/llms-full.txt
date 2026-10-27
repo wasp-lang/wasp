@@ -25009,6 +25009,71 @@ You should read Google's guide on creating good content for more tips on what to
 - [HttpMethod](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/HttpMethod)
 - [JobExecutor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobExecutor)
 
+### Referenced Types
+
+- [AuthHooks](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/AuthHooks)
+- [BaseAuthMethodConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/BaseAuthMethodConfig)
+- [BaseSpecElement](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/BaseSpecElement)
+- [AnyFunction](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AnyFunction)
+- [AnyObject](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AnyObject)
+- [Brand](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Brand)
+- [Branded](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Branded)
+- [Entities](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Entities)
+- [FromRegister](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/FromRegister)
+- [SocialAuthMethodName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/SocialAuthMethodName)
+
+
+## wasp/client/operations
+
+Client-side APIs for calling your Queries and Actions.
+
+### Type Aliases
+
+- [Action](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Action)
+- [Query](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Query)
+
+### Functions
+
+- [useAction](https://wasp.sh/docs/api/wasp/client/operations/functions/useAction)
+- [useQuery](https://wasp.sh/docs/api/wasp/client/operations/functions/useQuery)
+
+### Referenced Types
+
+- [HttpMethod](https://wasp.sh/docs/api/wasp/client/operations/enumerations/HttpMethod)
+- [ActionOptions](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/ActionOptions)
+- [ClientOperation](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/ClientOperation)
+- [ClientOperationWithNonAnyInput](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/ClientOperationWithNonAnyInput)
+- [GetQuerySpecifier](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/GetQuerySpecifier)
+- [IfAny](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/IfAny)
+- [OptimisticUpdateDefinition](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/OptimisticUpdateDefinition)
+- [QueryFunction](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/QueryFunction)
+- [QueryMetadata](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/QueryMetadata)
+- [QuerySpecifier](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/QuerySpecifier)
+- [Route](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/Route)
+- [UpdateQuery](https://wasp.sh/docs/api/wasp/client/operations/type-aliases/UpdateQuery)
+
+
+## wasp
+
+### Modules
+
+- [client/operations](https://wasp.sh/docs/api/wasp/client/operations)
+- [server](https://wasp.sh/docs/api/wasp/server)
+
+
+## wasp/server
+
+Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.
+
+### Classes
+
+- [HttpError](https://wasp.sh/docs/api/wasp/server/classes/HttpError)
+
+### Referenced Types
+
+- [HttpErrorOptions](https://wasp.sh/docs/api/wasp/server/interfaces/HttpErrorOptions)
+- [HttpErrorHeaders](https://wasp.sh/docs/api/wasp/server/type-aliases/HttpErrorHeaders)
+
 
 ------
 

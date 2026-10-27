@@ -1,0 +1,9 @@
+{
+  "name": "wasp",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@tanstack/react-query": "~4.42.0",
+    "@wasp.sh/lib-sdk-core": "file:../../waspc/data/Generator/libs/sdk-core"
+  }
+}

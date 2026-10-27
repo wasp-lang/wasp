@@ -81,3 +81,16 @@
 - [EntityName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/EntityName)
 - [HttpMethod](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/HttpMethod)
 - [JobExecutor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobExecutor)
+
+## Referenced Types
+
+- [AuthHooks](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/AuthHooks)
+- [BaseAuthMethodConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/BaseAuthMethodConfig)
+- [BaseSpecElement](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/BaseSpecElement)
+- [AnyFunction](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AnyFunction)
+- [AnyObject](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AnyObject)
+- [Brand](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Brand)
+- [Branded](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Branded)
+- [Entities](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Entities)
+- [FromRegister](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/FromRegister)
+- [SocialAuthMethodName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/SocialAuthMethodName)

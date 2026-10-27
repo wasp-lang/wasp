@@ -321,9 +321,18 @@ const config: Config = {
         readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
         alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
 
+        // Documents types that our packages reference but don't export, e.g.
+        // the `@wasp.sh/lib-sdk-core` types used in the Wasp SDK's signatures,
+        // and groups them so we can keep them out of the sidebar.
+        plugin: [
+          "typedoc-plugin-missing-exports",
+          // Loaded by path, so that it shares TypeDoc's instance.
+          "./src/plugins/typedoc-referenced-types.ts",
+        ],
+
         // input packages
         entryPointStrategy: "packages",
-        entryPoints: ["../waspc/data/packages/spec"],
+        entryPoints: ["../waspc/data/packages/spec", "./sdk-api-docs"],
 
         // If you want to set an option to a specific package, you can create a
         // `typedoc.jsonc` file in that package's folder with the desired

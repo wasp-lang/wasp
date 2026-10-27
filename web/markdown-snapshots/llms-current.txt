@@ -143,3 +143,6 @@
 
 ## API
 - [@wasp.sh/spec](https://wasp.sh/docs/api/@wasp.sh/spec.md)
+- [wasp/client/operations](https://wasp.sh/docs/api/wasp/client/operations.md)
+- [wasp](https://wasp.sh/docs/api/wasp.md)
+- [wasp/server](https://wasp.sh/docs/api/wasp/server.md)
