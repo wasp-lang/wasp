@@ -372,11 +372,11 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 ### Login
 
-![Auth UI](/img/docs/features/auth/login.png)
+![Auth UI](/img/docs/features/auth/login.webp)
 
 ### Signup
 
-![Auth UI](/img/docs/features/auth/signup.png)
+![Auth UI](/img/docs/features/auth/signup.webp)
 
 Some of the behavior you get out of the box:
 

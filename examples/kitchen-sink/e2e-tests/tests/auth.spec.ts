@@ -17,6 +17,19 @@ test.describe("auth", () => {
     ).toBeVisible();
   });
 
+  test("password field can be toggled to show the password", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+
+    const passwordInput = page.locator("input[name='password']");
+    await expect(passwordInput).toHaveAttribute("type", "password");
+
+    await page.getByRole("button", { name: "Show password" }).click();
+
+    await expect(passwordInput).toHaveAttribute("type", "text");
+  });
+
   test("reset password form shows the new password error under its own field", async ({
     page,
   }) => {

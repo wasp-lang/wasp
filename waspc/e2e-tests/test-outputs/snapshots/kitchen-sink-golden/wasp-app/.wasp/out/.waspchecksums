@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "5dcfe2fcc6cc771f24c4a40c8dbc0dc531c48272a6c445874afc2ea2df5e72cf"
+        "d066a46a17e6154390669472854bc5789b4a7424bad5c2c6ddcead317b05995a"
     ],
     [
         [
@@ -151,7 +151,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "6c6acc5cf982dae99e27631944e1d022a534b09160280406b7915bfbe665a903"
+        "586592947f396a17e6cb6c4697a286410bf481164a9065fc3385938df80bffd2"
     ],
     [
         [
@@ -165,7 +165,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "6dad7b142f8c4622c0b2cd7cf2953c2eae132b77571a0c3f387c2e1093eba6aa"
+        "8be9424467a0e4119efefd10f35cecf6ce155b5332dee4651256ebe21cd656ab"
     ],
     [
         [
@@ -368,7 +368,7 @@
             "file",
             "sdk/wasp/client/auth/ui.ts"
         ],
-        "1479d272aae8e2dc0d1e2c58586b57060c127bd9caacf80ac20bd632e03006d3"
+        "6732cbe39eb2ad1d875aabf07991832b2bb586aa19b64f1e210728658cc6b4cb"
     ],
     [
         [

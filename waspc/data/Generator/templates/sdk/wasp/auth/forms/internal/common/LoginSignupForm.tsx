@@ -6,6 +6,7 @@ import {
   clsx,
   Form,
   FormInput,
+  FormPasswordInput,
   FormItemGroup,
   FormLabel,
   FormError,
@@ -201,11 +202,10 @@ export const LoginSignupForm = ({
           {=/ enabledProviders.isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
-            <FormInput
+            <FormPasswordInput
               {...register('password', {
                 required: 'Password is required',
               })}
-              type="password"
               disabled={isLoading}
             />
             {errors.password && <FormError>{errors.password.message}</FormError>}
