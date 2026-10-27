@@ -15388,18 +15388,6 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 ## Migration guides / From 0.26 to 0.27
 
-To install the latest Wasp version, open your terminal and run:
-
-```sh
-npm i -g @wasp/cli@latest
-```
-
-You can install Wasp 0.27 specifically by passing the version to the install script:
-
-```sh
-npm i -g @wasp/cli@0.27
-```
-
 ### What's new in 0.27?
 
 #### New npm organization
