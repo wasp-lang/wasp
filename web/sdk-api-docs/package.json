@@ -4,6 +4,15 @@
   "private": true,
   "devDependencies": {
     "@tanstack/react-query": "~4.42.0",
-    "@wasp.sh/lib-sdk-core": "file:../../waspc/data/Generator/libs/sdk-core"
+    "@types/express": "^5.0.6",
+    "@types/express-serve-static-core": "^5.1.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@wasp.sh/lib-auth": "file:../../waspc/data/Generator/libs/auth",
+    "@wasp.sh/lib-sdk-core": "file:../../waspc/data/Generator/libs/sdk-core",
+    "react-router": "^8.5.0",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
+    "zod": "^4.6.7"
   }
 }

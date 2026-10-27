@@ -4,6 +4,7 @@ sidebar_label: Accessing user data
 description: Read the logged-in user's data from the AuthUser object in Wasp, with helpers such as getEmail, and see the Auth, AuthIdentity and Session entities.
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from './_multiple-identities-warning.md';
@@ -745,3 +746,47 @@ export default app({
 </Tabs>
 
 You can use whichever method suits your needs better: either the `createUser` function or Prisma's `User.create` method. The `createUser` function is a bit more convenient to use because it hides some of the complexity. On the other hand, the `User.create` method gives you more control over the data that is stored in the `Auth` and `AuthIdentity` entities.
+
+## API Reference
+
+<CardLink
+  to="../../api/wasp/auth/type-aliases/AuthUser"
+  kind="api"
+  title="AuthUser"
+  description="The logged-in user's object, with their auth identities."
+/>
+
+<CardLink
+  to="../../api/wasp/auth/functions/getEmail"
+  kind="api"
+  title="getEmail"
+  description="Get the user's email from a user entity object."
+/>
+
+<CardLink
+  to="../../api/wasp/auth/functions/getUsername"
+  kind="api"
+  title="getUsername"
+  description="Get the user's username from a user entity object."
+/>
+
+<CardLink
+  to="../../api/wasp/auth/functions/getFirstProviderUserId"
+  kind="api"
+  title="getFirstProviderUserId"
+  description="Get any of the user's auth IDs from a user entity object."
+/>
+
+<CardLink
+  to="../../api/wasp/server/auth/functions/createUser"
+  kind="api"
+  title="createUser"
+  description="Create a user with an auth identity."
+/>
+
+<CardLink
+  to="../../api/wasp/server/auth"
+  kind="api"
+  title="wasp/server/auth"
+  description="Helpers for working with auth identities, like createProviderId and sanitizeAndSerializeProviderData."
+/>

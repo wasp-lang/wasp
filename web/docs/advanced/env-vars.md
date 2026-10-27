@@ -7,6 +7,7 @@ description: Define client and server environment variables in Wasp with .env.cl
 import ClientEnvVarsNote from './_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
+import { CardLink } from '@site/src/components/CardLink'
 
 # Environment variables
 
@@ -371,180 +372,41 @@ Read more about the env object in the [API Reference](#api-reference).
 
 There are **Wasp-defined** and **user-defined** env vars. Wasp already comes with built-in validation for Wasp-defined env vars. For your env vars, you can define your own validation.
 
+<CardLink
+  to="../api/wasp/env/functions/defineEnvValidationSchema"
+  kind="api"
+  title="defineEnvValidationSchema"
+  description="Define a type-checked Zod schema to validate your client or server env vars."
+/>
+
 ### Client Env Vars {#client-env-vars-api}
 
-#### User-defined env vars validation
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Client#envvalidationschema"
+  kind="api"
+  title="Client.envValidationSchema"
+  description="The option of the client spec that sets your client env vars validation schema."
+/>
 
-You can define your client env vars validation like this:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/env.js"
-    import * as z from "zod"
-
-    import { defineEnvValidationSchema } from "wasp/env"
-
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        REACT_APP_ANALYTICS_ID: z.string({
-          required_error: "REACT_APP_ANALYTICS_ID is required.",
-        }),
-      })
-    )
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/env.ts"
-    import * as z from "zod"
-
-    import { defineEnvValidationSchema } from "wasp/env"
-
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        REACT_APP_ANALYTICS_ID: z.string({
-          required_error: "REACT_APP_ANALYTICS_ID is required.",
-        }),
-      })
-    )
-    ```
-
-    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-  </TabItem>
-</Tabs>
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { envValidationSchema } from "./src/env" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  client: {
-    envValidationSchema,
-  },
-  // ...
-})
-```
-
-Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `import.meta.env` object.
-
-#### Accessing env vars in client code
-
-You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/App.js"
-    import { env } from "wasp/client"
-
-    // Wasp-defined
-    const apiUrl = env.REACT_APP_API_URL
-
-    // User-defined
-    const analyticsId = env.REACT_APP_ANALYTICS_ID
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/App.ts"
-    import { env } from "wasp/client"
-
-    // Wasp-defined
-    const apiUrl = env.REACT_APP_API_URL
-
-    // User-defined
-    const analyticsId = env.REACT_APP_ANALYTICS_ID
-    ```
-  </TabItem>
-</Tabs>
-
-You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this since `import.meta.env` isn't validated and missing env vars can cause runtime errors.
+<CardLink
+  to="../api/wasp/client/variables/env"
+  kind="api"
+  title="env (wasp/client)"
+  description="The validated Wasp-defined and user-defined client env vars."
+/>
 
 ### Server Env Vars
 
-#### User-defined env vars validation
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Server#envvalidationschema"
+  kind="api"
+  title="Server.envValidationSchema"
+  description="The option of the server spec that sets your server env vars validation schema."
+/>
 
-You can define your env vars validation like this:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/env.js"
-    import * as z from "zod"
-
-    import { defineEnvValidationSchema } from "wasp/env"
-
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        STRIPE_API_KEY: z.string({
-          required_error: "STRIPE_API_KEY is required.",
-        }),
-      })
-    )
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/env.ts"
-    import * as z from "zod"
-
-    import { defineEnvValidationSchema } from "wasp/env"
-
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        STRIPE_API_KEY: z.string({
-          required_error: "STRIPE_API_KEY is required.",
-        }),
-      })
-    )
-    ```
-
-    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-  </TabItem>
-</Tabs>
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { envValidationSchema } from "./src/env" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  server: {
-    envValidationSchema,
-  },
-  // ...
-})
-```
-
-Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object.
-
-#### Accessing env vars in server code
-
-You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/stripe.js"
-    import { env } from "wasp/server"
-
-    // Wasp-defined
-    const serverUrl = env.WASP_SERVER_URL
-
-    // User-defined
-    const stripeApiKey = env.STRIPE_API_KEY
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/stripe.ts"
-    import { env } from "wasp/server"
-
-    // Wasp-defined
-    const serverUrl = env.WASP_SERVER_URL
-
-    // User-defined
-    const stripeApiKey = env.STRIPE_API_KEY
-    ```
-  </TabItem>
-</Tabs>
-
-You can use `process.env.SOME_SECRET` directly in your code. We don't recommend this since `process.env` isn't validated and missing env vars can cause runtime errors.
+<CardLink
+  to="../api/wasp/server/variables/env"
+  kind="api"
+  title="env (wasp/server)"
+  description="The validated Wasp-defined and user-defined server env vars."
+/>

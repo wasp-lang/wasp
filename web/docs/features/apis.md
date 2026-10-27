@@ -365,3 +365,17 @@ async function fetchStream(
   title="apiNamespace"
   description="All the options for declaring an API namespace in the Wasp spec."
 />
+
+<CardLink
+  to="../api/wasp/server/api"
+  kind="api"
+  title="wasp/server/api"
+  description="The types Wasp generates for implementing your APIs (e.g. FooBar)."
+/>
+
+<CardLink
+  to="../api/wasp/server/api/type-aliases/AuthenticatedApi"
+  kind="api"
+  title="AuthenticatedApi"
+  description="The type of an API's implementation: its req, res, and context arguments, and its type arguments."
+/>

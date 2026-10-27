@@ -4,6 +4,7 @@ sidebar_label: Auth UI
 description: Wasp generates login, signup, forgot password, reset password and verify email forms. Use them as is or change their colors, logo and social button layout.
 ---
 
+import { CardLink } from "@site/src/components/CardLink";
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
 
 # Auth UI
@@ -337,7 +338,7 @@ We use CSS variables in our styling so you can customize the styles by overridin
 
 :::info List of all available tokens
 
-See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/sdk/wasp/auth/forms/types.ts) which you can override.
+See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth/type-aliases/CustomizationOptions).
 
 :::
 
@@ -538,3 +539,47 @@ We get a form looking like this:
 <div style={{ textAlign: 'center' }}>
   <img src="/img/docs/features/auth/ui/custom_login.gif" alt="Custom login form" />
 </div>
+
+## API Reference
+
+<CardLink
+  to="../../api/wasp/client/auth/functions/LoginForm"
+  kind="api"
+  title="LoginForm"
+  description="The login form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth/functions/SignupForm"
+  kind="api"
+  title="SignupForm"
+  description="The signup form component, including its additionalFields prop."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth/functions/ForgotPasswordForm"
+  kind="api"
+  title="ForgotPasswordForm"
+  description="The forgot password form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth/functions/ResetPasswordForm"
+  kind="api"
+  title="ResetPasswordForm"
+  description="The reset password form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth/functions/VerifyEmailForm"
+  kind="api"
+  title="VerifyEmailForm"
+  description="The verify email form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth/type-aliases/CustomizationOptions"
+  kind="api"
+  title="CustomizationOptions"
+  description="The props for customizing the look of all the forms."
+/>

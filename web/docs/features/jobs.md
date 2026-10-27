@@ -5,7 +5,6 @@ description: Run background jobs in Wasp that persist between restarts, retry on
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
-import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
 
@@ -241,129 +240,27 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 
 ### JavaScript API
 
+<CardLink
+  to="../api/wasp/server/jobs"
+  kind="api"
+  title="wasp/server/jobs"
+  description="The Jobs Wasp generates for your app, and the types for implementing them."
+/>
+
 #### The worker function {#worker-api}
 
-An `async` function that performs the Job's work. Since Wasp executes Jobs on the server, its import path must lead to a NodeJS file. It receives two arguments:
+<CardLink
+  to="../api/wasp/server/jobs/type-aliases/JobFn"
+  kind="api"
+  title="JobFn"
+  description="The type of a Job's worker function, which the generated Job types (e.g. MySpecialJob) use."
+/>
 
-- `args: Input`: The data passed to the job when it's submitted.
-- `context: { entities: Entities }`: The context object containing the entities you put in the Job spec.
+#### Submitting a Job
 
-Here's an example worker function:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/workers/bar.js"
-    export const mySpecialJob = async ({ name }, context) => {
-      console.log(`Hello ${name}!`)
-      const tasks = await context.entities.Task.findMany({})
-      return { tasks }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/workers/bar.ts"
-    import { type MySpecialJob } from "wasp/server/jobs"
-
-    type Input = { name: string; }
-    type Output = { tasks: Task[]; }
-
-    export const mySpecialJob: MySpecialJob<Input, Output> = async ({ name }, context) => {
-      console.log(`Hello ${name}!`)
-      const tasks = await context.entities.Task.findMany({})
-      return { tasks }
-    }
-    ```
-
-    Read more about type-safe jobs in the [JavaScript API section](#javascript-api).
-  </TabItem>
-</Tabs>
-
-#### Importing a Job:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="someAction.js"
-    import { mySpecialJob } from "wasp/server/jobs"
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="someAction.ts"
-    import { mySpecialJob, type MySpecialJob } from "wasp/server/jobs"
-    ```
-
-    :::info Type-safe jobs
-    Wasp generates a generic type for each Job, which you can use to type your worker function. The type is named after the worker function you pass to `job`, converted to PascalCase, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
-
-    The type takes two type arguments:
-
-    - `Input`: The type of the `args` argument of the worker function.
-    - `Output`: The type of the return value of the worker function.
-      :::
-  </TabItem>
-</Tabs>
-
-#### `submit(jobArgs, executorOptions)`
-
-- `jobArgs: Input`
-- `executorOptions: object`
-
-Submits a Job to be executed by an executor, optionally passing in a JSON job argument your job handler function receives, and executor-specific submit options.
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-  ```js title="someAction.js"
-  const submittedJob = await mySpecialJob.submit({ name: "Johnny" })
-  ```
-</TabItem>
-
-<TabItem value="ts" label="TypeScript">
-  ```ts title="someAction.ts"
-  const submittedJob = await mySpecialJob.submit({ name: "Johnny" })
-  ```
-</TabItem>
-</Tabs>
-
-#### `delay(startAfter)`
-
-- `startAfter: int | string | Date` <Required />
-
-Delaying the invocation of the job handler. The delay can be one of:
-
-- Integer: number of seconds to delay. \[Default 0]
-- String: ISO date string to run at.
-- Date: Date to run at.
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="someAction.js"
-    const submittedJob = await mySpecialJob
-      .delay(10)
-      .submit({ name: "Johnny" }, { "retryLimit": 2 })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="someAction.ts"
-    const submittedJob = await mySpecialJob
-      .delay(10)
-      .submit({ name: "Johnny" }, { "retryLimit": 2 })
-    ```
-  </TabItem>
-</Tabs>
-
-#### Tracking
-
-The return value of `submit()` is an instance of `SubmittedJob`, which has the following fields:
-
-- `jobId`: The ID for the job in that executor.
-- `jobName`: The Job name Wasp derived from the worker function you passed to `job`.
-- `executorName`: The Symbol of the name of the job executor.
-
-There are also some namespaced, job executor-specific objects.
-
-- For pg-boss, you may access: `pgBoss`
-  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#getjobbyidid)
-  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
-  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
+<CardLink
+  to="../api/wasp/server/jobs/interfaces/PgBossJob"
+  kind="api"
+  title="PgBossJob"
+  description="The type of the generated Jobs (e.g. mySpecialJob), with the submit and delay methods, and how to track submitted Jobs."
+/>

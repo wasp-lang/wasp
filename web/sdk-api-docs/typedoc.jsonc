@@ -16,5 +16,6 @@
   "placeInternalsInOwningModule": true,
 
   // One module per SDK import path, e.g. `server.d.ts` documents `wasp/server`.
-  "entryPoints": ["server.d.ts", "client/operations.d.ts"],
+  "entryPoints": ["./**/*.d.ts"],
+  "exclude": ["node_modules/**"],
 }

@@ -5,7 +5,7 @@ description: "Customize vite.config.ts in a Wasp app: add the required wasp() pl
 ---
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
-import { Optional } from '@site/src/components/Tag'
+import { CardLink } from '@site/src/components/CardLink'
 
 # Custom Vite config
 
@@ -153,25 +153,9 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 
 ## API Reference
 
-```ts title="vite.config.ts" auto-js
-import { wasp } from 'wasp/client/vite'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [
-    wasp({
-      reactOptions: {
-        // ...
-      },
-    }),
-  ],
-})
-```
-
-The `wasp()` plugin accepts the following options:
-
-- #### `reactOptions: ReactOptions` <Optional />
-
-  Object to customize the underlying [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react) plugin.
-
-  This allows you to configure React-specific options like Babel plugins, Fast Refresh settings, and JSX configuration.
+<CardLink
+  to="../../api/wasp/client/vite/functions/wasp"
+  kind="api"
+  title="wasp"
+  description="The Wasp Vite plugin and all its options."
+/>

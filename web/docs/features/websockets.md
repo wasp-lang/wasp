@@ -293,3 +293,16 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
   description="All the options for the webSocket field of the app spec."
 />
 
+<CardLink
+  to="../api/wasp/server/webSocket/type-aliases/WebSocketDefinition"
+  kind="api"
+  title="WebSocketDefinition"
+  description="The type of your webSocketFn function, and how to type your events."
+/>
+
+<CardLink
+  to="../api/wasp/client/webSocket"
+  kind="api"
+  title="wasp/client/webSocket"
+  description="The useSocket and useSocketListener hooks, and the payload helper types."
+/>
