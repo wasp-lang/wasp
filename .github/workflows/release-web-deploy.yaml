@@ -3,6 +3,7 @@ name: "Release - Deploy web"
 # Deploys the website (https://wasp.sh) from the ref selected in the GitHub UI.
 on:
   workflow_dispatch:
+  pull_request:
 
 concurrency:
   group: "release-web-deploy"
@@ -46,13 +47,4 @@ jobs:
         run: npx wrangler deploy --env=""
 
       - name: Restart Algolia crawler
-        env:
-          ALGOLIA_CRAWLER_USER_ID: ${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
-          ALGOLIA_CRAWLER_API_KEY: ${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
-          ALGOLIA_CRAWLER_ID: ${{ secrets.ALGOLIA_CRAWLER_ID }}
-        # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
-        run: |
-          curl --fail-with-body -X POST \
-            --user "$ALGOLIA_CRAWLER_USER_ID:$ALGOLIA_CRAWLER_API_KEY" \
-            -H "Content-Type: application/json" \
-            "https://crawler.algolia.com/api/1/crawlers/$ALGOLIA_CRAWLER_ID/reindex"
+        run: echo "TEMP: skipped Algolia crawler restart while testing"

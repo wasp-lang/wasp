@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "wasp-docs",
+  "name": "wasp-docs-migration-test",
   "account_id": "75c37602a6b75c790961219411cb1b92",
   "main": "./worker.ts",
   "compatibility_date": "2026-10-20",
@@ -38,7 +38,7 @@
   },
   "env": {
     "on-main": {
-      "name": "wasp-docs-on-main",
+      "name": "wasp-docs-migration-test",
       "preview_urls": true,
       "previews": {},
     },
