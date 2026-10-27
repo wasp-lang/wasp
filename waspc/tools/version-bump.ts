@@ -99,7 +99,7 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   ]) {
     if (!deps) continue;
     for (const [name, range] of Object.entries(deps)) {
-      if (name.startsWith("@wasp.sh/") && !range.startsWith("file:")) {
+      if (name.startsWith("@wasp/") && !range.startsWith("file:")) {
         deps[name] = `^${nextVersion}`;
       }
     }

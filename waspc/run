@@ -122,8 +122,8 @@ function remove_stale_generated_wasp_lock_entries() {
 
   if ! jq '
     def is_stale_generated_wasp_package:
-      startswith("node_modules/@wasp.sh/lib-")
-      or . == "node_modules/@wasp.sh/generated-server"
+      startswith("node_modules/@wasp/lib-")
+      or . == "node_modules/@wasp/generated-server"
       or . == "node_modules/wasp"
       or . == ".wasp/out"
       or startswith(".wasp/out/");
@@ -131,7 +131,7 @@ function remove_stale_generated_wasp_lock_entries() {
     def without_wasp_lib_deps:
       if .dependencies then
         .dependencies |= with_entries(
-          select(.key | startswith("@wasp.sh/lib-") | not)
+          select(.key | startswith("@wasp/lib-") | not)
         )
       else
         .
@@ -184,7 +184,7 @@ print_usage() {
     "Builds the Wasp libs under data/Generator/libs/."
   echo ""
   print_usage_cmd "bust-libs-cache" \
-    "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
+    "Busts the npm cache for all @wasp/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
   echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
@@ -332,7 +332,7 @@ case $COMMAND in
     # `wasp install` must run before compile so @wasp.sh/spec matches CLI version.
     # Old generated workspaces point at old lib tarballs, so remove them from disk
     # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
-    rm -rf .wasp/out node_modules/@wasp.sh/generated-server node_modules/wasp
+    rm -rf .wasp/out node_modules/@wasp/generated-server node_modules/wasp
     remove_stale_generated_wasp_lock_entries
     eval "$WASP_CLI_INSTALL_CMD"
 

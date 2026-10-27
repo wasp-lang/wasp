@@ -15,14 +15,14 @@ import {
   type AdditionalSignupField,
   type AdditionalSignupFieldRenderFn,
   type FormState,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'
 
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
-import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
-import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
-import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
+import { useAuthContext } from '@wasp/lib-auth/browser'
+import { emailFieldRules, emailInputProps } from '@wasp/lib-sdk-core/browser'
+import * as SocialIcons from '@wasp/lib-sdk-core/browser'
+import { SocialButton } from '@wasp/lib-sdk-core/browser'
 import { useNavigate } from 'react-router'
-import { getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
+import { getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -31,7 +31,7 @@ const googleSignInUrl = `${config.apiUrl}/auth/google/login`
 const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
-import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+import type { LoginSignupFormFields } from '@wasp/lib-sdk-core/browser'
 
 
 // PRIVATE API
