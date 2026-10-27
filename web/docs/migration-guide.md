@@ -86,7 +86,7 @@ Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp 
   </TabItem>
 </Tabs>
 
-Then update every import from `@wasp.sh/spec` in your project, including `main.wasp.ts` and any other `*.wasp.ts` files:
+Then replace `@wasp.sh/spec` with `@wasp/spec` everywhere else in your project. That covers the imports in `main.wasp.ts` and any other `*.wasp.ts` files, and mentions in files like `AGENTS.md` or `CLAUDE.md`:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
