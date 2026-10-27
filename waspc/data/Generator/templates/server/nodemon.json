@@ -7,7 +7,7 @@
     command has a syntax error), and `tsc` uses that code for type errors, so `|| exit 1` makes it
     wait for file changes instead.
   =}
-  "exec": "tsc --build && rollup --config --silent && node --enable-source-maps -r dotenv/config bundle/server.js || exit 1",
+  "exec": "{=& bundleScript =} && {=& startScript =} || exit 1",
   "env": {
     "NODE_ENV": "development"
   },
