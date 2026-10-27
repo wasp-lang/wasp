@@ -26,6 +26,7 @@
 .formInput,
 .formTextarea {
   display: block !important;
+  box-sizing: border-box !important;
   line-height: 1.5rem !important;
   font-size: var(--font-size-sm) !important;
   border-width: 1px !important;

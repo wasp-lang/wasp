@@ -1,3 +1,9 @@
+---
+title: "Prisma schema file: define your data model in Wasp"
+sidebar_label: Prisma schema file
+description: Wasp uses Prisma to interact with the database, and you can define your Wasp data model in the schema.prisma file.
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 # Prisma schema file
@@ -61,7 +67,7 @@ The `datasource` block defines which database you want to use (PostgreSQL in thi
 
 The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
 
-<ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file" />
+<ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/docs/features/data/prisma-file/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file" />
 
 Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 

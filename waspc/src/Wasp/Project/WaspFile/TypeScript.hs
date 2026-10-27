@@ -19,7 +19,10 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
+import System.IO (hClose)
+import System.IO.Temp (withTempFile)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
@@ -31,6 +34,7 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallable
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
+    DotWaspDir,
     TsConfigPaths (..),
     WaspProjectDir,
     WaspTsConfigFile,
@@ -50,7 +54,9 @@ analyzeWaspTsFile ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
-  specResultOrErrors <- runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
+  specResultOrErrors <-
+    withSpecResultFile compileOptions $
+      runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   return $ case specResultOrErrors of
     Left errs -> Left errs
     Right (SpecAnalysisError specErrorMessage) ->
@@ -62,13 +68,37 @@ analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
     formatSpecAnalysisError specErrorMessage =
       "Error while analyzing spec (*.wasp.ts) files:\n\n" ++ specErrorMessage
 
+data SpecResultFile
+
+-- | Gives each analysis its own result file, so analyses running at the same
+-- time (e.g. `wasp show spec` next to `wasp start`) don't conflict. The file
+-- is deleted afterwards.
+withSpecResultFile :: CompileOptions -> (Path' Abs (File SpecResultFile) -> IO a) -> IO a
+withSpecResultFile compileOptions action =
+  withTempFile
+    (fromAbsDir dotWaspDir)
+    (fromRelFile specResultFileTemplate)
+    $ \specResultFilePath' specResultFileHandle -> do
+      -- We don't use the handle anymore, the given action will open the file
+      -- itself when it needs it.
+      hClose specResultFileHandle
+      specResultFilePath <- SP.parseAbsFile specResultFilePath'
+      action specResultFilePath
+  where
+    dotWaspDir = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir
+
+    -- 'withTempFile' will insert a unique suffix before the extension.
+    specResultFileTemplate :: Path' (Rel DotWaspDir) (File SpecResultFile)
+    specResultFileTemplate = [relfile|spec-result.json|]
+
 runWaspSpecAnalyzer ::
   CompileOptions ->
   Psl.Schema.Schema ->
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
+  Path' Abs (File SpecResultFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
-runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
+runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath absSpecResultFile = do
   -- We invoke the script directly via `node` instead of `npx` because
   -- `npx` requires the bin file to be executable, and `cabal install`
   -- strips executable permissions from data files.
@@ -104,7 +134,6 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
     ExitSuccess -> readSpecResultFile
   where
-    absSpecResultFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec-result.json|]
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String

@@ -1,4 +1,6 @@
 ---
+title: "Auth hooks: run custom code on signup and login"
+description: Run custom code at stages of the Wasp auth flow with hooks like onBeforeSignup and onAfterLogin, to block certain emails or send a welcome email.
 sidebar_label: Hooks
 ---
 
@@ -23,9 +25,9 @@ The following auth hooks are available in Wasp:
 
 We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the auth flows:
 
-<ImgWithCaption source="/img/auth-hooks/signup_flow_with_hooks.png" alt="Signup Flow with Hooks" caption="Signup Flow with Hooks" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/signup_flow_with_hooks.png" alt="Signup Flow with Hooks" caption="Signup Flow with Hooks" />
 
-<ImgWithCaption source="/img/auth-hooks/login_flow_with_hooks.png" alt="Login Flow with Hooks" caption="Login Flow with Hooks *" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/login_flow_with_hooks.png" alt="Login Flow with Hooks" caption="Login Flow with Hooks *" />
 
 <small>
   \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
@@ -34,14 +36,14 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 Users registering with [email](./email/overview.md) must verify it before they can log in. This verification triggers the Email verification flow:
 
 <ImgWithCaption
-  source="/img/auth-hooks/email_verification_flow_with_hooks.png"
+  source="/img/docs/features/auth/hooks/email_verification_flow_with_hooks.png"
   alt="Email Verification Flow with Hooks"
   caption="Email Verification Flow with Hooks"
 />
 
 Users signing in with [OAuth](./social-auth/overview.md) must authorize access before completing login. This authorization triggers the OAuth consent flow:
 
-<ImgWithCaption source="/img/auth-hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
 
 ## Using hooks
 

@@ -1,3 +1,9 @@
+---
+title: "2. Project structure: Wasp tutorial"
+sidebar_label: "2. Project structure"
+description: "Step 2 of the Wasp tutorial explains the files of a new project: main.wasp.ts for the spec, schema.prisma for database models and src for your own code."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # 2. Project structure

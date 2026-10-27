@@ -1,3 +1,9 @@
+---
+title: "6. Modifying data: Wasp tutorial"
+sidebar_label: "6. Modifying data"
+description: Add a Wasp Action that creates a task in the Todo app, call it from a React form, and write a second Action that marks a task as done in the database.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import Collapse from '@site/src/components/Collapse';
@@ -158,7 +164,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser. You'll see the tasks are still there!
 
-<img alt="Todo App - creating new task" src={useBaseUrl('img/todo-app-new-task.png')} className="tutorial-image" />
+<img alt="Todo App - creating new task" src={useBaseUrl('img/docs/tutorial/06-actions/todo-app-new-task.png')} className="tutorial-image" />
 
 <br />
 

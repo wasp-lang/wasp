@@ -1,16 +1,17 @@
 ---
 title: "Claude Code for Fullstack Development: The 3 Things You Actually Need"
 authors: [vinny]
-image: /img/claude-code-fullstack/banner.webp
+image: /img/blog/2026-01-29-claude-code-fullstack-development-essentials/banner.webp
 tags: [wasp, ai, claude-code, fullstack]
 last_update:
   date: "2026-02-17"
 keywords: ["Claude Code", "fullstack development", "fullstack framework", "AI coding", "vibe coding", "Wasp framework", "MCP servers", "llms.txt"]
-description: "Claude Code for fullstack development doesn't require complex workflows. Three essentials -— full-stack debugging visibility, LLM-friendly docs, and an opinionated framework -— are all you need."
+description: "Claude Code needs few skills for full-stack work: browser and server visibility, llms.txt docs and an opinionated framework like Wasp."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 import { VideoWithCaption } from './components/VideoWithCaption';
+import Trackable from '@site/src/components/Trackable';
 
 ## TL;DR
 
@@ -72,7 +73,7 @@ Let's dive in.
 Our typical AI-assisted coding workflow tends to look like this: we prompt, then wait, then look over the generated code (maybe), then check on things in the browser. If we've got some errors or some bad looking frontend designs, we copy and paste them and try to (better) explain what we want.
 
 <VideoWithCaption
-    source="img/claude-code-fullstack/workflow-without-vision.mp4"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/workflow-without-vision.mp4"
     alt="An AI-assisted coding workflow without full-stack vision"
     caption="An AI-assisted coding workflow without 'full-stack vision'."
 />
@@ -90,7 +91,7 @@ Let's check out how.
 Claude Code introduced their [background tasks feature](https://code.claude.com/docs/en/interactive-mode#background-bash-commands) which lets it execute long-running tasks, like app development servers (e.g. `npm run dev`), on the side without blocking Claude's progress on other work. The nice part is that Claude can continue to read and respond to the output of this task while you work.
 
 <VideoWithCaption
-    source="img/claude-code-fullstack/background-tasks-demo.mp4"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/background-tasks-demo.mp4"
     caption="Running the dev server as a background task."
     alt="Running the dev server as a background task"
 />
@@ -115,7 +116,7 @@ Problems that only show up **after the app is running in the browser**, like des
 But luckily, we can arm Claude Code with browser automation tools to solve for this. These tools allow for programmatic control of the browser, like loading pages, clicking buttons, inspecting elements, reading console logs, and even taking screenshots.
 
 <VideoWithCaption
-    source="img/claude-code-fullstack/browser-automation-login.mp4"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/browser-automation-login.mp4"
     alt="Logging in and adding a task with browser automation"
     caption="Logging in and adding a task with browser automation."
 />
@@ -145,7 +146,7 @@ You should see a separate Chrome instance open up being controlled by Claude. Go
 ### Tying it All Together
 
 <VideoWithCaption
-    source="img/claude-code-fullstack/subtasks-fullstack-demo.mp4"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/subtasks-fullstack-demo.mp4"
     alt="Adding a full-stack subtasks feature with full-stack vision workflow"
     caption="Adding a full-stack 'subtasks' feature with our 'full-stack vision' workflow."
 />
@@ -192,7 +193,7 @@ There are already tons of MCP servers for popular tools, like Supabase, Jira, Ca
 <ImgWithCaption
     alt="the Context7 MCP's `get-library-docs` tool for Material-UI "
     caption="the Context7 MCP's `get-library-docs` tool"
-    source="img/claude-code-fullstack/mcp-servers-list.webp"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/mcp-servers-list.webp"
 />
 
 Developer Tool MCP servers like [Supabase](https://supabase.com/docs/guides/getting-started/mcp) and [Vercel](https://vercel.com/docs/ai-resources/vercel-mcp) have tools which will fetch documentation for the agent based on a query. There are some pros and cons to this approach, though. 
@@ -213,7 +214,7 @@ Because LLMs don’t have a real memory, they have to load information into cont
 
 <ImgWithCaption
     alt="Claude Code context window usage showing MCP server overhead"
-    source="img/claude-code-fullstack/context-usage-tip.webp"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/context-usage-tip.webp"
     caption="Checking the context usage in a Claude Code session."
 />
 
@@ -235,7 +236,7 @@ Try it out on some of your favorite developer tools URLs, such as:
 - [wasp.sh/llms.txt](https://wasp.sh/llms.txt)
 
 <VideoWithCaption
-    source="img/claude-code-fullstack/llmstxt-comparison.mp4"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/llmstxt-comparison.mp4"
     alt="Comparison of different llms.txt files"
     caption="Some llms.txt provide lots of information up front, while others are simply maps to documentation."
 />
@@ -266,7 +267,7 @@ Claude Code is also great at navigating documentation maps to only fetch the mos
 
 <ImgWithCaption
     alt="Example of an llms.txt file structure"
-    source="img/claude-code-fullstack/llmstxt-example.webp"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/llmstxt-example.webp"
 />
 
 It's also the method that Claude Code uses for its [own doc fetching internally](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/). So when you ask it a question about its own features, it will first fetch its [documentation map markdown file URL](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/) to find the correct guides.
@@ -344,7 +345,7 @@ In a sense, the framework acts as a large specification that both you and Claude
 
 <ImgWithCaption
     alt="Wasp visual representation of a full-stack app structure"
-    source="img/claude-code-fullstack/wasp-visual-representation.webp"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/wasp-visual-representation.webp"
     caption="Wasp Studio even gives you a visual representation of your full-stack app structure."
 />
 
@@ -366,11 +367,17 @@ Here's how to get started:
 
 1. **Install Wasp**
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
 
+</Trackable>
+
 2. **Install the Claude Code plugin**
+
+<Trackable event="Agent Plugin: Copy" kind="claude_plugin">
 
 ```bash
 # add the Wasp marketplace to Claude
@@ -380,7 +387,11 @@ claude plugin marketplace add wasp-lang/wasp-agent-plugins
 claude plugin install wasp@wasp-agent-plugins --scope project
 ```
 
+</Trackable>
+
 3. **Start a new Wasp project**
+
+<Trackable event="CLI Command: Copy" command="wasp_new">
 
 ```bash
 # create a new project
@@ -390,6 +401,8 @@ wasp new
 cd <your-wasp-project>
 ```
 
+</Trackable>
+
 4. **Start a Claude Code session** in your Wasp project directory
 
 ```bash
@@ -398,15 +411,19 @@ claude
 
 5. **Run the init command** to set up the plugin
 
+<Trackable event="Agent Plugin: Copy" kind="plugin_prompt">
+
 ```bash
 /wasp:init
 ```
+
+</Trackable>
 
 From there, you can tell Claude to "start the dev server" and it will walk you through spinning up fullstack visibility as we outlined above. Or ask it to implement a Wasp feature and watch it fetch version-matched documentation guides for you!
 
 <ImgWithCaption
     alt="Wasp Claude Code plugin in action"
-    source="img/claude-code-fullstack/plugin-in-action.webp"
+    source="img/blog/2026-01-29-claude-code-fullstack-development-essentials/plugin-in-action.webp"
     caption="Wasp Claude Code plugin in action."
 />
 

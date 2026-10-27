@@ -1,4 +1,5 @@
 ---
+title: Migrating from the Wasp DSL to TypeScript in 0.24
 sidebar_label: "Wasp DSL"
 comments: true
 ---

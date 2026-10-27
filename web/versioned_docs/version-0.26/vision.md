@@ -1,3 +1,9 @@
+---
+title: "Vision: Wasp as a spec-driven web framework"
+sidebar_label: Vision
+description: The Wasp team wants to make web development easy and enjoyable for novices, experts, and agents with a spec-driven framework uniting React, CSS and JS.
+---
+
 # Vision
 
 With Wasp, we want to make developing web apps easy and enjoyable, for novices and experts in web development alike.
