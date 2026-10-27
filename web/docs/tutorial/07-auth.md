@@ -1,6 +1,13 @@
-import useBaseUrl from '@docusaurus/useBaseUrl';
+---
+title: "7. Adding authentication: Wasp tutorial"
+sidebar_label: "7. Adding authentication"
+description: "Add username and password auth to the Wasp Todo app: a User entity, login and signup pages, a protected main page, per-user tasks and a logout button."
+---
+
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import userInDbGif from './img/wasp_user_in_db.gif';
+import dbDemonstrationGif from './img/wasp_db_demonstration.gif';
 
 # 7. Adding authentication
 
@@ -81,11 +88,11 @@ By doing this, Wasp will create:
 
 - [Auth UI](../features/auth/ui) with login and signup forms.
 - A `logout()` action.
-- A React hook `useAuth()`.
+- A `useAuth()` hook on the client.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), and [email](../features/auth/email/overview), with more on the way!
+Wasp also supports authentication using [email](../features/auth/email/overview) and social providers like [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), [Discord](../features/auth/social-auth/discord), [Microsoft](../features/auth/social-auth/microsoft), [Slack](../features/auth/social-auth/slack), and [Keycloak](../features/auth/social-auth/keycloak).
 :::
 
 ## Adding Login and Signup Pages
@@ -127,16 +134,16 @@ Here's the React code for the pages you've just imported:
 ```tsx title="src/LoginPage.tsx" auto-js
 import { Link } from "react-router";
 import { LoginForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <LoginForm />
-      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -149,16 +156,16 @@ The signup page is very similar to the login page:
 ```tsx title="src/SignupPage.tsx" auto-js
 import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <SignupForm />
-      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -166,7 +173,7 @@ export const SignupPage = () => {
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
+  Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 
@@ -226,7 +233,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-<img alt="Database demonstration - password hashing" src={useBaseUrl('img/wasp_user_in_db.gif')} className="tutorial-image" />
+<img alt="Database demonstration - password hashing" src={userInDbGif} className="tutorial-image" />
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -335,36 +342,35 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
-export const updateTask: UpdateTask<
-  UpdateTaskPayload,
-  { count: number }
-> = async (args, context) => {
+export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+  { id, isDone },
+  context,
+) => {
   // highlight-start
   if (!context.user) {
     throw new HttpError(401);
   }
   // highlight-end
-  return context.entities.Task.updateMany({
-    where: { id: args.id, user: { id: context.user.id } },
-    data: { isDone: args.isDone },
+  return context.entities.Task.update({
+    // highlight-next-line
+    where: { id, user: { id: context.user.id } },
+    data: {
+      isDone: isDone,
+    },
   });
 };
 ```
 </TutorialAction>
 
-:::note
-Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
-:::
-
 With these changes, each user should have a list of tasks that only they can see and edit.
 
-Try playing around, adding a few users and some tasks for each of them. Then open the DB studio:
+Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
 ```sh
 wasp db studio
 ```
 
-<img alt="Database demonstration" src={useBaseUrl('img/wasp_db_demonstration.gif')} className="tutorial-image" />
+<img alt="Database demonstration" src={dbDemonstrationGif} className="tutorial-image" />
 
 You will see that each user has their tasks, just as we specified in our code!
 
@@ -383,11 +389,17 @@ import { logout } from "wasp/client/auth";
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
-    <div>
-      {$HOLE$}
-      // highlight-next-line
-      <button onClick={logout}>Logout</button>
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+        // highlight-next-line
+        <button onClick={logout}>Logout</button>
+      </header>
+      <main>{$HOLE$}</main>
+    </>
   );
 };
 ```
@@ -418,7 +430,7 @@ Looking for inspiration?
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
+If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](../contributing.md).
 :::
 
 Oh, and do [**subscribe to our newsletter**](/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

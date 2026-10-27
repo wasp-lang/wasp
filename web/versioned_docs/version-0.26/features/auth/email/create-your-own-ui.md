@@ -1,3 +1,9 @@
+---
+title: Create your own UI for email auth in Wasp
+sidebar_label: Create your own UI
+description: Build your own login, signup, email verification and password reset pages for Wasp email auth, with example code for the functions in wasp/client/auth.
+---
+
 import { Required } from '@site/src/components/Tag'
 
 # Create your own UI

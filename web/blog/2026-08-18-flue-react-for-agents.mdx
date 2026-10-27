@@ -1,10 +1,10 @@
 ---
 title: "How to Build a Secure AI Agent for Your SaaS (with Flue)"
 authors: [vinny]
-image: /img/flue-open-saas/banner.webp
+image: /img/blog/2026-08-18-flue-react-for-agents/banner.webp
 tags: [wasp, ai agents, flue, react, saas, typescript]
 keywords: ["flue framework", "ai agent framework", "typescript agent framework", "react for agents", "agent hooks", "secure ai agents", "prompt injection prevention", "ai chatbot saas", "open saas", "flue tutorial", "agent tool calling", "conditional tools", "astro flue", "full-stack ai agent"]
-description: "Adding an AI agent to a SaaS means giving it access to user data, and that has to be secure. Here's how Flue, a TypeScript agent framework that feels like React, makes locking an agent to the logged-in user and guarding destructive actions genuinely simple."
+description: "Build a secure AI agent for your SaaS with Flue, a TypeScript agent framework: lock the agent to the logged-in user and confirm deletes."
 ---
 
 Everybody is trying to add AI to their SaaS right now. And a chatbot that just answers questions isn't enough anymore: users expect the assistant to actually *do* things inside the app. Create records, update them, kick off workflows, all on behalf of whoever is logged in.
@@ -21,7 +21,7 @@ To put it through its paces, I built a real integration with it, and the whole t
 
 On the surface, it looks like your typical AI chatbot: it sits in a sidebar, you type at it, it types back. But this agent can also manage the logged-in user's task list and generate a daily schedule from it. I can throw a multi-step request at it, like "add a new task called *present Flue in a video*, check off *integrate a Flue agent into Open SaaS*, and generate a schedule for today", and it works through the tools one by one, ticks off each item, and the task list UI on the left updates live as it goes.
 
-![The agent updating the task list UI live](/img/flue-open-saas/agent-updates-ui.webp)
+![The agent updating the task list UI live](/img/blog/2026-08-18-flue-react-for-agents/agent-updates-ui.webp)
 
 The app itself is built on top of [Open SaaS](https://opensaas.sh), our free, open-source SaaS template, so it already comes with auth, a database, and a demo task app. That gave me a realistic setup to plug an agent into: a real logged-in user, real user data, and real consequences if the agent gets it wrong.
 

@@ -1,8 +1,9 @@
 ---
 title: 'Smol AI 🐣 vs. Wasp AI 🐝 - Which is the Better AI Junior Developer?'
 authors: [vinny]
-image: /img/smol-ai-vs-wasp-ai/smol-vs-wasp-banner.png
+image: /img/blog/2023-08-01-smol-ai-vs-wasp-ai/smol-vs-wasp-banner.png
 tags: [wasp, ai, gpt, langchain, fullstack, node, react, agent]
+description: "Smol AI's Smol-Developer did not make a working blog app in three tries; Wasp AI did after small fixes, at $0.10 to $0.20 per app, in 2023."
 ---
 
 import Link from '@docusaurus/Link';
@@ -21,7 +22,7 @@ When comparing the two, Smol-Developer’s strength is its **versatility**. If y
 
 On the other hand, Wasp AI shines by being **specific.** Because it’s only built for generating full-stack React/NodeJS/Prisma/Tailwind codebases, it does the tweaking and advanced prompting for you, and thus it performs much better in generating **higher quality content** with less effort for a specific use case.
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled.png" width="550px" />
 
 Will either of these tools completely replace Junior Developers in their current form? Of course not. But they do allow for rapid prototyping and testing of novel ideas.
 
@@ -61,7 +62,7 @@ Smol AI (described as a platform for “model distillation and AI developer agen
 
 It aims to be a generalist, prompt-based coding assistant run from the command line. The developer’s job becomes a process of iterative prompting, testing, and re-prompting in order to get the optimal output. It is not limited to any language or type of app it can create, although simple apps tend to work best.
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/smol-ai-tweet.png" width="400px" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/smol-ai-tweet.png" width="400px" />
 
 Check out this tweet thread above to get a better understanding: [https://twitter.com/swyx/status/1657892220492738560](https://twitter.com/swyx/status/1657892220492738560)
 
@@ -109,7 +110,7 @@ One of my personal favorites is AI Jason’s exposé and commentary. He gives a 
 
 In contrast to Smol-Developer, Wasp’s AI tool, [GPT Web App Generator](https://usemage.ai/), is currently an open-source web app (yes, it’s a web app that makes web apps). Since it’s release on the 12th of July, there have been over 6,500 apps generated with over 300 apps being generated each day!
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled%201.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-1.png" width="550px" />
 
 Here’s a quick 1 minute video showcasing how [GPT Web App Generator](https://usemage.ai/) works:
 
@@ -334,9 +335,9 @@ The first prompt was the default prompt that comes hardcoded into Smol-Developer
 
 Both were able to create a functional PONG game out-of-the box, but only on the second try. The first try created decent PONG starters, but both had buggy game logic (e.g. computer opponent failed to hit ball, or ball would spin off into oblivion). I didn’t change the prompts at all, but just simply ran them a second time each — and that did the trick!
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled%202.png" width="400px" caption="Smol AI’s PONG game" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-2.png" width="400px" caption="Smol AI’s PONG game" />
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled%203.png" width="400px" caption="Wasp AI’s PONG game" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-3.png" width="400px" caption="Wasp AI’s PONG game" />
 
 For both of the generated apps, the game logic was very simple. Scores weren’t recorded, and once a game ended, you’d have to refresh the page to start a new one.
 
@@ -350,7 +351,7 @@ This is what I attempted to test out with the second prompt.
 
 ### Prompt 2: Blog App
 
-![Untitled](../static/img/smol-ai-vs-wasp-ai/Untitled%204.png)
+![Untitled](../static/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-4.png)
 
 This time, for the second app test, I used a default prompt featured on the GPT Web App Generator homepage for creating a Blog app:
 
@@ -377,7 +378,7 @@ As this was a suggested prompt on the GPT Web App Generator page, let’s start 
 
 After downloading the generated codebase and running the app, I ran into an error `Failed to resolve import "./ext-src/ViewPost.jsx" from "src/router.jsx". Does the file exist?`
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled%205.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-5.png" width="550px" />
 
 One quick look at the `main.wasp` file revealed that the Generator gave the wrong path to the `ViewPost` page, although it did get all the other Page paths correct (highlighted in yellow above).
 
@@ -392,7 +393,7 @@ There were still a couple of errors that prevented the app from being fully func
 1. Blog posts on the homepage did not have a link in order to redirect to the their specific post page — fixable by just wrapping them in ``<Link to={`/post/${post.id}`}>``
 2. The client was passing the `postId` as a String instead of an `Int` to the `getPost` endpoint — fixable by wrapping the argument in `parseInt(postId)` to convert strings to integers
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled%206.png" width="400px" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-6.png" width="400px" />
 
 And with those simple fixes we got a fully functioning, full-stack blog app with authentication,  database, and simple tailwind css styling! The best part was that all this took about ~5 minutes from start to finish. Sweet :)
 
@@ -410,7 +411,7 @@ The Smol-Developer result was also very impressive, with a solid ExpressJS serve
 3. The server was importing but not utilizing Prisma as the ORM to communicate with the DB
 4. Client had Auth logic, but was not utilizing it to protect pages/routes
 
-![Untitled](../static/img/smol-ai-vs-wasp-ai/Untitled%207.png)
+![Untitled](../static/img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-7.png)
 
 Because there were too many fundamental issues with the app, I went ahead and added some more lines to the bottom of the prompt:
 
@@ -444,7 +445,7 @@ With these additions to the prompt, the third iteration of the app did in fact i
 
 Besides that, no auth logic was implemented, imports were out place or missing, and an `index.jsx` file was also nowhere to be found, so I decided to stop there.
 
-<ImgWithCaption source="img/smol-ai-vs-wasp-ai/Untitled%208.png" width="400px" />
+<ImgWithCaption source="img/blog/2023-08-01-smol-ai-vs-wasp-ai/Untitled-8.png" width="400px" />
 
 I’m sure I could have iterated on the prompt enough times until I got closer to a working app, but at ~$0.80-$1.20 a generation, I didn’t feel like racking up more of an OpenAI bill.
 

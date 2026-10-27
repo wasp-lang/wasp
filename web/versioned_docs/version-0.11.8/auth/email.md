@@ -6,7 +6,7 @@ import { Required } from '@site/src/components/Tag';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
-![Auth UI](/img/authui/all_screens.gif)
+![Auth UI](/img/docs/features/auth/all_screens.gif)
 
 :::caution Using email auth and social auth together
 If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password ✅
@@ -471,7 +471,7 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 ### Login
 
-![Auth UI](/img/authui/login.png)
+![Auth UI](/img/docs/features/auth/login.png)
 
 If logging in with an unverified email is _allowed_, the user will be able to login with an unverified email address. If logging in with an unverified email is _not allowed_, the user will be shown an error message.
 
@@ -479,7 +479,7 @@ Read more about the `allowUnverifiedLogin` option [here](#allowunverifiedlogin-b
 
 ### Signup
 
-![Auth UI](/img/authui/signup.png)
+![Auth UI](/img/docs/features/auth/signup.png)
 
 Some of the behavior you get out of the box:
 
@@ -535,7 +535,7 @@ The content of the e-mail can be customized, read more about it [here](#emailver
 
 We defined our email verification page in the `auth.{jsx,tsx}` file.
 
-![Auth UI](/img/authui/email_verification.png)
+![Auth UI](/img/docs/features/auth/email_verification.png)
 
 ## Password Reset Flow
 
@@ -579,13 +579,13 @@ Our setup in `main.wasp` looks like this:
 
 Users request their password to be reset by going to the `/request-password-reset` route. We defined our request password reset page in the `auth.{jsx,tsx}` file.
 
-![Request password reset page](/img/authui/forgot_password_after.png)
+![Request password reset page](/img/docs/features/auth/email/overview/forgot_password_after.png)
 
 ### Password Reset Page
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `PasswordResetRoute` route we defined in the `main.wasp` file.
 
-![Request password reset page](/img/authui/reset_password_after.png)
+![Request password reset page](/img/docs/features/auth/email/overview/reset_password_after.png)
 
 Users can enter their new password there.
 

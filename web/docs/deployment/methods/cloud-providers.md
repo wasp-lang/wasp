@@ -1,3 +1,9 @@
+---
+title: "Cloud providers: deploy Wasp by guide or by hand"
+sidebar_label: Cloud providers
+description: Deploy Wasp to any provider that runs Node.js, serves static files and hosts PostgreSQL. Follow a guide for Vercel, Fly.io and others, or deploy by hand.
+---
+
 import BuildingTheWebClient from './_building-the-web-client.md'
 import { CardLink } from '@site/src/components/CardLink'
 
@@ -22,6 +28,8 @@ We have step-by-step guides for deploying your Wasp app to some of the most popu
 <CardLink to="../../guides/deployment/cloud-providers/railway" kind="guide" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
 
 <CardLink to="../../guides/deployment/cloud-providers/render" kind="guide" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
+
+<CardLink to="../../guides/deployment/cloud-providers/zerops" kind="guide" title="Deploying Wasp on Zerops" description="One-click recipe deploys client, server, and PostgreSQL" />
 
 If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
 Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/guides/deployment/cloud-providers) if you'd like to write one yourself :)

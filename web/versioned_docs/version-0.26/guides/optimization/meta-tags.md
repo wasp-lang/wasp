@@ -1,4 +1,6 @@
 ---
+title: Adding meta tags to your Wasp app for SEO
+description: "Add meta tags to a Wasp app for SEO and rich previews on Slack, X or Discord: set tags for every page in the head field, or for one page in a component."
 sidebar_label: Meta tags
 comments: true
 ---

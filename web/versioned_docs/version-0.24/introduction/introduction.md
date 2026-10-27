@@ -26,9 +26,9 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 At the core is the Wasp compiler which takes the Wasp Spec and your Javascript code and outputs the client app, server app and deployment code.
 
-<!-- ![Wasp compilation diagram](/img/lp/wasp-compilation-diagram.png) -->
+<!-- ![Wasp compilation diagram](/img/docs/getting-started/introduction/wasp-compilation-diagram.png) -->
 
-<ImgWithCaption source="/img/lp/wasp-compilation-diagram.png" caption="How the magic happens 🌈" />
+<ImgWithCaption source="/img/docs/getting-started/introduction/wasp-compilation-diagram.png" caption="How the magic happens 🌈" />
 
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 

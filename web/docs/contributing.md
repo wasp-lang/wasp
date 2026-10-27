@@ -1,4 +1,7 @@
 ---
+title: "Contributing to Wasp: where to start"
+sidebar_label: Contributing
+description: "Contribute to Wasp: start with CONTRIBUTING.md on GitHub and join the Discord. Any way you want to contribute is a good way, and we'd be happy to meet you!"
 slug: /contributing
 ---
 
