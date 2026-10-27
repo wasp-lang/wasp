@@ -7,7 +7,7 @@ If you are creating a Wasp app, you don't need to install this package yourself.
 - Learn more about Wasp: https://wasp.sh/
 - Read the docs: https://wasp.sh/docs
 - Read about the Wasp spec: https://wasp.sh/docs/features/spec
-- Browse the API reference: https://wasp.sh/docs/api/@wasp.sh/spec
+- Browse the API reference: https://wasp.sh/docs/api/@wasp/spec
 - Join our community: https://discord.gg/rzdnErX
 
 ## For Wasp Spec library authors
@@ -19,10 +19,10 @@ In `package.json`:
 ```json
 {
   "peerDependencies": {
-    "@wasp.sh/spec": "^0.25.0"
+    "@wasp/spec": "^0.25.0"
   },
   "devDependencies": {
-    "@wasp.sh/spec": "^0.25.0"
+    "@wasp/spec": "^0.25.0"
   }
 }
 ```

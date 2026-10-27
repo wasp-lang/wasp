@@ -29,7 +29,7 @@
                     "version": "^19.2.3"
                 },
                 {
-                    "name": "@wasp.sh/spec",
+                    "name": "@wasp/spec",
                     "version": "file:.wasp/spec/"
                 },
                 {

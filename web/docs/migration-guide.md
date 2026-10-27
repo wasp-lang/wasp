@@ -18,6 +18,10 @@ npm uninstall -g @wasp.sh/wasp-cli
 
 ## What's new in 0.27?
 
+### New npm package names
+
+Wasp's npm packages moved from the `@wasp.sh` scope to `@wasp`. The CLI is now `@wasp/wasp-cli`, and the Wasp Spec is `@wasp/spec`.
+
 ### Prisma 6
 
 Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) for the full list of changes.
@@ -55,7 +59,53 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Upgrade to Prisma 6
+### 2. Rename `@wasp.sh/spec` to `@wasp/spec`
+
+Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp Spec dependency in your `package.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@wasp.sh/spec": "file:.wasp/spec"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@wasp/spec": "file:.wasp/spec"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Then update every import from `@wasp.sh/spec` in your project, including `main.wasp.ts` and any other `*.wasp.ts` files:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    // highlight-next-line
+    import { app, page, route } from "@wasp.sh/spec";
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    // highlight-next-line
+    import { app, page, route } from "@wasp/spec";
+    ```
+  </TabItem>
+</Tabs>
+
+Finally, run `wasp install`.
+
+### 3. Upgrade to Prisma 6
 
 Update the `prisma` version in your `package.json`:
 
@@ -86,6 +136,6 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 3. Enjoy your updated Wasp app
+### 4. Enjoy your updated Wasp app
 
 That's it!

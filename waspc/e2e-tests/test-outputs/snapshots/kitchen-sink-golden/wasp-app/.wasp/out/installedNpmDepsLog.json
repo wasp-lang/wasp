@@ -85,7 +85,7 @@
                     "version": "^9.0.8"
                 },
                 {
-                    "name": "@wasp.sh/spec",
+                    "name": "@wasp/spec",
                     "version": "file:.wasp/spec"
                 },
                 {

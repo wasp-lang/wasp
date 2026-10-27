@@ -73,7 +73,7 @@ export interface DefaultRefObjectDescriptor {
  *
  * @example
  * ```ts
- * import { page, ref } from "@wasp.sh/spec"
+ * import { page, ref } from "@wasp/spec"
  *
  * const MainPage = ref({
  *   importDefault: "MainPage",

@@ -99,14 +99,14 @@ const conversation = [
   },
 ];
 
-const codeEmpty = `import { app } from "@wasp.sh/spec";
+const codeEmpty = `import { app } from "@wasp/spec";
 
 export default app({
   name: "mySaasApp",
   wasp: { version: "^0.24.0" }
 });`;
 
-const codeBase = `import { api, app, page, query, route } from "@wasp.sh/spec";
+const codeBase = `import { api, app, page, query, route } from "@wasp/spec";
 
 import { paymentStripe } from "./src/apis" with { type: "ref" };
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" };
@@ -128,7 +128,7 @@ export default app({
   ]
 });`;
 
-const codeWithSlack = `import { api, app, page, query, route } from "@wasp.sh/spec";
+const codeWithSlack = `import { api, app, page, query, route } from "@wasp/spec";
 
 import { paymentStripe } from "./src/apis" with { type: "ref" };
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" };

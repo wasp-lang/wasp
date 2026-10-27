@@ -15,14 +15,14 @@ describe("transformRefHelper", () => {
     expect(
       transformRefHelper(
         [
-          `import { ref } from "@wasp.sh/spec";`,
+          `import { ref } from "@wasp/spec";`,
           `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp/spec/internal";`,
         `const ref = _waspMakeRef("/path/main.wasp.ts");`,
         ``,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
@@ -35,14 +35,14 @@ describe("transformRefHelper", () => {
     expect(
       transformRefHelper(
         [
-          `import { ref as appRef } from "@wasp.sh/spec";`,
+          `import { ref as appRef } from "@wasp/spec";`,
           `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp/spec/internal";`,
         `const appRef = _waspMakeRef("/path/main.wasp.ts");`,
         ``,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
@@ -57,13 +57,13 @@ describe("transformRefHelper", () => {
         [
           `const ref = "taken";`,
           `const _waspMakeRef = "taken";`,
-          `import { ref as appRef } from "@wasp.sh/spec";`,
+          `import { ref as appRef } from "@wasp/spec";`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp/spec/internal";`,
         `const appRef = _waspMakeRef_0("/path/main.wasp.ts");`,
         `const ref = "taken";`,
         `const _waspMakeRef = "taken";`,
@@ -78,13 +78,13 @@ describe("transformRefHelper", () => {
       transformRefHelper(
         [
           `class _waspMakeRef {}`,
-          `import { ref as appRef } from "@wasp.sh/spec";`,
+          `import { ref as appRef } from "@wasp/spec";`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp/spec/internal";`,
         `const appRef = _waspMakeRef_0("/path/main.wasp.ts");`,
         `class _waspMakeRef {}`,
         ``,
@@ -97,15 +97,15 @@ describe("transformRefHelper", () => {
     expect(
       transformRefHelper(
         [
-          `import { ref as refA, ref as refB } from "@wasp.sh/spec";`,
-          `import { ref as refC } from "@wasp.sh/spec";`,
-          `import { ref } from "@wasp.sh/spec";`,
+          `import { ref as refA, ref as refB } from "@wasp/spec";`,
+          `import { ref as refC } from "@wasp/spec";`,
+          `import { ref } from "@wasp/spec";`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp/spec/internal";`,
         `const refA = _waspMakeRef("/path/main.wasp.ts");`,
         `const refB = refA;`,
         `const refC = refA;`,
@@ -120,20 +120,20 @@ describe("transformRefHelper", () => {
     );
   });
 
-  test("preserves remaining @wasp.sh/spec specifiers when rewriting the ref import", () => {
+  test("preserves remaining @wasp/spec specifiers when rewriting the ref import", () => {
     expect(
       transformRefHelper(
         [
-          `import { type RefObject, ref as appRef, page } from "@wasp.sh/spec";`,
+          `import { type RefObject, ref as appRef, page } from "@wasp/spec";`,
           `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp/spec/internal";`,
         `const appRef = _waspMakeRef("/path/main.wasp.ts");`,
-        `import { type RefObject, page } from "@wasp.sh/spec";`,
+        `import { type RefObject, page } from "@wasp/spec";`,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
       ].join("\n"),
@@ -148,13 +148,13 @@ describe("transformRefHelper", () => {
   test("rewrites a ref import that is then re-exported", () => {
     expect(
       transformRefHelper(
-        [`import { ref } from "@wasp.sh/spec";`, `export { ref };`, ``].join(
+        [`import { ref } from "@wasp/spec";`, `export { ref };`, ``].join(
           "\n",
         ),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp/spec/internal";`,
         `const ref = _waspMakeRef("/path/main.wasp.ts");`,
         ``,
         `export { ref };`,
@@ -165,7 +165,7 @@ describe("transformRefHelper", () => {
 
   test("throws when transforming re-exports of the ref helper", () => {
     expect(() =>
-      transformRefHelper(`export { ref } from "@wasp.sh/spec";`),
+      transformRefHelper(`export { ref } from "@wasp/spec";`),
     ).toThrow(WaspSpecUserError);
   });
 });
