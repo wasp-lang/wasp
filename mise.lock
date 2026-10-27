@@ -148,40 +148,40 @@ backend = "mise-ghcup:hls"
 specifiers = ["recommended"]
 
 [[tools.node]]
-version = "24.14.1"
+version = "24.22.1"
 backend = "core:node"
-specifiers = ["24.14.1"]
+specifiers = ["24.22.1"]
 
 [tools.node.options]
 compile = "false"
 
 [tools.node."platforms.linux-arm64"]
-checksum = "sha256:734ff04fa7f8ed2e8a78d40cacf5ac3fc4515dac2858757cbab313eb483ba8a2"
-url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-linux-arm64.tar.gz"
+checksum = "sha256:33c37be234ba8bee041961047b19160f4d7d0f164e8e246f78bdd10feff148b3"
+url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-linux-arm64.tar.gz"
 
 [tools.node."platforms.linux-arm64-musl"]
-checksum = "sha256:e3ada28bcce0f440d8692372004a3338e96ff0b5cf8399bb38ae30a8adecdf08"
-url = "https://unofficial-builds.nodejs.org/download/release/v24.14.1/node-v24.14.1-linux-arm64-musl.tar.gz"
+checksum = "sha256:8254125825a3e5e834bd8a260dab4c8303f720464a741506ec27989b9ba1769b"
+url = "https://unofficial-builds.nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-arm64-musl.tar.gz"
 
 [tools.node."platforms.linux-x64"]
-checksum = "sha256:ace9fa104992ed0829642629c46ca7bd7fd6e76278cb96c958c4b387d29658ea"
-url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-linux-x64.tar.gz"
+checksum = "sha256:eb6728e77c576a35162c122c45ccadf224d89ff00abc8dae46cc2897c6002d7c"
+url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-linux-x64.tar.gz"
 
 [tools.node."platforms.linux-x64-musl"]
-checksum = "sha256:4cdc6bf5891d1f51903c663b2f7f6a636c24dd5940a62a1785ea3d911284b008"
-url = "https://unofficial-builds.nodejs.org/download/release/v24.14.1/node-v24.14.1-linux-x64-musl.tar.gz"
+checksum = "sha256:0a9eddce2d2e8f3addbe94fa46d751325b2d74f7fd1ce63296164d36b6dfc6e5"
+url = "https://unofficial-builds.nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64-musl.tar.gz"
 
 [tools.node."platforms.macos-arm64"]
-checksum = "sha256:25495ff85bd89e2d8a24d88566d7e2f827c6b0d3d872b2cebf75371f93fcb1fe"
-url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-darwin-arm64.tar.gz"
+checksum = "sha256:89c682593d76cd44233fa53b1563264e7de9cbb189cad169135c5b4fadfbc0a7"
+url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-darwin-arm64.tar.gz"
 
 [tools.node."platforms.macos-x64"]
-checksum = "sha256:2526230ad7d922be82d4fdb1e7ee1e84303e133e3b4b0ec4c2897ab31de0253d"
-url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-darwin-x64.tar.gz"
+checksum = "sha256:d132557e7ee2b85af08b0c8c34338e65c6430f2238d01f727728ef42dc83b035"
+url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-darwin-x64.tar.gz"
 
 [tools.node."platforms.windows-x64"]
-checksum = "sha256:6e50ce5498c0cebc20fd39ab3ff5df836ed2f8a31aa093cecad8497cff126d70"
-url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-win-x64.zip"
+checksum = "sha256:d2046d28c2c3dcd211ac5145c0bf30e2047ef9dfb306693c8c6e2eccd8b95fa5"
+url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-win-x64.zip"
 
 [[tools.ormolu]]
 version = "0.9.0.0"
@@ -212,3 +212,50 @@ url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602964872"
 checksum = "sha256:afcde0c0a9bace9c8ae9bd98d027620b2901947670dfc54f63fa44c221d5b19d"
 url = "https://github.com/tweag/ormolu/releases/download/0.9.0.0/ormolu-x86_64-windows.zip"
 url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/602932359"
+
+[[tools.railway]]
+version = "5.64.2"
+backend = "github:railwayapp/cli"
+specifiers = ["5.64.2"]
+
+[tools.railway."platforms.linux-arm64"]
+checksum = "sha256:649ddb6443ef7cd5cd3f6a86b03d2bd1ad3266b1fb4123cecbda80e263e05951"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625584045"
+provenance = "github-attestations"
+
+[tools.railway."platforms.linux-arm64-musl"]
+checksum = "sha256:649ddb6443ef7cd5cd3f6a86b03d2bd1ad3266b1fb4123cecbda80e263e05951"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625584045"
+provenance = "github-attestations"
+
+[tools.railway."platforms.linux-x64"]
+checksum = "sha256:f4b5e514131e168278813165fdf6c3b31e4cd383739b8693caaf5e54d06d77ec"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625583379"
+provenance = "github-attestations"
+
+[tools.railway."platforms.linux-x64-musl"]
+checksum = "sha256:a154c3ff5ac3e2ece99bdca9d8d5505fc7f85a949689346bd934fb425246e229"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625583817"
+provenance = "github-attestations"
+
+[tools.railway."platforms.macos-arm64"]
+checksum = "sha256:1e08b5ec58952b05d6f0065b748183b6ffdbb013e12d3378c237fa73e4991be1"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625593362"
+provenance = "github-attestations"
+
+[tools.railway."platforms.macos-x64"]
+checksum = "sha256:84f7a004792304bf15dad5296443213db730b803997abbf77952051874dd6709"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625584484"
+provenance = "github-attestations"
+
+[tools.railway."platforms.windows-x64"]
+checksum = "sha256:a9839d1317e1c181ac917eea0c6aa932dc7ba8278ff58cf94b7cb99b4b469327"
+url = "https://github.com/railwayapp/cli/releases/download/v5.64.2/railway-v5.64.2-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/625583840"
+provenance = "github-attestations"

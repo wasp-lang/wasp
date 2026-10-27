@@ -22,7 +22,7 @@ export default function BlogPostItems({
   const { pathname } = useLocation();
   const listHeading = LIST_PAGE_HEADINGS[pathname.replace(/\/$/, "")];
   const coverImgSrc =
-    featuredItem.content.frontMatter.image || "/img/blog-default-img.png";
+    featuredItem.content.frontMatter.image || "/img/blog/default-cover.png";
 
   return (
     <>
@@ -94,7 +94,7 @@ export default function BlogPostItems({
           {items.slice(1).map((item) => {
             const BlogPostContent = item.content;
             const coverImgSrc =
-              item.content.frontMatter.image || "/img/blog-default-img.png";
+              item.content.frontMatter.image || "/img/blog/default-cover.png";
 
             return (
               <article

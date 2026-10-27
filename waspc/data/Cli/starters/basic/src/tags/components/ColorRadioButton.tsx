@@ -23,9 +23,9 @@ export function ColorRadioButton({
       <label
         htmlFor={id}
         className={twJoin(
-          "duration-500-sm flex h-8 w-8 cursor-pointer items-center justify-center rounded-full drop-shadow-lg transition-all",
-          "hover:scale-105 hover:ring-[1px] hover:ring-black",
-          checked && "scale-105 ring-[1px] ring-black",
+          "flex size-8 cursor-pointer items-center justify-center border-2 border-black",
+          "hover:outline-2 hover:outline-offset-2 hover:outline-black",
+          checked && "outline-2 outline-offset-2 outline-black",
         )}
         style={{ background: bgColor }}
         title={title}

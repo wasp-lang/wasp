@@ -175,6 +175,6 @@ We could have called the Query directly using `getTasks()`, but the `useQuery` h
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 
-<img alt="Todo App - No Tasks" src={useBaseUrl('img/todo-app-no-tasks.png')} className="tutorial-image" />
+<img alt="Todo App - No Tasks" src={useBaseUrl('img/docs/tutorial/05-queries/todo-app-no-tasks.png')} className="tutorial-image" />
 
 We'll create a form to add tasks in the next step 🪄

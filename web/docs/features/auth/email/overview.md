@@ -15,7 +15,7 @@ import TailwindNote from '../_tailwind-note.md';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
-![Auth UI](/img/authui/all_screens.gif)
+![Auth UI](/img/docs/features/auth/all_screens.gif)
 
 <MultipleIdentitiesWarning />
 
@@ -372,11 +372,11 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 ### Login
 
-![Auth UI](/img/authui/login.png)
+![Auth UI](/img/docs/features/auth/login.webp)
 
 ### Signup
 
-![Auth UI](/img/authui/signup.png)
+![Auth UI](/img/docs/features/auth/signup.webp)
 
 Some of the behavior you get out of the box:
 
@@ -429,7 +429,7 @@ The content of the e-mail can be customized, read more about it in the [`EmailFl
 
 We defined our email verification page in the `auth.{jsx,tsx}` file.
 
-![Auth UI](/img/authui/email_verification.png)
+![Auth UI](/img/docs/features/auth/email_verification.png)
 
 ## Password Reset Flow
 
@@ -459,13 +459,13 @@ passwordReset: {
 
 Users request their password to be reset by going to the `/request-password-reset` route. We defined our request password reset page in the `auth.{jsx,tsx}` file.
 
-![Request password reset page](/img/authui/forgot_password_after.png)
+![Request password reset page](/img/docs/features/auth/email/overview/forgot_password_after.png)
 
 ### Password Reset Page
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `PasswordResetRoute` route we defined in the `main.wasp.ts` file.
 
-![Request password reset page](/img/authui/reset_password_after.png)
+![Request password reset page](/img/docs/features/auth/email/overview/reset_password_after.png)
 
 Users can enter their new password there.
 

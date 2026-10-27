@@ -211,7 +211,7 @@ Running Wasp doctor...
 
 [✓] Wasp: 0.14.0 (git v0.23.0-136-g874e208c13)
 [✓] System: darwin 25.5.0 aarch64
-[✓] Node.js: 24.14.1
+[✓] Node.js: 24.22.1
 [✓] npm: 11.16.0
 [✓] Docker: running
 ```

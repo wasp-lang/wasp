@@ -447,8 +447,20 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
-If the status code is `4xx`, the client will receive a response object with the corresponding `message` and `data` fields, and it will rethrow the error (including these fields).
-To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
+The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
+This happens for every status code, so only put information in them that is safe to show to the user.
+
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
+When a Query fails, `useQuery` retries it a few times before giving up.
+Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away.
+To change this, set `retry` for a [single Query](#the-usequery-hook-1) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
 
 ### Using Entities in Queries
 

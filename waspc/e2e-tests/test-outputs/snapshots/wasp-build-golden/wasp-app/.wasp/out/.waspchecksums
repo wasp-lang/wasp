@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "8e676c12e62f04f9023161cc054b457c70d6b2ba86686088b50c96ab13e2cb3f"
+        "58fbf010dff6379d26375006d59c931f034b53a06d9da76210cad8c5e43f7c12"
     ],
     [
         [
@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.27.0.tgz"
         ],
-        "7a081a214fe778c8bbfecf6ba385a7addcbff0b0ab429157aa314008d6fabcfc"
+        "d066a46a17e6154390669472854bc5789b4a7424bad5c2c6ddcead317b05995a"
     ],
     [
         [
@@ -116,7 +116,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "5a0087a39395dac1ca7b498d87d5d5680de1daad79ff7abc28225f29793a1007"
+        "3432c219d5172d4d72e6bf1d7879a62329292342f6efdf0b17cac46fef1f4896"
     ],
     [
         [
@@ -277,7 +277,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "3dd144c11af85f940a8065c9705f8a59351460f902947de6eba5e90a027cfbd6"
+        "82cdb6f7ff9b4269600f67441556d671559cb1dc925fb7ce90af89b8b4b0421d"
     ],
     [
         [
@@ -334,6 +334,34 @@
             "sdk/wasp/server/env.ts"
         ],
         "074c8e95b661c3abc0e2834ed606ea69f2c23d3f2f43f69ed6427f205ad5bc0f"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/httpErrors.ts"
+        ],
+        "6934b094db57fca5233fb86bf420f36215c939fab2f59fdf45acae7610e44fa6"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/index.ts"
+        ],
+        "c371323a97a2fbbf79e6114920a4733ef3ec1a9abb37f259ad629c491c4881f3"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/unknownErrors.ts"
+        ],
+        "e7bda9eaed5c13f473fdc23129bf0dd67c87c5e9f31dfbd14166e7842bf64868"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/utils.ts"
+        ],
+        "373f67e3b554d68dc154351dd57fd98af0e443be0ca712a45b5c8713e5ecffa7"
     ],
     [
         [
@@ -480,7 +508,7 @@
             "file",
             "server/package.json"
         ],
-        "beaff769ef2eb85711d8542f0f49c660a05de824a26f75122c1cce90eb45aee2"
+        "f19adbf07a3f7cf4216ed8f16ea6382a8b396080d05f93e8cac9eafb55eebe2e"
     ],
     [
         [
@@ -494,7 +522,7 @@
             "file",
             "server/src/app.js"
         ],
-        "6e7624aaf0023614306dbd7b5de4149145d9515813896f8bcdf84960a0f345ac"
+        "bd16da1d89d3b49580c7ff1e33191159bab7610e314bfcdaff7eb5653c7c862e"
     ],
     [
         [
@@ -550,7 +578,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
+        "fb7d3e5b74d6e3dbf5544f7d03d9af02e4c2de97ff6747603c1a0297ddd669cd"
     ],
     [
         [
