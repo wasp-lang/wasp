@@ -1,3 +1,9 @@
+---
+title: "Microsoft auth in Wasp: Entra ID login and user data"
+sidebar_label: Microsoft
+description: "Add Microsoft login to a Wasp app with Microsoft Entra ID: choose a tenant type for personal or work accounts, register the app and set env vars."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
@@ -96,7 +102,7 @@ To use Microsoft as an authentication method, you'll first need to register an a
 
 2. In the left sidebar, click on "App registrations" **(1)** and then "New registration" **(2)**.
 
-    ![Microsoft Entra console screenshot 1](/img/integrations-microsoft-1.png)
+    ![Microsoft Entra console screenshot 1](/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-1.png)
 
 3. Fill out the form. These are the values for a typical Wasp application:
 
@@ -111,19 +117,19 @@ To use Microsoft as an authentication method, you'll first need to register an a
     For example: `https://your-server-url.com/auth/microsoft/callback`
     :::
 
-    ![Microsoft Entra console screenshot 2](/img/integrations-microsoft-2.png)
+    ![Microsoft Entra console screenshot 2](/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-2.png)
 
 4. You should now see your app registration's overview page. Take note of the **Application (client) ID (1)** and the **Directory (tenant) ID (2)**, as you'll need them in the next steps.
 
-    ![Microsoft Entra console screenshot 3](/img/integrations-microsoft-3.png)
+    ![Microsoft Entra console screenshot 3](/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-3.png)
 
 5. Next, go to the "Certificates & secrets" **(1)** page from the left sidebar, and create a new client secret **(2)**. You can fill out the name of your Wasp app as the client secret's name **(3)**.
 
-    ![Microsoft Entra console screenshot 4](/img/integrations-microsoft-4.png)
+    ![Microsoft Entra console screenshot 4](/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-4.png)
 
 6. Finally, take note of the client secret's value, as you'll need it in the next steps. Make sure to copy it somewhere safe, as you won't be able to see it again!
 
-    ![Microsoft Entra console screenshot 5](/img/integrations-microsoft-5.png)
+    ![Microsoft Entra console screenshot 5](/img/docs/features/auth/social-auth/microsoft/integrations-microsoft-5.png)
 
 :::info
 The keys you copied are the credentials your app will use to authenticate with Microsoft. Do not share them anywhere publicly, as anyone with these credentials can impersonate your app and access user data.
@@ -169,7 +175,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 Yay, we've successfully set up Microsoft Auth! 🎉
 
-![Microsoft Auth](/img/auth/microsoft.jpeg)
+![Microsoft Auth](/img/docs/features/auth/social-auth/microsoft/microsoft.jpeg)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).

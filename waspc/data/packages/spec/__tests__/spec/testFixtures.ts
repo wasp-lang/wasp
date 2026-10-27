@@ -712,8 +712,7 @@ type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
   ? FullConfig<Data>
   : MinimalConfig<Data>;
 
-const CONFIG_SCOPES = ["minimal", "full"] as const;
-type ConfigScope = (typeof CONFIG_SCOPES)[number];
+type ConfigScope = "minimal" | "full";
 
 function assertUnreachable(value: never): never {
   throw new Error(`Unhandled case: ${value}`);

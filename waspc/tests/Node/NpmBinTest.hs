@@ -1,11 +1,13 @@
 module Node.NpmBinTest where
 
+import Data.List (isSuffixOf)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
-import System.Directory (createDirectoryIfMissing, exeExtension, getPermissions, setOwnerExecutable, setPermissions)
+import System.Directory (canonicalizePath, createDirectoryIfMissing, exeExtension, getPermissions, setOwnerExecutable, setPermissions)
 import System.Environment (lookupEnv)
 import System.FilePath (splitSearchPath, (<.>), (</>))
 import System.IO.Temp (withSystemTempDirectory)
+import qualified System.Process as P
 import Test.Hspec
 import Wasp.Node.NpmBin (findNpmBin, getNpmBinEnvVars)
 
@@ -27,7 +29,7 @@ spec_NodeNpmBin = do
       withProjectDirs $ \_ packageDir ->
         findNpmBin (toAbsDir packageDir) "missing-tool" `shouldReturn` Nothing
 
-  describe "getNpmBinEnvVars" $
+  describe "getNpmBinEnvVars" $ do
     it "puts the node_modules/.bin directories, closest first, before the current PATH" $
       withProjectDirs $ \projectDir packageDir -> do
         currentPath <- maybe [] splitSearchPath <$> lookupEnv "PATH"
@@ -37,10 +39,24 @@ spec_NodeNpmBin = do
         take 2 pathDirs `shouldBe` [packageDir </> "node_modules" </> ".bin", projectDir </> "node_modules" </> ".bin"]
         drop (length pathDirs - length currentPath) pathDirs `shouldBe` currentPath
 
+    -- Checks our assumption about npm's behavior, so we notice if a future npm
+    -- version stops matching it.
+    it "puts the same node_modules/.bin directories in the PATH as npm does for scripts" $
+      withProjectDirs $ \_ packageDir -> do
+        writeFile (packageDir </> "package.json") "{\"scripts\": {\"print-path\": \"node -p process.env.PATH\"}}"
+        npmPathDirs <- splitSearchPath . concat . lines <$> P.readCreateProcess ((P.proc "npm" ["run", "--silent", "print-path"]) {P.cwd = Just packageDir}) ""
+        currentPath <- maybe [] splitSearchPath <$> lookupEnv "PATH"
+        [(_, value)] <- getNpmBinEnvVars (toAbsDir packageDir)
+        let pathDirs = splitSearchPath value
+        take (length pathDirs - length currentPath) pathDirs
+          `shouldBe` takeWhile (("node_modules" </> ".bin") `isSuffixOf`) npmPathDirs
+
 -- | Gives the test a project directory and a package directory inside it.
 withProjectDirs :: (FilePath -> FilePath -> IO a) -> IO a
 withProjectDirs test =
-  withSystemTempDirectory "wasp-node-bin-test" $ \tempDir -> do
+  withSystemTempDirectory "wasp-node-bin-test" $ \tempDir' -> do
+    -- npm resolves symlinks in the directory it runs in (e.g. macOS's /var).
+    tempDir <- canonicalizePath tempDir'
     let projectDir = tempDir </> "project"
         packageDir = projectDir </> "package"
     createDirectoryIfMissing True packageDir

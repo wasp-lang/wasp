@@ -1,0 +1,35 @@
+name: Wait for deployed app
+description: Wait for the server health endpoint and client URL to respond successfully.
+
+inputs:
+  server-url:
+    description: Deployed server URL
+    required: true
+  client-url:
+    description: Deployed client URL
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Check server and client URLs
+      shell: bash
+      env:
+        SERVER_URL: ${{ inputs.server-url }}
+        CLIENT_URL: ${{ inputs.client-url }}
+      run: |
+        function wait_for_url() {
+          url="$1"
+          for attempt in $(seq 1 30); do
+            if curl -fsS -o /dev/null --max-time 10 "$url"; then
+              echo "$url is ready"
+              return 0
+            fi
+            echo "Attempt $attempt/30: $url not ready, retrying in 10s"
+            sleep 10
+          done
+          echo "Timed out waiting for $url"
+          return 1
+        }
+        wait_for_url "${SERVER_URL%/}/up"
+        wait_for_url "${CLIENT_URL%/}/"

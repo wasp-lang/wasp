@@ -5,7 +5,7 @@ import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  getClientDeploymentDir,
+  ensureClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import {
@@ -161,7 +161,9 @@ async function setupClient(
     `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
   );
 
-  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  cd(
+    ensureClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir),
+  );
   deleteLocalToml();
 
   const launchArgs = [

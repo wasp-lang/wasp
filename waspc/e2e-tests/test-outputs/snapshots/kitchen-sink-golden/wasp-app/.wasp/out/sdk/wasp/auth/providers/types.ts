@@ -21,12 +21,12 @@ type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
  * Extracts the result types from a UserSignupFields object.
  * 
  * This type transforms an object containing field getter functions
- * into an object with the same keys but whose values are the return types
- * of those functions.
+ * into an object with the same keys but whose values are the awaited return
+ * types of those functions.
  */
 type InferUserSignupFields<T extends UserSignupFields> = {
   [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> 
-    ? ReturnType<T[K]> 
+    ? Awaited<ReturnType<T[K]>>
     : never
 }
 

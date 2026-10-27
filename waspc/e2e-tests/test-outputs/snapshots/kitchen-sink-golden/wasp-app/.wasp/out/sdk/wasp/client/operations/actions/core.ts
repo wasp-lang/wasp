@@ -14,7 +14,7 @@ import { callOperation } from '../internal/index.js'
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
   relativeActionRoute: string,
-  entitiesUsed: unknown[]
+  entitiesUsed: string[]
 ): ActionFor<BackendAction> {
   const actionRoute = makeOperationRoute(relativeActionRoute)
 
