@@ -88,7 +88,7 @@ By doing this, Wasp will create:
 
 - [Auth UI](../features/auth/ui) with login and signup forms.
 - A `logout()` action.
-- A React hook `useAuth()`.
+- A `useAuth()` hook on the client.
 - `context.user` for use in Queries and Actions.
 
 :::info
@@ -342,30 +342,29 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
-export const updateTask: UpdateTask<
-  UpdateTaskPayload,
-  { count: number }
-> = async (args, context) => {
+export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+  { id, isDone },
+  context,
+) => {
   // highlight-start
   if (!context.user) {
     throw new HttpError(401);
   }
   // highlight-end
-  return context.entities.Task.updateMany({
-    where: { id: args.id, user: { id: context.user.id } },
-    data: { isDone: args.isDone },
+  return context.entities.Task.update({
+    // highlight-next-line
+    where: { id, user: { id: context.user.id } },
+    data: {
+      isDone: isDone,
+    },
   });
 };
 ```
 </TutorialAction>
 
-:::note
-Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
-:::
-
 With these changes, each user should have a list of tasks that only they can see and edit.
 
-Try playing around, adding a few users and some tasks for each of them. Then open the DB studio:
+Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
 ```sh
 wasp db studio

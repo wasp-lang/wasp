@@ -49,6 +49,6 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-<img alt="Todo App - Db studio showing Task schema" src={dbStudioTaskScreenshot} className="tutorial-image" />
+<img alt="Todo App - Prisma Studio showing Task schema" src={dbStudioTaskScreenshot} className="tutorial-image" />
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.
