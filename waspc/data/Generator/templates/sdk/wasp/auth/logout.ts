@@ -1,5 +1,5 @@
 import { api, removeLocalUserData } from '../api/index.js'
-import { invalidateAndRemoveQueries } from '@wasp.sh/lib-sdk-core/browser'
+import { invalidateAndRemoveQueries } from '@wasp/lib-sdk-core/browser'
 
 // PUBLIC API
 export default async function logout(): Promise<void> {

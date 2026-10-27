@@ -1,4 +1,4 @@
-import type { Query, Route } from "@wasp.sh/lib-sdk-core";
+import type { Query, Route } from "@wasp/lib-sdk-core";
 import { http, type HttpResponseResolver } from "msw";
 import { setupServer, type SetupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll } from "vitest";

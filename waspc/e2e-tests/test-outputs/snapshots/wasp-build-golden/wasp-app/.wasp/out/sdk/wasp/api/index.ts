@@ -1,8 +1,8 @@
 import ky from 'ky'
 import { config } from '../client/config.js'
-import { getSessionId, clearSessionId } from '@wasp.sh/lib-sdk-core/browser'
-export { getSessionId, setSessionId, clearSessionId, removeLocalUserData, handleApiError } from '@wasp.sh/lib-sdk-core/browser'
-export { WaspHttpError } from '@wasp.sh/lib-sdk-core'
+import { getSessionId, clearSessionId } from '@wasp/lib-sdk-core/browser'
+export { getSessionId, setSessionId, clearSessionId, removeLocalUserData, handleApiError } from '@wasp/lib-sdk-core/browser'
+export { WaspHttpError } from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 /**

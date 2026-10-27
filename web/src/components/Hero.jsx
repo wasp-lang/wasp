@@ -11,7 +11,7 @@ import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
 import TextLink from "./TextLink";
 
-const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
+const installCmd = "npm i -g @wasp/cli@latest";
 
 const InstallCommand = () => {
   const [copied, setCopied] = useState(false);
@@ -67,7 +67,7 @@ const codeTabs = [
   {
     name: "main.wasp.ts",
     language: "typescript",
-    source: `import { app, page, query, route } from "@wasp.sh/spec";
+    source: `import { app, page, query, route } from "@wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/tasks" with { type: "ref" };
 

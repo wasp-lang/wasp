@@ -73,7 +73,7 @@ function emptySubscribe() {
 	return emptyUnsubscribe;
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
 	display: "flex",
 	minHeight: "80vh",
@@ -88,17 +88,17 @@ function FullPageWrapper({ children, className }) {
 	});
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	console.error(error);
 	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/WaspHttpError.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/WaspHttpError.mjs
 var WaspHttpError = class extends Error {
 	statusCode;
 	data;
@@ -109,7 +109,7 @@ var WaspHttpError = class extends Error {
 	}
 };
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -161,7 +161,7 @@ function createLocalStorageDataStore(prefix) {
 	};
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/browser/operations/queryClient.mjs
 var MAX_QUERY_RETRIES = 3;
 var RETRYABLE_CLIENT_ERROR_STATUS_CODES = /* @__PURE__ */ new Set([408, 429]);
 var resolveQueryClientInitialized;
@@ -189,7 +189,7 @@ function shouldRetryQuery(failureCount, error) {
 	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
 	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
@@ -203,7 +203,7 @@ if (typeof window !== "undefined") window.addEventListener("storage", (event) =>
 	else apiEventsEmitter.emit("sessionId.clear");
 });
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/ansiColors.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/utils/ansiColors.mjs
 /**
 * Wraps each line of text with ANSI color codes.
 * Only works in Node.js (server-side), not in the browser.
@@ -238,7 +238,7 @@ var ansiColorCodes = {
 };
 var ansiResetCode = "\x1B[0m";
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/env/validation.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/env/validation.mjs
 function ensureEnvSchema(data, schema) {
 	const result = getValidatedEnvOrError(data, schema);
 	if (result.success) return result.data;
@@ -263,7 +263,7 @@ function formatZodEnvError(error) {
 	].join("\n");
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/router/interpolatePath.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
 	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
@@ -287,7 +287,7 @@ function extractParamNameFromPathPart(paramString) {
 	return paramString.slice(1);
 }
 //#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/url.mjs
+//#region node_modules/@wasp/lib-sdk-core/dist/utils/url.mjs
 function stripTrailingSlash(url) {
 	return url?.replace(/\/$/, "");
 }

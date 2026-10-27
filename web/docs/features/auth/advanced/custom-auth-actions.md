@@ -26,7 +26,7 @@ Below you will find a starting point for creating your own actions. The given im
 ### Email
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -168,7 +168,7 @@ export const customSignup: CustomSignup<
 ### Username and password
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 

@@ -19,7 +19,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"../MainPage"});`,
         ``,
         ``,
@@ -32,7 +32,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp/spec";`,
         `const getTasks = ref({"import":"getTasks","alias":"getTasks","from":"./operations"});`,
         `const createTask = ref({"import":"createTask","alias":"createTask","from":"./operations"});`,
         ``,
@@ -46,7 +46,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp/spec";`,
         `const archiveTask = ref({"import":"archive","alias":"archiveTask","from":"./operations"});`,
         ``,
         ``,
@@ -59,7 +59,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"./src/MainPage"});`,
         `const Helper = ref({"import":"Helper","alias":"Helper","from":"./src/MainPage"});`,
         ``,
@@ -98,7 +98,7 @@ describe("transformRefImports", () => {
     expect(
       transformImports(
         [
-          `import { app } from "@wasp.sh/spec";`,
+          `import { app } from "@wasp/spec";`,
           `import z from "zod";`,
           `import helper from "./helpers";`,
           `import MainPage from "./src/MainPage" with { type: "ref" };`,
@@ -109,9 +109,9 @@ describe("transformRefImports", () => {
       ),
     ).toBe(
       [
-        `import { ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"./src/MainPage"});`,
-        `import { app } from "@wasp.sh/spec";`,
+        `import { app } from "@wasp/spec";`,
         `import z from "zod";`,
         `import helper from "./helpers";`,
         ``,
@@ -134,7 +134,7 @@ describe("transformRefImports", () => {
       ),
     ).toBe(
       [
-        `import { ref as ref_0 } from "@wasp.sh/spec";`,
+        `import { ref as ref_0 } from "@wasp/spec";`,
         `const MainPage = ref_0({"importDefault":"MainPage","from":"./src/MainPage"});`,
         `const ref = "taken";`,
         `const ref1 = "taken";`,
@@ -157,7 +157,7 @@ describe("transformRefImports", () => {
       ),
     ).toBe(
       [
-        `import { ref as ref_0 } from "@wasp.sh/spec";`,
+        `import { ref as ref_0 } from "@wasp/spec";`,
         `const MainPage = ref_0({"importDefault":"MainPage","from":"./src/MainPage"});`,
         `import { ref } from "./helpers";`,
         `const { ref1, nested: { ref2 }, ...ref3 } = helpers;`,
@@ -202,7 +202,7 @@ describe("transformRefImports", () => {
       ),
     ).toBe(
       [
-        `import { ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"./src/MainPage"});`,
         ``,
         `export { MainPage };`,
