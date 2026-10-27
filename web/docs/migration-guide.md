@@ -25,38 +25,7 @@ npm uninstall -g @wasp.sh/wasp-cli
 npm i -g @wasp/cli@0.27
 ```
 
-### 2. Bump the Wasp version
-
-Update the version field in your Wasp config to `^0.27.0`.
-
-<Tabs sideBySide>
-  <TabItem value="before" label="Before">
-    ```ts title="main.wasp.ts"
-    export default app({
-      // highlight-next-line
-      wasp: { version: "^0.26.0" },
-      // ...
-    });
-    ```
-  </TabItem>
-  <TabItem value="after" label="After">
-    ```ts title="main.wasp.ts"
-    export default app({
-      // highlight-next-line
-      wasp: { version: "^0.27.0" },
-      // ...
-    });
-    ```
-  </TabItem>
-</Tabs>
-
-And run the following command to update the Wasp libraries in your project:
-
-```bash
-wasp install
-```
-
-### 3. Rename `@wasp.sh/spec` to `@wasp/spec`
+### 2. Rename `@wasp.sh/spec` to `@wasp/spec`
 
 Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp Spec dependency in your `package.json`:
 
@@ -100,7 +69,36 @@ Then replace `@wasp.sh/spec` with `@wasp/spec` everywhere else in your project. 
   </TabItem>
 </Tabs>
 
-Finally, run `wasp install`.
+### 3. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.27.0`.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    export default app({
+      // highlight-next-line
+      wasp: { version: "^0.26.0" },
+      // ...
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    export default app({
+      // highlight-next-line
+      wasp: { version: "^0.27.0" },
+      // ...
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
 
 ### 4. Upgrade to Prisma 6
 
