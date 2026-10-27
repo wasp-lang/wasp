@@ -6,17 +6,13 @@ sidebar_label: From 0.26 to 0.27
 
 import InstallInstructions from './_install-instructions.md'
 
-:::caution Wasp has a new npm package name
-Starting with 0.27, the Wasp CLI is published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package before installing the new one, otherwise npm fails with an `EEXIST` error:
-
-```sh
-npm uninstall -g @wasp.sh/wasp-cli
-```
-:::
-
 <InstallInstructions version="0.27" />
 
 ## What's new in 0.27?
+
+### New npm organization
+
+Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`.
 
 ### Prisma 6
 
@@ -24,7 +20,16 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 ## How to migrate?
 
-### 1. Bump the Wasp version
+### 1. Switch to the new Wasp CLI package
+
+The Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
+
+```sh
+npm uninstall -g @wasp.sh/wasp-cli
+npm i -g @wasp/cli@0.27
+```
+
+### 2. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.27.0`.
 
@@ -55,7 +60,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Upgrade to Prisma 6
+### 3. Upgrade to Prisma 6
 
 Update the `prisma` version in your `package.json`:
 
@@ -86,6 +91,6 @@ If you also list `@prisma/client` in your `package.json`, update it to the same 
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 3. Enjoy your updated Wasp app
+### 4. Enjoy your updated Wasp app
 
 That's it!

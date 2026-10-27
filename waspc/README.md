@@ -538,7 +538,7 @@ If doing this, steps are the following:
 
 1. Create a new branch called `rc-<version>` (e.g., `rc-0.24.1`) by branching out of the last commit you want to release (probably latest `main`).
 
-2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.24.1-rc.1`).
+2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.27.0-rc.1`).
    The script will throw some warnings which you should accept.
 
 3. Once the draft release is created on Github:
@@ -551,10 +551,10 @@ If doing this, steps are the following:
 5. Install the package by passing an explicit version:
 
    ```sh
-   npm i -g @wasp/cli@0.24.1-rc.1
+   npm i -g @wasp/cli@0.27.0-rc.1
    ```
 
-6. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.24.1-rc.2`, see step 2).
+6. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.27.0-rc.2`, see step 2).
 
 ## Documentation
 
