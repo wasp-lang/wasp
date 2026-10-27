@@ -551,7 +551,7 @@ If doing this, steps are the following:
 5. Install the package by passing an explicit version:
 
    ```sh
-   npm i -g @wasp/wasp-cli@0.24.1-rc.1
+   npm i -g @wasp/cli@0.24.1-rc.1
    ```
 
 6. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.24.1-rc.2`, see step 2).

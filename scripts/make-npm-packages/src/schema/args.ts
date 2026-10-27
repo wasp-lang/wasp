@@ -14,10 +14,10 @@ export const ARGS_OPTIONS = {
   help: { type: "boolean", short: "h" },
   "input-dir": { type: "string" },
   "output-dir": { type: "string" },
-  "main-package-name": { type: "string", default: "@wasp/wasp-cli" },
+  "main-package-name": { type: "string", default: "@wasp/cli" },
   "sub-package-name": {
     type: "string",
-    default: `@wasp/wasp-cli-${PLACEHOLDERS.os}-${PLACEHOLDERS.cpu}-${PLACEHOLDERS.libc}`,
+    default: `@wasp/cli-${PLACEHOLDERS.os}-${PLACEHOLDERS.cpu}-${PLACEHOLDERS.libc}`,
   },
 } as const;
 

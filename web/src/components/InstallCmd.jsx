@@ -6,7 +6,7 @@ const copyToClipboard = (text) => {
 };
 
 const InstallCmd = () => {
-  const code = "npm i -g @wasp/wasp-cli@latest";
+  const code = "npm i -g @wasp/cli@latest";
 
   return (
     <div

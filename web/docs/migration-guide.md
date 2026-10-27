@@ -7,7 +7,7 @@ sidebar_label: From 0.26 to 0.27
 import InstallInstructions from './_install-instructions.md'
 
 :::caution Wasp has a new npm package name
-Starting with 0.27, the Wasp CLI is published as `@wasp/wasp-cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package before installing the new one, otherwise npm fails with an `EEXIST` error:
+Starting with 0.27, the Wasp CLI is published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package before installing the new one, otherwise npm fails with an `EEXIST` error:
 
 ```sh
 npm uninstall -g @wasp.sh/wasp-cli

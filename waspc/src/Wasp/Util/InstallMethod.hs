@@ -17,4 +17,4 @@ uninstallationCommand =
   "npm uninstall -g " ++ npmPackageName
 
 npmPackageName :: String
-npmPackageName = "@wasp/wasp-cli"
+npmPackageName = "@wasp/cli"

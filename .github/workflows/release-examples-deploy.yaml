@@ -67,7 +67,7 @@ jobs:
           # We deploy with the exact released Wasp version.
           # zizmor: ignore[adhoc-packages]
           |
-          npm i -g "@wasp/wasp-cli@${WASP_VERSION}"
+          npm i -g "@wasp/cli@${WASP_VERSION}"
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
@@ -126,7 +126,7 @@ jobs:
           WASP_VERSION: ${{ inputs.version }}
         run:
           # zizmor: ignore[adhoc-packages]
-          npm i -g "@wasp/wasp-cli@${WASP_VERSION}"
+          npm i -g "@wasp/cli@${WASP_VERSION}"
 
       - name: Install app dependencies
         working-directory: examples/ask-the-documents
