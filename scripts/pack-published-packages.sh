@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+packages_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../packages" && pwd)"
 
 publish_packages=(
   spec
@@ -26,7 +26,7 @@ for package in "${publish_packages[@]}"; do
   pack_dir=$(mktemp -d)
   package_output_dir="$output_dir/$(basename "$package")"
 
-  cd "$current_dir/$package"
+  cd "$packages_dir/$package"
 
   npm ci
 
