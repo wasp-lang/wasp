@@ -9,13 +9,7 @@ import {
 } from "../schema/output-data.ts";
 
 const SOURCE_DIR = MAIN_PACKAGE_SOURCE_DIR;
-const SOURCE_STATIC_FILES = [
-  "bin.js",
-  "CLIError.js",
-  "readme.md",
-  "preinstall.js",
-  "postinstall.js",
-];
+const SOURCE_STATIC_FILES = ["bin.js", "CLIError.js", "readme.md"];
 
 const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
 
@@ -62,14 +56,6 @@ function generatePackageJson(
 
   pkg.name = packageName;
   pkg.version = packageVersion;
-
-  // The install scripts talk to the user's machine (installer conflict check,
-  // telemetry), so they belong to the published package only, not to the
-  // workspace package that every `pnpm install` in this repo would run.
-  pkg.scripts = {
-    preinstall: "node preinstall.js",
-    postinstall: "node postinstall.js",
-  };
 
   pkg.optionalDependencies = {};
   for (const subPkgName of subPackages) {

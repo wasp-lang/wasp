@@ -3,6 +3,9 @@
 // @ts-check
 
 import { execFileSync } from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
@@ -28,6 +31,8 @@ try {
 }
 
 async function main() {
+  assertNoLegacyInstallerConflict();
+
   const { waspBinPath, dataDirPath } = await getSubPackage().catch(
     CLIError.rethrowWith("Can't find the Wasp executable."),
   );
@@ -198,6 +203,79 @@ function checkNodeVersionIsSupported(
   // If we reach the end it's because all parts are equal, so the current
   // version satisfies the requirement.
   return true;
+}
+
+// Wasp used to be installed with a shell installer script into
+// `~/.local/share/wasp-lang`. Having both that and the npm package installed
+// leads to confusing conflicts, so we refuse to run until the user migrates.
+//
+// This runs on every invocation instead of as an install script, because
+// package managers increasingly block install scripts of dependencies (pnpm,
+// bun), and it is a single directory read.
+//
+// TODO: Consider removing this check once we no longer expect any users to
+// have a shell-installer based Wasp installation.
+//
+// These paths are also defined in:
+// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
+// - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+// TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
+// NOTE: These are function declarations, not module-level constants, because
+// `main()` runs at the top of the module, before any constant below it is
+// initialized (function declarations are hoisted, constants are not).
+function getWaspLangDir() {
+  return path.join(os.homedir(), ".local", "share", "wasp-lang");
+}
+
+function getNpmMarkerFile() {
+  return path.join(getWaspLangDir(), ".uses-npm");
+}
+
+function assertNoLegacyInstallerConflict() {
+  if (hasInstallerWasp() && !hasNpmMarker()) {
+    throw new CLIError(`\
+Detected an existing legacy Wasp installation.
+
+You have Wasp installed via the curl installer script. To prevent conflicts,
+please migrate to npm before using the npm package.
+
+To migrate, run:
+
+  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
+
+and follow the instructions.`);
+  }
+
+  ensureNpmMarker();
+}
+
+function hasInstallerWasp() {
+  try {
+    // If the folder exists and has any subdirectories (for the installed version(s)),
+    // we assume it's an installer-based Wasp installation.
+    const entries = fs.readdirSync(getWaspLangDir(), { withFileTypes: true });
+    return entries.some((entry) => entry.isDirectory());
+  } catch {
+    return false;
+  }
+}
+
+function hasNpmMarker() {
+  return fs.existsSync(getNpmMarkerFile());
+}
+
+// The installer script checks for this marker to warn about the same conflict
+// from its side.
+function ensureNpmMarker() {
+  try {
+    fs.mkdirSync(getWaspLangDir(), { recursive: true });
+
+    // Same as `touch` - By appending nothing, we create the file if it doesn't
+    // exist, or leave the contents unchanged if it does.
+    fs.appendFileSync(getNpmMarkerFile(), "");
+  } catch {
+    // Ignore errors - marker file is best-effort
+  }
 }
 
 // Adapted from rollup

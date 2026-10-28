@@ -38,7 +38,7 @@ withTempDir :: (Path' Abs (Dir r) -> IO a) -> IO a
 withTempDir action = withSystemTempDirectory ".wasp" (action . fromJust . SP.parseAbsDir)
 
 -- These paths are also defined in:
--- - https://github.com/wasp-lang/wasp/blob/main/scripts/make-npm-packages/templates/main-package/preinstall.js
+-- - https://github.com/wasp-lang/wasp/blob/main/packages/cli/bin.js
 -- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
 -- TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
 waspInstallationDirInHomeDir :: Path' (Rel UserHomeDir) Dir'

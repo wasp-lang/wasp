@@ -6,7 +6,7 @@ A tool for creating platform-specific npm packages for distributing native execu
 
 This tool solves the problem of distributing native executables through npm. It creates:
 
-1. **Main package** - The package users install, which contains a CLI wrapper. Its source is the `packages/cli` workspace package; this tool adds the version, the install scripts and the sub-package wiring.
+1. **Main package** - The package users install, which contains a CLI wrapper. Its source is the `packages/cli` workspace package; this tool adds the version and the sub-package wiring.
 2. **Sub-packages** - Platform-specific packages containing the actual executables
 
 The main package uses npm's `optionalDependencies` to install the correct platform-specific sub-package based on the user's system. The CLI wrapper then detects and runs the appropriate executable.
@@ -76,7 +76,7 @@ The tool creates:
    - `main.js` entry point
    - Extracted tarball contents
 2. One directory for the main package, containing:
-   - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies and the install scripts
+   - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies
    - `bin.js` CLI wrapper
    - `CLIError.js` error handling utility
    - `data.json` with sub-package metadata
