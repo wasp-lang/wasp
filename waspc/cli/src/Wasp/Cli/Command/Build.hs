@@ -5,28 +5,35 @@ module Wasp.Cli.Command.Build
   )
 where
 
-import Control.Lens (at, (%~), (&), (.~))
+import Control.Lens (at, (%~), (&), (.~), (^?))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
-import Data.Aeson.Lens (key, _Object)
+import qualified Data.Aeson.KeyMap as KM
+import Data.Aeson.Lens (key, _Object, _String)
 import Data.Either (fromLeft)
-import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import Data.List (isPrefixOf, stripPrefix)
+import Data.Maybe (mapMaybe)
+import qualified Data.Text as T
+import StrongPath (Abs, Dir, File', Path', basename, castRel, fromRelDir, fromRelFile, parseAbsFile, parseRelFile, reldir, (</>))
+import qualified StrongPath as SP
+import qualified System.Directory as SD
+import System.FilePath (isAbsolute)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
+import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedAppDir)
 import qualified Wasp.Message as Msg
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -39,8 +46,9 @@ import Wasp.Project.Common
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
+import Wasp.Project.WaspNpmPackage (waspCliNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
-import Wasp.Util.Json (updateJsonFile)
+import Wasp.Util.Json (readJsonFile, updateJsonFile)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -52,7 +60,7 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  WaspNpmPackageAvailable <- require
   ValidNodeAndNpm <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -122,31 +130,86 @@ build = ProjectLock.acquireExclusive $ do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      -- The user's `package.json` references `@wasp/spec` via `file:.wasp/spec`,
-      -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
-      -- We strip `@wasp/spec` from the build's `devDependencies` so that Docker's
-      -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
-      -- and proceeds without trying to resolve the missing `file:` path.
-      --
-      -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
-      -- The proper fix(es) are tracked in:
-      --   - https://github.com/wasp-lang/wasp/issues/897
-      --   - https://github.com/wasp-lang/wasp/issues/1769
-      ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
-      -- Removing `@wasp/spec` from the package-lock.json file is not
-      -- strictly necessary (`npm install` would drop it anyway). We still do
-      -- it because:
-      --   - Npm throws a warning if it detects a mismatch.
-      --   - Npm has become more strict about this over time and will possibly
-      --   upgrade the warning into an error in future versions.
-      ExceptT $ updateJsonFile (key "packages" . key "" %~ removeWaspSpecFromDevDependencies) packageLockJsonInBuildDir
+      ExceptT $ prepareDevWaspNpmPackageForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir
 
-    removeWaspSpecFromDevDependencies :: Value -> Value
-    removeWaspSpecFromDevDependencies original =
-      original & key "devDependencies" . _Object . at (Key.fromString waspSpecPackageName) .~ Nothing
+    -- While developing Wasp, the project depends on @wasp/wasp (and, through
+    -- npm `overrides`, on @wasp/cli and @wasp/spec) via `file:` tarballs
+    -- outside the project (see "Wasp.Project.WaspNpmPackage"). Docker's build
+    -- context is `.wasp/build/`, so we copy the tarballs next to the Wasp libs
+    -- (which the Dockerfile already copies) and point the build's package.json
+    -- at those copies. We also drop their entries from the build's lockfile,
+    -- so `npm install` resolves them again from the new paths.
+    --
+    -- Released Wasp versions are regular registry dependencies, so this does
+    -- nothing for them.
+    prepareDevWaspNpmPackageForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir = runExceptT $ do
+      packageJson <- maybe (throwError "Couldn't read package.json in the build dir.") return =<< liftIO (readJsonFile packageJsonInBuildDir)
+      -- (package.json section, package name) of every field that can hold a dev tarball.
+      let specifierFields =
+            [ ("dependencies", waspNpmPackageName),
+              ("overrides", waspCliNpmPackageName),
+              ("overrides", waspSpecNpmPackageName)
+            ]
+          devTarballSpecifiers =
+            mapMaybe
+              (\field -> withField field <$> getDevTarballSpecifier (getSpecifierField field packageJson))
+              specifierFields
+      unless (null devTarballSpecifiers) $ do
+        let devPackagesDirInBuildDir = buildDir </> libsRootDirInGeneratedAppDir </> [reldir|wasp|]
+        liftIO $ SD.createDirectoryIfMissing True $ SP.fromAbsDir devPackagesDirInBuildDir
+        copiedTarballs <- liftIO $ mapM (copyDevTarball waspProjectDir devPackagesDirInBuildDir) devTarballSpecifiers
+        ExceptT $ updateJsonFile (\json -> foldl setDevTarballSpecifierInDocker json copiedTarballs) packageJsonInBuildDir
+        ExceptT $ updateJsonFile removeWaspNpmPackagesFromLock packageLockJsonInBuildDir
 
-    waspSpecPackageName :: String
-    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
+    withField :: field -> FilePath -> (field, FilePath)
+    withField field tarballPath = (field, tarballPath)
+
+    getSpecifierField :: (String, String) -> Value -> Maybe T.Text
+    getSpecifierField (section, packageName) json =
+      json ^? key (Key.fromString section) . key (Key.fromString packageName) . _String
+
+    setSpecifierField :: (String, String) -> T.Text -> Value -> Value
+    setSpecifierField (section, packageName) specifier json =
+      json & key (Key.fromString section) . key (Key.fromString packageName) . _String .~ specifier
+
+    getDevTarballSpecifier :: Maybe T.Text -> Maybe FilePath
+    getDevTarballSpecifier specifier = specifier >>= stripPrefix "file:" . T.unpack
+
+    copyDevTarball :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir d) -> (field, FilePath) -> IO (field, Path' Abs File')
+    copyDevTarball waspProjectDir devPackagesDirInBuildDir (field, tarballPath) = do
+      srcTarball <-
+        if isAbsolute tarballPath
+          then parseAbsFile tarballPath
+          else (waspProjectDir </>) <$> parseRelFile tarballPath
+      let dstTarball = devPackagesDirInBuildDir </> basename srcTarball
+      copyFile srcTarball dstTarball
+      return (field, dstTarball)
+
+    setDevTarballSpecifierInDocker :: Value -> ((String, String), Path' Abs File') -> Value
+    setDevTarballSpecifierInDocker json (field, tarball) =
+      setSpecifierField field (T.pack $ devTarballSpecifierInDocker tarball) json
+
+    -- The build's package.json lives at `/app` in Docker and the libs at
+    -- `/app/.wasp/out/libs`, so the tarballs are reachable through that path.
+    devTarballSpecifierInDocker :: Path' Abs File' -> String
+    devTarballSpecifierInDocker tarball =
+      "file:" ++ fromRelDir generatedAppDirInWaspProjectDir ++ fromRelDir libsRootDirInGeneratedAppDir ++ "wasp/" ++ fromRelFile (basename tarball)
+
+    removeWaspNpmPackagesFromLock :: Value -> Value
+    removeWaspNpmPackagesFromLock lock =
+      lock
+        & key "packages" . key "" . key "dependencies" . _Object . at (Key.fromString waspNpmPackageName) .~ Nothing
+        & key "packages" . _Object %~ KM.filterWithKey (\k _ -> not (isWaspNpmPackageLockEntry (Key.toString k)))
+
+    -- Matches the packages and anything nested under them (but not e.g.
+    -- @wasp/wasp-app-runner). The platform packages of @wasp/cli are named
+    -- @wasp/cli-<platform>, so those match on purpose.
+    isWaspNpmPackageLockEntry :: String -> Bool
+    isWaspNpmPackageLockEntry entry =
+      any
+        (\name -> entry == "node_modules/" ++ name || ("node_modules/" ++ name ++ "/") `isPrefixOf` entry)
+        [waspNpmPackageName, waspSpecNpmPackageName]
+        || ("node_modules/" ++ waspCliNpmPackageName) `isPrefixOf` entry
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

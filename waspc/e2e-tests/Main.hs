@@ -27,11 +27,10 @@ import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDbStartTest (waspDbStartTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
-import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspProjectLockTest (waspProjectLockTest)
 import Tests.WaspShowTest (waspShowTest)
-import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
+import Tests.WaspNpmPackageAvailableTest (waspNpmPackageAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
@@ -109,9 +108,8 @@ e2eTests = do
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspProjectLockTest,
-        waspSpecAvailableTest,
+        waspNpmPackageAvailableTest,
         waspShowTest,
-        waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,
         -- FIXME: waspStudioTest,

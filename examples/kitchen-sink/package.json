@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "~4.42.0",
+    "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
     "chai": "^5.2.0",
     "clsx": "^2.1.1",
     "linebyline": "^1.3.0",
@@ -38,11 +39,15 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
-    "@wasp/spec": "file:.wasp/spec",
     "@wasp/wasp-app-runner": "^0.0.19",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
     "vite": "^8.1.0",
     "vitest": "^4.1.9"
-  }
+  },
+  "overrides": {
+    "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
+    "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz"
+  },
+  "//": "TODO: Wasp is a file: tarball here so this example runs against the unreleased Wasp in this repo (run `./run build:dev-packages` in waspc/ first, see waspc/tools/dev-packages). Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and this becomes a plain version (see #4824). Releases rewrite it to the released version."
 }

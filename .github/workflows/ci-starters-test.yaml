@@ -20,6 +20,8 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
+      - uses: $/.github/actions/build-dev-wasp-packages
+
       - name: Install node dependencies
         working-directory: waspc/starters-e2e-tests
         run: npm ci

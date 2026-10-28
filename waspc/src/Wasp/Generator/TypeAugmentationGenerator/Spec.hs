@@ -16,7 +16,7 @@ import Wasp.Generator.TypeAugmentationGenerator.Common
   ( typeAugmentationRootDirInGeneratedCodeDir,
     typeAugmentationTemplatesDirInTemplatesDir,
   )
-import Wasp.NodePackageFFI (InstallablePackage (..), getInstallablePackageName)
+import Wasp.Project.WaspNpmPackage (waspSpecNpmPackageName)
 
 genSpecTypeAugmentation :: AppSpec -> Generator [FileDraft]
 genSpecTypeAugmentation spec =
@@ -36,7 +36,7 @@ genSpecTypeAugmentation spec =
     entities = map (makeJsonWithEntityData . AS.Entity.getName) $ getEntities spec
 
     waspSpecPackageName :: String
-    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
+    waspSpecPackageName = waspSpecNpmPackageName
 
 data SpecTypesRootDir
 

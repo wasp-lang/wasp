@@ -32,6 +32,9 @@
     "./internal": {
       "types": "./dist/src/internal.d.ts",
       "default": "./dist/src/internal.js"
+    },
+    "./internal/run": {
+      "default": "./dist/src/run.js"
     }
   },
   "files": [

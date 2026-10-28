@@ -1,0 +1,21 @@
+name: Build dev Wasp npm packages
+description: |
+  Packs the unreleased @wasp/wasp, @wasp/cli and @wasp/spec from this repo
+  into waspc/.dev-packages (see waspc/tools/dev-packages), so Wasp apps in
+  this repo can install them, and points Wasp CLI commands like `wasp new` at
+  them. Expects the Wasp CLI artifact to be installed (it wires the dev
+  @wasp/cli to that binary) and the tools set up.
+
+runs:
+  using: composite
+  steps:
+    - name: Build dev Wasp npm packages
+      shell: bash
+      working-directory: waspc
+      env:
+        WASP_DEV_DATA_DIR: ${{ env.waspc_datadir }}
+      run:
+        # zizmor: ignore[github-env]
+        |
+        WASP_DEV_CLI_BIN="$(command -v wasp-cli)" ./run build:dev-packages
+        echo "WASP_DEV_PACKAGES_DIR=$GITHUB_WORKSPACE/waspc/.dev-packages" >> "$GITHUB_ENV"

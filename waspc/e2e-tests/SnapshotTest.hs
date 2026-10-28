@@ -11,10 +11,12 @@ import Control.Exception (bracket)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import Data.Maybe (fromJust)
+import qualified Data.Text as T
 import FileSystem
   ( SnapshotDir,
     SnapshotFile,
@@ -137,14 +139,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
         filterIgnoredFilePaths =
           keepUnlessMatched
             ( map isBasenameOf [".DS_Store", "node_modules"]
-                ++ [
-                     -- The @wasp/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec (built from packages/spec).
-                     -- It is only copied into .wasp because we need to reach it with `npm install`.
-                     -- If there are errors in this package, they will surface either during package tests or
-                     -- manifest in the project snapshot. We can therefore skip it.
-                     isSubpathOf ".wasp/spec",
-                     -- The project lock file persists by design and contains the PID
+                ++ [ -- The project lock file persists by design and contains the PID
                      -- of the last Wasp command, which is not deterministic.
                      isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
@@ -187,10 +182,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                   "tsconfig.src.tsbuildinfo",
                   "dist"
                 ]
-                ++ [ -- The @wasp/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec (built from packages/spec), so we skip it.
-                     isSubpathOf ".wasp/spec",
-                     -- The project lock file persists by design and contains the PID
+                ++ [ -- The project lock file persists by design and contains the PID
                      -- of the last Wasp command, which is not deterministic.
                      isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
@@ -205,7 +197,27 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
         formatPackageJsonFile :: Path' Abs (File file) -> IO ()
         formatPackageJsonFile packageJsonFile =
           BS.readFile (SP.fromAbsFile packageJsonFile)
-            >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
+            >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . hideDevWaspNpmPackageTarballs . unsafeDecodeJson
+
+        -- In development, projects depend on the Wasp npm packages through
+        -- `file:` tarballs whose paths depend on where the repo is checked out
+        -- (see "Wasp.Project.WaspNpmPackage"), so we replace those paths with
+        -- a placeholder.
+        hideDevWaspNpmPackageTarballs :: Aeson.Value -> Aeson.Value
+        hideDevWaspNpmPackageTarballs (Aeson.Object packageJson) =
+          Aeson.Object $ KM.mapWithKey hideTarballsInField packageJson
+          where
+            hideTarballsInField field value
+              | field `elem` ["dependencies", "overrides"] = hideTarballsInMap value
+              | otherwise = value
+
+            hideTarballsInMap (Aeson.Object specifiers) = Aeson.Object $ KM.map hideTarball specifiers
+            hideTarballsInMap other = other
+
+            hideTarball (Aeson.String specifier)
+              | "file:" `T.isPrefixOf` specifier && ".tgz" `T.isSuffixOf` specifier = Aeson.String "file:<dev-tarball>"
+            hideTarball other = other
+        hideDevWaspNpmPackageTarballs other = other
 
         isPackageJsonFile :: Path' Abs (File file) -> Bool
         isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile

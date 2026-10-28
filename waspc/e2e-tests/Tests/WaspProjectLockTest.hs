@@ -10,7 +10,6 @@ import ShellCommands
     inTestWaspProjectDir,
     waspCliClean,
     waspCliCompile,
-    waspCliInstall,
     (~&&),
   )
 import Test (Test (..), TestCase (..))
@@ -24,13 +23,13 @@ waspProjectLockTest =
     [ TestCase
         "fail-while-another-wasp-command-holds-the-lock"
         -- To test the lock we need a Wasp command that holds it for as long as
-        -- we want. We get that by running `wasp install` in the background and
-        -- stalling the `npm install` it does, via an npm preinstall hook that
-        -- waits for a signal file we create. In short:
-        --   1. `wasp install` starts, acquires the lock, and gets stuck inside
+        -- we want. We get that by running `wasp compile` in the background and
+        -- stalling the `npm install` it does after generating the app, via an
+        -- npm preinstall hook that waits for a signal file we create. In short:
+        --   1. `wasp compile` starts, acquires the lock, and gets stuck inside
         --      `npm install`, so it keeps holding the lock.
         --   2. Meanwhile, `wasp clean` must fail and name the holder's PID.
-        --   3. We signal the hook to stop waiting, so `wasp install` finishes
+        --   3. We signal the hook to stop waiting, so `wasp compile` finishes
         --      and drops the lock, and `wasp clean` works again.
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
@@ -64,7 +63,7 @@ waspProjectLockTest =
       TestCase
         "db-command-runs-alongside-watcher-only-while-generated-app-is-up-to-date"
         -- We can't run a real watcher (e.g. `wasp start`) here, so we fake one:
-        -- we hold the lock with a stalled `wasp install` (see the first test
+        -- we hold the lock with a stalled `wasp compile` (see the first test
         -- case), and then rewrite the lock file on its behalf, to go through
         -- the statuses a watcher reports.
         ( sequence
@@ -76,7 +75,7 @@ waspProjectLockTest =
                   return addBlockingNpmPreinstallHook,
                   startWaspInstallInBackground,
                   return waitForLockToBeHeld,
-                  -- `wasp install` is not a watcher, so the db command waits for
+                  -- `wasp compile` is not a watcher, so the db command waits for
                   -- it to finish, and gives up after a while.
                   return $ assertWaspDbMigrateDevFailsWith "is working on this project right now.",
                   return $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
@@ -96,11 +95,12 @@ waspProjectLockTest =
         )
     ]
   where
-    -- The lock holder is a real `wasp install` process: it acquires the
-    -- project lock and then runs `npm install` in the project dir, which this
-    -- hook stalls until 'releaseLockAndAwaitWaspInstall' signals it (or ~120s
-    -- pass). The hook also tells us, via the marker file, when `wasp install`
-    -- is far enough along to be holding the lock.
+    -- The lock holder is a real `wasp compile` process: it acquires the
+    -- project lock, generates the app and then runs `npm install` in the
+    -- project dir (we make sure it does by forgetting the installed deps
+    -- log), which this hook stalls until 'releaseLockAndAwaitWaspInstall'
+    -- signals it (or ~120s pass). The hook also tells us, via the marker
+    -- file, when `wasp compile` is far enough along to be holding the lock.
     addBlockingNpmPreinstallHook :: ShellCommand
     addBlockingNpmPreinstallHook =
       "npm pkg set 'scripts.preinstall=" ++ preinstallHookScript ++ "'"
@@ -115,9 +115,11 @@ waspProjectLockTest =
 
     startWaspInstallInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
     startWaspInstallInBackground = do
-      installCommand <- waspCliInstall
+      compileCommand <- waspCliCompile
       return $
-        ("{ " ++ installCommand ++ " > .wasp-e2e-install.log 2>&1 & }")
+        -- Forgetting the installed deps log makes `wasp compile` run `npm install` again.
+        "rm -f .wasp/out/installedNpmDepsLog.json"
+          ~&& ("{ " ++ compileCommand ++ " > .wasp-e2e-install.log 2>&1 & }")
           ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
 
     waitForLockToBeHeld :: ShellCommand

@@ -3,6 +3,10 @@
         "fromUser": {
             "dependencies": [
                 {
+                    "name": "@wasp/wasp",
+                    "version": "file:/Users/mindek/conductor/workspaces/wasp/lima/waspc/.dev-packages/wasp-wasp-0.27.0.tgz"
+                },
+                {
                     "name": "react",
                     "version": "^19.2.1"
                 },
@@ -27,10 +31,6 @@
                 {
                     "name": "@types/react-dom",
                     "version": "^19.2.3"
-                },
-                {
-                    "name": "@wasp/spec",
-                    "version": "file:.wasp/spec/"
                 },
                 {
                     "name": "prisma",

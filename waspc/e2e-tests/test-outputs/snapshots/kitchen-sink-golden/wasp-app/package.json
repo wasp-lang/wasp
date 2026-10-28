@@ -1,6 +1,8 @@
 {
+  "//": "TODO: Wasp is a file: tarball here so this example runs against the unreleased Wasp in this repo (run `./run build:dev-packages` in waspc/ first, see waspc/tools/dev-packages). Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and this becomes a plain version (see #4824). Releases rewrite it to the released version.",
   "dependencies": {
     "@tanstack/react-query": "~4.42.0",
+    "@wasp/wasp": "file:<dev-tarball>",
     "chai": "^5.2.0",
     "clsx": "^2.1.1",
     "linebyline": "^1.3.0",
@@ -22,7 +24,6 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
-    "@wasp/spec": "file:.wasp/spec",
     "@wasp/wasp-app-runner": "^0.0.19",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
@@ -30,6 +31,10 @@
     "vitest": "^4.1.9"
   },
   "name": "kitchen-sink",
+  "overrides": {
+    "@wasp/cli": "file:<dev-tarball>",
+    "@wasp/spec": "file:<dev-tarball>"
+  },
   "scripts": {
     "build": "wasp build",
     "dev": "wasp start",

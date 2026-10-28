@@ -12,6 +12,7 @@
     "preview": "wasp build start"
   },
   "dependencies": {
+    "@wasp/wasp": "__waspPackageSpecifier__",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.69.0",
@@ -35,7 +36,6 @@
     "typescript": "6.0.3",
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0",
-    "vitest": "^4.1.9",
-    "@wasp/spec": "__waspSpecPackageSpecifier__"
+    "vitest": "^4.1.9"
   }
 }

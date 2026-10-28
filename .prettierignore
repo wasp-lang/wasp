@@ -12,5 +12,6 @@ web/**/*.mdx
 web/static/img/
 waspc/data/packages/
 waspc/data/Generator/libs/
+waspc/.dev-packages/
 packages/studio/public/assets/
 pnpm-lock.yaml

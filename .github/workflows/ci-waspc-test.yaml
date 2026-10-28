@@ -79,6 +79,7 @@ jobs:
         run: |
           ./run build:packages
           ./run build:libs
+          ./run build:dev-packages
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
