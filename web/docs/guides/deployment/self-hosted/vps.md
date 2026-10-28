@@ -148,7 +148,7 @@ wasp version
 In your project directory, install dependencies and build the app:
 
 ```bash
-wasp install
+npm install
 wasp build
 ```
 

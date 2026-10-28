@@ -23,6 +23,9 @@ COMMANDS
       OPTIONS:
         -t|--template <template-name>
            Available starter templates are: basic, minimal, saas.
+        --install | --no-install
+           Whether to install the npm dependencies after creating the project.
+           Without either, Wasp asks (or installs, when not run interactively).
 
     help                  Prints this help message.
     version               Prints current version of CLI.
@@ -41,7 +44,6 @@ COMMANDS
                           Optionally specify a custom port, Docker image, or Docker volume mount path.
                           If the port is not specified, Wasp picks the first free port when the default one is taken.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.
-    install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
     compile               Compiles your Wasp project and reports any errors, without running it.
@@ -102,6 +104,8 @@ To run your new app, do:
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
 
+- The new project depends on Wasp through the `@wasp/wasp` npm package. `wasp new` asks whether to run `npm install` right away; pass `--install` or `--no-install` to decide without the question (for example in a script). Until the dependencies are installed, no other Wasp command works in the project.
+
 ```
 $ wasp new MyFirstProject
 
@@ -117,7 +121,7 @@ wasp db start
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app. By default, it runs on port 5432, or the next free port if that one is taken. Use `--db-port <port>` to choose the port yourself; if you do, Wasp won't look for an alternative when it's taken.
-- `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
+- `wasp clean` removes all generated code and other cached artifacts, including the `node_modules` directory, so run `npm install` afterwards. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
 ```
 
@@ -190,18 +194,20 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
 
 $ wasp version
 
-0.14.0
+0.27.0
 
-If you wish to install/switch to the latest version of Wasp, do:
-npm i -g @wasp/cli@latest
+A project uses the Wasp version of its `@wasp/wasp` dependency. To switch a project to version x.y.z, run in it:
+  npm install --save-exact @wasp/wasp@x.y.z
 
-If you want specific x.y.z version of Wasp, do:
-npm i -g @wasp/cli@x.y.z
+To install/switch the Wasp CLI you use outside of projects (e.g. for `wasp new`), do:
+  npm i -g @wasp/cli@latest
 Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
 ```
+
+  A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher: inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well.
 
 - `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 

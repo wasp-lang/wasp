@@ -84,7 +84,6 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
 
     const app = new App("todoApp", {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
     });
 
     const mainPage = app.page("MainPage", {
@@ -110,7 +109,6 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
       spec: [
         route("MainRoute", "/", page(MainPage)),
         query(getTasks, { entities: ["Task"] }),
@@ -236,7 +234,6 @@ These were configured with mutating method calls. They are now keys of the `app(
     ```ts title="main.wasp.ts"
     const app = new App("todoApp", {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
     });
 
     app.auth({
@@ -266,7 +263,6 @@ These were configured with mutating method calls. They are now keys of the `app(
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
       auth: {
         userEntity: "User",
         methods: { google: {} },
@@ -288,7 +284,7 @@ These were configured with mutating method calls. They are now keys of the `app(
 
 ## How to migrate
 
-These steps convert an old class-based Wasp TS Config to the new Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
+These steps convert an old class-based Wasp TS Config to the new Wasp Spec. Before running `npm install` below, make sure your project is on Wasp 0.27 or newer (see the [migration guide](../../migration-guide.md)).
 
 After finishing this guide, return to the [migration guide](/docs/0.24/migration-guide) if you still need to complete the shared Wasp 0.24 migration steps.
 
@@ -355,7 +351,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     }
     ```
 
-4.  Run `wasp install`.
+4.  Run `npm install`.
 
 5.  Rewrite `main.wasp.ts`:
 
@@ -368,7 +364,6 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
         const app = new App("myApp", {
           title: "My app",
-          wasp: { version: "^0.24.0" },
         });
         ```
 
@@ -380,7 +375,6 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         export default app({
           name: "myApp",
           title: "My app",
-          wasp: { version: "^0.24.0" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           spec: [
             // ...
@@ -398,7 +392,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 6.  Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
 :::note
-At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
+If the Wasp Spec package is missing or out of date (for example after `wasp clean` or in a fresh clone), Wasp tells you to run `npm install` before starting the app.
 :::
 
 See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

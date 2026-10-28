@@ -24,7 +24,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
   title: "My App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
