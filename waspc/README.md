@@ -41,6 +41,8 @@ It serves both as a convenient way to easily run common development tasks and al
 
 Running `./run` without any arguments will print help/usage, which is a good way to discover the typical `waspc` development workflows.
 
+The commands that depend on other parts of the repo (e.g. `./run build` first builds the TS libs and packages) are defined as [mise tasks](https://mise.jdx.dev/tasks/) in [`mise.toml`](mise.toml), and `./run` calls them. You can also run them directly, e.g. `mise run //waspc:build`, and list all of the repo's tasks with `mise tasks --all`. The TS libs and packages are only rebuilt when their sources change, so tasks that need them (e.g. `./run test:waspc:e2e`) build them first without slowing down. Pass `--force` to `mise run` to rebuild them anyway.
+
 > [!TIP]
 > To make it easy to run the `./run` script from any place in your waspc codebase, you can create a bash alias that points to it, e.g.:
 >

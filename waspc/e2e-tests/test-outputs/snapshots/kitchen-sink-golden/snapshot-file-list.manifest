@@ -864,6 +864,7 @@ wasp-app/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/migrations/20250604115050_uppercase_text_job_request/migration.sql
 wasp-app/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
 wasp-app/migrations/migration_lock.toml
+wasp-app/mise.toml
 wasp-app/package-lock.json
 wasp-app/package.json
 wasp-app/public/.gitkeep

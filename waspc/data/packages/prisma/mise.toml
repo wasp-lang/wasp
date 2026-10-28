@@ -1,0 +1,7 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+
+[tasks.build]
+extends = "wasp:package:build"
+
+[tasks.test]
+extends = "wasp:package:test"

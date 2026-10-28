@@ -9,6 +9,11 @@ Create a directory in this folder to contain the new package. It should have a
 `build` script inside `package.json` as well as a `start` script that calls the
 compiled code.
 
+Add a `mise.toml` to the package with a `build` task (and a `test` task, if it
+has tests) that extends the `wasp:package:*` templates, like the other packages
+do. Then register the package in the root `mise.toml`, under
+`[monorepo.projects]`, and add it to the `wasp:waspc` project's `depends`.
+
 Then, in `data-files` inside `waspc.cabal`, add these files:
 
 ```

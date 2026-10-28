@@ -1,0 +1,7 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+
+[tasks.build]
+description = "Build the Wasp App Runner CLI"
+sources = ["src/**", "package.json", "package-lock.json", ".npmrc", "tsconfig.json"]
+outputs = ["dist/**"]
+run = ["npm install", "npm run build"]

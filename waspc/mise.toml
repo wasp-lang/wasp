@@ -1,0 +1,104 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+# `./run` delegates to these tasks, so their names match its commands.
+
+[tasks.build]
+description = "Build the Haskell project and the TS libs and packages it embeds"
+depends = ["^build"]
+run = [{ task = "build:hs" }]
+
+[tasks."build:hs"]
+description = "Build the Haskell project only. Set `BUILD_STATIC=1` to build statically."
+run = "cabal build all{% if get_env(name='BUILD_STATIC', default='') %} --enable-executable-static{% endif %}"
+
+[tasks."build:packages"]
+description = "Build the TS packages under data/packages/"
+depends = ["//waspc/data/packages/...:build"]
+
+[tasks."build:libs"]
+description = "Build the Wasp libs under data/Generator/libs/"
+depends = ["//waspc/data/Generator/libs/...:build"]
+
+[tasks.install]
+description = "Install the wasp executable as `wasp-cli` globally on the machine"
+depends = ["^build"]
+run = "cabal install --overwrite-policy=always"
+
+[tasks.test]
+description = "Run all tests (waspc, Wasp CLI, starters, examples, libs, packages)"
+depends = ["^build"]
+env = { WASP_CLI_CMD = "{{vars.wasp_cli_dev}}" }
+run = [
+  "cabal test",
+  { task = "test:starters" },
+  { task = "test:examples" },
+  { task = "test:libs" },
+  { task = "test:packages" },
+  "echo 'ALL TESTS PASSED'",
+]
+
+[tasks."test:waspc"]
+description = "Run the waspc unit and e2e tests"
+run = [{ task = "test:waspc:unit" }, { task = "test:waspc:e2e" }]
+
+[tasks."test:waspc:unit"]
+description = "Run the waspc unit tests"
+usage = 'arg "[pattern]" help="Only run tests whose description/name matches this tasty pattern"'
+run = 'cabal test waspc-tests --test-options="--hide-successes"{% if usage.pattern %} --test-options="-p \"{{usage.pattern}}\""{% endif %}'
+
+[tasks."test:waspc:e2e"]
+description = "Run the waspc e2e tests"
+# The generated apps use the built libs and packages.
+depends = ["^build"]
+env = { WASP_CLI_CMD = "{{vars.wasp_cli_dev}}" }
+run = 'cabal test waspc-e2e-tests --test-options="--hide-successes"'
+
+[tasks."test:waspc:e2e:accept-all"]
+description = "Accept all diffs in the waspc e2e snapshot tests by regenerating the golden outputs"
+run = [
+  "rm -rf e2e-tests/test-outputs/snapshots/*-golden",
+  { task = "test:waspc:e2e" },
+]
+
+[tasks."test:cli"]
+description = "Run the Wasp CLI tests"
+run = 'cabal test wasp-cli-tests --test-options="--hide-successes"'
+
+[tasks."test:libs"]
+description = "Test the Wasp libs under data/Generator/libs/"
+# One at a time, since a lib's tests and its dependents' builds both rebuild
+# its `dist/` dir.
+run = [
+  { task = "//waspc/data/Generator/libs/auth:test" },
+  { task = "//waspc/data/Generator/libs/sdk-core:test" },
+  { task = "//waspc/data/Generator/libs/test-utils:test" },
+  { task = "//waspc/data/Generator/libs/vite-ssr:test" },
+]
+
+[tasks."test:packages"]
+description = "Test the TS packages under data/packages/"
+depends = ["//waspc/data/packages/...:test"]
+
+[tasks."test:kitchen-sink"]
+description = "Run the kitchen-sink e2e tests"
+depends = ["//examples/kitchen-sink:test"]
+
+[tasks."test:examples"]
+description = "Run the examples' e2e tests"
+# One at a time, since they all use the same ports.
+run = [
+  { task = "//examples/tutorials/TodoApp:test" },
+  { task = "//examples/tutorials/TodoAppTs:test" },
+  { task = "//examples/waspello:test" },
+  { task = "//examples/waspleau:test" },
+  { task = "//examples/websockets-realtime-voting:test" },
+  { task = "//examples/ask-the-documents:test" },
+  { task = "//examples/kitchen-sink:test" },
+]
+
+[tasks."test:starters"]
+description = "Run the starter templates' e2e tests"
+depends = ["//waspc/starters-e2e-tests:test"]
+
+[tasks.stan]
+description = "Run static code analysis on the code, generating stan.html"
+run = ["cabal build all --enable-tests --enable-benchmarks", "stan report"]

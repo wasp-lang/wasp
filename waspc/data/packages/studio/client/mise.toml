@@ -1,0 +1,16 @@
+# Project config in the Wasp monorepo. See the root `mise.toml`.
+
+[tasks.build]
+description = "Build the client and copy it into the studio server's `public/` dir"
+sources = [
+  "src/**",
+  "index.html",
+  "package.json",
+  "package-lock.json",
+  ".npmrc",
+  "tsconfig.json",
+  "tsconfig.node.json",
+  "vite.config.ts",
+]
+outputs = ["../public/**"]
+run = ["npm install", "npm run copy"]

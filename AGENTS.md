@@ -37,6 +37,7 @@ Key things to know:
 - Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
+- The repo is a [mise monorepo](https://mise.jdx.dev/tasks/monorepo.html): each project has its own `mise.toml`, and the root `mise.toml` lists them in `[monorepo].config_roots` and declares their dependencies in `[monorepo.projects]`. When adding a project, register it in both. Tasks that span projects (e.g. `./run build`, which builds the TS libs and packages first) are mise tasks, and `./run` delegates to them.
 
 ## Code Conventions
 
