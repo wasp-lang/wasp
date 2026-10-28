@@ -134,6 +134,7 @@ html.blog-wrapper[data-theme="dark"] {
   --wasp-g3: #444;
   --wasp-g2: #333;
   --wasp-g1: #2a2a2a;
+  --wasp-code-bg: #1e1e1e;
   --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
@@ -690,6 +691,105 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 
 .code-snippet__body .prism-code {
   background: #1e1e1e !important;
+}
+
+/* Terminal output (blog/components/Terminal.tsx): a window-like frame that
+   follows the site theme, with ANSI colors readable on each background. */
+.terminal {
+  --terminal-bg: var(--wasp-code-bg);
+  --terminal-header-bg: var(--wasp-g2);
+  --terminal-border: var(--wasp-g3);
+  --terminal-dot: var(--wasp-g5);
+  --terminal-title: var(--wasp-g5);
+  --terminal-fg: var(--ifm-heading-color);
+  --terminal-prompt: var(--wasp-g5);
+  /* ANSI colors have no site equivalent, so they are hard-coded. */
+  --terminal-red: #cf222e;
+  --terminal-green: #116329;
+  --terminal-yellow: #9a6700;
+  --terminal-blue: #0969da;
+  --terminal-magenta: #8250df;
+  --terminal-cyan: #1b7c83;
+
+  /* Square corners, like the site's code blocks. */
+  border-radius: 0;
+  overflow: hidden;
+  border: 1px solid var(--terminal-border);
+  background: var(--terminal-bg);
+  margin: 1rem 0;
+}
+
+html[data-theme="dark"] .terminal {
+  /* The frame variables already switch with the theme, so only the ANSI
+     colors need dark values. */
+  --terminal-red: #ff7b72;
+  --terminal-green: #3fb950;
+  --terminal-yellow: #d29922;
+  --terminal-blue: #58a6ff;
+  --terminal-magenta: #bc8cff;
+  --terminal-cyan: #39c5cf;
+}
+
+.terminal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--terminal-header-bg);
+  border-bottom: 1px solid var(--terminal-border);
+}
+
+.terminal__dots {
+  display: flex;
+  gap: 7px;
+}
+
+.terminal__dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--terminal-dot);
+}
+
+.terminal__title {
+  font-size: 0.82rem;
+  color: var(--terminal-title);
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.markdown .terminal__body {
+  margin: 0;
+  padding: 16px;
+  border-radius: 0;
+  border: none;
+  background: var(--terminal-bg);
+  color: var(--terminal-fg);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.terminal__ansi-prompt {
+  color: var(--terminal-prompt);
+}
+.terminal__ansi-red {
+  color: var(--terminal-red);
+}
+.terminal__ansi-green {
+  color: var(--terminal-green);
+}
+.terminal__ansi-yellow {
+  color: var(--terminal-yellow);
+}
+.terminal__ansi-blue {
+  color: var(--terminal-blue);
+}
+.terminal__ansi-magenta {
+  color: var(--terminal-magenta);
+}
+.terminal__ansi-cyan {
+  color: var(--terminal-cyan);
 }
 
 /* Tabbed code snippets wrapper */
