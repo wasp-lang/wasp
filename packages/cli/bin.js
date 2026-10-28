@@ -209,9 +209,9 @@ function checkNodeVersionIsSupported(
 // `~/.local/share/wasp-lang`. Having both that and the npm package installed
 // leads to confusing conflicts, so we refuse to run until the user migrates.
 //
-// This runs on every invocation instead of as an install script, because
-// package managers increasingly block install scripts of dependencies (pnpm,
-// bun), and it is a single directory read.
+// This runs from `bin.js` instead of as an install script, because package
+// managers increasingly block install scripts of dependencies (pnpm, bun). It
+// does its work once per machine and then costs a single `stat` per invocation.
 //
 // TODO: Consider removing this check once we no longer expect any users to
 // have a shell-installer based Wasp installation.
@@ -232,7 +232,13 @@ function getNpmMarkerFile() {
 }
 
 function assertNoLegacyInstallerConflict() {
-  if (hasInstallerWasp() && !hasNpmMarker()) {
+  // Once the marker exists this is a single `stat`, so the directory listing
+  // below only ever runs on the first invocation on a machine.
+  if (hasNpmMarker()) {
+    return;
+  }
+
+  if (hasInstallerWasp()) {
     throw new CLIError(`\
 Detected an existing legacy Wasp installation.
 
