@@ -51,7 +51,8 @@ In reality, users ran multiple instances and port clashing was a real issue: `wa
 
 <ImgWithCaption
   alt="Before Wasp 0.26, two worktrees of the same repo tried to use ports 5432, 3001, and 3000 and the second one failed with port taken errors. After Wasp 0.26, the database in the second worktree gets 5433, the client 3002, and the server 3003."
-  source="img/blog/2026-10-23-wasp-0-26-changelog/commands-in-different-projects-dark.svg"
+  source="img/blog/2026-10-27-wasp-agent-friendly/commands-in-different-projects.svg"
+  sourceDark="img/blog/2026-10-27-wasp-agent-friendly/commands-in-different-projects-dark.svg"
   caption="Two worktrees running at the same time: each process now takes the next free port."
   width="100%"
 />
