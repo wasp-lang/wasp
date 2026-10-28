@@ -1,25 +1,30 @@
 # The Wasp repo is a pnpm workspace, but a few projects in it still use npm.
-# pnpm is pinned in mise.toml and not in package.json's `packageManager`,
-# because Cloudflare Pages would then build web/ (an npm project) with pnpm.
+# pnpm is pinned in mise.toml for us and in package.json's `packageManager`
+# for Cloudflare Pages, which builds web/ with it.
 #
 # Not members yet:
 # - packages/deploy, packages/prisma, packages/studio. waspc ships them with
 #   their own package-lock.json and installs them with npm on first use.
 #   TODO: Move them in once they are part of the Wasp npm package.
-# - web/. Deployed with npm on Cloudflare Pages.
-#   TODO: Move it in and switch the Cloudflare build to pnpm.
 # - examples/ and the e2e test projects. They are Wasp apps, which use npm.
 #   TODO: Move them in once Wasp apps support pnpm.
 packages:
   - packages/spec
   - packages/libs/*
   - packages/wasp-app-runner
+  - web
   - scripts/make-npm-packages
   - waspc/tools
 
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 
-# msw only prints a support message in its postinstall script.
+# None of these install scripts matter here. msw prints a support message,
+# esbuild and @swc/core look for a binary that is an optional dependency anyway,
+# core-js prints a funding message, fsevents ships prebuilt.
 allowBuilds:
+  "@swc/core": false
+  core-js: false
+  esbuild: false
+  fsevents: false
   msw: false
