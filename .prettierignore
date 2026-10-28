@@ -13,3 +13,4 @@ web/static/img/
 waspc/data/packages/
 waspc/data/Generator/libs/
 packages/studio/public/assets/
+pnpm-lock.yaml

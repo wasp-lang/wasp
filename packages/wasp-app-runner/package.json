@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepack": "npm run build",
-    "start": "npm run build && node ./bin/index.js"
+    "prepack": "pnpm run build",
+    "start": "pnpm run build && node ./bin/index.js"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^13.1.0",

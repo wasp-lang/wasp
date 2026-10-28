@@ -97,8 +97,7 @@ jobs:
           cat "$PACKAGES_INPUT_DATA_FILE_PATH" # For debugging purposes
 
       - name: Install dependencies for script
-        working-directory: ./scripts/make-npm-packages
-        run: npm ci
+        run: pnpm install --filter make-npm-packages
 
       - name: Run packager script
         run: >

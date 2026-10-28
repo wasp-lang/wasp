@@ -60,8 +60,7 @@ jobs:
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
       - name: Prepare wasp-app-runner
-        working-directory: packages/wasp-app-runner
-        run: npm install && npm run build
+        run: pnpm install --filter @wasp/wasp-app-runner && pnpm --filter @wasp/wasp-app-runner run build
 
       - name: Run DEV e2e tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}

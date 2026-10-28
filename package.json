@@ -1,11 +1,13 @@
 {
   "name": "wasp-repo",
   "type": "module",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
   "scripts": {
     "check:prettier": "prettier --ignore-unknown --check --config prettier.config.mjs .",
-    "format:check": "npm run check:prettier",
+    "format:check": "pnpm run check:prettier",
     "format:prettier": "prettier --ignore-unknown --write --config prettier.config.mjs .",
-    "format:write": "npm run format:prettier"
+    "format:write": "pnpm run format:prettier"
   },
   "devDependencies": {
     "prettier": "3.5.3",

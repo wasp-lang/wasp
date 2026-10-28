@@ -68,6 +68,21 @@ runs:
         cache: npm
         package-manager-cache: true
 
+    # The repo's own packages live in a pnpm workspace (see pnpm-workspace.yaml),
+    # while Wasp apps, web/ and the standalone packages still use npm, so we
+    # cache the pnpm store separately from the npm cache above.
+    - name: Probe pnpm store path
+      id: probe-pnpm-store
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pnpm store
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.probe-pnpm-store.outputs.STORE_PATH }}
+        key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-store-${{ runner.os }}-${{ runner.arch }}-
+
     # We can't have the following steps in a different action because of a
     # GitHub Actions bug with how caches interact with nested composite actions:
     # https://github.com/actions/runner/issues/2030

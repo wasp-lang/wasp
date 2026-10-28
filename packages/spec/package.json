@@ -41,16 +41,17 @@
     "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
-    "test": "npm run build && vitest run --reporter=verbose",
-    "test:integration": "npm run build && vitest run --reporter=verbose --project integration",
-    "test:type": "npm run build && vitest run --reporter=verbose --project type",
-    "test:unit": "npm run build && vitest run --reporter=verbose --project unit",
-    "test:watch": "npm run build && vitest --reporter=verbose"
+    "test": "pnpm run build && vitest run --reporter=verbose",
+    "test:integration": "pnpm run build && vitest run --reporter=verbose --project integration",
+    "test:type": "pnpm run build && vitest run --reporter=verbose --project type",
+    "test:unit": "pnpm run build && vitest run --reporter=verbose --project unit",
+    "test:watch": "pnpm run build && vitest --reporter=verbose"
   },
   "dependencies": {
     "es-toolkit": "^1.49.0",
     "estree-util-scope": "^1.0.0",
     "estree-walker": "^3.0.3",
+    "rolldown": "^1.2.14",
     "type-fest": "^5.6.0",
     "typescript": "^6.0.3",
     "unrun": "^0.3.0"

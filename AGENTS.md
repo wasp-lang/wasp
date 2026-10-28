@@ -22,7 +22,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
   - `run` — **Main development script** (run `./run` with no args to see all commands)
-- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests
+- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests. Most of them form a pnpm workspace (`pnpm-workspace.yaml`); `deploy`, `prisma`, `studio`, `web/` and the example apps still use npm.
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts

@@ -5,7 +5,11 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
-import { getWaspcPackageDirPaths } from "./packages/utils.ts";
+import {
+  getWaspcPackageDirPath,
+  WASPC_NPM_PACKAGE_NAMES,
+  WASPC_WORKSPACE_PACKAGE_NAMES,
+} from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -62,7 +66,11 @@ function bumpLibsVersion(nextVersion: string): void {
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const packageDirPath of getWaspcPackageDirPaths()) {
+  const packageNames = [
+    ...WASPC_WORKSPACE_PACKAGE_NAMES,
+    ...WASPC_NPM_PACKAGE_NAMES,
+  ];
+  for (const packageDirPath of packageNames.map(getWaspcPackageDirPath)) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
@@ -97,7 +105,7 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   ]) {
     if (!deps) continue;
     for (const [name, range] of Object.entries(deps)) {
-      if (name.startsWith("@wasp/") && !range.startsWith("file:")) {
+      if (name.startsWith("@wasp/") && !range.startsWith("workspace:")) {
         deps[name] = `^${nextVersion}`;
       }
     }
