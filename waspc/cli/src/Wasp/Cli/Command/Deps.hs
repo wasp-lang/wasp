@@ -17,6 +17,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import qualified Wasp.Generator.WaspNpmPackageDeps as WaspNpmPackageDeps
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
@@ -41,6 +42,10 @@ depsMessage appSpec =
       title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
       ""
     ]
+      ++ printDeps
+        "Dependencies of @wasp/wasp (available in every Wasp project):"
+        WaspNpmPackageDeps.waspNpmPackageDeps
+      ++ [""]
       ++ printDeps
         "Server dependencies:"
         (filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)

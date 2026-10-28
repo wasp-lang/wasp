@@ -23,8 +23,11 @@ minimumReleaseAge: 10080
 
 # None of these install scripts matter here. msw prints a support message,
 # esbuild and @swc/core look for a binary that is an optional dependency anyway,
-# core-js prints a funding message, fsevents ships prebuilt.
+# core-js prints a funding message, fsevents ships prebuilt. @prisma/client
+# generates a client, which only Wasp apps need, here it is only packed into
+# @wasp/wasp.
 allowBuilds:
+  "@prisma/client": false
   "@swc/core": false
   core-js: false
   esbuild: false

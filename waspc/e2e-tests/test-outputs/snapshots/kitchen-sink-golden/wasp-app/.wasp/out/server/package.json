@@ -6,26 +6,11 @@
     "@wasp/lib-sdk-core": "file:../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz",
     "@wasp/lib-test-utils": "file:../libs/test-utils/wasp-lib-test-utils-0.27.0.tgz",
     "@wasp/lib-vite-ssr": "file:../libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz",
-    "cookie-parser": "~1.4.6",
-    "cors": "^2.8.5",
-    "dotenv": "^16.6.1",
-    "express": "~5.1.0",
-    "helmet": "^6.0.0",
-    "morgan": "~1.12.1",
-    "socket.io": "^4.6.1",
-    "superjson": "^2.2.1"
+    "socket.io": "^4.6.1"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.0",
     "@tsconfig/node24": "latest",
-    "@types/cors": "^2.8.5",
-    "@types/express": "^5.0.0",
-    "@types/express-serve-static-core": "^5.0.0",
-    "@types/node": "^24.0.0",
-    "nodemon": "^2.0.19",
-    "rollup": "^4.9.6",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "typescript": "6.0.3"
+    "@types/node": "^24.0.0"
   },
   "engineStrict": true,
   "engines": {

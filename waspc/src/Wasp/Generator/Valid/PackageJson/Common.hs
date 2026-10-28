@@ -8,6 +8,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Generator.DepVersions as DepVersions
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as Server
+import qualified Wasp.Generator.WaspNpmPackageDeps as WaspNpmPackageDeps
 
 type DependencySpecification = (P.PackageName, P.PackageVersion)
 
@@ -59,9 +60,13 @@ getAllWaspDependencies spec =
     requiredUserRuntimeDeps
       <> requiredUserDevelopmentDeps
       <> optionalUserDeps
+      <> waspNpmPackageDeps
       <> serverDeps
   where
     serverDeps = getAllDepsFromPackage $ N.fromWasp $ Server.npmDepsFromWasp spec
+    -- These are hoisted to the project's node_modules, so a conflicting version
+    -- in the user's package.json would hide them from the generated code.
+    waspNpmPackageDeps = map D.toPair WaspNpmPackageDeps.serverCoreDeps
 
     dedupeVersions pkgName v1 v2
       | v1 == v2 = v1
