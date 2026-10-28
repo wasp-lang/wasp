@@ -1,10 +1,14 @@
 module Generator.WaspNpmPackageDepsTest where
 
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Key
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.Map as M
+import qualified Data.Text as T
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
+import Wasp.Generator.Valid.PackageJson.Common (requiredUserDevelopmentDeps, requiredUserRuntimeDeps)
 import Wasp.Generator.WaspNpmPackageDeps (waspNpmPackageDeps)
 
 -- The dependencies @wasp/wasp declares live in two places: its package.json
@@ -20,7 +24,25 @@ spec_waspNpmPackageDeps = do
       let depsInPackageJson = M.filterWithKey (\name _ -> name `notElem` waspOwnPackages) (P.dependencies packageJson)
           depsInHaskell = M.fromList [(D.name dep, D.version dep) | dep <- waspNpmPackageDeps]
       depsInPackageJson `shouldBe` depsInHaskell
+
+    -- The packages a project must provide itself are peer dependencies of
+    -- @wasp/wasp, so npm refuses a conflicting version at install time, and
+    -- the package.json validator requires them with the same versions.
+    it "declares the packages the user's package.json must provide as peer dependencies" $ do
+      packageJson <-
+        either (error . ("Couldn't parse packages/wasp/package.json: " ++)) return
+          =<< Aeson.eitherDecodeFileStrict' waspNpmPackageJsonPath
+      let peerDepsInPackageJson = getStringMap "peerDependencies" packageJson
+          requiredUserDeps = M.fromList $ requiredUserRuntimeDeps <> requiredUserDevelopmentDeps
+      peerDepsInPackageJson `shouldBe` requiredUserDeps
   where
+    getStringMap :: String -> Aeson.Value -> M.Map String String
+    getStringMap field (Aeson.Object obj) =
+      case KM.lookup (Key.fromString field) obj of
+        Just (Aeson.Object deps) -> M.fromList [(Key.toString k, T.unpack v) | (k, Aeson.String v) <- KM.toList deps]
+        _ -> M.empty
+    getStringMap _ _ = M.empty
+
     -- Tests run with waspc/ as the working directory.
     waspNpmPackageJsonPath = "../packages/wasp/package.json"
 
