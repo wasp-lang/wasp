@@ -2,6 +2,7 @@
   "name": "wasp-repo",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@12.15.0",
   "scripts": {
     "check:prettier": "prettier --ignore-unknown --check --config prettier.config.mjs .",
     "format:check": "pnpm run check:prettier",

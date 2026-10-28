@@ -70,7 +70,6 @@ runs:
         # The repo root has no npm lockfile anymore, so point the cache at the
         # projects that still use npm.
         cache-dependency-path: |
-          web/package-lock.json
           examples/**/package-lock.json
           waspc/starters-e2e-tests/package-lock.json
           packages/deploy/package-lock.json
