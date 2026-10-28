@@ -5,6 +5,9 @@
     ".wasp/out/*",
     ".wasp/out/sdk/wasp"
   ],
+  "scripts": {
+    "wasp": "wasp"
+  },
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

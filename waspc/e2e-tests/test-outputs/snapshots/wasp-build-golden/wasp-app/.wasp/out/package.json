@@ -14,6 +14,9 @@
     "vitest": "^4.1.9"
   },
   "name": "wasp-app",
+  "scripts": {
+    "wasp": "wasp"
+  },
   "type": "module",
   "workspaces": [
     ".wasp/out/*",
