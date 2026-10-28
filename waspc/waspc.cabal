@@ -730,3 +730,81 @@ test-suite waspc-e2e-tests
     Tests.WaspTelemetryTest
     Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest
+
+test-suite waspc-e2e-tests-reimagined
+  import: common-all, common-exe
+  type: exitcode-stdio-1.0
+  hs-source-dirs: e2e-tests-reimagined
+  main-is: Main.hs
+  -- Test steps return command results, which most steps don't need.
+  ghc-options: -Wno-unused-do-bind
+  build-tool-depends: waspc:wasp-cli
+  build-depends:
+    aeson,
+    aeson-pretty,
+    async,
+    base,
+    bytestring,
+    cli-lib,
+    containers,
+    directory,
+    filepath,
+    mtl,
+    neat-interpolation,
+    optparse-applicative,
+    process,
+    stm,
+    strong-path,
+    text,
+    time,
+    unliftio,
+    waspc,
+
+  if !os(windows)
+    build-depends: unix
+
+  other-modules:
+    E2e
+    E2e.Assertions
+    E2e.Files
+    E2e.Paths
+    E2e.Process
+    E2e.Resource
+    E2e.Runner
+    E2e.Snapshot
+    E2e.Test
+    E2e.TestM
+    E2e.Wasp
+    Tests
+    Tests.Fixtures
+    Tests.IncrementalTypeCheckingTest
+    Tests.SnapshotTests.KitchenSinkSnapshotTest
+    Tests.SnapshotTests.WaspBuildSnapshotTest
+    Tests.SnapshotTests.WaspCompileSnapshotTest
+    Tests.SnapshotTests.WaspMigrateSnapshotTest
+    Tests.SnapshotTests.WaspNewSnapshotTest
+    Tests.ViteBuildTest
+    Tests.ViteConfigTest
+    Tests.WaspBuildStartTest
+    Tests.WaspBuildTest
+    Tests.WaspCleanTest
+    Tests.WaspCompileTest
+    Tests.WaspCompletionTest
+    Tests.WaspDbMigrateDevTest
+    Tests.WaspDbResetTest
+    Tests.WaspDbSeedTest
+    Tests.WaspDbStartTest
+    Tests.WaspDbStudioTest
+    Tests.WaspDepsTest
+    Tests.WaspDockerfileTest
+    Tests.WaspInstallTest
+    Tests.WaspNewTest
+    Tests.WaspProjectLockTest
+    Tests.WaspShowTest
+    Tests.WaspSpecAvailableTest
+    Tests.WaspSpecEntityTypesTest
+    Tests.WaspStartTest
+    Tests.WaspStudioTest
+    Tests.WaspTelemetryTest
+    Tests.WaspTsSpecNodeEnvTest
+    Tests.WaspVersionTest

@@ -354,6 +354,22 @@ var seen = {};
 var isCssPreloadUrl = function isCssPreloadUrl(url) {
 	return url.pathname.endsWith(".css");
 };
+var preloadOnce = function preloadOnce(seen, href, preload) {
+	if (href in seen) return seen[href];
+	const promise = preload();
+	if (!promise) {
+		seen[href] = void 0;
+		return;
+	}
+	const preloadPromise = promise.then(() => {
+		seen[href] = void 0;
+	}, (err) => {
+		seen[href] = void 0;
+		throw err;
+	});
+	seen[href] = preloadPromise;
+	return preloadPromise;
+};
 var __vitePreload = function preload(baseModule, deps, importerUrl) {
 	let promise = Promise.resolve();
 	if (deps && deps.length > 0) {
@@ -380,32 +396,32 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 		promise = allSettled(deps.map((depString) => {
 			depString = assetsURL(depString, importerUrl);
 			const dep = importMetaResolve(depString);
-			if (dep.href in seen) return;
-			seen[dep.href] = true;
 			const isCss = isCssPreloadUrl(dep);
-			if (preloadedHrefs === void 0) {
-				preloadedHrefs = {
-					all: /* @__PURE__ */ new Set(),
-					styles: /* @__PURE__ */ new Set()
-				};
-				const links = document.getElementsByTagName("link");
-				for (let i = links.length - 1; i >= 0; i--) {
-					const link = links[i];
-					preloadedHrefs.all.add(link.href);
-					if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+			return preloadOnce(seen, dep.href, () => {
+				if (preloadedHrefs === void 0) {
+					preloadedHrefs = {
+						all: /* @__PURE__ */ new Set(),
+						styles: /* @__PURE__ */ new Set()
+					};
+					const links = document.getElementsByTagName("link");
+					for (let i = links.length - 1; i >= 0; i--) {
+						const link = links[i];
+						preloadedHrefs.all.add(link.href);
+						if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+					}
 				}
-			}
-			if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
-			const link = document.createElement("link");
-			link.rel = isCss ? "stylesheet" : scriptRel;
-			if (!isCss) link.as = "script";
-			link.crossOrigin = "";
-			link.href = dep.href;
-			if (cspNonce) link.setAttribute("nonce", cspNonce);
-			document.head.appendChild(link);
-			if (isCss) return new Promise((res, rej) => {
-				link.addEventListener("load", res);
-				link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
+				if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
+				const link = document.createElement("link");
+				link.rel = isCss ? "stylesheet" : scriptRel;
+				if (!isCss) link.as = "script";
+				link.crossOrigin = "";
+				link.href = dep.href;
+				if (cspNonce) link.setAttribute("nonce", cspNonce);
+				document.head.appendChild(link);
+				if (isCss) return new Promise((res, rej) => {
+					link.addEventListener("load", res);
+					link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
+				});
 			});
 		}).filter((p) => p !== void 0));
 	}

@@ -43,6 +43,8 @@ WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests --test-options='--hide-successes
 WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/snapshots/*-golden"
 WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
 WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
+# The reimagined e2e tests use the wasp-cli that Cabal builds for them, so we don't export WASP_CLI_CMD.
+WASPC_E2E_REIMAGINED_TESTS_CMD="cabal test waspc-e2e-tests-reimagined"
 
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
 
@@ -149,6 +151,18 @@ function remove_stale_generated_wasp_lock_entries() {
   mv "$PACKAGE_LOCK_TMP" package-lock.json
 }
 
+# Runs the reimagined e2e tests with the given test options, plus a
+# `-m <pattern>` option for each of the command's arguments.
+# NOTE: Patterns can't contain spaces, since cabal splits test options on them.
+run_e2e_reimagined_tests() {
+  local test_options="$*"
+  local pattern
+  for pattern in "${ARGS[@]}"; do
+    test_options+=" -m $pattern"
+  done
+  echo_and_eval "$WASPC_E2E_REIMAGINED_TESTS_CMD ${test_options:+--test-options=\"$test_options\"}"
+}
+
 echo_and_eval() {
   echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n" 1>&2
   eval "$1"
@@ -202,6 +216,14 @@ print_usage() {
     "Executes only cli e2e tests. Builds the project first if needed."
   print_usage_cmd "test:waspc:e2e:accept-all" \
     "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+  print_usage_cmd "test:waspc:e2e-reimagined [pattern...]" \
+    "Executes all reimagined cli e2e tests (plain + snapshot). If patterns are provided, it runs only tests whose name contains one of them. Builds the project first if needed."
+  print_usage_cmd "test:waspc:e2e-reimagined:plain [pattern...]" \
+    "Executes only the plain (non-snapshot) reimagined cli e2e tests."
+  print_usage_cmd "test:waspc:e2e-reimagined:snapshots [pattern...]" \
+    "Executes only the reimagined cli e2e snapshot tests, comparing them to the golden snapshots."
+  print_usage_cmd "test:waspc:e2e-reimagined:accept [pattern...]" \
+    "Regenerates the golden snapshots of the reimagined cli e2e tests. Runs only the snapshot tests and replaces their goldens with the new output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:libs" \
@@ -303,6 +325,18 @@ case $COMMAND in
   test:waspc:e2e:accept-all)
     export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD"
+    ;;
+  test:waspc:e2e-reimagined)
+    run_e2e_reimagined_tests
+    ;;
+  test:waspc:e2e-reimagined:plain)
+    run_e2e_reimagined_tests --kind plain
+    ;;
+  test:waspc:e2e-reimagined:snapshots)
+    run_e2e_reimagined_tests --kind snapshot
+    ;;
+  test:waspc:e2e-reimagined:accept)
+    run_e2e_reimagined_tests --kind snapshot --accept
     ;;
   test:cli)
     echo_and_eval "$WASP_CLI_TESTS_CMD"
