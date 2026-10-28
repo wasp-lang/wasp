@@ -69,6 +69,13 @@ jobs:
           # platform-specific sub-package for this runner).
           npm install "https://pkg.pr.new/@wasp/cli@$COMMIT_SHA"
 
+          # Create a second project that depends on Wasp the way projects
+          # will: through `@wasp/wasp`, which pulls in `@wasp/cli` and
+          # `@wasp/spec` of the same version.
+          cd .. && mkdir install-test-wasp && cd install-test-wasp
+          npm init -y
+          npm install "https://pkg.pr.new/@wasp/wasp@$COMMIT_SHA"
+
       - name: Run Wasp CLI
         run: |
           set -eux
@@ -76,6 +83,11 @@ jobs:
 
           # Test that the Wasp CLI can find and run the binary.
           NODE_DEBUG=wasp-bin-wrapper npx wasp version
+
+          # Same through the `@wasp/wasp` project dependency and its own bin.
+          cd ../install-test-wasp
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version
+          node -e 'import("@wasp/wasp").then((m) => { if (typeof m.app !== "function") throw new Error("spec re-export missing") })'
 
       - name: Generate list of installed data files
         run: |

@@ -32,7 +32,7 @@ ghcup = "0.2.6.2"
 # - The docs plugin: /web/src/remark/search-and-replace.ts
 # - The web CI: /web/.node-version
 # - The web package: /web/package.json
-# - The wasp-cli package templates: /scripts/make-npm-packages/templates/*/package.json
+# - The published packages: /packages/cli/package.json, /packages/wasp/package.json, /scripts/make-npm-packages/templates/sub-package/package.json
 # - The embedded packages: /packages/*/package.json
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.22.1"

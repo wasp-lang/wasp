@@ -6,7 +6,8 @@ import { join } from "node:path";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
 import {
-  getWaspcPackageDirPath,
+  getPackageDirPath,
+  PUBLISHED_WASP_PACKAGE_NAMES,
   WASPC_NPM_PACKAGE_NAMES,
   WASPC_WORKSPACE_PACKAGE_NAMES,
 } from "./packages/utils.ts";
@@ -69,8 +70,9 @@ function bumpPackagesVersion(nextVersion: string): void {
   const packageNames = [
     ...WASPC_WORKSPACE_PACKAGE_NAMES,
     ...WASPC_NPM_PACKAGE_NAMES,
+    ...PUBLISHED_WASP_PACKAGE_NAMES,
   ];
-  for (const packageDirPath of packageNames.map(getWaspcPackageDirPath)) {
+  for (const packageDirPath of packageNames.map(getPackageDirPath)) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }

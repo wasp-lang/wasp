@@ -40,7 +40,7 @@ async function main() {
 async function getSubPackage() {
   debug("Loading main package data...");
 
-  /** @type {{ default: import("../../src/schema/output-data.ts").MainPackageData }} */
+  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").MainPackageData }} */
   const { default: data } = await import(
     // @ts-expect-error This file does not exist at dev time, only in the built package.
     "./data.json",
@@ -55,7 +55,7 @@ async function getSubPackage() {
       ? isGlibc()
         ? "glibc"
         : "musl"
-      : /** @satisfies {typeof import("../../src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
+      : /** @satisfies {typeof import("../../scripts/make-npm-packages/src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
           "unknown"
         );
 
@@ -68,7 +68,7 @@ async function getSubPackage() {
 
   debug("Selected sub-package: %j", selectedSubPackage);
 
-  /** @type {{ default: import("../../src/schema/output-data.ts").SubPackageAPI }} */
+  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").SubPackageAPI }} */
   const importedPackage = await import(selectedSubPackage.packageName)
     .catch(async (error) => {
       // A common case for failure here is that the Node.js version is not
@@ -92,7 +92,7 @@ async function getSubPackage() {
 }
 
 async function runWasp(
-  /** @type {import("../../src/schema/output-data.ts").SubPackageAPI} */ {
+  /** @type {import("../../scripts/make-npm-packages/src/schema/output-data.ts").SubPackageAPI} */ {
     waspBinPath,
     dataDirPath,
   },

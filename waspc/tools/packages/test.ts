@@ -7,7 +7,7 @@ import {
   runCmd,
 } from "../utils.ts";
 import {
-  getWaspcPackageDirPath,
+  getPackageDirPath,
   WASPC_NPM_PACKAGE_NAMES,
   WASPC_WORKSPACE_PACKAGE_NAMES,
 } from "./utils.ts";
@@ -23,7 +23,7 @@ function testPackages(): void {
 
   for (const packageName of WASPC_NPM_PACKAGE_NAMES) {
     runCmd("npm", ["ci"], {
-      cwd: getWaspcPackageDirPath(packageName),
+      cwd: getPackageDirPath(packageName),
       stdio: "inherit",
     });
     testPackage(packageName, "npm");
@@ -31,7 +31,7 @@ function testPackages(): void {
 }
 
 function testPackage(packageName: string, packageManager: "pnpm" | "npm") {
-  const packageDir = getWaspcPackageDirPath(packageName);
+  const packageDir = getPackageDirPath(packageName);
   const packageJson = getPackageJson(packageDir);
 
   if (!packageJson.scripts?.test) {

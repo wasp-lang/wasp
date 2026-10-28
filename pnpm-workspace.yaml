@@ -9,7 +9,9 @@
 # - examples/ and the e2e test projects. They are Wasp apps, which use npm.
 #   TODO: Move them in once Wasp apps support pnpm.
 packages:
+  - packages/cli
   - packages/spec
+  - packages/wasp
   - packages/libs/*
   - packages/wasp-app-runner
   - web

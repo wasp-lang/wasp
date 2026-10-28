@@ -12,7 +12,7 @@ import {
 } from "../utils.ts";
 import {
   getDataPackagesDirPath,
-  getWaspcPackageDirPath,
+  getPackageDirPath,
   WASPC_NPM_PACKAGE_NAMES,
   WASPC_WORKSPACE_PACKAGE_NAMES,
 } from "./utils.ts";
@@ -37,14 +37,14 @@ function buildPackages(): void {
   }
 
   for (const packageName of WASPC_NPM_PACKAGE_NAMES) {
-    runCmd("npm", ["install"], { cwd: getWaspcPackageDirPath(packageName) });
+    runCmd("npm", ["install"], { cwd: getPackageDirPath(packageName) });
     buildPackage(packageName, "npm");
     copyPackageArtifactsToDataDir(packageName);
   }
 }
 
 function buildPackage(packageName: string, packageManager: "pnpm" | "npm") {
-  const packageDir = getWaspcPackageDirPath(packageName);
+  const packageDir = getPackageDirPath(packageName);
   const { name, version } = getPackageJson(packageDir);
 
   assertPackageVersionMatchesWaspc(name, version);
@@ -58,7 +58,7 @@ function buildPackage(packageName: string, packageManager: "pnpm" | "npm") {
 // (by `waspc` on first use) survives rebuilds. When the lockfile changed, that
 // `node_modules` is stale, so we drop it and `waspc` installs it again.
 function copyPackageArtifactsToDataDir(packageName: string): void {
-  const packageDir = getWaspcPackageDirPath(packageName);
+  const packageDir = getPackageDirPath(packageName);
   const dataPackageDir = join(getDataPackagesDirPath(), packageName);
   mkdirSync(dataPackageDir, { recursive: true });
 

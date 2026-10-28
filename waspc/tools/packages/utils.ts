@@ -12,7 +12,11 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 export const WASPC_WORKSPACE_PACKAGE_NAMES = ["spec"];
 export const WASPC_NPM_PACKAGE_NAMES = ["deploy", "prisma", "studio"];
 
-export function getWaspcPackageDirPath(packageName: string): string {
+// Packages published to npm with the Wasp version that are not shipped in the
+// data dir: the CLI wrapper and the `@wasp/wasp` project dependency.
+export const PUBLISHED_WASP_PACKAGE_NAMES = ["cli", "wasp"];
+
+export function getPackageDirPath(packageName: string): string {
   return join(getRepoRootPath(), "packages", packageName);
 }
 
