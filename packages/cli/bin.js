@@ -4,9 +4,11 @@
 
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
+import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { report as processReport } from "node:process";
+import { fileURLToPath } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
 
@@ -33,6 +35,11 @@ try {
 async function main() {
   assertNoLegacyInstallerConflict();
 
+  const projectWaspCliBinPath = findProjectWaspCliBin();
+  if (projectWaspCliBinPath !== undefined) {
+    return runProjectWaspCli(projectWaspCliBinPath);
+  }
+
   const { waspBinPath, dataDirPath } = await getSubPackage().catch(
     CLIError.rethrowWith("Can't find the Wasp executable."),
   );
@@ -40,6 +47,81 @@ async function main() {
   return await runWasp({ waspBinPath, dataDirPath }).catch(
     CLIError.rethrowWith("Failed to run Wasp."),
   );
+}
+
+// A project depends on Wasp through `@wasp/wasp`, which pins its own
+// `@wasp/cli`. When this wrapper is run from somewhere else (typically a
+// global install), inside such a project, it hands over to the project's
+// wrapper, so the project always runs the Wasp version it declares.
+function findProjectWaspCliBin() {
+  let dir = process.cwd();
+  while (true) {
+    const waspPackageJsonPath = path.join(
+      dir,
+      "node_modules",
+      "@wasp",
+      "wasp",
+      "package.json",
+    );
+    if (fs.existsSync(waspPackageJsonPath)) {
+      return getProjectWaspCliBin(waspPackageJsonPath);
+    }
+    const parentDir = path.dirname(dir);
+    if (parentDir === dir) {
+      return undefined;
+    }
+    dir = parentDir;
+  }
+}
+
+function getProjectWaspCliBin(/** @type {string} */ waspPackageJsonPath) {
+  // Resolving from `@wasp/wasp` itself finds its `@wasp/cli` under any
+  // package manager layout.
+  const require = createRequire(waspPackageJsonPath);
+  let projectWaspCliBinPath;
+  try {
+    projectWaspCliBinPath = fs.realpathSync(
+      require.resolve("@wasp/cli/bin.js"),
+    );
+  } catch (error) {
+    debug(
+      "Found %s, but couldn't resolve its @wasp/cli: %o",
+      waspPackageJsonPath,
+      error,
+    );
+    return undefined;
+  }
+
+  const thisBinPath = fs.realpathSync(fileURLToPath(import.meta.url));
+  if (projectWaspCliBinPath === thisBinPath) {
+    debug("Running as the project's own Wasp CLI.");
+    return undefined;
+  }
+
+  debug("Found the project's Wasp CLI at %s", projectWaspCliBinPath);
+  return projectWaspCliBinPath;
+}
+
+function runProjectWaspCli(/** @type {string} */ projectWaspCliBinPath) {
+  try {
+    debug("Handing over to the project's Wasp CLI: %s", projectWaspCliBinPath);
+    execFileSync(
+      process.execPath,
+      [projectWaspCliBinPath, ...process.argv.slice(2)],
+      {
+        stdio: "inherit",
+      },
+    );
+    return 0;
+  } catch (/** @type {any} */ e) {
+    // Same reasoning as in `runWasp`: a non-zero exit of the project's Wasp
+    // is not an error of this wrapper.
+    if (e.status != undefined) {
+      return /** @type {number} */ (e.status);
+    } else {
+      throw e;
+    }
+  }
 }
 
 async function getSubPackage() {
