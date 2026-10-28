@@ -1,7 +1,7 @@
 /// <reference types="node" />
 
 import assert from "node:assert";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
@@ -119,28 +119,25 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   );
 }
 
+// The Wasp projects in this repo depend on the dev Wasp npm package tarballs
+// (see `tools/dev-packages/build.ts`), whose file names carry the version.
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
-  const waspFilePath = findWaspFilePath(projectDir);
-  const waspFileContent = readFileSync(waspFilePath, "utf-8");
+  const packageJsonPath = join(projectDir, "package.json");
+  const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
 
-  // A bit unstable, but it should be good enough for our "controlled environment".
-  const updatedWaspFileContent = waspFileContent.replace(
-    /(wasp:\s*\{[^}]*version:\s*)["'`][^"'`]+["'`]/,
-    `$1"${nextVersion}"`,
+  const devTarballRegex =
+    /(file:.*\/wasp-(?:wasp|cli|spec)-)\d+\.\d+\.\d+(\.tgz)/g;
+  const updatedPackageJsonContent = packageJsonContent.replace(
+    devTarballRegex,
+    `$1${nextVersion}$2`,
   );
-  if (waspFileContent === updatedWaspFileContent) {
-    throw new Error(`Failed to update the ${waspFilePath} Wasp version`);
+  if (packageJsonContent === updatedPackageJsonContent) {
+    throw new Error(
+      `Failed to update the dev Wasp npm package tarballs in ${packageJsonPath}`,
+    );
   }
 
-  writeFileSync(waspFilePath, updatedWaspFileContent);
-}
-
-function findWaspFilePath(projectDir: string): string {
-  const path = join(projectDir, "main.wasp.ts");
-  if (existsSync(path)) {
-    return path;
-  }
-  throw new Error(`No main.wasp.ts file in ${projectDir}`);
+  writeFileSync(packageJsonPath, updatedPackageJsonContent);
 }
 
 function rebuildLibs(): void {

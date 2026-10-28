@@ -5,7 +5,6 @@ import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 waspDbSeedTest :: Test
 waspDbSeedTest =
@@ -75,7 +74,6 @@ waspDbSeedTest =
         export default app({
           name: "waspDbSeedTest",
           title: "waspDbSeedTest",
-          wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           db: {
             seeds: [
@@ -130,6 +128,3 @@ waspDbSeedTest =
           }
         }
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
