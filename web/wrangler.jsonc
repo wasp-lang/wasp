@@ -1,0 +1,46 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "wasp-docs",
+  "account_id": "75c37602a6b75c790961219411cb1b92",
+  "main": "./worker.ts",
+  "compatibility_date": "2026-10-20",
+  "assets": {
+    "directory": "./build",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Keep in sync with `src/plugins/llm-files/markdown-docs/markdown-routes.ts`.
+    // We skip explicit file type routes. Since they already define the file
+    // type, we don't need to negotiate for it.
+    "run_worker_first": [
+      "/docs",
+      "/docs/*",
+      "/blog/*",
+      "/resources/*",
+      "!/*.css",
+      "!/*.js",
+      "!/*.mjs",
+      "!/*.map",
+      "!/*.png",
+      "!/*.jpg",
+      "!/*.jpeg",
+      "!/*.gif",
+      "!/*.svg",
+      "!/*.webp",
+      "!/*.avif",
+      "!/*.ico",
+      "!/*.woff",
+      "!/*.woff2",
+      "!/*.ttf",
+      "!/*.pdf",
+      "!/*.md",
+      "!/*.html",
+    ],
+  },
+  "env": {
+    "on-main": {
+      "name": "wasp-docs-on-main",
+      "preview_urls": true,
+      "previews": {},
+    },
+  },
+}

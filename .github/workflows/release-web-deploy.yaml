@@ -1,0 +1,58 @@
+name: "Release - Deploy web"
+
+# Deploys the website (https://wasp.sh) from the ref selected in the GitHub UI.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: "release-web-deploy"
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy web
+    runs-on: ubuntu-latest
+
+    environment:
+      name: web-production
+      url: https://wasp.sh
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # Docusaurus resolves `showLastUpdateTime` dates from git history.
+          fetch-depth: 0
+
+      - uses: $/.github/actions/setup-tools
+        with:
+          haskell: false
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build website
+        working-directory: web
+        run: npm run build
+
+      - name: Deploy to Cloudflare
+        working-directory: web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_DEPLOY_TOKEN }}
+        run: npx wrangler deploy --env=""
+
+      - name: Restart Algolia crawler
+        env:
+          ALGOLIA_CRAWLER_USER_ID: ${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
+          ALGOLIA_CRAWLER_API_KEY: ${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
+          ALGOLIA_CRAWLER_ID: ${{ secrets.ALGOLIA_CRAWLER_ID }}
+        # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
+        run: |
+          curl --fail-with-body -X POST \
+            --user "$ALGOLIA_CRAWLER_USER_ID:$ALGOLIA_CRAWLER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://crawler.algolia.com/api/1/crawlers/$ALGOLIA_CRAWLER_ID/reindex"

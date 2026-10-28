@@ -1,0 +1,111 @@
+name: "CI - Deploy web preview"
+
+# Deploys the website with the "current" (next, unreleased) docs version.
+# Pushes to `main` deploy the Worker, PRs deploy a Worker Preview.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web/**"
+      - "waspc/data/packages/spec/**"
+      - ".github/workflows/ci-web-deploy-preview.yaml"
+      - ".github/scripts/comment-web-deploy-preview.sh"
+
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - "web/**"
+      - "waspc/data/packages/spec/**"
+      - ".github/workflows/ci-web-deploy-preview.yaml"
+      - ".github/scripts/comment-web-deploy-preview.sh"
+
+concurrency:
+  group: "ci-web-deploy-preview-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy web preview
+    # PRs from forks don't get access to secrets, so they can't deploy previews.
+    if: >-
+      github.event_name == 'push' ||
+      (github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Required to comment the preview URL on the PR.
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # Docusaurus resolves `showLastUpdateTime` dates from git history.
+          fetch-depth: 0
+
+      - uses: $/.github/actions/setup-tools
+        with:
+          haskell: false
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build website
+        working-directory: web
+        run: npm run build-dev
+
+      - name: Deploy to Cloudflare
+        if: github.event_name == 'push'
+        working-directory: web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_DEPLOY_TOKEN }}
+        run: npx wrangler deploy --env on-main
+
+      - name: Deploy Cloudflare preview
+        if: github.event_name == 'pull_request'
+        working-directory: web
+        env:
+          PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_DEPLOY_TOKEN }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
+        run: npx wrangler preview --env on-main --name "$PREVIEW_NAME"
+
+      - name: Comment preview status on the PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          JOB_STATUS: ${{ job.status }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
+        run: .github/scripts/comment-web-deploy-preview.sh
+
+  delete-preview:
+    name: Delete web preview
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: $/.github/actions/setup-tools
+        with:
+          haskell: false
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Delete Cloudflare preview
+        working-directory: web
+        env:
+          PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_DEPLOY_TOKEN }}
+        run: npx wrangler preview delete --env on-main --name "$PREVIEW_NAME" --skip-confirmation

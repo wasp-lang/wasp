@@ -1,56 +1,57 @@
-import { getRedirects } from "../redirects";
-import { routeHasMarkdownVariant } from "../src/plugins/llm-files/markdown-docs/markdown-routes";
+import { getRedirects } from "./redirects";
+import { routeHasMarkdownVariant } from "./src/plugins/llm-files/markdown-docs/markdown-routes";
 
-interface CloudflarePagesContext {
-  request: Request;
-  next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
+interface Env {
+  ASSETS: { fetch: (request: Request) => Promise<Response> };
 }
 
 /**
- * Cloudflare middleware entry function which handles markdown content negotiation for docs.
+ * Cloudflare Worker entry function which handles markdown content negotiation for docs.
  * When a client asks for a markdown variant of some docs via the `Accept` header,
  * serve the pre-generated `.md` sibling of the requested page instead of the HTML.
  * Only works for valid markdown variant routes ({@link routeHasMarkdownVariant}).
- * Only handles routes defined in the `static/_routes.json`.
+ * Only handles routes listed in `assets.run_worker_first` in `wrangler.jsonc`,
+ * all other requests are served directly from static assets.
  *
- * Runs as a Cloudflare Pages Function, so it executes on the Cloudflare Workers runtime.
+ * Runs on the Cloudflare Workers runtime.
  * This is not a Node.js runtime, so we must manage external dependencies carefully.
- * @see {@link https://developers.cloudflare.com/pages/functions/middleware/ Cloudflare middleware}
+ * @see {@link https://developers.cloudflare.com/workers/static-assets/binding/ Cloudflare static assets}
  */
-export const onRequest = async (
-  context: CloudflarePagesContext,
-): Promise<Response> => {
-  const { request, next } = context;
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    if (!["GET", "HEAD"].includes(request.method)) {
+      return env.ASSETS.fetch(request);
+    }
 
-  if (!["GET", "HEAD"].includes(request.method)) {
-    return next();
-  }
+    const url = new URL(request.url);
 
-  const url = new URL(request.url);
+    // We let `_redirects` handle the routes with a redirect rule.
+    if (routeHasRedirectRule(url.pathname)) {
+      return env.ASSETS.fetch(request);
+    }
 
-  // We let `_redirects` handle the routes with a redirect rule.
-  if (routeHasRedirectRule(url.pathname)) {
-    return next();
-  }
+    if (!routeHasMarkdownVariant(url.pathname)) {
+      return env.ASSETS.fetch(request);
+    }
 
-  const canNegotiateContentType =
-    routeHasMarkdownVariant(url.pathname) &&
-    !routeHasFileTypeExtension(url.pathname);
-  if (!canNegotiateContentType) {
-    return next();
-  }
+    const acceptHeader = request.headers.get("Accept");
+    const assetResponse = acceptsMarkdown(acceptHeader)
+      ? await fetchMarkdownVariant(request, env)
+      : await env.ASSETS.fetch(request);
 
-  const acceptHeader = request.headers.get("Accept");
-  const contentNegotiationResponse = acceptsMarkdown(acceptHeader)
-    ? await fetchMarkdownVariant(context)
-    : await next();
+    // Asset responses have immutable headers, so we copy the response first.
+    const contentNegotiationResponse = new Response(
+      assetResponse.body,
+      assetResponse,
+    );
 
-  // The response varies based on the `Accept` header, so we add `Accept`
-  // to the `Vary` header to ensure caches maintain separate entries
-  // for different `Accept` values.
-  contentNegotiationResponse.headers.append("Vary", "Accept");
+    // The response varies based on the `Accept` header, so we add `Accept`
+    // to the `Vary` header to ensure caches maintain separate entries
+    // for different `Accept` values.
+    contentNegotiationResponse.headers.append("Vary", "Accept");
 
-  return contentNegotiationResponse;
+    return contentNegotiationResponse;
+  },
 };
 
 /**
@@ -74,18 +75,6 @@ function escapeRegExp(value: string): string {
 }
 
 /**
- * True if the route targets a MD or HTML type directly.
- *
- * @example "/docs.md" → true
- * @example "/docs.html" → true
- * @example "/docs/0.24" → false
- * @example "/docs/api/@wasp.sh" → false
- */
-function routeHasFileTypeExtension(pathname: string): boolean {
-  return /\.(md|html)$/i.test(pathname);
-}
-
-/**
  * True if the request accepts markdown content.
  *
  * We don't really want to bother with format priorities (order of formats or q-values).
@@ -101,15 +90,15 @@ function acceptsMarkdown(acceptHeader: string | null): boolean {
  * 404 response.
  */
 async function fetchMarkdownVariant(
-  context: CloudflarePagesContext,
+  request: Request,
+  env: Env,
 ): Promise<Response> {
-  const { request, next } = context;
   const url = new URL(request.url);
 
   const markdownPathname = generateMarkdownPathname(url.pathname);
   const markdownUrl = new URL(markdownPathname, url);
   const markdownRequest = new Request(markdownUrl, request);
-  return next(markdownRequest);
+  return env.ASSETS.fetch(markdownRequest);
 }
 
 /**

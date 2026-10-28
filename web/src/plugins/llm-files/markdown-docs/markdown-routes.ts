@@ -13,7 +13,7 @@ export function htmlFileRelPathHasMarkdownVariant(
 
 /**
  * Whether a route supports markdown variant of content.
- * Keep in sync with `static/_routes.json`.
+ * Keep in sync with `assets.run_worker_first` in `wrangler.jsonc`.
  */
 export function routeHasMarkdownVariant(route: string): boolean {
   return (
