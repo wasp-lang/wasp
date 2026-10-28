@@ -67,6 +67,15 @@ runs:
         # installed. We use this step to setup the npm cache.
         cache: npm
         package-manager-cache: true
+        # The repo root has no npm lockfile anymore (the repo's own packages
+        # use pnpm), so point the cache at the projects that still use npm.
+        cache-dependency-path: |
+          web/package-lock.json
+          examples/**/package-lock.json
+          waspc/starters-e2e-tests/package-lock.json
+          packages/deploy/package-lock.json
+          packages/prisma/package-lock.json
+          packages/studio/package-lock.json
 
     # The repo's own packages live in a pnpm workspace (see pnpm-workspace.yaml),
     # while Wasp apps, web/ and the standalone packages still use npm, so we
