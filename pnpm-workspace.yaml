@@ -1,5 +1,7 @@
 # The repo's own npm workspace: the TypeScript packages that make up Wasp and
-# the tooling around them.
+# the tooling around them. The pnpm version is pinned in mise.toml, on purpose
+# not in package.json's `packageManager`: Cloudflare Pages reads that field from
+# the repo root and would then build the docs (web/, an npm project) with pnpm.
 #
 # Deliberately not members:
 # - packages/deploy, packages/prisma, packages/studio: waspc ships them with
