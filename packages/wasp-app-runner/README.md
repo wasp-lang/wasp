@@ -106,11 +106,11 @@ When using the `build` mode:
 When developing, you can run the script directly from the local directory without installing it globally:
 
 ```
-npm install
-npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
+pnpm install
+pnpm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
 ```
 
-`npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
+`pnpm run start` runs `pnpm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
 
 ## Publishing
 

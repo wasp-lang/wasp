@@ -37,6 +37,10 @@ ghcup = "0.2.6.2"
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.22.1"
 
+# Package manager for the repo's own npm workspace (see pnpm-workspace.yaml).
+# Wasp apps (examples/, generated projects) still use npm.
+pnpm = "12.15.0"
+
 jq = "1.8.2"
 railway = "5.64.2"
 

@@ -26,8 +26,8 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "prepare": "npm run build",
-    "test": "npm run test:types && npm run test:unit",
+    "prepare": "pnpm run build",
+    "test": "pnpm run test:types && pnpm run test:unit",
     "test:types": "tsc --noEmit",
     "test:unit": "vitest run"
   },
@@ -67,7 +67,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
-    "@wasp/lib-auth": "file:../auth",
+    "@wasp/lib-auth": "workspace:*",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",

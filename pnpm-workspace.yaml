@@ -1,0 +1,22 @@
+# The repo's own npm workspace: the TypeScript packages that make up Wasp and
+# the tooling around them.
+#
+# Deliberately not members:
+# - packages/deploy, packages/prisma, packages/studio: waspc ships them with
+#   their own package-lock.json inside its data dir and installs them with npm
+#   on first use. They stay on npm until they become part of the Wasp npm package.
+# - web/: deployed separately (Cloudflare Pages) with npm.
+# - examples/ and the e2e test projects: standalone Wasp apps, which use npm.
+packages:
+  - packages/spec
+  - packages/libs/*
+  - packages/wasp-app-runner
+  - scripts/make-npm-packages
+  - waspc/tools
+
+# Same policy as `min-release-age=7` in .npmrc, in minutes.
+minimumReleaseAge: 10080
+
+# msw only prints a support message in its postinstall script.
+allowBuilds:
+  msw: false

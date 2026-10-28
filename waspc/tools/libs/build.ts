@@ -8,6 +8,7 @@ import {
   assertPackageVersionMatchesWaspc,
   discoverSubDirs,
   getPackageJson,
+  installWorkspaceDependencies,
   runCmd,
 } from "../utils.ts";
 import { getDataLibsDirPath, getLibsDirPath } from "./utils.ts";
@@ -20,24 +21,39 @@ try {
 }
 
 function buildLibs(): void {
-  for (const libDir of discoverSubDirs(getLibsDirPath())) {
-    buildLib(libDir);
+  installWorkspaceDependencies();
+
+  const libDirs = discoverSubDirs(getLibsDirPath());
+  for (const libDir of libDirs) {
+    assertPackageVersionMatchesWaspc(...getNameAndVersion(libDir));
+  }
+
+  // One pnpm invocation builds the libs in dependency order.
+  console.log("Building libs");
+  runCmd("pnpm", ["--filter", "./packages/libs/*", "run", "build"], {
+    cwd: getLibsDirPath(),
+    stdio: "inherit",
+  });
+
+  for (const libDir of libDirs) {
+    packLib(libDir);
   }
 }
 
-function buildLib(libDir: string): void {
-  const { name: libName, version: libVersion } = getPackageJson(libDir);
-
-  assertPackageVersionMatchesWaspc(libName, libVersion);
-
-  console.log(`Building ${libName} lib (${libDir})`);
-
+function packLib(libDir: string): void {
+  const [libName] = getNameAndVersion(libDir);
   const dataLibDir = join(getDataLibsDirPath(), basename(libDir));
+
+  console.log(`Packing ${libName} lib into ${dataLibDir}`);
+
   mkdirSync(dataLibDir, { recursive: true });
   rmExistingTarballsInDir(dataLibDir);
+  runCmd("pnpm", ["pack", "--pack-destination", dataLibDir], { cwd: libDir });
+}
 
-  runCmd("npm", ["install"], { cwd: libDir });
-  runCmd("npm", ["pack", "--pack-destination", dataLibDir], { cwd: libDir });
+function getNameAndVersion(dir: string): [string, string] {
+  const { name, version } = getPackageJson(dir);
+  return [name, version];
 }
 
 function rmExistingTarballsInDir(dir: string): void {

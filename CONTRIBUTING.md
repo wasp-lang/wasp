@@ -69,13 +69,13 @@ Run `mise install` from the root of the repo to install all the required tools.
 Formatting is defined at the repo level, and you can run it from the repo root with
 
 ```
-npm run format:check
+pnpm run format:check
 ```
 
 to check the formatting without any changes to the files, or
 
 ```
-npm run format:write
+pnpm run format:write
 ```
 
 to check and automatically fix formatting (modifies the files).

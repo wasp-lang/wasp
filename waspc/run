@@ -54,7 +54,7 @@ PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
 # Utility used for running e2e tests in Wasp apps, we use it for testing
 # e.g. examples and starters.
 WASP_APP_RUNNER_DIR="$REPOSITORY_ROOT/packages/wasp-app-runner"
-WASP_APP_RUNNER_BUILD_CMD="(cd $WASP_APP_RUNNER_DIR && npm install && npm run build)"
+WASP_APP_RUNNER_BUILD_CMD="(cd $REPOSITORY_ROOT && pnpm install && pnpm --filter @wasp/wasp-app-runner run build)"
 # By exporting this, we are telling all of our e2e tests to use the local
 # version of Wasp App Runner, built by WASP_APP_RUNNER_BUILD_CMD (tests should
 # make sure to call that one before).
@@ -105,8 +105,8 @@ TEST_CMD="cabal test && \
 GHCID_CMD="ghcid --command=cabal repl"
 STAN_CMD="$BUILD_HS_FULL_CMD && stan report ${ARGS[*]}"
 HLINT_CMD="hlint . ${ARGS[*]}"
-PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
-PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
+PRETTIER_CHECK_CMD="(cd .. && pnpm install && pnpm run check:prettier)"
+PRETTIER_FORMAT_CMD="(cd .. && pnpm install && pnpm run format:prettier)"
 ORMOLU_BASE_CMD="ormolu --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"

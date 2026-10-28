@@ -3,15 +3,22 @@
 // in CI, and copy their artifacts into the Cabal data dir.
 
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
+  installWorkspaceDependencies,
   runCmd,
 } from "../utils.ts";
-import { getDataPackagesDirPath, getWaspcPackageDirPaths } from "./utils.ts";
+import {
+  getDataPackagesDirPath,
+  getWaspcPackageDirPath,
+  WASPC_NPM_PACKAGE_NAMES,
+  WASPC_WORKSPACE_PACKAGE_NAMES,
+} from "./utils.ts";
 
-// The files `waspc.cabal` lists as data files for each package.
+// The files `waspc.cabal` lists as data files for each package. The lockfile
+// exists only for the npm packages.
 const PACKAGE_ARTIFACTS = ["dist", "package.json", "package-lock.json"];
 
 try {
@@ -22,29 +29,37 @@ try {
 }
 
 function buildPackages(): void {
-  for (const packageDir of getWaspcPackageDirPaths()) {
-    buildPackage(packageDir);
-    copyPackageArtifactsToDataDir(packageDir);
+  installWorkspaceDependencies();
+
+  for (const packageName of WASPC_WORKSPACE_PACKAGE_NAMES) {
+    buildPackage(packageName, "pnpm");
+    copyPackageArtifactsToDataDir(packageName);
+  }
+
+  for (const packageName of WASPC_NPM_PACKAGE_NAMES) {
+    runCmd("npm", ["install"], { cwd: getWaspcPackageDirPath(packageName) });
+    buildPackage(packageName, "npm");
+    copyPackageArtifactsToDataDir(packageName);
   }
 }
 
-function buildPackage(packageDir: string): void {
-  const { name: packageName, version: packageVersion } =
-    getPackageJson(packageDir);
+function buildPackage(packageName: string, packageManager: "pnpm" | "npm") {
+  const packageDir = getWaspcPackageDirPath(packageName);
+  const { name, version } = getPackageJson(packageDir);
 
-  assertPackageVersionMatchesWaspc(packageName, packageVersion);
+  assertPackageVersionMatchesWaspc(name, version);
 
-  console.log(`Building ${packageName} package (${packageDir})`);
+  console.log(`Building ${name} package (${packageDir})`);
 
-  runCmd("npm", ["install"], { cwd: packageDir });
-  runCmd("npm", ["run", "build"], { cwd: packageDir });
+  runCmd(packageManager, ["run", "build"], { cwd: packageDir });
 }
 
 // Copies only the artifacts, so `node_modules` installed in the data dir copy
 // (by `waspc` on first use) survives rebuilds. When the lockfile changed, that
 // `node_modules` is stale, so we drop it and `waspc` installs it again.
-function copyPackageArtifactsToDataDir(packageDir: string): void {
-  const dataPackageDir = join(getDataPackagesDirPath(), basename(packageDir));
+function copyPackageArtifactsToDataDir(packageName: string): void {
+  const packageDir = getWaspcPackageDirPath(packageName);
+  const dataPackageDir = join(getDataPackagesDirPath(), packageName);
   mkdirSync(dataPackageDir, { recursive: true });
 
   const lockFileName = "package-lock.json";
