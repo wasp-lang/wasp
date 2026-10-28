@@ -93,10 +93,11 @@ describe("password utilities", () => {
     );
 
     it("should reject when hash is invalid", async () => {
+      // The message comes from @node-rs/argon2 (2.2.x says "Decoding failed").
       await expectVerificationToFail(
         "invalid-hash-string",
         "testPassword",
-        "Invalid hashed password",
+        "Decoding failed",
       );
     });
   });
