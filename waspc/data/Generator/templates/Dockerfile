@@ -36,20 +36,24 @@ COPY --link package.json package-lock.json ./
 COPY --link server/package.json .wasp/out/server/
 COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
 COPY --link libs .wasp/out/libs
-RUN npm install
-WORKDIR /app/.wasp/out/server
+# Install scripts can read project files, so we run them in `npm rebuild`
+# below, once the code is in place.
+RUN npm ci --ignore-scripts
 {=# usingPrisma =}
-# Generating the Prisma client depends only on the schema, so it comes before
-# the code and survives code changes.
-COPY --link db/schema.prisma /app/.wasp/out/db/
-RUN npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
+COPY --link db/schema.prisma .wasp/out/db/
 {=/ usingPrisma =}
 # We mirror the same directory structure as the Wasp project.
-COPY --link tsconfig*.json /app/
-COPY --link types /app/.wasp/out/types
-COPY --link sdk /app/.wasp/out/sdk
-COPY --link server ./
-COPY --link src /app/src
+COPY --link tsconfig*.json ./
+COPY --link types .wasp/out/types
+COPY --link sdk .wasp/out/sdk
+COPY --link server .wasp/out/server
+COPY --link src ./src
+# The cache keeps Prisma from downloading its engines on every code change.
+RUN --mount=type=cache,target=/root/.cache/prisma npm rebuild
+WORKDIR /app/.wasp/out/server
+{=# usingPrisma =}
+RUN npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
+{=/ usingPrisma =}
 # Building the server should come after Prisma generation.
 RUN npm run bundle && node prepareProduction.ts
 
