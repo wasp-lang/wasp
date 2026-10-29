@@ -50,9 +50,9 @@ async function main() {
 }
 
 // A project depends on Wasp through `@wasp/wasp`, which pins its own
-// `@wasp/cli`. When this wrapper is run from somewhere else (typically a
-// global install), inside such a project, it hands over to the project's
-// wrapper, so the project always runs the Wasp version it declares.
+// `@wasp/cli`. When a wrapper from elsewhere (typically a global install) runs
+// inside such a project, it hands over to the project's wrapper, so the
+// project always runs the Wasp version it declares.
 function findProjectWaspCliBin() {
   let dir = process.cwd();
   while (true) {
@@ -76,8 +76,8 @@ function findProjectWaspCliBin() {
 
 function getProjectWaspCliBin(/** @type {string} */ waspPackageJsonPath) {
   // Resolving from `@wasp/wasp` itself finds its `@wasp/cli` under any
-  // package manager layout, as long as we resolve from the package's real
-  // location: with pnpm, `node_modules/@wasp/wasp` is a symlink into the
+  // package manager layout, as long as we start from the package's real
+  // location. With pnpm, `node_modules/@wasp/wasp` is a symlink into the
   // virtual store, and `@wasp/cli` is only linked next to the real package.
   const require = createRequire(fs.realpathSync(waspPackageJsonPath));
   let projectWaspCliBinPath;
@@ -116,8 +116,8 @@ function runProjectWaspCli(/** @type {string} */ projectWaspCliBinPath) {
     );
     return 0;
   } catch (/** @type {any} */ e) {
-    // Same reasoning as in `runWasp`: a non-zero exit of the project's Wasp
-    // is not an error of this wrapper.
+    // Same as in `runWasp`, a non-zero exit of the project's Wasp is not an
+    // error of this wrapper.
     if (e.status != undefined) {
       return /** @type {number} */ (e.status);
     } else {
