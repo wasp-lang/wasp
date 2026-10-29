@@ -575,6 +575,8 @@ test-suite waspc-tests
     time,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     AppComponentUrlTest
     AppSpec.EntityTest

@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Test.Process.Util
   ( ProcessId,
     readProcessId,
@@ -8,15 +10,18 @@ module Test.Process.Util
   )
 where
 
-import Control.Concurrent (threadDelay)
 import Control.Monad (guard)
 import Data.Int (Int32)
 import System.Directory (getTemporaryDirectory, removeFile)
-import System.Exit (ExitCode (..))
 import System.IO (hClose, openTempFile, readFile')
-import qualified System.Process as P
 import Test.Hspec (expectationFailure)
 import Text.Read (readMaybe)
+import Wasp.Util.IO.Retry (constPause, retry)
+#if !defined(mingw32_HOST_OS)
+import Control.Exception (try)
+import System.IO.Error (isDoesNotExistError)
+import System.Posix.Signals (Signal, nullSignal, sigKILL, signalProcess)
+#endif
 
 newtype ProcessId = ProcessId Int32
   deriving (Eq, Show)
@@ -40,30 +45,37 @@ makeTempPath nameTemplate = do
   removeFile filePath
   return filePath
 
+-- The tests that check or kill processes by ID are skipped on Windows, so we
+-- only implement this on *nix.
 isProcessAlive :: ProcessId -> IO Bool
-isProcessAlive (ProcessId pid) = do
-  (exitCode, _, stderr) <-
-    P.readCreateProcessWithExitCode
-      (P.proc "node" ["-e", "try { process.kill(Number(process.argv[1]), 0); } catch (error) { if (error.code === 'ESRCH') process.exit(3); throw error; }", show pid])
-      ""
-  case exitCode of
-    ExitSuccess -> return True
-    ExitFailure 3 -> return False
-    _ -> fail $ "Could not check process " <> show pid <> ": " <> stderr
-
 killProcess :: ProcessId -> IO ()
-killProcess (ProcessId pid) =
-  P.callProcess "node" ["-e", "try { process.kill(Number(process.argv[1]), 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }", show pid]
+#if defined(mingw32_HOST_OS)
+isProcessAlive _ = fail "isProcessAlive is not supported on Windows"
+killProcess _ = fail "killProcess is not supported on Windows"
+#else
+isProcessAlive pid =
+  try (signal nullSignal pid) >>= \case
+    Right () -> return True
+    Left e
+      | isDoesNotExistError e -> return False
+      | otherwise -> ioError e
+
+killProcess pid =
+  try (signal sigKILL pid) >>= \case
+    Right () -> return ()
+    Left e
+      | isDoesNotExistError e -> return ()
+      | otherwise -> ioError e
+
+signal :: Signal -> ProcessId -> IO ()
+signal sig (ProcessId pid) = signalProcess sig $ fromIntegral pid
+#endif
 
 waitUntil :: String -> IO Bool -> IO ()
-waitUntil label condition = go (50 :: Int)
+waitUntil label condition =
+  retry (constPause 100000) 49 (boolToEither <$> condition) >>= \case
+    Right () -> return ()
+    Left () -> expectationFailure $ "Timed out waiting for " <> label
   where
-    go remainingAttempts
-      | remainingAttempts <= 0 = expectationFailure $ "Timed out waiting for " <> label
-      | otherwise = do
-          result <- condition
-          if result
-            then return ()
-            else do
-              threadDelay 100000
-              go $ remainingAttempts - 1
+    boolToEither True = Right ()
+    boolToEither False = Left ()
