@@ -10,7 +10,7 @@ function testLibs(): void {
   installWorkspaceDependencies();
 
   console.log("Testing libs");
-  runCmd("pnpm", ["--filter", "./packages/libs/*", "run", "test"], {
+  runCmd("pnpm", ["--filter", "'./packages/libs/*'", "run", "test"], {
     cwd: getLibsDirPath(),
     stdio: "inherit",
   });

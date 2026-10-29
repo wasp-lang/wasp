@@ -21,7 +21,7 @@ Read more about versioning and why we keep the version in sync with the Wasp com
 Install the dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Start unit tests in watch mode:
