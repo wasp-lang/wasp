@@ -1,7 +1,5 @@
-module Wasp.Cli.AppComponentPorts
-  ( defaultDevClientPort,
-    defaultDevServerPort,
-    findAppComponentPorts,
+module Wasp.Cli.ProjectPorts
+  ( findProjectPorts,
   )
 where
 
@@ -11,15 +9,10 @@ import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Port (resolvePort)
+import Wasp.Cli.ProjectRunConfig (defaultDevClientPort)
 
-defaultDevClientPort :: PortNumber
-defaultDevClientPort = 3000
-
-defaultDevServerPort :: PortNumber
-defaultDevServerPort = 3001
-
-findAppComponentPorts :: (Maybe PortNumber, Maybe PortNumber) -> Command (PortNumber, PortNumber)
-findAppComponentPorts (requestedClientPort, requestedServerPort) = do
+findProjectPorts :: (Maybe PortNumber, Maybe PortNumber) -> Command (PortNumber, PortNumber)
+findProjectPorts (requestedClientPort, requestedServerPort) = do
   let portsAreTheSame = isJust requestedClientPort && (requestedClientPort == requestedServerPort)
   when portsAreTheSame $ throwResolvingError "The client and the server can't both run on the same port."
 

@@ -17,15 +17,15 @@ import qualified Data.Conduit.Process as CP
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName, dbSeedNpmScriptName)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnvAndStdin)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job
 migrateDev generatedAppDir migrateArgs =
@@ -110,11 +110,11 @@ reset generatedAppDir resetArgs =
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs the server's db seed npm script, which bundles and runs the seed with the given name.
-seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
-seed serverRunConfig generatedAppDir seedName =
+seed :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
+seed projectRunConfig generatedAppDir seedName =
   runNodeCommandAsJobWithExtraEnvAndStdin
     CP.Inherited
-    ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
+    ((dbSeedNameEnvVarName, seedName) : makeEnvVars projectRunConfig)
     serverDir
     "npm"
     ["run", dbSeedNpmScriptName]
