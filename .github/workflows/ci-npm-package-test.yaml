@@ -71,9 +71,9 @@ jobs:
           # for packages that are already published to npm.
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/cli@$COMMIT_SHA"
 
-          # Create a second project that depends on Wasp the way projects
-          # will: through `@wasp/wasp`, which pulls in `@wasp/cli` and
-          # `@wasp/spec` of the same version.
+          # Create a second project that depends on Wasp through `@wasp/wasp`,
+          # the way projects will. It pulls in `@wasp/cli` and `@wasp/spec` of
+          # the same version.
           cd .. && mkdir install-test-wasp && cd install-test-wasp
           npm init -y
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/wasp@$COMMIT_SHA"

@@ -220,9 +220,8 @@ function checkNodeVersionIsSupported(
 // - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
 // - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
 // TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
-// NOTE: These are function declarations, not module-level constants, because
-// `main()` runs at the top of the module, before any constant below it is
-// initialized (function declarations are hoisted, constants are not).
+// NOTE: These are functions, not constants, because `main()` runs at the top
+// of the module, before any `const` below it is initialized.
 function getWaspLangDir() {
   return path.join(os.homedir(), ".local", "share", "wasp-lang");
 }
