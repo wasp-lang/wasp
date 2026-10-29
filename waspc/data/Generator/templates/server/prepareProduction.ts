@@ -110,9 +110,11 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
   ].filter((packageName) => !excluded.has(packageName));
 
   return {
+    // Traced as if imported: only the files they reach get copied.
     traceInclude: traceInclude.filter(
       (packageName) => !excluded.has(packageName),
     ),
+    // Copied whole, for packages that load their own files by path.
     fullTraceInclude,
   };
 }
