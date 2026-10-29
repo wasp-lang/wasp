@@ -43,7 +43,7 @@ depsMessage appSpec =
       ""
     ]
       ++ printDeps
-        "Dependencies of @wasp/wasp (available in every Wasp project):"
+        "Peer dependencies of @wasp/wasp (npm installs them into every Wasp project and refuses conflicting versions):"
         WaspNpmPackageDeps.waspNpmPackageDeps
       ++ [""]
       ++ printDeps

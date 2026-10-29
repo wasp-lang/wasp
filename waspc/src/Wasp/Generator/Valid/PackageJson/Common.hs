@@ -64,8 +64,9 @@ getAllWaspDependencies spec =
       <> serverDeps
   where
     serverDeps = getAllDepsFromPackage $ N.fromWasp $ Server.npmDepsFromWasp spec
-    -- These are hoisted to the project's node_modules, so a conflicting version
-    -- in the user's package.json would hide them from the generated code.
+    -- Peer dependencies of @wasp/wasp, so npm itself refuses a conflicting
+    -- version in the user's package.json. This check gets there first with a
+    -- message that says what Wasp requires.
     waspNpmPackageDeps = map D.toPair WaspNpmPackageDeps.serverCoreDeps
 
     dedupeVersions pkgName v1 v2

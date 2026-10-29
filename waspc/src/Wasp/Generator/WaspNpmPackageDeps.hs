@@ -18,11 +18,14 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
   )
 
--- | The dependencies @wasp/wasp (packages/wasp/package.json) declares for
--- every Wasp project, everything the generated server and SDK need no matter
--- what the app uses. Generated code imports them without declaring them and
--- relies on npm hoisting them to the project's node_modules.
--- TODO: Resolve them through @wasp/wasp instead of relying on hoisting.
+-- | The packages @wasp/wasp (packages/wasp/package.json) declares as peer
+-- dependencies for every Wasp project, everything the generated server and
+-- SDK need no matter what the app uses. Generated code imports them without
+-- declaring them. They are peers and not regular dependencies on purpose: npm
+-- installs a peer at the project root and refuses a conflicting version there,
+-- while it would quietly nest a regular dependency under @wasp/wasp when
+-- something else in the project wants another version, where the generated
+-- code would not find it.
 --
 -- Not here are the dependencies that depend on the app (WebSockets, jobs,
 -- email senders), which the generated packages still declare, and the ones
