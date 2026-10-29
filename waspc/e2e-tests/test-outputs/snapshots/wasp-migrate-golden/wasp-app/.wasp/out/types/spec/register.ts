@@ -1,8 +1,8 @@
 // The import ensures the module is always loaded into the bundle.
 // Otherwise, module augmentation can fail if it wasn't loaded.
-import "@wasp.sh/spec";
+import "@wasp/spec";
 
-declare module "@wasp.sh/spec" {
+declare module "@wasp/spec" {
   export interface Register {
     entities: {
       Task: "Task";

@@ -1,1 +1,1 @@
-export { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
+export { hashPassword, verifyPassword } from "@wasp/lib-auth/node";

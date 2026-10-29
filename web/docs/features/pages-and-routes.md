@@ -16,7 +16,7 @@ A **page** is a React component that Wasp renders as a full screen of your app. 
 To show a page at a URL, call `route` with a unique name, the URL path, and the page to render. Wrap your React component with `page` to turn it into a page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 
@@ -55,7 +55,7 @@ Most apps have pages whose content depends on the URL, like `/photo/42`. Instead
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -82,7 +82,7 @@ Read more in the [React Router docs on dynamic segments](https://reactrouter.com
 Append `?` to a path segment to make it optional. The route matches whether or not the segment is present:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -111,7 +111,7 @@ Read more in the [React Router docs on optional segments](https://reactrouter.co
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
@@ -221,7 +221,7 @@ export function Navigation() {
 If your app uses [authentication](./auth/overview.md), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path defined in `auth.onAuthFailedRedirectTo`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -253,7 +253,7 @@ While Wasp checks whether the user is logged in, it shows a loading indicator in
 By default, Wasp renders each page on its own. To give every page a shared header, footer, or set of providers, declare a **root component** in the `client` config and render React Router's `Outlet` where the current page should go:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { Root } from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -307,7 +307,7 @@ Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/
 When a visitor opens a URL that no route matches, Wasp shows a generic error screen. To show your own "not found" page instead, add a route with a path of `/*`. The router picks the most specific matching route, so this route only renders when nothing else matches:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { NotFoundPage } from "./src/NotFoundPage" with { type: "ref" }
 
 export default app({
@@ -326,7 +326,7 @@ By default, Wasp splits and lazy-loads all pages. This means that, for example, 
 In most apps, you won't notice lazy loading at all. The page's code is usually small and downloads quickly. But when a page has a lot of code, or your users are on slow connections, navigating to it can feel sluggish: the previous page stays on screen until the new page's code arrives. If a page needs to render instantly, like one users open right after landing on your app, set the `lazy: false` option on its `route` spec to include it in the initial bundle:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -347,7 +347,7 @@ Disabling lazy loading means that this page's code will always be downloaded by 
 You can prerender specific routes at build time by setting the `prerender` property. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -365,14 +365,14 @@ See the [Prerendering](../advanced/prerendering.md) page for the full documentat
 ### `page` and `route` specifications
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/page"
+  to="../api/@wasp/spec/functions/page"
   kind="api"
   title="page"
   description="All the options for declaring a page in the Wasp spec."
 />
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/route"
+  to="../api/@wasp/spec/functions/route"
   kind="api"
   title="route"
   description="All the options for declaring a route in the Wasp spec."

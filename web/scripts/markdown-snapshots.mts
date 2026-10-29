@@ -55,7 +55,7 @@ const SNAPSHOT_REL_PATHS = [
   // A docs guide page. Renders markdown normally.
   "docs/guides/legacy/installer.md",
   // An API docs index page.
-  "docs/api/@wasp.sh/spec.md",
+  "docs/api/@wasp/spec.md",
   // A blog post.
   "blog/2023/06/27/build-your-own-twitter-agent-langchain.md",
   // A resources post.
