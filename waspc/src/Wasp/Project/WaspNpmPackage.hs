@@ -15,6 +15,7 @@ module Wasp.Project.WaspNpmPackage
     getDevPackages,
     getWaspNpmPackageSpecifier,
     getDevPackageOverrides,
+    tarballFileSpecifier,
   )
 where
 
@@ -131,4 +132,12 @@ getDevPackageOverrides devPackages =
   ]
 
 tarballSpecifier :: Path' Abs File' -> String
-tarballSpecifier tarball = "file:" ++ fromAbsFile tarball
+tarballSpecifier = tarballFileSpecifier . fromAbsFile
+
+-- | An npm `file:` specifier for a tarball. npm wants forward slashes even on
+-- Windows, and a backslash would also be an invalid escape once written into JSON.
+tarballFileSpecifier :: FilePath -> String
+tarballFileSpecifier tarballPath = "file:" ++ map toForwardSlash tarballPath
+  where
+    toForwardSlash '\\' = '/'
+    toForwardSlash c = c

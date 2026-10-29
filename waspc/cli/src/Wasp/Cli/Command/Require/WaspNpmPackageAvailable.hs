@@ -3,6 +3,7 @@ module Wasp.Cli.Command.Require.WaspNpmPackageAvailable
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
@@ -29,18 +30,42 @@ instance Requirable WaspNpmPackageAvailable where
     -- Reading the wasp spec runs Node.js (via the FFI), so it requires Node.js
     -- and npm to be present.
     ValidNodeAndNpm <- require
+    declaredSpecifier <- liftIO $ getDeclaredWaspNpmPackageSpecifier waspProjectDir
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
         | installedVersion == WV.waspVersion -> return WaspNpmPackageAvailable
+        | declaredSpecifier `elem` [Just (show WV.waspVersion), Just ("^" ++ show WV.waspVersion), Just ("~" ++ show WV.waspVersion)] ->
+            throwError $ staleInstallError installedVersion
         | otherwise -> throwError $ versionMismatchError installedVersion
-      Left _ -> do
-        isDeclared <- liftIO $ userPackageJsonDependsOnWaspNpmPackage waspProjectDir
-        throwError $ if isDeclared then missingDepsError else notADependencyError
+      Left reason ->
+        throwError $ case declaredSpecifier of
+          Just _ -> missingDepsError reason
+          Nothing -> notADependencyError
     where
-      missingDepsError =
+      missingDepsError reason =
         CommandError
           "Missing or stale dependencies in project"
-          $ "Your project dependencies are out of date. Run " ++ styleCode "npm install" ++ " to fix this."
+          $ "Your project dependencies are out of date. Run "
+            ++ styleCode "npm install"
+            ++ " to fix this.\n"
+            ++ "Details: "
+            ++ reason
+
+      -- The package.json already asks for this CLI's version, so the user
+      -- changed it and did not reinstall yet.
+      staleInstallError :: SV.Version -> CommandError
+      staleInstallError installedVersion =
+        CommandError
+          "Missing or stale dependencies in project"
+          $ "Your "
+            ++ styleCode "package.json"
+            ++ " asks for "
+            ++ styleCode (waspNpmPackageName ++ " " ++ show WV.waspVersion)
+            ++ ", but "
+            ++ show installedVersion
+            ++ " is installed. Run "
+            ++ styleCode "npm install"
+            ++ " to fix this."
 
       notADependencyError =
         CommandError
@@ -65,9 +90,9 @@ instance Requirable WaspNpmPackageAvailable where
       versionMismatchError installedVersion =
         CommandError
           "Wasp version mismatch"
-          $ "This project depends on "
+          $ "This project has "
             ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
-            ++ ", but you are running Wasp CLI "
+            ++ " installed, but you are running Wasp CLI "
             ++ show WV.waspVersion
             ++ ". Run Wasp through the project (e.g. "
             ++ styleCode "npm run wasp start"
@@ -81,14 +106,14 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "npm install"
             ++ "."
 
-userPackageJsonDependsOnWaspNpmPackage :: Path' Abs (Dir WaspProjectDir) -> IO Bool
-userPackageJsonDependsOnWaspNpmPackage waspProjectDir =
+-- | What the user's package.json asks for @wasp/wasp, if it depends on it at all.
+getDeclaredWaspNpmPackageSpecifier :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe String)
+getDeclaredWaspNpmPackageSpecifier waspProjectDir =
   findUserPackageJsonFile waspProjectDir >>= \case
-    Nothing -> return False
+    Nothing -> return Nothing
     Just packageJsonFile ->
-      either (const False) dependsOnWaspNpmPackage <$> P.parsePackageJsonFile packageJsonFile
+      either (const Nothing) declaredSpecifier <$> P.parsePackageJsonFile packageJsonFile
   where
-    dependsOnWaspNpmPackage packageJson =
-      any
-        (M.member waspNpmPackageName)
-        [P.dependencies packageJson, P.devDependencies packageJson]
+    declaredSpecifier packageJson =
+      M.lookup waspNpmPackageName (P.dependencies packageJson)
+        <|> M.lookup waspNpmPackageName (P.devDependencies packageJson)

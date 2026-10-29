@@ -70,6 +70,16 @@ waspNpmPackageAvailableTest =
             ]
         ),
       TestCase
+        "compile-fails-with-hint-when-wasp-npm-package-is-not-a-dependency"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ removeWaspNpmPackageDependency,
+                  assertCommandFailsWithNotADependencyHint waspCliCompile
+                ]
+            ]
+        ),
+      TestCase
         "build-start-fails-with-install-hint-when-wasp-npm-package-missing"
         -- `wasp build start` requires `.wasp/build` to exist before its
         -- `WaspNpmPackageAvailable` check fires, so we build first, then nuke
@@ -109,6 +119,10 @@ waspNpmPackageAvailableTest =
     removeNodeModules :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeNodeModules = return "rm -rf node_modules"
 
+    -- A project from before Wasp 0.27, which never declared @wasp/wasp.
+    removeWaspNpmPackageDependency :: ShellCommandBuilder WaspProjectContext ShellCommand
+    removeWaspNpmPackageDependency = return "npm pkg delete dependencies.@wasp/wasp && rm -rf node_modules/@wasp/wasp"
+
     corruptWaspNpmPackageVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
     corruptWaspNpmPackageVersion = do
       context <- ask
@@ -122,6 +136,12 @@ waspNpmPackageAvailableTest =
       -- Negate the wrapped command so the assertion holds when it fails (exit non-zero)
       -- AND the output contains the "Run `npm install`" hint.
       assertCommandOutputContains (("! " ++) <$> commandBuilder) ("Run " ++ styleCode "npm install")
+
+    assertCommandFailsWithNotADependencyHint ::
+      ShellCommandBuilder WaspProjectContext ShellCommand ->
+      ShellCommandBuilder WaspProjectContext ShellCommand
+    assertCommandFailsWithNotADependencyHint commandBuilder =
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) "Wasp is not a dependency of this project"
 
     assertCommandFailsWithVersionMismatchHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->

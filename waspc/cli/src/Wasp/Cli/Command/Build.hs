@@ -46,7 +46,7 @@ import Wasp.Project.Common
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
-import Wasp.Project.WaspNpmPackage (waspCliNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName)
+import Wasp.Project.WaspNpmPackage (tarballFileSpecifier, waspCliNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (readJsonFile, updateJsonFile)
 
@@ -134,7 +134,7 @@ build = ProjectLock.acquireExclusive $ do
 
     -- While developing Wasp, the project depends on dev tarballs of @wasp/wasp,
     -- @wasp/cli and @wasp/spec outside the project (see "Wasp.Project.WaspNpmPackage").
-    -- Docker's build context is `.wasp/build/`, so we copy the tarballs next to
+    -- Docker's build context is `.wasp/out/`, so we copy the tarballs next to
     -- the Wasp libs, point the build's package.json at the copies and drop their
     -- lockfile entries, so `npm install` resolves them from the new paths.
     -- Released Wasp versions are registry dependencies, so this does nothing for them.
@@ -192,7 +192,7 @@ build = ProjectLock.acquireExclusive $ do
     -- `/app/.wasp/out/libs`, so the tarballs are reachable through that path.
     devTarballSpecifierInDocker :: Path' Abs File' -> String
     devTarballSpecifierInDocker tarball =
-      "file:" ++ fromRelDir generatedAppDirInWaspProjectDir ++ fromRelDir libsRootDirInGeneratedAppDir ++ "wasp/" ++ fromRelFile (basename tarball)
+      tarballFileSpecifier $ fromRelDir generatedAppDirInWaspProjectDir ++ fromRelDir libsRootDirInGeneratedAppDir ++ "wasp/" ++ fromRelFile (basename tarball)
 
     removeWaspNpmPackagesFromLock :: Value -> Value
     removeWaspNpmPackagesFromLock lock =
@@ -201,14 +201,14 @@ build = ProjectLock.acquireExclusive $ do
         & key "packages" . _Object %~ KM.filterWithKey (\k _ -> not (isWaspNpmPackageLockEntry (Key.toString k)))
 
     -- Matches the packages and anything nested under them (but not e.g.
-    -- @wasp/wasp-app-runner). The platform packages of @wasp/cli are named
-    -- @wasp/cli-<platform>, so those match on purpose.
+    -- @wasp/wasp-app-runner), plus the platform packages of @wasp/cli, which
+    -- are named @wasp/cli-<platform>.
     isWaspNpmPackageLockEntry :: String -> Bool
     isWaspNpmPackageLockEntry entry =
       any
         (\name -> entry == "node_modules/" ++ name || ("node_modules/" ++ name ++ "/") `isPrefixOf` entry)
-        [waspNpmPackageName, waspSpecNpmPackageName]
-        || ("node_modules/" ++ waspCliNpmPackageName) `isPrefixOf` entry
+        [waspNpmPackageName, waspSpecNpmPackageName, waspCliNpmPackageName]
+        || ("node_modules/" ++ waspCliNpmPackageName ++ "-") `isPrefixOf` entry
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
