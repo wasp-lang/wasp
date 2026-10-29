@@ -13,7 +13,9 @@ packages:
   - packages/libs/*
   - packages/wasp-app-runner
   - web
+  - web/tutorial-actions-executor
   - scripts/make-npm-packages
+  - waspc/starters-e2e-tests
   - waspc/tools
 
 # Same as `min-release-age=7` in .npmrc, in minutes.

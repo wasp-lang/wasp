@@ -62,7 +62,7 @@ export WASP_APP_RUNNER_CLI_CMD="$WASP_APP_RUNNER_DIR/bin/index.js"
 
 KITCHEN_SINK_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
 
-STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run test:dev"
+STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && pnpm run test:dev"
 
 # Copies .env.server.example to .env.server in the current directory,
 # but only if the example exists and .env.server isn't already present.

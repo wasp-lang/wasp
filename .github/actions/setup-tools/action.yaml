@@ -71,7 +71,6 @@ runs:
         # projects that still use npm.
         cache-dependency-path: |
           examples/**/package-lock.json
-          waspc/starters-e2e-tests/package-lock.json
           packages/deploy/package-lock.json
           packages/prisma/package-lock.json
           packages/studio/package-lock.json

@@ -14,8 +14,11 @@ The test suite automatically (for each starter):
 
 ## Installation
 
+The tests run the Wasp App Runner from this repo, so build it after installing:
+
 ```bash
-npm install
+pnpm install
+pnpm --filter @wasp/wasp-app-runner run build
 ```
 
 ## Usage
@@ -23,7 +26,7 @@ npm install
 ### Run tests with production Wasp CLI
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 This uses the `wasp` command.
@@ -31,7 +34,7 @@ This uses the `wasp` command.
 ### Run tests with development Wasp CLI
 
 ```bash
-npm run test:dev
+pnpm run test:dev
 ```
 
 This uses the `wasp-cli` command (typically used for development builds).
@@ -39,8 +42,8 @@ This uses the `wasp-cli` command (typically used for development builds).
 ### Run tests with custom Wasp CLI command
 
 ```bash
-npm run build
-npm run start -- --wasp-cli-command custom-command-here
+pnpm run build
+pnpm run start --wasp-cli-command custom-command-here
 ```
 
 ## Project tests structure

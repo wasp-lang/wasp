@@ -20,15 +20,13 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
+      # The tests depend on the wasp-app-runner from this repo. The filter
+      # installs it along with the tests, and the second command builds it.
       - name: Install node dependencies
-        working-directory: waspc/starters-e2e-tests
-        run: npm ci
-
-      - name: Prepare wasp-app-runner
-        run: pnpm install --filter @wasp/wasp-app-runner && pnpm --filter @wasp/wasp-app-runner run build
+        run: pnpm install --filter starters-e2e-tests... && pnpm --filter @wasp/wasp-app-runner run build
 
       - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests
         env:
           WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
-        run: npm run test:dev
+        run: pnpm run test:dev
