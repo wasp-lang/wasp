@@ -188,9 +188,9 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                    ]
             )
 
-    -- Normalizes the JSON files that are not deterministic across machines:
-    -- @package.json@ files are reformatted (ref: https://github.com/wasp-lang/wasp/issues/482)
-    -- and both they and the installed npm deps log have the dev tarball paths hidden.
+    -- Normalizes the JSON files that differ between machines. @package.json@
+    -- files get reformatted (ref: https://github.com/wasp-lang/wasp/issues/482),
+    -- and both they and the installed npm deps log get the dev tarball paths hidden.
     normalizeJsonFiles :: [Path' Abs (File file)] -> IO ()
     normalizeJsonFiles snapshotFiles = do
       mapM_ (normalizeJsonFile formatPackageJson) $ filter isPackageJsonFile snapshotFiles

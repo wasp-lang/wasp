@@ -8,19 +8,17 @@ import {
  * Resolves imports of this package (`@wasp/spec`) in the user's spec files to
  * the copy of the package that is running the analysis.
  *
- * Users don't depend on `@wasp/spec` directly, they depend on `@wasp/wasp`,
- * which depends on it. Package managers that don't hoist (e.g. pnpm) then
- * don't expose `@wasp/spec` at the project root, so the bundler couldn't
- * resolve it from `main.wasp.ts`. Pointing it at our own copy also guarantees
- * there is a single copy of the package at runtime, which matters for
- * `instanceof` checks on the errors it throws.
+ * Users depend on `@wasp/wasp`, which depends on `@wasp/spec`. Package
+ * managers that don't hoist (pnpm) then don't expose `@wasp/spec` at the
+ * project root, so the bundler couldn't resolve it from `main.wasp.ts`. Using
+ * our own copy also keeps a single copy at runtime, which `instanceof` checks
+ * on the errors it throws rely on.
  *
- * The resolved modules are marked external, so the user's spec file keeps
- * importing them at runtime instead of bundling a second copy. They are
- * resolved to `file:` URLs, not filesystem paths: the bundler writes the
- * external ID verbatim into the output's import statement, and Node accepts
- * a `file:` URL as an import specifier on every platform, while a Windows
- * path such as `C:\...` is rejected as an unsupported URL scheme.
+ * The modules are marked external, so the user's spec file imports them at
+ * runtime instead of bundling a second copy. The IDs are `file:` URLs, not
+ * paths. The bundler writes them verbatim into the output's import statement,
+ * and Node accepts a `file:` URL on every platform, while it rejects a
+ * Windows path such as `C:\...` as an unsupported URL scheme.
  */
 export function waspSpecAliasPlugin(): Plugin {
   const specEntryPoints: Record<string, string> = {

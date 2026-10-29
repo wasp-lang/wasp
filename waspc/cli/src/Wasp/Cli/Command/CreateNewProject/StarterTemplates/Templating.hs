@@ -62,6 +62,7 @@ replaceTemplatePlaceholdersInPackageJsonFile devPackages appName projectName pro
 
 -- | The dev @wasp/wasp tarball pins unpublished versions of @wasp/cli and
 -- @wasp/spec, so the project needs npm `overrides` pointing at their tarballs.
+-- TODO: Remove once the repo's Wasp apps join the pnpm workspace.
 addDevPackageOverrides :: DevPackages -> Value -> Value
 addDevPackageOverrides devPackages packageJson =
   packageJson & _Object . at (Key.fromString "overrides") ?~ overrides

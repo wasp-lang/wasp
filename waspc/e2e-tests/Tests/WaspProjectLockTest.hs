@@ -95,7 +95,7 @@ waspProjectLockTest =
         )
     ]
   where
-    -- The lock holder is a real `wasp compile` process: it acquires the
+    -- The lock holder is a real `wasp compile` process. It acquires the
     -- project lock, generates the app and then runs `npm install` in the
     -- project dir (we make sure it does by forgetting the installed deps
     -- log), which this hook stalls until 'releaseLockAndAwaitWaspInstall'

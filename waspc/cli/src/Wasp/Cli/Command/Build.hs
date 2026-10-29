@@ -132,16 +132,15 @@ build = ProjectLock.acquireExclusive $ do
 
       ExceptT $ prepareDevWaspNpmPackageForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir
 
-    -- While developing Wasp, the project depends on @wasp/wasp (and, through
-    -- npm `overrides`, on @wasp/cli and @wasp/spec) via `file:` tarballs
-    -- outside the project (see "Wasp.Project.WaspNpmPackage"). Docker's build
-    -- context is `.wasp/build/`, so we copy the tarballs next to the Wasp libs
-    -- (which the Dockerfile already copies) and point the build's package.json
-    -- at those copies. We also drop their entries from the build's lockfile,
-    -- so `npm install` resolves them again from the new paths.
+    -- While developing Wasp, the project depends on dev tarballs of @wasp/wasp,
+    -- @wasp/cli and @wasp/spec outside the project (see "Wasp.Project.WaspNpmPackage").
+    -- Docker's build context is `.wasp/build/`, so we copy the tarballs next to
+    -- the Wasp libs, point the build's package.json at the copies and drop their
+    -- lockfile entries, so `npm install` resolves them from the new paths.
+    -- Released Wasp versions are registry dependencies, so this does nothing for them.
     --
-    -- Released Wasp versions are regular registry dependencies, so this does
-    -- nothing for them.
+    -- TODO: Remove once the repo's Wasp apps join the pnpm workspace and no
+    -- longer depend on dev tarballs.
     prepareDevWaspNpmPackageForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir = runExceptT $ do
       packageJson <- maybe (throwError "Couldn't read package.json in the build dir.") return =<< liftIO (readJsonFile packageJsonInBuildDir)
       -- (package.json section, package name) of every field that can hold a dev tarball.

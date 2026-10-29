@@ -117,11 +117,11 @@ CABAL_GILD_BASE_CMD="cabal-gild"
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check "'$'"(git ls-files '*.cabal')"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format "'$'"(git ls-files '*.cabal')"
 
-# We remove .wasp/out before reinstalling, so package-lock entries for
-# generated workspaces and their local tarball deps become stale. The same goes
-# for the dev Wasp npm packages (@wasp/wasp, @wasp/cli, @wasp/spec), which are
-# `file:` tarballs repacked on every build. Drop them all so npm rebuilds those
-# entries from the package.json files.
+# We remove .wasp/out before reinstalling, so the package-lock entries for the
+# generated workspaces and their tarball deps go stale. So do the entries for
+# the dev Wasp npm packages, which are `file:` tarballs repacked on every
+# build. Drop them all, npm rebuilds them from the package.json files.
+# TODO: Drop the dev package part once the repo's Wasp apps join the pnpm workspace.
 # Apps generated before Wasp 0.27 used the `@wasp.sh` npm scope instead of
 # `@wasp`, so we match both.
 function remove_stale_generated_wasp_lock_entries() {

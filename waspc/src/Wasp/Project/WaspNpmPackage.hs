@@ -49,7 +49,7 @@ waspNpmPackageDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir WaspNpmPack
 waspNpmPackageDirInWaspProjectDir = nodeModulesDirInWaspProjectDir </> [reldir|@wasp/wasp|]
 
 -- | The script that runs the Wasp Spec analyzer of the project's @wasp/spec.
--- We run it with `node` by path: from inside @wasp/wasp, Node resolves
+-- We run it with `node` by path. From inside @wasp/wasp, Node resolves
 -- @wasp/spec next to it under any package manager.
 waspSpecAnalyzerScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspSpecAnalyzerScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-spec.js|]
@@ -76,6 +76,9 @@ instance PJ.PackageJsonFile InstalledPackageJsonFile
 -- depend on tarballs packed from this repo instead (see
 -- @waspc/tools/dev-packages/build.ts@). The CLI learns where they are from
 -- the 'devPackagesDirEnvVarName' env var, which @waspc/tools/wasp-cli-dev@ sets.
+--
+-- TODO: Remove once the repo's Wasp apps join the pnpm workspace and no
+-- longer depend on dev tarballs.
 data DevPackages = DevPackages
   { waspTarball :: Path' Abs File',
     cliTarball :: Path' Abs File',

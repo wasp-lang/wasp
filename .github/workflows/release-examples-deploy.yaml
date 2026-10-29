@@ -78,6 +78,7 @@ jobs:
           WASP_VERSION: ${{ inputs.version }}
         # The examples depend on the dev Wasp tarballs from this repo (see
         # their package.json). We deploy with the released version instead.
+        # TODO: Remove once the examples join the pnpm workspace.
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
           npm pkg delete overrides "//"
@@ -141,6 +142,7 @@ jobs:
           WASP_VERSION: ${{ inputs.version }}
         # The examples depend on the dev Wasp tarballs from this repo (see
         # their package.json). We deploy with the released version instead.
+        # TODO: Remove once the examples join the pnpm workspace.
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
           npm pkg delete overrides "//"
