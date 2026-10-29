@@ -23,7 +23,6 @@
   "scripts": {
     "build": "tsdown",
     "dev": "vitest dev",
-    "prepare": "pnpm run build",
     "test": "pnpm run test:types && pnpm run test:coverage && pnpm run test:type-exports",
     "test:coverage": "vitest run --coverage",
     "test:type-exports": "attw -P --profile esm-only",

@@ -26,7 +26,6 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "prepare": "pnpm run build",
     "test": "pnpm run test:types && pnpm run test:unit",
     "test:types": "tsc --noEmit",
     "test:unit": "vitest run"

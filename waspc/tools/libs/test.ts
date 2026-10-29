@@ -9,6 +9,10 @@ testLibs();
 function testLibs(): void {
   installWorkspaceDependencies();
 
+  // The libs depend on each other's `dist`, and `prepare` no longer builds it.
+  console.log("Building libs");
+  runScriptInEveryLib("build");
+
   console.log("Testing libs");
   runScriptInEveryLib("test");
 }

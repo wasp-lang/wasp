@@ -105,8 +105,9 @@ Create a directory in this folder to contain the new package.
 
 Keep in mind:
 
-- `package.json` should have a `prepare` script that will be run to prepare
-  the package for use e.g. to build the package.
+- `package.json` should have a `build` script that compiles the package to
+  `dist/`. `./run build:libs` and `./run test:libs` run it for every lib in
+  dependency order, so a lib never has to build itself on install.
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
