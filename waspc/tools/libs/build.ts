@@ -30,7 +30,7 @@ function buildLibs(): void {
 
   // One pnpm invocation builds the libs in dependency order.
   console.log("Building libs");
-  runCmd("pnpm", ["--filter", "./packages/libs/*", "run", "build"], {
+  runCmd("pnpm", ["--filter", "'./packages/libs/*'", "run", "build"], {
     cwd: getLibsDirPath(),
     stdio: "inherit",
   });
