@@ -1,4 +1,4 @@
-import { PrismaDelegate } from '../../../_types/index.js'
+import type { PrismaDelegate } from '../../../_types/index.js'
 import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
 
 // PRIVATE API

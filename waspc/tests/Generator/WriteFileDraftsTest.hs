@@ -13,14 +13,15 @@ import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.WriteFileDrafts (assertDstPathsAreUnique, fileDraftsToWriteAndFilesToDelete)
 import Wasp.Util (Checksum, checksumFromString, checksumFromText)
 
+genMockTextFileDraft :: Int -> TextFileDraft
+genMockTextFileDraft i =
+  TextFD.TextFileDraft
+    { TextFD._dstPath = fromJust $ SP.parseRelFile ("c/d/dst" ++ show i ++ ".txt"),
+      TextFD._content = pack $ "Test" ++ show i
+    }
+
 genMockTextFileDrafts :: Int -> [TextFileDraft]
-genMockTextFileDrafts n =
-  let genMockTextFileDraft i =
-        TextFD.TextFileDraft
-          { TextFD._dstPath = fromJust $ SP.parseRelFile ("c/d/dst" ++ show i ++ ".txt"),
-            TextFD._content = pack $ "Test" ++ show i
-          }
-   in take n (map genMockTextFileDraft [1 :: Int ..])
+genMockTextFileDrafts n = take n (map genMockTextFileDraft [1 ..])
 
 genFdsWithChecksums :: Int -> [(FileDraft, Checksum)]
 genFdsWithChecksums n =
@@ -30,7 +31,7 @@ spec_WriteDuplicatedDstFileDrafts :: Spec
 spec_WriteDuplicatedDstFileDrafts =
   describe "fileDraftsWithDuplicatedDstPaths" $ do
     it "should throw error since there are duplicated destination paths" $
-      let fileDrafts = replicate 2 $ FileDraftTextFd $ head (genMockTextFileDrafts 1)
+      let fileDrafts = replicate 2 $ FileDraftTextFd $ genMockTextFileDraft 1
        in (return $! assertDstPathsAreUnique fileDrafts) `shouldThrow` anyErrorCall
     it "should not throw error because unique destination paths" $
       let fileDrafts = map FileDraftTextFd (genMockTextFileDrafts 2)

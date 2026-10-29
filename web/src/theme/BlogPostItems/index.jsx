@@ -1,5 +1,14 @@
 import Link from "@docusaurus/Link";
+import { useLocation } from "@docusaurus/router";
 import BlogPostItem from "@theme/BlogPostItem";
+import { trackPlacementAttributes } from "../../lib/analytics";
+
+// The main list pages get one H1 here, and the post titles below are H2.
+// Tag and author pages render their own H1, so they get none here.
+const LIST_PAGE_HEADINGS = {
+  "/blog": "Wasp Blog",
+  "/resources": "Wasp Resources",
+};
 
 const getReadingTimeStatement = (readingTimeFloat) =>
   Math.ceil(readingTimeFloat) + " min read";
@@ -10,13 +19,23 @@ export default function BlogPostItems({
 }) {
   // TODO(matija): what if there are no items (blog posts)?
   const featuredItem = items[0];
+  const { pathname } = useLocation();
+  const listHeading = LIST_PAGE_HEADINGS[pathname.replace(/\/$/, "")];
   const coverImgSrc =
-    featuredItem.content.frontMatter.image || "/img/blog-default-img.png";
+    featuredItem.content.frontMatter.image || "/img/blog/default-cover.png";
 
   return (
     <>
-      <section className={`bg-yellow-500 py-20 pb-20 md:py-36`}>
+      <section
+        className={`bg-yellow-500 py-20 pb-20 md:py-36`}
+        {...trackPlacementAttributes("post_list")}
+      >
         <div className={`container mx-auto lg:px-8`}>
+          {listHeading && (
+            <h1 className="mb-6 text-sm font-semibold uppercase tracking-wider text-neutral-800 md:px-8 lg:px-0">
+              {listHeading}
+            </h1>
+          )}
           <article
             className={`relative grid-cols-2 items-stretch gap-5 md:px-8 lg:grid lg:px-0`}
           >
@@ -35,9 +54,9 @@ export default function BlogPostItems({
               </span>
 
               {/* Title */}
-              <h1 className="text-4xl leading-tight text-neutral-800">
+              <h2 className="text-4xl leading-tight text-neutral-800">
                 {featuredItem.content.frontMatter.title}
-              </h1>
+              </h2>
 
               {/* Read more button */}
               <div className="mt-24">
@@ -67,12 +86,15 @@ export default function BlogPostItems({
         </div>
       </section>
 
-      <section className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-8">
+      <section
+        className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-8"
+        {...trackPlacementAttributes("post_list")}
+      >
         <div className="mb-8 grid grid-cols-1 gap-5 md:-mt-12 md:grid-cols-2 xl:grid-cols-3">
           {items.slice(1).map((item) => {
             const BlogPostContent = item.content;
             const coverImgSrc =
-              item.content.frontMatter.image || "/img/blog-default-img.png";
+              item.content.frontMatter.image || "/img/blog/default-cover.png";
 
             return (
               <article
@@ -100,9 +122,9 @@ export default function BlogPostItems({
                 </span>
 
                 {/* Title */}
-                <h1 className="my-4 h-28 text-xl">
+                <h2 className="my-4 h-28 text-xl">
                   {item.content.frontMatter.title}
-                </h1>
+                </h2>
 
                 <p className="mb-0 mt-0 font-semibold text-yellow-600">
                   Read more →

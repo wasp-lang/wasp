@@ -1,4 +1,5 @@
 ---
+title: Migrating from the Wasp DSL to TypeScript in 0.24
 sidebar_label: "Wasp DSL"
 comments: true
 ---
@@ -9,7 +10,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
-Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../general/spec.md): a `main.wasp.ts` file written in TypeScript.
+Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../features/spec.md): a `main.wasp.ts` file written in TypeScript.
 
 :::tip Upgrading from Wasp 0.23 to 0.24?
 The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](/docs/0.24/migration-guide#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](/docs/0.24/migration-guide) for the remaining shared steps.
@@ -29,7 +30,7 @@ The Wasp DSL was a custom language, so it needed its own IDE extension for highl
 
 The Wasp DSL kept your entire configuration in a single `main.wasp`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import specifications between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `payments.wasp.ts` next to the feature it configures).
 
-See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
+See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-into-multiple-files) for details.
 
 ## Changes
 
@@ -66,7 +67,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec";
+    import { app, page, route } from "@wasp/spec";
     import { MainPage } from "./src/MainPage" with { type: "ref" };
 
     export default app({
@@ -103,7 +104,7 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { action, app, query } from "@wasp.sh/spec";
+    import { action, app, query } from "@wasp/spec";
     import { getTasks } from "./src/queries" with { type: "ref" };
     import { createTask } from "./src/actions" with { type: "ref" };
 
@@ -142,7 +143,7 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from "@wasp.sh/spec";
+    import { api, apiNamespace, app } from "@wasp/spec";
     import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
     export default app({
@@ -178,7 +179,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from "@wasp.sh/spec";
+    import { app, job } from "@wasp/spec";
     import { foo } from "./src/jobs/bar" with { type: "ref" };
 
     export default app({
@@ -212,7 +213,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec";
+    import { app, crud } from "@wasp/spec";
     import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
@@ -256,7 +257,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec";
+    import { app } from "@wasp/spec";
     import App from "./src/App" with { type: "ref" };
 
     export default app({
@@ -343,12 +344,12 @@ Wasp validates the Wasp Spec support files during migration, including the requi
        // highlight-next-line
        "@types/node": "^24.0.0",
        // highlight-next-line
-       "@wasp.sh/spec": "file:.wasp/spec"
+       "@wasp/spec": "file:.wasp/spec"
      }
    }
    ```
 
-   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp.sh/spec` provides the local Wasp Spec API package.
+   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp/spec` provides the local Wasp Spec API package.
 
 5. Run `wasp install`.
 
@@ -357,7 +358,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 7. Create a `main.wasp.ts` file with the following content:
 
    ```ts title="main.wasp.ts"
-   import { app } from "@wasp.sh/spec";
+   import { app } from "@wasp/spec";
 
    export default app({
      name: "myApp",
@@ -386,4 +387,4 @@ At some points, when the Spec needs to be regenerated, Wasp will tell you to run
 
 10. Delete `main.wasp.old` once you're sure the new config works.
 
-See the full [Wasp Spec reference](../../general/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
+See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

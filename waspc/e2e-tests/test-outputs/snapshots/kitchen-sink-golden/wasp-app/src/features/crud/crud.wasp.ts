@@ -1,4 +1,4 @@
-import { crud, page, route, type Spec } from "@wasp.sh/spec";
+import { crud, page, route, type Spec } from "@wasp/spec";
 
 import { crudCreateTask, crudGetAllTasks } from "./crud" with { type: "ref" };
 import { DetailPage } from "./pages/DetailPage" with { type: "ref" };
@@ -15,6 +15,11 @@ export const crudSpec: Spec = [
     },
     update: {},
     delete: {},
+  }),
+  // Intentionally partial: only `getAll` is declared. Covers the case where the
+  // generated CRUD must not mention the operations the user didn't ask for.
+  crud("taskVotes", "TaskVote", {
+    getAll: {},
   }),
   route("CrudListRoute", "/crud", page(ListPage, { authRequired: true })),
   route(

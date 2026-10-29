@@ -10,7 +10,7 @@ export {
     useQuery,
     // PUBLIC API
     type OptimisticUpdateDefinition,
-} from './hooks'
+} from '@wasp/lib-sdk-core/browser'
 
 export {
     // PUBLIC API
@@ -19,9 +19,9 @@ export {
     initializeQueryClient,
     // PRIVATE API (framework code)
     queryClientInitialized
-} from './queryClient'
+} from '@wasp/lib-sdk-core/browser'
 
-export {
+export type {
     // PUBLIC API
-    type QueryMetadata,
-} from './rpc'
+    QueryMetadata,
+} from '@wasp/lib-sdk-core'

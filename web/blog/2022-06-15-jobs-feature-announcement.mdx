@@ -1,8 +1,9 @@
 ---
 title: Feature Announcement - Wasp Jobs
 authors: [shayneczyzewski]
-image: /img/jobs-snippet2.png
+image: /img/blog/2022-06-15-jobs-feature-announcement/jobs-snippet2.png
 tags: [webdev, wasp, feature, jobs]
+description: "Wasp Jobs run an async function in the background, on demand or on a cron schedule. They use pg-boss, which stores jobs in PostgreSQL, not Redis."
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -12,7 +13,7 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 import { InBlogCta } from './components/InBlogCta';
 
 <p align="center">
-  <img alt="You get a job!" src={useBaseUrl('img/jobs-oprah.gif')} width="300px" />
+  <img alt="You get a job!" src={useBaseUrl('img/blog/2022-06-15-jobs-feature-announcement/jobs-oprah.gif')} width="300px" />
 </p>
 
 {/* truncate */}
@@ -24,13 +25,13 @@ import { InBlogCta } from './components/InBlogCta';
 ## **Storytime**
 
 <p align="center">
-  <img alt="Storytime" src={useBaseUrl('img/jobs-storytime.gif')} width="300px" />
+  <img alt="Storytime" src={useBaseUrl('img/blog/2022-06-15-jobs-feature-announcement/jobs-storytime.gif')} width="300px" />
 </p>
 
 Imagine you are working on the next unicorn SaaS web app and need to send a user an email, manipulate an uploaded image via an external API call, or recalculate some internal metrics every night. (Or, maybe you’re doing some fancy blockchain thing for that frothy investment multiple; :D whatever it is, just envision an operation that may take a significant amount of time and/or fail.) How would you implement this?
 
 <p align="center">
-  <img alt="Spinning!" src={useBaseUrl('img/jobs-spinner.gif')} width="30px" />
+  <img alt="Spinning!" src={useBaseUrl('img/blog/2022-06-15-jobs-feature-announcement/jobs-spinner.gif')} width="30px" />
 </p>
 
 You wouldn’t want the server to delay sending its HTTP response until those are done (unless you are one of those people who love seeing the Mac spinning icon), so you'll need something out-of-band from the normal request-response flow. Even in an event-loop-based system like Node.js, just calling an async function isn't ideal since you will need to handle failures, retries, and throttling, amongst other concerns. And sometimes we need to schedule tasks to run in the future, or repeatedly, so we need a completely different toolset.
@@ -63,7 +64,7 @@ Wasp allows you to write a regular async JavaScript function (like the one above
 
 <ImgWithCaption
   alt="Eeek"
-  source="img/jobs-eyes.gif"
+  source="img/blog/2022-06-15-jobs-feature-announcement/jobs-eyes.gif"
   caption="Me trying to lay off the job-related puns. Ok, ok, I’ll quit. Ahhh!"
 />
 
@@ -128,13 +129,13 @@ export default async function () {
 
 And voila, it is really that simple. Wasp takes care of setting up pg-boss and hooking up all your job callbacks, leaving you to focus on what matters- your own code. Here is a visual of what is happening behind the scenes:
 
-![Architecture](../static/img/jobs-arch.png)
+![Architecture](../static/img/blog/2022-06-15-jobs-feature-announcement/jobs-arch.png)
 
 For those interested, check out the [full diff here](https://github.com/wasp-lang/wasp/commit/1721371fc73f4485ca0046aafea2ee3fc0be41cf#diff-e158328e137176b595ad01641ba68faf82dbb88ccc5be3597009bb576fcd6505) and weep with joy for all those boilerplate lines of code we fired! We were also able to ax Redis from our infrastructure!
 
 ## Looks neat! What’s next?
 
-First off, please check out our docs for [Jobs](/docs/advanced/jobs). There, you will find all the info you need to start using them. Next, if you want to see the code for this example in full, you can find it here: [https://github.com/wasp-lang/wasp/tree/release/examples/waspleau](https://github.com/wasp-lang/wasp/tree/release/examples/waspleau)
+First off, please check out our docs for [Jobs](/docs/features/jobs). There, you will find all the info you need to start using them. Next, if you want to see the code for this example in full, you can find it here: [https://github.com/wasp-lang/wasp/tree/release/examples/waspleau](https://github.com/wasp-lang/wasp/tree/release/examples/waspleau)
 
 In the future, we plan to add more job executors, including support for polyglot workers (imagine running your Python ML function from Wasp!). We are also open to any other ideas on how jobs can become more useful to you (like client-side access to server-side jobs, or client-side jobs using similar abstractions?). Let us know what you think!
 

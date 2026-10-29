@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 import { Star, Terminal } from "react-feather";
+import { trackEventAttributes } from "../../lib/analytics";
 import { InstallBlock, VCSection } from "./vcWrappers";
 
 const VCFinalCTA = () => {
@@ -25,12 +26,15 @@ const VCFinalCTA = () => {
         </p>
 
         <InstallBlock
-          command="npm i -g @wasp.sh/wasp-cli@latest"
+          command="npm i -g @wasp/cli@latest"
           className="my-8 block"
         />
 
         <div className="flex items-center justify-center gap-3">
-          <Link to="/docs/quick-start">
+          <Link
+            to="/docs/quick-start"
+            {...trackEventAttributes({ event: "Get Started: Click" })}
+          >
             <button className={primaryBtnClass}>
               <Terminal size={16} />
               <span>Get Started</span>

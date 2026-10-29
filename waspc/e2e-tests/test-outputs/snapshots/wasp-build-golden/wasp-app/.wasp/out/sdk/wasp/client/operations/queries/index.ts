@@ -1,4 +1,4 @@
-import { type QueryFor, createQuery } from './core'
-
-// PRIVATE API (used in SDK)
-export { buildAndRegisterQuery } from './core'
+import type { QueryFor } from '@wasp/lib-sdk-core/browser'
+import { createQuery } from "./core";
+import type {
+} from "../../../server/operations/queries/index";

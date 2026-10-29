@@ -4,8 +4,8 @@ import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
-import { getDataLibsDirPath } from "./libs/utils.ts";
-import { getDataPackagesDirPath } from "./packages/utils.ts";
+import { getLibsDirPath } from "./libs/utils.ts";
+import { getWaspcPackageDirPaths } from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -56,15 +56,13 @@ function bumpWaspcCabalVersion(nextVersion: string): void {
 }
 
 function bumpLibsVersion(nextVersion: string): void {
-  const dataLibsDirPath = getDataLibsDirPath();
-  for (const libDirPath of discoverSubDirs(dataLibsDirPath)) {
+  for (const libDirPath of discoverSubDirs(getLibsDirPath())) {
     bumpPackageJsonVersion(libDirPath, nextVersion);
   }
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  const dataPackagesDirPath = getDataPackagesDirPath();
-  for (const packageDirPath of discoverSubDirs(dataPackagesDirPath)) {
+  for (const packageDirPath of getWaspcPackageDirPaths()) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
@@ -78,12 +76,32 @@ function bumpWaspProjectsVersion(nextVersion: string): void {
 function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   const packageJsonPath = join(dir, "package.json");
   const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
-  const packageJson: { version?: string } = JSON.parse(packageJsonContent);
+  const packageJson: {
+    version?: string;
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
+  } = JSON.parse(packageJsonContent);
 
   if (!packageJson.version) {
     throw new Error(`Failed to update the ${packageJsonPath} version`);
   }
   packageJson.version = nextVersion;
+
+  // Libs and packages depend on each other (e.g. sdk-core on lib-auth), so we
+  // must update version numbers in dependencies as well.
+  for (const deps of [
+    packageJson.dependencies,
+    packageJson.devDependencies,
+    packageJson.peerDependencies,
+  ]) {
+    if (!deps) continue;
+    for (const [name, range] of Object.entries(deps)) {
+      if (name.startsWith("@wasp/") && !range.startsWith("file:")) {
+        deps[name] = `^${nextVersion}`;
+      }
+    }
+  }
 
   writeFileSync(
     packageJsonPath,

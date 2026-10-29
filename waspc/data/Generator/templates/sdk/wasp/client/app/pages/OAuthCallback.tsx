@@ -3,10 +3,13 @@ import { useState } from "react";
 import { Navigate, useLocation } from 'react-router'
 import { useAuth } from "../../auth";
 import { api } from "../../../api";
-import { initSession } from "../../../auth/helpers/user";
-import { useEffectOnce } from "../../hooks";
-import { MessageLoading, MessageError } from "../components/Message";
-import { FullPageWrapper } from "../components/FullPageWrapper";
+import {
+  FullPageWrapper,
+  initSession,
+  MessageError,
+  MessageLoading,
+  useEffectOnce,
+} from "@wasp/lib-sdk-core/browser";
 
 const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
@@ -14,7 +17,7 @@ export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
 
   if (user !== undefined && user !== null) {
-    return <Navigate to="{= onAuthSucceededRedirectTo =}" replace />;
+    return <Navigate to={{=& onAuthSucceededRedirectTo =}} replace />;
   }
 
 

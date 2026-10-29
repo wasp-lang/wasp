@@ -3,8 +3,8 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
-      build-outputs-json:
-        description: "The returned outputs from the build workflow, as a JSON string"
+      waspc-version:
+        description: "The Wasp version built by the build workflow."
         required: true
         type: string
 
@@ -15,6 +15,14 @@ on:
           Leading 'v' will be stripped if present.
         required: false
         type: string
+
+      exclude-build:
+        description: >
+          Build name to leave out of the npm packages (e.g. `macos-x86_64`), for
+          runs that skip that build. If empty, every build must be present.
+        required: false
+        type: string
+        default: ""
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -35,10 +43,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
       - name: Compute artifact names for download
-        uses: ./.github/actions/compute-artifact-names
+        uses: $/.github/actions/compute-artifact-names
         id: compute-download-artifact-names
         with:
           build-name: all
@@ -60,30 +68,29 @@ jobs:
 
       - name: Create build metadata file
         env:
-          INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
+          WASPC_VERSION: ${{ inputs.waspc-version }}
+          NPM_TARGETS_JSON: ${{ steps.compute-download-artifact-names.outputs.npm-target }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
+          EXCLUDE_BUILD: ${{ inputs.exclude-build }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
-            # We'll wrangle the data from the build jobs into that schema here.
+            # We'll list one tarball per build that has an npm target here.
             |
             {
-              version: ($overrideVersion // $inputData.waspc_version) | ltrimstr("v"),
+              version: ($overrideVersion // $waspcVersion) | ltrimstr("v"),
               tarballs:
-                $inputData
-                | with_entries(select(.key | startswith("output_")))
-                | map(
-                    fromjson
-                    | {
-                        fileName: .["tarball-name"],
-                        target: (.["npm-target"] | fromjson)
-                      }
-                  )
+                $npmTargets
+                | del(.[$excludeBuild])
+                | to_entries
+                | map({ fileName: "wasp-\(.key).tar.gz", target: .value })
             }
         run: |
           jq \
             --null-input \
-            --argjson inputData "$INPUT_DATA_JSON" \
+            --arg waspcVersion "$WASPC_VERSION" \
+            --argjson npmTargets "$NPM_TARGETS_JSON" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
+            --arg excludeBuild "$EXCLUDE_BUILD" \
             "$JQ_PROGRAM" \
             > "$PACKAGES_INPUT_DATA_FILE_PATH"
 
@@ -102,7 +109,7 @@ jobs:
       - name: Build published packages
         run: |
           override_version=$(jq -r <"$PACKAGES_INPUT_DATA_FILE_PATH" '.version')
-          ./waspc/data/packages/pack-published-packages.sh "$override_version" "$PACKAGES_OUTPUT_DIR_PATH"
+          ./scripts/pack-published-packages.sh "$override_version" "$PACKAGES_OUTPUT_DIR_PATH"
 
       - uses: actions/upload-artifact@v7
         with:

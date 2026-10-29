@@ -1,19 +1,27 @@
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
-import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
+  type ActionFor,
+  type SpecificOptimisticUpdateDefinition,
   registerActionInProgress,
   registerActionDone,
-} from '../internal/resources.js'
+} from '@wasp/lib-sdk-core/browser'
+import {
+  makeOperationRoute,
+  type OperationRpcFor,
+  type GenericBackendOperation,
+} from '@wasp/lib-sdk-core'
+import { callOperation } from '../internal/index.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
   relativeActionRoute: string,
-  entitiesUsed: unknown[]
+  entitiesUsed: string[]
 ): ActionFor<BackendAction> {
   const actionRoute = makeOperationRoute(relativeActionRoute)
 
-  async function internalAction(args, specificOptimisticUpdateDefinitions) {
+  async function internalAction<CachedData>(
+    args: unknown,
+    specificOptimisticUpdateDefinitions: SpecificOptimisticUpdateDefinition<CachedData>[]
+  ): Promise<unknown> {
     registerActionInProgress(specificOptimisticUpdateDefinitions)
     try {
       // The `return await` is not redundant here. If we removed the await, the
@@ -34,7 +42,7 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   // While it does technically allow our users to access the interal API, it
   // shouldn't be a problem in practice. Still, if it turns out to be a problem,
   // we can always hide it using a Symbol.
-  const action = (args) => internalAction(args, [])
+  const action = (args: unknown) => internalAction(args, [])
   action.internal = internalAction
 
   // NOTE: I'm not sure why unknown is necessary here,
@@ -43,7 +51,3 @@ export function createAction<BackendAction extends GenericBackendOperation>(
   // https://www.typescriptlang.org/play/?#code/MYewdgzgLgBCBGArGBeGBvGBDAXDA5AGYgj4wC+AUAogHTyoHxYBO+llA9JzIQK5hgUAJbhsAG3EgA7hGxgYAUwBuIccuFgA5jCgBPAA6KY8PrBqKhMACYhFcsCCiVQkWPwVoAFAEpUAPgJiUkoPekZ8ZjYgA
   return action as unknown as ActionFor<BackendAction>
 }
-
-// PRIVATE API
-export type ActionFor<BackendAction extends GenericBackendOperation> =
-  OperationRpcFor<BackendAction>

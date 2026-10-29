@@ -1,13 +1,14 @@
 ---
 title: "The first framework that lets you visualize your React/NodeJS app's code"
 authors: [vinny]
-image: /img/wasp-studio/baby-sleep-tracker-studio.png
+image: /img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/baby-sleep-tracker-studio.png
 tags: [react, nodejs]
+description: "Visualize your React and Node.js app code with one command, wasp studio: a diagram of your app, entities, queries, actions, routes and pages."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption'
 
-<ImgWithCaption alt="Wasp Studio screenshot, baby sleep tracker" source="img/wasp-studio/baby-sleep-tracker-studio.png" />
+<ImgWithCaption alt="Wasp Studio screenshot, baby sleep tracker" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/baby-sleep-tracker-studio.png" />
 
 ## Visualize the Prize
 
@@ -29,7 +30,7 @@ First off, [Wasp](https://github.com/wasp-lang/wasp) is a full-stack React, Node
 
 Why is it special? It uses a config file and its own compiler to manage a bunch of features for you, like auth, cron jobs, routes, and email sending, saving you tons of time and letting you focus on the fun stuff.
 
-<ImgWithCaption alt="Wasp how-it-works diagram" source="img/wasp-studio/wasp-diagram.png" />
+<ImgWithCaption alt="Wasp how-it-works diagram" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/wasp-diagram.png" />
 
 This combination of [Wasp’s central config file](/docs), which acts as a set of instructions for the app, and compiler also allow Wasp to do a bunch of complex and interesting tasks for you via one-line commands, such as:
 
@@ -44,7 +45,7 @@ If you wanna try them out yourself all you have to do is:
 2. scaffold a new To Do app in TypeScript with `wasp new -t todo-ts`
 3. then to get the visualizer as in the screenshot below, run `wasp studio`
 
-<ImgWithCaption alt="Baby Sleep Tracker in Wasp Studio" source="img/wasp-studio/baby-tracker-full.png" />
+<ImgWithCaption alt="Baby Sleep Tracker in Wasp Studio" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/baby-tracker-full.png" />
 
 Let’s break down what we’re seeing here real quick:
 
@@ -55,7 +56,7 @@ Let’s break down what we’re seeing here real quick:
 
 And if you’re wondering what this might look like with a more complex app, here’s what it looks like when run against [Open SaaS - our free, open-source SaaS boilerplate starter](https://github.com/wasp-lang/open-saas).
 
-<ImgWithCaption alt="Open SaaS in Wasp Studio" source="img/wasp-studio/opensaas-studio.png" />
+<ImgWithCaption alt="Open SaaS in Wasp Studio" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/opensaas-studio.png" />
 
 What’s great about this is that we have an overview of all our database entities and which server functions (aka “operations”) they depend on.  In the top left of the picture above, you’ll even see a cron job, `dailyStatsJob`, which runs every hour (`0 * * * *`).
 
@@ -82,7 +83,7 @@ Ok. You might be thinking, the visualizer is cool, but does it actually serve a 
 
 But it’s a party trick with **a lot of potential** up its sleeve. Let me explain.
 
-<ImgWithCaption alt="You got potential, kid." source="img/wasp-studio/potential.gif" />
+<ImgWithCaption alt="You got potential, kid." source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/potential.gif" />
 
 Of course, you can use it in its current form to get a better perspective of your app, or maybe plan some new features, but in the future you will be able to use it to do a lot more, such as:
 
@@ -122,7 +123,7 @@ Currently one of the biggest constraints to AI-assisted code generation is conte
 
 But with Wasp’s config file, which is essentially just a higher-level abstraction of a full-stack app and its features, we give the LLM the context it needs to successfully build new features for the app at hand.
 
-<ImgWithCaption alt="PG tweet" source="img/wasp-studio/pg-tweet.png" />
+<ImgWithCaption alt="PG tweet" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/pg-tweet.png" />
 
 And this works really well because we don’t only give the LLM the context it needs, but Wasp’s compiler also takes on the responsibility of writing most of the boilerplate for us to begin with (thanks, pal), giving the LLM the simpler tasks of writing, e.g.:
 
@@ -143,13 +144,13 @@ auth: {
   },
 ```
 
-Consider that this code gives auth across your entire stack. So, not only do you get all the auth logic generated and managed for you on the server, but [you even get UI components and auth hooks](/docs/auth/ui) made available to you on the client!
+Consider that this code gives auth across your entire stack. So, not only do you get all the auth logic generated and managed for you on the server, but [you even get UI components and auth hooks](/docs/features/auth/ui) made available to you on the client!
 
-<ImgWithCaption alt="Wasp Auth UI" source="img/wasp-studio/wasp-auth-ui.gif" />
+<ImgWithCaption alt="Wasp Auth UI" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/wasp-auth-ui.gif" />
 
 On the other hand, without the abstractions that Wasp gives us, we end up relying on the LLM, with it’s bad memory and tendency to hallucinate, to write a bunch of boilerplate for us over and over again like this JWT middleware pictured below:
 
-<ImgWithCaption alt="Auth without Wasp" source="img/wasp-studio/auth-node.png" />
+<ImgWithCaption alt="Auth without Wasp" source="img/blog/2024-04-25-first-framework-that-lets-you-visualize-react-node-app-code/auth-node.png" />
 
 And LLMs are pretty good at coding boilerplatey, repetitive tasks in isolation. But expecting them to do it as part of a cohesive full-stack app means that we have a ton more surface area for exposure to possible errors.
 

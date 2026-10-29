@@ -1,9 +1,9 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index b4e49b4..c4ac9bc 100644
+index da377bb..3bcfa5a 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -1,7 +1,7 @@
- import { action, app, page, query, route } from "@wasp.sh/spec";
+ import { action, app, page, query, route } from "@wasp/spec";
  import { MainPage } from "./src/MainPage" with { type: "ref" };
  import { getTasks } from "./src/queries" with { type: "ref" };
 -import { createTask } from "./src/actions" with { type: "ref" };

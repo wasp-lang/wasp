@@ -1,8 +1,9 @@
 ---
 title: "Wasp x Railway: deploy your full-stack app with a single CLI command"
 authors: [miho]
-image: /img/railway-deployment/railway-cover.png
+image: /img/blog/2025-07-15-railway-deployment/railway-cover.png
 tags: [wasp, deployment, railway]
+description: "Deploy a Wasp app to Railway with one CLI command: wasp deploy railway launch sets up PostgreSQL, the server and the client in about 3 minutes."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
@@ -13,9 +14,9 @@ Wasp aims to be the complete package for your full-stack development needs, from
 
 Railway recently introduced [Railway Metal](https://blog.railway.com/p/launch-week-02-welcome) which is their cool way of saying they have their own independent infrastructure. They’ve been able to optimize their server costs and lower the prices for everybody. This makes Railway not only a powerful and stable platform but also a very reasonably priced option for many projects.
 
-![Railway Dashboard](/img/railway-deployment/railway-dashboard.jpg)
+![Railway Dashboard](/img/blog/2025-07-15-railway-deployment/railway-dashboard.jpg)
 
-That’s why we are excited to announce that we added support for [Railway](https://railway.com/) one-command deployment to Wasp! (Fun fact: This is provider #2, Wasp CLI already had one-command deployment with [Fly.io](http://fly.io/).)
+That’s why we are excited to announce that we added support for [Railway](https://railway.com/) one-command deployment to Wasp! The [Railway deployment docs](/docs/deployment/methods/wasp-deploy/railway) have every step. (Fun fact: This is provider #2, Wasp CLI already had one-command deployment with [Fly.io](http://fly.io/).)
 
 {/* truncate */}
 
@@ -23,7 +24,7 @@ That’s why we are excited to announce that we added support for [Railway](http
 
 Wasp takes the Railway experience a step further by giving a Wasp-specific deployment command. Instead of manually configuring each service of your application (the database, the server and the client), Wasp orchestrates the entire deployment with a single command:
 
-![wasp deploy railway command in a terminal](/img/railway-deployment/railway-command-terminal.png)
+![wasp deploy railway command in a terminal](/img/blog/2025-07-15-railway-deployment/railway-command-terminal.png)
 
 ## See it in action
 
@@ -41,7 +42,7 @@ All you need to do is run "wasp deploy railway launch". Behind the scenes, the W
 <ImgWithCaption
     alt="Railway dashboard with Wasp app"
     caption="This is how your Wasp app looks in the Railway dashboard after deploying"
-    source="img/railway-deployment/example-app.png"
+    source="img/blog/2025-07-15-railway-deployment/example-app.png"
 />
 
 This is how your Wasp app looks in the Railway dashboard after deploying
@@ -51,7 +52,7 @@ After the deployment process finishes you’ll get a URL to your client app whic
 <ImgWithCaption
     alt="Old lady giving a thumbs up"
     caption="Your grandma will be proud of you!"
-    source="img/railway-deployment/grandma.gif"
+    source="img/blog/2025-07-15-railway-deployment/grandma.gif"
 />
 
 ## Deploy your app to Railway today
@@ -67,6 +68,6 @@ If you want to deploy your app to Railway:
 
 That's it! Your application will be deployed to Railway, complete with database, server, and client services all properly configured and connected.
 
-For more details on deploying your Wasp apps with Railway, check out our [deployment documentation](/docs/deployment/deployment-methods/wasp-deploy/railway).
+For more details on deploying your Wasp apps with Railway, check out our [deployment documentation](/docs/deployment/methods/wasp-deploy/railway).
 
 Use it today and speedrun your app deployment with Wasp. We can’t wait to see what you build next!

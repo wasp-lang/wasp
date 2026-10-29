@@ -1,0 +1,146 @@
+# Wasp Next Documentation
+
+## Docs
+### Getting started
+- [What's Wasp?](https://wasp.sh/docs.md)
+- [Quick start](https://wasp.sh/docs/quick-start.md)
+- [Starter templates](https://wasp.sh/docs/getting-started/starter-templates.md)
+- [Agent integration](https://wasp.sh/docs/getting-started/agent-integration.md)
+### Tutorial
+- [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
+- [2. Project structure](https://wasp.sh/docs/tutorial/project-structure.md)
+- [3. Pages and routes](https://wasp.sh/docs/tutorial/pages.md)
+- [4. Database entities](https://wasp.sh/docs/tutorial/entities.md)
+- [5. Querying the database](https://wasp.sh/docs/tutorial/queries.md)
+- [6. Modifying data](https://wasp.sh/docs/tutorial/actions.md)
+- [7. Adding authentication](https://wasp.sh/docs/tutorial/auth.md)
+### Features
+- [Wasp Spec (main.wasp.ts)](https://wasp.sh/docs/features/spec.md)
+- [Pages and routes](https://wasp.sh/docs/features/pages-and-routes.md)
+#### Data
+- [Entities](https://wasp.sh/docs/features/data/entities.md)
+##### Operations
+- [Overview](https://wasp.sh/docs/features/data/operations/overview.md)
+- [Queries](https://wasp.sh/docs/features/data/operations/queries.md)
+- [Actions](https://wasp.sh/docs/features/data/operations/actions.md)
+- [Automatic CRUD](https://wasp.sh/docs/features/data/crud.md)
+- [Databases](https://wasp.sh/docs/features/data/databases.md)
+- [Prisma schema file](https://wasp.sh/docs/features/data/prisma-file.md)
+#### Auth
+- [Overview](https://wasp.sh/docs/features/auth/overview.md)
+- [Auth UI](https://wasp.sh/docs/features/auth/ui.md)
+##### Username and password
+- [Overview](https://wasp.sh/docs/features/auth/username-and-pass/overview.md)
+- [Create your own UI](https://wasp.sh/docs/features/auth/username-and-pass/create-your-own-ui.md)
+##### Email
+- [Overview](https://wasp.sh/docs/features/auth/email/overview.md)
+- [Create your own UI](https://wasp.sh/docs/features/auth/email/create-your-own-ui.md)
+##### Social auth
+- [Overview](https://wasp.sh/docs/features/auth/social-auth/overview.md)
+- [GitHub](https://wasp.sh/docs/features/auth/social-auth/github.md)
+- [Google](https://wasp.sh/docs/features/auth/social-auth/google.md)
+- [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak.md)
+- [Slack](https://wasp.sh/docs/features/auth/social-auth/slack.md)
+- [Discord](https://wasp.sh/docs/features/auth/social-auth/discord.md)
+- [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft.md)
+- [Create your own UI](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui.md)
+- [Accessing user data](https://wasp.sh/docs/features/auth/entities.md)
+- [Hooks](https://wasp.sh/docs/features/auth/hooks.md)
+##### Advanced
+- [Custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions.md)
+- [Email](https://wasp.sh/docs/features/email.md)
+- [Jobs](https://wasp.sh/docs/features/jobs.md)
+- [WebSockets](https://wasp.sh/docs/features/websockets.md)
+- [API routes](https://wasp.sh/docs/features/apis.md)
+### Advanced
+- [Dependencies](https://wasp.sh/docs/advanced/dependencies.md)
+- [Worktrees](https://wasp.sh/docs/advanced/git-worktrees.md)
+- [Environment variables](https://wasp.sh/docs/advanced/env-vars.md)
+- [Testing](https://wasp.sh/docs/advanced/testing.md)
+- [Accessing the configuration](https://wasp.sh/docs/advanced/accessing-app-config.md)
+- [Prerendering](https://wasp.sh/docs/advanced/prerendering.md)
+- [SEO & GEO](https://wasp.sh/docs/advanced/seo.md)
+#### Client customization
+- [Customizing the app](https://wasp.sh/docs/advanced/client-customization/customizing-app.md)
+- [Client configuration](https://wasp.sh/docs/advanced/client-customization/client-config.md)
+- [Static assets](https://wasp.sh/docs/advanced/client-customization/static-assets.md)
+- [Custom Vite config](https://wasp.sh/docs/advanced/client-customization/custom-vite-config.md)
+#### Server customization
+- [Server config](https://wasp.sh/docs/advanced/server-customization/server-config.md)
+- [Middleware](https://wasp.sh/docs/advanced/server-customization/middleware.md)
+- [CLI reference](https://wasp.sh/docs/advanced/cli.md)
+### Deployment
+- [Overview](https://wasp.sh/docs/deployment/overview.md)
+- [Environment variables](https://wasp.sh/docs/deployment/env-vars.md)
+- [Database](https://wasp.sh/docs/deployment/database.md)
+- [Testing locally](https://wasp.sh/docs/deployment/local-testing.md)
+#### Methods
+- [Overview](https://wasp.sh/docs/deployment/methods/overview.md)
+##### Wasp Deploy
+- [Overview](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview.md)
+- [Fly.io](https://wasp.sh/docs/deployment/methods/wasp-deploy/fly.md)
+- [Railway](https://wasp.sh/docs/deployment/methods/wasp-deploy/railway.md)
+- [Continuous deployment](https://wasp.sh/docs/deployment/methods/wasp-deploy/cd.md)
+- [Cloud providers](https://wasp.sh/docs/deployment/methods/cloud-providers.md)
+- [Self-hosted](https://wasp.sh/docs/deployment/methods/self-hosted.md)
+- [CI & CD](https://wasp.sh/docs/deployment/ci-cd.md)
+- [Extras](https://wasp.sh/docs/deployment/extras.md)
+### Migration guides
+- [From 0.26 to 0.27](https://wasp.sh/docs/migration-guide.md)
+- [From 0.25 to 0.26](https://wasp.sh/docs/0.26/migration-guide.md)
+- [From 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide.md)
+- [From 0.23 to 0.24](https://wasp.sh/docs/0.24/migration-guide.md)
+- [From 0.22 to 0.23](https://wasp.sh/docs/0.23/migration-guide.md)
+- [From 0.21 to 0.22](https://wasp.sh/docs/0.22/migration-guide.md)
+- [From 0.20 to 0.21](https://wasp.sh/docs/0.21/migration-guide.md)
+- [From 0.19 to 0.20](https://wasp.sh/docs/0.20/migration-guide.md)
+- [From 0.18 to 0.19](https://wasp.sh/docs/0.19/migration-guide.md)
+- [From 0.17 to 0.18](https://wasp.sh/docs/0.18/migration-guide.md)
+- [From 0.16 to 0.17](https://wasp.sh/docs/0.17/migration-guide.md)
+- [From 0.15 to 0.16](https://wasp.sh/docs/0.16/migration-guide.md)
+- [From 0.14 to 0.15](https://wasp.sh/docs/0.15/migration-guide.md)
+- [From 0.13 to 0.14](https://wasp.sh/docs/0.14/migration-guide.md)
+- [From 0.12 to 0.13](https://wasp.sh/docs/0.13/migration-guide.md)
+- [From 0.11 to 0.12](https://wasp.sh/docs/0.12/migration-guide.md)
+
+## Guides
+- [About these guides](https://wasp.sh/docs/guides.md)
+### Configuration
+- [Multiple Domains CORS](https://wasp.sh/docs/guides/configuration/cors-multiple-domains.md)
+### Debugging
+- [Database Studio with Fly.io](https://wasp.sh/docs/guides/debugging/db-studio-fly-io.md)
+- [Local Network Testing](https://wasp.sh/docs/guides/debugging/local-network-testing.md)
+### Deployment
+#### Cloud Providers
+- [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare.md)
+- [Fly.io](https://wasp.sh/docs/guides/deployment/cloud-providers/flyio.md)
+- [Heroku](https://wasp.sh/docs/guides/deployment/cloud-providers/heroku.md)
+- [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify.md)
+- [Railway](https://wasp.sh/docs/guides/deployment/cloud-providers/railway.md)
+- [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render.md)
+- [Vercel](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel.md)
+- [Zerops](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops.md)
+#### Self-Hosted
+- [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
+- [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
+- [Simple VPS](https://wasp.sh/docs/guides/deployment/self-hosted/vps.md)
+### Integrations
+- [Custom OAuth Provider](https://wasp.sh/docs/guides/integrations/custom-oauth.md)
+- [File Uploads](https://wasp.sh/docs/guides/integrations/file-upload.md)
+- [Sentry](https://wasp.sh/docs/guides/integrations/sentry.md)
+- [Swagger UI](https://wasp.sh/docs/guides/integrations/swagger-ui.md)
+- [WebSocket Namespaces](https://wasp.sh/docs/guides/integrations/websocket-namespaces.md)
+### Legacy
+- [Wasp Installer](https://wasp.sh/docs/guides/legacy/installer.md)
+- [Wasp DSL](https://wasp.sh/docs/guides/legacy/wasp-dsl.md)
+- [Wasp TS Config](https://wasp.sh/docs/guides/legacy/wasp-ts-config.md)
+### Libraries
+- [Radix Themes](https://wasp.sh/docs/guides/libraries/radix-themes.md)
+- [Shadcn](https://wasp.sh/docs/guides/libraries/shadcn.md)
+- [Tailwind CSS](https://wasp.sh/docs/guides/libraries/tailwind.md)
+### Optimization
+- [Meta tags](https://wasp.sh/docs/guides/optimization/meta-tags.md)
+- [SEO & GEO](https://wasp.sh/docs/guides/optimization/seo.md)
+
+## API
+- [@wasp/spec](https://wasp.sh/docs/api/@wasp/spec.md)

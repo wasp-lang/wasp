@@ -1,5 +1,5 @@
 module Wasp.Node.Version
-  ( VersionCheckResult (..),
+  ( VersionCheckResult,
     oldestWaspSupportedNpmVersion,
     oldestWaspSupportedNodeVersion,
     nodeTypesVersionRangeMatchingNodeMajor,
@@ -10,7 +10,9 @@ module Wasp.Node.Version
   )
 where
 
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Data.Conduit.Process.Typed (ExitCode (..))
+import Data.Functor ((<&>))
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Process (readProcessWithExitCode)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
@@ -22,7 +24,7 @@ import Wasp.Util (indent)
 -- NOTE: Don't change Wasp's lowest supported Node version without updating it
 -- in all required places. Check /mise.toml for the full list.
 oldestWaspSupportedNodeVersion :: SV.Version
-oldestWaspSupportedNodeVersion = SV.Version 24 14 1
+oldestWaspSupportedNodeVersion = SV.Version 24 22 1
 
 oldestWaspSupportedNpmVersion :: SV.Version
 oldestWaspSupportedNpmVersion = SV.Version 11 11 0
@@ -37,33 +39,28 @@ isRangeInWaspSupportedRange range =
   where
     waspVersionInterval = SV.versionBounds $ SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion
 
-data VersionCheckResult
-  = VersionCheckFail !ErrorMessage
-  | VersionCheckSuccess
+type VersionCheckResult = Either ErrorMessage ()
 
 type ErrorMessage = String
 
 checkUserNodeAndNpmMeetWaspRequirements :: IO VersionCheckResult
-checkUserNodeAndNpmMeetWaspRequirements = do
-  nodeResult <- checkUserNodeVersion
-  npmResult <- checkUserNpmVersion
-  return $ case (nodeResult, npmResult) of
-    (VersionCheckSuccess, VersionCheckSuccess) -> VersionCheckSuccess
-    (VersionCheckFail nodeError, _) -> VersionCheckFail nodeError
-    (_, VersionCheckFail npmError) -> VersionCheckFail npmError
-  where
-    checkUserNodeVersion = checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
-    checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
+checkUserNodeAndNpmMeetWaspRequirements =
+  runExceptT $
+    mapM_
+      ExceptT
+      [ checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion,
+        checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
+      ]
 
 checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
-checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
-  userVersionOrError <- getToolVersionFromCommandOutput commandName commandArgs
-  return $ case userVersionOrError of
-    Left errorMsg -> VersionCheckFail errorMsg
-    Right userVersion
-      | userVersion >= oldestSupportedToolVersion -> VersionCheckSuccess
-      | otherwise -> VersionCheckFail $ makeVersionMismatchErrorMessage userVersion
+checkUserToolVersion commandName commandArgs oldestSupportedToolVersion =
+  getToolVersionFromCommandOutput commandName commandArgs
+    <&> (>>= assertVersionIsSupported)
   where
+    assertVersionIsSupported userVersion
+      | userVersion >= oldestSupportedToolVersion = Right ()
+      | otherwise = Left $ makeVersionMismatchErrorMessage userVersion
+
     makeVersionMismatchErrorMessage version =
       unlines
         [ "Your " ++ commandName ++ " version does not meet Wasp's requirements!",

@@ -1,4 +1,4 @@
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route } from "@wasp/spec";
 
 import { Layout } from "./src/Layout" with { type: "ref" };
 import { LoginPage } from "./src/pages/LoginPage" with { type: "ref" };
@@ -8,7 +8,7 @@ import { votingWebSocket } from "./src/ws-server" with { type: "ref" };
 
 export default app({
   name: "whereDoWeEat",
-  wasp: { version: "0.26.0" },
+  wasp: { version: "0.27.0" },
   title: "where-do-we-eat",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   client: {

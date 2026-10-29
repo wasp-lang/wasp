@@ -12,6 +12,8 @@ When you create a new project using `wasp new`, Wasp creates the project in 3 st
 
 Due to this behavior, all files shared by all starters are placed in the [`skeleton`](./skeleton) directory.
 
+The `basic` starter builds on top of `minimal`: `basic/src/Main.css` is a copy of `minimal/src/Main.css`, which `basic` loads into Tailwind's base layer. Keep both files identical.
+
 ## Development Workflow
 
 The recommended approach for developing starter templates:
@@ -20,3 +22,5 @@ The recommended approach for developing starter templates:
 2. **Implement changes**: Make your required changes in the Wasp project
 3. **Copy changes back**: Once satisfied with the implementation, copy the files from your project back to the starter templates
 4. **Test the starter**: Create a new project with `wasp-cli` to verify it matches your previously created project
+
+When copying changes back, don't include the `migrations/` directory. Starters intentionally ship without migrations so users aren't locked into a specific database provider. They'll get a single clean initial migration when they run `wasp db migrate-dev` for the first time.

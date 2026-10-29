@@ -1,4 +1,4 @@
-import type { PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
+import type { PrerenderFn } from "@wasp/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";
 import { prerenderToNodeStream as reactPrerender } from "react-dom/static";
@@ -11,7 +11,7 @@ import {
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
 
-import { routeObjects } from '/@wasp/routes.tsx'
+import { routeObjects } from "/@wasp/routes.tsx"
 
 const SPA_FALLBACK_FILE = "200.html";
 

@@ -1,8 +1,9 @@
 ---
 title: 'Wasp: The JavaScript Answer to Django for Web Development'
 authors: [sam]
-image: /img/django-vs-wasp/wasp-django-banner.png
+image: /img/blog/2024-08-20-django-vs-wasp/wasp-django-banner.png
 tags: [webdev, auth, react, django, tutorial, full-stack]
+description: "Django vs Wasp: a Django developer builds the same task app in Django with React and in Wasp, then compares models, routes, CRUD and auth code."
 ---
 
 import TabItem from '@theme/TabItem';
@@ -10,7 +11,7 @@ import Tabs from '@theme/Tabs';
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
-![a django dev tries wasp](/img/django-vs-wasp/wasp-django-banner.png)
+![a django dev tries wasp](/img/blog/2024-08-20-django-vs-wasp/wasp-django-banner.png)
 
 ## Wasp vs Django: Building a full stack application just got a lot easier
 
@@ -60,7 +61,7 @@ This part is about the only part where there is significant overlap between Djan
 
 Now Wasp starts hot out of the gate. After running `wasp new` you'll see a menu, as shown below. Wasp can either start a basic app for you, or you can select from a multitude of pre-made templates (including a [fully functioning SaaS app](https://opensaas.sh)) or even use an AI-generated app based on your description!
 
-![wasp cli menu](/img/django-vs-wasp/wasp-cli-menu.png)
+![wasp cli menu](/img/blog/2024-08-20-django-vs-wasp/wasp-cli-menu.png)
 
 Meanwhile, Django works as a project with apps within the project (again, this is essentially all for backend operations) and there can be many apps to one Django project. Thus, you have to register each app in the Django project settings.
 
@@ -605,7 +606,7 @@ Ok, so now we can actually get back to comparing Wasp and Django.
   </TabItem>
 </Tabs>
 
-<ImgWithCaption alt="Todo app" source="/img/django-vs-wasp/wasp-todo-app.gif" />
+<ImgWithCaption alt="Todo app" source="/img/blog/2024-08-20-django-vs-wasp/wasp-todo-app.gif" />
 
 In the Wasp app you can see how much easier it is to call the server-side code via Wasp operations. Plus, Wasp gives you the added benefit of refreshing the client-side cache for the Entity that's referenced in the operation definition (in this case `Task`). And the cherry on top is how easy it is to pass the authenticated user to the component, something we haven't even touched on in the Django app, and which we will talk about more below.
 
@@ -639,7 +640,7 @@ This is one of Wasp’s biggest advantages. It couldn't be easier or more intuit
 
     That's it!
 
-    <ImgWithCaption alt="mind blown" source="/img/django-vs-wasp/mindblown.gif" />
+    <ImgWithCaption alt="mind blown" source="/img/blog/2024-08-20-django-vs-wasp/mindblown.gif" />
   </TabItem>
 
   <TabItem value="Django" label="Django 🟢">
@@ -674,7 +675,7 @@ This is one of Wasp’s biggest advantages. It couldn't be easier or more intuit
   </TabItem>
 </Tabs>
 
-And that's all it takes to implement full-stack [Auth with Wasp](https://wasp.sh/docs/auth/overview)! But that's just one example, you can also add other auth methods easily, like `google: {}`, `gitHub: {}` and `discord: {}` social auth, after configuring the apps and adding your environment variables.
+And that's all it takes to implement full-stack [Auth with Wasp](https://wasp.sh/docs/features/auth/overview)! But that's just one example, you can also add other auth methods easily, like `google: {}`, `gitHub: {}` and `discord: {}` social auth, after configuring the apps and adding your environment variables.
 
 Wasp allows you to get building without worrying about so many things. I don’t need to worry about password hashing, multiple projects and apps, CORS headers, etc. I just need to add a couple lines of code.
 
@@ -694,13 +695,13 @@ Right out of the box you have a to-do application with authentication, CRUD func
 
 Or what if you want to turn code into money? Well, you can also get a [fully functioning SaaS app](https://opensaas.sh). Interested in the latest AI offereings? You also have a vector embeddings template, or an AI full-stack app protoyper! 5 options that save you from having to write a ton of boilerplate code.
 
-![wasp cli menu](/img/django-vs-wasp/wasp-cli-menu.png)
+![wasp cli menu](/img/blog/2024-08-20-django-vs-wasp/wasp-cli-menu.png)
 
 ### Way #2: [Mage.ai](https://usemage.ai/) (Free!)
 
 Just throw a name, prompt, and select a few of your desired settings and boom, you get a fully functioning prototype app. From here you can use other other AI tools, like [Cursor's AI code editor](https://www.cursor.com/), to generate new features and help you debug!
 
-![mage](/img/django-vs-wasp/usemage.png)
+![mage](/img/blog/2024-08-20-django-vs-wasp/usemage.png)
 
 :::note
 💡 The Mage functionality is also achievable via the terminal (`wasp new -> ai-generated`), but you need to provide your own OpenAI api key for it to work.

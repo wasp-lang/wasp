@@ -1,9 +1,12 @@
 ---
+title: "Cloudflare: deploy a Wasp app's client to Workers"
+sidebar_label: Cloudflare
+description: "Deploy a Wasp app's client to Cloudflare Workers with Wrangler: add wrangler.toml and worker.js for SPA routing, or deploy from GitHub Actions."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
-import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
+import BuildingTheWebClient from '../../../deployment/methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Cloudflare
@@ -20,7 +23,7 @@ Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can l
 npx wrangler login
 ```
 
-Before you continue, make sure you have [built the Wasp app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
+Before you continue, make sure you have [built the Wasp app](../../../deployment/methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
 
 <BuildingTheWebClient />
 
@@ -96,7 +99,7 @@ Here's an example configuration file to help you get started. This example workf
             node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
+          run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Install Wasp app dependencies
           run: cd ./app && wasp install

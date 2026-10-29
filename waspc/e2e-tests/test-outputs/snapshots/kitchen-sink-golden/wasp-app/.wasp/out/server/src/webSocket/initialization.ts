@@ -4,11 +4,12 @@ import { Server, Socket } from 'socket.io'
 import type { ServerType } from 'wasp/server/webSocket'
 
 import { config, prisma } from 'wasp/server'
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 import { getSessionAndUserFromSessionId } from 'wasp/server/auth/session'
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
-import { chatWebSocket } from '../../../../../src/features/chat/webSocket'
+import { chatWebSocket } from "../../../../../src/features/chat/webSocket"
 
 // Initializes the WebSocket server and invokes the user's WebSocket function.
 export async function init(server: http.Server): Promise<void> {
@@ -47,7 +48,9 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
         ...socket.data,
         user,
       }
-    } catch (err) { }
+    } catch (error: unknown) {
+      reportUnexpectedServerError(error, { source: "webSocket" });
+    }
   }
   next()
 }

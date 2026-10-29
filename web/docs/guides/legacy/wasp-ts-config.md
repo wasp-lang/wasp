@@ -1,4 +1,6 @@
 ---
+title: Migrating from the Wasp TS Config in 0.24
+description: Wasp 0.24 retired the class-based TS Config (new App) for the function-based Wasp Spec. Convert the app, specifications, imports, APIs, jobs and CRUD.
 sidebar_label: "Wasp TS Config"
 comments: true
 ---
@@ -11,7 +13,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
+Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../features/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
 
 :::tip Upgrading from Wasp 0.23 to 0.24?
 The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](/docs/0.24/migration-guide#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](/docs/0.24/migration-guide) for the remaining shared steps.
@@ -53,13 +55,13 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
 </Tabs>
 
-Import objects still work through the `ref(...)` helper, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
+Import objects still work through the `ref(...)` helper, so you can migrate gradually. See the [Wasp Spec documentation](../../features/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
 
 ### Multiple files
 
 The TS Config required your entire configuration to live in a single `main.wasp.ts`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import specifications between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `cards.wasp.ts` next to the feature it configures).
 
-See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
+See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-into-multiple-files) for details.
 
 ## Changes
 
@@ -71,7 +73,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | Configuring the app       | `app.auth(...);` <br/> `app.server(...);` <br/> `app.client(...);` <br/> `app.db(...);` <br/> `app.emailSender(...);` <br/> `app.webSocket(...);` | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/> client: ...,<br/> db: ...,<br/> emailSender: ...,<br/> webSocket: ...,<br/>});</pre> |
 | Adding app specifications | `app.route(...);` <br/> `app.query(...);` <br/> `app.action(...);` <br/> etc                                                                      | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>});</pre>                                       |
 | Imports                   | `{ import, from }`                                                                                                                                | `import { ... } from "./src/..." with { type: "ref" };`                                                                                 |
-| Package name              | `wasp-config`                                                                                                                                     | `@wasp.sh/spec`                                                                                                                         |
+| Package name              | `wasp-config`                                                                                                                                     | `@wasp/spec`                                                                                                                         |
 
 ### App and specifications
 
@@ -101,7 +103,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, query, route } from "@wasp.sh/spec";
+    import { app, page, query, route } from "@wasp/spec";
     import MainPage from "./src/MainPage" with { type: "ref" };
     import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -140,7 +142,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from "@wasp.sh/spec";
+    import { api, apiNamespace, app } from "@wasp/spec";
     import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
     export default app({
@@ -174,7 +176,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from "@wasp.sh/spec";
+    import { app, job } from "@wasp/spec";
     import { foo } from "./src/jobs/bar" with { type: "ref" };
 
     export default app({
@@ -208,7 +210,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec";
+    import { app, crud } from "@wasp/spec";
     import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
@@ -258,7 +260,7 @@ These were configured with mutating method calls. They are now keys of the `app(
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec";
+    import { app } from "@wasp/spec";
     import App from "./src/App" with { type: "ref" };
 
     export default app({
@@ -313,14 +315,14 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           "devDependencies": {
             // ...
             "@types/node": "^24.0.0",
-            "@wasp.sh/spec": "file:.wasp/spec"
+            "@wasp/spec": "file:.wasp/spec"
           }
         }
         ```
       </TabItem>
     </Tabs>
 
-    Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+    Keep your existing dependencies, replace `wasp-config` with `@wasp/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2.  Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
@@ -373,7 +375,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
       </TabItem>
       <TabItem value="after" label="After">
         ```ts title="main.wasp.ts"
-        import { app } from "@wasp.sh/spec";
+        import { app } from "@wasp/spec";
 
         export default app({
           name: "myApp",
@@ -399,4 +401,4 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
 :::
 
-See the full [Wasp Spec reference](../../general/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
+See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

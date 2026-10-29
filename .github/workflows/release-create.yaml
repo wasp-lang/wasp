@@ -15,7 +15,7 @@ jobs:
     # job. The workflow itself is already checked by zizmor too, so we can
     # safely ignore this warning here.
     # zizmor: ignore[excessive-permissions]
-    uses: ./.github/workflows/ci.yaml
+    uses: $/.github/workflows/ci.yaml
     secrets:
       # (Same comment as above)
       # zizmor: ignore[secrets-inherit]
@@ -70,7 +70,8 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
-          path: packages/
+          # Not `packages/`, which is where the repo's package sources live.
+          path: npm-packages/
 
       - name: Stage Wasp npm packages for publishing
         # Staged publishing uploads the packages to npm's staging queue instead
@@ -92,6 +93,6 @@ jobs:
             *) DIST_TAG="latest" ;;
           esac
 
-          for pkg in ./packages/*; do
+          for pkg in ./npm-packages/*; do
             npx npm@^11.15.0 stage publish --tag "$DIST_TAG" "$pkg"
           done

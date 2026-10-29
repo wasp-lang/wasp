@@ -1,15 +1,18 @@
 ---
+title: "Legacy Wasp installer: migrate to npm installation"
+description: Starting from Wasp 0.21, installation is done through npm. The installation method using the script installer is now considered legacy and is not supported anymore.
 sidebar_label: "Wasp Installer"
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+import Trackable from "@site/src/components/Trackable";
 
 # Legacy Wasp installer
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.21" }} />
 
-Starting from Wasp 0.21, installation is done [through npm](../../introduction/quick-start.md#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
+Starting from Wasp 0.21, installation is done [through npm](../../getting-started/quick-start.md#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
 
 ## How to migrate off the legacy installer {#migrate}
 
@@ -19,18 +22,30 @@ To switch to the new installation method, you can run our migration tool:
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 ```
 
-Afterwards, you can use [the regular installation instructions](../../introduction/quick-start.md#detailed-installation) to install Wasp through npm:
+Afterwards, you can use [the regular installation instructions](../../getting-started/quick-start.md#detailed-installation) to install Wasp through npm:
+
+<Trackable event="Install Command: Copy">
 
 ```shell
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
+
+</Trackable>
 
 You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
 
+<Trackable event="Install Command: Copy">
+
 ```shell
-# Set x.y.z to the version you want to install, e.g. 0.20.2
+# Set x.y.z to the version you want to install.
+# Wasp 0.27 and newer:
+npm i -g @wasp/cli@x.y.z
+
+# Wasp 0.20.2 to 0.26.x:
 npm i -g @wasp.sh/wasp-cli@x.y.z
 ```
+
+</Trackable>
 
 ## Keep using the legacy installer {#keep-using}
 
@@ -70,6 +85,10 @@ If you have already switched to npm installation but need to switch back to the 
 1. Uninstall the npm version of Wasp:
 
     ```shell
+    # Wasp 0.27 and newer:
+    npm uninstall -g @wasp/cli
+
+    # Wasp 0.20.2 to 0.26.x:
     npm uninstall -g @wasp.sh/wasp-cli
     ```
 

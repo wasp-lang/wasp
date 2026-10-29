@@ -1,4 +1,4 @@
-import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
+import { action, page, route, type Auth, type Spec } from "@wasp/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
@@ -68,7 +68,7 @@ export const authConfig: Auth = {
     email: {
       userSignupFields: emailUserSignupFields,
       fromField: {
-        name: "Wasp Kitchen Sink",
+        name: 'Wasp\'s "Kitchen Sink"',
         email: "kitchen-sink@wasp.sh",
       },
       emailVerification: {

@@ -1,4 +1,7 @@
 ---
+title: "Swagger UI: document and test your Wasp APIs"
+sidebar_label: Swagger UI
+description: "Add Swagger UI to a Wasp app to explore and test its APIs: annotate them with JSDoc, generate the spec with swagger-jsdoc and serve it at /api-docs."
 comments: true
 ---
 
@@ -26,7 +29,7 @@ npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 Add an API namespace for the Swagger UI endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp.sh/spec"
+import { api, apiNamespace, app } from "@wasp/spec"
 import { getStatus } from "./src/apis" with { type: "ref" }
 import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 

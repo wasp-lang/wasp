@@ -1,8 +1,11 @@
 ---
-title: 2. Project Structure
+title: "2. Project structure: Wasp tutorial"
+sidebar_label: "2. Project structure"
+description: "Step 2 of the Wasp tutorial explains the files of a new project: main.wasp.ts for the spec, schema.prisma for database models and src for your own code."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# 2. Project structure
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -74,7 +77,7 @@ We'll keep it simple by placing everything in the root `src` directory.
 Many other files (e.g., `tsconfig.json`, `tsconfig.src.json`, `tsconfig.wasp.json`, `vite-env.d.ts`, etc.) help Wasp and the IDE improve your development experience with autocompletion, IntelliSense, and error reporting.
 
 The `vite.config.ts` file is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
-We won't be customizing the Vite setup in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
+We won't be customizing the Vite setup in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../advanced/client-customization/custom-vite-config.md).
 
 The `schema.prisma` file is where you define your database schema using [Prisma](https://www.prisma.io/). We'll cover this a bit later in the tutorial.
 
@@ -92,7 +95,7 @@ The file exports your app's top-level configuration and a collection of specific
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 // This is a reference to your MainPage component.
 // Read more about how Wasp references your code in the section below.
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -118,16 +121,16 @@ When `main.wasp.ts` needs to point to your React components or Node.js functions
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 ```
 
-Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../general/spec.md#reference-imports).
+Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../features/spec.md#reference-imports).
 
 ### Specifications
 
 This Wasp app uses three specifications:
 
-- [**app**](../api/@wasp.sh/spec/functions/app): Top-level configuration information about your app.
+- [**app**](../api/@wasp/spec/functions/app): Top-level configuration information about your app.
 
-- [**route**](../api/@wasp.sh/spec/functions/route): Describes which path each page should be accessible from.
+- [**route**](../api/@wasp/spec/functions/route): Describes which path each page should be accessible from.
 
-- [**page**](../api/@wasp.sh/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
+- [**page**](../api/@wasp/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.

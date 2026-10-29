@@ -1,12 +1,7 @@
-import { stripTrailingSlash } from '../universal/url.js'
+import { stripTrailingSlash, type ClientConfig } from '@wasp/lib-sdk-core'
 import { env } from './env.js'
 
 const apiUrl = stripTrailingSlash(env["REACT_APP_API_URL"])
-
-// PUBLIC API
-export type ClientConfig = {
-  apiUrl: string,
-}
 
 // PUBLIC API
 export const config: ClientConfig = {

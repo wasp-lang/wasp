@@ -12,6 +12,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
+import Data.Either (fromLeft)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -20,9 +21,10 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
@@ -48,7 +50,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Finally, throws if there was a compile/build error.
 -- Very similar to 'compile'.
 build :: Command ()
-build = do
+build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
@@ -57,30 +59,30 @@ build = do
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
-    cliSendMessageC $
-      Msg.Start $
-        "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
+    cliSendMessageC
+      $ Msg.Start
+      $ "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
-    cliSendMessageC $
-      Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+    cliSendMessageC
+      $ Msg.Success
+      $ "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
   liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $
-    throwError $
-      CommandError "Building of wasp project failed" $
-        show (length errors) ++ " errors found."
+  unless (null errors)
+    $ throwError
+    $ CommandError "Building of wasp project failed"
+    $ show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
-  cliSendMessageC $
-    Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  cliSendMessageC
+    $ Msg.Success
+    $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       let srcTsConfigPath = srcTsConfig tsConfigPaths
@@ -120,9 +122,9 @@ build = do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
+      -- The user's `package.json` references `@wasp/spec` via `file:.wasp/spec`,
       -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
-      -- We strip `@wasp.sh/spec` from the build's `devDependencies` so that Docker's
+      -- We strip `@wasp/spec` from the build's `devDependencies` so that Docker's
       -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
       -- and proceeds without trying to resolve the missing `file:` path.
       --
@@ -131,7 +133,7 @@ build = do
       --   - https://github.com/wasp-lang/wasp/issues/897
       --   - https://github.com/wasp-lang/wasp/issues/1769
       ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
-      -- Removing `@wasp.sh/spec` from the package-lock.json file is not
+      -- Removing `@wasp/spec` from the package-lock.json file is not
       -- strictly necessary (`npm install` would drop it anyway). We still do
       -- it because:
       --   - Npm throws a warning if it detects a mismatch.
@@ -150,18 +152,14 @@ buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
+buildIO waspProjectDir buildDir =
+  fmap (fromLeft [])
+    <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
-          -- Ignore "DB needs migration warnings" during build, as that is not a required step.
-          generatorWarningsFilter =
-            filter
-              ( \case
-                  GeneratorNeedsMigrationWarning _ -> False
-                  _ -> True
-              )
+          setupGoals = allSetupGoals
         }

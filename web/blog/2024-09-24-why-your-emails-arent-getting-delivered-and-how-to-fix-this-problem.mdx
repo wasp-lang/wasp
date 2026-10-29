@@ -1,8 +1,9 @@
 ---
 title: "Why Your SaaS Emails Aren’t Being Delivered and How to Fix This Issue"
 authors: [milica]
-image: /img/email/email-cover.jpg
+image: /img/blog/2024-09-24-why-your-emails-arent-getting-delivered-and-how-to-fix-this-problem/email-cover.jpg
 tags: [webdev, tips, emails]
+description: "Fix SaaS emails that land in spam: warm up a new domain, add SPF, DKIM and DMARC records, send with SendGrid or Mailgun, and monitor bounces."
 ---
 
 If you’ve just built your SaaS web app and deployed it on a production server, you might be running into email deliverability issues. Transactional or marketing emails might not be landing in your users' inboxes. Don’t panic! This is a pretty common problem, especially for apps that run on newly registered domains.
@@ -37,7 +38,7 @@ Read more about these records and how to add them to your DNS servers [here](htt
 
 ## 3. **Use professional email sending tools**
 
-Instead of sending emails directly from your own server, consider using a third-party email service that specializes in this area. Tools like **SendGrid** or **Mailgun** have built-in features to help ensure your emails make it to the inbox. Wasp helps you to [add them to your stack](https://wasp.sh/docs/advanced/email) with minimal configuration needed on your end.
+Instead of sending emails directly from your own server, consider using a third-party email service that specializes in this area. Tools like **SendGrid** or **Mailgun** have built-in features to help ensure your emails make it to the inbox. Wasp helps you to [add them to your stack](https://wasp.sh/docs/features/email) with minimal configuration needed on your end.
 
 They monitor and improve your domain reputation, manage bounces, and handle email authentication out-of-the-box. We’d recommend you to offload sending emails to them, so that you can focus on the core aspects of your business.
 
@@ -48,7 +49,7 @@ It’s important to keep an eye on how your emails are performing. Look for key 
 - **Bounce rate**: High bounce rates suggest you’re sending to invalid or outdated email addresses. Regularly clean your list to avoid this. If more than 3% of your emails bounce, your domain can get blocked by your email provider.
 - **Spam complaints**: High spam reports and complaints can also lead to email providers blocking your domain. If users are marking your emails as spam, reconsider the content and frequency of your emails. Also, please don’t buy email lists off of Internet, those will do you more harm than good.
 
-![meme saying are you looking into buying email lists](/img/email/meme.jpg)
+![meme saying are you looking into buying email lists](/img/blog/2024-09-24-why-your-emails-arent-getting-delivered-and-how-to-fix-this-problem/meme.jpg)
 
 ## 5. **Create high-quality content**
 
@@ -62,6 +63,6 @@ What you write matters too. Emails are poorly written are more likely to be mark
 
 ![you can do this gif](https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp.sh/docs/advanced/email#using-the-mailgun-provider), Wasp supports some out of the box.
+We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp.sh/docs/features/email#using-the-mailgun-provider), Wasp supports some out of the box.
 
 You can monitor the performance over time, and improve your approach with every batch of emails. It’s not about getting everything perfect from the start, but about making the right decisions before you start onboarding your users.

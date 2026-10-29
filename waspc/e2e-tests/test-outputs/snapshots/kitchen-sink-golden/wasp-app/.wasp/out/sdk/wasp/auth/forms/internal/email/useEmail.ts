@@ -1,4 +1,4 @@
-import { signup } from '../../../email/actions/signup'
+import { signup, type EmailSignupData } from '../../../email/actions/signup'
 import { login } from '../../../email/actions/login'
 
 // PRIVATE API
@@ -8,12 +8,12 @@ export function useEmail({
   onLoginSuccess,
   isLogin,
 }: {
-  onError: (error: Error) => void
+  onError: (error: unknown) => void
   showEmailVerificationPending: () => void
   onLoginSuccess: () => void
   isLogin: boolean
 }) {
-  async function handleSubmit(data) {
+  async function handleSubmit(data: EmailSignupData): Promise<void> {
     try {
       if (isLogin) {
         await login(data)
@@ -22,8 +22,8 @@ export function useEmail({
         await signup(data)
         showEmailVerificationPending()
       }
-    } catch (err: unknown) {
-      onError(err as Error)
+    } catch (error: unknown) {
+      onError(error);
     }
   }
 

@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
+import type { PrerenderFn } from "@wasp/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";
 import { prerenderToNodeStream as reactPrerender } from "react-dom/static";
@@ -42,7 +42,7 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
 export default prerenderApp;
 
 const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
-  basename: "{= baseDir =}",
+  basename: {=& baseDir =},
 });
 
 async function makeStaticRouterProvider(route: string) {

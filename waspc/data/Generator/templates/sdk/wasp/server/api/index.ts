@@ -1,16 +1,16 @@
 {{={= =}=}}
 
-import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
+import type { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
 
-import {
+import type {
   {=# allEntities =}
-  type {= internalTypeName =},
+  {= internalTypeName =},
   {=/ allEntities =}
   {=# shouldImportNonAuthenticatedApi =}
-  type Api,
+  Api,
   {=/ shouldImportNonAuthenticatedApi =}
   {=# shouldImportAuthenticatedApi =}
-  type AuthenticatedApi,
+  AuthenticatedApi,
   {=/ shouldImportAuthenticatedApi =}
 } from '../_types'
 

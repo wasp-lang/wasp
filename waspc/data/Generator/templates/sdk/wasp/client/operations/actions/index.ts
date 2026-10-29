@@ -1,13 +1,16 @@
 {{={= =}=}}
-import { type ActionFor, createAction } from './core'
+import type { ActionFor } from '@wasp/lib-sdk-core/browser'
+import { createAction } from "./core";
+import type {
 {=# actions =}
-{=& operationTypeImportStmt =}
+  {= registeredOperationTypeName =},
 {=/ actions =}
+} from "../../../server/operations/actions/index";
 {=# actions =}
 
 // PUBLIC API
-export const {= operationName =}: ActionFor<{= operationTypeName =}> = createAction<{= operationTypeName =}>(
-  '{= actionRoute =}',
+export const {= operationName =}: ActionFor<{= registeredOperationTypeName =}> = createAction<{= registeredOperationTypeName =}>(
+  "{= actionRoute =}",
   {=& entitiesArray =},
 )
 {=/ actions =}

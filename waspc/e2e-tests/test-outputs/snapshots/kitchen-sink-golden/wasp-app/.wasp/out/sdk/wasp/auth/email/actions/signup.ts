@@ -1,8 +1,9 @@
 import { api, handleApiError } from '../../../api/index.js';
-import { SuccessResponseSchema } from '../../responseSchemas';
-import { type UserEmailSignupFields } from '../../providers'
+import { SuccessResponseSchema } from '@wasp/lib-sdk-core';
+import type { UserEmailSignupFields } from '../../providers'
 
-type EmailSignupData = {
+// PRIVATE API
+export type EmailSignupData = {
   email: string
   password: string
 } & UserEmailSignupFields

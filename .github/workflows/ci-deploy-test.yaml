@@ -9,6 +9,8 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
+  # All Playwright configs only use Chromium, and CI runs headless.
+  WASP_PLAYWRIGHT_INSTALL_FLAGS: "--with-deps --only-shell chromium"
   # - We use run_id because it's shorter than commit SHA since
   # the max length for project name in Railway is 25 characters.
   # - We append run_attempt to avoid name collisions on job retries,
@@ -32,9 +34,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
+      - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -59,7 +61,9 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+          # - We give the database 512 MB of RAM because Fly's default is not
+          # enough for our e2e test bursts.
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" --db-vm-memory 512 "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
@@ -73,6 +77,12 @@ jobs:
           CLIENT_HOSTNAME=$(get_fly_app_hostname fly-client.toml)
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for deployed app to be reachable
+        uses: $/.github/actions/wait-for-deployed-app
+        with:
+          server-url: https://${{ steps.get-hostnames.outputs.server }}
+          client-url: https://${{ steps.get-hostnames.outputs.client }}
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -118,16 +128,16 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
+      - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: mise use -g github:railwayapp/cli@4.11.1
+        run: mise use -g railway@5.28.0
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -146,7 +156,7 @@ jobs:
         run: |
           function get_railway_service_hostname() {
             service_name="$1"
-            railway status --json | jq -r --arg NAME "$service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain'
+            railway status --json | jq -r --arg NAME "$service_name" '.environments.edges[].node.serviceInstances.edges[].node | select(.serviceName == $NAME) | .domains.serviceDomains[0].domain'
           }
           server_service_name="${APP_PREFIX}-server"
           client_service_name="${APP_PREFIX}-client"
@@ -161,25 +171,10 @@ jobs:
       # starts routing. Poll the deployed URLs so e2e tests start against a
       # live app.
       - name: Wait for deployed app to be reachable
-        env:
-          SERVER_HOSTNAME: ${{ steps.get-hostnames.outputs.server }}
-          CLIENT_HOSTNAME: ${{ steps.get-hostnames.outputs.client }}
-        run: |
-          function wait_for_url() {
-            url="$1"
-            for attempt in $(seq 1 30); do
-              if curl -fsS -o /dev/null --max-time 10 "$url"; then
-                echo "$url is ready"
-                return 0
-              fi
-              echo "Attempt $attempt/30: $url not ready, retrying in 10s"
-              sleep 10
-            done
-            echo "Timed out waiting for $url"
-            return 1
-          }
-          wait_for_url "https://${SERVER_HOSTNAME}"
-          wait_for_url "https://${CLIENT_HOSTNAME}"
+        uses: $/.github/actions/wait-for-deployed-app
+        with:
+          server-url: https://${{ steps.get-hostnames.outputs.server }}
+          client-url: https://${{ steps.get-hostnames.outputs.client }}
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -201,7 +196,11 @@ jobs:
         # NOTE: We pinned the Railway version because we don't want the changes in the
         # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
         # of Wasp, we're just incidentally using the same tool Wasp uses.
-        run: npm install -g @railway/cli@4.23.0
+        run:
+          # The version is pinned, see the note above.
+          # zizmor: ignore[adhoc-packages]
+          |
+          npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
         run: railway delete --yes --project "$APP_PREFIX" || true

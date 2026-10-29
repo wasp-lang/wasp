@@ -5,6 +5,8 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
+  # All Playwright configs only use Chromium, and CI runs headless.
+  WASP_PLAYWRIGHT_INSTALL_FLAGS: "--with-deps --only-shell chromium"
 
 jobs:
   test-example-apps:
@@ -26,9 +28,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
+      - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
         working-directory: examples/${{ matrix.example }}
@@ -58,13 +60,13 @@ jobs:
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
       - name: Prepare wasp-app-runner
-        working-directory: wasp-app-runner
+        working-directory: packages/wasp-app-runner
         run: npm install && npm run build
 
       - name: Run DEV e2e tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         env:
-          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
+          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
         run: npm run test
@@ -74,7 +76,7 @@ jobs:
         if: steps.extract-db-provider.outputs.provider != 'sqlite'
         working-directory: examples/${{ matrix.example }}
         env:
-          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
+          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
         run: npm run test

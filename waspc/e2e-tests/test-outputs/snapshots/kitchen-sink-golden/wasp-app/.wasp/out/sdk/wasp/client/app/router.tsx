@@ -3,7 +3,7 @@ import type { RouteObject } from 'react-router'
 
 import { OAuthCallbackPage } from "./pages/OAuthCallback"
 
-import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+import { DefaultRootErrorBoundary } from '@wasp/lib-sdk-core/browser'
 
 import { routes } from '../router/index'
 
@@ -16,7 +16,7 @@ export function getRouteObjects({
   routesMapping: RouteMapping,
   rootElement: ReactNode,
 }): RouteObject[] {
-  const waspDefinedRoutes = [
+  const waspDefinedRoutes: RouteObject[] = [
     {
       path: "/oauth/callback",
       Component: OAuthCallbackPage,

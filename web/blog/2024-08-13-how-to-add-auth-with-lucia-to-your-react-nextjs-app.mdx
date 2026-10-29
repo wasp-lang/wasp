@@ -1,15 +1,17 @@
 ---
 title: 'How to Add Auth with Lucia to Your React/Next.js App - A Step by Step Guide'
 authors: [lucaslima]
-image: /img/lua-auth/lucia-auth-banner.png
+image: /img/blog/2024-08-13-how-to-add-auth-with-lucia-to-your-react-nextjs-app/lucia-auth-banner.png
 tags: [webdev, tech, react, nextjs, tutorial]
+description: "Lucia is a framework-agnostic auth library. Set up GitHub OAuth with Lucia in Next.js by hand, then compare the steps with Wasp auth."
 ---
 
 import Link from '@docusaurus/Link';
+import Trackable from '@site/src/components/Trackable';
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
-<ImgWithCaption alt="How to Add Auth to Your App" source="/img/lua-auth/lucia-auth-banner.png" />
+<ImgWithCaption alt="How to Add Auth to Your App" source="/img/blog/2024-08-13-how-to-add-auth-with-lucia-to-your-react-nextjs-app/lucia-auth-banner.png" />
 
 Although authentication is one of the most common web app features, there are so many different ways to go about it, which makes it a very non-trivial task. In this post, I will share my personal experience using Lucia - a modern, framework-agnostic authentication library that has been getting, deservedly so, a lot of love from the community in recent months.
 
@@ -19,7 +21,7 @@ First, I will demonstrate how you can implement it within your Next.js applicati
 
 Secondly, we’ll see how to achieve the same with [Wasp](https://wasp.sh/) in just a few lines of code. Wasp is a batteries-included, full-stack framework for React & Node.js that uses Lucia under the hood to implement authentication. It runs fully on your infrastructure and is 100% open-source and free.
 
-![auth with Wasp](/img/lua-auth/comparison.png)
+![auth with Wasp](/img/blog/2024-08-13-how-to-add-auth-with-lucia-to-your-react-nextjs-app/comparison.png)
 
 ## Why Lucia?
 
@@ -394,11 +396,15 @@ As seen in the video, Wasp is a framework for building apps with the benefits of
 
 ### Step 1: Create a Wasp Project
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 wasp new my-wasp-app
 cd my-wasp-app
 ```
+
+</Trackable>
 
 ### Step 2: Add the User entity into our DB
 
@@ -515,7 +521,7 @@ page MainPage {
 ```
 
 If you’d like to check this example in more depth, feel free to check this repo here: [wasp/examples/todo-typescript at release · wasp-lang/wasp (github.com)](https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript).
-Other great place to check is their documentation, which can be found [here](https://wasp.sh/docs/auth/overview). It covers most of what I said here, and even more (e.g. the awesome new [hooks](https://wasp.sh/docs/auth/auth-hooks) that came with Wasp v0.14)
+Other great place to check is their documentation, which can be found [here](https://wasp.sh/docs/features/auth/overview). It covers most of what I said here, and even more (e.g. the awesome new [hooks](https://wasp.sh/docs/features/auth/hooks) that came with Wasp v0.14)
 
 ![https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
@@ -532,7 +538,7 @@ Way easier, isn’t it? Let’s review the steps we took to get here:
 
 If you need more control and customization over the authentication flow, Wasp provides Auth hooks that allow you to tailor the experience to your app's specific needs. These hooks enable you to execute custom code during various stages of the authentication process, ensuring that you can implement any required custom behavior.
 
-For more detailed information on using Auth hooks with Wasp, visit the [Wasp documentation](https://wasp.sh/docs/auth/auth-hooks).
+For more detailed information on using Auth hooks with Wasp, visit the [Wasp documentation](https://wasp.sh/docs/features/auth/hooks).
 
 ### Bonus Section: Adding Email/Password Login with Wasp and Customizing Auth
 
@@ -540,7 +546,7 @@ Now let’s imagine we want to add email and password authentication — with al
 
 With Wasp, all we have to do is add a few lines to your main.wasp file, so, simply updating your Wasp configuration to include email/password authentication makes it work straight out of the box!
 
-![https://wasp.sh/img/auth-ui/auth-demo-compiler.gif](https://wasp.sh/img/auth-ui/auth-demo-compiler.gif)
+![https://wasp.sh/img/blog/2023-04-12-auth-ui/auth-demo-compiler.gif](https://wasp.sh/img/blog/2023-04-12-auth-ui/auth-demo-compiler.gif)
 
 Wasp will handle the rest, also updating UI components and ensuring a smooth and secure authentication flow.
 

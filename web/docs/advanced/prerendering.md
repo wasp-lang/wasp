@@ -1,8 +1,12 @@
 ---
-title: Prerendering
+title: Prerendering Wasp routes for SEO and AI crawlers
+sidebar_label: Prerendering
+description: Prerender Wasp routes to static HTML at build time, so search engines and AI crawlers can read them without JavaScript. Auth-required pages cannot use it.
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
+
+# Prerendering
 
 By default, Wasp apps are single-page applications: the browser downloads JavaScript, and React renders the page on the client. This means search engines, AI crawlers, and users on slow connections see a blank page until JavaScript loads and executes.
 
@@ -23,10 +27,10 @@ Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp
 
 ### Static routes
 
-For routes with no [dynamic segments](./routing.md#dynamic-segments), you can just set `prerender: true`:
+For routes with no [dynamic segments](../features/pages-and-routes.md#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
@@ -47,10 +51,10 @@ export default app({
 
 ### Dynamic routes
 
-If your route has [dynamic segments](./routing.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
+If your route has [dynamic segments](../features/pages-and-routes.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 export default app({
@@ -71,7 +75,7 @@ The prerendered paths must match the route's pattern, with all dynamic segments 
 If you have a lot of dynamic paths to prerender, you can generate the list of paths from your data or other sources. For example, if you want to prerender the routes for your Top 10 countries, you can fetch them from your analytics and generate the paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 async function getTopCountries(): Promise<string[]> {
@@ -90,7 +94,7 @@ export default app({
 })
 ```
 
-[Wasp Spec files](../general/spec.md) run like regular Node.js scripts, so you can use any Node.js APIs (like `fs`, `path`, or `fetch`), or npm libraries, to generate the prerendered paths.
+[Wasp Spec files](../features/spec.md) run like regular Node.js scripts, so you can use any Node.js APIs (like `fs`, `path`, or `fetch`), or npm libraries, to generate the prerendered paths.
 
 ## How it works
 
@@ -131,7 +135,7 @@ You can learn more in our SEO guide, which explains exactly how prerendering hel
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashPage } from "./src/DashPage" with { type: "ref" }
 
 export default app({
@@ -203,7 +207,7 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 ## API reference
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/Route#prerender"
+  to="../api/@wasp/spec/interfaces/Route#prerender"
   kind="api"
   title="Route.prerender"
   description="The full description of the prerender option of the route spec."

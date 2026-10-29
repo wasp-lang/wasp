@@ -1,24 +1,23 @@
 {{={= =}=}}
-import { hashPassword } from './password.js'
-import { prisma, HttpError } from '../index.js'
-import { sleep } from '../utils.js'
 import {
-  type {= userEntityUpper =},
-  type {= authEntityUpper =},
-  type {= authIdentityEntityUpper =},
-} from '../../entities/index.js'
-import { Prisma } from '@prisma/client';
-
-import { throwValidationError } from '../../auth/validation.js'
-
-import {
+  getErrorMessage,
+  throwValidationError,
   type ProviderId,
   type ProviderName,
   type PossibleProviderData,
-  providerDataHasPasswordField,
-} from '../../auth/providerData.js'
+} from '@wasp/lib-sdk-core'
+export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp/lib-sdk-core/node'
 
-import { type UserSignupFields, type PossibleUserFields } from '../../auth/providers/types.js'
+import { ensurePasswordIsHashed } from '@wasp/lib-sdk-core/node'
+import { prisma, HttpError } from '../index.js'
+import type {
+  {= userEntityUpper =},
+  {= authEntityUpper =},
+  {= authIdentityEntityUpper =},
+} from '../../entities/index.js'
+import { Prisma } from '@prisma/client';
+
+import type { UserSignupFields, PossibleUserFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).
@@ -33,7 +32,7 @@ export {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-} from '../../auth/providerData.js'
+} from '@wasp/lib-sdk-core'
 
 // PRIVATE API
 export const contextWithUserEntity = {
@@ -44,8 +43,8 @@ export const contextWithUserEntity = {
 
 // PRIVATE API
 export const authConfig = {
-  failureRedirectPath: "{= failureRedirectPath =}",
-  successRedirectPath: "{= successRedirectPath =}",
+  failureRedirectPath: {=& failureRedirectPath =},
+  successRedirectPath: {=& successRedirectPath =},
 }
 
 // PUBLIC API
@@ -153,19 +152,6 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
 }
 
 // PRIVATE API
-// If an user exists, we don't want to leak information
-// about it. Pretending that we're doing some work
-// will make it harder for an attacker to determine
-// if a user exists or not.
-// NOTE: Attacker measuring time to response can still determine
-// if a user exists or not. We'll be able to avoid it when
-// we implement e-mail sending via jobs.
-export async function doFakeWork(): Promise<unknown> {
-  const timeToWork = Math.floor(Math.random() * 1000) + 1000;
-  return sleep(timeToWork);
-}
-
-// PRIVATE API
 export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
@@ -209,6 +195,10 @@ export function rethrowPossibleAuthError(e: unknown): void {
   throw e
 }
 
+function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
+  return JSON.stringify(providerData);
+}
+
 // PRIVATE API
 export async function validateAndGetUserFields(
   data: {
@@ -230,40 +220,9 @@ export async function validateAndGetUserFields(
     try {
       const value = await getFieldValue(sanitizedData)
       result[field] = value
-    } catch (e) {
-      throwValidationError(e.message)
+    } catch (e: unknown) {
+      throwValidationError(getErrorMessage(e));
     }
   }
   return result;
-}
-
-// PUBLIC API
-export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<string> {
-  return serializeProviderData(
-    await ensurePasswordIsHashed(providerData)
-  );
-}
-
-function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
-  return JSON.stringify(providerData);
-}
-
-async function ensurePasswordIsHashed<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<PossibleProviderData[PN]> {
-  const data = {
-    ...providerData,
-  };
-  if (providerDataHasPasswordField(data)) {
-    data.hashedPassword = await hashPassword(data.hashedPassword);
-  }
-
-  return data;
-}
-
-// PRIVATE API
-export function createInvalidCredentialsError(message?: string): HttpError {
-  return new HttpError(401, 'Invalid credentials', { message })
 }

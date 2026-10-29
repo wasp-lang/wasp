@@ -1,9 +1,12 @@
 ---
 title: 'Incident Report: Case insensitive OAuth IDs vulnerability in Wasp'
 authors: [miho]
-image: /img/security-incident/security-incident.png
+image: /img/blog/2025-06-20-oauth-security-incident/security-incident.png
 tags: [security, oauth, keycloak, wasp]
+description: "Wasp 0.16.5 and earlier lowercased OAuth IDs, so with case-sensitive Keycloak IDs, abc and ABC were one user. Wasp 0.16.6 fixes CVE-2025-49006."
 ---
+
+import Trackable from "@site/src/components/Trackable";
 
 ## Introduction
 
@@ -81,9 +84,13 @@ Users who use Keycloak auth with a configuration that makes the user IDs case se
 
 Upgrade to the latest Wasp version by running:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 <small>
 
@@ -97,7 +104,7 @@ If you did have case sensitive IDs set up, your users will need to register agai
 
 If you wish to avoid this, you’ll need to manually update the database table called `AuthIdentity` to contain the correct user ID casing.
 
-You will need to update the `providerUserId` column for all affected users to match the IDs in Keycloak. Read more about the `AuthIdentity` table in the [Wasp docs](/docs/auth/entities#authidentity-entity-).
+You will need to update the `providerUserId` column for all affected users to match the IDs in Keycloak. Read more about the `AuthIdentity` table in the [Wasp docs](/docs/features/auth/entities#authidentity-entity-).
 
 
 

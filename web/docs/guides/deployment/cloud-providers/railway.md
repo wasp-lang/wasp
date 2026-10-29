@@ -1,10 +1,13 @@
 ---
+title: "Railway: deploy a Wasp app manually with the CLI"
+sidebar_label: Railway
+description: "Deploy a Wasp app to Railway by hand with the Railway CLI: create a project with PostgreSQL, deploy the server and the client, and redeploy after changes."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Railway
@@ -13,7 +16,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ## Manual Deployment <Server /> <Client /> <Database />
 
@@ -105,7 +108,7 @@ You'll deploy the server first:
 
     <!--
       NOTE: When updating this railway.json, make sure to also update it in the deployment package at:
-      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+      packages/deploy/src/providers/railway/commands/deploy/client.ts
     -->
     ```json title=".wasp/out/web-app/build/railway.json"
     {
@@ -120,7 +123,7 @@ You'll deploy the server first:
 
     <!--
       NOTE: When updating this Caddyfile, make sure to also update it in the deployment package at:
-      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+      packages/deploy/src/providers/railway/commands/deploy/client.ts
     -->
     ```caddyfile title=".wasp/out/web-app/build/Caddyfile"
     {

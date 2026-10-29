@@ -1,10 +1,15 @@
 ---
-title: 7. Adding Authentication
+title: "7. Adding authentication: Wasp tutorial"
+sidebar_label: "7. Adding authentication"
+description: "Add username and password auth to the Wasp Todo app: a User entity, login and signup pages, a protected main page, per-user tasks and a logout button."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import userInDbGif from './img/wasp_user_in_db.gif';
+import dbDemonstrationGif from './img/wasp_db_demonstration.gif';
+
+# 7. Adding authentication
 
 Most modern apps need a way to create and authenticate users. Wasp makes this as easy as possible with its first-class auth support.
 
@@ -20,7 +25,7 @@ To add users to your app, you must:
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for you in the background. Nothing to do here!
+Since Wasp manages authentication, it will create [the auth related entities](../features/auth/entities.md) for you in the background. Nothing to do here!
 
 You must only add the `User` Entity to keep track of who owns which tasks:
 
@@ -37,12 +42,12 @@ model User {
 
 ## Adding Auth to the Project
 
-Next, tell Wasp to use full-stack [authentication](../auth/overview):
+Next, tell Wasp to use full-stack [authentication](../features/auth/overview):
 
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -81,13 +86,13 @@ wasp db migrate-dev
 
 By doing this, Wasp will create:
 
-- [Auth UI](../auth/ui) with login and signup forms.
+- [Auth UI](../features/auth/ui) with login and signup forms.
 - A `logout()` action.
-- A React hook `useAuth()`.
+- A `useAuth()` hook on the client.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
+Wasp also supports authentication using [email](../features/auth/email/overview) and social providers like [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), [Discord](../features/auth/social-auth/discord), [Microsoft](../features/auth/social-auth/microsoft), [Slack](../features/auth/social-auth/slack), and [Keycloak](../features/auth/social-auth/keycloak).
 :::
 
 ## Adding Login and Signup Pages
@@ -97,7 +102,7 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-start
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -129,16 +134,16 @@ Here's the React code for the pages you've just imported:
 ```tsx title="src/LoginPage.tsx" auto-js
 import { Link } from "react-router";
 import { LoginForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <LoginForm />
-      <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -151,16 +156,16 @@ The signup page is very similar to the login page:
 ```tsx title="src/SignupPage.tsx" auto-js
 import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <SignupForm />
-      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </div>
+    </main>
   );
 };
 ```
@@ -168,7 +173,7 @@ export const SignupPage = () => {
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](../advanced/links) for more details.
+  Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 
@@ -179,7 +184,7 @@ We don't want users who are not logged in to access the main page, because they 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
@@ -228,14 +233,14 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-<img alt="Database demonstration - password hashing" src={useBaseUrl('img/wasp_user_in_db.gif')} className="tutorial-image" />
+<img alt="Database demonstration - password hashing" src={userInDbGif} className="tutorial-image" />
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
 <small>
-  You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+  You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../features/auth/entities.md).
 </small>
 
 ## Defining a User-Task Relation
@@ -337,36 +342,35 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
-export const updateTask: UpdateTask<
-  UpdateTaskPayload,
-  { count: number }
-> = async (args, context) => {
+export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+  { id, isDone },
+  context,
+) => {
   // highlight-start
   if (!context.user) {
     throw new HttpError(401);
   }
   // highlight-end
-  return context.entities.Task.updateMany({
-    where: { id: args.id, user: { id: context.user.id } },
-    data: { isDone: args.isDone },
+  return context.entities.Task.update({
+    // highlight-next-line
+    where: { id, user: { id: context.user.id } },
+    data: {
+      isDone: isDone,
+    },
   });
 };
 ```
 </TutorialAction>
 
-:::note
-Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
-:::
-
 With these changes, each user should have a list of tasks that only they can see and edit.
 
-Try playing around, adding a few users and some tasks for each of them. Then open the DB studio:
+Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
 ```sh
 wasp db studio
 ```
 
-<img alt="Database demonstration" src={useBaseUrl('img/wasp_db_demonstration.gif')} className="tutorial-image" />
+<img alt="Database demonstration" src={dbDemonstrationGif} className="tutorial-image" />
 
 You will see that each user has their tasks, just as we specified in our code!
 
@@ -385,11 +389,17 @@ import { logout } from "wasp/client/auth";
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
-    <div>
-      {$HOLE$}
-      // highlight-next-line
-      <button onClick={logout}>Logout</button>
-    </div>
+    <>
+      <header>
+        <h1>
+          <img src={Logo} alt="Wasp logo" />
+          Todo App
+        </h1>
+        // highlight-next-line
+        <button onClick={logout}>Logout</button>
+      </header>
+      <main>{$HOLE$}</main>
+    </>
   );
 };
 ```
@@ -413,14 +423,14 @@ You should be ready to learn about more complicated features and go more in-dept
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](../project/starter-templates).
+- Get a jump start on your next project with [Starter Templates](../getting-started/starter-templates).
 - Check out our [official examples](https://github.com/wasp-lang/wasp/tree/release/examples).
-- Make a real-time app with [Web Sockets](../advanced/web-sockets).
+- Make a real-time app with [Web Sockets](../features/websockets).
 
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
+If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](../contributing.md).
 :::
 
 Oh, and do [**subscribe to our newsletter**](/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

@@ -10,7 +10,7 @@ import { WaspApp } from "wasp/client/app";
 {=& routeObjects.importStatement =}
 
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
-  basename: "{= baseDir =}",
+  basename: {=& baseDir =},
   // React Router will put hydration data on this property of the `window` object.
   // https://reactrouter.com/8.0.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData,

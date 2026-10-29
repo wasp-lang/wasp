@@ -8,7 +8,8 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
 import Control.Monad (unless)
-import Data.List (isSuffixOf)
+import Data.Either (fromLeft)
+import Data.List (isPrefixOf, isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -16,6 +17,8 @@ import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
+import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -33,15 +36,21 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
+--
+-- It assumes the project was successfully compiled just before calling it, so
+-- it starts as 'UpToDate', and from then on it uses the given @projectLock@ to
+-- keep other Wasp processes posted about the state of the generated app.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
+  ProjectLock ->
   MVar ([CompileWarning], [CompileError]) ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
+watch waspProjectDir outDir projectLock ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
+  setWatcherStatus projectLock UpToDate
   listenForEvents chan =<< getCurrentTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
@@ -70,10 +79,15 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
         then -- Ignore delayed/stale events older than our last compile time.
           listenForEvents chan lastCompileTime
         else do
+          -- Even though we wait for 1s before triggering the recompile, the app
+          -- is already out of date, so we set the status to Compiling
+          -- immediately.
+          setWatcherStatus projectLock Compiling
           -- Recompile, but only after a 1s period of no new events.
           waitUntilNoNewEvents chan lastCompileTime 1
           currentTime <- getCurrentTime
           (warnings, errors) <- recompile
+          setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
           updateOngoingCompilationResultMVar (warnings, errors)
           listenForEvents chan currentTime
 
@@ -113,7 +127,8 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     recompile :: IO ([CompileWarning], [CompileError])
     recompile = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      (warnings, errors) <- compileIO waspProjectDir outDir
+      (warnings, appSpecOrErrors) <- compileIO waspProjectDir outDir
+      let errors = fromLeft [] appSpecOrErrors
 
       printCompilationResult (warnings, errors)
       if null errors
@@ -121,9 +136,9 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
           cliSendMessage $
             Msg.Success "Recompilation on file change succeeded."
         else
-          cliSendMessage $
-            Msg.Failure "Recompilation on file change failed." $
-              show (length errors) ++ " errors found"
+          cliSendMessage
+            $ Msg.Failure "Recompilation on file change failed."
+            $ show (length errors) ++ " errors found"
 
       return (warnings, errors)
 
@@ -132,12 +147,11 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     --   so better approach would be probably to use information from .gitignore instead, or
     --   maybe combining the two somehow.
     isEditorTmpFile :: String -> Bool
-    isEditorTmpFile "" = False
     isEditorTmpFile filename =
       or
-        [ take 2 filename == ".#", -- Emacs lock files.
-          head filename == '#' && last filename == '#', -- Emacs auto-save files.
-          last filename == '~', -- Emacs and vim backup files.
-          head filename == '.' && ".swp" `isSuffixOf` filename, -- Vim swp files.
-          head filename == '.' && ".un~" `isSuffixOf` filename -- Vim undo files.
+        [ ".#" `isPrefixOf` filename, -- Emacs lock files.
+          "#" `isPrefixOf` filename && "#" `isSuffixOf` filename, -- Emacs auto-save files.
+          "~" `isSuffixOf` filename, -- Emacs and vim backup files.
+          "." `isPrefixOf` filename && ".swp" `isSuffixOf` filename, -- Vim swp files.
+          "." `isPrefixOf` filename && ".un~" `isSuffixOf` filename -- Vim undo files.
         ]

@@ -23,20 +23,18 @@ git clone https://github.com/wasp-lang/wasp.git
 Make sure you've downloaded and installed Wasp
 
 ```bash
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 Then navigate to the project directory
 
 ```bash
 cd examples/websockets-realtime-voting
-```
-
-```bash
+wasp install
 wasp db migrate-dev
 ```
 
-start the app! (this also installs all dependencies)
+Start the app:
 
 ```bash
 wasp start

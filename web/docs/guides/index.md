@@ -1,9 +1,11 @@
 ---
+title: Wasp guides for common real-world app scenarios
+description: Follow hands-on guides for common scenarios in real-world Wasp apps, often with third-party libraries. Many guides show the versions they were tested with.
 sidebar_position: 1
-title: About these guides
+sidebar_label: About these guides
 ---
 
-# Guides
+# Wasp guides
 
 The guides in this section will walk you through common scenarios you'll encounter when building real-world apps with Wasp. They're more hands-on and to-the-point than the main docs. Pick the one that matches what you're trying to do and follow along!
 

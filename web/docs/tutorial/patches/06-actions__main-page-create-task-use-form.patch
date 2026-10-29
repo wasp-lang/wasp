@@ -1,12 +1,12 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 414406f..6ee0dbe 100644
+index 92dba70..c122334 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -7,6 +7,7 @@ export const MainPage = () => {
+@@ -17,6 +17,7 @@ export const MainPage = () => {
+       </header>
+       <main>
+         <h2>Tasks</h2>
++        <NewTaskForm />
+         {tasks && <TasksList tasks={tasks} />}
  
-   return (
-     <div>
-+      <NewTaskForm />
-       {tasks && <TasksList tasks={tasks} />}
- 
-       {isLoading && "Loading..."}
+         {isLoading && "Loading..."}

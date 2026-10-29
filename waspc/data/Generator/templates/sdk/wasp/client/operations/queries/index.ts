@@ -1,16 +1,16 @@
 {{={= =}=}}
-import { type QueryFor, createQuery } from './core'
+import type { QueryFor } from '@wasp/lib-sdk-core/browser'
+import { createQuery } from "./core";
+import type {
 {=# queries =}
-{=& operationTypeImportStmt =}
+  {= registeredOperationTypeName =},
 {=/ queries =}
+} from "../../../server/operations/queries/index";
 {=# queries =}
 
 // PUBLIC API
-export const {= operationName =}: QueryFor<{= operationTypeName =}> = createQuery<{= operationTypeName =}>(
-  '{= queryRoute =}',
+export const {= operationName =}: QueryFor<{= registeredOperationTypeName =}> = createQuery<{= registeredOperationTypeName =}>(
+  "{= queryRoute =}",
   {=& entitiesArray =},
 )
 {=/ queries =}
-
-// PRIVATE API (used in SDK)
-export { buildAndRegisterQuery } from './core'

@@ -50,9 +50,19 @@ LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
 
 PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
 
-KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
+# Wasp App Runner
+# Utility used for running e2e tests in Wasp apps, we use it for testing
+# e.g. examples and starters.
+WASP_APP_RUNNER_DIR="$REPOSITORY_ROOT/packages/wasp-app-runner"
+WASP_APP_RUNNER_BUILD_CMD="(cd $WASP_APP_RUNNER_DIR && npm install && npm run build)"
+# By exporting this, we are telling all of our e2e tests to use the local
+# version of Wasp App Runner, built by WASP_APP_RUNNER_BUILD_CMD (tests should
+# make sure to call that one before).
+export WASP_APP_RUNNER_CLI_CMD="$WASP_APP_RUNNER_DIR/bin/index.js"
 
-STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run test:dev"
+KITCHEN_SINK_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
+
+STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run test:dev"
 
 # Copies .env.server.example to .env.server in the current directory,
 # but only if the example exists and .env.server isn't already present.
@@ -71,8 +81,10 @@ function run_examples_e2e_tests() {
     "examples/kitchen-sink"
   )
 
+  eval "$WASP_APP_RUNNER_BUILD_CMD" || return 1
+
   for path in "${paths[@]}"; do
-    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_INSTALL_CMD && npm run test)"; then
+    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_CLI_INSTALL_CMD && npm run test)"; then
       echo -e "${RED}E2E tests failed in $path${RESET}"
       return 1
     fi
@@ -105,12 +117,18 @@ CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format "'$'"(git ls-files '*.
 # We remove .wasp/out before `wasp install`, so package-lock entries for
 # generated workspaces and their local tarball deps become stale. Drop them so
 # npm rebuilds those entries from the freshly generated package.json files.
+# Apps generated before Wasp 0.27 used the `@wasp.sh` npm scope instead of
+# `@wasp`, so we match both.
 function remove_stale_generated_wasp_lock_entries() {
   PACKAGE_LOCK_TMP=$(mktemp)
 
   if ! jq '
+    def is_wasp_lib_name:
+      startswith("@wasp/lib-") or startswith("@wasp.sh/lib-");
+
     def is_stale_generated_wasp_package:
-      startswith("node_modules/@wasp.sh/lib-")
+      (startswith("node_modules/") and (ltrimstr("node_modules/") | is_wasp_lib_name))
+      or . == "node_modules/@wasp/generated-server"
       or . == "node_modules/@wasp.sh/generated-server"
       or . == "node_modules/wasp"
       or . == ".wasp/out"
@@ -119,7 +137,7 @@ function remove_stale_generated_wasp_lock_entries() {
     def without_wasp_lib_deps:
       if .dependencies then
         .dependencies |= with_entries(
-          select(.key | startswith("@wasp.sh/lib-") | not)
+          select(.key | is_wasp_lib_name | not)
         )
       else
         .
@@ -167,12 +185,12 @@ print_usage() {
   print_usage_cmd "build:hs" \
     "Builds the Haskell project only. Run with the \`BUILD_STATIC=1\` env to build statically."
   print_usage_cmd "build:packages" \
-    "Builds the TypeScript projects under data/packages/."
+    "Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
   print_usage_cmd "build:libs" \
-    "Builds the Wasp libs under data/Generator/libs/."
+    "Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
   echo ""
   print_usage_cmd "bust-libs-cache" \
-    "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
+    "Busts the npm cache for all @wasp/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
   echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
@@ -317,10 +335,10 @@ case $COMMAND in
     echo_and_eval "$WASP_CLI_RUN_CMD"
     ;;
   bust-libs-cache)
-    # `wasp install` must run before compile so @wasp.sh/spec matches CLI version.
+    # `wasp install` must run before compile so @wasp/spec matches CLI version.
     # Old generated workspaces point at old lib tarballs, so remove them from disk
     # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
-    rm -rf .wasp/out node_modules/@wasp.sh/generated-server node_modules/wasp
+    rm -rf .wasp/out node_modules/@wasp/generated-server node_modules/@wasp.sh/generated-server node_modules/wasp
     remove_stale_generated_wasp_lock_entries
     eval "$WASP_CLI_INSTALL_CMD"
 

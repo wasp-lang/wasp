@@ -5,7 +5,7 @@ import type { MarkdownDocByRoute } from "../markdown-docs";
 export interface LlmFilesContext {
   baseUrl: string;
   outDir: string;
-  latestWaspVersion: string;
+  latestWaspVersion: LoadedVersion;
   loadedVersions: LoadedVersion[];
   postCollections: PostCollection[];
   markdownDocByRoute: MarkdownDocByRoute;

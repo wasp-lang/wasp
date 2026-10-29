@@ -16,10 +16,6 @@ FROM node:{= nodeVersion =}-alpine3.23 AS node
 
 FROM node AS base
 RUN apk --no-cache -U upgrade # To ensure any potential security patches are applied.
-# Alpine 3.21+ no longer includes openssl as a transitive dependency of the
-# Node.js image. Prisma's native engine needs libssl at both build and runtime.
-# TODO: Revisit once we upgrade to Prisma 6 (https://github.com/wasp-lang/wasp/issues/2504).
-RUN apk add --no-cache openssl
 
 
 # Todo: The 'server-builder' image stays on disk under <none>:<none> and is
@@ -40,6 +36,7 @@ COPY package-lock.json .
 COPY tsconfig*.json .
 COPY server .wasp/out/server
 COPY sdk .wasp/out/sdk
+COPY types .wasp/out/types
 COPY libs .wasp/out/libs
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/out/server && npm install

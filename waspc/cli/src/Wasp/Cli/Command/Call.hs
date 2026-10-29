@@ -2,11 +2,11 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New Arguments
-  | Start
+  | Start Arguments
   | StartDb Arguments
   | Clean
   | Install
-  | Uninstall
+  | Uninstall Arguments
   | Compile
   | Db Arguments -- db args
   | Build
@@ -16,13 +16,14 @@ data Call
   | Telemetry
   | Deps
   | Dockerfile
-  | Info
+  | Show Arguments
   | News
   | Studio
   | PrintBashCompletionInstruction
   | BashCompletionListCommands
   | Deploy Arguments -- deploy cmd passthrough args
   | Test Arguments -- "client" | "server", then test cmd passthrough args
+  | Help
   | Unknown Arguments -- all args
   deriving (Eq)
 

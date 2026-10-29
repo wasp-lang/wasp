@@ -1,10 +1,13 @@
 ---
-title: Contributing
+title: "Contributing to Wasp: where to start"
 sidebar_label: Contributing
+description: "Contribute to Wasp: start with CONTRIBUTING.md on GitHub and join the Discord. Any way you want to contribute is a good way, and we'd be happy to meet you!"
 slug: /contributing
 ---
 
 import { DiscordLink } from '@site/blog/components/DiscordLink';
+
+# Contributing
 
 Any way you want to contribute is a good way, and we'd be happy to meet you! A single entry point for all contributors is the [CONTRIBUTING.md](https://github.com/wasp-lang/wasp/blob/main/CONTRIBUTING.md) file in our Github repo. All the requirements and instructions are there, so please check [CONTRIBUTING.md](https://github.com/wasp-lang/wasp/blob/main/CONTRIBUTING.md) for more details.
 

@@ -4,9 +4,11 @@ import * as React from 'react'
 import { Navigate } from 'react-router'
 import { useAuth } from '../../auth'
 
-import { Loader } from '../components/Loader'
-import { MessageError } from '../components/Message'
-import { FullPageWrapper } from '../components/FullPageWrapper'
+import {
+  FullPageWrapper,
+  Loader,
+  MessageError,
+} from '@wasp/lib-sdk-core/browser'
 
 export const createAuthRequiredPage = (Page) => {
   return (props) => {
@@ -17,7 +19,7 @@ export const createAuthRequiredPage = (Page) => {
         if (user) {
           return <Page {...props} user={user} />
         } else {
-          return <Navigate to="{= onAuthFailedRedirectTo =}" replace />
+          return <Navigate to={{=& onAuthFailedRedirectTo =}} replace />
         }
       case 'loading':
         return (

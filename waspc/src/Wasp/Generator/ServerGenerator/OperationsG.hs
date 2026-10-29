@@ -39,21 +39,21 @@ genActions = mapM genAction . AS.getActions
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-genQuery :: (String, AS.Query.Query) -> Generator FileDraft
-genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genQuery :: AS.Query.Query -> Generator FileDraft
+genQuery query = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    operation = AS.Operation.QueryOp queryName query
+    operation = AS.Operation.QueryOp query
     tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
-    dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir queryName
+    dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir query.name
     tmplData = operationTmplData operation
 
 -- | Analogous to genQuery.
-genAction :: (String, AS.Action.Action) -> Generator FileDraft
-genAction (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genAction :: AS.Action.Action -> Generator FileDraft
+genAction action = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    operation = AS.Operation.ActionOp actionName action
+    operation = AS.Operation.ActionOp action
     tmplFile = [relfile|src/actions/_action.ts|]
-    dstFile = C.serverSrcDirInServerRootDir </> actionFileInSrcDir actionName
+    dstFile = C.serverSrcDirInServerRootDir </> actionFileInSrcDir action.name
     tmplData = operationTmplData operation
 
 queryFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
@@ -69,8 +69,8 @@ actionFileInSrcDir actionName =
     </> fromJust (SP.parseRelFile $ actionName ++ ".ts")
 
 operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) File'
-operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
-operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
+operationFileInSrcDir (AS.Operation.QueryOp query) = queryFileInSrcDir query.name
+operationFileInSrcDir (AS.Operation.ActionOp action) = actionFileInSrcDir action.name
 
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =

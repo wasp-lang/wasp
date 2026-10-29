@@ -43,12 +43,12 @@ To run this version of code and check that it works correctly, run `npm run serv
 
 ### LLM file snapshots
 
-The build also generates markdown versions of pages and `llms*.txt` files (see [src/plugins/llm-files](src/plugins/llm-files/)). To catch unintended changes in that output, we keep snapshots of a few representative files in [markdown-snapshots/](markdown-snapshots/) and compare them against the build output in CI.
+The build also generates markdown versions of pages and `llms*.txt` files (see [src/plugins/llm-files](src/plugins/llm-files/)). To catch unintended changes in that output, we keep snapshots of a few representative files in [markdown-snapshots/](markdown-snapshots/) and compare them against the build output in CI. The snapshots track the "current" (next, unreleased) docs version, so we have to build the dev version of the docs.
 
 If the check fails and the changes are intended, update the snapshots and commit the result:
 
 ``` sh
-npm run build
+npm run build-dev
 npm run markdown-snapshots:update
 ```
 
@@ -59,9 +59,9 @@ NOTE: Files in `static/` dir can override whatever is generate on build. Make su
 We deploy the website to Cloudflare Pages. When you want to deploy changes from the `release` branch, you do it like this:
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
-2. Check out the `deploy-web` branch:
+2. Check out and pull the `deploy-web` branch:
 ```sh
-git checkout deploy-web
+git checkout deploy-web && git pull
 ```sh
 3. Merge the `release` branch into `deploy-web`:
 ```sh

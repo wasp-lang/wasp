@@ -2,6 +2,14 @@ name: "Test - waspc"
 
 on:
   workflow_call:
+    inputs:
+      exclude-runner:
+        description: >
+          Runner to skip testing on (e.g. `macos-15-intel`). If empty, all
+          tests run.
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
 
 env:
@@ -32,6 +40,8 @@ jobs:
           - windows-latest
         extra-tools:
           - node@latest
+        exclude:
+          - os: ${{ inputs.exclude-runner }}
 
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
@@ -41,6 +51,7 @@ jobs:
           - # No extra tool here, so we use our default Node.js version, which
             # comes from mise and is equal to our lowest supported one.
             os: ubuntu-22.04
+            extra-tools: ""
 
     steps:
       - # For waspc parser tests, we need to make sure git doesn't convert line
@@ -60,7 +71,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: $/.github/actions/setup-tools
         with:
           haskell: true
 
@@ -73,7 +84,7 @@ jobs:
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
       - name: Build wasp code
-        run: cabal build all
+        run: cabal build all -v0
 
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests
@@ -83,4 +94,4 @@ jobs:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
-          mise x "${EXTRA_TOOLS[@]}" -- bash ./run test:waspc:e2e
+          mise x ${EXTRA_TOOLS:+"$EXTRA_TOOLS"} -- bash ./run test:waspc:e2e

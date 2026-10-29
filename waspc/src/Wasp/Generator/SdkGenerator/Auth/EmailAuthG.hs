@@ -4,7 +4,8 @@ module Wasp.Generator.SdkGenerator.Auth.EmailAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import Data.Maybe (isJust)
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import Wasp.Generator.AuthProviders.Email
@@ -18,19 +19,13 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
-    genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
-      sequence
-        [ genFileCopyInEmailAuthDir [relfile|index.ts|]
-        ]
-        <++> genActions auth
+      genActions auth
   | otherwise = return []
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
@@ -61,9 +56,9 @@ genSignupAction auth =
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl emailAuthProvider,
-          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
+          "isEmailUserSignupFieldsDefined" .= isJust emailUserSignupFields
         ]
-    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     authMethods = AS.Auth.methods auth
 
 genPasswordResetActions :: Generator FileDraft
@@ -90,7 +85,3 @@ genVerifyEmailAction =
 
 emailAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 emailAuthDirInSdkTemplatesDir = [reldir|auth/email|]
-
-genFileCopyInEmailAuthDir :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInEmailAuthDir =
-  genFileCopy . (emailAuthDirInSdkTemplatesDir </>)

@@ -1,18 +1,23 @@
 import Link from "@docusaurus/Link";
-import classNames from "classnames";
 import { useState } from "react";
 import { BookOpen, Check, Copy, Terminal } from "react-feather";
 
+import {
+  trackDeclaredCopy,
+  trackEventAttributes,
+  trackPlacementAttributes,
+} from "../lib/analytics";
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
 
-const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
+const installCmd = "npm i -g @wasp/cli@latest";
 
 const InstallCommand = () => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
+  const handleCopy = (event) => {
     navigator.clipboard.writeText(installCmd);
+    trackDeclaredCopy(event.currentTarget, "button");
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -21,6 +26,7 @@ const InstallCommand = () => {
     <button
       type="button"
       onClick={handleCopy}
+      {...trackEventAttributes({ event: "Install Command: Copy" })}
       className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-[var(--wasp-code-bg)] px-3 py-2 text-left font-mono text-xs text-wasp-g7 transition hover:text-wasp-black hover:brightness-95"
       title="Click to copy"
       aria-label={`Copy install command: ${installCmd}`}
@@ -39,6 +45,7 @@ const ActionButtons = () => (
   <div className="flex items-center gap-2">
     <Link
       to="/docs/quick-start"
+      {...trackEventAttributes({ event: "Get Started: Click" })}
       className="inline-flex items-center space-x-2 border-2 border-wasp-black bg-wasp-yellow px-3 py-2 text-sm font-semibold leading-4 text-wasp-black transition duration-200 ease-out hover:bg-wasp-yellow-dark hover:text-wasp-black"
     >
       <Terminal size={16} />
@@ -59,7 +66,7 @@ const codeTabs = [
   {
     name: "main.wasp.ts",
     language: "typescript",
-    source: `import { app, page, query, route } from "@wasp.sh/spec";
+    source: `import { app, page, query, route } from "@wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/tasks" with { type: "ref" };
 
@@ -185,42 +192,38 @@ function TabbedCodeViewer() {
 const Hero = () => {
   return (
     <SectionContainer className="xl:pt-24">
-      <div className="xl:grid xl:grid-cols-12 xl:gap-16">
+      <div
+        className="xl:grid xl:grid-cols-12 xl:gap-16"
+        {...trackPlacementAttributes("hero")}
+      >
         <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}
           <div>
-            <div className="mb-7 hidden border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7 md:inline-block">
-              Full-Stack Framework for the AI Era
-            </div>
             <h1
               className={`text-4xl font-extrabold uppercase leading-[1.2] tracking-[-2px] text-wasp-black lg:text-[52px]`}
             >
-              A truly{" "}
+              Move{" "}
               <span className="inline-block bg-wasp-yellow px-2 leading-[1.1]">
-                full-stack
+                fast
               </span>{" "}
-              TypeScript framework that{" "}
+              and{" "}
               <span className="inline-block bg-wasp-yellow px-2 leading-[1.1]">
-                just works.
-              </span>
+                understand
+              </span>{" "}
+              things.
             </h1>
 
-            <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
-              React, Node.js, and Prisma — wired together with auth, jobs, and
-              deployment built in. Ship in a day and own every line.
-              <span className="mt-1 block font-bold">
-                Designed for humans,{" "}
-                <a
-                  href="#ai"
-                  className={classNames(
-                    "box-decoration-clone px-0.5 text-wasp-g6",
-                    "underline decoration-wasp-purple decoration-2 underline-offset-4",
-                    "transition-colors duration-200 ease-out",
-                    "hover:bg-wasp-purple-light hover:text-wasp-black hover:no-underline",
-                  )}
-                >
-                  works beautifully with AI.
-                </a>
+            <p className="mt-6 max-w-[500px] text-base leading-[1.75] text-wasp-g6">
+              Wasp is a batteries-included web framework with a{" "}
+              <span className="font-bold">
+                Spec - describe your full-stack web app in TypeScript
+              </span>
+              , instead of assembling it piece by piece.
+              <span className="mt-3 block">
+                Auth, RPC, APIs, jobs, email, WebSockets, and more.
+              </span>
+              <span className="mt-3 block font-bold">
+                React &amp; Node.js. Deploy anywhere.
               </span>
             </p>
           </div>{" "}
@@ -270,7 +273,7 @@ const Hero = () => {
         />
         <img
           className='w-32 md:w-[180px]'
-          src='img/lp/yc-logo.webp'
+          src='img/site/logos/yc-logo.webp'
           alt='YC'
         />
       </div>

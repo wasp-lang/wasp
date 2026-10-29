@@ -1,11 +1,13 @@
 ---
 title: 'Build a real-time voting app with WebSockets, React & TypeScript 🔌⚡️'
 authors: [vinny]
-image: /img/websockets-app/websockets-banner.png
+image: /img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/websockets-banner.png
 tags: [wasp, websockets, react, typescript, real-time, node, express]
+description: "Build a real-time voting app with WebSockets, React and TypeScript: Express and Socket.IO by hand, then Wasp with login and saved votes."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
+import Trackable from '@site/src/components/Trackable';
 
 ## TL;DR
 
@@ -13,7 +15,7 @@ WebSockets allow your app to have “real time” features, where updates are in
 
 {/* truncate */}
 
-<ImgWithCaption source="img/websockets-app/Untitled.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled.png" width="550px" />
 
 To use WebSockets in your React app, you’ll need a dedicated server, such as an ExpressJS app with NodeJS, in order to maintain a persistent connection.
 
@@ -56,7 +58,7 @@ If you want real-time capabilities in your app, you don’t always need WebSocke
 1. long-polling, e.g. running `setInterval` to periodically hit the server and check for updates.
 2. one-way “server-sent events”, e.g. keeping a unidirectional server-to-client connection open to receive new updates from the server only.
 
-<ImgWithCaption source="img/websockets-app/Untitled 1.png" width="550px" caption="1. HTTP handshake, 2. two-way instant communication, 3. close connection" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-1.png" width="550px" caption="1. HTTP handshake, 2. two-way instant communication, 3. close connection" />
 
 WebSockets, on the other hand, provide a two-way (aka “full-duplex”) communication channel between the client and server.
 
@@ -89,7 +91,7 @@ That’s why you need a “serverful” architecture if you want to build real-t
 - **Limited Customization:** you’re using a pre-built solution, so you have less control
 - **Debugging:** fixing errors gets more difficult, as your app is not running locally
 
-<ImgWithCaption source="img/websockets-app/Untitled 2.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-2.png" width="550px" />
 
 ### Using ExpressJS with Socket.IO  — Complex/Customizable Method
 
@@ -290,7 +292,7 @@ cd ../ws-client && npm install
 
 Next, start the development server with `npm run dev` and you should see the hardcoded starter app in your browser:
 
-<ImgWithCaption source="img/websockets-app/Untitled 3.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-3.png" width="550px" />
 
 You may have noticed that poll does not match the `PollState` from our server. We need to install the [Socket.IO](http://Socket.IO) client and set it all up in order start our real-time communication and get the correct poll from the server.
 
@@ -467,7 +469,7 @@ If we did that correctly, we should be seeing our finished, working, REAL TIME a
 
 It looks and works great if you open it up in two or three browser tabs. Check it out:
 
-<ImgWithCaption source="img/websockets-app/Untitled.gif" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled.gif" width="550px" />
 
 Nice!
 
@@ -499,9 +501,13 @@ If you just want to see finished app’s code, you can check out the [GitHub rep
 
 1. Install Wasp globally by running the following command in your terminal:
 
+<Trackable event="Install Command: Copy">
+
 ```bash
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 If you want to code along, first clone the `start` branch of the example app:
 
@@ -655,7 +661,7 @@ You may have noticed that there’s a lot less configuration and boilerplate nee
 
 are all being handled for you by Wasp. Noice!
 
-<ImgWithCaption source="img/websockets-app/Untitled 4.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-4.png" width="550px" />
 
 Let’s go ahead now and run the app to see what we have at this point.
 
@@ -673,11 +679,11 @@ wasp start
 
 You should see a login screen this time. Go ahead and first register a user, then login:
 
-<ImgWithCaption source="img/websockets-app/Untitled 5.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-5.png" width="550px" />
 
 Once logged in, you’ll see the same hardcoded poll data as in the previous example, because, again, we haven’t set up the [Socket.IO](http://Socket.IO) client on the frontend. But this time it should be much easier.
 
-Why? Well, besides less configuration, another nice benefit of working with [TypeScript with Wasp](/docs/advanced/web-sockets), is that you just have to define payload types with matching event names on the server, and those types will get exposed automatically on the client!
+Why? Well, besides less configuration, another nice benefit of working with [TypeScript with Wasp](/docs/features/websockets), is that you just have to define payload types with matching event names on the server, and those types will get exposed automatically on the client!
 
 Let’s take a look at how that works now.
 
@@ -778,11 +784,11 @@ Also, hover over the variables in your client-side code, and you’ll see that t
 
 Here’s just one example, but it should work for them all:
 
-<ImgWithCaption source="img/websockets-app/Untitled 6.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-6.png" width="550px" />
 
 Now if you open up a new private/incognito tab, register a new user, and login, you’ll see a fully working, real-time voting app. The best part is, in comparison to the previous approach, we can log out and back in, and our voting data persists, which is exactly what we’d expect from a production grade app. 🎩
 
-<ImgWithCaption source="img/websockets-app/Untitled 1.gif" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-1.gif" width="550px" />
 
 Awesome… 😏
 
@@ -831,4 +837,4 @@ Don’t forget, if you want to check out the full finished code from our “Lunc
 
 And if you know of a better, cooler, sleeker way of implementing WebSockets into your apps, let us know in the comments below
 
-<ImgWithCaption source="img/websockets-app/Untitled 7.png" width="550px" />
+<ImgWithCaption source="img/blog/2023-08-09-build-real-time-voting-app-websockets-react-typescript/Untitled-7.png" width="550px" />

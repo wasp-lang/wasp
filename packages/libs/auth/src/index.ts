@@ -1,0 +1,1 @@
+export { isValidEmail } from "./email";

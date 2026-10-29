@@ -1,5 +1,7 @@
 ---
-title: Meta tags
+title: Adding meta tags to your Wasp app for SEO
+description: "Add meta tags to a Wasp app for SEO and rich previews on Slack, X or Discord: set tags for every page in the head field, or for one page in a component."
+sidebar_label: Meta tags
 comments: true
 ---
 
@@ -18,7 +20,7 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 You can add meta tags to your application using the `head` property in your `app` spec. These tags will be included in the `<head>` section of your HTML.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -125,7 +127,7 @@ You can check [X's guidelines](https://developer.x.com/en/docs/x-for-websites/ca
 2. Check the recommended dimensions for each platform's images in their documentation.
 3. Keep important content centered (some platforms crop differently).
 4. Use WebP or PNG format for best quality.
-5. Place your image [in the `public/` folder](https://wasp.sh/docs/project/static-assets#the-public-directory).
+5. Place your image [in the `public/` folder](../../advanced/client-customization/static-assets.md#the-public-directory).
 
 ## Testing your metadata
 

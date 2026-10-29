@@ -1,22 +1,22 @@
 ---
 title: "Wasp now lets you write your full-stack logic as a spec in TypeScript"
 authors: [martinsos]
-image: /img/wasp-typescript-spec/banner.webp
+image: /img/blog/2026-06-15-wasp-typescript-spec/banner.webp
 tags: [wasp, typescript, fullstack, update]
 keywords: ["wasp typescript spec", "wasp ts spec", "typescript full-stack framework", "full-stack typescript", "wasp dsl to typescript", "spec driven development", "react node framework", "wasp framework", "full stack logic", "app specification", "wasp.sh spec", "batteries-included framework", "file-based routing typescript", "full stack modules"]
-description: "Wasp drops its custom DSL and replaces it with a TypeScript-native way to define your full-stack app: the TypeScript Spec. Here's what it is, how it works, and what it unlocks."
+description: "Wasp replaced its custom DSL with the TypeScript Spec: you define your full-stack app in main.wasp.ts and can split it into files and use loops."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
 <ImgWithCaption
     alt="Wasp's new TypeScript Spec: a main.wasp.ts file defining the whole app — title, wasp version, auth, and a spec list with route/page/query calls — all in TypeScript"
-    source="img/wasp-typescript-spec/banner.webp"
+    source="img/blog/2026-06-15-wasp-typescript-spec/banner.webp"
 />
 
 [Wasp](/) is an opinionated, **batteries-included** full-stack JS/TS web app framework, built around the concept of an explicit spec for defining full-stack features of your app.
 
-Today is a big day: we dropped our custom spec language and replaced it with a new, TypeScript-native way to define your full-stack app at a high level: the [TypeScript Spec](/docs/general/spec)!
+Today is a big day: we dropped our custom spec language and replaced it with a new, TypeScript-native way to define your full-stack app at a high level: the [TypeScript Spec](/docs/features/spec)!
 
 {/* truncate */}
 
@@ -39,7 +39,7 @@ Read on to learn more about it, how it works and what it unlocks.
 
 ## The Wasp TypeScript Spec
 
-You write the [Wasp TypeScript Spec (TS Spec)](/docs/general/spec) in `*.wasp.ts` files by constructing the `app` spec object.
+You write the [Wasp TypeScript Spec (TS Spec)](/docs/features/spec) in `*.wasp.ts` files by constructing the `app` spec object.
 
 You do so by using the spec constructors from `@wasp.sh/spec`: `page`, `route`, `query`, `job`, `api`, … . That is your "vocabulary" that you use to specify the parts of your web app, and then compose them all together into one big `app` spec object.
 

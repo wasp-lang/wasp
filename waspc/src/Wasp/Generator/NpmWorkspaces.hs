@@ -1,6 +1,5 @@
 module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
-    webAppPackageName,
     requiredWorkspaceGlobs,
   )
 where
@@ -33,10 +32,10 @@ requiredWorkspaceGlobs =
 
     makeGlobForDir :: Path' (Rel WaspProjectDir) (Dir a) -> String
     makeGlobForDir inputDir =
-      FP.dropTrailingPathSeparator $
-        SP.fromRelDirP $
-          fromRight (makeNonPosixError inputDir) $
-            SP.relDirToPosix inputDir
+      FP.dropTrailingPathSeparator
+        $ SP.fromRelDirP
+        $ fromRight (makeNonPosixError inputDir)
+        $ SP.relDirToPosix inputDir
 
     makeNonPosixError inputDir =
       error $
@@ -47,8 +46,5 @@ requiredWorkspaceGlobs =
 serverPackageName :: String
 serverPackageName = workspacePackageName "server"
 
-webAppPackageName :: String
-webAppPackageName = workspacePackageName "webapp"
-
 workspacePackageName :: String -> String
-workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName
+workspacePackageName baseName = "@wasp/generated-" ++ baseName

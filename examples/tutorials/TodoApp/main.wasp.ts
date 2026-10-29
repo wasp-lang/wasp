@@ -1,4 +1,4 @@
-import { action, app, page, query, route } from "@wasp.sh/spec";
+import { action, app, page, query, route } from "@wasp/spec";
 
 import { createTask, updateTask } from "./src/actions" with { type: "ref" };
 import { LoginPage } from "./src/LoginPage" with { type: "ref" };
@@ -8,7 +8,7 @@ import { SignupPage } from "./src/SignupPage" with { type: "ref" };
 
 export default app({
   name: "TodoApp",
-  wasp: { version: "0.26.0" },
+  wasp: { version: "0.27.0" },
   title: "TodoApp",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

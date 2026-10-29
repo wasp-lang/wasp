@@ -1,10 +1,13 @@
 ---
+title: "Fly.io: deploy a Wasp server and database by hand"
+sidebar_label: Fly.io
+description: Deploy the server and database of a Wasp app to Fly.io by hand with the fly CLI. Wasp Deploy does the client, server and database with one command.
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Fly.io
@@ -13,7 +16,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ## Manual Deployment <Server /> <Database />
 
@@ -37,7 +40,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -56,6 +59,8 @@ This will ask you a series of questions, such as asking you to choose a region a
 
   We still need to set up several environment variables.
 
+Some apps need more database memory than the **Development** preset provides. If yours does, choose a database setup with more memory. See Fly.io's [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for the available options.
+
 :::info What if the database setup fails?
 If your attempts to initiate a new app fail for whatever reason, then you should run `fly apps destroy <app-name>` before trying again. Fly does not allow you to create multiple apps with the same name.
 
@@ -67,7 +72,7 @@ If your attempts to initiate a new app fail for whatever reason, then you should
   <div>
     <p>When your DB is deployed correctly, you'll see it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
 
-    <img width="662" alt="image" src="/img/deploying/fly-db.png" />
+    <img width="662" alt="image" src="/img/docs/guides/deployment/cloud-providers/flyio/fly-db.png" />
   </div>
 </details>
 

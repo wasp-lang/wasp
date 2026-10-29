@@ -138,12 +138,15 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
           keepUnlessMatched
             ( map isBasenameOf [".DS_Store", "node_modules"]
                 ++ [
-                     -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec.
+                     -- The @wasp/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec (built from packages/spec).
                      -- It is only copied into .wasp because we need to reach it with `npm install`.
                      -- If there are errors in this package, they will surface either during package tests or
                      -- manifest in the project snapshot. We can therefore skip it.
                      isSubpathOf ".wasp/spec",
+                     -- The project lock file persists by design and contains the PID
+                     -- of the last Wasp command, which is not deterministic.
+                     isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )
@@ -184,9 +187,12 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                   "tsconfig.src.tsbuildinfo",
                   "dist"
                 ]
-                ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec, so we skip it.
+                ++ [ -- The @wasp/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec (built from packages/spec), so we skip it.
                      isSubpathOf ".wasp/spec",
+                     -- The project lock file persists by design and contains the PID
+                     -- of the last Wasp command, which is not deterministic.
+                     isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )

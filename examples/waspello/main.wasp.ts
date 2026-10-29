@@ -1,4 +1,4 @@
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route } from "@wasp/spec";
 import { readFile } from "fs/promises";
 import MainPage from "./src/cards/MainPage" with { type: "ref" };
 import Layout from "./src/Layout" with { type: "ref" };
@@ -8,7 +8,7 @@ import { cardsSpec } from "./src/cards/cards.wasp";
 
 export default app({
   name: "waspello",
-  wasp: { version: "0.26.0" },
+  wasp: { version: "0.27.0" },
   title: (await readFile("appTitle.txt", "utf-8")).trim(),
   auth: {
     userEntity: "User",

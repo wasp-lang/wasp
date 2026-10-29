@@ -1,10 +1,13 @@
 ---
+title: File uploads in a Wasp app with Multer
+sidebar_label: File Uploads
+description: "Accept file uploads in a Wasp app with Multer: add an API endpoint with upload middleware, post a form with FormData, and limit file size and type."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# File Uploads
+# File uploads
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", multer: "2.1.1" }} />
 
@@ -26,7 +29,7 @@ npm install --save-dev @types/multer
 Create an API namespace with middleware configuration and the upload endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app, page, route } from "@wasp.sh/spec"
+import { api, apiNamespace, app, page, route } from "@wasp/spec"
 import { configureFileUploadMiddleware, uploadFile } from "./src/apis" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -80,7 +83,7 @@ export const MainPage = () => {
   const [name, setName] = useState("");
   const [file, setFile] = useState<File>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!file) return;
     const formData = new FormData();

@@ -10,13 +10,13 @@ module Wasp.Project
   )
 where
 
-import Control.Arrow (ArrowChoice (left), first)
+import Control.Arrow (ArrowChoice (left))
 import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
-import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
+import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Project.Analyze (analyzeWaspProject)
@@ -27,19 +27,20 @@ compile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
-  IO ([CompileWarning], [CompileError])
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 compile waspDir outDir options = do
-  compileWarningsAndErrors <-
+  (compileWarnings, appSpecOrCompileErrors) <-
     analyzeWaspProject waspDir options >>= \case
-      (Left analyzerErrors, analyzerWarnings) -> return (analyzerWarnings, analyzerErrors)
-      (Right appSpec, analyzerWarnings) ->
-        first (<> analyzerWarnings) <$> generateCode appSpec outDir options
+      (Left analyzerErrors, analyzerWarnings) ->
+        return (analyzerWarnings, Left analyzerErrors)
+      (Right appSpec, analyzerWarnings) -> do
+        (generatorWarnings, generatorErrors) <- generateCode appSpec outDir options
+        return
+          ( generatorWarnings <> analyzerWarnings,
+            if null generatorErrors then Right appSpec else Left generatorErrors
+          )
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
-  return $
-    mconcat
-      [ compileWarningsAndErrors,
-        (dotEnvWarnings, [])
-      ]
+  return (compileWarnings <> dotEnvWarnings, appSpecOrCompileErrors)
 
 generateCode ::
   AS.AppSpec ->
@@ -47,9 +48,9 @@ generateCode ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 generateCode appSpec outDir options = do
-  (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-  let filteredWarnings = generatorWarningsFilter options generatorWarnings
-  return (show <$> filteredWarnings, show <$> generatorErrors)
+  (generatorWarnings, generatorErrors) <-
+    Generator.writeWebAppCode appSpec outDir (sendMessage options) (setupGoals options)
+  return (show <$> generatorWarnings, show <$> generatorErrors)
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do

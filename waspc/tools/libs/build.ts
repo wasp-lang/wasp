@@ -1,16 +1,16 @@
 /// <reference types="node" />
-// Helper to compile the waspc/data/Generator/libs/* packages locally and in CI
-// and then move them into the Cabal data dir.
+// Helper to compile the packages/libs/* packages locally and in CI and pack
+// them into tarballs inside the Cabal data dir, where `waspc` expects them.
 
-import { readdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
+import { basename, join } from "node:path";
 import {
   assertPackageVersionMatchesWaspc,
   discoverSubDirs,
   getPackageJson,
   runCmd,
 } from "../utils.ts";
-import { getDataLibsDirPath } from "./utils.ts";
+import { getDataLibsDirPath, getLibsDirPath } from "./utils.ts";
 
 try {
   buildLibs();
@@ -20,10 +20,7 @@ try {
 }
 
 function buildLibs(): void {
-  const dataLibsDirPath = getDataLibsDirPath();
-  const libDirs = discoverSubDirs(dataLibsDirPath);
-
-  for (const libDir of libDirs) {
+  for (const libDir of discoverSubDirs(getLibsDirPath())) {
     buildLib(libDir);
   }
 }
@@ -35,10 +32,12 @@ function buildLib(libDir: string): void {
 
   console.log(`Building ${libName} lib (${libDir})`);
 
-  rmExistingTarballsInDir(libDir);
+  const dataLibDir = join(getDataLibsDirPath(), basename(libDir));
+  mkdirSync(dataLibDir, { recursive: true });
+  rmExistingTarballsInDir(dataLibDir);
 
   runCmd("npm", ["install"], { cwd: libDir });
-  runCmd("npm", ["pack"], { cwd: libDir });
+  runCmd("npm", ["pack", "--pack-destination", dataLibDir], { cwd: libDir });
 }
 
 function rmExistingTarballsInDir(dir: string): void {

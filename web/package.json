@@ -3,15 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "engines": {
-    "node": ">=24.14.1"
+    "node": ">=24.22.1"
   },
   "scripts": {
     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
     "build": "npm run install-spec-package && docusaurus build",
+    "build-dev": "DOCS_INCLUDE_CURRENT_VERSION=true npm run build",
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
-    "install-spec-package": "npm install --prefix ../waspc/data/packages/spec",
+    "install-spec-package": "npm install --prefix ../packages/spec",
     "markdown-snapshots:check": "node ./scripts/markdown-snapshots.mts check",
     "markdown-snapshots:update": "node ./scripts/markdown-snapshots.mts update",
     "remark": "remark",
@@ -49,6 +50,7 @@
     "react-tooltip": "^4.5.1",
     "react-transition-group": "^4.4.5",
     "remotion": "^4.0.441",
+    "tailwind-merge": "^2.6.1",
     "tailwindcss": "^3.2.4",
     "ts-blank-space": "^0.9.0"
   },

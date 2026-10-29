@@ -1,9 +1,12 @@
 ---
+title: "Netlify: deploy a Wasp app's client as a static site"
+sidebar_label: Netlify
+description: Deploy Wasp to Netlify, a static host that is free for many use cases, with the Netlify CLI and a netlify.toml, or from GitHub Actions.
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
-import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
+import BuildingTheWebClient from '../../../deployment/methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Netlify
@@ -15,7 +18,7 @@ This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is
 
 Make sure you are logged in with Netlify CLI. You can check if you are logged in with `npx netlify-cli status`, and if you are not, you can log in with `npx netlify-cli login`.
 
-First, make sure you have [built the Wasp app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
+First, make sure you have [built the Wasp app](../../../deployment/methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
 
 <BuildingTheWebClient />
 
@@ -91,7 +94,7 @@ Here's an example configuration file to help you get started. This example workf
             node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
+          run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Wasp Install
           run: wasp install

@@ -1,10 +1,10 @@
 
-import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
+import type { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
 
-import {
-  type _Task,
-  type Api,
-  type AuthenticatedApi,
+import type {
+  _Task,
+  Api,
+  AuthenticatedApi,
 } from '../_types'
 
 
@@ -19,6 +19,22 @@ export type FooBar<
   AuthenticatedApi<
     [
       _Task,
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type HeadBarBaz<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
     ],
     P,
     ResBody,
@@ -43,7 +59,119 @@ export type BarBaz<
     ReqQuery,
     Locals
   >
+export type PatchBarBaz<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
 export type WebhookCallback<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type ThrowUnexpectedError<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type ThrowHttpError<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type ThrowConcealedError<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type ThrowUnavailableError<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type ThrowRateLimitError<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type ThrowUpstreamError<
   P extends ExpressParams = ExpressParams,
   ResBody = any,
   ReqBody = any,

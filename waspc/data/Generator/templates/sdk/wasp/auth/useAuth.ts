@@ -1,12 +1,12 @@
 {{={= =}=}}
 import { deserialize } from '../core/serialization/index.js'
-import { useQuery, buildAndRegisterQuery } from '../client/operations/index.js'
-import type { QueryFunction, Query  } from '../client/operations/rpc.js'
+import { buildAndRegisterQuery, useQuery } from '@wasp/lib-sdk-core/browser'
+import type { QueryFunction, Query  } from '@wasp/lib-sdk-core'
 import { api, handleApiError } from '../api/index.js'
 import { HttpMethod } from '../client/index.js'
 import type { AuthUser, AuthUserData } from './user.js'
 import { makeAuthUserIfPossible } from './user.js'
-import { UseQueryResult } from '@tanstack/react-query'
+import type { UseQueryResult } from '@tanstack/react-query'
 
 // PUBLIC API
 export const getMe: Query<void, AuthUser | null> = createUserGetter()

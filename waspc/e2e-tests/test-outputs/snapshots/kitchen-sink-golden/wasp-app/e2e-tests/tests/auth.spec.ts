@@ -3,6 +3,7 @@ import { WASP_SERVER_URL } from "../playwright.config";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
 import {
   generateRandomEmail,
+  generateRandomInternationalizedEmail,
   isRunningInDeployedMode,
   isRunningInDevMode,
 } from "./helpers";
@@ -14,6 +15,32 @@ test.describe("auth", () => {
     await expect(
       page.locator(`a[href='${WASP_SERVER_URL}/auth/google/login']`),
     ).toBeVisible();
+  });
+
+  test("password field can be toggled to show the password", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+
+    const passwordInput = page.locator("input[name='password']");
+    await expect(passwordInput).toHaveAttribute("type", "password");
+
+    await page.getByRole("button", { name: "Show password" }).click();
+
+    await expect(passwordInput).toHaveAttribute("type", "text");
+  });
+
+  test("reset password form shows the new password error under its own field", async ({
+    page,
+  }) => {
+    await page.goto("/password-reset");
+
+    await page
+      .locator("input[name='passwordConfirmation']")
+      .fill("only-the-confirmation");
+    await page.getByRole("button", { name: "Reset password" }).click();
+
+    await expect(page.locator("body")).toContainText("Password is required");
   });
 
   test.describe("signup and login", () => {
@@ -45,7 +72,8 @@ test.describe("auth", () => {
 
     test("can sign up", async ({ page }) => {
       await performSignup(page, {
-        email,
+        // Padded to check that the form trims the address.
+        email: ` ${email} `,
         password,
         address: "Some at least 10 letter address",
       });
@@ -94,6 +122,74 @@ test.describe("auth", () => {
         password,
       });
       await expect(page).toHaveURL("/");
+    });
+  });
+
+  test.describe("internationalized email address", () => {
+    test.skip(
+      isRunningInDeployedMode(),
+      "Skipped in deployed mode (no Mailcrab)",
+    );
+    test.describe.configure({ mode: "serial" });
+
+    const email = generateRandomInternationalizedEmail();
+    const password = "12345678";
+
+    test("can sign up", async ({ page }) => {
+      await performSignup(page, {
+        email,
+        password,
+        address: "Some at least 10 letter address",
+      });
+
+      await expect(page.locator("body")).toContainText(
+        `You've signed up successfully! Check your email for the confirmation link.`,
+      );
+    });
+
+    test("can verify email", async ({ page }) => {
+      if (isRunningInDevMode()) {
+        // Skip this test in dev mode, as email confirmation is not required.
+        test.skip();
+      }
+
+      await performEmailVerification(page, email);
+    });
+
+    test("can log in", async ({ page }) => {
+      await performLogin(page, { email, password });
+
+      await expect(page).toHaveURL("/");
+    });
+  });
+
+  test.describe("invalid email address", () => {
+    test("signing up with a malformed address results in an error message", async ({
+      page,
+    }) => {
+      await performSignup(page, {
+        email: "not-an-email",
+        password: "12345678",
+        address: "Some at least 10 letter address",
+      });
+
+      await expect(page.locator("body")).toContainText(
+        "Email must be a valid email",
+      );
+    });
+
+    test("signing up with a leading combining mark results in an error message", async ({
+      page,
+    }) => {
+      await performSignup(page, {
+        email: `\u0301${generateRandomInternationalizedEmail()}`,
+        password: "12345678",
+        address: "Some at least 10 letter address",
+      });
+
+      await expect(page.locator("body")).toContainText(
+        "Email must be a valid email",
+      );
     });
   });
 });

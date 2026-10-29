@@ -1,5 +1,7 @@
 ---
-title: SEO & GEO
+title: Optimizing for search and AI crawlers (SEO & GEO)
+description: Measure your Wasp app with Lighthouse and Search Console, then add meta tags, prerendering, semantic markup, structured data and files like robots.txt.
+sidebar_label: SEO & GEO
 comments: true
 ---
 
@@ -29,7 +31,7 @@ We recommend **first to measure your app** against common industry tools and see
 SEO can come with costs; at a minimum, the cost of development time and maintenance burden. So while there's always room for improvement, it's important to focus on the techniques that will give you the biggest boost. A little improvement can go a long way, and you don't need to get a perfect score to see significant benefits.
 
 :::warning Always run measurements against your production build
-Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](/docs/deployment/local-testing) or [after deploying](/docs/deployment/intro).
+Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](../../deployment/local-testing.md) or [after deploying](../../deployment/overview.md).
 :::
 
 ### Lighthouse
@@ -41,12 +43,12 @@ Full optimization of the Wasp app only happens on the production build, not the 
 <tr>
 <td>
 
-![Screenshot of a Lighthouse report overview](/img/lighthouse-report-overview.png)
+![Screenshot of a Lighthouse report overview](/img/docs/guides/optimization/seo/lighthouse-report-overview.png)
 
 </td>
 <td>
 
-![Screenshot of a Lighthouse report's list of issues](/img/lighthouse-report-seo.png)
+![Screenshot of a Lighthouse report's list of issues](/img/docs/guides/optimization/seo/lighthouse-report-seo.png)
 
 </td>
 </tr>
@@ -102,7 +104,7 @@ Search engines and social platforms read `<meta>` tags from your HTML to decide 
 You can set tags for your whole app through the `head` field of your `app` declaration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   // ...
@@ -167,12 +169,12 @@ By default, Wasp apps are [single-page applications (SPAs)](https://en.wikipedia
 
 Most search engines (like Google) can also execute JavaScript when indexing a page too. But some crawlers (and many AI assistants) don't run JavaScript at all. So they see only the empty HTML, not your actual content. As such, they can't answer questions about your website, and they'll mostly ignore it.
 
-![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, 'Without prerender': the browser window shows 'Loading...' and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as 'Loading,' and responds 'Hmm... I don't know what this page is about,' marked with a red X. On the right, 'With prerender': the browser window shows 'Welcome to Wasp,' and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads 'Welcome to Wasp,' understands the page describes Wasp, and says it will recommend it to the user.](/img/prerendering-diagram.png)
+![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, 'Without prerender': the browser window shows 'Loading...' and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as 'Loading,' and responds 'Hmm... I don't know what this page is about,' marked with a red X. On the right, 'With prerender': the browser window shows 'Welcome to Wasp,' and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads 'Welcome to Wasp,' understands the page describes Wasp, and says it will recommend it to the user.](/img/docs/guides/optimization/seo/prerendering-diagram.png)
 
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -211,7 +213,7 @@ If an image is purely decorative, you can give it an empty `alt=""` so crawlers 
 
 You should also use semantic HTML to help crawlers understand your content. For example, use one `<h1>` per page for the main heading, and use `<h2>`, `<h3>`, etc. for subheadings in order. Most indexers will understand that as your page's subject matter and closely relate it with those terms. You should also use descriptive link text instead of generic phrases like "click here," so crawlers know what the linked page is about.
 
-Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](/advanced/links.md), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
+Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](/features/pages-and-routes.md#link-component), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
 
 ```tsx title="src/components/Navbar.tsx" auto-js
 import { Link } from "wasp/client/router"
@@ -297,7 +299,7 @@ You can read more about structured data in Google's documentation:
 
 Search engines factor page speed into ranking through [Core Web Vitals](https://web.dev/articles/vitals); and the smaller the page, the faster it loads. A couple of things help the most:
 
-- **Optimize your images.** Serve images at the size they're displayed, and prefer modern formats like WebP or AVIF. And [importing an image from your source code](/project/static-assets.md#importing-an-asset-as-url) lets Vite hash its filename so browsers can cache it aggressively. See Chrome Lighthouse's docs for more tips on image optimization:
+- **Optimize your images.** Serve images at the size they're displayed, and prefer modern formats like WebP or AVIF. And [importing an image from your source code](/advanced/client-customization/static-assets.md#importing-an-asset-as-url) lets Vite hash its filename so browsers can cache it aggressively. See Chrome Lighthouse's docs for more tips on image optimization:
 
   <CardLink
     kind="external"
@@ -349,7 +351,7 @@ Crawlers look for a couple of standard files at the root of your site, for examp
 - [A `sitemap.xml` file](#sitemap-xml) lists the pages you want crawlers to find and index.
 - [An `llms.txt` file](#llms-txt) that can give instructions to AI assistants about how to interact with your site and which pages to read.
 
-Place these in the [`public` directory](/project/static-assets.md#the-public-directory) at the root of your project. Files there are served as-is from the root path, so `public/robots.txt` becomes available at `https://your-app.com/robots.txt`:
+Place these in the [`public` directory](/advanced/client-customization/static-assets.md#the-public-directory) at the root of your project. Files there are served as-is from the root path, so `public/robots.txt` becomes available at `https://your-app.com/robots.txt`:
 
 ```
 .

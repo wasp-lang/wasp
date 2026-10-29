@@ -43,7 +43,7 @@ To self-host your Wasp app, you'll follow these general steps:
 1. Serve the **client app** with a static file server.
 1. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
 
-<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
+<ImgWithCaption source="/img/docs/deployment/methods/self-hosted/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
 
 ### Steps
 

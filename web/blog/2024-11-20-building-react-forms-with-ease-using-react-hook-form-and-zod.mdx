@@ -1,8 +1,9 @@
 ---
 title: 'Building React Forms with Ease Using React Hook Form, Zod and Shadcn'
 authors: [martinovicdev]
-image: /img/forms/banner.webp
+image: /img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/banner.webp
 tags: [webdev, wasp, react, forms]
+description: "Build a React user form with React Hook Form, Zod and Shadcn: required fields, an email check, no future dates and custom error messages."
 ---
 
 Forms are something every developer encounters, whether as a user or on the developer side. They’re essential on most websites, but their complexity can vary wildly—from simple 3-field contact forms to giga-monster-t-rex, multi-page forms with 150 fields, dynamic validation, and asynchronous checks.
@@ -11,13 +12,13 @@ Forms are something every developer encounters, whether as a user or on the deve
 
 In this post, we’ll explore how React Hook Form, Zod, and Shadcn can be used to create an adaptable, developer-friendly solution that handles a wide range of form requirements with ease.
 
-![david and victoria meme](/img/forms/meme.webp)
+![david and victoria meme](/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/meme.webp)
 
 ## The form we’ll be building
 
-Here’s the form we’ll be developing in this post. I plan on writing another post about an advanced use of forms that will have even more complexity as a follow-up, so stay tuned 😃
+Here’s the form we’ll be developing in this post. I plan on writing another post about an advanced use of forms that will have even more complexity as a follow-up, so stay tuned 😃 Update: the follow-up is out, [advanced validation with React Hook Form, Zod and shadcn](/blog/2025/01/22/advanced-react-hook-form-zod-shadcn).
 
-![example form](/img/forms/form.png)
+![example form](/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/form.png)
 
 ## Meet the tools
 
@@ -66,9 +67,9 @@ Even if you prefer using a different flavor of the stack, as long as you stick w
 
 The application we'll use to demonstrate basic forms is an admin panel with essential CRUD operations. It will include email and password authentication and consist of two pages: a main screen displaying a table of all users, and a user creation page, which will be the star of this article.
 
-![example data](/img/forms/data.png)
+![example data](/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/data.png)
 
-![example form](/img/forms/form.png)
+![example form](/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/form.png)
 
 Our form will include validation to ensure users cannot submit it (i.e., create a new user) without meeting the specified requirements. The User object is an excellent candidate for validation examples, as it contains a variety of data types suitable for different validations: strings, dates (e.g., date of birth), email strings, and booleans (e.g., premium user status). The complete Prisma schema file is shown below.
 
@@ -83,7 +84,7 @@ model Customer {
 }
 ```
 
-To jumpstart our project, we’ll use a predefined [Wasp template](https://wasp.sh/docs/project/starter-templates) with TypeScript, called **todo-ts**. This template comes with ready-made components and routing for authentication, including login and signup screens. It also offers a solid example of how CRUD operations work in Wasp, ideal if you’re new to the framework. Additionally, we’ll leverage the new Wasp TypeScript SDK to manage our configuration, as it provides extended flexibility for customization.
+To jumpstart our project, we’ll use a predefined [Wasp template](https://wasp.sh/docs/getting-started/starter-templates) with TypeScript, called **todo-ts**. This template comes with ready-made components and routing for authentication, including login and signup screens. It also offers a solid example of how CRUD operations work in Wasp, ideal if you’re new to the framework. Additionally, we’ll leverage the new Wasp TypeScript SDK to manage our configuration, as it provides extended flexibility for customization.
 
 ### Finding this article useful?
 
@@ -136,7 +137,7 @@ The final step is to create the form itself and assemble it in the TSX file. As 
 - Typically, we wrap everything in `FormItem`, add a `FormLabel` for the label, and place the controlled form element inside `FormControl` with the appropriate value and setter method.
 - Finally, we include `FormMessage` below, which displays the Zod validation message if validation fails.
 
-![form with errors](/img/forms/form-error.png)
+![form with errors](/img/blog/2024-11-20-building-react-forms-with-ease-using-react-hook-form-and-zod/form-error.png)
 
 ```tsx
 
@@ -168,6 +169,6 @@ const form = useForm<FormData>({
   )} />
 ```
 
-If you’re curious to see the complete application, check out the GitHub repository here: [GitHub Repo](https://github.com/martinovicdev/wasp-form-tutorial). I hope this article has made working with forms easier, and if you're interested in more form-related content, stay tuned for part two! In the next part, we'll dive into advanced patterns and validation techniques to enhance your applications.
+If you’re curious to see the complete application, check out the GitHub repository here: [GitHub Repo](https://github.com/martinovicdev/wasp-form-tutorial). I hope this article has made working with forms easier, and if you're interested in more form-related content, read [part two of this React Hook Form series](/blog/2025/01/22/advanced-react-hook-form-zod-shadcn), where we dive into advanced patterns and validation techniques to enhance your applications.
 
 Please consider starring [**Wasp**](https://github.com/wasp-lang/wasp) on GitHub if you liked this post! Your support helps us continue making web development easier and smoother for everyone. 🐝

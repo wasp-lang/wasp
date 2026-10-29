@@ -48,17 +48,13 @@ Use the same URL pattern as the versioned documentation maps: ${context.baseUrl}
 }
 
 function buildLlmFilesIndexSection(context: LlmFilesContext): string {
-  const waspVersions = context.loadedVersions.map(
-    (version) => version.versionName,
-  );
-
   let llmFilesIndexSection = `## Documentation Maps by Version\n*IMPORTANT:* You should run \`wasp version\` to get the installed Wasp CLI version before choosing the correct link.\n`;
-  for (const waspVersion of waspVersions) {
-    const waspVersionLabel =
-      waspVersion === context.latestWaspVersion
-        ? `${waspVersion} (latest)`
-        : waspVersion;
-    llmFilesIndexSection += `- [${waspVersionLabel}](${context.baseUrl}/llms-${waspVersion}.txt)\n`;
+  for (const version of context.loadedVersions) {
+    const versionLinkText =
+      version.versionName === context.latestWaspVersion.versionName
+        ? `${version.label} (latest)`
+        : version.label;
+    llmFilesIndexSection += `- [${versionLinkText}](${context.baseUrl}/llms-${version.versionName}.txt)\n`;
   }
   return llmFilesIndexSection;
 }

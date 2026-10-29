@@ -1,14 +1,14 @@
 import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
+import "./Main.css";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <main className="card">
       <SignupForm />
-      <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
-    </div>
+    </main>
   );
 };

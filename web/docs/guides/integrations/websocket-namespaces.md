@@ -1,10 +1,13 @@
 ---
+title: WebSocket namespaces in Wasp with Socket.IO
+sidebar_label: WebSocket Namespaces
+description: "Use Socket.IO namespaces in a Wasp app to split real-time events into channels: create them with io.of on the server and connect with socket.io-client."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# WebSocket Namespaces
+# WebSocket namespaces
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
@@ -12,7 +15,7 @@ This guide shows you how to use Socket.IO namespaces with Wasp's WebSocket suppo
 
 ## Understanding Namespaces
 
-Wasp's built-in WebSocket support gives you a single default connection with type-safe events via `useSocket` and `useSocketListener` (see the [Web Sockets docs](../../advanced/web-sockets.md)). Namespaces are a Socket.IO feature that lets you split real-time logic over separate channels on a single shared connection. This is useful when you want to separate concerns, for example having a `/chat` namespace for chat-related events and a `/notifications` namespace for notification events.
+Wasp's built-in WebSocket support gives you a single default connection with type-safe events via `useSocket` and `useSocketListener` (see the [Web Sockets docs](../../features/websockets.md)). Namespaces are a Socket.IO feature that lets you split real-time logic over separate channels on a single shared connection. This is useful when you want to separate concerns, for example having a `/chat` namespace for chat-related events and a `/notifications` namespace for notification events.
 
 When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `useSocketListener`) and manage connections directly with `socket.io-client`. Wasp still handles the server-side setup and provides the `io` server instance.
 
@@ -23,7 +26,7 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/MainPage" with { type: "ref" }
 import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 

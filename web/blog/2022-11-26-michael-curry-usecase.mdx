@@ -1,11 +1,12 @@
 ---
 title: 'How Michael Curry chose Wasp to build Grabbit: an internal tool for managing dev resources at StudentBeans'
 authors: [matijasos]
-image: /img/michael-curry-usecase/grabbit-hero-shot.png
+image: /img/blog/2022-11-26-michael-curry-usecase/grabbit-hero-shot.png
 tags: [webdev, wasp, startups, github]
+description: "Michael Curry built Grabbit with Wasp so StudentBeans teams could claim and release shared dev environments. He had a first version in an hour."
 ---
 
-![grabbit hero shot](../static/img/michael-curry-usecase/grabbit-hero-shot.png)
+![grabbit hero shot](../static/img/blog/2022-11-26-michael-curry-usecase/grabbit-hero-shot.png)
 
 [Michael Curry](https://github.com/cursorial) is a senior front-end engineer at [Improbable](https://www.improbable.io/), a metaverse and simulation company based in London. In his free time he enjoys learning about compilers.
 
@@ -47,7 +48,7 @@ Also, although Michael had full-stack experience, his primary strength at the ti
 
 Once Michael was satisfied with the first version of Grabbit, and confirmed with the team it fits their desired process, the only thing left to do was to deploy it! It is well known this step can get really complicated, especially if you're not yet well-versed in the sea of config options that usually come with it.
 
-Wasp CLI comes with a `wasp build` command that does all the heavy lifting for you - it creates a directory with static front-end files that you can easily deploy to e.g. Netlify, and on the other hand, a Docker image for the back-end. Since Heroku is ending its free plan, our recommendation is to deploy to Fly.io, for which the detailed guide is provided. You can find the [detailed deployment instructions here](https://wasp.sh/docs/deployment/intro).
+Wasp CLI comes with a `wasp build` command that does all the heavy lifting for you - it creates a directory with static front-end files that you can easily deploy to e.g. Netlify, and on the other hand, a Docker image for the back-end. Since Heroku is ending its free plan, our recommendation is to deploy to Fly.io, for which the detailed guide is provided. You can find the [detailed deployment instructions here](https://wasp.sh/docs/deployment/overview).
 
 In Michael's case, he deployed Grabbit behind the VPN since it was an internal tool, and this process was made easy by having a ready-to-go Dockerfile.
 
