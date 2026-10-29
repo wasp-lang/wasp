@@ -15,7 +15,10 @@ data ProjectRunConfig = ProjectRunConfig
   { clientUrl :: URI,
     serverUrl :: URI,
     clientPort :: PortNumber,
-    serverPort :: PortNumber
+    serverPort :: PortNumber,
+    -- | Connection URL of the database Wasp provides to the app. 'Nothing'
+    -- when the app is expected to get its database from its own environment.
+    databaseUrl :: Maybe String
   }
   deriving (Show, Eq)
 

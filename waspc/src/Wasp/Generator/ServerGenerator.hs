@@ -68,7 +68,6 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
-import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -102,15 +101,8 @@ genDotEnv spec =
   return
     [ createTextFileDraft
         (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
-        (envVarsToDotEnvContent envVars)
+        (envVarsToDotEnvContent spec.devEnvVarsServer)
     ]
-  where
-    envVars = waspEnvVars ++ userEnvVars
-    userEnvVars = spec.devEnvVarsServer
-    waspEnvVars = case spec.devDatabaseUrl of
-      Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
-      _ -> []
-    isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
 
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]

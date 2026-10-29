@@ -2,6 +2,7 @@ module Wasp.Cli.ProjectRunConfig
   ( defaultDevClientPort,
     defaultDevServerPort,
     makeDefaultDevProjectRunConfig,
+    makeDevProjectRunConfig,
     makeProjectRunConfig,
     showRunConfigUrls,
   )
@@ -12,6 +13,7 @@ import Network.Socket (PortNumber)
 import Network.URI (URI, uriToString)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
+import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Project.RunConfig (ProjectRunConfig (..), makeLocalUrl)
 
 defaultDevClientPort :: PortNumber
@@ -20,19 +22,27 @@ defaultDevClientPort = 3000
 defaultDevServerPort :: PortNumber
 defaultDevServerPort = 3001
 
-makeDefaultDevProjectRunConfig :: AppSpec -> ProjectRunConfig
+makeDefaultDevProjectRunConfig :: AppSpec -> IO ProjectRunConfig
 makeDefaultDevProjectRunConfig appSpec =
-  makeProjectRunConfig appSpec (defaultDevClientPort, defaultDevServerPort) (Nothing, Nothing)
+  makeDevProjectRunConfig appSpec (defaultDevClientPort, defaultDevServerPort) (Nothing, Nothing)
 
--- | Builds the run config from the ports the client and server listen on and,
--- optionally, custom URLs to use instead of @http://localhost:<port>@.
-makeProjectRunConfig :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> ProjectRunConfig
-makeProjectRunConfig appSpec ports@(clientPort, serverPort) (customClientUrl, customServerUrl) =
+-- | Run config for the app in development, which connects it to the dev
+-- database Wasp manages, if there is one.
+makeDevProjectRunConfig :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> IO ProjectRunConfig
+makeDevProjectRunConfig appSpec ports customUrls =
+  makeProjectRunConfig appSpec ports customUrls <$> findDevDatabaseUrl appSpec
+
+-- | Builds the run config from the ports the client and server listen on,
+-- optionally, custom URLs to use instead of @http://localhost:<port>@, and
+-- optionally, the database Wasp provides to the app.
+makeProjectRunConfig :: AppSpec -> (PortNumber, PortNumber) -> (Maybe URI, Maybe URI) -> Maybe String -> ProjectRunConfig
+makeProjectRunConfig appSpec ports@(clientPort, serverPort) (customClientUrl, customServerUrl) databaseUrl =
   ProjectRunConfig
     { clientUrl = fromMaybe localClientUrl customClientUrl,
       serverUrl = fromMaybe localServerUrl customServerUrl,
       clientPort,
-      serverPort
+      serverPort,
+      databaseUrl
     }
   where
     (localClientUrl, localServerUrl) = makeLocalUrls appSpec ports
