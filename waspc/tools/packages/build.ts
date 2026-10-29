@@ -13,8 +13,8 @@ import {
 import {
   getDataPackagesDirPath,
   getWaspcPackageDirPath,
-  WASPC_NPM_PACKAGE_NAMES,
-  WASPC_WORKSPACE_PACKAGE_NAMES,
+  WASPC_PACKAGES,
+  type WaspcPackage,
 } from "./utils.ts";
 
 // The files `waspc.cabal` lists as data files for each package. The lockfile
@@ -31,26 +31,23 @@ try {
 function buildPackages(): void {
   installWorkspaceDependencies();
 
-  for (const packageName of WASPC_WORKSPACE_PACKAGE_NAMES) {
-    buildPackage(packageName, "pnpm");
-    copyPackageArtifactsToDataDir(packageName);
-  }
-
-  for (const packageName of WASPC_NPM_PACKAGE_NAMES) {
-    runCmd("npm", ["install"], { cwd: getWaspcPackageDirPath(packageName) });
-    buildPackage(packageName, "npm");
-    copyPackageArtifactsToDataDir(packageName);
+  for (const waspcPackage of WASPC_PACKAGES) {
+    buildPackage(waspcPackage);
+    copyPackageArtifactsToDataDir(waspcPackage.name);
   }
 }
 
-function buildPackage(packageName: string, packageManager: "pnpm" | "npm") {
-  const packageDir = getWaspcPackageDirPath(packageName);
-  const { name, version } = getPackageJson(packageDir);
+function buildPackage({ name, packageManager }: WaspcPackage): void {
+  const packageDir = getWaspcPackageDirPath(name);
+  const { version } = getPackageJson(packageDir);
 
   assertPackageVersionMatchesWaspc(name, version);
 
   console.log(`Building ${name} package (${packageDir})`);
 
+  if (packageManager === "npm") {
+    runCmd("npm", ["install"], { cwd: packageDir });
+  }
   runCmd(packageManager, ["run", "build"], { cwd: packageDir });
 }
 

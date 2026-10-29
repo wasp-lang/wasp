@@ -8,8 +8,8 @@ import {
 } from "../utils.ts";
 import {
   getWaspcPackageDirPath,
-  WASPC_NPM_PACKAGE_NAMES,
-  WASPC_WORKSPACE_PACKAGE_NAMES,
+  WASPC_PACKAGES,
+  type WaspcPackage,
 } from "./utils.ts";
 
 testPackages();
@@ -17,29 +17,24 @@ testPackages();
 function testPackages(): void {
   installWorkspaceDependencies();
 
-  for (const packageName of WASPC_WORKSPACE_PACKAGE_NAMES) {
-    testPackage(packageName, "pnpm");
-  }
-
-  for (const packageName of WASPC_NPM_PACKAGE_NAMES) {
-    runCmd("npm", ["ci"], {
-      cwd: getWaspcPackageDirPath(packageName),
-      stdio: "inherit",
-    });
-    testPackage(packageName, "npm");
+  for (const waspcPackage of WASPC_PACKAGES) {
+    testPackage(waspcPackage);
   }
 }
 
-function testPackage(packageName: string, packageManager: "pnpm" | "npm") {
-  const packageDir = getWaspcPackageDirPath(packageName);
+function testPackage({ name, packageManager }: WaspcPackage): void {
+  const packageDir = getWaspcPackageDirPath(name);
   const packageJson = getPackageJson(packageDir);
 
   if (!packageJson.scripts?.test) {
     return;
   }
 
-  console.log(`Testing ${packageJson.name} (${packageDir})`);
+  console.log(`Testing ${name} (${packageDir})`);
 
+  if (packageManager === "npm") {
+    runCmd("npm", ["ci"], { cwd: packageDir, stdio: "inherit" });
+  }
   runCmd(packageManager, ["run", "test"], {
     cwd: packageDir,
     stdio: "inherit",

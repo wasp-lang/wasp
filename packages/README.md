@@ -27,7 +27,7 @@ Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.
 ### Adding a new package that `waspc` runs
 
 Create a directory in this folder with a `build` script in `package.json` that compiles to
-`dist/`, add it to `pnpm-workspace.yaml` and to `WASPC_WORKSPACE_PACKAGE_NAMES` in
+`dist/`, add it to `pnpm-workspace.yaml` and to `WASPC_PACKAGES` in
 `waspc/tools/packages/utils.ts`, and add its files to `data-files` in `waspc.cabal`:
 
 ```

@@ -9,8 +9,17 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 // `waspc` ships them with their own `package-lock.json` and installs them
 // with npm on first use.
 // TODO: Move them to the workspace once they are part of the Wasp npm package.
-export const WASPC_WORKSPACE_PACKAGE_NAMES = ["spec"];
-export const WASPC_NPM_PACKAGE_NAMES = ["deploy", "prisma", "studio"];
+export const WASPC_PACKAGES: WaspcPackage[] = [
+  { name: "spec", packageManager: "pnpm" },
+  { name: "deploy", packageManager: "npm" },
+  { name: "prisma", packageManager: "npm" },
+  { name: "studio", packageManager: "npm" },
+];
+
+export type WaspcPackage = {
+  name: string;
+  packageManager: "pnpm" | "npm";
+};
 
 export function getWaspcPackageDirPath(packageName: string): string {
   return join(getRepoRootPath(), "packages", packageName);
