@@ -11601,7 +11601,7 @@ When you override dependencies, it's up to you to test your app thoroughly and v
 If you find the need to override any dependency, we'd appreciate for you to [post an issue on GitHub](https://github.com/wasp-lang/wasp/issues/new/choose), or a [message on our Discord](https://discord.gg/rzdnErX), explaining your usecase. This will make us aware of your needs, and helps us prioritize giving you a supported solution faster.
 :::
 
-To override a dependency, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
+The packages Wasp uses are peer dependencies of `@wasp/wasp`, so npm itself refuses to install a conflicting version. To override one, you need two things in your `package.json`: npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field, which makes npm accept your version for every package that asks for it, and Wasp's `wasp.overriddenDeps` object, which tells Wasp you know what you are doing. The keys are the package names. In `overriddenDeps`, the values are **what Wasp currently requires** (not your desired version):
 
 **Before**
 
@@ -11621,6 +11621,9 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
     "@wasp/wasp": "0.27.0",
     "express": "5.0.1"
   },
+  "overrides": {
+    "express": "5.0.1"
+  },
   "wasp": {
     "overriddenDeps": {
       "express": "~5.1.0"
@@ -11631,17 +11634,11 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
 
 In this example:
 
-- You want to use Express 5.0.1 (specified in `dependencies`)
+- You want to use Express 5.0.1 (specified in `dependencies` and forced everywhere through `overrides`)
 - Wasp requires Express `~5.1.0` (specified in `overriddenDeps`)
 - By declaring this, you acknowledge you're deviating from Wasp's tested version
 
-The packages your project owns (`react`, `react-dom`, `react-router`, `prisma`, `vite` and `vitest`) are peer dependencies of `@wasp/wasp`, so npm itself refuses a conflicting version of them at install time. `overriddenDeps` does not apply to them.
-
 When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
-
-:::note
-If you need the override to apply to transitive dependencies as well (dependencies of your dependencies), you can use npm's built-in [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) feature alongside `wasp.overriddenDeps`.
-:::
 
 #### Supply Chain Protection
 
@@ -15446,12 +15443,15 @@ export default app({
 
 #### 4. Upgrade to Prisma 6
 
-Update the `prisma` version in your `package.json`:
+Update the Prisma packages in your `package.json`:
 
 **Before**
 
 ```json title="package.json"
 {
+  "dependencies": {
+    "@prisma/client": "5.19.1" // if already present
+  },
   "devDependencies": {
     "prisma": "5.19.1"
   }
@@ -15462,22 +15462,24 @@ Update the `prisma` version in your `package.json`:
 
 ```json title="package.json"
 {
+  "dependencies": {
+    "@prisma/client": "6.19.3" // if already present
+  },
   "devDependencies": {
     "prisma": "6.19.3"
   }
 }
 ```
 
-If you also list `@prisma/client` in your `package.json`, update it to the same version.
+Then start from a clean state, install the dependencies, which now include Wasp, and migrate. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
 
-Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
-
-```bash
+```sh
 wasp clean
 npm install
+wasp db migrate-dev
 ```
 
-Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
 #### 5. Enjoy your updated Wasp app
 

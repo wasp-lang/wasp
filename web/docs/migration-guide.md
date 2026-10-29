@@ -112,12 +112,16 @@ The version in `package.json` is now the one that counts, so the `wasp` field go
 
 ### 4. Upgrade to Prisma 6
 
-Update the `prisma` version in your `package.json`:
+Update the Prisma packages in your `package.json`:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```json title="package.json"
     {
+      "dependencies": {
+        // highlight-next-line
+        "@prisma/client": "5.19.1" // if already present
+      },
       "devDependencies": {
         // highlight-next-line
         "prisma": "5.19.1"
@@ -128,6 +132,10 @@ Update the `prisma` version in your `package.json`:
   <TabItem value="after" label="After">
     ```json title="package.json"
     {
+      "dependencies": {
+        // highlight-next-line
+        "@prisma/client": "6.19.3" // if already present
+      },
       "devDependencies": {
         // highlight-next-line
         "prisma": "6.19.3"
@@ -137,16 +145,15 @@ Update the `prisma` version in your `package.json`:
   </TabItem>
 </Tabs>
 
-If you also list `@prisma/client` in your `package.json`, update it to the same version.
+Then start from a clean state, install the dependencies, which now include Wasp, and migrate. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
 
-Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
-
-```bash
+```sh
 wasp clean
 npm install
+wasp db migrate-dev
 ```
 
-Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
 ### 5. Enjoy your updated Wasp app
 

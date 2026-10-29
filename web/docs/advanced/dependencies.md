@@ -49,7 +49,7 @@ If you find the need to override any dependency, we'd appreciate for you to [pos
 
 :::
 
-To override a dependency, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
+The packages Wasp uses are peer dependencies of `@wasp/wasp`, so npm itself refuses to install a conflicting version. To override one, you need two things in your `package.json`: npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field, which makes npm accept your version for every package that asks for it, and Wasp's `wasp.overriddenDeps` object, which tells Wasp you know what you are doing. The keys are the package names. In `overriddenDeps`, the values are **what Wasp currently requires** (not your desired version):
 
 <Tabs>
   <TabItem value="before" label="Before">
@@ -69,6 +69,9 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
         "@wasp/wasp": "0.27.0",
         "express": "5.0.1"
       },
+      "overrides": {
+        "express": "5.0.1"
+      },
       "wasp": {
         "overriddenDeps": {
           "express": "~5.1.0"
@@ -80,19 +83,11 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
 </Tabs>
 
 In this example:
-- You want to use Express 5.0.1 (specified in `dependencies`)
+- You want to use Express 5.0.1 (specified in `dependencies` and forced everywhere through `overrides`)
 - Wasp requires Express `~5.1.0` (specified in `overriddenDeps`)
 - By declaring this, you acknowledge you're deviating from Wasp's tested version
 
-The packages your project owns (`react`, `react-dom`, `react-router`, `prisma`, `vite` and `vitest`) are peer dependencies of `@wasp/wasp`, so npm itself refuses a conflicting version of them at install time. `overriddenDeps` does not apply to them.
-
 When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
-
-:::note
-
-If you need the override to apply to transitive dependencies as well (dependencies of your dependencies), you can use npm's built-in [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) feature alongside `wasp.overriddenDeps`.
-
-:::
 
 ### Supply Chain Protection
 
