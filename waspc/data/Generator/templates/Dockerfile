@@ -36,8 +36,8 @@ COPY --link package.json package-lock.json ./
 COPY --link server/package.json .wasp/out/server/
 COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
 COPY --link libs .wasp/out/libs
-# Install scripts can read project files, so we run them in `npm rebuild`
-# below, once the code is in place.
+# Install scripts can read project files, so we run them below, once the code
+# is in place.
 RUN npm ci --ignore-scripts
 {=# usingPrisma =}
 COPY --link db/schema.prisma .wasp/out/db/
@@ -48,8 +48,8 @@ COPY --link types .wasp/out/types
 COPY --link sdk .wasp/out/sdk
 COPY --link server .wasp/out/server
 COPY --link src ./src
-# The cache keeps Prisma from downloading its engines on every code change.
-RUN --mount=type=cache,target=/root/.cache/prisma npm rebuild
+# `npm rebuild` runs the install scripts, except the root package's `prepare`.
+RUN npm rebuild && npm run prepare --if-present
 WORKDIR /app/.wasp/out/server
 {=# usingPrisma =}
 RUN npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
