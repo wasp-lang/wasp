@@ -15,14 +15,7 @@
 */
 import { traceNodeModules } from "nf3";
 import { FullTracePackages } from "nf3/db";
-import {
-  cpSync,
-  existsSync,
-  globSync,
-  mkdirSync,
-  rmSync,
-  symlinkSync,
-} from "node:fs";
+import { cp, glob, mkdir, rm, stat, symlink } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -58,7 +51,7 @@ async function prepareProduction({
     : undefined;
   const { traceInclude, fullTraceInclude } = resolveTraceDeps(traceDeps);
 
-  rmSync(outDir, { recursive: true, force: true });
+  await rm(outDir, { recursive: true, force: true });
   const layout = await traceNodeModules(
     [
       path.join(serverDir, "bundle/server.js"),
@@ -74,10 +67,10 @@ async function prepareProduction({
     },
   );
   if (prismaCliEntry) {
-    copyPrismaCliEngines();
-    linkPrismaCliBin(layout.files[prismaCliEntry]);
+    await copyPrismaCliEngines();
+    await linkPrismaCliBin(layout.files[prismaCliEntry]);
   }
-  cpSync(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
+  await cp(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
     recursive: true,
   });
 
@@ -136,7 +129,7 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
  * Wasp pins a single Prisma version, so both packages sit at their usual
  * paths in the traced output.
  */
-function copyPrismaCliEngines(): void {
+async function copyPrismaCliEngines(): Promise<void> {
   const requireFromPrisma = createRequire(
     requireFromServer.resolve("prisma/package.json"),
   );
@@ -146,15 +139,15 @@ function copyPrismaCliEngines(): void {
   const enginesOutDir = path.join(outDir, "node_modules/@prisma/engines");
   const clientOutDir = path.join(outDir, "node_modules/.prisma/client");
 
-  for (const engine of globSync(["schema-engine-*", "libquery_engine-*"], {
+  for await (const engine of glob(["schema-engine-*", "libquery_engine-*"], {
     cwd: enginesPkgDir,
   })) {
     const engineInClient = path.join(clientOutDir, engine);
     const engineOutPath = path.join(enginesOutDir, engine);
-    if (existsSync(engineInClient)) {
-      symlinkSync(path.relative(enginesOutDir, engineInClient), engineOutPath);
+    if (await exists(engineInClient)) {
+      await symlink(path.relative(enginesOutDir, engineInClient), engineOutPath);
     } else {
-      cpSync(path.join(enginesPkgDir, engine), engineOutPath);
+      await cp(path.join(enginesPkgDir, engine), engineOutPath);
     }
   }
 }
@@ -165,11 +158,18 @@ function copyPrismaCliEngines(): void {
  *
  * @param prismaCliInOutDir The Prisma CLI's entry file, relative to `outDir`.
  */
-function linkPrismaCliBin(prismaCliInOutDir: string): void {
+async function linkPrismaCliBin(prismaCliInOutDir: string): Promise<void> {
   const binDir = path.join(outDir, "node_modules/.bin");
-  mkdirSync(binDir, { recursive: true });
-  symlinkSync(
+  await mkdir(binDir, { recursive: true });
+  await symlink(
     path.relative(binDir, path.join(outDir, prismaCliInOutDir)),
     path.join(binDir, "prisma"),
+  );
+}
+
+async function exists(filePath: string): Promise<boolean> {
+  return stat(filePath).then(
+    () => true,
+    () => false,
   );
 }
