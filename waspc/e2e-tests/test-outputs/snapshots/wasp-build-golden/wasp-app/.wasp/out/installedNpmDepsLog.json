@@ -4,7 +4,7 @@
             "dependencies": [
                 {
                     "name": "@wasp/wasp",
-                    "version": "file:/Users/mindek/conductor/workspaces/wasp/lima/waspc/.dev-packages/wasp-wasp-0.27.0.tgz"
+                    "version": "file:<dev-tarball>"
                 },
                 {
                     "name": "react",

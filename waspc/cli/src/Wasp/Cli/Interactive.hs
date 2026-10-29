@@ -14,10 +14,10 @@ module Wasp.Cli.Interactive
 where
 
 import Control.Applicative ((<|>))
+import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.Char (toLower)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE

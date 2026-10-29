@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@wasp/wasp": "file:<dev-tarball>",
+    "@wasp/wasp": "file:.wasp/out/libs/wasp/wasp-wasp-0.27.0.tgz",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router": "^8.0.1"
@@ -16,8 +16,8 @@
   },
   "name": "wasp-app",
   "overrides": {
-    "@wasp/cli": "file:<dev-tarball>",
-    "@wasp/spec": "file:<dev-tarball>"
+    "@wasp/cli": "file:.wasp/out/libs/wasp/wasp-cli-0.27.0.tgz",
+    "@wasp/spec": "file:.wasp/out/libs/wasp/wasp-spec-0.27.0.tgz"
   },
   "scripts": {
     "build": "wasp build",

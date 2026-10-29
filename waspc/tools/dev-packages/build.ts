@@ -13,6 +13,7 @@ import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { report } from "node:process";
+import { pathToFileURL } from "node:url";
 import { getPackageDirPath } from "../packages/utils.ts";
 import {
   getPackageJson,
@@ -96,14 +97,16 @@ function packDevCliPackage(
     cpSync(join(cliPackageDir, file), join(tmpDir, file));
   }
   // Same shape `scripts/make-npm-packages` writes, with the dev sub-package
-  // for this machine only. `bin.js` imports `packageName`, so an absolute
-  // path works just like a package name.
+  // for this machine only. `bin.js` passes `packageName` to `import()`, which
+  // accepts a `file:` URL on every platform (a Windows path would not be a
+  // valid import specifier).
   const { os, cpu, libc } = getCurrentTarget();
+  const devSubPackageMainFileUrl = pathToFileURL(devSubPackageMainFile).href;
   writeFileSync(
     join(tmpDir, "data.json"),
     JSON.stringify({
       subPackages: {
-        [os]: { [cpu]: { [libc]: { packageName: devSubPackageMainFile } } },
+        [os]: { [cpu]: { [libc]: { packageName: devSubPackageMainFileUrl } } },
       },
     }),
   );

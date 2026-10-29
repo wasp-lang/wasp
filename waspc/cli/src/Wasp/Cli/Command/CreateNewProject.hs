@@ -6,8 +6,8 @@ where
 import Control.Concurrent (newChan)
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
-import System.IO (hIsTerminalDevice, stdin)
 import qualified StrongPath as SP
+import System.IO (hIsTerminalDevice, stdin)
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), newProjectArgsParser)
@@ -24,8 +24,8 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)

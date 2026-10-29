@@ -3,17 +3,17 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
   )
 where
 
+import Control.Lens (at, (&), (?~))
+import Control.Monad (forM_)
+import Data.Aeson (Value, object, (.=))
+import qualified Data.Aeson.Key as Key
+import Data.Aeson.Lens (_Object)
 import Data.List (foldl')
 import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), NewProjectName)
-import Control.Lens (at, (&), (?~))
-import Control.Monad (forM_)
-import Data.Aeson (Value, object, (.=))
-import qualified Data.Aeson.Key as Key
-import Data.Aeson.Lens (_Object)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)

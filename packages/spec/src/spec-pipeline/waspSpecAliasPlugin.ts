@@ -1,4 +1,3 @@
-import { fileURLToPath } from "node:url";
 import type { Plugin } from "rolldown";
 import {
   INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE,
@@ -17,12 +16,16 @@ import {
  * `instanceof` checks on the errors it throws.
  *
  * The resolved modules are marked external, so the user's spec file keeps
- * importing them at runtime instead of bundling a second copy.
+ * importing them at runtime instead of bundling a second copy. They are
+ * resolved to `file:` URLs, not filesystem paths: the bundler writes the
+ * external ID verbatim into the output's import statement, and Node accepts
+ * a `file:` URL as an import specifier on every platform, while a Windows
+ * path such as `C:\...` is rejected as an unsupported URL scheme.
  */
 export function waspSpecAliasPlugin(): Plugin {
   const specEntryPoints: Record<string, string> = {
-    [PUBLIC_REF_HELPER_IMPORT_SOURCE]: getSpecDistPath("index.js"),
-    [INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE]: getSpecDistPath("internal.js"),
+    [PUBLIC_REF_HELPER_IMPORT_SOURCE]: getSpecDistFileUrl("index.js"),
+    [INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE]: getSpecDistFileUrl("internal.js"),
   };
 
   return {
@@ -37,6 +40,6 @@ export function waspSpecAliasPlugin(): Plugin {
 }
 
 // This file lives in `dist/src/spec-pipeline/`, the entry points in `dist/src/`.
-function getSpecDistPath(fileName: string): string {
-  return fileURLToPath(new URL(`../${fileName}`, import.meta.url));
+function getSpecDistFileUrl(fileName: string): string {
+  return new URL(`../${fileName}`, import.meta.url).href;
 }

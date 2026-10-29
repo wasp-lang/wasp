@@ -5,13 +5,13 @@ describe("waspSpecAliasPlugin", () => {
   const plugin = waspSpecAliasPlugin();
   const resolveId = plugin.resolveId as (source: string) => unknown;
 
-  it("resolves the package entry points to this package's own files, as externals", () => {
+  it("resolves the package entry points to this package's own files, as external file URLs", () => {
     expect(resolveId("@wasp/spec")).toEqual({
-      id: expect.stringMatching(/\/src\/index\.(js|ts)$/),
+      id: expect.stringMatching(/^file:\/\/\/.*\/src\/index\.(js|ts)$/),
       external: true,
     });
     expect(resolveId("@wasp/spec/internal")).toEqual({
-      id: expect.stringMatching(/\/src\/internal\.(js|ts)$/),
+      id: expect.stringMatching(/^file:\/\/\/.*\/src\/internal\.(js|ts)$/),
       external: true,
     });
   });
