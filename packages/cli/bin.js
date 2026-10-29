@@ -8,7 +8,7 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { report as processReport } from "node:process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
 
@@ -49,22 +49,41 @@ async function main() {
   );
 }
 
-// A project depends on Wasp through `@wasp/wasp`, which pins its own
+// A Wasp project depends on Wasp through `@wasp/wasp`, which pins its own
 // `@wasp/cli`. When a wrapper from elsewhere (typically a global install) runs
-// inside such a project, it hands over to the project's wrapper, so the
+// inside a Wasp project, it hands over to the project's wrapper, so the
 // project always runs the Wasp version it declares.
 function findProjectWaspCliBin() {
+  const waspProjectDir = findWaspProjectDir();
+  if (waspProjectDir === undefined) {
+    return undefined;
+  }
+
+  // The `node_modules` dirs Node would search from the project dir, so a
+  // monorepo that hoists `@wasp/wasp` to a parent works too. We look for the
+  // package.json ourselves, since a package's `exports` may hide it from
+  // `require.resolve`.
+  const projectRequire = createRequire(path.join(waspProjectDir, "noop.js"));
+  const waspPackageJsonPath = (projectRequire.resolve.paths("@wasp/wasp") ?? [])
+    .map((nodeModulesDir) =>
+      path.join(nodeModulesDir, "@wasp", "wasp", "package.json"),
+    )
+    .find((candidate) => fs.existsSync(candidate));
+  if (waspPackageJsonPath === undefined) {
+    // Not installed yet. The Wasp we run explains what to do.
+    debug("No @wasp/wasp installed for the project in %s", waspProjectDir);
+    return undefined;
+  }
+
+  return getProjectWaspCliBin(waspPackageJsonPath);
+}
+
+// The same marker file the Wasp CLI uses to find the project it runs in.
+function findWaspProjectDir() {
   let dir = process.cwd();
   while (true) {
-    const waspPackageJsonPath = path.join(
-      dir,
-      "node_modules",
-      "@wasp",
-      "wasp",
-      "package.json",
-    );
-    if (fs.existsSync(waspPackageJsonPath)) {
-      return getProjectWaspCliBin(waspPackageJsonPath);
+    if (fs.existsSync(path.join(dir, ".wasproot"))) {
+      return dir;
     }
     const parentDir = path.dirname(dir);
     if (parentDir === dir) {
@@ -86,12 +105,10 @@ function getProjectWaspCliBin(/** @type {string} */ waspPackageJsonPath) {
       require.resolve("@wasp/cli/bin.js"),
     );
   } catch (error) {
-    debug(
-      "Found %s, but couldn't resolve its @wasp/cli: %o",
-      waspPackageJsonPath,
-      error,
+    throw new CLIError(
+      `Found the project's ${path.dirname(waspPackageJsonPath)}, but not the Wasp CLI it depends on. Run \`npm install\` in the project.`,
+      { cause: error },
     );
-    return undefined;
   }
 
   const thisBinPath = fs.realpathSync(fileURLToPath(import.meta.url));
@@ -104,26 +121,31 @@ function getProjectWaspCliBin(/** @type {string} */ waspPackageJsonPath) {
   return projectWaspCliBinPath;
 }
 
-function runProjectWaspCli(/** @type {string} */ projectWaspCliBinPath) {
-  try {
-    debug("Handing over to the project's Wasp CLI: %s", projectWaspCliBinPath);
-    execFileSync(
-      process.execPath,
-      [projectWaspCliBinPath, ...process.argv.slice(2)],
-      {
-        stdio: "inherit",
-      },
+// Runs the project's wrapper in this process, so there is no second process
+// to keep signals and exit codes in sync with.
+async function runProjectWaspCli(/** @type {string} */ projectWaspCliBinPath) {
+  const projectWaspVersion = await getPackageVersion(
+    path.join(path.dirname(projectWaspCliBinPath), "package.json"),
+  );
+  const thisWaspVersion = await getPackageVersion(
+    fileURLToPath(new URL("./package.json", import.meta.url)),
+  );
+  if (projectWaspVersion !== thisWaspVersion) {
+    console.error(
+      `Running the project's Wasp ${projectWaspVersion} (this Wasp CLI is ${thisWaspVersion}).`,
     );
-    return 0;
-  } catch (/** @type {any} */ e) {
-    // Same as in `runWasp`, a non-zero exit of the project's Wasp is not an
-    // error of this wrapper.
-    if (e.status != undefined) {
-      return /** @type {number} */ (e.status);
-    } else {
-      throw e;
-    }
   }
+
+  debug("Handing over to the project's Wasp CLI: %s", projectWaspCliBinPath);
+  await import(pathToFileURL(projectWaspCliBinPath).href);
+  return process.exitCode ?? 0;
+}
+
+async function getPackageVersion(/** @type {string} */ packageJsonPath) {
+  const { default: pkg } = await import(pathToFileURL(packageJsonPath).href, {
+    with: { type: "json" },
+  });
+  return /** @type {string} */ (pkg.version);
 }
 
 async function getSubPackage() {
