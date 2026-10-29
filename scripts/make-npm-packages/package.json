@@ -10,8 +10,8 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.19.2",
+    "@types/node": "catalog:",
     "type-fest": "^5.3.1",
-    "typescript": "^6.0.3"
+    "typescript": "catalog:"
   }
 }

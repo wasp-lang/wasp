@@ -20,11 +20,14 @@ export function discoverSubDirs(baseDirPath: string): string[] {
     .map((dir) => join(baseDirPath, dir.name));
 }
 
-export function getPackageJson(dir: string): {
+export type PackageJson = {
   name: string;
   version: string;
   scripts?: Record<string, string>;
-} {
+  devDependencies?: Record<string, string>;
+};
+
+export function getPackageJson(dir: string): PackageJson {
   const packageJsonPath = join(dir, "package.json");
   return JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 }

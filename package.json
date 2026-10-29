@@ -10,11 +10,11 @@
     "format:write": "pnpm run format:prettier"
   },
   "devDependencies": {
-    "prettier": "3.5.3",
+    "prettier": "catalog:",
     "prettier-plugin-organize-imports": "4.1.0",
     "prettier-plugin-pkg": "0.19.1",
     "prettier-plugin-sh": "0.17.4",
     "prettier-plugin-tailwindcss": "0.7.2",
-    "typescript": "~6.0.3"
+    "typescript": "catalog:"
   }
 }

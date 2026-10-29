@@ -2,13 +2,25 @@
 // Helper to compile the packages/* packages that waspc depends on, locally and
 // in CI, and copy their artifacts into the Cabal data dir.
 
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
   installWorkspaceDependencies,
   runCmd,
+  type PackageJson,
 } from "../utils.ts";
 import {
   getDataPackagesDirPath,
@@ -19,7 +31,7 @@ import {
 
 // The files `waspc.cabal` lists as data files for each package. The lockfile
 // exists only for the npm packages.
-const PACKAGE_ARTIFACTS = ["dist", "package.json", "package-lock.json"];
+const PACKAGE_ARTIFACTS = ["dist", "package-lock.json"];
 
 try {
   buildPackages();
@@ -58,6 +70,7 @@ function copyPackageArtifactsToDataDir(packageName: string): void {
   const packageDir = getWaspcPackageDirPath(packageName);
   const dataPackageDir = join(getDataPackagesDirPath(), packageName);
   mkdirSync(dataPackageDir, { recursive: true });
+  writePublishedPackageJson(packageDir, dataPackageDir);
 
   const lockFileName = "package-lock.json";
   const lockFileChanged = !haveSameContent(
@@ -80,6 +93,74 @@ function copyPackageArtifactsToDataDir(packageName: string): void {
       force: true,
     });
   }
+}
+
+// npm installs the data dir copy into projects as a `file:` dependency, which
+// it treats like a workspace: it resolves the copy's devDependencies too, and
+// it does not understand pnpm's `catalog:` and `workspace:` specifiers. So the
+// copy gets the package.json `pnpm pack` writes (real versions in) without its
+// devDependencies, which a project has no use for.
+function writePublishedPackageJson(
+  packageDir: string,
+  dataPackageDir: string,
+): void {
+  const packageJson = readPackedPackageJson(packageDir);
+  delete packageJson.devDependencies;
+  writeFileSync(
+    join(dataPackageDir, "package.json"),
+    JSON.stringify(packageJson, undefined, 2) + "\n",
+  );
+}
+
+function readPackedPackageJson(packageDir: string): PackageJson {
+  const packDir = mkdtempSync(join(tmpdir(), "wasp-package-"));
+  try {
+    runCmd("pnpm", ["pack", "--pack-destination", packDir], {
+      cwd: packageDir,
+    });
+    const tarball = readdirSync(packDir).find((file) => file.endsWith(".tgz"));
+    if (tarball === undefined) {
+      throw new Error(`pnpm pack produced no tarball in ${packDir}`);
+    }
+    return JSON.parse(
+      readFileFromTarball(join(packDir, tarball), "package/package.json"),
+    );
+  } finally {
+    rmSync(packDir, { recursive: true, force: true });
+  }
+}
+
+// This script runs before the workspace is installed, so it cannot use a tar
+// package, and the `tar` binary differs across our CI runners. A tar archive
+// is a sequence of 512-byte headers (the entry's path in the first 100 bytes,
+// its size as octal text at bytes 124 to 136), each followed by the entry's
+// content padded to 512 bytes.
+function readFileFromTarball(tarballPath: string, entryPath: string): string {
+  const TAR_BLOCK_SIZE = 512;
+  const archive = gunzipSync(readFileSync(tarballPath));
+  let offset = 0;
+  while (offset + TAR_BLOCK_SIZE <= archive.length) {
+    const header = archive.subarray(offset, offset + TAR_BLOCK_SIZE);
+    const path = readTarHeaderField(header, 0, 100);
+    if (path === "") {
+      break;
+    }
+    const size = parseInt(readTarHeaderField(header, 124, 136), 8);
+    const contentStart = offset + TAR_BLOCK_SIZE;
+    if (path === entryPath) {
+      return archive.toString("utf-8", contentStart, contentStart + size);
+    }
+    offset = contentStart + Math.ceil(size / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+  }
+  throw new Error(`${entryPath} not found in ${tarballPath}`);
+}
+
+function readTarHeaderField(
+  header: Buffer,
+  start: number,
+  end: number,
+): string {
+  return header.toString("utf-8", start, end).replace(/\0.*$/s, "").trim();
 }
 
 function haveSameContent(pathA: string, pathB: string): boolean {

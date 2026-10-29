@@ -63,7 +63,7 @@
     "@tanstack/react-query": "~4.42.0",
     "@tsdown/css": "^0.21.10",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.17.1",
+    "@types/node": "catalog:",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
@@ -76,9 +76,9 @@
     "react-router": "^8.0.1",
     "superjson": "^2.2.1",
     "tsdown": "^0.21.5",
-    "typescript": "^6.0.3",
+    "typescript": "catalog:",
     "vite": "^8.1.0",
-    "vitest": "^4.1.12",
+    "vitest": "catalog:",
     "zod": "^4.3.6"
   },
   "sideEffects": [

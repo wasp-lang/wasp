@@ -11,10 +11,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@commander-js/extra-typings": "^14.0.0",
+    "@commander-js/extra-typings": "catalog:",
     "@inquirer/prompts": "^8.0.1",
     "acorn": "8.15.0",
-    "commander": "^14.0.2",
+    "commander": "catalog:",
     "dedent": "^1.7.0",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-frontmatter": "^2.0.1",
@@ -24,13 +24,13 @@
     "micromark-extension-mdx-jsx": "^3.0.2",
     "parse-git-diff": "0.0.19",
     "remark-comment": "^1.0.0",
-    "tsx": "^4.20.6",
+    "tsx": "catalog:",
     "unist-util-visit": "^5.0.0",
-    "zx": "^8.8.5"
+    "zx": "catalog:"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/mdast": "^4.0.4",
-    "vitest": "^4.1.9"
+    "vitest": "catalog:"
   }
 }

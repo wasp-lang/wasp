@@ -29,9 +29,9 @@
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node22": "^22.0.5",
-    "@types/node": "~22.12",
+    "@types/node": "catalog:",
     "tsdown": "^0.21.5",
-    "typescript": "~6.0.3",
+    "typescript": "catalog:",
     "vite": "^8.1.0"
   }
 }

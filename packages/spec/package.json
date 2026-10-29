@@ -53,18 +53,18 @@
     "estree-walker": "^3.0.3",
     "rolldown": "^1.2.14",
     "type-fest": "^5.6.0",
-    "typescript": "^6.0.3",
+    "typescript": "catalog:",
     "unrun": "^0.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
-    "@types/node": "^22.17.0",
-    "@vitest/coverage-v8": "^5.0.5",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
     "typescript-eslint": "^8.1.0",
-    "vitest": "^5.0.5"
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

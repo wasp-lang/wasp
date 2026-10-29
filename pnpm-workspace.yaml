@@ -18,6 +18,20 @@ packages:
   - waspc/starters-e2e-tests
   - waspc/tools
 
+# The tools every package uses, pinned once. A package says `catalog:` for
+# them, so their versions cannot drift between packages, and `pnpm pack`
+# writes the real version into what we publish.
+catalog:
+  typescript: ~6.0.3
+  "@types/node": ^24.0.1
+  vitest: ^5.0.5
+  "@vitest/coverage-v8": ^5.0.5
+  tsx: ^4.20.6
+  zx: ^8.8.5
+  commander: ^14.0.2
+  "@commander-js/extra-typings": ^14.0.0
+  prettier: 3.5.3
+
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 

@@ -25,28 +25,28 @@
             "file",
             "libs/auth/wasp-lib-auth-0.27.0.tgz"
         ],
-        "acbf7709c59ced0ace027c79eef6e5bf4c25b08d0c0fa5c211b7210e1ac3dabe"
+        "07aa6abbd5ceff77c9c405a1390f1c20b694f2318ffe589d83da5a6f9f2da4e2"
     ],
     [
         [
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "ca2b89ab0799b337d87a6312c63fb16d48389e1cf57665b0f0b4cf2579d2d063"
+        "38bb1b6169188824cdc6cd883031a65accb75b48e0f1976c2eeb383561aa5d09"
     ],
     [
         [
             "file",
             "libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
         ],
-        "f394f7326f5ac252953e24891767a2347e02b4e0cbf771babc16a22e874ed214"
+        "f044e6b4eaedfd5553c3d4ea580f32669b476355e7a957adadab7a2403f165a0"
     ],
     [
         [
             "file",
             "libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz"
         ],
-        "9d0274287dc3e60efe61ccef3621469ca12d2f080a6b4b74f6636dade4b85028"
+        "5807b0dbbe1df22138a551560399b1131085815d9de390c1779d3b110b962d56"
     ],
     [
         [
