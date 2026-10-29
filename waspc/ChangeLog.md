@@ -6,8 +6,10 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
+- The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
+- The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
-- `wasp db seed` no longer runs through `prisma db seed`, so running `npx prisma db seed` in `.wasp/out/server` no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
+- Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 
 ### 🎉 New Features
 
@@ -38,6 +40,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
 - `wasp start db` now fails right away with a clear error when it can't connect to the Docker daemon. ([#5144](https://github.com/wasp-lang/wasp/pull/5144))
+- The page shown when opening the server's URL in the browser during development now has a refreshed look. ([#5178](https://github.com/wasp-lang/wasp/pull/5178))
 
 ## 0.26.1
 

@@ -32,7 +32,7 @@ We'll need to take the following steps to set up email authentication:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -60,7 +60,7 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -94,7 +94,7 @@ export default app({
 })
 ```
 
-Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/EmailAuthConfig.md).
+Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../../../api/@wasp/spec/interfaces/EmailAuthConfig.md).
 
 ### 2. Add the User Entity
 
@@ -135,7 +135,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import {
   LoginPage,
   SignupPage,
@@ -423,7 +423,7 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
 
 ### Email Verification Page
 
@@ -469,7 +469,7 @@ When the user receives an e-mail, they receive a link that goes to the client ro
 
 Users can enter their new password there.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
 
 #### Password
 
@@ -494,14 +494,14 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/Auth"
+  to="../../../api/@wasp/spec/interfaces/Auth"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec, including userEntity."
 />
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/EmailAuthConfig"
+  to="../../../api/@wasp/spec/interfaces/EmailAuthConfig"
   kind="api"
   title="EmailAuthConfig"
   description="All the options for the email auth method."

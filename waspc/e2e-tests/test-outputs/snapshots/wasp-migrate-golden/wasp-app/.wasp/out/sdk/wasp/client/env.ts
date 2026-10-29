@@ -1,5 +1,5 @@
 import type * as z from "zod";
-import { ensureEnvSchema } from "@wasp.sh/lib-sdk-core";
+import { ensureEnvSchema } from "@wasp/lib-sdk-core";
 import { type CompleteClientEnvSchema, clientEnvSchema } from "./env/schema";
 
 // PUBLIC API

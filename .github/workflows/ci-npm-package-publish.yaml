@@ -17,7 +17,8 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
-          path: packages/
+          # Not `packages/`, which is where the repo's package sources live.
+          path: npm-packages/
 
       - name: Publish Wasp npm packages
-        run: npx pkg-pr-new publish --bin --compact ./packages/*
+        run: npx pkg-pr-new publish --bin --compact ./npm-packages/*
