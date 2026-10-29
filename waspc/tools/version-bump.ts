@@ -40,6 +40,7 @@ function bumpWaspVersion(bumpType: BumpType): void {
 
   bumpPackagesVersion(nextVersion);
   rebuildPackages();
+  rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
@@ -149,6 +150,16 @@ function rebuildLibs(): void {
 
 function rebuildPackages(): void {
   runCmd("node", [join("tools", "packages", "build.ts")], {
+    cwd: waspcDirPath,
+    stdio: "inherit",
+  });
+}
+
+// The Wasp projects in this repo depend on the dev tarballs by version (see
+// `bumpWaspProjectVersion`), so they must exist at the new version before the
+// projects are reinstalled below.
+function rebuildDevPackages(): void {
+  runCmd("node", [join("tools", "dev-packages", "build.ts")], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });
