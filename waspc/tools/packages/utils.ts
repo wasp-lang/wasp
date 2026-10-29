@@ -10,7 +10,6 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 export const WASPC_PACKAGES: WaspcPackage[] = [
   { name: "spec", packageManager: "pnpm" },
   { name: "deploy", packageManager: "npm" },
-  { name: "prisma", packageManager: "npm" },
   { name: "studio", packageManager: "npm" },
 ];
 

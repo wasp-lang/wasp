@@ -63,12 +63,12 @@ allSetupSteps = [minBound .. maxBound]
 --
 -- 'InstallNpmDeps' installs the node modules of the whole project (user project,
 -- SDK, generated server), so the steps that use installed packages depend on it.
--- 'FormatPrismaSchema' matters for the steps that compare schema checksums.
+-- 'FormatPrismaSchema' runs the project's Prisma, and matters for the steps that compare schema checksums.
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
-prerequisites FormatPrismaSchema = []
-prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
-prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
+prerequisites FormatPrismaSchema = [InstallNpmDeps]
+prerequisites WarnIfDbNeedsMigration = [FormatPrismaSchema]
+prerequisites GeneratePrismaClient = [FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
 prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
 -- Runs `tsc`, and the user code imports the SDK.

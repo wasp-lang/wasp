@@ -1,9 +1,9 @@
 # `packageManager` in package.json is for Cloudflare Pages, which builds web/.
 #
 # Still on npm:
-# - packages/deploy, packages/prisma, packages/studio: waspc installs them with
-#   their own package-lock.json. TODO: Move them in once they are part of the
-#   Wasp npm package.
+# - packages/deploy, packages/studio: waspc installs them with their own
+#   package-lock.json. TODO: Move them in once they are part of the Wasp npm
+#   package.
 # - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
   - packages/spec

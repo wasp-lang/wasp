@@ -56,9 +56,6 @@ data-files:
   packages/deploy/dist/**/*.js
   packages/deploy/package-lock.json
   packages/deploy/package.json
-  packages/prisma/dist/**/*.js
-  packages/prisma/package-lock.json
-  packages/prisma/package.json
   packages/spec/dist/**/*.d.ts
   packages/spec/dist/**/*.js
   packages/spec/dist/**/*.map
