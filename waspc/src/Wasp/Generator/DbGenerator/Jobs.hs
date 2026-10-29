@@ -1,7 +1,8 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Generator.DbGenerator.Jobs
-  ( migrateDev,
+  ( absPrismaExecutableFp,
+    migrateDev,
     migrateDiff,
     generatePrismaClient,
     runStudio,

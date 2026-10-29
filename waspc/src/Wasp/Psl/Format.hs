@@ -4,41 +4,46 @@ module Wasp.Psl.Format
   )
 where
 
-import Data.Aeson ((.:), (.:?))
-import qualified Data.Aeson as Aeson
-import Data.Function ((&))
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
+import StrongPath (Abs, Dir, Path', fromAbsDir)
 import System.Exit (ExitCode (..))
+import System.IO (hClose)
+import System.IO.Temp (withSystemTempFile)
 import qualified System.Process as P
-import qualified Wasp.NodePackageFFI as WP
-import Wasp.Util.Aeson (decodeFromString)
+import Wasp.Generator.DbGenerator.Jobs (absPrismaExecutableFp)
+import Wasp.Project.Common (WaspProjectDir)
 
 -- | For given prisma schema source, returns formatted schema + any warnings/errors,
--- by calling "prisma format" in the background.
--- It might fail while attempting to do all that, in which case it will return error message.
+-- by running `prisma format` of the project's own Prisma on it.
 -- "prisma format" does more than just formatting -> it also applies some obvious fixes,
 -- like missing relationship fields. So it is kind of like compiling + formatting + fixing.
 -- It works even for a prisma schema that has only model declarations!
-prismaFormat :: Text -> IO PrismaFormatResult
-prismaFormat prismaSchema = do
-  cp <- WP.getPackageProcessOptions WP.PrismaPackage ["format"]
-  (exitCode, response, stderr) <- P.readCreateProcessWithExitCode cp $ T.unpack prismaSchema
-  case exitCode of
-    ExitSuccess ->
-      return $
-        decodeFromString response
-          & either (error . ("Failed to parse response json from wasp's prisma ts package: " <>)) id
-    _exitFailure -> error $ "Failed while calling prisma format via wasp's prisma ts package: " <> stderr
+--
+-- The project's dependencies must be installed, since Prisma comes from the
+-- project's node_modules.
+prismaFormat :: Path' Abs (Dir WaspProjectDir) -> Text -> IO PrismaFormatResult
+prismaFormat waspProjectDir prismaSchema =
+  withSystemTempFile "schema.prisma" $ \schemaFilePath schemaFileHandle -> do
+    hClose schemaFileHandle
+    T.IO.writeFile schemaFilePath prismaSchema
+    let formatProcess =
+          (P.proc (absPrismaExecutableFp waspProjectDir) ["format", "--schema", schemaFilePath])
+            { P.cwd = Just $ fromAbsDir waspProjectDir
+            }
+    (exitCode, _stdout, stderr) <- P.readCreateProcessWithExitCode formatProcess ""
+    formattedSchemaPsl <- T.IO.readFile schemaFilePath
+    return
+      PrismaFormatResult
+        { _formattedSchemaPsl = formattedSchemaPsl,
+          _schemaErrors = case exitCode of
+            ExitSuccess -> Nothing
+            ExitFailure _ -> Just $ T.pack stderr
+        }
 
 data PrismaFormatResult = PrismaFormatResult
   { _formattedSchemaPsl :: Text,
     _schemaErrors :: Maybe Text
   }
   deriving (Show)
-
-instance Aeson.FromJSON PrismaFormatResult where
-  parseJSON = Aeson.withObject "PrismaFormatResult" $ \obj -> do
-    formattedSchemaPsl <- obj .: "formattedSchemaPsl"
-    errors <- obj .:? "errors"
-    return (PrismaFormatResult {_formattedSchemaPsl = formattedSchemaPsl, _schemaErrors = errors})

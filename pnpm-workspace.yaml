@@ -3,7 +3,7 @@
 # for Cloudflare Pages, which builds web/ with it.
 #
 # Not members yet:
-# - packages/deploy, packages/prisma, packages/studio. waspc ships them with
+# - packages/deploy and packages/studio. waspc ships them with
 #   their own package-lock.json and installs them with npm on first use.
 #   TODO: Move them in once they are part of the Wasp npm package.
 # - examples/ and the e2e test projects. They are Wasp apps, which use npm.

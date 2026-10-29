@@ -45,6 +45,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
+import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
@@ -145,8 +146,10 @@ formatPrismaSchemaFileOnDisk dstDir = do
   prismaFileContents <- IOUtil.readFileStrict generatedPrismaFilePath
 
   -- Ignoring Prisma schema errors here because we generated the schema ourselves and we know it is valid.
-  formattedPrismaFileContents <- Psl.Format._formattedSchemaPsl <$> Psl.Format.prismaFormat prismaFileContents
+  formattedPrismaFileContents <- Psl.Format._formattedSchemaPsl <$> Psl.Format.prismaFormat waspProjectDir prismaFileContents
   IOUtil.writeFile generatedPrismaFilePath $ T.unpack formattedPrismaFileContents
+  where
+    waspProjectDir = dstDir </> waspProjectDirFromGeneratedAppDir
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.

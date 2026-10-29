@@ -5,12 +5,12 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 // `Wasp.NodePackageFFI`). Their sources live in `<repo>/packages/`, and the
 // build copies their artifacts into the Cabal data dir, where `waspc` expects them.
 //
-// `spec` is in the repo's pnpm workspace. The other three are npm packages,
+// `spec` is in the repo's pnpm workspace. The other two are npm packages,
 // `waspc` ships them with their own `package-lock.json` and installs them
 // with npm on first use.
 // TODO: Move them to the workspace once they are part of the Wasp npm package.
 export const WASPC_WORKSPACE_PACKAGE_NAMES = ["spec"];
-export const WASPC_NPM_PACKAGE_NAMES = ["deploy", "prisma", "studio"];
+export const WASPC_NPM_PACKAGE_NAMES = ["deploy", "studio"];
 
 // Packages published to npm at the Wasp version but not shipped in the data
 // dir, the CLI wrapper and the `@wasp/wasp` project dependency.
