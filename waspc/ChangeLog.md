@@ -10,7 +10,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
-- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about a third of the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
+- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 
 ### 🎉 New Features
 

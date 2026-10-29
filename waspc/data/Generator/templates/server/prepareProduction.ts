@@ -8,7 +8,8 @@
     imports out of the bundle, so following those imports finds the files the
     server needs at runtime.
   - `dotenv/config`: preloaded with `node -r dotenv/config` in the `start` script.
-  - The Prisma CLI, but only when `start-production` runs migrations.
+  - The Prisma CLI, copied in full, but only when `start-production` runs
+    migrations.
   - The packages the user lists in `app.server.traceDeps`.
 
   TODO: Research whether we can keep the Prisma CLI out of the production image.
@@ -16,7 +17,7 @@
 import { traceNodeModules } from "nf3";
 import { FullTracePackages } from "nf3/db";
 import { execFile } from "node:child_process";
-import { cp, glob, rm, stat, symlink } from "node:fs/promises";
+import { cp, rm } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -35,6 +36,15 @@ type TraceSelection = {
   fullTraceInclude: string[];
 };
 
+/**
+ * The Prisma CLI that `start-production` runs for migrations. Nothing imports
+ * it, and it finds its engine binaries by path, so we copy both in full.
+ *
+ * TODO: Drop `@prisma/engines` once we upgrade to Prisma 8, whose CLI no
+ * longer uses engine binaries.
+ */
+const prismaCliTraceDeps = ["prisma*", "@prisma/engines*"];
+
 const serverDir = import.meta.dirname;
 const outDir = path.join(serverDir, "production");
 const requireFromServer = createRequire(path.join(serverDir, "package.json"));
@@ -48,17 +58,16 @@ async function prepareProduction({
   traceDeps,
   runsMigrations,
 }: TraceOptions): Promise<void> {
-  const prismaCliEntry = runsMigrations
-    ? requireFromServer.resolve("prisma/build/index.js")
-    : undefined;
-  const { traceInclude, fullTraceInclude } = resolveTraceDeps(traceDeps);
+  const { traceInclude, fullTraceInclude } = resolveTraceDeps([
+    ...traceDeps,
+    ...(runsMigrations ? prismaCliTraceDeps : []),
+  ]);
 
   await rm(outDir, { recursive: true, force: true });
   const layout = await traceNodeModules(
     [
       path.join(serverDir, "bundle/server.js"),
       requireFromServer.resolve("dotenv/config"),
-      ...(prismaCliEntry ? [prismaCliEntry] : []),
     ],
     {
       rootDir: serverDir,
@@ -68,9 +77,6 @@ async function prepareProduction({
       fullTraceInclude,
     },
   );
-  if (prismaCliEntry) {
-    await copyPrismaCliEngines();
-  }
   await linkPackageBins();
   await cp(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
     recursive: true,
@@ -122,44 +128,6 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
 }
 
 /**
- * The tracer misses the Prisma CLI's engine binaries (the schema engine and
- * the CLI's own copy of the query engine), because the CLI finds them by path
- * at runtime instead of importing them. Without them, the CLI downloads them
- * on every container start, or crashes when there's no internet access.
- *
- * The generated Prisma client already brings the same query engine, so we
- * link the CLI's copy to it instead of shipping the binary twice.
- *
- * Wasp pins a single Prisma version, so both packages sit at their usual
- * paths in the traced output.
- *
- * TODO: Remove once we upgrade to Prisma 8, whose CLI no longer uses engine
- * binaries.
- */
-async function copyPrismaCliEngines(): Promise<void> {
-  const requireFromPrisma = createRequire(
-    requireFromServer.resolve("prisma/package.json"),
-  );
-  const enginesPkgDir = path.dirname(
-    requireFromPrisma.resolve("@prisma/engines/package.json"),
-  );
-  const enginesOutDir = path.join(outDir, "node_modules/@prisma/engines");
-  const clientOutDir = path.join(outDir, "node_modules/.prisma/client");
-
-  for await (const engine of glob(["schema-engine-*", "libquery_engine-*"], {
-    cwd: enginesPkgDir,
-  })) {
-    const engineInClient = path.join(clientOutDir, engine);
-    const engineOutPath = path.join(enginesOutDir, engine);
-    if (await exists(engineInClient)) {
-      await symlink(path.relative(enginesOutDir, engineInClient), engineOutPath);
-    } else {
-      await cp(path.join(enginesPkgDir, engine), engineOutPath);
-    }
-  }
-}
-
-/**
  * `production/` has no `node_modules/.bin`, because `npm install` never ran in
  * it. `npm rebuild` links the traced packages' bins, so production scripts can
  * call them (e.g. `prisma`).
@@ -168,11 +136,4 @@ async function linkPackageBins(): Promise<void> {
   await promisify(execFile)("npm", ["rebuild", "--ignore-scripts"], {
     cwd: outDir,
   });
-}
-
-async function exists(filePath: string): Promise<boolean> {
-  return stat(filePath).then(
-    () => true,
-    () => false,
-  );
 }
