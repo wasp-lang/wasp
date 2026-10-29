@@ -1,4 +1,4 @@
-import { isValidEmail } from "@wasp.sh/lib-auth";
+import { isValidEmail } from "@wasp/lib-auth";
 
 /**
  * We deliberately don't use the usual `type="email"` here because

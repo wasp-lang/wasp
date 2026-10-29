@@ -12,7 +12,7 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -141,7 +141,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp.sh/spec/interfaces/Server.md#setupfn).
+For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec/interfaces/Server.md#setupfn).
 
 ## Middleware Config Function
 
@@ -152,7 +152,7 @@ Read more in the [configuring middleware section](./middleware#1-customize-globa
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Server"
+  to="../../api/@wasp/spec/interfaces/Server"
   kind="api"
   title="Server"
   description="All the options for the server field of the app spec."

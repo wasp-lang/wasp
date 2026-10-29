@@ -1,1 +1,1 @@
-export { type ServerSetupFn, type ServerSetupFnContext } from '@wasp.sh/lib-sdk-core/node'
+export { type ServerSetupFn, type ServerSetupFnContext } from '@wasp/lib-sdk-core/node'

@@ -1,4 +1,4 @@
-import type { RefObjectDescriptor } from "@wasp.sh/spec";
+import type { RefObjectDescriptor } from "@wasp/spec";
 import type { RolldownMagicString } from "rolldown";
 import { WaspSpecUserError } from "../../../spec/waspSpecUserError.js";
 import {

@@ -45,7 +45,7 @@ To create a Query in Wasp, we begin with a `query` spec.
 Let's declare two Queries - one to fetch all tasks, and another to fetch tasks based on a filter, such as whether a task is done:
 
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp.sh/spec"
+import { app, query } from "@wasp/spec"
 import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -468,7 +468,7 @@ In most cases, resources used in Queries will be [Entities](../entities.md).
 To use an Entity in your Query, add it to the `query` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp.sh/spec"
+import { app, query } from "@wasp/spec"
 import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -527,7 +527,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 ### Specifying Queries
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/functions/query"
+  to="../../../api/@wasp/spec/functions/query"
   kind="api"
   title="query"
   description="All the options for declaring a query in the Wasp spec."
@@ -593,7 +593,7 @@ Since both arguments are positional, you can name the parameters however you wan
     The following Query:
 
     ```ts
-    import { app, query } from "@wasp.sh/spec"
+    import { app, query } from "@wasp/spec"
     import { getFoo } from "./src/queries" with { type: "ref" }
 
     export default app({
@@ -617,7 +617,7 @@ Since both arguments are positional, you can name the parameters however you wan
     The following Query:
 
     ```ts
-    import { app, query } from "@wasp.sh/spec"
+    import { app, query } from "@wasp/spec"
     import { getFoo } from "./src/queries" with { type: "ref" }
 
     export default app({

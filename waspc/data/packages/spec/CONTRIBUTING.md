@@ -1,4 +1,4 @@
-# Contributing to @wasp.sh/spec
+# Contributing to @wasp/spec
 
 Wasp Spec is a library for defining a Wasp application specification in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
 

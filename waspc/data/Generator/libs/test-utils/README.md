@@ -4,7 +4,7 @@ Vitest helpers for testing the client code of Wasp apps. The generated Wasp SDK 
 
 Entry points:
 
-- `@wasp.sh/lib-test-utils`
+- `@wasp/lib-test-utils`
 
 See the [Wasp libs conventions](../README.md) for development and packaging.
 

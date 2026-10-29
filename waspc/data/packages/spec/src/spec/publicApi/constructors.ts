@@ -29,7 +29,7 @@ import type {
  *
  * @example
  * ```ts
- * import { app, page, route } from '@wasp.sh/spec'
+ * import { app, page, route } from '@wasp/spec'
  * import MainPage from './src/MainPage' with { type: 'ref' }
  *
  * export default app({
@@ -72,7 +72,7 @@ export type AppConfig = Omit<App, "kind">;
  *
  * @example
  * ```ts
- * import { page } from '@wasp.sh/spec'
+ * import { page } from '@wasp/spec'
  * import MainPage from './src/MainPage' with { type: 'ref' }
  *
  * page(MainPage, { authRequired: true })
@@ -115,7 +115,7 @@ export type PageConfig = Omit<Page, "kind" | "component">;
  *
  * @example
  * ```ts
- * import { page, route } from '@wasp.sh/spec'
+ * import { page, route } from '@wasp/spec'
  * import MainPage from './src/MainPage' with { type: 'ref' }
  *
  * route('MainRoute', '/', page(MainPage))
@@ -165,7 +165,7 @@ export type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
  *
  * @example
  * ```ts
- * import { app, query } from "@wasp.sh/spec"
+ * import { app, query } from "@wasp/spec"
  * import { getTasks } from './src/queries' with { type: 'ref' }
  *
  * export default app({
@@ -216,7 +216,7 @@ export type QueryConfig = Omit<Query, "kind" | "fn">;
  *
  * @example
  * ```ts
- * import { app, action } from "@wasp.sh/spec"
+ * import { app, action } from "@wasp/spec"
  * import { createTask } from "./src/actions" with { type: "ref" }
  * export default app({
  *   // ...
@@ -262,7 +262,7 @@ export type ActionConfig = Omit<Action, "kind" | "fn">;
  *
  * @example
  * ```ts
- * import { api } from '@wasp.sh/spec'
+ * import { api } from '@wasp/spec'
  * import { barBaz } from './src/apis' with { type: 'ref' }
  *
  * api('GET', '/bar/baz', barBaz, { entities: ['Task'], auth: false })
@@ -309,7 +309,7 @@ export type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
  *
  * @example
  * ```ts
- * import { apiNamespace } from '@wasp.sh/spec'
+ * import { apiNamespace } from '@wasp/spec'
  * import { barMiddleware } from './src/apis' with { type: 'ref' }
  *
  * apiNamespace('/bar', { middlewareConfigFn: barMiddleware })
@@ -352,7 +352,7 @@ export type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
  *
  * @example
  * ```ts
- * import { job } from '@wasp.sh/spec'
+ * import { job } from '@wasp/spec'
  * import { foo } from './src/jobs/bar' with { type: 'ref' }
  *
  * job(foo, {
@@ -397,7 +397,7 @@ export type JobConfig = Omit<Job, "kind" | "fn">;
  *
  * @example
  * ```ts
- * import { crud } from '@wasp.sh/spec'
+ * import { crud } from '@wasp/spec'
  * import { createTaskOverride } from './src/actions' with { type: 'ref' }
  *
  * crud('tasks', 'Task', {

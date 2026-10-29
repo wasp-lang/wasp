@@ -1,5 +1,5 @@
 {
-  "name": "@wasp.sh/lib-auth",
+  "name": "@wasp/lib-auth",
   "version": "0.27.0",
   "type": "module",
   "license": "MIT",

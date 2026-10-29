@@ -1,8 +1,11 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import ThemedImage from "@theme/ThemedImage";
 import type { ReactNode } from "react";
 
 interface ImgWithCaptionProps {
   source: string;
+  /** Optional image shown instead of `source` when the site is in dark mode. */
+  sourceDark?: string;
   caption?: ReactNode;
   width?: number | string;
   height?: number | string;
@@ -23,26 +26,35 @@ interface ImgWithCaptionProps {
 
 export function ImgWithCaption(props: ImgWithCaptionProps) {
   const resolvedSrc = useBaseUrl(props.source);
+  const resolvedSrcDark = useBaseUrl(props.sourceDark ?? props.source);
   const isFramed = props.framed === true;
   const frameBg = props.frameBackgroundColor ?? "#F5C842";
   const frameBorderColor = props.frameBorderColor ?? "#111";
   const frameBorderWidth = props.frameBorderWidth ?? 3;
   const framePadding = props.framePadding ?? 14;
+  const justifyContent = props.justifyContent ?? "center";
+  const textAlign = (
+    { center: "center", "flex-start": "left", "flex-end": "right" } as const
+  )[justifyContent];
 
-  const img = (
-    <img
-      style={{
-        width: props.width,
-        height: props.height,
-        display: isFramed ? "block" : undefined,
-        border: isFramed
-          ? `${frameBorderWidth}px solid ${frameBorderColor}`
-          : undefined,
-        boxSizing: isFramed ? "border-box" : undefined,
-      }}
+  const imgStyle = {
+    width: props.width,
+    height: props.height,
+    display: isFramed ? "block" : undefined,
+    border: isFramed
+      ? `${frameBorderWidth}px solid ${frameBorderColor}`
+      : undefined,
+    boxSizing: isFramed ? "border-box" : undefined,
+  } as const;
+
+  const img = props.sourceDark ? (
+    <ThemedImage
+      style={imgStyle}
       alt={props.alt}
-      src={resolvedSrc}
+      sources={{ light: resolvedSrc, dark: resolvedSrcDark }}
     />
+  ) : (
+    <img style={imgStyle} alt={props.alt} src={resolvedSrc} />
   );
 
   return (
@@ -54,10 +66,13 @@ export function ImgWithCaption(props: ImgWithCaptionProps) {
       className="figure-container"
       style={{
         display: "flex",
-        justifyContent: props.justifyContent || "center",
+        justifyContent,
       }}
     >
-      <figure style={{ margin: props.margin }}>
+      {/* A long caption can make the figure as wide as the column, so the
+          image must also be aligned inside the figure, not just the figure
+          inside the container. */}
+      <figure style={{ margin: props.margin, textAlign }}>
         {isFramed ? (
           <div
             style={{

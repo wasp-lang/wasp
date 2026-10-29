@@ -1,4 +1,4 @@
-# @wasp.sh/vite-ssr
+# @wasp/vite-ssr
 
 A Vite plugin that adds SSR prerendering to web apps. Configured routes are prerendered to static HTML at build time, while all other routes are served a client-only SPA fallback.
 
@@ -23,7 +23,7 @@ This section assumes a React 19 app with React Router 7, but the plugin itself i
 Note: this plugin is not published to npm but we're writing it as if it could be in the future. For now, it isn't available on npm.
 
 ```bash
-npm install @wasp.sh/vite-ssr
+npm install @wasp/vite-ssr
 ```
 
 ### 2. Configure Vite
@@ -31,7 +31,7 @@ npm install @wasp.sh/vite-ssr
 ```ts
 // vite.config.ts
 import react from "@vitejs/plugin-react";
-import ssr from "@wasp.sh/vite-ssr";
+import ssr from "@wasp/vite-ssr";
 import * as path from "node:path";
 import { defineConfig } from "vite";
 
@@ -63,7 +63,7 @@ The SSR entry must default-export a function matching the `PrerenderFn` type:
 
 ```tsx
 // ssr-entry.tsx
-import type { PrerenderFn } from "@wasp.sh/vite-ssr/types";
+import type { PrerenderFn } from "@wasp/vite-ssr/types";
 import { prerenderToNodeStream } from "react-dom/static";
 import App from "./app";
 import * as streamConsumers from "node:stream/consumers";

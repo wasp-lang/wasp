@@ -1,5 +1,5 @@
 {
-  "name": "@wasp.sh/spec",
+  "name": "@wasp/spec",
   "version": "0.27.0",
   "type": "module",
   "description": "Wasp Spec definitions",
