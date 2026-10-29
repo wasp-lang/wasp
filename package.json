@@ -7,7 +7,8 @@
     "check:prettier": "prettier --ignore-unknown --check --config prettier.config.mjs .",
     "format:check": "pnpm run check:prettier",
     "format:prettier": "prettier --ignore-unknown --write --config prettier.config.mjs .",
-    "format:write": "pnpm run format:prettier"
+    "format:write": "pnpm run format:prettier",
+    "preinstall": "npx only-allow pnpm"
   },
   "devDependencies": {
     "prettier": "catalog:",
