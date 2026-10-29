@@ -46,7 +46,7 @@ import Wasp.Project.Common
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
-import Wasp.Project.WaspNpmPackage (tarballFileSpecifier, waspCliNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName)
+import Wasp.Project.WaspNpmPackage (tarballFileSpecifier, waspCliNpmPackageName, waspDeployNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName, waspStudioNpmPackageName)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (readJsonFile, updateJsonFile)
 
@@ -147,7 +147,9 @@ build = ProjectLock.acquireExclusive $ do
       let specifierFields =
             [ ("dependencies", waspNpmPackageName),
               ("overrides", waspCliNpmPackageName),
-              ("overrides", waspSpecNpmPackageName)
+              ("overrides", waspSpecNpmPackageName),
+              ("overrides", waspDeployNpmPackageName),
+              ("overrides", waspStudioNpmPackageName)
             ]
           devTarballSpecifiers =
             mapMaybe
@@ -207,7 +209,7 @@ build = ProjectLock.acquireExclusive $ do
     isWaspNpmPackageLockEntry entry =
       any
         (\name -> entry == "node_modules/" ++ name || ("node_modules/" ++ name ++ "/") `isPrefixOf` entry)
-        [waspNpmPackageName, waspSpecNpmPackageName, waspCliNpmPackageName]
+        [waspNpmPackageName, waspSpecNpmPackageName, waspCliNpmPackageName, waspDeployNpmPackageName, waspStudioNpmPackageName]
         || ("node_modules/" ++ waspCliNpmPackageName ++ "-") `isPrefixOf` entry
 
 buildIO ::

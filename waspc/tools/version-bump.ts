@@ -9,7 +9,7 @@ import { getLibsDirPath } from "./libs/utils.ts";
 import {
   getPackageDirPath,
   PUBLISHED_WASP_PACKAGE_NAMES,
-  WASPC_PACKAGES,
+  WASPC_PACKAGE_NAMES,
 } from "./packages/utils.ts";
 import {
   discoverSubDirs,
@@ -69,7 +69,7 @@ function bumpLibsVersion(nextVersion: string): void {
 
 function bumpPackagesVersion(nextVersion: string): void {
   const packageNames = [
-    ...WASPC_PACKAGES.map(({ name }) => name),
+    ...WASPC_PACKAGE_NAMES,
     ...PUBLISHED_WASP_PACKAGE_NAMES,
   ];
   for (const packageDirPath of packageNames.map(getPackageDirPath)) {

@@ -1,7 +1,8 @@
 /// <reference types="node" />
-// Packs the unreleased `@wasp/wasp`, `@wasp/cli` and `@wasp/spec` into
-// tarballs under `waspc/.dev-packages/`, so Wasp projects can depend on the
-// Wasp in this repo before it is published. `tools/wasp-cli-dev` points the
+// Packs the unreleased `@wasp/wasp` and the packages it depends on
+// (`@wasp/cli`, `@wasp/spec`, `@wasp/deploy`, `@wasp/studio`) into tarballs
+// under `waspc/.dev-packages/`, so Wasp projects can depend on the Wasp in
+// this repo before it is published. `tools/wasp-cli-dev` points the
 // CLI at that directory, and `wasp new` then writes the tarball paths into the
 // new project's package.json (see `Wasp.Project.WaspNpmPackage`).
 //
@@ -92,14 +93,18 @@ function buildDevPackages(): void {
 
   installWorkspaceDependencies();
 
-  console.log("Building @wasp/spec");
-  runCmd("pnpm", ["--filter", "@wasp/spec", "run", "build"], {
-    cwd: getRepoRootPath(),
-  });
+  for (const packageName of ["spec", "deploy", "studio"]) {
+    console.log(`Building @wasp/${packageName}`);
+    runCmd("pnpm", ["--filter", `@wasp/${packageName}`, "run", "build"], {
+      cwd: getRepoRootPath(),
+    });
+  }
 
   writeDevCliConfig(devPackagesDir);
 
   packPackage(getPackageDirPath("spec"), devPackagesDir);
+  packPackage(getPackageDirPath("deploy"), devPackagesDir);
+  packPackage(getPackageDirPath("studio"), devPackagesDir);
   packDevCliPackage(devPackagesDir);
   packPackage(getPackageDirPath("wasp"), devPackagesDir);
 

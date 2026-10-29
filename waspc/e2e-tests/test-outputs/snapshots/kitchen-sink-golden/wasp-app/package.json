@@ -33,7 +33,9 @@
   "name": "kitchen-sink",
   "overrides": {
     "@wasp/cli": "file:<dev-tarball>",
-    "@wasp/spec": "file:<dev-tarball>"
+    "@wasp/deploy": "file:<dev-tarball>",
+    "@wasp/spec": "file:<dev-tarball>",
+    "@wasp/studio": "file:<dev-tarball>"
   },
   "scripts": {
     "build": "wasp build",

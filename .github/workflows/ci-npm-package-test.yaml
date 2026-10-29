@@ -91,6 +91,8 @@ jobs:
           # would not exercise it).
           cd ../install-test-wasp
           NODE_DEBUG=wasp-bin-wrapper node node_modules/@wasp/wasp/bin.js version
+          # The packages the CLI runs from the project come with it too.
+          node node_modules/@wasp/wasp/run-deploy.js --help
           node -e 'import("@wasp/spec").then((m) => { if (typeof m.app !== "function") throw new Error("@wasp/spec missing") })'
 
       - name: Generate list of installed data files

@@ -1,13 +1,13 @@
 # `packageManager` in package.json is for Cloudflare Pages, which builds web/.
 #
 # Still on npm:
-# - packages/deploy, packages/studio: waspc installs them with their own
-#   package-lock.json. TODO: Move them in once they are part of the Wasp npm
-#   package.
 # - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
   - packages/cli
+  - packages/deploy
   - packages/spec
+  - packages/studio
+  - packages/studio/client
   - packages/wasp
   - packages/libs/*
   - packages/wasp-app-runner
@@ -35,10 +35,16 @@ catalog:
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 
+# The peer dependencies of @wasp/wasp (express, react, vite, ...) are for the
+# user's project, not for this repo.
+autoInstallPeers: false
+
 # Install scripts we do not need: messages, or binaries that are optional
-# dependencies anyway. @prisma/client generates a client, which only Wasp apps
+# dependencies anyway. @heroui/shared-utils only swaps in a Next.js build when
+# Next.js is installed. @prisma/client generates a client, which only Wasp apps
 # need, here it is only packed into @wasp/wasp.
 allowBuilds:
+  "@heroui/shared-utils": false
   "@prisma/client": false
   "@swc/core": false
   core-js: false

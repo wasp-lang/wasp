@@ -47,4 +47,4 @@ spec_waspNpmPackageDeps = do
     waspNpmPackageJsonPath = "../packages/wasp/package.json"
 
     -- Pinned to the Wasp version by `pnpm pack`, not part of the core deps.
-    waspOwnPackages = ["@wasp/cli", "@wasp/spec"]
+    waspOwnPackages = ["@wasp/cli", "@wasp/deploy", "@wasp/spec", "@wasp/studio"]

@@ -3,19 +3,21 @@ module Wasp.Project.Studio
   )
 where
 
+import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import Wasp.NodePackageFFI (RunnablePackage (WaspStudioPackage), getPackageProcessOptions)
+import Wasp.Project.Common (WaspProjectDir)
 
 startStudio ::
+  Path' Abs (Dir WaspProjectDir) ->
   -- | Path to the data JSON file.
   FilePath ->
-  -- | All arguments from the Wasp CLI.
   IO (Either String ())
-startStudio pathToDataFile = do
+startStudio waspProjectDir pathToDataFile = do
   let startStudioArgs = ["--data-file", pathToDataFile]
 
-  cp <- getPackageProcessOptions WaspStudioPackage startStudioArgs
+  cp <- getPackageProcessOptions waspProjectDir WaspStudioPackage startStudioArgs
   -- Set up the process so that it:
   -- - Inherits handles from the waspc process (it will print and read from stdin/out/err)
   -- - Delegates Ctrl+C: when waspc receives Ctrl+C while this process is running,

@@ -39,7 +39,9 @@ INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 # be a drop-in replacement for `wasp`, with no shell-quoting surprises.
 WASP_CLI_CMD="${PROJECT_ROOT}/tools/wasp-cli-dev"
 WASP_CLI_RUN_CMD="${WASP_CLI_CMD} ${ARGS[@]}"
-WASP_CLI_INSTALL_CMD="${WASP_CLI_CMD} install"
+# Installs a Wasp app's dependencies against the dev Wasp npm packages. Must
+# run from the app's directory. See `install-dev-wasp-package` below.
+WASP_APP_INSTALL_CMD="${SCRIPT_DIR}/run install-dev-wasp-package"
 
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests --test-options='--hide-successes'"
@@ -64,7 +66,7 @@ WASP_APP_RUNNER_BUILD_CMD="$WORKSPACE_INSTALL_CMD && (cd $REPOSITORY_ROOT && pnp
 # make sure to call that one before).
 export WASP_APP_RUNNER_CLI_CMD="$WASP_APP_RUNNER_DIR/bin/index.js"
 
-KITCHEN_SINK_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
+KITCHEN_SINK_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_APP_INSTALL_CMD && npm run test"
 
 STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && pnpm run test:dev"
 
@@ -88,7 +90,7 @@ function run_examples_e2e_tests() {
   eval "$WASP_APP_RUNNER_BUILD_CMD" || return 1
 
   for path in "${paths[@]}"; do
-    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_CLI_INSTALL_CMD && npm run test)"; then
+    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_APP_INSTALL_CMD && npm run test)"; then
       echo -e "${RED}E2E tests failed in $path${RESET}"
       return 1
     fi
@@ -118,9 +120,11 @@ CABAL_GILD_BASE_CMD="cabal-gild"
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check "'$'"(git ls-files '*.cabal')"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format "'$'"(git ls-files '*.cabal')"
 
-# We remove .wasp/out before `wasp install`, so package-lock entries for
-# generated workspaces and their local tarball deps become stale. Drop them so
-# npm rebuilds those entries from the freshly generated package.json files.
+# We remove .wasp/out before reinstalling, so the package-lock entries for the
+# generated workspaces and their tarball deps go stale. So do the entries for
+# the dev Wasp npm packages, which are `file:` tarballs repacked on every
+# build. Drop them all, npm rebuilds them from the package.json files.
+# TODO: Drop the dev package part once the repo's Wasp apps join the pnpm workspace.
 # Apps generated before Wasp 0.27 used the `@wasp.sh` npm scope instead of
 # `@wasp`, so we match both.
 function remove_stale_generated_wasp_lock_entries() {
@@ -130,8 +134,17 @@ function remove_stale_generated_wasp_lock_entries() {
     def is_wasp_lib_name:
       startswith("@wasp/lib-") or startswith("@wasp.sh/lib-");
 
+    def is_dev_wasp_npm_package:
+      . == "node_modules/@wasp/wasp" or startswith("node_modules/@wasp/wasp/")
+      or . == "node_modules/@wasp/spec" or startswith("node_modules/@wasp/spec/")
+      or . == "node_modules/@wasp/cli" or startswith("node_modules/@wasp/cli/")
+      or startswith("node_modules/@wasp/cli-")
+      or . == "node_modules/@wasp/deploy" or startswith("node_modules/@wasp/deploy/")
+      or . == "node_modules/@wasp/studio" or startswith("node_modules/@wasp/studio/");
+
     def is_stale_generated_wasp_package:
       (startswith("node_modules/") and (ltrimstr("node_modules/") | is_wasp_lib_name))
+      or is_dev_wasp_npm_package
       or . == "node_modules/@wasp/generated-server"
       or . == "node_modules/@wasp.sh/generated-server"
       or . == "node_modules/wasp"
@@ -192,7 +205,11 @@ print_usage() {
     "Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
+  print_usage_cmd "build:dev-packages" \
+    "Packs the unreleased @wasp/wasp, @wasp/cli and @wasp/spec into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
   echo ""
+  print_usage_cmd "install-dev-wasp-package" \
+    "Installs the current Wasp app's npm dependencies against the dev Wasp npm packages (drops their stale lockfile entries first). Must be run from a Wasp app directory."
   print_usage_cmd "bust-libs-cache" \
     "Busts the npm cache for all @wasp/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
   echo ""
@@ -278,6 +295,9 @@ case $COMMAND in
   build:libs)
     echo_and_eval "$WASP_LIBS_COMPILE"
     ;;
+  build:dev-packages)
+    echo_and_eval "$WASP_DEV_PACKAGES_COMPILE"
+    ;;
   install)
     echo_and_eval "$INSTALL_CMD"
     ;;
@@ -338,13 +358,19 @@ case $COMMAND in
   wasp-cli)
     echo_and_eval "$WASP_CLI_RUN_CMD"
     ;;
+  install-dev-wasp-package)
+    # The dev Wasp npm packages are `file:` tarballs that change with every
+    # build, so the lockfile's entries for them (hash included) go stale.
+    remove_stale_generated_wasp_lock_entries
+    npm install
+    ;;
   bust-libs-cache)
-    # `wasp install` must run before compile so @wasp/spec matches CLI version.
+    # The dependencies must be installed before compile so @wasp/wasp matches the CLI version.
     # Old generated workspaces point at old lib tarballs, so remove them from disk
     # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
     rm -rf .wasp/out node_modules/@wasp/generated-server node_modules/@wasp.sh/generated-server node_modules/wasp
     remove_stale_generated_wasp_lock_entries
-    eval "$WASP_CLI_INSTALL_CMD"
+    npm install
 
     # Compiling the project copies the new lib tarball to the out dir.
     eval "$WASP_CLI_RUN_CMD compile"
