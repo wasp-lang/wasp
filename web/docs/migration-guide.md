@@ -102,13 +102,6 @@ The version in `package.json` is now the one that counts, so the `wasp` field go
   </TabItem>
 </Tabs>
 
-Then start from a clean state and install the dependencies, which now include Wasp:
-
-```bash
-wasp clean
-npm install
-```
-
 ### 4. Upgrade to Prisma 6
 
 Update the `prisma` version in your `package.json`:
@@ -136,7 +129,14 @@ Update the `prisma` version in your `package.json`:
   </TabItem>
 </Tabs>
 
-If you also list `@prisma/client` in your `package.json`, update it to the same version. Then run `npm install`.
+If you also list `@prisma/client` in your `package.json`, update it to the same version.
+
+Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose: `@wasp/wasp` requires Prisma 6, so installing before this step fails with a dependency conflict.
+
+```bash
+wasp clean
+npm install
+```
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 

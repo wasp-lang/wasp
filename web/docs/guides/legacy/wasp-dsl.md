@@ -331,22 +331,25 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-4. Add the required `devDependencies` to your `package.json`:
+4. Add the required dependencies to your `package.json`:
 
    ```json title="package.json"
    {
      // ...
+     "dependencies": {
+       // ...
+       // highlight-next-line
+       "@wasp/wasp": "0.27.0"
+     },
      "devDependencies": {
        // ...
        // highlight-next-line
-       "@types/node": "^24.0.0",
-       // highlight-next-line
-       "@wasp/spec": "file:.wasp/spec"
+       "@types/node": "^24.0.0"
      }
    }
    ```
 
-   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp/spec` provides the local Wasp Spec API package.
+   Keep your existing dependencies, and add these entries. `@wasp/wasp` brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use, and `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 5. Run `npm install`.
 

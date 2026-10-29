@@ -15437,13 +15437,6 @@ export default app({
 });
 ```
 
-Then start from a clean state and install the dependencies, which now include Wasp:
-
-```bash
-wasp clean
-npm install
-```
-
 #### 4. Upgrade to Prisma 6
 
 Update the `prisma` version in your `package.json`:
@@ -15468,7 +15461,14 @@ Update the `prisma` version in your `package.json`:
 }
 ```
 
-If you also list `@prisma/client` in your `package.json`, update it to the same version. Then run `npm install`.
+If you also list `@prisma/client` in your `package.json`, update it to the same version.
+
+Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose: `@wasp/wasp` requires Prisma 6, so installing before this step fails with a dependency conflict.
+
+```bash
+wasp clean
+npm install
+```
 
 Prisma 6 changed how some things are stored in the database, so run `wasp db migrate-dev` to check if your app needs a new migration. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
@@ -23798,20 +23798,23 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-4. Add the required `devDependencies` to your `package.json`:
+4. Add the required dependencies to your `package.json`:
 
    ```json title="package.json"
    {
      // ...
+     "dependencies": {
+       // ...
+       "@wasp/wasp": "0.27.0"
+     },
      "devDependencies": {
        // ...
-       "@types/node": "^24.0.0",
-       "@wasp/spec": "file:.wasp/spec"
+       "@types/node": "^24.0.0"
      }
    }
    ```
 
-   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp/spec` provides the local Wasp Spec API package.
+   Keep your existing dependencies, and add these entries. `@wasp/wasp` brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use, and `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 5. Run `npm install`.
 
@@ -24159,15 +24162,18 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    ```json title="package.json"
    {
      // ...
+     "dependencies": {
+       // ...
+       "@wasp/wasp": "0.27.0"
+     },
      "devDependencies": {
        // ...
-       "@types/node": "^24.0.0",
-       "@wasp/spec": "file:.wasp/spec"
+       "@types/node": "^24.0.0"
      }
    }
    ```
 
-   Keep your existing dependencies, replace `wasp-config` with `@wasp/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+   Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp` (which brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use), and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 

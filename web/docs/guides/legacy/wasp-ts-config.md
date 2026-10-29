@@ -308,17 +308,20 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         ```json title="package.json"
         {
           // ...
+          "dependencies": {
+            // ...
+            "@wasp/wasp": "0.27.0"
+          },
           "devDependencies": {
             // ...
-            "@types/node": "^24.0.0",
-            "@wasp/spec": "file:.wasp/spec"
+            "@types/node": "^24.0.0"
           }
         }
         ```
       </TabItem>
     </Tabs>
 
-    Keep your existing dependencies, replace `wasp-config` with `@wasp/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+    Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp` (which brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use), and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2.  Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
