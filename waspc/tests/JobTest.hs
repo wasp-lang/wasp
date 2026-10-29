@@ -57,7 +57,9 @@ spec_Job = do
       timeout (secondsToMicroSeconds 5) (Job.run $ Job.race slowJob (return ("fast" :: String)))
         `shouldReturn` Just (Right "fast")
 
-    unlessOnWindows $
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
       it "stops the process of the job that didn't finish" $ do
         pidPath <- makeTempPath "wasp-race-process"
         -- The process exits by itself after a while, so that the test fails
@@ -155,7 +157,9 @@ spec_Job = do
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
-    unlessOnWindows $
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
       it "stops the process and fails if emitting its output fails" $ do
         pidPath <- makeTempPath "wasp-failing-output-process"
         -- The process exits by itself after a while, so that the test fails
@@ -172,7 +176,9 @@ spec_Job = do
           )
           `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
 
-    unlessOnWindows $
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
       it "doesn't stop another job's process when one job is stopped" $
         withRunningProcess "" $ \first firstPid ->
           withRunningProcess "" $ \second secondPid -> do
@@ -188,12 +194,6 @@ spec_Job = do
         let dir = fromJust $ SP.parseAbsDir tempDir
         Job.run (Job.npmBinProc dir "missing-tool" [])
           `shouldThrow` anyIOException
-
--- | For tests that stop a job's process. On Windows, stopping a job waits for
--- its process to exit by itself, because reading the process's output can't be
--- interrupted there.
-unlessOnWindows :: Spec -> Spec
-unlessOnWindows = unless (System.Info.os == "mingw32")
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)

@@ -23,11 +23,6 @@ import Wasp.Util (secondsToMicroSeconds)
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code once all of it has been emitted.
---
--- If the job is stopped before the process finishes, this terminates the
--- process (SIGTERM on *nix) without waiting for it to exit. The same happens if
--- emitting the output fails. We only signal the process itself, and rely on it
--- to stop the processes it started.
 fromProc :: CreateJobProcess -> Job ExitCode
 fromProc jobProcess = Job $ do
   process <- liftIO $ asCreateProcess jobProcess
@@ -36,6 +31,11 @@ fromProc jobProcess = Job $ do
 
 -- | Runs the process to completion, passing its output to the given function,
 -- and returns its exit code once all of its output has been passed on.
+--
+-- If this is stopped before the process finishes, it terminates the process
+-- (SIGTERM on *nix) without waiting for it to exit. The same happens if
+-- emitting the output fails. We only signal the process itself, and rely on it
+-- to stop the processes it started.
 run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
