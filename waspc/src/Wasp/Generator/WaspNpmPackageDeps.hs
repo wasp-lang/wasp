@@ -18,18 +18,18 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
   )
 
--- | The dependencies that @wasp/wasp (packages/wasp/package.json) declares on
--- behalf of every Wasp project: everything the generated server and SDK need
--- regardless of what the app uses. Generated code imports them without
--- declaring them, relying on npm hoisting them to the project's node_modules.
+-- | The dependencies @wasp/wasp (packages/wasp/package.json) declares for
+-- every Wasp project, everything the generated server and SDK need no matter
+-- what the app uses. Generated code imports them without declaring them and
+-- relies on npm hoisting them to the project's node_modules.
+-- TODO: Resolve them through @wasp/wasp instead of relying on hoisting.
 --
--- Not here: dependencies that depend on the app (e.g. WebSockets, jobs, email
--- senders), which the generated packages still declare, and the ones the
--- user's package.json must declare itself (react, react-router, prisma, vite,
--- vitest), which the project owns.
+-- Not here are the dependencies that depend on the app (WebSockets, jobs,
+-- email senders), which the generated packages still declare, and the ones
+-- the project owns (react, react-router, prisma, vite, vitest), which the
+-- user's package.json declares.
 --
--- Keep in sync with packages/wasp/package.json. A unit test checks that they
--- match.
+-- Keep in sync with packages/wasp/package.json, a unit test checks that.
 waspNpmPackageDeps :: [Npm.Dependency.Dependency]
 waspNpmPackageDeps = serverCoreDeps ++ sdkCoreDeps
 

@@ -21,9 +21,8 @@ packages:
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 
-# @wasp/wasp declares the packages a Wasp project must provide (react, vite,
-# prisma, ...) as peer dependencies. They are for the user's project, not for
-# this repo, so don't pull them into the workspace.
+# The peer dependencies of @wasp/wasp (react, vite, prisma, ...) are for the
+# user's project, not for this repo.
 autoInstallPeers: false
 
 # None of these install scripts matter here. msw prints a support message,
