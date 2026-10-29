@@ -81,6 +81,10 @@ shellEmulator: true
 # version of the same package (a token publish after trusted publishing) is
 # rejected, and only our own direct dependencies may come from git or a URL
 # (the default, written down).
+# Refuses an unsupported Node (`engines` in package.json). The pnpm version is
+# enforced through `packageManager`.
+engineStrict: true
+
 trustPolicy: no-downgrade
 blockExoticSubdeps: true
 # Versions published before their package adopted trusted publishing, which

@@ -8,7 +8,6 @@ import {
   assertPackageVersionMatchesWaspc,
   discoverSubDirs,
   getPackageJson,
-  installWorkspaceDependencies,
   runCmd,
 } from "../utils.ts";
 import {
@@ -25,8 +24,6 @@ try {
 }
 
 function buildLibs(): void {
-  installWorkspaceDependencies();
-
   const libDirs = discoverSubDirs(getLibsDirPath());
   for (const libDir of libDirs) {
     const { name, version } = getPackageJson(libDir);

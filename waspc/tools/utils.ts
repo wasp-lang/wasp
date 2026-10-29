@@ -46,11 +46,6 @@ export function assertPackageVersionMatchesWaspc(
   }
 }
 
-// Installs the whole pnpm workspace. pnpm uses the frozen lockfile on CI by default.
-export function installWorkspaceDependencies(): void {
-  runCmd("pnpm", ["install"], { cwd: getRepoRootPath(), stdio: "inherit" });
-}
-
 export function runCmd(
   cmd: string,
   args: string[],

@@ -14,11 +14,10 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { gunzipSync } from "node:zlib";
+import { extract } from "tar";
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
-  installWorkspaceDependencies,
   runCmd,
   type PackageJson,
 } from "../utils.ts";
@@ -41,8 +40,6 @@ try {
 }
 
 function buildPackages(): void {
-  installWorkspaceDependencies();
-
   for (const waspcPackage of WASPC_PACKAGES) {
     buildPackage(waspcPackage);
     copyPackageArtifactsToDataDir(waspcPackage.name);
@@ -122,45 +119,15 @@ function readPackedPackageJson(packageDir: string): PackageJson {
     if (tarball === undefined) {
       throw new Error(`pnpm pack produced no tarball in ${packDir}`);
     }
+    extract({ file: join(packDir, tarball), cwd: packDir, sync: true }, [
+      "package/package.json",
+    ]);
     return JSON.parse(
-      readFileFromTarball(join(packDir, tarball), "package/package.json"),
+      readFileSync(join(packDir, "package", "package.json"), "utf-8"),
     );
   } finally {
     rmSync(packDir, { recursive: true, force: true });
   }
-}
-
-// This script runs before the workspace is installed, so it cannot use a tar
-// package, and the `tar` binary differs across our CI runners. A tar archive
-// is a sequence of 512-byte headers (the entry's path in the first 100 bytes,
-// its size as octal text at bytes 124 to 136), each followed by the entry's
-// content padded to 512 bytes.
-function readFileFromTarball(tarballPath: string, entryPath: string): string {
-  const TAR_BLOCK_SIZE = 512;
-  const archive = gunzipSync(readFileSync(tarballPath));
-  let offset = 0;
-  while (offset + TAR_BLOCK_SIZE <= archive.length) {
-    const header = archive.subarray(offset, offset + TAR_BLOCK_SIZE);
-    const path = readTarHeaderField(header, 0, 100);
-    if (path === "") {
-      break;
-    }
-    const size = parseInt(readTarHeaderField(header, 124, 136), 8);
-    const contentStart = offset + TAR_BLOCK_SIZE;
-    if (path === entryPath) {
-      return archive.toString("utf-8", contentStart, contentStart + size);
-    }
-    offset = contentStart + Math.ceil(size / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-  }
-  throw new Error(`${entryPath} not found in ${tarballPath}`);
-}
-
-function readTarHeaderField(
-  header: Buffer,
-  start: number,
-  end: number,
-): string {
-  return header.toString("utf-8", start, end).replace(/\0.*$/s, "").trim();
 }
 
 function haveSameContent(pathA: string, pathB: string): boolean {
