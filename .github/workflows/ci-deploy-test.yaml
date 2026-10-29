@@ -100,7 +100,10 @@ jobs:
 
       - name: Clean up test apps
         run: |
-          # NOTE: We are relying on Wasp's naming conventions here
+          # NOTE: We are relying on Wasp's naming conventions here.
+          # This cleanup is best-effort (`|| true` also swallows real destroy
+          # failures). Apps it fails to destroy are destroyed by the
+          # automation-fly-destroy-leftover-ci-apps.yaml workflow.
           flyctl apps destroy -y $APP_PREFIX-server || true
           flyctl apps destroy -y $APP_PREFIX-client || true
           flyctl apps destroy -y $APP_PREFIX-db || true
