@@ -38,6 +38,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
 - `wasp start db` now fails right away with a clear error when it can't connect to the Docker daemon. ([#5144](https://github.com/wasp-lang/wasp/pull/5144))
+- The page shown when opening the server's URL in the browser during development now matches the look of the starters. (FIXME PR LINK)
 
 ## 0.26.1
 
