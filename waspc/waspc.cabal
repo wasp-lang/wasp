@@ -53,18 +53,10 @@ data-files:
   Lsp/templates/**/*.js
   Lsp/templates/**/*.jsx
   Lsp/templates/**/*.ts
-  packages/deploy/dist/**/*.js
-  packages/deploy/package-lock.json
-  packages/deploy/package.json
   packages/spec/dist/**/*.d.ts
   packages/spec/dist/**/*.js
   packages/spec/dist/**/*.map
   packages/spec/package.json
-  packages/studio/dist/**/*.css
-  packages/studio/dist/**/*.html
-  packages/studio/dist/**/*.js
-  packages/studio/package-lock.json
-  packages/studio/package.json
 
 data-dir: data/
 

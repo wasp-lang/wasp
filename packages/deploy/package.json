@@ -1,14 +1,30 @@
 {
-  "name": "wasp-deploy",
+  "name": "@wasp/deploy",
   "version": "0.27.0",
   "type": "module",
-  "author": "Wasp Team",
+  "description": "The implementation of `wasp deploy`. Comes with `@wasp/wasp`, which runs it.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/deploy"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
   "license": "MIT",
   "bin": "dist/index.js",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "npx tsc",
-    "dev": "npx tsc --watch",
+    "build": "tsc",
+    "dev": "tsc --watch",
     "start": "node ./dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -29,5 +45,8 @@
     "eslint": "^8.57.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

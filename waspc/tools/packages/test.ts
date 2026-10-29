@@ -1,5 +1,5 @@
 /// <reference types="node" />
-// Helper to test the packages/* packages that waspc depends on, locally and in CI.
+// Helper to test the packages/* packages locally and in CI.
 
 import {
   getPackageJson,
@@ -8,7 +8,7 @@ import {
 } from "../utils.ts";
 import {
   getPackageDirPath,
-  WASPC_NPM_PACKAGE_NAMES,
+  PUBLISHED_WASP_PACKAGE_NAMES,
   WASPC_WORKSPACE_PACKAGE_NAMES,
 } from "./utils.ts";
 
@@ -17,20 +17,15 @@ testPackages();
 function testPackages(): void {
   installWorkspaceDependencies();
 
-  for (const packageName of WASPC_WORKSPACE_PACKAGE_NAMES) {
-    testPackage(packageName, "pnpm");
-  }
-
-  for (const packageName of WASPC_NPM_PACKAGE_NAMES) {
-    runCmd("npm", ["ci"], {
-      cwd: getPackageDirPath(packageName),
-      stdio: "inherit",
-    });
-    testPackage(packageName, "npm");
+  for (const packageName of [
+    ...WASPC_WORKSPACE_PACKAGE_NAMES,
+    ...PUBLISHED_WASP_PACKAGE_NAMES,
+  ]) {
+    testPackage(packageName);
   }
 }
 
-function testPackage(packageName: string, packageManager: "pnpm" | "npm") {
+function testPackage(packageName: string) {
   const packageDir = getPackageDirPath(packageName);
   const packageJson = getPackageJson(packageDir);
 
@@ -40,7 +35,7 @@ function testPackage(packageName: string, packageManager: "pnpm" | "npm") {
 
   console.log(`Testing ${packageJson.name} (${packageDir})`);
 
-  runCmd(packageManager, ["run", "test"], {
+  runCmd("pnpm", ["run", "test"], {
     cwd: packageDir,
     stdio: "inherit",
   });

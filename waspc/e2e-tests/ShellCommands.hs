@@ -281,7 +281,9 @@ useDevWaspNpmPackages =
         [ "npm pkg set",
           devTarballField "dependencies.@wasp/wasp" "wasp-wasp",
           devTarballField "overrides.@wasp/cli" "wasp-cli",
-          devTarballField "overrides.@wasp/spec" "wasp-spec"
+          devTarballField "overrides.@wasp/spec" "wasp-spec",
+          devTarballField "overrides.@wasp/deploy" "wasp-deploy",
+          devTarballField "overrides.@wasp/studio" "wasp-studio"
         ]
   where
     devTarballField field tarballName =

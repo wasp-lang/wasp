@@ -8,7 +8,6 @@ import { getLibsDirPath } from "./libs/utils.ts";
 import {
   getPackageDirPath,
   PUBLISHED_WASP_PACKAGE_NAMES,
-  WASPC_NPM_PACKAGE_NAMES,
   WASPC_WORKSPACE_PACKAGE_NAMES,
 } from "./packages/utils.ts";
 import {
@@ -70,7 +69,6 @@ function bumpLibsVersion(nextVersion: string): void {
 function bumpPackagesVersion(nextVersion: string): void {
   const packageNames = [
     ...WASPC_WORKSPACE_PACKAGE_NAMES,
-    ...WASPC_NPM_PACKAGE_NAMES,
     ...PUBLISHED_WASP_PACKAGE_NAMES,
   ];
   for (const packageDirPath of packageNames.map(getPackageDirPath)) {

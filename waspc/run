@@ -135,7 +135,9 @@ function remove_stale_generated_wasp_lock_entries() {
       . == "node_modules/@wasp/wasp" or startswith("node_modules/@wasp/wasp/")
       or . == "node_modules/@wasp/spec" or startswith("node_modules/@wasp/spec/")
       or . == "node_modules/@wasp/cli" or startswith("node_modules/@wasp/cli/")
-      or startswith("node_modules/@wasp/cli-");
+      or startswith("node_modules/@wasp/cli-")
+      or . == "node_modules/@wasp/deploy" or startswith("node_modules/@wasp/deploy/")
+      or . == "node_modules/@wasp/studio" or startswith("node_modules/@wasp/studio/");
 
     def is_stale_generated_wasp_package:
       (startswith("node_modules/") and (ltrimstr("node_modules/") | is_wasp_lib_name))

@@ -3,14 +3,14 @@
 # for Cloudflare Pages, which builds web/ with it.
 #
 # Not members yet:
-# - packages/deploy and packages/studio. waspc ships them with
-#   their own package-lock.json and installs them with npm on first use.
-#   TODO: Move them in once they are part of the Wasp npm package.
 # - examples/ and the e2e test projects. They are Wasp apps, which use npm.
 #   TODO: Move them in once Wasp apps support pnpm.
 packages:
   - packages/cli
+  - packages/deploy
   - packages/spec
+  - packages/studio
+  - packages/studio/client
   - packages/wasp
   - packages/libs/*
   - packages/wasp-app-runner
@@ -27,10 +27,12 @@ autoInstallPeers: false
 
 # None of these install scripts matter here. msw prints a support message,
 # esbuild and @swc/core look for a binary that is an optional dependency anyway,
-# core-js prints a funding message, fsevents ships prebuilt. @prisma/client
+# core-js prints a funding message, fsevents ships prebuilt, @heroui/shared-utils
+# only swaps in a Next.js build when Next.js is installed. @prisma/client
 # generates a client, which only Wasp apps need, here it is only packed into
 # @wasp/wasp.
 allowBuilds:
+  "@heroui/shared-utils": false
   "@prisma/client": false
   "@swc/core": false
   core-js: false
