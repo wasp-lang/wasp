@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # NOTE: Why do we specify alpine version here?
 #   Because if not, we had situations where it would use the different version
 #   locally and on Github CI. This way we ensure exact version is used,
@@ -30,18 +31,22 @@ FROM base AS server-builder
 # `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
-COPY package.json package-lock.json ./
-COPY server/package.json .wasp/out/server/
-COPY sdk/wasp/package.json .wasp/out/sdk/wasp/
-COPY libs .wasp/out/libs
-RUN npm install
-WORKDIR /app/.wasp/out/server
+COPY --link package.json package-lock.json ./
+COPY --link server/package.json .wasp/out/server/
+COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
+COPY --link libs .wasp/out/libs
+# Install scripts can read project files, so we run them in `npm rebuild`
+# below, once the code is in place.
+RUN npm ci --ignore-scripts
 # We mirror the same directory structure as the Wasp project.
-COPY tsconfig*.json /app/
-COPY types /app/.wasp/out/types
-COPY sdk /app/.wasp/out/sdk
-COPY server ./
-COPY src /app/src
+COPY --link tsconfig*.json ./
+COPY --link types .wasp/out/types
+COPY --link sdk .wasp/out/sdk
+COPY --link server .wasp/out/server
+COPY --link src ./src
+# The cache keeps Prisma from downloading its engines on every code change.
+RUN --mount=type=cache,target=/root/.cache/prisma npm rebuild
+WORKDIR /app/.wasp/out/server
 # Building the server should come after Prisma generation.
 RUN npm run bundle && node prepareProduction.ts
 
@@ -53,10 +58,12 @@ ENV NODE_ENV=production
 WORKDIR /app/.wasp/out/server
 # `production/` already contains every package the server needs, so this
 # stage needs no `npm install`.
-COPY --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
-COPY server/package.json ./
-COPY db/ /app/.wasp/out/db/
-COPY --from=server-builder /app/.wasp/out/server/production/bundle ./bundle
+# Dependencies and the bundle are separate layers, so a code change only ships
+# the small bundle layer.
+COPY --link --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
+COPY --link server/package.json ./
+COPY --link db/ /app/.wasp/out/db/
+COPY --link --from=server-builder /app/.wasp/out/server/production/bundle ./bundle
 ENTRYPOINT ["npm", "run", "start-production"]
 
 

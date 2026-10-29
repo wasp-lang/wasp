@@ -12,16 +12,17 @@
 
   TODO: Research whether we can keep the Prisma CLI out of the production image.
 */
-import { traceNodeModules } from "nf3";
+import { traceNodeModules, type TracedLayout } from "nf3";
 import { FullTracePackages } from "nf3/db";
 import {
-  cpSync,
-  existsSync,
-  globSync,
-  mkdirSync,
-  rmSync,
-  symlinkSync,
-} from "node:fs";
+  cp,
+  glob,
+  mkdir,
+  readFile,
+  rm,
+  stat,
+  symlink,
+} from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -57,7 +58,7 @@ async function prepareProduction({
     : undefined;
   const { traceInclude, fullTraceInclude } = resolveTraceDeps(traceDeps);
 
-  rmSync(outDir, { recursive: true, force: true });
+  await rm(outDir, { recursive: true, force: true });
   const layout = await traceNodeModules(
     [
       path.join(serverDir, "bundle/server.js"),
@@ -73,10 +74,10 @@ async function prepareProduction({
     },
   );
   if (prismaCliEntry) {
-    copyPrismaCliEngines();
-    linkPrismaCliBin(layout.files[prismaCliEntry]);
+    await copyPrismaCliEngines();
   }
-  cpSync(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
+  await linkPackageBins(layout);
+  await cp(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
     recursive: true,
   });
 
@@ -116,9 +117,11 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
   ].filter((packageName) => !excluded.has(packageName));
 
   return {
+    // Traced as if imported: only the files they reach get copied.
     traceInclude: traceInclude.filter(
       (packageName) => !excluded.has(packageName),
     ),
+    // Copied whole, for packages that load their own files by path.
     fullTraceInclude,
   };
 }
@@ -134,8 +137,11 @@ function resolveTraceDeps(traceDeps: string[]): TraceSelection {
  *
  * Wasp pins a single Prisma version, so both packages sit at their usual
  * paths in the traced output.
+ *
+ * TODO: Remove once we upgrade to Prisma 8, whose CLI no longer uses engine
+ * binaries.
  */
-function copyPrismaCliEngines(): void {
+async function copyPrismaCliEngines(): Promise<void> {
   const requireFromPrisma = createRequire(
     requireFromServer.resolve("prisma/package.json"),
   );
@@ -145,30 +151,67 @@ function copyPrismaCliEngines(): void {
   const enginesOutDir = path.join(outDir, "node_modules/@prisma/engines");
   const clientOutDir = path.join(outDir, "node_modules/.prisma/client");
 
-  for (const engine of globSync(["schema-engine-*", "libquery_engine-*"], {
+  for await (const engine of glob(["schema-engine-*", "libquery_engine-*"], {
     cwd: enginesPkgDir,
   })) {
     const engineInClient = path.join(clientOutDir, engine);
     const engineOutPath = path.join(enginesOutDir, engine);
-    if (existsSync(engineInClient)) {
-      symlinkSync(path.relative(enginesOutDir, engineInClient), engineOutPath);
+    if (await exists(engineInClient)) {
+      await symlink(path.relative(enginesOutDir, engineInClient), engineOutPath);
     } else {
-      cpSync(path.join(enginesPkgDir, engine), engineOutPath);
+      await cp(path.join(enginesPkgDir, engine), engineOutPath);
     }
   }
 }
 
 /**
  * `production/` has no `node_modules/.bin`, because `npm install` never ran in
- * `production/`. We add the link the production scripts use.
- *
- * @param prismaCliInOutDir The Prisma CLI's entry file, relative to `outDir`.
+ * `production/`. We link the bins of the traced packages, so production
+ * scripts can call them (e.g. `prisma`). We skip bins whose files weren't
+ * traced, and keep the first package that claims a name.
  */
-function linkPrismaCliBin(prismaCliInOutDir: string): void {
+async function linkPackageBins(layout: TracedLayout): Promise<void> {
   const binDir = path.join(outDir, "node_modules/.bin");
-  mkdirSync(binDir, { recursive: true });
-  symlinkSync(
-    path.relative(binDir, path.join(outDir, prismaCliInOutDir)),
-    path.join(binDir, "prisma"),
+  await mkdir(binDir, { recursive: true });
+
+  for (const tracedPackage of Object.values(layout.packages)) {
+    const { path: packageDir, outPath } =
+      tracedPackage.versions[tracedPackage.hoisted];
+    for (const [binName, binFile] of Object.entries(
+      await readBins(tracedPackage.name, packageDir),
+    )) {
+      const binOutPath = path.join(outDir, outPath, binFile);
+      const binLinkPath = path.join(binDir, binName);
+      if ((await exists(binOutPath)) && !(await exists(binLinkPath))) {
+        await symlink(path.relative(binDir, binOutPath), binLinkPath);
+      }
+    }
+  }
+}
+
+/**
+ * Reads the `bin` field of a package's `package.json`, which is either a
+ * single path named after the package or a map of names to paths. Some traced
+ * folders (e.g. `.prisma`) have no `package.json`, so they have no bins.
+ */
+async function readBins(
+  packageName: string,
+  packageDir: string,
+): Promise<Record<string, string>> {
+  const packageJsonPath = path.join(packageDir, "package.json");
+  if (!(await exists(packageJsonPath))) {
+    return {};
+  }
+  const { bin } = JSON.parse(await readFile(packageJsonPath, "utf8"));
+  if (typeof bin === "string") {
+    return { [packageName.split("/").pop()!]: bin };
+  }
+  return bin ?? {};
+}
+
+async function exists(filePath: string): Promise<boolean> {
+  return stat(filePath).then(
+    () => true,
+    () => false,
   );
 }
