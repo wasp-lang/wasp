@@ -22,7 +22,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
   - `run` — **Main development script** (run `./run` with no args to see all commands)
-- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests. Most of them form a pnpm workspace (`pnpm-workspace.yaml`); `deploy`, `prisma`, `studio`, `web/` and the example apps still use npm.
+- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests.
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
@@ -36,6 +36,7 @@ Key things to know:
 - Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
+- The repo is a pnpm workspace (`pnpm-workspace.yaml`), but not everything is in it yet. Some projects still use npm.
 
 ## Code Conventions
 
