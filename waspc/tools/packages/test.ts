@@ -1,23 +1,13 @@
 /// <reference types="node" />
-// Helper to test the waspc/data/packages/* locally and in CI.
+// Helper to test the packages/* packages that waspc depends on, locally and in CI.
 
-import { join } from "node:path";
-import {
-  discoverSubDirs,
-  getPackageJson,
-  getWaspcDirPath,
-  runCmd,
-} from "../utils.ts";
-
-const waspcDirPath = getWaspcDirPath();
-const dataPackagesDirPath = join(waspcDirPath, "data", "packages");
+import { getPackageJson, runCmd } from "../utils.ts";
+import { getWaspcPackageDirPaths } from "./utils.ts";
 
 testPackages();
 
 function testPackages(): void {
-  const packageDirs = discoverSubDirs(dataPackagesDirPath);
-
-  for (const packageDir of packageDirs) {
+  for (const packageDir of getWaspcPackageDirPaths()) {
     testPackage(packageDir);
   }
 }

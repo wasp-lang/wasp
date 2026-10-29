@@ -1,9 +1,9 @@
-import { createMockServer, type MockServer } from "@wasp.sh/lib-test-utils";
+import { createMockServer, type MockServer } from "@wasp/lib-test-utils";
 import { serialize } from "../../core/serialization/index.js";
 import { config } from "../config.js";
 
 // PUBLIC API
-export { renderInContext } from "@wasp.sh/lib-test-utils";
+export { renderInContext } from "@wasp/lib-test-utils";
 
 // PUBLIC API
 /**

@@ -10,4 +10,6 @@ web/build/
 web/**/*.md
 web/**/*.mdx
 web/static/img/
-waspc/data/packages/studio/public/assets/
+waspc/data/packages/
+waspc/data/Generator/libs/
+packages/studio/public/assets/

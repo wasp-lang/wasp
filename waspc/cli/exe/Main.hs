@@ -41,7 +41,7 @@ import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -212,6 +212,7 @@ printVersion = do
         "",
         "If you want a specific x.y.z version of Wasp, do:",
         indent 2 $ getInstallationCommand $ Just "x.y.z",
+        legacyVersionsNote,
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]

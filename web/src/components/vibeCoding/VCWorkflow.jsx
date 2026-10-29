@@ -7,7 +7,7 @@ const steps = [
   {
     number: "1",
     title: "Install Wasp",
-    command: "npm i -g @wasp.sh/wasp-cli@latest",
+    command: "npm i -g @wasp/cli@latest",
   },
   {
     number: "2",

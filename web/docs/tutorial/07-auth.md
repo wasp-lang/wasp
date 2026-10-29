@@ -47,7 +47,7 @@ Next, tell Wasp to use full-stack [authentication](../features/auth/overview):
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -102,7 +102,7 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-start
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -184,7 +184,7 @@ We don't want users who are not logged in to access the main page, because they 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
