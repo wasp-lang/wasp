@@ -2,7 +2,7 @@
 // Helper to compile the packages/* packages that waspc depends on, locally and
 // in CI, and copy their artifacts into the Cabal data dir.
 
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { basename, join } from "node:path";
 import {
   assertPackageVersionMatchesWaspc,
@@ -41,10 +41,17 @@ function buildPackage(packageDir: string): void {
 }
 
 // Copies only the artifacts, so `node_modules` installed in the data dir copy
-// (by `waspc` on first use) survives rebuilds.
+// (by `waspc` on first use) survives rebuilds. When the lockfile changed, that
+// `node_modules` is stale, so we drop it and `waspc` installs it again.
 function copyPackageArtifactsToDataDir(packageDir: string): void {
   const dataPackageDir = join(getDataPackagesDirPath(), basename(packageDir));
   mkdirSync(dataPackageDir, { recursive: true });
+
+  const lockFileName = "package-lock.json";
+  const lockFileChanged = !haveSameContent(
+    join(packageDir, lockFileName),
+    join(dataPackageDir, lockFileName),
+  );
 
   for (const artifact of PACKAGE_ARTIFACTS) {
     const src = join(packageDir, artifact);
@@ -54,4 +61,18 @@ function copyPackageArtifactsToDataDir(packageDir: string): void {
       cpSync(src, dst, { recursive: true });
     }
   }
+
+  if (lockFileChanged) {
+    rmSync(join(dataPackageDir, "node_modules"), {
+      recursive: true,
+      force: true,
+    });
+  }
+}
+
+function haveSameContent(pathA: string, pathB: string): boolean {
+  if (!existsSync(pathA) || !existsSync(pathB)) {
+    return existsSync(pathA) === existsSync(pathB);
+  }
+  return readFileSync(pathA, "utf-8") === readFileSync(pathB, "utf-8");
 }
