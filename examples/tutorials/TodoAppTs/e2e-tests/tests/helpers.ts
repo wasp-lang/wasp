@@ -10,7 +10,7 @@ export async function performSignup(
 
   await page.locator("input[name='username']").fill(username);
   await page.locator("input[type='password']").fill(password);
-  await page.locator("button").click();
+  await page.getByRole("button", { name: "Sign up" }).click();
 }
 
 export async function performLogin(

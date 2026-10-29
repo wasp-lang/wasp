@@ -40,7 +40,7 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -53,6 +53,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   args <- getArgs
   let commandCall = case args of
+        [helpArg] | isHelpArg helpArg -> Command.Call.Help
         ("new" : newArgs) -> Command.Call.New newArgs
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
@@ -104,6 +105,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
+    Command.Call.Help -> printUsage
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -117,6 +119,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+isHelpArg :: String -> Bool
+isHelpArg arg = arg `elem` ["help", "--help", "-h"]
 
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
@@ -146,6 +151,7 @@ printUsage =
               "        -t|--template <template-name>",
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
+        cmd   "    help                  Prints this help message.",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
@@ -161,7 +167,7 @@ printUsage =
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
-        cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
+        cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
@@ -200,6 +206,7 @@ printVersion = do
         "",
         "If you want a specific x.y.z version of Wasp, do:",
         indent 2 $ getInstallationCommand $ Just "x.y.z",
+        legacyVersionsNote,
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
@@ -207,6 +214,7 @@ printVersion = do
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  [helpArg] | isHelpArg helpArg -> printDbUsage
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.

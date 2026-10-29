@@ -6,6 +6,7 @@ import {
   clsx,
   Form,
   FormInput,
+  FormPasswordInput,
   FormItemGroup,
   FormLabel,
   FormError,
@@ -15,19 +16,19 @@ import {
   type AdditionalSignupField,
   type AdditionalSignupFieldRenderFn,
   type FormState,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'
 
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { useAuthContext } from '@wasp/lib-auth/browser'
 {=# enabledProviders.isEmailAuthEnabled =}
-import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
+import { emailFieldRules, emailInputProps } from '@wasp/lib-sdk-core/browser'
 {=/ enabledProviders.isEmailAuthEnabled =}
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
-import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
+import * as SocialIcons from '@wasp/lib-sdk-core/browser'
+import { SocialButton } from '@wasp/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
-import { getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
+import { getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -59,7 +60,7 @@ const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
-import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+import type { LoginSignupFormFields } from '@wasp/lib-sdk-core/browser'
 
 
 // PRIVATE API
@@ -201,11 +202,10 @@ export const LoginSignupForm = ({
           {=/ enabledProviders.isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
-            <FormInput
+            <FormPasswordInput
               {...register('password', {
                 required: 'Password is required',
               })}
-              type="password"
               disabled={isLoading}
             />
             {errors.password && <FormError>{errors.password.message}</FormError>}

@@ -127,6 +127,11 @@ const imageReorganizationRedirects: RedirectRule[] = imageRedirects.map(
 
 // prettier-ignore
 const legacyWildcardRedirects: RedirectRule[] = [
+  // The Wasp Spec package moved from the `@wasp.sh` npm scope to `@wasp`, which
+  // also moved its API reference.
+  permanent("/docs/api/@wasp.sh/spec",   "/docs/api/@wasp/spec"),
+  permanent("/docs/api/@wasp.sh/spec/*", "/docs/api/@wasp/spec/:splat"),
+
   // Migration guides
   // We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}
   // to /docs/{version}/migration-guide, so we want to redirect links going to the old

@@ -296,6 +296,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     import { test, expect } from "vitest";
     import { screen } from "@testing-library/react";
 
+    import { HttpMethod } from "wasp/client";
     import { mockServer, renderInContext } from "wasp/client/test";
     import Todo from "./Todo";
 
@@ -311,7 +312,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     ];
 
     test("handles mock data", async () => {
-      mockApi("/tasks", { res: mockTasks });
+      mockApi({ method: HttpMethod.Get, path: "/tasks" }, mockTasks);
 
       renderInContext(<Todo />);
 
@@ -355,6 +356,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     import { test, expect } from "vitest";
     import { screen } from "@testing-library/react";
 
+    import { HttpMethod } from "wasp/client";
     import { mockServer, renderInContext } from "wasp/client/test";
     import Todo from "./Todo";
 
@@ -370,7 +372,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     ];
 
     test("handles mock data", async () => {
-      mockApi("/tasks", mockTasks);
+      mockApi({ method: HttpMethod.Get, path: "/tasks" }, mockTasks);
 
       renderInContext(<Todo />);
 

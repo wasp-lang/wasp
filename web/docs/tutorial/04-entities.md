@@ -4,8 +4,8 @@ sidebar_label: "4. Database entities"
 description: Define the Task entity of the Wasp Todo app as a Prisma model in schema.prisma, then run wasp db migrate-dev and view the data in wasp db studio.
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { TutorialAction } from './TutorialAction';
+import dbStudioTaskScreenshot from './img/todo-app-db-studio-task-entity.webp';
 
 # 4. Database entities
 
@@ -32,7 +32,7 @@ model Task {
 Read more about how Wasp Entities work in the [Entities](../features/data/entities.md) section or how Wasp uses the `schema.prisma` file in the [Prisma schema file](../features/data/prisma-file.md) section.
 :::
 
-To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:
+To update the database schema to include this entity, run:
 
 <TutorialAction id="migration-add-task" action="MIGRATE_DB" />
 ```sh
@@ -49,6 +49,6 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-<img alt="Todo App - Db studio showing Task schema" src={useBaseUrl('img/docs/tutorial/04-entities/todo-app-db-studio-task-entity.png')} className="tutorial-image" />
+<img alt="Todo App - Prisma Studio showing Task schema" src={dbStudioTaskScreenshot} className="tutorial-image" />
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.

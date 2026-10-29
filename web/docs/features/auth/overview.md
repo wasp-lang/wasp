@@ -17,7 +17,7 @@ Auth is an essential piece of any serious application. That's why Wasp provides 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -111,7 +111,7 @@ When declaring a page, you can set the `authRequired` property.
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
@@ -178,7 +178,7 @@ There are two ways to access the `user` object on the client:
 If the page's spec sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
@@ -289,7 +289,7 @@ When users log in, Wasp creates a session for them and stores it in the database
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -388,7 +388,7 @@ First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `mai
 For example, if you are using [Username & Password](./username-and-pass/overview), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -587,7 +587,7 @@ export const SignupPage = () => {
 ### Auth Fields
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Auth"
+  to="../../api/@wasp/spec/interfaces/Auth"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec."
@@ -598,7 +598,7 @@ export const SignupPage = () => {
 If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({

@@ -50,7 +50,7 @@ Users signing in with [OAuth](./social-auth/overview.md) must authorize access b
 To use auth hooks, you must first declare them in the Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,
@@ -96,7 +96,7 @@ The `onBeforeSignup` hook can be useful if you want to reject a user based on so
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -177,7 +177,7 @@ Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -265,7 +265,7 @@ The `onAfterEmailVerified` hook receives an `email` string and `user` object, th
 Works with <EmailPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -335,7 +335,7 @@ The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.
 Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -398,7 +398,7 @@ The `onBeforeLogin` hook can be useful if you want to reject a user based on som
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -462,7 +462,7 @@ Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to updat
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -551,11 +551,11 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log("new tokens", newTokens)
+        console.log("new tokens", newTokens)
       }
     }
     ```
@@ -567,11 +567,11 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log("new tokens", newTokens)
+        console.log("new tokens", newTokens)
       }
     }
     ```
@@ -585,7 +585,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../jobs.md).
 ## API Reference
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,

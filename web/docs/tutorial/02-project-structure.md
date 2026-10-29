@@ -4,7 +4,6 @@ sidebar_label: "2. Project structure"
 description: "Step 2 of the Wasp tutorial explains the files of a new project: main.wasp.ts for the spec, schema.prisma for database models and src for your own code."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # 2. Project structure
 
@@ -96,7 +95,7 @@ The file exports your app's top-level configuration and a collection of specific
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 // This is a reference to your MainPage component.
 // Read more about how Wasp references your code in the section below.
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -128,10 +127,10 @@ Notice the `with { type: "ref" }` part at the end of the import statement. This 
 
 This Wasp app uses three specifications:
 
-- [**app**](../api/@wasp.sh/spec/functions/app): Top-level configuration information about your app.
+- [**app**](../api/@wasp/spec/functions/app): Top-level configuration information about your app.
 
-- [**route**](../api/@wasp.sh/spec/functions/route): Describes which path each page should be accessible from.
+- [**route**](../api/@wasp/spec/functions/route): Describes which path each page should be accessible from.
 
-- [**page**](../api/@wasp.sh/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
+- [**page**](../api/@wasp/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.

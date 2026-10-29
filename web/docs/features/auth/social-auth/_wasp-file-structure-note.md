@@ -1,7 +1,7 @@
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication

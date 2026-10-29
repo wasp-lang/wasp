@@ -26,7 +26,7 @@ waspInstallTest =
                 [ waspCliClean,
                   return $ assertDirectoryDoesNotExist "node_modules",
                   waspCliInstall,
-                  return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
+                  return $ assertSymlinkExists "node_modules/@wasp/spec",
                   waspCliCompile
                 ]
             ]

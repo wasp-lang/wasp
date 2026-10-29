@@ -9,7 +9,7 @@ import mitt from "mitt";
 import ky from "ky";
 import * as z from "zod";
 import "superjson";
-//#region \0vite/modulepreload-polyfill.js
+// \0vite/modulepreload-polyfill.js
 (function polyfill() {
 	const relList = document.createElement("link").relList;
 	if (relList && relList.supports && relList.supports("modulepreload")) return;
@@ -39,8 +39,7 @@ import "superjson";
 		fetch(link.href, fetchOpts);
 	}
 })();
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/app/layout.jsx
+// .wasp/out/sdk/wasp/dist/client/app/layout.jsx
 function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
 	const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage);
 	return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", {
@@ -72,8 +71,7 @@ function emptySubscribe() {
 	const emptyUnsubscribe = () => {};
 	return emptyUnsubscribe;
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
 	display: "flex",
 	minHeight: "80vh",
@@ -87,18 +85,25 @@ function FullPageWrapper({ children, className }) {
 		children
 	});
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
+// node_modules/@wasp/lib-sdk-core/dist/WaspHttpError.mjs
+var WaspHttpError = class extends Error {
+	statusCode;
+	data;
+	constructor(statusCode, message, data) {
+		super(message);
+		this.statusCode = statusCode;
+		this.data = data;
+	}
+};
+// node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -149,19 +154,34 @@ function createLocalStorageDataStore(prefix) {
 		}
 	};
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
-var defaultQueryClientConfig = {};
+// node_modules/@wasp/lib-sdk-core/dist/browser/operations/queryClient.mjs
+var MAX_QUERY_RETRIES = 3;
+var RETRYABLE_CLIENT_ERROR_STATUS_CODES = /* @__PURE__ */ new Set([408, 429]);
 var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
 function initializeQueryClient() {
-	const queryClient = new QueryClient(defaultQueryClientConfig);
+	const queryClient = new QueryClient(withWaspQueryDefaults({}));
 	resolveQueryClientInitialized(queryClient);
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs
+function withWaspQueryDefaults(config) {
+	return {
+		...config,
+		defaultOptions: {
+			...config.defaultOptions,
+			queries: {
+				retry: shouldRetryQuery,
+				...config.defaultOptions?.queries
+			}
+		}
+	};
+}
+function shouldRetryQuery(failureCount, error) {
+	if (failureCount >= MAX_QUERY_RETRIES) return false;
+	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
 	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
@@ -174,8 +194,7 @@ if (typeof window !== "undefined") window.addEventListener("storage", (event) =>
 	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
 	else apiEventsEmitter.emit("sessionId.clear");
 });
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/ansiColors.mjs
+// node_modules/@wasp/lib-sdk-core/dist/utils/ansiColors.mjs
 /**
 * Wraps each line of text with ANSI color codes.
 * Only works in Node.js (server-side), not in the browser.
@@ -209,8 +228,7 @@ var ansiColorCodes = {
 	yellow: "\x1B[33m"
 };
 var ansiResetCode = "\x1B[0m";
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/env/validation.mjs
+// node_modules/@wasp/lib-sdk-core/dist/env/validation.mjs
 function ensureEnvSchema(data, schema) {
 	const result = getValidatedEnvOrError(data, schema);
 	if (result.success) return result.data;
@@ -234,8 +252,7 @@ function formatZodEnvError(error) {
 		"════════════════════════════════"
 	].join("\n");
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/router/interpolatePath.mjs
+// node_modules/@wasp/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
 	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
@@ -258,13 +275,11 @@ function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
 	return paramString.slice(1);
 }
-//#endregion
-//#region node_modules/@wasp.sh/lib-sdk-core/dist/utils/url.mjs
+// node_modules/@wasp/lib-sdk-core/dist/utils/url.mjs
 function stripTrailingSlash(url) {
 	return url?.replace(/\/$/, "");
 }
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/env/schema.js
+// .wasp/out/sdk/wasp/dist/client/env/schema.js
 var userClientEnvSchema = z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
 z.object({ "REACT_APP_API_URL": serverUrlSchema });
@@ -298,8 +313,7 @@ function getSessionIdFromAuthorizationHeader(header) {
 	if (header && header.startsWith("Bearer ")) return header.substring(7);
 	else return null;
 }
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
+// .wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
 function WaspApp({ children }) {
 	const queryClient = use(queryClientInitialized);
 	return /* @__PURE__ */ jsx(QueryClientProvider, {
@@ -307,14 +321,12 @@ function WaspApp({ children }) {
 		children
 	});
 }
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/router/index.js
+// .wasp/out/sdk/wasp/dist/client/router/index.js
 var routes = { RootRoute: {
 	to: "/",
 	build: (options) => interpolatePath("/", void 0, options?.search, options?.hash)
 } };
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/app/router.jsx
+// .wasp/out/sdk/wasp/dist/client/app/router.jsx
 function getRouteObjects({ routesMapping, rootElement }) {
 	const waspDefinedRoutes = [];
 	const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
@@ -330,8 +342,7 @@ function getRouteObjects({ routesMapping, rootElement }) {
 		children: [...waspDefinedRoutes, ...userDefinedRoutes]
 	}];
 }
-//#endregion
-//#region \0vite/preload-helper.js
+// \0vite/preload-helper.js
 var scriptRel = "modulepreload";
 var assetsURL = function(dep) {
 	return "/" + dep;
@@ -425,8 +436,7 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 		return baseModule().catch(handlePreloadError);
 	});
 };
-//#endregion
-//#region routes.tsx
+// routes.tsx
 var routesMapping = { RootRoute: { lazy: async () => {
 	return { Component: await __vitePreload(() => import("./MainPage.js").then((m) => m.MainPage), __vite__mapDeps([0,1])) };
 } } };
@@ -438,8 +448,7 @@ var routeObjects = getRouteObjects({
 		children: /* @__PURE__ */ jsx(Outlet, {})
 	})
 });
-//#endregion
-//#region client-entry.tsx
+// client-entry.tsx
 var router = createBrowserRouter(routeObjects, {
 	basename: "/",
 	hydrationData: window.__staticRouterHydrationData
@@ -464,4 +473,3 @@ async function waitForRouterInitialized(router) {
 		});
 	});
 }
-//#endregion
