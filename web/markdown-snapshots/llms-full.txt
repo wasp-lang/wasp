@@ -15431,7 +15431,7 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 #### Smaller Docker images
 
-The server's Docker image now contains only the files the server needs at runtime, instead of the whole `node_modules` folder. This makes the image about a third of the size.
+The server's Docker image now contains only the files the server needs at runtime, instead of the whole `node_modules` folder. This makes the image about half the size.
 
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
