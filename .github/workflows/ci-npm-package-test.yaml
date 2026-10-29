@@ -86,10 +86,12 @@ jobs:
           # Test that the Wasp CLI can find and run the binary.
           NODE_DEBUG=wasp-bin-wrapper npx wasp version
 
-          # Same through the `@wasp/wasp` project dependency and its own bin.
+          # Same through the `@wasp/wasp` project dependency, running its own
+          # bin by path (npm links `.bin/wasp` to `@wasp/cli`'s, so `npx wasp`
+          # would not exercise it).
           cd ../install-test-wasp
-          NODE_DEBUG=wasp-bin-wrapper npx wasp version
-          node -e 'import("@wasp/wasp").then((m) => { if (typeof m.app !== "function") throw new Error("spec re-export missing") })'
+          NODE_DEBUG=wasp-bin-wrapper node node_modules/@wasp/wasp/bin.js version
+          node -e 'import("@wasp/spec").then((m) => { if (typeof m.app !== "function") throw new Error("@wasp/spec missing") })'
 
       - name: Generate list of installed data files
         run: |

@@ -24,25 +24,14 @@
   "bin": {
     "wasp": "bin.js"
   },
-  "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    },
-    "./internal": {
-      "types": "./internal.d.ts",
-      "default": "./internal.js"
-    }
-  },
   "files": [
-    "bin.js",
-    "index.d.ts",
-    "index.js",
-    "internal.d.ts",
-    "internal.js"
+    "bin.js"
   ],
   "dependencies": {
     "@wasp/cli": "workspace:*",
     "@wasp/spec": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

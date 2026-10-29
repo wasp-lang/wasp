@@ -27,5 +27,8 @@
     "CLIError.js",
     "bin.js",
     "data.json"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

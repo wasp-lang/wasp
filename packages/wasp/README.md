@@ -1,6 +1,6 @@
 Wasp, as a project dependency.
 
-Installs the Wasp CLI (`@wasp/cli`) and the Wasp Spec (`@wasp/spec`), pinned to the same version, and re-exports the Spec.
+Installs the Wasp CLI (`@wasp/cli`) and the Wasp Spec (`@wasp/spec`), pinned to the same version. Import the Spec from `@wasp/spec` in your `main.wasp.ts`.
 
 - Learn more about Wasp: https://wasp.sh/
 - Follow our tutorial: https://wasp.sh/docs/tutorial/create

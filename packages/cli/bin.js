@@ -229,6 +229,11 @@ function getNpmMarkerFile() {
 }
 
 function assertNoLegacyInstallerConflict() {
+  // No home dir (some containers), so no installer-based Wasp to conflict with.
+  if (!hasHomeDir()) {
+    return;
+  }
+
   // Once the marker exists this is a single `stat`, so the directory listing
   // below only ever runs on the first invocation on a machine.
   if (hasNpmMarker()) {
@@ -250,6 +255,15 @@ and follow the instructions.`);
   }
 
   ensureNpmMarker();
+}
+
+function hasHomeDir() {
+  try {
+    os.homedir();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function hasInstallerWasp() {
