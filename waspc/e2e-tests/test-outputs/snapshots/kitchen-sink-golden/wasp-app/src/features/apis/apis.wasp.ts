@@ -1,4 +1,4 @@
-import { api, apiNamespace, page, route, type Spec } from "@wasp.sh/spec";
+import { api, apiNamespace, page, route, type Spec } from "@wasp/spec";
 
 import {
   barBaz,

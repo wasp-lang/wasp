@@ -1,4 +1,4 @@
-import { isValidEmail } from "@wasp.sh/lib-auth";
+import { isValidEmail } from "@wasp/lib-auth";
 import { HttpError } from "../HttpError.js";
 
 export const PASSWORD_FIELD = "password";

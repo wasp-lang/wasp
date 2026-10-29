@@ -7,7 +7,7 @@ export { ForgotPasswordForm } from '../../auth/forms/ForgotPassword'
 export { VerifyEmailForm } from '../../auth/forms/VerifyEmail'
 export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
 {=/ isEmailAuthEnabled =}
-export type { CustomizationOptions } from '@wasp.sh/lib-sdk-core/browser'
+export type { CustomizationOptions } from '@wasp/lib-sdk-core/browser'
 {=# isSlackAuthEnabled =}
 export { SignInButton as SlackSignInButton } from '../../auth/helpers/Slack'
 {=/ isSlackAuthEnabled =}
@@ -29,7 +29,8 @@ export { SignInButton as MicrosoftSignInButton } from '../../auth/helpers/Micros
 export {
   FormError,
   FormInput,
+  FormPasswordInput,
   FormTextarea,
   FormItemGroup,
   FormLabel,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'

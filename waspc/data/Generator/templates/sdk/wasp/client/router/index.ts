@@ -5,7 +5,7 @@ import {
   type OptionalRouteOptions,
   type ParamValue,
   type ExpandRouteOnOptionalStaticSegments,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 export const routes = {
@@ -29,7 +29,7 @@ export const routes = {
     {=/ hasUrlParams =}
     {=^ hasUrlParams =}
     build: (
-      options?:
+      options{=^ hasOptionalStaticSegments =}?{=/ hasOptionalStaticSegments =}:
       OptionalRouteOptions
       {=# hasOptionalStaticSegments =}
       & { path: ExpandRouteOnOptionalStaticSegments<{=& urlPath =}> }

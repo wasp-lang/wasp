@@ -70,9 +70,9 @@ For example, if you have an `auth` lib that has code that's for both runtimes, b
 
 Which would expose the following import paths:
 
-- `@wasp.sh/lib-auth` (for both runtimes),
-- `@wasp.sh/lib-auth/node` (for Node.js only code),
-- `@wasp.sh/lib-auth/browser` (for browser-only code).
+- `@wasp/lib-auth` (for both runtimes),
+- `@wasp/lib-auth/node` (for Node.js only code),
+- `@wasp/lib-auth/browser` (for browser-only code).
 
 ## Testing Libs Locally
 
@@ -95,7 +95,7 @@ To bust the cache, use the `bust-libs-cache` command from the root of the Wasp a
 ./run bust-libs-cache
 ```
 
-This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
+This command removes all `@wasp/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
 and reinstalls packages. It's faster than deleting the entire `node_modules` directory and removing
 the `package-lock.json` file since it only targets Wasp lib packages.
 

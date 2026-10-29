@@ -3,10 +3,10 @@ import { walk } from "estree-walker";
 import assert from "node:assert/strict";
 import { type ESTree as t } from "rolldown/utils";
 
-export const PUBLIC_REF_HELPER_IMPORT_SOURCE = "@wasp.sh/spec";
+export const PUBLIC_REF_HELPER_IMPORT_SOURCE = "@wasp/spec";
 export const PUBLIC_REF_HELPER_IMPORT_NAME = "ref";
 
-export const INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE = "@wasp.sh/spec/internal";
+export const INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE = "@wasp/spec/internal";
 export const INTERNAL_MAKE_REF_HELPER_IMPORT_NAME = "_waspMakeRef";
 
 export function getStringValue(

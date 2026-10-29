@@ -6,9 +6,9 @@ This library exports code related to Wasp's auth which is used in the generated 
 
 The library has multiple entry points:
 
-- `index` - used in any runtime (`@wasp.sh/lib-auth`)
-- `node` - used in the Node.js runtime (`@wasp.sh/lib-auth/node`)
-- `browser` - used in the browser runtime (`@wasp.sh/lib-auth/browser`)
+- `index` - used in any runtime (`@wasp/lib-auth`)
+- `node` - used in the Node.js runtime (`@wasp/lib-auth/node`)
+- `browser` - used in the browser runtime (`@wasp/lib-auth/browser`)
 
 Read more about the naming convention for exports in the parent [README](../README.md#lib-exports-naming-convention).
 
@@ -34,7 +34,7 @@ Develop code and write unit tests for it.
 
 ### Adding a new export
 
-When you need to add a new entry point e.g. `@wasp.sh/lib-auth/web-app`:
+When you need to add a new entry point e.g. `@wasp/lib-auth/web-app`:
 
 1. Add a new entry in `tsdown.config.ts` with the name and entry path.
 

@@ -28,7 +28,7 @@ After completing these two steps, you'll be able to call the API from the client
 First, we need to declare the API in the Wasp file and you can easily do this with the `api` function:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -84,7 +84,7 @@ export const fooBar: FooBar = (req, res, context) => {
   Define the API in Wasp:
 
   ```ts title="main.wasp.ts"
-  import { api, app } from "@wasp.sh/spec"
+  import { api, app } from "@wasp/spec"
   import { fooBar } from "./src/apis" with { type: "ref" }
 
   export default app({
@@ -149,7 +149,7 @@ You can do this by defining custom middleware for your APIs in the Wasp file.
 For example, an `apiNamespace` is a simple spec used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from "@wasp.sh/spec"
+import { apiNamespace, app } from "@wasp/spec"
 import { apiMiddleware } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -179,7 +179,7 @@ In many cases, resources used in APIs will be [Entities](./data/entities.md).
 To use an Entity in your API, add it to the `api` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -215,7 +215,7 @@ You can use streaming responses to send data to the client in chunks as it becom
 To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { getStreamingText } from "./src/streaming" with { type: "ref" }
 
 export default app({
@@ -353,14 +353,14 @@ async function fetchStream(
 ## API Reference
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/api"
+  to="../api/@wasp/spec/functions/api"
   kind="api"
   title="api"
   description="All the options for declaring an API endpoint in the Wasp spec."
 />
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/apiNamespace"
+  to="../api/@wasp/spec/functions/apiNamespace"
   kind="api"
   title="apiNamespace"
   description="All the options for declaring an API namespace in the Wasp spec."

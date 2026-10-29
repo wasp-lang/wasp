@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { createContext, useState, useEffect, type Context, type ReactNode } from 'react'
 import { io, type Socket } from 'socket.io-client'
-import { apiEventsEmitter } from '@wasp.sh/lib-sdk-core/browser'
+import { apiEventsEmitter } from '@wasp/lib-sdk-core/browser'
 
 import { getSessionId } from '../../api/index.js'
 import { config } from '../index.js'

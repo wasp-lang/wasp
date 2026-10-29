@@ -42,7 +42,7 @@ Enabling Slack Authentication comes down to a series of steps:
 Now let's properly configure the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -122,7 +122,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -189,7 +189,7 @@ wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -264,7 +264,7 @@ The fields you receive depend on the scopes you request. In the example above, t
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
@@ -329,7 +329,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec/interfaces/SocialAuthConfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the slack auth method."

@@ -27,7 +27,7 @@ After Wasp generates the UI components for your auth, you can use it as is, or c
 Based on the authentication providers you enabled in your `main.wasp.ts` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -45,12 +45,12 @@ export default app({
 
 You'll get the following UI:
 
-![Auth UI](/img/docs/features/auth/login.png)
+![Auth UI](/img/docs/features/auth/login.webp)
 
 And then if you enable Google and Github:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -71,7 +71,7 @@ export default app({
 
 The form will automatically update to look like this:
 
-![Auth UI](/img/docs/features/auth/ui/multiple_providers.png)
+![Auth UI](/img/docs/features/auth/ui/multiple_providers.webp)
 
 Let's go through all of the available components and how to use them.
 
@@ -89,12 +89,12 @@ The following components are available for you to use in your app:
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
 
-![Login form](/img/docs/features/auth/login.png)
+![Login form](/img/docs/features/auth/login.webp)
 
 You can use the `LoginForm` component to build your login page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 
 export default app({
@@ -135,12 +135,12 @@ It will automatically show the correct authentication providers based on your `m
 
 Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
 
-![Signup form](/img/docs/features/auth/signup.png)
+![Signup form](/img/docs/features/auth/signup.webp)
 
 You can use the `SignupForm` component to build your signup page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
@@ -190,7 +190,7 @@ If users forget their password, they can use this form to reset it.
 You can use the `ForgotPasswordForm` component to build your own forgot password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
 
 export default app({
@@ -235,12 +235,12 @@ Used with <EmailPill /> authentication.
 
 After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
 
-![Reset password form](/img/docs/features/auth/ui/reset_password.png)
+![Reset password form](/img/docs/features/auth/ui/reset_password.webp)
 
 You can use the `ResetPasswordForm` component to build your reset password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
 
 export default app({
@@ -286,7 +286,7 @@ After users sign up, they will receive an email with a link to this form where t
 You can use the `VerifyEmailForm` component to build your email verification page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
 
 export default app({
@@ -477,7 +477,7 @@ If we pass in `vertical`:
 
 We get this:
 
-![Vertical social buttons](/img/docs/features/auth/ui/vertical_social_buttons.png)
+![Vertical social buttons](/img/docs/features/auth/ui/vertical_social_buttons.webp)
 
 ### Let's Put Everything Together 🪄
 
@@ -536,5 +536,5 @@ If we provide the logo and custom colors:
 We get a form looking like this:
 
 <div style={{ textAlign: 'center' }}>
-  <img src="/img/docs/features/auth/ui/custom_login.gif" alt="Custom login form" />
+  <img src="/img/docs/features/auth/ui/custom_login.webp" alt="Custom login form" />
 </div>

@@ -1,4 +1,4 @@
-import { hashPassword } from "@wasp.sh/lib-auth/node";
+import { hashPassword } from "@wasp/lib-auth/node";
 import {
   providerDataHasPasswordField,
   type PossibleProviderData,

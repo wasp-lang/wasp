@@ -10,7 +10,7 @@ import {
 import type {
   DefaultRefObjectDescriptor,
   NamedRefObjectDescriptor,
-} from "@wasp.sh/spec";
+} from "@wasp/spec";
 
 export type Plan = {
   refImports: RefImport[];

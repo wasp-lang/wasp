@@ -47,7 +47,7 @@ Next, tell Wasp to use full-stack [authentication](../features/auth/overview):
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -88,11 +88,11 @@ By doing this, Wasp will create:
 
 - [Auth UI](../features/auth/ui) with login and signup forms.
 - A `logout()` action.
-- A React hook `useAuth()`.
+- A `useAuth()` hook on the client.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), and [email](../features/auth/email/overview), with more on the way!
+Wasp also supports authentication using [email](../features/auth/email/overview) and social providers like [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), [Discord](../features/auth/social-auth/discord), [Microsoft](../features/auth/social-auth/microsoft), [Slack](../features/auth/social-auth/slack), and [Keycloak](../features/auth/social-auth/keycloak).
 :::
 
 ## Adding Login and Signup Pages
@@ -102,7 +102,7 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-start
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -173,7 +173,7 @@ export const SignupPage = () => {
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
+  Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 
@@ -184,7 +184,7 @@ We don't want users who are not logged in to access the main page, because they 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
@@ -342,30 +342,29 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
-export const updateTask: UpdateTask<
-  UpdateTaskPayload,
-  { count: number }
-> = async (args, context) => {
+export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+  { id, isDone },
+  context,
+) => {
   // highlight-start
   if (!context.user) {
     throw new HttpError(401);
   }
   // highlight-end
-  return context.entities.Task.updateMany({
-    where: { id: args.id, user: { id: context.user.id } },
-    data: { isDone: args.isDone },
+  return context.entities.Task.update({
+    // highlight-next-line
+    where: { id, user: { id: context.user.id } },
+    data: {
+      isDone: isDone,
+    },
   });
 };
 ```
 </TutorialAction>
 
-:::note
-Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
-:::
-
 With these changes, each user should have a list of tasks that only they can see and edit.
 
-Try playing around, adding a few users and some tasks for each of them. Then open the DB studio:
+Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
 ```sh
 wasp db studio
@@ -431,7 +430,7 @@ Looking for inspiration?
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
+If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](../contributing.md).
 :::
 
 Oh, and do [**subscribe to our newsletter**](/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
