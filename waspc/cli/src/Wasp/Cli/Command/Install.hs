@@ -4,6 +4,7 @@ module Wasp.Cli.Command.Install
   )
 where
 
+
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
@@ -15,7 +16,7 @@ import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
--- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
+-- | Standalone `wasp install` command: copies @wasp/spec and runs npm install.
 install :: Command ()
 install = ProjectLock.acquireExclusive $ do
   ValidNodeAndNpm <- require

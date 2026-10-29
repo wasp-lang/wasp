@@ -1,4 +1,4 @@
-import * as Wasp from "@wasp.sh/lib-sdk-core";
+import * as Wasp from "@wasp/lib-sdk-core";
 
 // PRIVATE API (server)
 export function isErrorStatusCode(value: unknown): value is number {

@@ -104,7 +104,7 @@ Search engines and social platforms read `<meta>` tags from your HTML to decide 
 You can set tags for your whole app through the `head` field of your `app` declaration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   // ...
@@ -174,7 +174,7 @@ Most search engines (like Google) can also execute JavaScript when indexing a pa
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({

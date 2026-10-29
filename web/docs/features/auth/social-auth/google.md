@@ -42,7 +42,7 @@ Enabling Google Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -170,7 +170,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -201,7 +201,7 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `google: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -260,7 +260,7 @@ The fields you receive depend on the scopes you request. The default scope is se
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -324,7 +324,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec/interfaces/SocialAuthConfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the google auth method."

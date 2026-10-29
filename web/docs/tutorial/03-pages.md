@@ -18,7 +18,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
+    import { app, page, route } from "@wasp/spec"
     import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
@@ -34,7 +34,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
+    import { app, page, route } from "@wasp/spec"
     import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
@@ -79,7 +79,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../features/pages-and-routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
@@ -232,7 +232,7 @@ Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `mai
 Your Wasp file should now look like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({

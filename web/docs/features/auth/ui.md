@@ -27,7 +27,7 @@ After Wasp generates the UI components for your auth, you can use it as is, or c
 Based on the authentication providers you enabled in your `main.wasp.ts` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -50,7 +50,7 @@ You'll get the following UI:
 And then if you enable Google and Github:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -94,7 +94,7 @@ Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePil
 You can use the `LoginForm` component to build your login page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 
 export default app({
@@ -140,7 +140,7 @@ Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePil
 You can use the `SignupForm` component to build your signup page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
@@ -190,7 +190,7 @@ If users forget their password, they can use this form to reset it.
 You can use the `ForgotPasswordForm` component to build your own forgot password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
 
 export default app({
@@ -240,7 +240,7 @@ After users click on the link in the email they receive after submitting the for
 You can use the `ResetPasswordForm` component to build your reset password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
 
 export default app({
@@ -286,7 +286,7 @@ After users sign up, they will receive an email with a link to this form where t
 You can use the `VerifyEmailForm` component to build your email verification page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
 
 export default app({

@@ -1,4 +1,4 @@
-import { action, app, page, query, route } from "@wasp.sh/spec";
+import { action, app, page, query, route } from "@wasp/spec";
 
 import {
   getGoogleAuthConfig,

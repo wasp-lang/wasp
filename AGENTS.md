@@ -18,12 +18,11 @@ Whoever submits the PR must understand the change well enough to explain it and 
 - `waspc/` — Haskell compiler, CLI, and LSP server (the core of Wasp)
   - `src/` — Main compiler library (Analyzer, Generator, AppSpec, Psl)
   - `cli/src/` — CLI commands (start, build, new, deploy, etc.)
-  - `data/packages/` — TypeScript packages called by the CLI when compiling projects as FFI
-  - `data/Generator/libs/` — TypeScript libraries embedded into generated project code
+  - `data/` — Mustache templates, starters, and the built TS packages and libs the CLI ships
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
   - `run` — **Main development script** (run `./run` with no args to see all commands)
-- `wasp-app-runner/` — Node.js CLI for running Wasp apps in e2e tests
+- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
@@ -34,7 +33,7 @@ All waspc development commands run from the `waspc/` directory via the `./run` s
 
 Key things to know:
 
-- Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
+- Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
 
