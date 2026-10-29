@@ -8,7 +8,7 @@ sidebar_label: From 0.26 to 0.27
 
 ### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec at the version your `package.json` declares. The `wasp install` command and the `wasp: { version }` field in `main.wasp.ts` are gone: `npm install` installs everything, and `package.json` is the one place that says which Wasp version the project uses. The `wasp` command you install globally keeps working: inside a project, it runs that project's version.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec at the version your `package.json` declares. The `wasp install` command and the `wasp: { version }` field in `main.wasp.ts` are gone. `npm install` installs everything, and `package.json` is the one place that says which Wasp version the project uses. The `wasp` command you install globally keeps working: inside a project, it runs that project's version.
 
 ### New npm organization
 
@@ -131,7 +131,7 @@ Update the `prisma` version in your `package.json`:
 
 If you also list `@prisma/client` in your `package.json`, update it to the same version.
 
-Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose: `@wasp/wasp` requires Prisma 6, so installing before this step fails with a dependency conflict.
+Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
 
 ```bash
 wasp clean

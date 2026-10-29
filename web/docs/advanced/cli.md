@@ -207,7 +207,7 @@ Check https://github.com/wasp-lang/wasp/releases for the list of valid versions,
 
 ```
 
-  A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher: inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well.
+  A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher. Inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well.
 
 - `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 

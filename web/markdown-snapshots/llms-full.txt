@@ -1738,7 +1738,7 @@ You build your app by:
 
 ### Installing the Spec
 
-The `@wasp/spec` package comes with `@wasp/wasp`, the npm package your project depends on, at the same version as the Wasp CLI that runs your project. A regular `npm install` is all it takes: `wasp new` offers to run it for you, and you run it yourself in a fresh clone, after `wasp clean`, or after removing the `node_modules` folder. If it's missing or out of date, Wasp tells you to run `npm install` before starting the app.
+The `@wasp/spec` package comes with `@wasp/wasp`, the npm package your project depends on, at the same version as the Wasp CLI that runs your project. A regular `npm install` is all it takes. `wasp new` offers to run it for you, and you run it yourself in a fresh clone, after `wasp clean`, or after removing the `node_modules` folder. If it's missing or out of date, Wasp tells you to run `npm install` before starting the app.
 
 ### Referencing your app's code
 
@@ -13649,7 +13649,7 @@ Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 ```
 
-A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher: inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well.
+A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher. Inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well.
 
 - `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 
@@ -15352,7 +15352,7 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 #### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec at the version your `package.json` declares. The `wasp install` command and the `wasp: { version }` field in `main.wasp.ts` are gone: `npm install` installs everything, and `package.json` is the one place that says which Wasp version the project uses. The `wasp` command you install globally keeps working: inside a project, it runs that project's version.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec at the version your `package.json` declares. The `wasp install` command and the `wasp: { version }` field in `main.wasp.ts` are gone. `npm install` installs everything, and `package.json` is the one place that says which Wasp version the project uses. The `wasp` command you install globally keeps working: inside a project, it runs that project's version.
 
 #### New npm organization
 
@@ -15463,7 +15463,7 @@ Update the `prisma` version in your `package.json`:
 
 If you also list `@prisma/client` in your `package.json`, update it to the same version.
 
-Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose: `@wasp/wasp` requires Prisma 6, so installing before this step fails with a dependency conflict.
+Then start from a clean state and install the dependencies, which now include Wasp. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
 
 ```bash
 wasp clean
