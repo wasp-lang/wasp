@@ -162,6 +162,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: sha256-l0Vfq4h7G7b2PWAt/Duw0tEkxejfME8OL30DmF73Pv0=
+
 importers:
 
   .:
@@ -19578,6 +19580,8 @@ snapshots:
       lunr: 2.3.9
       markdown-it: 14.3.3
       minimatch: 10.2.6
+      typedoc-docusaurus-theme: 1.4.3(typedoc-plugin-markdown@4.14.1(typedoc@0.28.20(typescript@6.0.3)))(typedoc@0.28.20(typescript@6.0.3))
+      typedoc-plugin-markdown: 4.14.1(typedoc@0.28.20(typescript@6.0.3))
       typescript: 6.0.3
       yaml: 2.9.1
 

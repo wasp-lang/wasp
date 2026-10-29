@@ -30,3 +30,18 @@ allowBuilds:
   esbuild: false
   fsevents: false
   msw: false
+
+# No phantom dependencies. pnpm keeps our own packages strict by default, but
+# it also links every package into `node_modules/.pnpm/node_modules`, which
+# every third-party package can resolve from. A dependency that imports
+# something it never declared keeps working through that directory, and so
+# does a stale resolution. Without it, both fail at build time.
+hoist: false
+
+# typedoc loads its plugins by name from its own location, so they have to be
+# dependencies of typedoc itself for it to find them without hoisting.
+packageExtensions:
+  typedoc:
+    dependencies:
+      typedoc-plugin-markdown: "*"
+      typedoc-docusaurus-theme: "*"
