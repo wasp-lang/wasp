@@ -137,7 +137,7 @@ waspCompileTest =
     mainWaspTsWithQuery :: T.Text
     mainWaspTsWithQuery =
       [trimming|
-        import { app, page, query, route } from "@wasp.sh/spec";
+        import { app, page, query, route } from "@wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { getTasks } from "./src/queries" with { type: "ref" };
 

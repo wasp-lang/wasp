@@ -1,4 +1,4 @@
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route } from "@wasp/spec";
 
 import { Layout } from "./src/Layout" with { type: "ref" };
 import { LoginPage } from "./src/pages/LoginPage" with { type: "ref" };

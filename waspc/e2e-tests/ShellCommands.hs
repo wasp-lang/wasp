@@ -237,9 +237,12 @@ waspCliDbMigrateDev migrationName = do
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "$WASP_CLI_CMD db seed " ++ seedName
 
+-- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g. when
+-- the e2e tests are run from Claude Code), unless the consent env var is set.
+-- The test only resets its own throwaway database, so we always consent.
 waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbReset =
-  return "$WASP_CLI_CMD db reset --force"
+  return "PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='Resetting the throwaway e2e test database' $WASP_CLI_CMD db reset --force"
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"

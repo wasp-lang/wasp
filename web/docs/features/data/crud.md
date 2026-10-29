@@ -37,7 +37,7 @@ We can then define a new `crud` called `Tasks`.
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
+import { app, crud } from "@wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -80,7 +80,7 @@ Let's create a full-app example that uses automatic CRUD. We'll stick to using t
 We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -133,7 +133,7 @@ We can then run `wasp db migrate-dev` to create the database and run the migrati
 Let's add the following `crud` spec to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
+import { app, crud } from "@wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -157,7 +157,7 @@ We also overrode the `create` operation with a custom implementation. This means
 
 We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
 Automatic CRUD doesn't yet support this by default.
-Read more about the default implementations in the [`CrudOperations` API Reference](../../api/@wasp.sh/spec/interfaces/CrudOperations.md).
+Read more about the default implementations in the [`CrudOperations` API Reference](../../api/@wasp/spec/interfaces/CrudOperations.md).
 
 Here's the `src/tasks.{js,ts}` file:
 
@@ -453,7 +453,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 ### Specifying CRUD Operations
 
 <CardLink
-  to="../../api/@wasp.sh/spec/functions/crud"
+  to="../../api/@wasp/spec/functions/crud"
   kind="api"
   title="crud"
   description="All the options for declaring CRUD operations in the Wasp spec."
