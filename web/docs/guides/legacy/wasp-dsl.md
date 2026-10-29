@@ -282,9 +282,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 ## How to migrate
 
-These steps convert a Wasp DSL config to the Wasp Spec. Before running `npm install` below, make sure your project is on Wasp 0.27 or newer (see the [migration guide](../../migration-guide.md)).
-
-After finishing this guide, return to the [migration guide](/docs/0.24/migration-guide) if you still need to complete the shared Wasp 0.24 migration steps.
+These steps convert a Wasp DSL config to the Wasp Spec on a project that already runs Wasp 0.27 or newer (see the [migration guide](../../migration-guide.md)). If your project is on an older Wasp, follow this guide in the docs of that version instead, starting with the [0.24 migration guide](/docs/0.24/migration-guide), and upgrade from there.
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 

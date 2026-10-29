@@ -18,7 +18,7 @@ npm install date-fns
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
-You will notice that there are some other packages in the `dependencies` section, like `react` and `wasp`. These are the packages that Wasp uses internally, and you should not modify or remove them.
+You will notice that there are some other packages in the `dependencies` section, like `react` and `@wasp/wasp`. These are the packages that Wasp uses internally, and you should not modify or remove them.
 
 ### Using Packages that are Already Used by Wasp Internally
 
@@ -56,8 +56,7 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
     ```json title="package.json"
     {
       "dependencies": {
-        "react": "19.2.1",
-        "react-dom": "19.2.1"
+        "@wasp/wasp": "0.27.0"
       }
     }
     ```
@@ -67,13 +66,12 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
     ```json title="package.json"
     {
       "dependencies": {
-        "react": "18.2.0",
-        "react-dom": "18.2.0"
+        "@wasp/wasp": "0.27.0",
+        "express": "5.0.1"
       },
       "wasp": {
         "overriddenDeps": {
-          "react": "19.2.1",
-          "react-dom": "19.2.1"
+          "express": "~5.1.0"
         }
       }
     }
@@ -82,9 +80,11 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
 </Tabs>
 
 In this example:
-- You want to use React 18.2.0 (specified in `dependencies`)
-- Wasp requires React 19.2.1 (specified in `overriddenDeps`)
+- You want to use Express 5.0.1 (specified in `dependencies`)
+- Wasp requires Express `~5.1.0` (specified in `overriddenDeps`)
 - By declaring this, you acknowledge you're deviating from Wasp's tested version
+
+The packages your project owns (`react`, `react-dom`, `react-router`, `prisma`, `vite` and `vitest`) are peer dependencies of `@wasp/wasp`, so npm itself refuses a conflicting version of them at install time. `overriddenDeps` does not apply to them.
 
 When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 

@@ -31,7 +31,7 @@ npm i -g @wasp/cli@0.27
 
 ### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec`
 
-Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinned to the exact Wasp version. The `wasp` script is optional, but it lets you run Wasp through the project (`npm run wasp start`) without a global install:
+Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinned to the exact Wasp version. The `wasp` script is optional, but it lets you run Wasp through the project (`npm run wasp start`, with `--` before any flags) without a global install:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -59,6 +59,14 @@ Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinn
     ```
   </TabItem>
 </Tabs>
+
+Your project's `.npmrc` keeps npm from installing packages published less than 7 days ago. Wasp's own packages are published with each release, so exempt them, otherwise the install below fails until the release is a week old:
+
+```ini title=".npmrc"
+min-release-age=7
+# highlight-next-line
+min-release-age-exclude[]=@wasp/*
+```
 
 The Wasp Spec package is now `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 

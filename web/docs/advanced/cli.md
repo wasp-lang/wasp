@@ -104,7 +104,7 @@ To run your new app, do:
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
 
-- The new project depends on Wasp through the `@wasp/wasp` npm package. `wasp new` asks whether to run `npm install` right away; pass `--install` or `--no-install` to decide without the question (for example in a script). Until the dependencies are installed, no other Wasp command works in the project.
+- The new project depends on Wasp through the `@wasp/wasp` npm package. `wasp new` asks whether to run `npm install` right away; pass `--install` or `--no-install` to decide without the question (for example in a script). Until the dependencies are installed, the commands that read the project fail with a message saying so.
 
 ```
 $ wasp new MyFirstProject
@@ -207,7 +207,7 @@ Check https://github.com/wasp-lang/wasp/releases for the list of valid versions,
 
 ```
 
-  A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher. Inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well.
+  A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher. Inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well. npm passes positional arguments through but swallows flags, so put `--` before them: `npm run wasp -- db migrate-dev --name init`.
 
 - `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 

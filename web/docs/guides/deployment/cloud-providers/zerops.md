@@ -96,7 +96,7 @@ zerops:
       start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
 ```
 
-Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).
+Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.27`).
 
 The `prod-client` setup runs `npm install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
