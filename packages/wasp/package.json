@@ -2,7 +2,7 @@
   "name": "@wasp/wasp",
   "version": "0.27.0",
   "type": "module",
-  "description": "Wasp, as a project dependency: the CLI and the Wasp Spec",
+  "description": "Wasp is a full-stack web framework for React, Node.js and Prisma.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
