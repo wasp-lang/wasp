@@ -6,7 +6,10 @@
     ".wasp/out/sdk/wasp"
   ],
   "scripts": {
-    "wasp": "wasp"
+    "wasp": "wasp",
+    "dev": "wasp start",
+    "build": "wasp build",
+    "preview": "wasp build start"
   },
   "dependencies": {
     "react": "^19.2.1",

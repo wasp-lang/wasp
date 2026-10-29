@@ -6,6 +6,9 @@
     ".wasp/out/sdk/wasp"
   ],
   "scripts": {
+    "build": "wasp build",
+    "dev": "wasp start",
+    "preview": "wasp build start",
     "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
     "test:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}",
     "wasp": "wasp"
