@@ -76,8 +76,10 @@ function findProjectWaspCliBin() {
 
 function getProjectWaspCliBin(/** @type {string} */ waspPackageJsonPath) {
   // Resolving from `@wasp/wasp` itself finds its `@wasp/cli` under any
-  // package manager layout.
-  const require = createRequire(waspPackageJsonPath);
+  // package manager layout, as long as we resolve from the package's real
+  // location: with pnpm, `node_modules/@wasp/wasp` is a symlink into the
+  // virtual store, and `@wasp/cli` is only linked next to the real package.
+  const require = createRequire(fs.realpathSync(waspPackageJsonPath));
   let projectWaspCliBinPath;
   try {
     projectWaspCliBinPath = fs.realpathSync(
