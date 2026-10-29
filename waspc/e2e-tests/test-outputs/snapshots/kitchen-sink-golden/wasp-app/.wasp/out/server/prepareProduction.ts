@@ -12,19 +12,13 @@
 
   TODO: Research whether we can keep the Prisma CLI out of the production image.
 */
-import { traceNodeModules, type TracedLayout } from "nf3";
+import { traceNodeModules } from "nf3";
 import { FullTracePackages } from "nf3/db";
-import {
-  cp,
-  glob,
-  mkdir,
-  readFile,
-  rm,
-  stat,
-  symlink,
-} from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { cp, glob, rm, stat, symlink } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { promisify } from "node:util";
 
 type TraceOptions = {
   /** The packages the user listed in `app.server.traceDeps`. */
@@ -76,7 +70,7 @@ async function prepareProduction({
   if (prismaCliEntry) {
     await copyPrismaCliEngines();
   }
-  await linkPackageBins(layout);
+  await linkPackageBins();
   await cp(path.join(serverDir, "bundle"), path.join(outDir, "bundle"), {
     recursive: true,
   });
@@ -166,47 +160,13 @@ async function copyPrismaCliEngines(): Promise<void> {
 
 /**
  * `production/` has no `node_modules/.bin`, because `npm install` never ran in
- * `production/`. We link the bins of the traced packages, so production
- * scripts can call them (e.g. `prisma`). We skip bins whose files weren't
- * traced, and keep the first package that claims a name.
+ * it. `npm rebuild` links the traced packages' bins, so production scripts can
+ * call them (e.g. `prisma`).
  */
-async function linkPackageBins(layout: TracedLayout): Promise<void> {
-  const binDir = path.join(outDir, "node_modules/.bin");
-  await mkdir(binDir, { recursive: true });
-
-  for (const tracedPackage of Object.values(layout.packages)) {
-    const { path: packageDir, outPath } =
-      tracedPackage.versions[tracedPackage.hoisted];
-    for (const [binName, binFile] of Object.entries(
-      await readBins(tracedPackage.name, packageDir),
-    )) {
-      const binOutPath = path.join(outDir, outPath, binFile);
-      const binLinkPath = path.join(binDir, binName);
-      if ((await exists(binOutPath)) && !(await exists(binLinkPath))) {
-        await symlink(path.relative(binDir, binOutPath), binLinkPath);
-      }
-    }
-  }
-}
-
-/**
- * Reads the `bin` field of a package's `package.json`, which is either a
- * single path named after the package or a map of names to paths. Some traced
- * folders (e.g. `.prisma`) have no `package.json`, so they have no bins.
- */
-async function readBins(
-  packageName: string,
-  packageDir: string,
-): Promise<Record<string, string>> {
-  const packageJsonPath = path.join(packageDir, "package.json");
-  if (!(await exists(packageJsonPath))) {
-    return {};
-  }
-  const { bin } = JSON.parse(await readFile(packageJsonPath, "utf8"));
-  if (typeof bin === "string") {
-    return { [packageName.split("/").pop()!]: bin };
-  }
-  return bin ?? {};
+async function linkPackageBins(): Promise<void> {
+  await promisify(execFile)("npm", ["rebuild", "--ignore-scripts"], {
+    cwd: outDir,
+  });
 }
 
 async function exists(filePath: string): Promise<boolean> {
