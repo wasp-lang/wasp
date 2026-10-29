@@ -9,9 +9,6 @@
 
   For now, we don't serve any other static files in our routes, so all the
   resources needed (CSS, images, etc.) must be inlined into the file.
-
-  The styles mirror the ones in the `minimal` and `basic` starters, so the page
-  feels like part of the same app.
 */
 
 // The /* HTML */ comment is a hint to `prettier` to format this string as HTML.
