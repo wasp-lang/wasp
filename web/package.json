@@ -7,7 +7,7 @@
   },
   "scripts": {
     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
-    "//install-spec-package": "The API docs are generated from packages/spec, which needs its dependencies. In this repo pnpm installs them (workspace); elsewhere (docs deploy, web CI) npm does, without a lockfile so it never fights pnpm.",
+    "//install-spec-package": "TODO: Remove once web/ is in the pnpm workspace. The API docs need packages/spec's dependencies. pnpm installs them in this repo, npm does elsewhere (docs deploy, web CI), without a lockfile so it never fights pnpm.",
     "build": "npm run install-spec-package && docusaurus build",
     "build-dev": "DOCS_INCLUDE_CURRENT_VERSION=true npm run build",
     "clear": "docusaurus clear",

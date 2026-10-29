@@ -1,14 +1,15 @@
-# The repo's own npm workspace: the TypeScript packages that make up Wasp and
-# the tooling around them. The pnpm version is pinned in mise.toml, on purpose
-# not in package.json's `packageManager`: Cloudflare Pages reads that field from
-# the repo root and would then build the docs (web/, an npm project) with pnpm.
+# The Wasp repo is a pnpm workspace, but a few projects in it still use npm.
+# pnpm is pinned in mise.toml and not in package.json's `packageManager`,
+# because Cloudflare Pages would then build web/ (an npm project) with pnpm.
 #
-# Deliberately not members:
-# - packages/deploy, packages/prisma, packages/studio: waspc ships them with
-#   their own package-lock.json inside its data dir and installs them with npm
-#   on first use. They stay on npm until they become part of the Wasp npm package.
-# - web/: deployed separately (Cloudflare Pages) with npm.
-# - examples/ and the e2e test projects: standalone Wasp apps, which use npm.
+# Not members yet:
+# - packages/deploy, packages/prisma, packages/studio. waspc ships them with
+#   their own package-lock.json and installs them with npm on first use.
+#   TODO: Move them in once they are part of the Wasp npm package.
+# - web/. Deployed with npm on Cloudflare Pages.
+#   TODO: Move it in and switch the Cloudflare build to pnpm.
+# - examples/ and the e2e test projects. They are Wasp apps, which use npm.
+#   TODO: Move them in once Wasp apps support pnpm.
 packages:
   - packages/spec
   - packages/libs/*
@@ -16,7 +17,7 @@ packages:
   - scripts/make-npm-packages
   - waspc/tools
 
-# Same policy as `min-release-age=7` in .npmrc, in minutes.
+# Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 
 # msw only prints a support message in its postinstall script.
