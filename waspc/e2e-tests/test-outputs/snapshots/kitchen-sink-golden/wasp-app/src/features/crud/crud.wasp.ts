@@ -1,4 +1,4 @@
-import { crud, page, route, type Spec } from "@wasp.sh/spec";
+import { crud, page, route, type Spec } from "@wasp/spec";
 
 import { crudCreateTask, crudGetAllTasks } from "./crud" with { type: "ref" };
 import { DetailPage } from "./pages/DetailPage" with { type: "ref" };

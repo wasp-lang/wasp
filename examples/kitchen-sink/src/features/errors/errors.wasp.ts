@@ -1,4 +1,4 @@
-import { api, type Spec } from "@wasp.sh/spec";
+import { api, type Spec } from "@wasp/spec";
 
 import {
   throwConcealedError,

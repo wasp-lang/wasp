@@ -31,7 +31,7 @@ We must first declare the Action in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
 // highlight-next-line
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 // highlight-next-line
@@ -208,7 +208,7 @@ Since we've already created one task together, try to create this one yourself. 
   <TutorialAction id="action-update-task" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 // highlight-next-line

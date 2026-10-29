@@ -94,7 +94,7 @@ Here's an example configuration file to help you get started. This example workf
             node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
+          run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Wasp Install
           run: wasp install

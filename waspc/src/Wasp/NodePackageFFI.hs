@@ -117,7 +117,7 @@ getPackageJsonSpecifierForPackage package =
 getInstallablePackageName :: InstallablePackage -> String
 getInstallablePackageName = \case
   -- NOTE: These names must match the 'name' fields in packages' package.json files.
-  WaspSpecPackage -> "@wasp.sh/spec"
+  WaspSpecPackage -> "@wasp/spec"
 
 ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
 ensurePackageIsAtInstallationPathInProject projectDir package = do
