@@ -4,8 +4,8 @@ import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
-import { getDataLibsDirPath } from "./libs/utils.ts";
-import { getDataPackagesDirPath } from "./packages/utils.ts";
+import { getLibsDirPath } from "./libs/utils.ts";
+import { getWaspcPackageDirPaths } from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -56,15 +56,13 @@ function bumpWaspcCabalVersion(nextVersion: string): void {
 }
 
 function bumpLibsVersion(nextVersion: string): void {
-  const dataLibsDirPath = getDataLibsDirPath();
-  for (const libDirPath of discoverSubDirs(dataLibsDirPath)) {
+  for (const libDirPath of discoverSubDirs(getLibsDirPath())) {
     bumpPackageJsonVersion(libDirPath, nextVersion);
   }
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  const dataPackagesDirPath = getDataPackagesDirPath();
-  for (const packageDirPath of discoverSubDirs(dataPackagesDirPath)) {
+  for (const packageDirPath of getWaspcPackageDirPaths()) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }

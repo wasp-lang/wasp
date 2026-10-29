@@ -1,7 +1,10 @@
 import { join } from "node:path";
-import { getWaspcDirPath } from "../utils.ts";
+import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
+
+export function getLibsDirPath(): string {
+  return join(getRepoRootPath(), "packages", "libs");
+}
 
 export function getDataLibsDirPath(): string {
-  const waspcDirPath = getWaspcDirPath();
-  return join(waspcDirPath, "data", "Generator", "libs");
+  return join(getWaspcDirPath(), "data", "Generator", "libs");
 }

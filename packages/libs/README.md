@@ -24,7 +24,7 @@ They are considered to be an implementation detail of the Wasp CLI, so their ver
 is whatever version the Wasp CLI is.
 
 When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
-`waspc/data/` folder, and the Wasp CLI uses these local copies of the libs
+`waspc/data/Generator/libs/` folder, and the Wasp CLI uses these local copies of the libs
 when generating the Wasp app.
 
 ## Lib Exports Naming Convention
@@ -80,9 +80,9 @@ Wasp Libs are npm libraries you develop in isolation and test them using unit te
 
 When you want to test how they integrate with the Wasp CLI and the generated app,
 you need to make sure the Wasp CLI can find them.
-To do that, you need to copy the compiled libs to the `waspc/data/` folder, which is
+To do that, you need to pack the compiled libs into the `waspc/data/Generator/libs/` folder, which is
 packaged with the Wasp CLI.
-Run `./run build:libs` to compile the libs and copy them into `data/`.
+Run `./run build:libs` to compile the libs and pack them into `waspc/data/Generator/libs/`.
 Then you can use `./run wasp-cli` as you normally would.
 
 ### `npm` cache busting
