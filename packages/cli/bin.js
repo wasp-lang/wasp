@@ -209,10 +209,8 @@ function checkNodeVersionIsSupported(
 // `~/.local/share/wasp-lang`. Having both that and the npm package installed
 // leads to confusing conflicts, so we refuse to run until the user migrates.
 //
-// This runs from `bin.js` instead of as an install script, because package
-// managers increasingly block install scripts of dependencies (pnpm, bun). It
-// runs on every invocation, but after the first run on a machine it only
-// checks that the marker file exists, one filesystem call.
+// We check on every CLI invocation, not in an install script, because package
+// managers increasingly block install scripts of dependencies (pnpm, bun).
 //
 // TODO: Consider removing this check once we no longer expect any users to
 // have a shell-installer based Wasp installation.
@@ -224,8 +222,7 @@ function assertNoLegacyInstallerConflict() {
   }
 
   // The installer script checks for this marker to warn about the same
-  // conflict from its side. Once it exists we stop here, so the directory
-  // listing below only ever runs on the first invocation on a machine.
+  // conflict from its side.
   const npmMarkerFile = path.join(waspLangDir, ".uses-npm");
   if (fs.existsSync(npmMarkerFile)) {
     return;
