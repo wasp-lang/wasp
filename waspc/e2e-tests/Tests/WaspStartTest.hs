@@ -182,8 +182,10 @@ stopAppOnExitTrap (clientPort, serverPort) = do
           ]
   return $ "trap '" ++ stopApp ++ "' EXIT"
 
+-- | Outside the project dir, so that writing to it doesn't trigger Wasp's file
+-- watcher.
 waspStartLogFile :: FilePath
-waspStartLogFile = "wasp-start.log"
+waspStartLogFile = "../wasp-start.log"
 
 waitUntilWaspExits :: String -> ShellCommand
 waitUntilWaspExits = waitUntil 60 "! kill -0 \"$WASP_START_PID\" 2>/dev/null"
