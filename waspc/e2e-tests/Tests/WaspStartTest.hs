@@ -1,9 +1,10 @@
 module Tests.WaspStartTest (waspStartTest) where
 
+import Control.Monad.Reader (asks)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    WaspProjectContext,
+    WaspProjectContext (..),
     createTestWaspProject,
     inTestWaspProjectDir,
     waitUntil,
@@ -11,6 +12,7 @@ import ShellCommands
     waspCliStart,
     (~&&),
   )
+import StrongPath (fromAbsDir)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -135,18 +137,22 @@ runWaspStartAndStopIt signal ports =
 -- | Stores the PID of the background process in `$WASP_START_PID`.
 startWaspInBackground :: (Int, Int) -> ShellCommandBuilder WaspProjectContext ShellCommand
 startWaspInBackground ports = do
+  stopAppOnExit <- stopAppOnExitTrap ports
   startCommand <- waspCliStartWithPorts ports
   return $
-    ("{ " ++ startCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
+    stopAppOnExit
+      ~&& ("{ " ++ startCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
       ~&& "WASP_START_PID=$!"
 
 -- | Like 'startWaspInBackground', but in a new process group, like a terminal
 -- would do. The process group's ID is the same as `$WASP_START_PID`.
 startWaspInBackgroundInOwnProcessGroup :: (Int, Int) -> ShellCommandBuilder WaspProjectContext ShellCommand
 startWaspInBackgroundInOwnProcessGroup ports = do
+  stopAppOnExit <- stopAppOnExitTrap ports
   startCommand <- waspCliStartWithPorts ports
   return $
-    ("{ perl -e 'setpgrp(0, 0); exec @ARGV' " ++ startCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
+    stopAppOnExit
+      ~&& ("{ perl -e 'setpgrp(0, 0); exec @ARGV' " ++ startCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
       ~&& "WASP_START_PID=$!"
 
 waspCliStartWithPorts :: (Int, Int) -> ShellCommandBuilder WaspProjectContext ShellCommand
@@ -161,6 +167,21 @@ waspCliStartWithPorts (clientPort, serverPort) = do
         show serverPort
       ]
 
+-- | Registers an EXIT trap that stops whatever is left of the app when the
+-- test case ends, even if it fails. It also stops the server, which runs under
+-- nodemon and so keeps running after Wasp stops it with SIGTERM.
+stopAppOnExitTrap :: (Int, Int) -> ShellCommandBuilder WaspProjectContext ShellCommand
+stopAppOnExitTrap (clientPort, serverPort) = do
+  projectDir <- asks waspProjectDir
+  let projectLockFile = fromAbsDir projectDir ++ ".wasp/.projectlock"
+      stopApp =
+        unwords
+          [ "kill \"$WASP_START_PID\" 2>/dev/null;",
+            "kill \"$(jq .pid " ++ projectLockFile ++ " 2>/dev/null)\" 2>/dev/null;",
+            "lsof -ti tcp:" ++ show clientPort ++ "," ++ show serverPort ++ " -sTCP:LISTEN | xargs kill 2>/dev/null"
+          ]
+  return $ "trap '" ++ stopApp ++ "' EXIT"
+
 waspStartLogFile :: FilePath
 waspStartLogFile = "wasp-start.log"
 
@@ -174,16 +195,20 @@ waitUntilAppIsListening (clientPort, serverPort) =
     (isPortListening clientPort ~&& isPortListening serverPort)
     "The app didn't start listening on its ports."
 
--- | Only checks the web app's port. The server runs under nodemon, which
--- leaves it running when it's stopped with SIGTERM, so we kill the server
--- ourselves instead, so that it doesn't affect other tests.
+-- | Returns as soon as the web app stops listening on its port, and fails if
+-- it's still listening after 30 seconds.
+--
+-- Only checks the web app's port. The server runs under nodemon, which leaves
+-- it running when it's stopped with SIGTERM, so it's stopped by the trap from
+-- 'startWaspInBackground' instead.
 waitUntilAppStopsListening :: (Int, Int) -> ShellCommand
-waitUntilAppStopsListening (clientPort, serverPort) =
+waitUntilAppStopsListening (clientPort, _) =
   waitUntil
     30
     ("! " ++ isPortListening clientPort)
     "The web app kept listening on its port after Wasp stopped."
-    ~&& ("{ lsof -ti tcp:" ++ show serverPort ++ " -sTCP:LISTEN | xargs kill 2>/dev/null || true ; }")
 
+-- | Checks for a listening socket instead of making a request, so that it
+-- can't hang on an app that accepts connections but doesn't respond.
 isPortListening :: Int -> ShellCommand
-isPortListening port = "curl -s -o /dev/null http://localhost:" ++ show port
+isPortListening port = "lsof -ti tcp:" ++ show port ++ " -sTCP:LISTEN > /dev/null"
