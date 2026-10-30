@@ -223,6 +223,30 @@ spec_ServerProcessController =
           waitUntil "the server port is released" $ isPortAvailable newPort
           clearServerPid fixture
 
+    it "restarts the server once the previous one releases its port, without another compile" $
+      withGeneratedAppDirFixture $ \fixture -> do
+        writeServerStartScript fixture slowlyStoppingServerScript
+        controller <- newServerProcessController
+        generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
+        withAsync (runController controller generatedAppDir) $ \controllerJob -> do
+          waitForServerStart fixture
+          initialPid <- readServerPid fixture
+          serverPort <- readServerPort fixture
+
+          -- The new server listens on the same port, so it only starts if the
+          -- controller waits for the previous one to release it.
+          clearServerPid fixture
+          notifySuccessfulCompile controller RestartServer
+          waitForServerStart fixture
+          restartedPid <- readServerPid fixture
+          restartedPid `shouldNotBe` initialPid
+          isProcessAlive initialPid `shouldReturn` False
+          readServerPort fixture `shouldReturn` serverPort
+
+          cancel controllerJob
+          waitUntil "the server port is released" $ isPortAvailable serverPort
+          clearServerPid fixture
+
     it "reports a server crash that happens while the server is being rebundled" $
       withGeneratedAppDirFixture $ \fixture -> do
         controller <- newServerProcessController
@@ -312,6 +336,16 @@ loopingServerScript =
       "process.on('SIGINT', stop);",
       "process.on('SIGTERM', stop);"
     ]
+
+-- | Like 'loopingServerScript', but takes a while to release its port when
+-- it's stopped.
+slowlyStoppingServerScript :: String
+slowlyStoppingServerScript =
+  loopingServerScript
+    <> unlines
+      [ "process.removeAllListeners('SIGTERM');",
+        "process.on('SIGTERM', () => setTimeout(stop, 1500));"
+      ]
 
 crashingServerScript :: String
 crashingServerScript =

@@ -188,6 +188,22 @@ spec_Job = do
               Nothing -> isProcessAlive secondPid `shouldReturn` True
               Just _ -> expectationFailure "Stopping one job stopped another job's process"
 
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "waits for the process to exit when the job is stopped" $
+        withRunningProcess "process.on('SIGTERM', () => setTimeout(() => process.exit(0), 1500));" $ \running pid -> do
+          Async.cancel running
+          isProcessAlive pid `shouldReturn` False
+
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "stops waiting for the process to exit after a while when the job is stopped" $
+        withRunningProcess "process.on('SIGTERM', () => {});" $ \running pid -> do
+          timeout (secondsToMicroSeconds 10) (Async.cancel running) `shouldReturn` Just ()
+          isProcessAlive pid `shouldReturn` True
+
   describe "npmBinProc" $
     it "fails if the executable isn't in any node_modules/.bin directory" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do

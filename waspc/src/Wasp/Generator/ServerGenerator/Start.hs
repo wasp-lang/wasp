@@ -42,6 +42,8 @@ startServer serverRunConfig generatedAppDir controller = do
   join $ bundleAndRunServer startTime $ return $ hotSwap doNothing False
   where
     -- Runs the server job, and handles compiles until it has to be replaced.
+    -- `withAsync` waits for the server job to stop, and the server process to
+    -- exit with it, before the next job starts, so that the port is free.
     hotSwap :: J.Job () -> Bool -> J.Job Void
     hotSwap currentServerJob isBundleUpToDate =
       join $ UnliftIO.withAsync currentServerJob $ \server -> do

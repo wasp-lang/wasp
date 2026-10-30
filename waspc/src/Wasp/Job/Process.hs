@@ -33,9 +33,11 @@ fromProc jobProcess = Job $ do
 -- and returns its exit code once all of its output has been passed on.
 --
 -- If this is stopped before the process finishes, it terminates the process
--- (SIGTERM on *nix) without waiting for it to exit. The same happens if
--- emitting the output fails. We only signal the process itself, and rely on it
--- to stop the processes it started.
+-- (SIGTERM on *nix), and returns once it exits, so that whatever runs next,
+-- e.g. a restarted server, doesn't find the resources it held still in use. If
+-- the process takes too long to exit, it stops waiting for it. The same happens
+-- if emitting the output fails. We only signal the process itself, and rely on
+-- it to stop the processes it started.
 run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
@@ -50,17 +52,25 @@ run emit process =
         $ \outputForwarding -> do
           mapM_ hClose stdinHandle
           (fst <$> Async.concurrently (P.waitForProcess processHandle) (Async.wait outputForwarding))
-            `onException` drainOutputIfProcessExited processHandle outputForwarding
+            `onException` stopProcess processHandle outputForwarding
   where
-    -- If the process exited by itself, the rest of its output, e.g. a crash's
-    -- stack trace, is about to be emitted.
-    drainOutputIfProcessExited processHandle outputForwarding =
-      P.getProcessExitCode processHandle >>= \case
+    -- Once the process exited, the rest of its output, e.g. a crash's stack
+    -- trace, is about to be emitted. If it doesn't exit in time, we leave it to
+    -- `withCreateProcess`, which signals it again and doesn't wait for it.
+    stopProcess processHandle outputForwarding = do
+      P.terminateProcess processHandle
+      timeout maxProcessExitWaitMicroseconds (P.waitForProcess processHandle) >>= \case
         Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
         Nothing -> return ()
 
--- | How long a job that is stopped after its process exited still emits the
--- process's output for. It's bounded because the process's children can keep
+-- | The longest a job that is stopped waits for its process to exit. Usually it
+-- exits much sooner, and the job stops right then. The wait is bounded because
+-- the process can ignore the signal.
+maxProcessExitWaitMicroseconds :: Int
+maxProcessExitWaitMicroseconds = secondsToMicroSeconds 5
+
+-- | How long a job that is stopped still emits the output of its exited
+-- process for. It's bounded because the process's children can keep
 -- its output open.
 outputDrainTimeoutMicroseconds :: Int
 outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
