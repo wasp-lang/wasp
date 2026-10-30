@@ -1,5 +1,8 @@
 {
+  "name": "@wasp/cli",
+  "version": "0.27.0",
   "type": "module",
+  "description": "The Wasp CLI",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git"
@@ -19,9 +22,5 @@
   },
   "bin": {
     "wasp": "bin.js"
-  },
-  "scripts": {
-    "postinstall": "node postinstall.js",
-    "preinstall": "node preinstall.js"
   }
 }

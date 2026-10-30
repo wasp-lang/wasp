@@ -3,7 +3,7 @@
 
 import { getPackageJson, runCmd } from "../utils.ts";
 import {
-  getWaspcPackageDirPath,
+  getPackageDirPath,
   WASPC_PACKAGES,
   type WaspcPackage,
 } from "./utils.ts";
@@ -17,7 +17,7 @@ function testPackages(): void {
 }
 
 function testPackage({ name }: WaspcPackage): void {
-  const packageDir = getWaspcPackageDirPath(name);
+  const packageDir = getPackageDirPath(name);
   const packageJson = getPackageJson(packageDir);
 
   if (!packageJson.scripts?.test) {

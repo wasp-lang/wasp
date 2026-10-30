@@ -2,6 +2,7 @@
 
 TypeScript packages of the Wasp monorepo:
 
+- `cli/` -> `@wasp/cli`, the `wasp` executable wrapper. `scripts/make-npm-packages` turns it into the published package with the platform-specific binaries as optional dependencies.
 - `spec/` -> `@wasp/spec`, the package users import in `main.wasp.ts`. Published to npm.
 - `deploy/`, `studio/` -> packages `waspc` runs as separate processes (see `Wasp.NodePackageFFI`).
 - `libs/` -> Wasp libs, internal npm packages installed into generated apps. See [`libs/README.md`](libs/README.md).

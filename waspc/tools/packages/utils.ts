@@ -24,7 +24,7 @@ export type WaspcPackage = {
   kind: "runnable" | "installable";
 };
 
-export function getWaspcPackageDirPath(packageName: string): string {
+export function getPackageDirPath(packageName: string): string {
   return join(getRepoRootPath(), "packages", packageName);
 }
 
