@@ -126,6 +126,9 @@ startServer serverRunConfig generatedAppDir controller = do
       J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
 
     -- Same as the `bundle` script in the server's `package.json`.
+    -- Through its project reference, `tsc --build` type-checks all of the
+    -- user's source files, client ones included, so their type errors also
+    -- fail the bundle.
     bundle :: J.Job ExitCode
     bundle =
       (J.fromProc =<< J.npmBinProc serverDir "tsc" ["--build"])

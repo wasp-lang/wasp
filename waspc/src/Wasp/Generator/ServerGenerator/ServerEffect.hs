@@ -60,6 +60,9 @@ classifyServerEffect changedProjectFiles changedGeneratedAppPaths =
       generatedServerInputPatterns `matchesAny` path
         && not (generatedSdkClientPatterns `matchesAny` path)
 
+    -- We don't know which of the user's files the server imports (rollup only
+    -- bundles the ones reachable from the server's entry point), so we
+    -- rebundle on a change to any user file the server could import.
     projectServerInputPatterns =
       (descendantsGlob srcDirInWaspProjectDir <>) <$> serverRuntimeInputFileExtensions
 
