@@ -159,7 +159,7 @@ snapshots:
 lockfileVersion: '9.0'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   dedupePeers: true
   excludeLinksFromLockfile: false
 
@@ -270,7 +270,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: ^4.1.9
-        version: 4.1.12(@types/node@24.19.2)(msw@2.15.0)(vite@8.3.5)
+        version: 4.1.12(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(msw@2.15.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/libs/auth:
     dependencies:
@@ -280,9 +280,6 @@ importers:
       oslo:
         specifier: ^1.1.2
         version: 1.2.1
-      react:
-        specifier: ^19.2.1
-        version: 19.3.1
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.18.2
@@ -14624,12 +14621,12 @@ snapshots:
       - '@react-spectrum/provider'
       - framer-motion
 
-  '@heroui/autocomplete@2.3.31(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/autocomplete@2.3.31(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
       '@heroui/aria-utils': 2.2.26(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/button': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/input': 2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@types/react@18.3.31)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
+      '@heroui/input': 2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/listbox': 2.3.28(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/popover': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
@@ -14650,6 +14647,7 @@ snapshots:
     transitivePeerDependencies:
       - '@react-spectrum/provider'
       - '@types/react'
+      - tailwindcss
 
   '@heroui/avatar@2.2.24(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -14749,9 +14747,9 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@heroui/checkbox@2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/checkbox@2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
       '@heroui/system': 2.4.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -14767,6 +14765,10 @@ snapshots:
       '@react-types/shared': 3.32.1(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@react-spectrum/provider'
+      - framer-motion
+      - tailwindcss
 
   '@heroui/chip@2.2.24(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -14789,9 +14791,9 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@heroui/date-input@2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/date-input@2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
       '@heroui/system': 2.4.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -14806,14 +14808,16 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
       - '@react-spectrum/provider'
+      - framer-motion
+      - tailwindcss
 
-  '@heroui/date-picker@2.3.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/date-picker@2.3.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
       '@heroui/aria-utils': 2.2.26(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/button': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/calendar': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/date-input': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/date-input': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/popover': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-icons': 2.1.10(react@18.3.1)
@@ -14832,6 +14836,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
       - '@react-spectrum/provider'
+      - tailwindcss
 
   '@heroui/divider@2.2.21(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -14879,7 +14884,7 @@ snapshots:
     transitivePeerDependencies:
       - '@react-spectrum/provider'
 
-  '@heroui/form@2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/form@2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
       '@heroui/shared-utils': 2.1.12
       '@heroui/system': 2.4.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -14889,6 +14894,10 @@ snapshots:
       '@react-types/shared': 3.32.1(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@react-spectrum/provider'
+      - framer-motion
+      - tailwindcss
 
   '@heroui/framer-utils@2.1.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -14911,9 +14920,9 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@heroui/input-otp@2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/input-otp@2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
       '@heroui/system': 2.4.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -14927,10 +14936,14 @@ snapshots:
       input-otp: 1.4.1(react-dom@18.3.1)(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@react-spectrum/provider'
+      - framer-motion
+      - tailwindcss
 
-  '@heroui/input@2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@types/react@18.3.31)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/input@2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-icons': 2.1.10(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
@@ -14947,7 +14960,10 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-textarea-autosize: 8.5.9(@types/react@18.3.31)(react@18.3.1)
     transitivePeerDependencies:
+      - '@react-spectrum/provider'
       - '@types/react'
+      - framer-motion
+      - tailwindcss
 
   '@heroui/kbd@2.2.23(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -15059,10 +15075,10 @@ snapshots:
     transitivePeerDependencies:
       - '@react-spectrum/provider'
 
-  '@heroui/number-input@2.0.20(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/number-input@2.0.20(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
       '@heroui/button': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-icons': 2.1.10(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
@@ -15082,6 +15098,7 @@ snapshots:
     transitivePeerDependencies:
       - '@react-spectrum/provider'
       - framer-motion
+      - tailwindcss
 
   '@heroui/pagination@2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -15136,9 +15153,9 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@heroui/radio@2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/radio@2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
       '@heroui/system': 2.4.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -15152,6 +15169,10 @@ snapshots:
       '@react-types/shared': 3.32.1(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@react-spectrum/provider'
+      - framer-motion
+      - tailwindcss
 
   '@heroui/react-rsc-utils@2.1.9(react@18.3.1)':
     dependencies:
@@ -15167,40 +15188,40 @@ snapshots:
     dependencies:
       '@heroui/accordion': 2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/alert': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/autocomplete': 2.3.31(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/autocomplete': 2.3.31(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/avatar': 2.2.24(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/badge': 2.2.18(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/breadcrumbs': 2.2.24(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/button': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/calendar': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/card': 2.2.27(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/checkbox': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/checkbox': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/chip': 2.2.24(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/code': 2.2.22(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/date-input': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/date-picker': 2.3.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/date-input': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
+      '@heroui/date-picker': 2.3.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/divider': 2.2.21(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/drawer': 2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/dropdown': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/framer-utils': 2.1.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/image': 2.2.18(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/input': 2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@types/react@18.3.31)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/input-otp': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/input': 2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(@types/react@18.3.31)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
+      '@heroui/input-otp': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/kbd': 2.2.23(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/link': 2.2.25(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/listbox': 2.3.28(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/menu': 2.2.28(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/modal': 2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/navbar': 2.2.27(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/number-input': 2.0.20(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/number-input': 2.0.20(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/pagination': 2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/popover': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/progress': 2.2.24(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/radio': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/radio': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/ripple': 2.2.21(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/scroll-shadow': 2.3.19(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/select': 2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/select': 2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/skeleton': 2.2.18(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/slider': 2.4.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/snippet': 2.2.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -15208,7 +15229,7 @@ snapshots:
       '@heroui/spinner': 2.2.26(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/switch': 2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/system': 2.4.25(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/table': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/table': 2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/tabs': 2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/theme': 2.4.25(tailwindcss@4.3.3)
       '@heroui/toast': 2.0.19(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
@@ -15243,10 +15264,10 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@heroui/select@2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/select@2.4.30(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
       '@heroui/aria-utils': 2.2.26(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
-      '@heroui/form': 2.1.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/form': 2.1.29(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/listbox': 2.3.28(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/popover': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
@@ -15271,6 +15292,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
       - '@react-spectrum/provider'
+      - tailwindcss
 
   '@heroui/shared-icons@2.1.10(react@18.3.1)':
     dependencies:
@@ -15380,9 +15402,9 @@ snapshots:
       - '@heroui/theme'
       - '@react-spectrum/provider'
 
-  '@heroui/table@2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(react-dom@18.3.1)(react@18.3.1)':
+  '@heroui/table@2.2.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)':
     dependencies:
-      '@heroui/checkbox': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(react-dom@18.3.1)(react@18.3.1)
+      '@heroui/checkbox': 2.3.29(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@4.3.3)
       '@heroui/react-utils': 2.1.14(react@18.3.1)
       '@heroui/shared-icons': 2.1.10(react@18.3.1)
       '@heroui/shared-utils': 2.1.12
@@ -15401,6 +15423,8 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
       - '@react-spectrum/provider'
+      - framer-motion
+      - tailwindcss
 
   '@heroui/tabs@2.2.26(@heroui/system@2.4.25)(@heroui/theme@2.4.25)(@react-spectrum/provider@3.11.1)(framer-motion@12.43.0)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
@@ -25521,7 +25545,7 @@ snapshots:
       tsx: 4.23.15
       yaml: 2.9.1
 
-  vitest@4.1.12(@types/node@24.19.2)(msw@2.15.0)(vite@8.3.5):
+  vitest@4.1.12(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(msw@2.15.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1):
     dependencies:
       '@vitest/expect': 4.1.12
       '@vitest/mocker': 4.1.12(msw@2.15.0)(vite@8.3.5)
@@ -25546,7 +25570,18 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.19.2
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   vitest@5.0.5(@types/node@24.19.2)(@vitest/coverage-v8@5.0.5)(msw@2.15.0)(vite@8.3.5):
     dependencies:
