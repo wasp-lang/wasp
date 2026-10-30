@@ -7,11 +7,10 @@ where
 import StrongPath (File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath.Glob (Pattern, match)
-import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInGeneratedAppDir)
-import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir, serverSrcDirInGeneratedAppDir)
+import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir)
 import Wasp.Util.Glob (descendantsGlob, dirGlob)
 
@@ -30,7 +29,7 @@ data ServerEffect
 
 -- | The effect that a compile's changes have on the server: the project files
 -- that changed, and the generated app paths that the compile changed.
-classifyServerEffect :: [Path' (Rel WaspProjectDir) File'] -> [FileOrDirPathRelativeTo GeneratedAppDir] -> ServerEffect
+classifyServerEffect :: [Path' (Rel WaspProjectDir) File'] -> [ChangedGeneratedAppPath] -> ServerEffect
 classifyServerEffect changedProjectFiles changedGeneratedAppPaths =
   maximum
     -- `maximum` needs at least one element in the list, so we add the default effect
@@ -43,7 +42,7 @@ classifyServerEffect changedProjectFiles changedGeneratedAppPaths =
       | projectServerInputPatterns `matchesAny` file = RebundleAndRestartServer
       | otherwise = NoChange
 
-    generatedAppPathServerEffect :: FileOrDirPathRelativeTo GeneratedAppDir -> ServerEffect
+    generatedAppPathServerEffect :: ChangedGeneratedAppPath -> ServerEffect
     generatedAppPathServerEffect (Left file)
       | file == generatedServerPackageFile = RebundleAndRestartServer
       | file == generatedServerEnvFile = RestartServer

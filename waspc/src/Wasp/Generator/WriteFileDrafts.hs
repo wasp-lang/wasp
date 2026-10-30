@@ -1,7 +1,8 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Generator.WriteFileDrafts
-  ( synchronizeFileDraftsWithDisk,
+  ( ChangedGeneratedAppPath,
+    synchronizeFileDraftsWithDisk,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
     assertDstPathsAreUnique, -- Exported for testing.
     removeFromChecksumFile,
@@ -30,7 +31,8 @@ import Wasp.Util (Checksum, findDuplicateElems)
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
-synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO [FileOrDirPathRelativeTo GeneratedAppDir]
+-- Returns the paths that it wrote or deleted.
+synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO [ChangedGeneratedAppPath]
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   return $! assertDstPathsAreUnique fileDrafts
 
@@ -60,6 +62,10 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   writeChecksumFile dstDir relativePathsToChecksums
 
   return $ (getDstPath <$> fileDraftsToWrite) ++ filesToDelete
+
+-- | A path in the generated app that was written or deleted while synchronizing
+-- the file drafts with the disk.
+type ChangedGeneratedAppPath = FileOrDirPathRelativeTo GeneratedAppDir
 
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo GeneratedAppDir, Checksum)]
 

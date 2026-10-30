@@ -22,7 +22,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
-import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
+import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project.Env as Project.Env
@@ -30,7 +30,7 @@ import qualified Wasp.Project.Env as Project.Env
 data CompileResult = CompileResult
   { _compileWarnings :: [CompileWarning],
     _compileOutcome :: Either [CompileError] AS.AppSpec,
-    _compileChangedGeneratedAppPaths :: [FileOrDirPathRelativeTo Generator.GeneratedAppDir]
+    _compileChangedGeneratedAppPaths :: [ChangedGeneratedAppPath]
   }
 
 compileResultWarningsAndErrors :: CompileResult -> ([CompileWarning], [CompileError])

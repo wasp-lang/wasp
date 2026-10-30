@@ -23,10 +23,10 @@ import System.Exit (ExitCode (..))
 import qualified UnliftIO.Async as UnliftIO
 import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
+import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 
@@ -195,7 +195,7 @@ data CompileChanges = CompileChanges
   { -- | Changes from this time on aren't part of the compile.
     _compileStartTime :: UTCTime,
     _changedProjectFiles :: [Path' (Rel WaspProjectDir) File'],
-    _changedGeneratedAppPaths :: [FileOrDirPathRelativeTo GeneratedAppDir]
+    _changedGeneratedAppPaths :: [ChangedGeneratedAppPath]
   }
 
 data ServerUpdate
