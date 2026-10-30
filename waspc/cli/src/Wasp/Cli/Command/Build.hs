@@ -5,7 +5,7 @@ module Wasp.Cli.Command.Build
   )
 where
 
-import Control.Lens (at, (%~), (&), (.~), (^?))
+import Control.Lens ((%~), (&), (.~), (^?))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -14,7 +14,7 @@ import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens (key, _Object, _String)
 import Data.Either (fromLeft)
-import Data.List (isPrefixOf, stripPrefix)
+import Data.List (find, isSuffixOf, stripPrefix)
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File', Path', basename, castRel, fromRelDir, fromRelFile, parseAbsFile, parseRelFile, reldir, (</>))
@@ -135,8 +135,9 @@ build = ProjectLock.acquireExclusive $ do
     -- While developing Wasp, the project depends on dev tarballs of @wasp/wasp,
     -- @wasp/cli and @wasp/spec outside the project (see "Wasp.Project.WaspNpmPackage").
     -- Docker's build context is `.wasp/out/`, so we copy the tarballs next to
-    -- the Wasp libs, point the build's package.json at the copies and drop their
-    -- lockfile entries, so `npm install` resolves them from the new paths.
+    -- the Wasp libs and point the build's package.json and package-lock.json at
+    -- the copies. The lock entries keep their integrity, since the tarballs are
+    -- the same, so `npm ci` still finds the lock in sync.
     -- Released Wasp versions are registry dependencies, so this does nothing for them.
     --
     -- TODO: Remove once the repo's Wasp apps join the pnpm workspace and no
@@ -160,7 +161,7 @@ build = ProjectLock.acquireExclusive $ do
         liftIO $ SD.createDirectoryIfMissing True $ SP.fromAbsDir devPackagesDirInBuildDir
         copiedTarballs <- liftIO $ mapM (copyDevTarball waspProjectDir devPackagesDirInBuildDir) devTarballSpecifiers
         ExceptT $ updateJsonFile (\json -> foldl setDevTarballSpecifierInDocker json copiedTarballs) packageJsonInBuildDir
-        ExceptT $ updateJsonFile removeWaspNpmPackagesFromLock packageLockJsonInBuildDir
+        ExceptT $ updateJsonFile (rewriteDevTarballSpecifiersInLock (map snd copiedTarballs)) packageLockJsonInBuildDir
 
     withField :: field -> FilePath -> (field, FilePath)
     withField field tarballPath = (field, tarballPath)
@@ -196,21 +197,21 @@ build = ProjectLock.acquireExclusive $ do
     devTarballSpecifierInDocker tarball =
       tarballFileSpecifier $ fromRelDir generatedAppDirInWaspProjectDir ++ fromRelDir libsRootDirInGeneratedAppDir ++ "wasp/" ++ fromRelFile (basename tarball)
 
-    removeWaspNpmPackagesFromLock :: Value -> Value
-    removeWaspNpmPackagesFromLock lock =
+    -- Rewrites every `file:` specifier in the lock that points at one of the
+    -- copied tarballs: the root dependency on @wasp/wasp and the `resolved`
+    -- field of the packages' entries.
+    rewriteDevTarballSpecifiersInLock :: [Path' Abs File'] -> Value -> Value
+    rewriteDevTarballSpecifiersInLock tarballs lock =
       lock
-        & key "packages" . key "" . key "dependencies" . _Object . at (Key.fromString waspNpmPackageName) .~ Nothing
-        & key "packages" . _Object %~ KM.filterWithKey (\k _ -> not (isWaspNpmPackageLockEntry (Key.toString k)))
+        & key "packages" . key "" . key "dependencies" . key (Key.fromString waspNpmPackageName) . _String %~ rewriteSpecifier
+        & key "packages" . _Object %~ KM.map (key "resolved" . _String %~ rewriteSpecifier)
+      where
+        rewriteSpecifier specifier =
+          maybe specifier (T.pack . devTarballSpecifierInDocker) $ find (pointsAt specifier) tarballs
 
-    -- Matches the packages and anything nested under them (but not e.g.
-    -- @wasp/wasp-app-runner), plus the platform packages of @wasp/cli, which
-    -- are named @wasp/cli-<platform>.
-    isWaspNpmPackageLockEntry :: String -> Bool
-    isWaspNpmPackageLockEntry entry =
-      any
-        (\name -> entry == "node_modules/" ++ name || ("node_modules/" ++ name ++ "/") `isPrefixOf` entry)
-        [waspNpmPackageName, waspSpecNpmPackageName, waspCliNpmPackageName, waspDeployNpmPackageName, waspStudioNpmPackageName]
-        || ("node_modules/" ++ waspCliNpmPackageName ++ "-") `isPrefixOf` entry
+        pointsAt specifier tarball =
+          "file:" `T.isPrefixOf` specifier
+            && ("/" ++ fromRelFile (basename tarball)) `isSuffixOf` T.unpack specifier
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
