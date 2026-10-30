@@ -1,1 +1,0 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../../src/spec/mapper/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,OAAO,MAAM,kBAAkB,CAAC;AAC5C,OAAO,KAAK,QAAQ,MAAM,0BAA0B,CAAC;AAIrD,wBAAgB,wBAAwB,CACtC,GAAG,EAAE,QAAQ,CAAC,GAAG,EACjB,EACE,cAAc,EACd,WAAW,GACZ,EAAE;IACD,cAAc,EAAE,MAAM,CAAC;IACvB,WAAW,EAAE,MAAM,EAAE,CAAC;CACvB,GACA,OAAO,CAAC,IAAI,EAAE,CAgBhB"}
