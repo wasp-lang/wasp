@@ -16,6 +16,9 @@ startServer serverRunConfig generatedAppDir = do
   let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
   J.fromProc
-    $ addEnvVarsOverride (getEnvVars serverRunConfig)
-    $ J.setCwd serverDir
-    $ J.proc "npm" ["run", "watch"]
+    . addEnvVarsOverride (getEnvVars serverRunConfig)
+    =<< J.npmBinProc
+      serverDir
+      "nodemon"
+      [ -- Configured in the server's `nodemon.json`.
+      ]

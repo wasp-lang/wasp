@@ -1,6 +1,5 @@
 module Wasp.Generator.ServerGenerator.Db.Seed
   ( genDbSeed,
-    dbSeedNpmScriptName,
     dbSeedNameEnvVarName,
     getDbSeeds,
   )
@@ -33,10 +32,6 @@ dbSeedScriptInServerTmplSrcDir = [relfile|dbSeed.ts|]
 
 pathFromDbSeedScriptToServerSrc :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
 pathFromDbSeedScriptToServerSrc = [reldirP|./|]
-
--- | Name of the npm script in the server's `package.json` that bundles and runs a db seed.
-dbSeedNpmScriptName :: String
-dbSeedNpmScriptName = "db-seed"
 
 getDbSeeds :: AppSpec -> Maybe [ExtImport]
 getDbSeeds spec = AS.Db.seeds =<< AS.App.db (getApp spec)

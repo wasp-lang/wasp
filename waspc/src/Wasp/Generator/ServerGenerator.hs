@@ -58,7 +58,7 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNpmScriptName, genDbSeed)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -145,11 +145,12 @@ genPackageJson spec waspDependencies =
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
+              "bundleScript" .= bundleScript,
+              "startScript" .= startScript,
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
-                   ),
-              "dbSeedNpmScriptName" .= dbSeedNpmScriptName
+                   )
             ]
       )
   where
@@ -227,10 +228,22 @@ genNodemon =
   return $
     C.mkTmplFdWithData
       [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
+      ( Just $
+          object
+            [ "relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath,
+              "bundleScript" .= bundleScript,
+              "startScript" .= startScript
+            ]
+      )
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
       waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
+
+-- | The server's `bundle` and `start` scripts in `package.json`. nodemon also
+-- runs them, directly instead of through `npm run`.
+bundleScript, startScript :: String
+bundleScript = "tsc --build && rollup --config --silent"
+startScript = "node --enable-source-maps -r dotenv/config bundle/server.js"
 
 genPrepareProduction :: AppSpec -> Generator FileDraft
 genPrepareProduction spec =

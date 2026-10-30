@@ -28,6 +28,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `wasp uninstall` no longer claims it removed Wasp data when there was nothing to remove. ([#5045](https://github.com/wasp-lang/wasp/pull/5045))
 - The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - `routes.<name>.build()` no longer crashes at runtime when called without arguments on a route with an optional static segment (e.g. `/about/details?`). TypeScript now reports the missing `path` option instead. ([#5153](https://github.com/wasp-lang/wasp/pull/5153))
+- Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
 
 ### 🔧 Small improvements
 

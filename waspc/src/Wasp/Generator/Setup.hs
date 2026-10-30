@@ -148,19 +148,19 @@ typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage = do
   exitCode <- liftIO $ do
     sendMessage $ Msg.Start "Type-checking user code..."
-    J.run $ J.prefixWith J.Wasp $ J.fromProc typeCheckProcess
+    J.run $ J.prefixWith J.Wasp typeCheck
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where
-    typeCheckProcess :: J.CreateJobProcess
-    typeCheckProcess =
-      J.setCwd (AS.waspProjectDir spec) $
-        J.proc
-          "npx"
-          [ "tsc",
-            "--project",
+    typeCheck :: J.Job ExitCode
+    typeCheck =
+      J.fromProc
+        =<< J.npmBinProc
+          (AS.waspProjectDir spec)
+          "tsc"
+          [ "--project",
             SP.fromRelFile $ AS.srcTsConfigPath spec,
             "--noEmit"
           ]

@@ -11,10 +11,9 @@ import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
-startWebApp webAppRunConfig waspProjectDir = do
+startWebApp webAppRunConfig waspProjectDir =
   J.fromProc
-    $ addEnvVarsOverride (getEnvVars webAppRunConfig)
-    $ J.setCwd waspProjectDir
+    . addEnvVarsOverride (getEnvVars webAppRunConfig)
     -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
-    $ J.markInteractive
-    $ J.proc "npx" ["vite"]
+    . J.markInteractive
+    =<< J.npmBinProc waspProjectDir "vite" []

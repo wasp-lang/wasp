@@ -43,6 +43,8 @@ type VersionCheckResult = Either ErrorMessage ()
 
 type ErrorMessage = String
 
+{- HLINT ignore checkUserNodeAndNpmMeetWaspRequirements "Avoid npm and npx" -}
+
 checkUserNodeAndNpmMeetWaspRequirements :: IO VersionCheckResult
 checkUserNodeAndNpmMeetWaspRequirements =
   runExceptT $
@@ -70,6 +72,8 @@ checkUserToolVersion commandName commandArgs oldestSupportedToolVersion =
 
 getUserNodeVersion :: IO (Either ErrorMessage SV.Version)
 getUserNodeVersion = getToolVersionFromCommandOutput "node" ["--version"]
+
+{- HLINT ignore getUserNpmVersion "Avoid npm and npx" -}
 
 getUserNpmVersion :: IO (Either ErrorMessage SV.Version)
 getUserNpmVersion = getToolVersionFromCommandOutput "npm" ["--version"]

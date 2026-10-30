@@ -11,10 +11,9 @@ import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 
 testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
-testWebApp clientRunConfig args waspProjectDir = do
+testWebApp clientRunConfig args waspProjectDir =
   J.fromProc
-    $ addEnvVarsOverride (getEnvVars clientRunConfig)
-    $ J.setCwd waspProjectDir
+    . addEnvVarsOverride (getEnvVars clientRunConfig)
     -- Vitest only runs in watch mode when its stdin is a TTY.
-    $ J.markInteractive
-    $ J.proc "npx" ("vitest" : args)
+    . J.markInteractive
+    =<< J.npmBinProc waspProjectDir "vitest" args
