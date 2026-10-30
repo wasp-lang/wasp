@@ -35,7 +35,6 @@ function bumpWaspVersion(bumpType: BumpType): void {
   rebuildLibs();
 
   bumpPackagesVersion(nextVersion);
-  rebuildPackages();
   rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
@@ -134,13 +133,6 @@ function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
 
 function rebuildLibs(): void {
   runCmd("node", [join("tools", "libs", "build.ts")], {
-    cwd: waspcDirPath,
-    stdio: "inherit",
-  });
-}
-
-function rebuildPackages(): void {
-  runCmd("node", [join("tools", "packages", "build.ts")], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });
