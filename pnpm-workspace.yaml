@@ -3,6 +3,7 @@
 # Still on npm:
 # - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
+  - packages/cli
   - packages/deploy
   - packages/spec
   - packages/studio

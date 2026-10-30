@@ -1,15 +1,14 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { TEMPLATES_DIR, copyStaticFiles } from "../common.ts";
+import { MAIN_PACKAGE_SOURCE_DIR, copyStaticFiles } from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
   type MainPackageData,
 } from "../schema/output-data.ts";
 
-const TEMPLATE_DIR = path.join(TEMPLATES_DIR, "main-package");
-const TEMPLATE_STATIC_FILES = [
+const SOURCE_STATIC_FILES = [
   "bin.js",
   "CLIError.js",
   "readme.md",
@@ -35,7 +34,7 @@ export function makeMainPackage({
   console.log(`Preparing main package directory: ${outputDirPath}`);
   fs.emptyDirSync(outputDirPath);
 
-  copyStaticFiles(TEMPLATE_STATIC_FILES, TEMPLATE_DIR, outputDirPath);
+  copyStaticFiles(SOURCE_STATIC_FILES, MAIN_PACKAGE_SOURCE_DIR, outputDirPath);
 
   const pkgJson = generatePackageJson(packageName, packageVersion, subPackages);
   const outPkgFilePath = path.join(outputDirPath, "package.json");
@@ -56,9 +55,9 @@ function generatePackageJson(
 ) {
   console.group("Generating package.json...");
 
-  const pkgTemplateFilePath = path.join(TEMPLATE_DIR, "package.json");
-  const pkg = fs.readJsonSync(pkgTemplateFilePath) as PackageJson;
-  console.log(`Read package.json template: ${pkgTemplateFilePath}`);
+  const pkgSourceFilePath = path.join(MAIN_PACKAGE_SOURCE_DIR, "package.json");
+  const pkg = fs.readJsonSync(pkgSourceFilePath) as PackageJson;
+  console.log(`Read package.json source: ${pkgSourceFilePath}`);
 
   pkg.name = packageName;
   pkg.version = packageVersion;

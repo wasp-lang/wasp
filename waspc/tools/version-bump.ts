@@ -6,7 +6,11 @@ import { join } from "node:path";
 import semver from "semver";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
-import { getWaspcPackageDirPath, WASPC_PACKAGES } from "./packages/utils.ts";
+import {
+  CLI_PACKAGE_NAME,
+  getWaspcPackageDirPath,
+  WASPC_PACKAGES,
+} from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -66,6 +70,7 @@ function bumpPackagesVersion(nextVersion: string): void {
   for (const { name } of WASPC_PACKAGES) {
     bumpPackageJsonVersion(getWaspcPackageDirPath(name), nextVersion);
   }
+  bumpPackageJsonVersion(getWaspcPackageDirPath(CLI_PACKAGE_NAME), nextVersion);
 }
 
 function bumpWaspProjectsVersion(nextVersion: string): void {
