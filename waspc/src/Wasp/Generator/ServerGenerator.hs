@@ -173,18 +173,8 @@ npmDepsFromWasp spec =
             ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
-            [ ("nodemon", "^2.0.19"),
-              -- TODO: Allow users to choose whether they want to use TypeScript
-              -- in their projects and install these dependencies accordingly.
-              ("typescript", show typescriptVersionRange),
-              ("@types/express", show expressTypesVersionRange),
-              ("@types/express-serve-static-core", show expressTypesVersionRange),
-              ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
+            [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-              ("@types/cors", "^2.8.5"),
-              ("rollup", "^4.9.6"),
-              ("rollup-plugin-esbuild", "^6.1.1"),
-              ("@rollup/plugin-node-resolve", "^16.0.0"),
               -- Used by `prepareProduction.ts` when building the Docker image.
               ("nf3", "0.4.2")
             ],

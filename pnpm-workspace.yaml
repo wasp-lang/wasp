@@ -36,8 +36,10 @@ catalog:
 minimumReleaseAge: 10080
 
 # Install scripts we do not need: messages, or binaries that are optional
-# dependencies anyway.
+# dependencies anyway. @prisma/client generates a client, which only Wasp apps
+# need, here it is only packed into @wasp/wasp.
 allowBuilds:
+  "@prisma/client": false
   "@swc/core": false
   core-js: false
   esbuild: false
