@@ -1,30 +1,26 @@
 /// <reference types="node" />
-// Helper to test the packages/* packages that waspc depends on, locally and in CI.
+// Helper to test the packages/* packages locally and in CI.
 
 import { getPackageJson, runCmd } from "../utils.ts";
-import {
-  getPackageDirPath,
-  WASPC_PACKAGES,
-  type WaspcPackage,
-} from "./utils.ts";
+import { getPackageDirPath, WASP_PACKAGE_NAMES } from "./utils.ts";
 
 testPackages();
 
 function testPackages(): void {
-  for (const waspcPackage of WASPC_PACKAGES) {
-    testPackage(waspcPackage);
+  for (const packageName of WASP_PACKAGE_NAMES) {
+    testPackage(packageName);
   }
 }
 
-function testPackage({ name }: WaspcPackage): void {
-  const packageDir = getPackageDirPath(name);
+function testPackage(packageName: string) {
+  const packageDir = getPackageDirPath(packageName);
   const packageJson = getPackageJson(packageDir);
 
   if (!packageJson.scripts?.test) {
     return;
   }
 
-  console.log(`Testing ${name} (${packageDir})`);
+  console.log(`Testing ${packageJson.name} (${packageDir})`);
 
   runCmd("pnpm", ["run", "test"], {
     cwd: packageDir,

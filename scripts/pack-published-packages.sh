@@ -10,11 +10,15 @@ packages_dir="$repo_root/packages"
 # on `cli` too even though this script does not pack it (make-npm-packages does).
 versioned_packages=(
   cli
+  deploy
   spec
+  studio
   wasp
 )
 publish_packages=(
+  deploy
   spec
+  studio
   wasp
 )
 

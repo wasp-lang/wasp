@@ -2,7 +2,7 @@
   "name": "@wasp/deploy",
   "version": "0.27.0",
   "type": "module",
-  "description": "The implementation of `wasp deploy`, which `waspc` runs.",
+  "description": "The implementation of `wasp deploy`. Comes with `@wasp/wasp`, which runs it.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
@@ -45,5 +45,8 @@
     "eslint": "^8.57.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -7,7 +7,11 @@ module Wasp.Project.WaspNpmPackage
     waspNpmPackageName,
     waspCliNpmPackageName,
     waspSpecNpmPackageName,
+    waspDeployNpmPackageName,
+    waspStudioNpmPackageName,
     waspSpecAnalyzerScriptInWaspProjectDir,
+    waspDeployScriptInWaspProjectDir,
+    waspStudioScriptInWaspProjectDir,
     tryGettingInstalledWaspNpmPackageVersion,
 
     -- * Development builds of the package
@@ -42,6 +46,12 @@ waspCliNpmPackageName = "@wasp/cli"
 waspSpecNpmPackageName :: PJ.PackageName
 waspSpecNpmPackageName = "@wasp/spec"
 
+waspDeployNpmPackageName :: PJ.PackageName
+waspDeployNpmPackageName = "@wasp/deploy"
+
+waspStudioNpmPackageName :: PJ.PackageName
+waspStudioNpmPackageName = "@wasp/studio"
+
 data WaspNpmPackageDir
 
 -- | @wasp/wasp is a direct dependency of the project, so it is always at the
@@ -54,6 +64,13 @@ waspNpmPackageDirInWaspProjectDir = nodeModulesDirInWaspProjectDir </> [reldir|@
 -- @wasp/spec next to it under any package manager.
 waspSpecAnalyzerScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspSpecAnalyzerScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-spec.js|]
+
+-- | The scripts that run the project's @wasp/deploy and @wasp/studio, the same way.
+waspDeployScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+waspDeployScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-deploy.js|]
+
+waspStudioScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+waspStudioScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-studio.js|]
 
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String SV.Version)
 tryGettingInstalledWaspNpmPackageVersion projectDir = runExceptT $ do
@@ -83,7 +100,9 @@ instance PJ.PackageJsonFile InstalledPackageJsonFile
 data DevPackages = DevPackages
   { waspTarball :: Path' Abs File',
     cliTarball :: Path' Abs File',
-    specTarball :: Path' Abs File'
+    specTarball :: Path' Abs File',
+    deployTarball :: Path' Abs File',
+    studioTarball :: Path' Abs File'
   }
 
 devPackagesDirEnvVarName :: String
@@ -99,9 +118,11 @@ getDevPackages =
             DevPackages
               { waspTarball = devPackagesDir </> tarballFile "wasp-wasp",
                 cliTarball = devPackagesDir </> tarballFile "wasp-cli",
-                specTarball = devPackagesDir </> tarballFile "wasp-spec"
+                specTarball = devPackagesDir </> tarballFile "wasp-spec",
+                deployTarball = devPackagesDir </> tarballFile "wasp-deploy",
+                studioTarball = devPackagesDir </> tarballFile "wasp-studio"
               }
-      forM_ [waspTarball, cliTarball, specTarball] $ \getTarball -> do
+      forM_ [waspTarball, cliTarball, specTarball, deployTarball, studioTarball] $ \getTarball -> do
         let tarball = getTarball devPackages
         exists <- IOUtil.doesFileExist tarball
         unless exists
@@ -128,7 +149,9 @@ getWaspNpmPackageSpecifier = \case
 getDevPackageOverrides :: DevPackages -> [(PJ.PackageName, String)]
 getDevPackageOverrides devPackages =
   [ (waspCliNpmPackageName, tarballSpecifier $ cliTarball devPackages),
-    (waspSpecNpmPackageName, tarballSpecifier $ specTarball devPackages)
+    (waspSpecNpmPackageName, tarballSpecifier $ specTarball devPackages),
+    (waspDeployNpmPackageName, tarballSpecifier $ deployTarball devPackages),
+    (waspStudioNpmPackageName, tarballSpecifier $ studioTarball devPackages)
   ]
 
 tarballSpecifier :: Path' Abs File' -> String
