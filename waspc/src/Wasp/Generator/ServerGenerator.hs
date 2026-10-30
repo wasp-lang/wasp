@@ -42,13 +42,6 @@ import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
-import Wasp.Generator.DepVersions
-  ( dotenvVersionRange,
-    expressTypesVersionRange,
-    expressVersionRange,
-    superjsonVersionRange,
-    typescriptVersionRange,
-  )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
@@ -159,17 +152,11 @@ npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
-      { N.dependencies =
-          Npm.Dependency.fromList
-            [ ("cookie-parser", "~1.4.6"),
-              ("cors", "^2.8.5"),
-              ("express", show expressVersionRange),
-              ("morgan", "~1.12.1"),
-              ("dotenv", show dotenvVersionRange),
-              ("helmet", "^6.0.0"),
-              ("superjson", show superjsonVersionRange)
-            ]
-            ++ depsRequiredByWebSockets spec
+      { -- The server's core dependencies (express, superjson, ...) come with
+        -- @wasp/wasp, see "Wasp.Generator.WaspNpmPackageDeps". Only the ones
+        -- that depend on the app stay here.
+        N.dependencies =
+          depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
