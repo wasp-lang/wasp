@@ -4,7 +4,6 @@ module Wasp.Cli.Command.Install
   )
 where
 
-
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
