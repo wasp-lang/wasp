@@ -36,6 +36,7 @@ function bumpWaspVersion(bumpType: BumpType): void {
 
   bumpPackagesVersion(nextVersion);
   rebuildPackages();
+  rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
@@ -66,8 +67,10 @@ function bumpPackagesVersion(nextVersion: string): void {
   for (const { name } of WASPC_PACKAGES) {
     bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
   }
-  // The `wasp` executable wrapper, which `scripts/make-npm-packages` publishes.
+  // The `wasp` executable wrapper, which `scripts/make-npm-packages` publishes,
+  // and the `@wasp/wasp` project dependency.
   bumpPackageJsonVersion(getPackageDirPath("cli"), nextVersion);
+  bumpPackageJsonVersion(getPackageDirPath("wasp"), nextVersion);
 }
 
 function bumpWaspProjectsVersion(nextVersion: string): void {
@@ -113,6 +116,11 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
 }
 
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
+  bumpWaspFileVersion(projectDir, nextVersion);
+  bumpDevWaspPackageTarballs(projectDir, nextVersion);
+}
+
+function bumpWaspFileVersion(projectDir: string, nextVersion: string): void {
   const waspFilePath = findWaspFilePath(projectDir);
   const waspFileContent = readFileSync(waspFilePath, "utf-8");
 
@@ -126,6 +134,30 @@ function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   }
 
   writeFileSync(waspFilePath, updatedWaspFileContent);
+}
+
+// The Wasp projects in this repo depend on the dev Wasp npm package tarballs
+// (see `tools/dev-packages/build.ts`), whose file names carry the version.
+function bumpDevWaspPackageTarballs(
+  projectDir: string,
+  nextVersion: string,
+): void {
+  const packageJsonPath = join(projectDir, "package.json");
+  const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
+
+  const devTarballRegex =
+    /(file:.*\/wasp-(?:wasp|cli|spec)-)\d+\.\d+\.\d+(\.tgz)/g;
+  const updatedPackageJsonContent = packageJsonContent.replace(
+    devTarballRegex,
+    `$1${nextVersion}$2`,
+  );
+  if (packageJsonContent === updatedPackageJsonContent) {
+    throw new Error(
+      `Failed to update the dev Wasp npm package tarballs in ${packageJsonPath}`,
+    );
+  }
+
+  writeFileSync(packageJsonPath, updatedPackageJsonContent);
 }
 
 function findWaspFilePath(projectDir: string): string {
@@ -145,6 +177,16 @@ function rebuildLibs(): void {
 
 function rebuildPackages(): void {
   runCmd("node", [join("tools", "packages", "build.ts")], {
+    cwd: waspcDirPath,
+    stdio: "inherit",
+  });
+}
+
+// The Wasp projects in this repo depend on the dev tarballs by version (see
+// `bumpDevWaspPackageTarballs`), so they must exist at the new version before
+// the projects are reinstalled below.
+function rebuildDevPackages(): void {
+  runCmd("node", [join("tools", "dev-packages", "build.ts")], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });

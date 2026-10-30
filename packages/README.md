@@ -2,8 +2,9 @@
 
 TypeScript packages of the Wasp monorepo:
 
+- `wasp/` -> `@wasp/wasp`, the package Wasp projects depend on. It pins `@wasp/cli` and `@wasp/spec` to the same version. Published to npm.
 - `cli/` -> `@wasp/cli`, the `wasp` executable wrapper. `scripts/make-npm-packages` turns it into the published package with the platform-specific binaries as optional dependencies.
-- `spec/` -> `@wasp/spec`, the package users import in `main.wasp.ts`. Published to npm.
+- `spec/` -> `@wasp/spec`, the Wasp Spec users import in `main.wasp.ts`. Comes with `@wasp/wasp`. Published to npm.
 - `deploy/`, `studio/` -> packages `waspc` runs as separate processes (see `Wasp.NodePackageFFI`).
 - `libs/` -> Wasp libs, internal npm packages installed into generated apps. See [`libs/README.md`](libs/README.md).
 - `wasp-app-runner/` -> CLI for running Wasp apps in e2e tests. Published to npm.
@@ -23,6 +24,8 @@ under `waspc/data/Generator/libs/`. Those directories are build outputs (gitigno
   are therefore resolved at build time, not committed (TODO: goes away with
   [#4434](https://github.com/wasp-lang/wasp/issues/4434), when they ship with the Wasp npm package).
 - `./run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
+- `./run build:dev-packages` builds and packs `spec`, `cli` and `wasp` into `waspc/.dev-packages/`,
+  for the Wasp projects in this repo to depend on the Wasp in this repo.
 
 Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.
 

@@ -66,9 +66,17 @@ jobs:
           npm init -y
 
           # Install the CLI package (its optional deps pull in the
-          # platform-specific sub-package for this runner). The short form of
-          # the pkg.pr.new URL requires the package to be published.
+          # platform-specific sub-package for this runner). The URLs are
+          # repository-qualified because pkg.pr.new's short form only works
+          # for packages that are already published to npm.
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/cli@$COMMIT_SHA"
+
+          # Create a second project that depends on Wasp through `@wasp/wasp`,
+          # the way projects will. It pulls in `@wasp/cli` and `@wasp/spec` of
+          # the same version.
+          cd .. && mkdir install-test-wasp && cd install-test-wasp
+          npm init -y
+          npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/wasp@$COMMIT_SHA"
 
       - name: Run Wasp CLI
         run: |
@@ -77,6 +85,13 @@ jobs:
 
           # Test that the Wasp CLI can find and run the binary.
           NODE_DEBUG=wasp-bin-wrapper npx wasp version
+
+          # Same through the `@wasp/wasp` project dependency, running its own
+          # bin by path (npm links `.bin/wasp` to `@wasp/cli`'s, so `npx wasp`
+          # would not exercise it).
+          cd ../install-test-wasp
+          NODE_DEBUG=wasp-bin-wrapper node node_modules/@wasp/wasp/bin.js version
+          node -e 'import("@wasp/spec").then((m) => { if (typeof m.app !== "function") throw new Error("@wasp/spec missing") })'
 
       - name: Generate list of installed data files
         run: |

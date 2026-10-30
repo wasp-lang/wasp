@@ -16,7 +16,7 @@ The backend is hosted on Fly.io at https://waspello.fly.dev.
 
 ## Development
 
-Run `wasp install` before using the project.
+Run `npm install` before using the project.
 
 ### Database
 

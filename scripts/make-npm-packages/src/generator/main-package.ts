@@ -17,8 +17,6 @@ const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
 );
 const COPIED_FILES = ["bin.js", "CLIError.js", "readme.md"];
 
-const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
-
 export function makeMainPackage({
   packageName,
   packageVersion,
@@ -68,8 +66,10 @@ function generatePackageJson(
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  pkg.os = unique(subPackages.map((subPackage) => subPackage.data.target.os));
-  pkg.cpu = unique(subPackages.map((subPackage) => subPackage.data.target.cpu));
+  // No `os` / `cpu` on the main package: it is a dependency of every Wasp
+  // project (through `@wasp/wasp`), and npm would refuse to install the whole
+  // project on an unsupported platform. The platform packages carry them, and
+  // `bin.js` explains the problem when none of them is installed.
 
   console.log("Filled out package.json fields");
   console.groupEnd();
