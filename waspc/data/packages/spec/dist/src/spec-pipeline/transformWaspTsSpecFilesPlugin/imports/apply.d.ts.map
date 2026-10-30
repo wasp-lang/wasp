@@ -1,0 +1,1 @@
+{"version":3,"file":"apply.d.ts","sourceRoot":"","sources":["../../../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/apply.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,mBAAmB,EAAE,MAAM,UAAU,CAAC;AAOpD,OAAO,KAAK,EAAE,IAAI,EAAsB,MAAM,WAAW,CAAC;AAE1D,wBAAgB,gCAAgC,CAC9C,WAAW,EAAE,mBAAmB,EAChC,EAAE,UAAU,EAAE,iBAAiB,EAAE,EAAE,IAAI,GACtC,IAAI,CA0BN"}

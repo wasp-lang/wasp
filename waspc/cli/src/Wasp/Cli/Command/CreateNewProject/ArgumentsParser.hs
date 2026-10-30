@@ -24,7 +24,10 @@ newProjectArgsParser =
       <*> Opt.optional shouldInstallDepsParser
   where
     projectNameParser :: Opt.Parser String
-    projectNameParser = Opt.strArgument $ Opt.metavar "PROJECT_NAME"
+    projectNameParser =
+      Opt.strArgument $
+        Opt.metavar "PROJECT_NAME"
+          <> Opt.help "Name of the new project. Required when running non-interactively"
 
     templateNameParser :: Opt.Parser String
     templateNameParser =

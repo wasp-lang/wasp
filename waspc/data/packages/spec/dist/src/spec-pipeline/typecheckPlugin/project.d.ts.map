@@ -1,0 +1,1 @@
+{"version":3,"file":"project.d.ts","sourceRoot":"","sources":["../../../../src/spec-pipeline/typecheckPlugin/project.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,MAAM,YAAY,CAAC;AAE5B,wBAAgB,gBAAgB,CAAC,EAC/B,YAAY,EACZ,eAAe,GAChB,EAAE;IACD,YAAY,EAAE,MAAM,CAAC;IACrB,eAAe,EAAE,WAAW,CAAC,MAAM,EAAE,MAAM,CAAC,CAAC;CAC9C;;wDAkBgB,SAAS,EAAE,CAAC,UAAU,EAAE;EAIxC"}

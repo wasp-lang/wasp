@@ -1,0 +1,140 @@
+import { generateRandomHexString } from "../../../../common/random.js";
+import { waspSays } from "../../../../common/terminal.js";
+import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
+import { ensureClientDeploymentDir, getServerDeploymentDir, } from "../../../../common/waspProject.js";
+import { createCommandWithCwd } from "../../../../common/zx.js";
+import { createDeploymentInstructions, } from "../../DeploymentInstructions.js";
+import { getRailwayEnvVarValueReference } from "../../env.js";
+import { clientAppPort, serverAppPort } from "../../ports.js";
+import { getLinkedEnvironmentId } from "../../railwayEnvironment/cli.js";
+import { initRailwayProject, linkRailwayProjectToWaspProjectDir, } from "../../railwayProject/cli.js";
+import { getRailwayProjectStatus, ProjectStatus, } from "../../railwayProject/index.js";
+import { assertDatabaseServiceHasVolume, createDatabaseService, } from "../../railwayService/database.js";
+import { waitForServiceDeploymentSuccess } from "../../railwayService/deployment.js";
+import { generateServiceUrl } from "../../railwayService/url.js";
+export async function setup(projectName, options) {
+    waspSays("Setting up your Wasp app with Railway!");
+    const deploymentInstructions = createDeploymentInstructions(projectName, options);
+    const project = await setupRailwayProjectForDirectory({
+        projectName,
+        existingProjectId: options.existingProjectId,
+        waspProjectDir: options.waspProjectDir,
+        railwayExe: options.railwayExe,
+        workspace: options.workspace,
+    });
+    await ensureWaspProjectIsBuilt(options);
+    const dbService = project.findService(deploymentInstructions.dbServiceName);
+    if (dbService) {
+        waspSays("Postgres service already exists. Skipping database creation.");
+        await assertDatabaseServiceHasVolume(dbService, options.dbVolumeMountPath, options);
+    }
+    else {
+        await setupDb(deploymentInstructions);
+    }
+    if (project.doesServiceExist(deploymentInstructions.clientServiceName)) {
+        waspSays("Client service already exists. Skipping client setup.");
+    }
+    else {
+        await setupClient(deploymentInstructions);
+    }
+    if (project.doesServiceExist(deploymentInstructions.serverServiceName)) {
+        waspSays("Server service already exists. Skipping server setup.");
+    }
+    else {
+        await setupServer(deploymentInstructions);
+    }
+}
+async function setupRailwayProjectForDirectory({ railwayExe, projectName, waspProjectDir, existingProjectId, workspace, }) {
+    const { status, project } = await getRailwayProjectStatus({
+        projectName,
+        waspProjectDir,
+        railwayExe,
+        existingProjectId,
+    });
+    switch (status) {
+        case ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED:
+            waspSays(`Project with name "${projectName}" already linked. Skipping project creation.`);
+            return project;
+        case ProjectStatus.EXISTING_PROJECT_SHOULD_BE_LINKED:
+            waspSays(`Linking project with name "${project.name}" to this directory`);
+            return linkRailwayProjectToWaspProjectDir(project, {
+                railwayExe,
+                waspProjectDir,
+            });
+        case ProjectStatus.MISSING_PROJECT:
+            waspSays(`Setting up Railway project with name "${projectName}"`);
+            return initRailwayProject({
+                projectName,
+                railwayExe,
+                waspProjectDir,
+                workspace,
+            });
+        default:
+            status;
+            throw new Error(`Unhandled status: ${status}`);
+    }
+}
+async function setupDb({ cmdOptions: options, dbServiceName, }) {
+    waspSays(`Setting up database using image: ${options.dbImage}`);
+    const environmentId = await getLinkedEnvironmentId(options);
+    const dbService = await createDatabaseService({
+        serviceName: dbServiceName,
+        imageSpec: {
+            image: options.dbImage,
+            volumeMountPath: options.dbVolumeMountPath,
+        },
+        environmentId,
+        railwayExe: options.railwayExe,
+        waspProjectDir: options.waspProjectDir,
+    });
+    // The database service deploys asynchronously and `railway add` doesn't wait
+    // for it. The server service references the database's DATABASE_URL env
+    // variable, and Railway references to a service that isn't fully set up
+    // silently resolve to an empty string and never recover.
+    await waitForServiceDeploymentSuccess(dbService, options);
+}
+async function setupServer({ cmdOptions: options, serverServiceName, clientServiceName, dbServiceName, }) {
+    waspSays(`Setting up server app with name ${serverServiceName}`);
+    // The client service needs a URL so it can be referenced in the
+    // server service env variables.
+    await generateServiceUrl(clientServiceName, clientAppPort, options);
+    const serverDeploymentDir = getServerDeploymentDir(options.waspProjectDir);
+    const railwayCli = createCommandWithCwd(options.railwayExe, serverDeploymentDir);
+    const clientUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN", { serviceName: clientServiceName })}`;
+    // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
+    const serverUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
+    const databaseUrl = getRailwayEnvVarValueReference("DATABASE_URL", {
+        serviceName: dbServiceName,
+    });
+    const jwtSecret = generateRandomHexString();
+    await railwayCli([
+        "add",
+        ["--service", serverServiceName],
+        ["--variables", `PORT=${serverAppPort}`],
+        ["--variables", `JWT_SECRET=${jwtSecret}`],
+        ["--variables", `WASP_SERVER_URL=${serverUrl}`],
+        ["--variables", `WASP_WEB_CLIENT_URL=${clientUrl}`],
+        ["--variables", `DATABASE_URL=${databaseUrl}`],
+        ...options.serverSecret.map((secret) => ["--variables", secret]),
+    ].flat());
+    // The server service needs a URL so it can be referenced in the
+    // env variables, we can only generate it after the service is created.
+    await generateServiceUrl(serverServiceName, serverAppPort, options);
+    waspSays("Server setup complete!");
+}
+async function setupClient({ cmdOptions: options, clientServiceName, }) {
+    waspSays(`Setting up client app with name ${clientServiceName}`);
+    const clientDeploymentDir = ensureClientDeploymentDir(options.waspProjectDir);
+    const railwayCli = createCommandWithCwd(options.railwayExe, clientDeploymentDir);
+    await railwayCli([
+        "add",
+        ["--service", clientServiceName],
+        ["--variables", `PORT=${clientAppPort}`],
+        // So Railpack detects the output as static files even when there's not an
+        // `index.html`.
+        ["--variables", `RAILPACK_STATIC_FILE_ROOT=1`],
+        ...options.clientSecret.map((secret) => ["--variables", secret]),
+    ].flat());
+    waspSays("Client setup complete!");
+}
+//# sourceMappingURL=setup.js.map

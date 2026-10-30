@@ -7,7 +7,6 @@ import Control.Concurrent (newChan)
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
-import System.IO (hIsTerminalDevice, stdin)
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), newProjectArgsParser)
@@ -68,11 +67,10 @@ installDepsForNewProjectIfWanted shouldInstallDepsArg absWaspProjectDir = do
     else return False
   where
     askIfInteractive :: IO Bool
-    askIfInteractive = do
-      isInteractive <- hIsTerminalDevice stdin
-      if isInteractive
-        then Interactive.askYesNo "Install the npm dependencies now?"
-        else return True
+    askIfInteractive =
+      Interactive.getInteractiveTerminal >>= \case
+        Just terminal -> Interactive.askYesNo terminal "Install the npm dependencies now?"
+        Nothing -> return True
 
     installDepsForNewProject :: IO Bool
     installDepsForNewProject = do

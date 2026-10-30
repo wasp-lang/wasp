@@ -1,0 +1,98 @@
+import { Command, Option } from "commander";
+import { assertValidWaspProject, assertWaspProjectDirIsAbsoluteAndPresent, } from "../../common/waspProject.js";
+import { deploy as deployFn } from "./commands/deploy/index.js";
+import { launch as launchFn } from "./commands/launch/launch.js";
+import { setup as setupFn } from "./commands/setup/setup.js";
+import { assertRailwayProjectNameIsValid, ensureRailwayCliReady, } from "./railwayCli.js";
+import { retryOnRailwayAPIError } from "./retry.js";
+// Pinned to the same Postgres major as Wasp's dev database. Keep in sync with
+// Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
+const defaultDbOptions = {
+    image: "ghcr.io/railwayapp-templates/postgres-ssl:18",
+    volumeMountPath: "/var/lib/postgresql/data",
+};
+class RailwayCommand extends Command {
+    addProjectNameArgument() {
+        return this.argument("<project-name>", "project name to use on Railway");
+    }
+    addSecretsOptions() {
+        function collect(value, previous) {
+            return previous.concat([value]);
+        }
+        return this.option("--server-secret <serverSecret>", "secret to set on the server app (of form FOO=BAR)", collect, []).option("--client-secret <clientSecret>", "secret to set on the client app (of form FOO=BAR)", collect, []);
+    }
+    addCustomServerUrlOption() {
+        return this.option("--custom-server-url <url>", "URL of the server that the client will connect to");
+    }
+    addDbOptions() {
+        return this.option("--db-image <dbImage>", "Docker image for the PostgreSQL database", defaultDbOptions.image).option("--db-volume-mount-path <dbVolumeMountPath>", "Path inside the PostgreSQL container where the volume is mounted", defaultDbOptions.volumeMountPath);
+    }
+}
+export const railwaySetupCommand = makeRailwaySetupCommand();
+export const railwayDeployCommand = makeRailwayDeployCommand();
+const railwayLaunchCommand = makeRailwayLaunchCommand();
+export function createRailwayCommand() {
+    const railway = new Command("railway")
+        .description("Create and deploy Wasp apps on Railway")
+        .addCommand(railwaySetupCommand)
+        .addCommand(railwayDeployCommand)
+        .addCommand(railwayLaunchCommand)
+        .allowUnknownOption();
+    // Add global options and hooks to all commands.
+    // Add these hooks before any command-specific ones so they run first.
+    // NOTE: When we add another provider, consider pulling `--wasp-exe` and `--wasp-project-dir`
+    // up as a global option that every provider can use (if possible).
+    railway.commands.forEach((cmd) => {
+        cmd
+            .addOption(new Option("--wasp-exe <path>", "Wasp executable (either on PATH or absolute path)")
+            .hideHelp()
+            .makeOptionMandatory())
+            .addOption(new Option("--wasp-project-dir <dir>", "absolute path to Wasp project dir")
+            .hideHelp()
+            .makeOptionMandatory())
+            .addOption(new Option("--railway-exe <path>", "Railway command to run (either on PATH or absolute path)")
+            .hideHelp()
+            .default("railway"))
+            .hook("preAction", async (cmd) => {
+            const { waspProjectDir, waspExe, railwayExe } = cmd.opts();
+            const railwayProjectName = cmd.args[0];
+            await ensureRailwayCliReady(railwayExe);
+            assertRailwayProjectNameIsValid(railwayProjectName);
+            assertWaspProjectDirIsAbsoluteAndPresent(waspProjectDir);
+            await assertValidWaspProject(waspProjectDir, waspExe);
+        });
+    });
+    return railway;
+}
+function makeRailwaySetupCommand() {
+    return new RailwayCommand("setup")
+        .description("Configure a new app on Railway")
+        .addProjectNameArgument()
+        .addSecretsOptions()
+        .option("--existing-project-id [projectId]", "use existing project instead of creating a new one")
+        .option("--workspace [workspace]", "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)")
+        .addDbOptions()
+        .action((...args) => retryOnRailwayAPIError(() => setupFn(...args)));
+}
+function makeRailwayDeployCommand() {
+    return new RailwayCommand("deploy")
+        .description("Deploys the app to Railway")
+        .addProjectNameArgument()
+        .option("--skip-client", "do not deploy the web client")
+        .option("--skip-server", "do not deploy the server")
+        .option("--existing-project-id [projectId]", "use existing project for deployment")
+        .addCustomServerUrlOption()
+        .action((...args) => retryOnRailwayAPIError(() => deployFn(...args)));
+}
+function makeRailwayLaunchCommand() {
+    return new RailwayCommand("launch")
+        .description("Launch a new app on Railway (calls setup and deploy)")
+        .addProjectNameArgument()
+        .addSecretsOptions()
+        .option("--existing-project-id [projectId]", "use existing project instead of creating a new one")
+        .option("--workspace [workspace]", "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)")
+        .addDbOptions()
+        .addCustomServerUrlOption()
+        .action(launchFn);
+}
+//# sourceMappingURL=index.js.map

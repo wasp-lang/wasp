@@ -11,7 +11,7 @@ module ShellCommands
     writeToFile,
     appendToFile,
     replaceLineInFile,
-    waspCliNewInteractive,
+    waspCliNewWithPipedAnswersFails,
     waspCliNew,
     waspCliCompletion,
     waspCliVersion,
@@ -138,9 +138,13 @@ replaceLineInFile fileName lineNumber line =
 
     tempFileName = fileName ++ ".tmp"
 
-waspCliNewInteractive :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNewInteractive appName starterTemplate =
-  return $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
+-- | Pipes the answers into `wasp new`'s prompts. This is not supported: without
+-- an interactive terminal, Wasp refuses to prompt and the command must fail.
+waspCliNewWithPipedAnswersFails :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewWithPipedAnswersFails appName starterTemplate =
+  assertCommandOutputContains
+    (return $ "! " ++ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new")
+    "stdin is not an interactive terminal"
 
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
