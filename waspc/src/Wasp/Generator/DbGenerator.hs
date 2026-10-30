@@ -1,6 +1,6 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
-    formatPrismaSchemaFileOnDisk,
+    formatPrismaSchema,
     warnIfDbNeedsMigration,
     generatePrismaClient,
     getEntitiesForPrismaSchema,
@@ -51,7 +51,6 @@ import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Pls.Db
-import qualified Wasp.Psl.Format as Psl.Format
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
@@ -139,14 +138,9 @@ genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir gen
 -- | One of the checks we perform is to compare the Wasp generated schema.prisma file
 -- and the schema.prisma file in the node_modules. Prisma formats the schema in node_modules
 -- automatically, so we have to do the same to be able to compare them.
-formatPrismaSchemaFileOnDisk :: Path' Abs (Dir GeneratedAppDir) -> IO ()
-formatPrismaSchemaFileOnDisk dstDir = do
-  let generatedPrismaFilePath = dstDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
-  prismaFileContents <- IOUtil.readFileStrict generatedPrismaFilePath
-
-  -- Ignoring Prisma schema errors here because we generated the schema ourselves and we know it is valid.
-  formattedPrismaFileContents <- Psl.Format._formattedSchemaPsl <$> Psl.Format.prismaFormat prismaFileContents
-  IOUtil.writeFile generatedPrismaFilePath $ T.unpack formattedPrismaFileContents
+formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
+formatPrismaSchema generatedAppDir =
+  either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.formatSchema generatedAppDir
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.
