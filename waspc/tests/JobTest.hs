@@ -1,20 +1,22 @@
 module JobTest where
 
-import Control.Concurrent (newEmptyMVar, takeMVar, threadDelay, tryPutMVar)
-import Control.Exception (finally)
-import Control.Monad (unless, void)
+import Control.Concurrent (threadDelay)
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (IOException, finally, throwIO, try)
+import Control.Monad (unless, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified StrongPath as SP
+import System.Directory (doesFileExist, removeFile)
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
-import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldReturn, shouldThrow)
+import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
@@ -59,26 +61,23 @@ spec_Job = do
     -- because reading the process's output can't be interrupted there.
     unless (System.Info.os == "mingw32") $
       it "stops the process of the job that didn't finish" $ do
-        processStarted <- newEmptyMVar
+        pidPath <- makeTempPath "wasp-race-process"
         -- The process exits by itself after a while, so that the test fails
         -- instead of hanging if stopping it doesn't work.
-        -- It runs in its own process group, because stopping the job interrupts
-        -- the process's whole group, which would otherwise include the tests.
-        let slowProcess =
-              Job.proc
-                "perl"
-                ["-e", "setpgrp; exec @ARGV", "node", "-e", "console.log(process.pid); setTimeout(() => {}, 10000)"]
-            slowJob = Job.observeOutput (\_ _ -> void $ tryPutMVar processStarted ()) $ Job.fromProc slowProcess
-            jobThatFinishesOnceProcessStarts = liftIO $ takeMVar processStarted
-        result <-
-          timeout (secondsToMicroSeconds 5)
-            $ Job.run
-            $ Job.captureOutput
-            $ Job.race slowJob jobThatFinishesOnceProcessStarts
-        case result of
-          Just (Right (), output) ->
-            waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
-          _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
+        let slowProcess = nodeWithArgs (writePidFileScript <> "setTimeout(() => {}, 10000);") [pidPath]
+            jobThatFinishesOnceProcessStarts = liftIO $ waitUntil "the process starts" $ doesFileExist pidPath
+        ( do
+            result <-
+              timeout (secondsToMicroSeconds 5)
+                $ Job.run
+                $ Job.race (Job.fromProc slowProcess) jobThatFinishesOnceProcessStarts
+            case result of
+              Just (Right ()) -> do
+                pid <- readProcessId pidPath
+                waitUntil "the process exits" $ not <$> isProcessAlive pid
+              _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
+          )
+          `finally` removePidFile pidPath
 
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do
@@ -102,6 +101,11 @@ spec_Job = do
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitSuccess, "outerr")
 
+    it "emits all the output before returning the exit code" $ do
+      let process = node "process.stdout.write('x'.repeat(200000)); process.exitCode = 7;"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (ExitFailure 7, T.replicate 200000 "x")
+
     it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"
           overriddenVar = "WASP_JOB_TEST_OVERRIDDEN"
@@ -122,6 +126,37 @@ spec_Job = do
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
 
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "stops the process and fails if emitting its output fails" $ do
+        pidPath <- makeTempPath "wasp-failing-output-process"
+        -- The process exits by itself after a while, so that the test fails
+        -- instead of hanging if stopping it doesn't work.
+        let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('out'); setTimeout(() => {}, 10000);") [pidPath]
+            failOnOutput = Job.observeOutput $ \_ _ -> throwIO $ userError "Emitting output failed"
+        ( do
+            result <- timeout (secondsToMicroSeconds 5) $ tryIOException $ Job.run $ failOnOutput $ Job.fromProc process
+            case result of
+              Just (Left _) -> do
+                pid <- readProcessId pidPath
+                waitUntil "the process exits" $ not <$> isProcessAlive pid
+              _ -> expectationFailure $ "Expected the job to fail, but got: " <> show result
+          )
+          `finally` removePidFile pidPath
+
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "doesn't stop another job's process when one job is stopped" $
+        withRunningProcess "" $ \first firstPid ->
+          withRunningProcess "" $ \second secondPid -> do
+            Async.cancel first
+            waitUntil "the first process exits" $ not <$> isProcessAlive firstPid
+            Async.poll second >>= \case
+              Nothing -> isProcessAlive secondPid `shouldReturn` True
+              Just _ -> expectationFailure "Stopping one job stopped another job's process"
+
   describe "npmBinProc" $
     it "fails if the executable isn't in any node_modules/.bin directory" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
@@ -134,15 +169,57 @@ runProcessJob :: Job.Job a -> IO (Maybe a)
 runProcessJob = timeout (secondsToMicroSeconds 10) . Job.run
 
 node :: String -> Job.CreateJobProcess
-node script = Job.proc "node" ["-e", script]
+node script = nodeWithArgs script []
 
--- | Returns whether the process with the given ID exits within 5 seconds.
-waitForProcessToExit :: Int -> IO Bool
-waitForProcessToExit pid = go (50 :: Int)
-  where
-    go 0 = return False
-    go attemptsLeft = do
-      (exitCode, _, _) <- P.readProcessWithExitCode "node" ["-e", "process.kill(" <> show pid <> ", 0)"] ""
-      if exitCode /= ExitSuccess
-        then return True
-        else threadDelay (secondsToMicroSeconds 1 `div` 10) >> go (attemptsLeft - 1)
+nodeWithArgs :: String -> [String] -> Job.CreateJobProcess
+nodeWithArgs script args = Job.proc "node" $ ["-e", script] <> args
+
+-- | Runs a process as a job while the action runs, once the process has
+-- started. The process runs the given script, and then keeps running until
+-- it's stopped.
+withRunningProcess :: String -> (Async.Async ExitCode -> ProcessId -> IO ()) -> IO ()
+withRunningProcess script action = do
+  pidPath <- makeTempPath "wasp-running-process"
+  let process =
+        nodeWithArgs
+          ( unlines
+              [ script,
+                writePidFileScript,
+                "setInterval(() => {}, 1000);"
+              ]
+          )
+          [pidPath]
+  Async.withAsync
+    (Job.run $ Job.fromProc process)
+    ( \running -> do
+        waitUntil "the process starts" $ doesFileExist pidPath
+        pid <- readProcessId pidPath
+        action running pid `finally` killProcess pid
+    )
+    `finally` removePidFile pidPath
+
+-- | Writes the process's ID to the file at the path given as its first
+-- argument, all at once, so that it's never read half-written.
+writePidFileScript :: String
+writePidFileScript =
+  unlines
+    [ "const pidPath = process.argv[1];",
+      "require('node:fs').writeFileSync(pidPath + '" <> pidTmpFileSuffix <> "', String(process.pid));",
+      "require('node:fs').renameSync(pidPath + '" <> pidTmpFileSuffix <> "', pidPath);"
+    ]
+
+-- | Removes the file written by 'writePidFileScript', and the temporary one it
+-- writes first, in case the process stopped before renaming it.
+removePidFile :: FilePath -> IO ()
+removePidFile pidPath = mapM_ removeIfExists [pidPath, pidPath <> pidTmpFileSuffix]
+
+pidTmpFileSuffix :: String
+pidTmpFileSuffix = ".tmp"
+
+tryIOException :: IO a -> IO (Either IOException a)
+tryIOException = try
+
+removeIfExists :: FilePath -> IO ()
+removeIfExists path = do
+  exists <- doesFileExist path
+  when exists $ removeFile path
