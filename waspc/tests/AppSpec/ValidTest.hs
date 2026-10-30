@@ -15,7 +15,6 @@ import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerific
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
-import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -31,9 +30,7 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
-import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Valid as Valid
-import qualified Wasp.Version as WV
 
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
@@ -58,56 +55,6 @@ spec_AppSpecValid = do
           `shouldBe` [ Valid.GenericValidationError
                          "You have more than one 'app' declaration in your Wasp app. You have 2."
                      ]
-
-    describe "'waspVersion' validation" $ do
-      describe "should validate 'waspVersion' format" $ do
-        let basicAppWithVersionRange versionRange =
-              basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = versionRange}}
-
-        let basicAppSpecWithVersionRange versionRange =
-              basicAppSpec
-                { AS.decls =
-                    [ AS.Decl.makeDecl $ basicAppWithVersionRange versionRange,
-                      basicRouteDecl
-                    ]
-                }
-
-        it "returns no error if waspVersion is compatible" $ do
-          ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
-
-        it "returns an error if 'waspVersion' has an incorrect format" $ do
-          let invalidWaspVerison = "$0.5;2"
-
-          ASV.validateAppSpec (basicAppSpecWithVersionRange invalidWaspVerison)
-            `shouldBe` [ Valid.GenericValidationError $
-                           unlines
-                             [ "Invalid Wasp version requirement: " ++ invalidWaspVerison,
-                               "Make sure to use a npm-compatible version range.",
-                               "For example: "
-                                 ++ show (SV.backwardsCompatibleWith WV.waspVersion)
-                                 ++ ", "
-                                 ++ show (SV.approximatelyEquivalentTo WV.waspVersion)
-                                 ++ " or "
-                                 ++ show (SV.eq WV.waspVersion)
-                             ]
-                       ]
-
-        it "returns an error if 'waspVersion' is not compatible" $ do
-          let incompatibleWaspVersion = WV.waspVersion {SV.major = SV.major WV.waspVersion + 1}
-
-          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
-            `shouldBe` [ Valid.GenericValidationError $
-                           unlines
-                             [ "Your Wasp version does not match the app's requirements.",
-                               "You are running Wasp " ++ show WV.waspVersion ++ ".",
-                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
-                               "To install a specific version of Wasp, do:",
-                               "  npm i -g @wasp/cli@x.y.z",
-                               "where x.y.z is your desired version.",
-                               "Wasp versions before 0.27 are published under \"@wasp.sh/wasp-cli\" instead.",
-                               "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
-                             ]
-                       ]
 
     describe "auth-related validation" $ do
       let userEntityName = "User"
@@ -634,10 +581,6 @@ spec_AppSpecValid = do
     basicApp =
       AS.App.App
         { AS.App.name = "TestApp",
-          AS.App.wasp =
-            AS.Wasp.Wasp
-              { AS.Wasp.version = "^" ++ show WV.waspVersion
-              },
           AS.App.title = "Test App",
           AS.App.deployment = Nothing,
           AS.App.db =

@@ -28,14 +28,12 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
     case "minimal":
       return app({
         name: "MinimalApp",
-        wasp: { version: "^0.16.3" },
         title: "Mock App",
         spec: [],
       });
     case "full":
       return app({
         name: "FullApp",
-        wasp: { version: "^0.16.3" },
         title: "Mock App",
         head: ['<link rel="icon" href="/favicon.ico" />'],
         auth: getAuthConfig("full"),

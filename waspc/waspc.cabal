@@ -158,7 +158,6 @@ library
     Wasp.AppSpec.App.Deployment
     Wasp.AppSpec.App.EmailSender
     Wasp.AppSpec.App.Server
-    Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON

@@ -104,7 +104,6 @@ export type Crud = {
 
 export type App = {
   name: string;
-  wasp: Wasp;
   title: string;
   deployment: Optional<Deployment>;
   head: Optional<string[]>;
@@ -164,10 +163,6 @@ export type CrudOperations = {
 export type CrudOperationOptions = {
   isPublic: Optional<boolean>;
   overrideFn: Optional<ExtImport>;
-};
-
-export type Wasp = {
-  version: string;
 };
 
 export type Auth = {

@@ -5,7 +5,6 @@ import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 -- | We include a seeding script as part of the e2e test,
 -- because Wasp skips the seeding during the reset (unlike Prisma).
@@ -79,7 +78,6 @@ waspDbResetTest =
         export default app({
           name: "waspDbSeedTest",
           title: "waspDbSeedTest",
-          wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           db: {
             seeds: [
@@ -134,6 +132,3 @@ waspDbResetTest =
           }
         }
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion

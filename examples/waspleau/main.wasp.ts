@@ -8,7 +8,6 @@ import { measureLoadTime } from "./src/workers/loadTime" with { type: "ref" };
 
 export default app({
   name: "waspleau",
-  wasp: { version: "0.27.0" },
   title: "Waspleau",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
