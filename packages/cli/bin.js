@@ -211,36 +211,27 @@ function checkNodeVersionIsSupported(
 //
 // This runs from `bin.js` instead of as an install script, because package
 // managers increasingly block install scripts of dependencies (pnpm, bun). It
-// does its work once per machine and then costs a single `stat` per invocation.
+// runs on every invocation, but after the first run on a machine it only
+// checks that the marker file exists, one filesystem call.
 //
 // TODO: Consider removing this check once we no longer expect any users to
 // have a shell-installer based Wasp installation.
-//
-// These paths are also defined in:
-// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
-// - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
-// TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
-function getWaspLangDir() {
-  return path.join(os.homedir(), ".local", "share", "wasp-lang");
-}
-
-function getNpmMarkerFile() {
-  return path.join(getWaspLangDir(), ".uses-npm");
-}
-
 function assertNoLegacyInstallerConflict() {
+  const waspLangDir = tryGetWaspLangDir();
   // No home dir (some containers), so no installer-based Wasp to conflict with.
-  if (!hasHomeDir()) {
+  if (waspLangDir === undefined) {
     return;
   }
 
-  // Once the marker exists this is a single `stat`, so the directory listing
-  // below only ever runs on the first invocation on a machine.
-  if (hasNpmMarker()) {
+  // The installer script checks for this marker to warn about the same
+  // conflict from its side. Once it exists we stop here, so the directory
+  // listing below only ever runs on the first invocation on a machine.
+  const npmMarkerFile = path.join(waspLangDir, ".uses-npm");
+  if (fs.existsSync(npmMarkerFile)) {
     return;
   }
 
-  if (hasInstallerWasp()) {
+  if (hasInstallerWasp(waspLangDir)) {
     throw new CLIError(`\
 Detected an existing legacy Wasp installation.
 
@@ -254,42 +245,42 @@ To migrate, run:
 and follow the instructions.`);
   }
 
-  ensureNpmMarker();
+  ensureNpmMarker(waspLangDir, npmMarkerFile);
 }
 
-function hasHomeDir() {
+// The path is also defined in:
+// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
+// - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+// TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
+function tryGetWaspLangDir() {
   try {
-    os.homedir();
-    return true;
+    return path.join(os.homedir(), ".local", "share", "wasp-lang");
   } catch {
-    return false;
+    return undefined;
   }
 }
 
-function hasInstallerWasp() {
+function hasInstallerWasp(/** @type {string} */ waspLangDir) {
   try {
     // If the folder exists and has any subdirectories (for the installed version(s)),
     // we assume it's an installer-based Wasp installation.
-    const entries = fs.readdirSync(getWaspLangDir(), { withFileTypes: true });
+    const entries = fs.readdirSync(waspLangDir, { withFileTypes: true });
     return entries.some((entry) => entry.isDirectory());
   } catch {
     return false;
   }
 }
 
-function hasNpmMarker() {
-  return fs.existsSync(getNpmMarkerFile());
-}
-
-// The installer script checks for this marker to warn about the same conflict
-// from its side.
-function ensureNpmMarker() {
+function ensureNpmMarker(
+  /** @type {string} */ waspLangDir,
+  /** @type {string} */ npmMarkerFile,
+) {
   try {
-    fs.mkdirSync(getWaspLangDir(), { recursive: true });
+    fs.mkdirSync(waspLangDir, { recursive: true });
 
     // Same as `touch` - By appending nothing, we create the file if it doesn't
     // exist, or leave the contents unchanged if it does.
-    fs.appendFileSync(getNpmMarkerFile(), "");
+    fs.appendFileSync(npmMarkerFile, "");
   } catch {
     // Ignore errors - marker file is best-effort
   }

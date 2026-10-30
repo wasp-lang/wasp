@@ -67,8 +67,8 @@ jobs:
 
           # Install the CLI package (its optional deps pull in the
           # platform-specific sub-package for this runner). The URL is
-          # repository-qualified because pkg.pr.new's short form only works
-          # for packages that are already published to npm.
+          # repository-qualified, which works whether or not the package is
+          # published to npm yet; pkg.pr.new's short form needs it published.
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/cli@$COMMIT_SHA"
 
       - name: Run Wasp CLI

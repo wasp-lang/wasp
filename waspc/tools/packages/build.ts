@@ -23,7 +23,7 @@ import {
 } from "../utils.ts";
 import {
   getDataPackagesDirPath,
-  getWaspcPackageDirPath,
+  getPackageDirPath,
   WASPC_PACKAGES,
 } from "./utils.ts";
 
@@ -36,7 +36,7 @@ try {
 
 function buildPackages(): void {
   for (const { name, kind } of WASPC_PACKAGES) {
-    const packageDir = getWaspcPackageDirPath(name);
+    const packageDir = getPackageDirPath(name);
     const dataPackageDir = join(getDataPackagesDirPath(), name);
 
     buildPackage(name, packageDir);

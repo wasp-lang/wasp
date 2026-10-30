@@ -19,16 +19,12 @@ export const WASPC_PACKAGES: WaspcPackage[] = [
   { name: "studio", kind: "runnable" },
 ];
 
-// The `wasp` executable wrapper, published as `@wasp/cli` by
-// `scripts/make-npm-packages`. Not a waspc package: nothing ships it in the data dir.
-export const CLI_PACKAGE_NAME = "cli";
-
 export type WaspcPackage = {
   name: string;
   kind: "runnable" | "installable";
 };
 
-export function getWaspcPackageDirPath(packageName: string): string {
+export function getPackageDirPath(packageName: string): string {
   return join(getRepoRootPath(), "packages", packageName);
 }
 
