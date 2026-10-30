@@ -1,57 +1,43 @@
-import { useEffect, useRef, useState } from "react";
-import CookieConsent, {
-  Cookies,
-  VISIBILITY_OPTIONS,
-} from "react-cookie-consent";
+import type { PostHog } from "posthog-js";
+import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { track, trackPlacementAttributes } from "../lib/analytics";
 import {
-  CONSENT_COOKIE_NAME,
   COOKIE_SETTINGS_HREF,
-  deletePostHogStorage,
   fetchRequiresConsent,
-  getConsent,
-  SCRIPT_WITH_CONSENT_TYPE,
 } from "../lib/cookie-consent";
+import {
+  CONSENT_STORAGE_KEY,
+  optInToPostHog,
+  optOutOfPostHog,
+  startPostHog,
+} from "../lib/posthog";
 import classes from "./CookieConsentBanner.module.css";
 
-// Each "Reject all" goes to the other open tabs on this channel.
-const REJECT_CHANNEL_NAME = "wasp-cookies-reject";
-
-// `loadScripts()` sets it. Then "Reject all" must reload the page, because only
-// a reload stops a script that already runs.
-let areScriptsLoaded = false;
+// "banner": the banner shows by itself, because the visitor in the consent
+// region did not choose yet. "settings": the visitor opened it with the
+// "Cookie settings" link.
+type BannerState = "closed" | "banner" | "settings";
 
 export default function CookieConsentBanner() {
-  // `undefined` until the region check answers, and when the visitor already chose.
-  const [requiresConsent, setRequiresConsent] = useState<boolean>();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const rejectChannelRef = useRef<BroadcastChannel | null>(null);
+  const [posthog, setPostHog] = useState<PostHog>();
+  const [bannerState, setBannerState] = useState<BannerState>("closed");
 
   useEffect(() => {
-    const consent = getConsent();
-    if (consent === "true") {
-      loadScripts();
-      return;
-    }
-    if (consent === "false") {
-      // A "Reject all" can leave old PostHog data: an ad blocker can stop the
-      // PostHog script, or the reload can come before PostHog deletes its
-      // cookie. After the rejection, the script never loads again.
-      deletePostHogStorage();
+    // PostHog runs only in a production build, the same as Plausible in
+    // `prodOnlyScripts` in `docusaurus.config.ts`.
+    if (process.env.NODE_ENV !== "production") {
       return;
     }
 
-    fetchRequiresConsent().then((requires) => {
-      // Read the choice again: the visitor can choose before the answer, in
-      // "Cookie settings" or in another tab.
-      if (getConsent() !== undefined) {
-        return;
-      }
-      setRequiresConsent(requires);
-      // Outside the consent region, PostHog starts without a choice.
-      if (!requires) {
-        loadScripts();
+    fetchRequiresConsent().then(async (requiresConsent) => {
+      const posthog = await startPostHog(requiresConsent);
+      setPostHog(posthog);
+      // PostHog keeps the choice, so a visitor sees this banner only once.
+      if (
+        requiresConsent &&
+        posthog.get_explicit_consent_status() === "pending"
+      ) {
+        setBannerState("banner");
       }
     });
   }, []);
@@ -63,7 +49,7 @@ export default function CookieConsentBanner() {
         event.target.closest(`a[href="${COOKIE_SETTINGS_HREF}"]`)
       ) {
         event.preventDefault();
-        setIsSettingsOpen(true);
+        setBannerState("settings");
       }
     }
 
@@ -72,144 +58,89 @@ export default function CookieConsentBanner() {
   }, []);
 
   useEffect(() => {
-    // Old browsers have no `BroadcastChannel`, and the banner must work there too.
-    if (typeof BroadcastChannel === "undefined") {
+    if (!posthog) {
       return;
     }
 
-    const channel = new BroadcastChannel(REJECT_CHANNEL_NAME);
-    channel.onmessage = () => {
-      // A late message must not undo a newer "Accept all". Only the shared
-      // cookie can show a newer "Accept all", so with blocked cookies the
-      // rejection wins.
-      if (Cookies.get(CONSENT_COOKIE_NAME) !== "true") {
-        window.waspCookieConsent = "false";
-        // The visitor chose in the other tab, so this tab closes its banner.
-        setIsSettingsOpen(false);
-        setRequiresConsent(undefined);
-        stopPostHog();
-        removePostHog();
+    // A choice in another tab changes the stored choice. PostHog in this tab
+    // reads the stored choice before each event, but it also keeps its data in
+    // memory, and it can save that data in the browser again. So this tab
+    // makes the same choice. The browser sends this event only to the other
+    // tabs, and only when the value changes, so it does not come back. An
+    // event can arrive after a newer choice, so this tab applies only the
+    // choice that is stored now.
+    const applyChoiceFromOtherTab = (event: StorageEvent) => {
+      if (
+        event.key !== CONSENT_STORAGE_KEY ||
+        event.newValue !== localStorage.getItem(CONSENT_STORAGE_KEY)
+      ) {
+        return;
+      }
+      if (event.newValue === "1") {
+        optInToPostHog(posthog);
+        setBannerState("closed");
+      } else if (event.newValue === "0") {
+        optOutOfPostHog(posthog);
+        setBannerState("closed");
       }
     };
-    rejectChannelRef.current = channel;
-    return () => channel.close();
-  }, []);
 
-  function handleAccept() {
-    window.waspCookieConsent = "true";
-    loadScripts();
-    // PostHog can already run on this page with an old opt-out, for example
-    // after the consent cookie expired. The stub returns nothing for this
-    // check, so only a loaded PostHog opts in here. Plausible counts each
-    // choice with the "Cookie Consent" events, so PostHog sends no `$opt_in`
-    // event.
-    const posthog = window.posthog;
-    if (posthog?.has_opted_out_capturing?.()) {
-      posthog.opt_in_capturing?.({ captureEventName: false });
-    }
-    trackChoice("Cookie Consent: Accept");
-    setIsSettingsOpen(false);
+    window.addEventListener("storage", applyChoiceFromOtherTab);
+    return () => window.removeEventListener("storage", applyChoiceFromOtherTab);
+  }, [posthog]);
+
+  if (!posthog || bannerState === "closed") {
+    return null;
   }
 
-  function handleDecline() {
-    window.waspCookieConsent = "false";
-    // The opt-out comes first, so PostHog does not get the "Reject" event.
-    stopPostHog();
-    trackChoice("Cookie Consent: Reject");
-    rejectChannelRef.current?.postMessage(null);
-    setIsSettingsOpen(false);
-    removePostHog();
-  }
+  const handleAccept = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    optInToPostHog(posthog);
+    track(event.currentTarget, "Cookie Consent: Accept", {});
+    setBannerState("closed");
+  };
 
-  function trackChoice(
-    eventName: "Cookie Consent: Accept" | "Cookie Consent: Reject",
-  ) {
-    if (bannerRef.current) {
-      track(bannerRef.current, eventName, {});
-    }
-  }
+  const handleReject = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    // The opt-out comes first, so PostHog drops the "Reject" event.
+    optOutOfPostHog(posthog);
+    track(event.currentTarget, "Cookie Consent: Reject", {});
+    setBannerState("closed");
+  };
 
   return (
-    <div
-      ref={bannerRef}
+    <section
+      aria-label="Cookie consent"
       {...trackPlacementAttributes(
-        isSettingsOpen ? "cookie_settings" : "cookie_banner",
+        bannerState === "settings" ? "cookie_settings" : "cookie_banner",
       )}
       // `ph-no-capture` turns off PostHog autocapture in the banner. PostHog
       // records a click before our handlers run, so without it PostHog sends
-      // the click on "Reject all" when the page reloads, after the opt-out.
-      className="ph-no-capture contents"
+      // the click on "Reject all" after the opt-out.
+      className={`ph-no-capture ${classes.container}`}
     >
-      <CookieConsent
-        location="none"
-        visible={getVisibility(isSettingsOpen, requiresConsent)}
-        buttonText="Accept all"
-        declineButtonText="Reject all"
-        // Without these, screen readers read the library defaults "Accept
-        // cookies" and "Decline cookies", not the visible text.
-        ariaAcceptLabel="Accept all"
-        ariaDeclineLabel="Reject all"
-        enableDeclineButton
-        onAccept={handleAccept}
-        onDecline={handleDecline}
-        disableStyles={true}
-        containerClasses={classes.container}
-        contentClasses={classes.content}
-        buttonWrapperClasses={classes.buttonWrapper}
-        buttonClasses={classes.buttonAccept}
-        declineButtonClasses={classes.buttonDecline}
-        cookieName={CONSENT_COOKIE_NAME}
-      >
-        We use cookies primarily for analytics to enhance your experience. By
-        accepting, you agree to our use of these cookies. You can change your
-        choice at any time with the "Cookie settings" link at the bottom of
-        every page.{" "}
-        <a href="/privacy-policy">Learn more about our cookie policy</a>.
-      </CookieConsent>
-    </div>
+      <p className={classes.content}>
+        We use PostHog to learn how people use this site. If you accept, PostHog
+        stores an ID in your browser and records the pages you visit and the
+        links you click. PostHog processes this data and your IP address in the
+        United States. You can change your choice at any time with the "Cookie
+        settings" link at the bottom of every page.{" "}
+        <a href="/privacy-policy">Learn more in our privacy policy</a>.
+      </p>
+      <div className={classes.buttonWrapper}>
+        <button
+          type="button"
+          className={classes.buttonDecline}
+          onClick={handleReject}
+        >
+          Reject all
+        </button>
+        <button
+          type="button"
+          className={classes.buttonAccept}
+          onClick={handleAccept}
+        >
+          Accept all
+        </button>
+      </div>
+    </section>
   );
-}
-
-// The opt-out also stops the `$pageleave` event that PostHog sends when the
-// page closes, for example at the reload in `removePostHog()`.
-function stopPostHog() {
-  window.posthog?.opt_out_capturing?.();
-}
-
-// After the reload, the stored choice stops PostHog from loading, so PostHog
-// does not run on the page any more.
-function removePostHog() {
-  deletePostHogStorage();
-  if (areScriptsLoaded) {
-    window.location.reload();
-  }
-}
-
-function getVisibility(
-  isSettingsOpen: boolean,
-  requiresConsent: boolean | undefined,
-): string {
-  if (isSettingsOpen) {
-    return VISIBILITY_OPTIONS.SHOW;
-  }
-  if (requiresConsent) {
-    return VISIBILITY_OPTIONS.BY_COOKIE_VALUE;
-  }
-  return VISIBILITY_OPTIONS.HIDDEN;
-}
-
-function loadScripts() {
-  document
-    .querySelectorAll(`script[type="${SCRIPT_WITH_CONSENT_TYPE}"]`)
-    .forEach((el) => {
-      // We need to reattach the element so that the browser picks up the new `type`.
-      const parent = el.parentNode;
-      if (!parent) {
-        return;
-      }
-      parent.removeChild(el);
-      el.setAttribute("type", "text/javascript");
-      parent.appendChild(el);
-      areScriptsLoaded = true;
-    });
 }

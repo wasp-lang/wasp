@@ -3,10 +3,7 @@ import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
-import {
-  COOKIE_SETTINGS_HREF,
-  SCRIPT_WITH_CONSENT_TYPE,
-} from "./src/lib/cookie-consent";
+import { COOKIE_SETTINGS_HREF } from "./src/lib/cookie-consent";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import { docusaurusPluginLlmFiles } from "./src/plugins/llm-files/docusaurus-plugin";
 import autoImportTabs from "./src/remark/auto-import-tabs";
@@ -359,61 +356,30 @@ const config: Config = {
 };
 
 type DocusaurusScript = DocusaurusConfig["scripts"][number];
-type ScriptWithConsent = Exclude<DocusaurusScript, string> & {
-  requiresConsent: boolean;
-};
 
-function getScripts() {
-  const sharedScripts: ScriptWithConsent[] = [
-    {
-      src: "/js/fix-multiple-trailing-slashes.js",
-      requiresConsent: false,
-    },
+// PostHog is not in this list: `src/lib/posthog.ts` loads it from npm.
+function getScripts(): DocusaurusScript[] {
+  const sharedScripts: DocusaurusScript[] = [
+    "/js/fix-multiple-trailing-slashes.js",
   ];
 
-  const devOnlyScripts: ScriptWithConsent[] = [];
+  const devOnlyScripts: DocusaurusScript[] = [];
 
-  const prodOnlyScripts: ScriptWithConsent[] = [
-    {
-      src: "/scripts/plausible-queue.js",
-      requiresConsent: false,
-    },
+  const prodOnlyScripts: DocusaurusScript[] = [
+    "/scripts/plausible-queue.js",
     {
       // We are using Cloudflare Workers to proxy the Plausible script.
       src: "/waspara/wasp/script.js",
       defer: true,
       "data-domain": "wasp.sh",
       "data-api": "/waspara/wasp/event",
-      // Plausible doesn't use cookies, so it can be loaded right away.
-      requiresConsent: false,
-    },
-    {
-      src: "/scripts/posthog.js",
-      defer: true,
-      requiresConsent: true,
     },
   ];
 
-  const scripts = [
+  return [
     ...sharedScripts,
     ...(isProduction ? prodOnlyScripts : devOnlyScripts),
   ];
-
-  return mapToDocusaurusScripts(scripts);
-}
-
-function mapToDocusaurusScripts(
-  scripts: ScriptWithConsent[],
-): DocusaurusScript[] {
-  return scripts.map(({ requiresConsent, ...rest }) => ({
-    ...rest,
-    // Scripts requiring consent shouldn't be loaded until the cookies are accepted,
-    // so we use a custom type on the script _not to load it_ automatically.
-    // Later, if cookies are accepted or the visitor is outside the consent
-    // region, the script will be loaded by the
-    // `src/components/CookieConsentBanner.tsx` component.
-    ...(requiresConsent ? { type: SCRIPT_WITH_CONSENT_TYPE } : {}),
-  }));
 }
 
 export default config;
