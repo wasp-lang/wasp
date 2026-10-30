@@ -119,6 +119,10 @@
             {
                 "name": "@types/node",
                 "version": "^24.0.0"
+            },
+            {
+                "name": "nf3",
+                "version": "0.4.2"
             }
         ],
         "peerDependencies": []
