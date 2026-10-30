@@ -12,19 +12,19 @@ To develop the studio, you need to run both of them. First, run the server, then
 Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Running the server for some data file:
 
 ```bash
-npm run dev -- -d <path_to_data_file>
+pnpm run dev -d <path_to_data_file>
 ```
 
 For example, running the server with the data file from the `examples` directory:
 
 ```bash
-npm run dev -- -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
+pnpm run dev -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
 ```
 
 Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.
@@ -36,13 +36,13 @@ Install dependencies:
 
 ```bash
 cd client
-npm install
+pnpm install
 ```
 
 Running the client:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Then open `http://localhost:5173` in your browser.

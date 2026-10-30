@@ -16,7 +16,7 @@ function testPackages(): void {
   }
 }
 
-function testPackage({ name, packageManager }: WaspcPackage): void {
+function testPackage({ name }: WaspcPackage): void {
   const packageDir = getWaspcPackageDirPath(name);
   const packageJson = getPackageJson(packageDir);
 
@@ -26,10 +26,7 @@ function testPackage({ name, packageManager }: WaspcPackage): void {
 
   console.log(`Testing ${name} (${packageDir})`);
 
-  if (packageManager === "npm") {
-    runCmd("npm", ["ci"], { cwd: packageDir, stdio: "inherit" });
-  }
-  runCmd(packageManager, ["run", "test"], {
+  runCmd("pnpm", ["run", "test"], {
     cwd: packageDir,
     stdio: "inherit",
   });

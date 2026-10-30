@@ -1,15 +1,29 @@
 {
-  "name": "wasp-studio-server",
+  "name": "@wasp/studio",
   "version": "0.27.0",
   "type": "module",
-  "description": "",
-  "author": "",
-  "license": "ISC",
-  "main": "index.js",
-  "keywords": [],
+  "description": "The Wasp Studio server, which `wasp studio` runs.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/studio"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "npm run build:client && npm run remove:dist && tsc && npm run copy:public",
-    "build:client": "npm --prefix ./client install && npm --prefix ./client run copy",
+    "build": "pnpm run build:client && pnpm run remove:dist && tsc && pnpm run copy:public",
+    "build:client": "pnpm --dir ./client run copy",
     "copy:public": "node -e \"require('fs').cpSync('./public', './dist/public', { recursive: true });\"",
     "dev": "tsx --watch ./src/index.ts",
     "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\"",
@@ -26,7 +40,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^22.17.0",
+    "@types/node": "catalog:",
     "tsx": "^4.20.3",
     "typescript": "^6.0.3"
   }
