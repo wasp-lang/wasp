@@ -135,7 +135,7 @@ spec_Job = do
               $ Job.race (passOutputOnSlowly $ Job.fromProc process) (liftIO waitForProcessExit)
           T.length . snd <$> result `shouldBe` Just 200000
         )
-        `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+        `finally` removePidFile pidPath
 
     it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"
