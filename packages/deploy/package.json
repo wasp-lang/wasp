@@ -1,11 +1,27 @@
 {
-  "name": "wasp-deploy",
+  "name": "@wasp/deploy",
   "version": "0.27.0",
   "type": "module",
-  "author": "Wasp Team",
+  "description": "The implementation of `wasp deploy`, which `waspc` runs.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/deploy"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
   "license": "MIT",
   "bin": "dist/index.js",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

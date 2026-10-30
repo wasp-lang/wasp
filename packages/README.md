@@ -18,7 +18,9 @@ under `waspc/data/Generator/libs/`. Those directories are build outputs (gitigno
 
 - `./run build:packages` builds each package and copies `dist/` and `package.json` into
   `waspc/data/packages/<name>/`. `deploy` and `studio` get a `package-lock.json` generated
-  there too, since `waspc` installs their dependencies with npm on first use.
+  there too, since `waspc` installs their dependencies with npm on first use. Their versions
+  are therefore resolved at build time, not committed (TODO: goes away with
+  [#4434](https://github.com/wasp-lang/wasp/issues/4434), when they ship with the Wasp npm package).
 - `./run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
 
 Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.

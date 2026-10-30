@@ -95,6 +95,9 @@ function copyDistToDataDir(packageDir: string, dataPackageDir: string): void {
 // `waspc` installs the data dir copy with npm, which needs a lockfile of its
 // own since the workspace's pnpm lockfile is not shipped. The `node_modules`
 // installed from the previous lockfile is stale, so it goes too.
+// TODO: The versions get resolved on every build instead of being committed
+// and reviewed. Goes away with #4434, when these packages become dependencies
+// of the Wasp npm package and the project's lockfile pins them.
 // npm reads its project config from the nearest package.json dir, so the
 // repo's `.npmrc` does not apply here and the release window is passed by hand.
 function writeNpmLockFile(dataPackageDir: string): void {

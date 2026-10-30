@@ -1,12 +1,26 @@
 {
-  "name": "wasp-studio-server",
+  "name": "@wasp/studio",
   "version": "0.27.0",
   "type": "module",
-  "description": "",
-  "author": "",
-  "license": "ISC",
-  "main": "index.js",
-  "keywords": [],
+  "description": "The Wasp Studio server, which `wasp studio` runs.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/studio"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "pnpm run build:client && pnpm run remove:dist && tsc && pnpm run copy:public",
     "build:client": "pnpm --dir ./client run copy",
