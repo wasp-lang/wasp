@@ -70,8 +70,6 @@ runs:
         # The projects that still use npm.
         cache-dependency-path: |
           examples/**/package-lock.json
-          packages/deploy/package-lock.json
-          packages/studio/package-lock.json
 
     - name: Probe pnpm store path
       id: probe-pnpm-store

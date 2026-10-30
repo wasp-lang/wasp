@@ -28,9 +28,9 @@ import {
   type WaspcPackage,
 } from "./utils.ts";
 
-// The files `waspc.cabal` lists as data files for each package. The lockfile
-// exists only for the npm packages.
-const PACKAGE_ARTIFACTS = ["dist", "package-lock.json"];
+// The files `waspc.cabal` lists as data files for each package, next to the
+// package.json and the lockfile written below.
+const PACKAGE_ARTIFACTS = ["dist"];
 
 try {
   buildPackages();
@@ -41,38 +41,37 @@ try {
 
 function buildPackages(): void {
   for (const waspcPackage of WASPC_PACKAGES) {
-    buildPackage(waspcPackage);
-    copyPackageArtifactsToDataDir(waspcPackage.name);
+    buildPackage(waspcPackage.name);
+    copyPackageArtifactsToDataDir(waspcPackage);
   }
 }
 
-function buildPackage({ name, packageManager }: WaspcPackage): void {
-  const packageDir = getWaspcPackageDirPath(name);
+function buildPackage(packageName: string): void {
+  const packageDir = getWaspcPackageDirPath(packageName);
   const { version } = getPackageJson(packageDir);
 
-  assertPackageVersionMatchesWaspc(name, version);
+  assertPackageVersionMatchesWaspc(packageName, version);
 
-  console.log(`Building ${name} package (${packageDir})`);
+  console.log(`Building ${packageName} package (${packageDir})`);
 
-  if (packageManager === "npm") {
-    runCmd("npm", ["install"], { cwd: packageDir });
-  }
-  runCmd(packageManager, ["run", "build"], { cwd: packageDir });
+  runCmd("pnpm", ["run", "build"], { cwd: packageDir });
 }
 
 // Copies only the artifacts, so `node_modules` installed in the data dir copy
-// (by `waspc` on first use) survives rebuilds. When the lockfile changed, that
-// `node_modules` is stale, so we drop it and `waspc` installs it again.
-function copyPackageArtifactsToDataDir(packageName: string): void {
-  const packageDir = getWaspcPackageDirPath(packageName);
-  const dataPackageDir = join(getDataPackagesDirPath(), packageName);
+// (by `waspc` on first use) survives rebuilds. When the package.json changed,
+// the lockfile and that `node_modules` are stale, so we write a new lockfile
+// and drop `node_modules`, and `waspc` installs it again.
+function copyPackageArtifactsToDataDir({
+  name,
+  installedByWaspc,
+}: WaspcPackage): void {
+  const packageDir = getWaspcPackageDirPath(name);
+  const dataPackageDir = join(getDataPackagesDirPath(), name);
   mkdirSync(dataPackageDir, { recursive: true });
-  writePublishedPackageJson(packageDir, dataPackageDir);
 
-  const lockFileName = "package-lock.json";
-  const lockFileChanged = !haveSameContent(
-    join(packageDir, lockFileName),
-    join(dataPackageDir, lockFileName),
+  const packageJsonChanged = writePublishedPackageJson(
+    packageDir,
+    dataPackageDir,
   );
 
   for (const artifact of PACKAGE_ARTIFACTS) {
@@ -84,7 +83,9 @@ function copyPackageArtifactsToDataDir(packageName: string): void {
     }
   }
 
-  if (lockFileChanged) {
+  const lockFilePath = join(dataPackageDir, "package-lock.json");
+  if (installedByWaspc && (packageJsonChanged || !existsSync(lockFilePath))) {
+    writeNpmLockFile(dataPackageDir);
     rmSync(join(dataPackageDir, "node_modules"), {
       recursive: true,
       force: true,
@@ -92,19 +93,32 @@ function copyPackageArtifactsToDataDir(packageName: string): void {
   }
 }
 
-// npm installs the data dir copy as a `file:` dependency: it does not
-// understand `catalog:` and it installs devDependencies, so the copy gets the
-// package.json `pnpm pack` writes, without them.
+// The data dir copy is installed with npm, which needs a lockfile of its own
+// since the workspace's pnpm lockfile is not shipped.
+function writeNpmLockFile(dataPackageDir: string): void {
+  console.log(`Writing npm lockfile for ${dataPackageDir}`);
+  runCmd("npm", ["install", "--package-lock-only", "--ignore-scripts"], {
+    cwd: dataPackageDir,
+  });
+}
+
+// npm installs the data dir copy: it does not understand `catalog:` and it
+// would install devDependencies, so the copy gets the package.json `pnpm pack`
+// writes, without them. Returns whether the written package.json differs from
+// the one that was there.
 function writePublishedPackageJson(
   packageDir: string,
   dataPackageDir: string,
-): void {
+): boolean {
   const packageJson = readPackedPackageJson(packageDir);
   delete packageJson.devDependencies;
-  writeFileSync(
-    join(dataPackageDir, "package.json"),
-    JSON.stringify(packageJson, undefined, 2) + "\n",
-  );
+  const packageJsonPath = join(dataPackageDir, "package.json");
+  const content = JSON.stringify(packageJson, undefined, 2) + "\n";
+  const changed =
+    !existsSync(packageJsonPath) ||
+    readFileSync(packageJsonPath, "utf-8") !== content;
+  writeFileSync(packageJsonPath, content);
+  return changed;
 }
 
 function readPackedPackageJson(packageDir: string): PackageJson {
@@ -126,11 +140,4 @@ function readPackedPackageJson(packageDir: string): PackageJson {
   } finally {
     rmSync(packDir, { recursive: true, force: true });
   }
-}
-
-function haveSameContent(pathA: string, pathB: string): boolean {
-  if (!existsSync(pathA) || !existsSync(pathB)) {
-    return existsSync(pathA) === existsSync(pathB);
-  }
-  return readFileSync(pathA, "utf-8") === readFileSync(pathB, "utf-8");
 }

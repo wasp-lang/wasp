@@ -1,12 +1,12 @@
 # `packageManager` in package.json is for Cloudflare Pages, which builds web/.
 #
 # Still on npm:
-# - packages/deploy, packages/studio: waspc installs them with their own
-#   package-lock.json. TODO: Move them in once they are part of the Wasp npm
-#   package.
 # - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
+  - packages/deploy
   - packages/spec
+  - packages/studio
+  - packages/studio/client
   - packages/libs/*
   - packages/wasp-app-runner
   - web
@@ -34,8 +34,10 @@ catalog:
 minimumReleaseAge: 10080
 
 # Install scripts we do not need: messages, or binaries that are optional
-# dependencies anyway.
+# dependencies anyway. @heroui/shared-utils only swaps in a Next.js build when
+# Next.js is installed.
 allowBuilds:
+  "@heroui/shared-utils": false
   "@swc/core": false
   core-js: false
   esbuild: false
