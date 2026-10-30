@@ -11,7 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
-- Piping answers into prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, commands now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
+- Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 
 ### 🎉 New Features
 

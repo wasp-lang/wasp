@@ -140,7 +140,9 @@ replaceLineInFile fileName lineNumber line =
 -- an interactive terminal, Wasp refuses to prompt and the command must fail.
 waspCliNewWithPipedAnswersFails :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewWithPipedAnswersFails appName starterTemplate =
-  return $ "! " ++ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
+  assertCommandOutputContains
+    (return $ "! " ++ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new")
+    "stdin is not an interactive terminal"
 
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
