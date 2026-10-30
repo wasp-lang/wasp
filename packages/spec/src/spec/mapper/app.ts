@@ -157,13 +157,15 @@ export function mapServer(
   server: WaspSpec.Server,
   ctx: AppMapperContext,
 ): AppSpec.Server {
-  const { setupFn, middlewareConfigFn, envValidationSchema } = server;
+  const { setupFn, middlewareConfigFn, envValidationSchema, traceDeps } =
+    server;
   return {
     setupFn: setupFn && ctx.parseRefObject(setupFn),
     middlewareConfigFn:
       middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
     envValidationSchema:
       envValidationSchema && ctx.parseRefObject(envValidationSchema),
+    traceDeps,
   };
 }
 

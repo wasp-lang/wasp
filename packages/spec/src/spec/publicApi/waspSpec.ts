@@ -550,6 +550,33 @@ export interface Server {
    * See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
    */
   envValidationSchema?: Reference<ZodSchema>;
+  /**
+   * Extra packages to copy into the server's Docker image.
+   *
+   * The Docker image contains only the files the server imports. A package
+   * that loads files in a non-standard way (for example, static assets it
+   * serves from its own folder) can miss some of them. Each entry is a package name with
+   * an optional prefix or suffix, the same syntax as Nitro's `traceDeps`:
+   *
+   * - `"pkg"` traces the package even when the server doesn't import it.
+   * - `"pkg*"` copies all of the package's files.
+   * - `"!pkg"` stops copying all files of a package Wasp copies fully by
+   *   default.
+   *
+   * We use [nf3](https://github.com/unjs/nf3), which finds most of the files
+   * your dependencies need by default. Only use this setting if you've
+   * confirmed a necessary file is missing.
+   *
+   * @example
+   * ```ts
+   * traceDeps: ["swagger-ui-dist*"]
+   * ```
+   *
+   * @see https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image
+   * @see https://nitro.build/config#tracedeps for the entry syntax.
+   * @see https://github.com/unjs/nf3/blob/main/src/db.ts for the packages copied in full by default.
+   */
+  traceDeps?: string[];
 }
 
 /**

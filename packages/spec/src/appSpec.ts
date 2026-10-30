@@ -246,6 +246,7 @@ export type Server = {
   setupFn: Optional<ExtImport>;
   middlewareConfigFn: Optional<ExtImport>;
   envValidationSchema: Optional<ExtImport>;
+  traceDeps: Optional<string[]>;
 };
 
 export type Client = {

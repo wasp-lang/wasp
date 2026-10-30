@@ -10,6 +10,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
+- The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 
 ### 🎉 New Features
 
@@ -36,9 +37,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `useQuery` no longer retries Queries that fail with a `4xx` status code (other than `408` and `429`), so client errors show up right away. ([#5131](https://github.com/wasp-lang/wasp/pull/5131))
 - Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
 - During development, errors from the Vite dev server are now also logged to the browser console and shown on the error page. ([#5136](https://github.com/wasp-lang/wasp/pull/5136))
-
-### 🔧 Small improvements
-
 - The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
 - `wasp start db` now fails right away with a clear error when it can't connect to the Docker daemon. ([#5144](https://github.com/wasp-lang/wasp/pull/5144))
 - The page shown when opening the server's URL in the browser during development now has a refreshed look. ([#5178](https://github.com/wasp-lang/wasp/pull/5178))
