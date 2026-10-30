@@ -4,7 +4,7 @@ import Data.List (mapAccumL)
 import qualified Data.Text as T
 import Test.Hspec
 import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (formatJobMessage, initialPrefixedWriterState)
+import Wasp.Job.IO.PrefixedWriter (Output (..), formatOutput, initialPrefixedWriterState)
 import qualified Wasp.Util.Terminal as Term
 
 spec_prefixedOutput :: Spec
@@ -24,7 +24,7 @@ spec_prefixedOutput = do
   it "does not add a second newline when the job changes" $
     formatMessages
       [ dbOutput "first\n",
-        J.JobMessage (J.JobOutput "second\n" J.Stdout) J.Server,
+        (Output J.Server J.Stdout, "second\n"),
         dbOutput "third\n"
       ]
       `shouldBe` "\n" <> dbPrefix <> "first\n" <> serverPrefix <> "second\n" <> dbPrefix <> "third\n"
@@ -33,11 +33,11 @@ spec_prefixedOutput = do
     formatMessages [dbOutput "one\r", dbOutput "\ntwo\n"]
       `shouldBe` "\n" <> dbPrefix <> "one\r" <> dbPrefix <> "\n" <> dbPrefix <> "two\n"
 
-formatMessages :: [J.JobMessage] -> T.Text
-formatMessages = T.concat . snd . mapAccumL formatJobMessage initialPrefixedWriterState
+formatMessages :: [(Output, T.Text)] -> T.Text
+formatMessages = T.concat . snd . mapAccumL (uncurry . formatOutput) initialPrefixedWriterState
 
-dbOutput :: T.Text -> J.JobMessage
-dbOutput text = J.JobMessage (J.JobOutput text J.Stdout) J.Db
+dbOutput :: T.Text -> (Output, T.Text)
+dbOutput text = (Output J.Db J.Stdout, text)
 
 dbPrefix :: T.Text
 dbPrefix = T.pack $ Term.applyStyles [Term.Blue] "[" <> "   " <> Term.applyStyles [Term.Blue] "Db" <> "   " <> Term.applyStyles [Term.Blue] "]" <> " "

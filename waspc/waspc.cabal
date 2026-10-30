@@ -317,8 +317,7 @@ library
     Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
-    Wasp.Job.Except
-    Wasp.Job.IO
+    Wasp.Job.CreateProcess
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.JsImport
@@ -564,6 +563,7 @@ test-suite waspc-tests
     neat-interpolation,
     network-uri,
     parsec,
+    process,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
@@ -598,6 +598,7 @@ test-suite waspc-tests
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
     Job.IO.PrefixedWriterTest
+    JobTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
