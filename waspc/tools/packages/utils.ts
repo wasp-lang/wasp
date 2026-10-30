@@ -4,11 +4,23 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 // The TypeScript packages that `waspc` runs as separate processes (see
 // `Wasp.NodePackageFFI`). Their sources live in `<repo>/packages/`, and the
 // build copies their artifacts into the Cabal data dir, where `waspc` expects them.
-const WASPC_PACKAGE_NAMES = ["deploy", "prisma", "spec", "studio"];
+// The npm ones ship with their package-lock.json, which waspc installs on
+// first use. TODO: Move them to the workspace once they are part of the Wasp
+// npm package.
+export const WASPC_PACKAGES: WaspcPackage[] = [
+  { name: "spec", packageManager: "pnpm" },
+  { name: "deploy", packageManager: "npm" },
+  { name: "prisma", packageManager: "npm" },
+  { name: "studio", packageManager: "npm" },
+];
 
-export function getWaspcPackageDirPaths(): string[] {
-  const packagesDirPath = join(getRepoRootPath(), "packages");
-  return WASPC_PACKAGE_NAMES.map((name) => join(packagesDirPath, name));
+export type WaspcPackage = {
+  name: string;
+  packageManager: "pnpm" | "npm";
+};
+
+export function getWaspcPackageDirPath(packageName: string): string {
+  return join(getRepoRootPath(), "packages", packageName);
 }
 
 export function getDataPackagesDirPath(): string {

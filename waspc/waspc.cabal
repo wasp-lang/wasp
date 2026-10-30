@@ -62,7 +62,6 @@ data-files:
   packages/spec/dist/**/*.d.ts
   packages/spec/dist/**/*.js
   packages/spec/dist/**/*.map
-  packages/spec/package-lock.json
   packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html

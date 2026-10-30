@@ -10,7 +10,11 @@ import {
   getPackageJson,
   runCmd,
 } from "../utils.ts";
-import { getDataLibsDirPath, getLibsDirPath } from "./utils.ts";
+import {
+  getDataLibsDirPath,
+  getLibsDirPath,
+  runScriptInEveryLib,
+} from "./utils.ts";
 
 try {
   buildLibs();
@@ -20,24 +24,29 @@ try {
 }
 
 function buildLibs(): void {
-  for (const libDir of discoverSubDirs(getLibsDirPath())) {
-    buildLib(libDir);
+  const libDirs = discoverSubDirs(getLibsDirPath());
+  for (const libDir of libDirs) {
+    const { name, version } = getPackageJson(libDir);
+    assertPackageVersionMatchesWaspc(name, version);
+  }
+
+  console.log("Building libs");
+  runScriptInEveryLib("build");
+
+  for (const libDir of libDirs) {
+    packLib(libDir);
   }
 }
 
-function buildLib(libDir: string): void {
-  const { name: libName, version: libVersion } = getPackageJson(libDir);
-
-  assertPackageVersionMatchesWaspc(libName, libVersion);
-
-  console.log(`Building ${libName} lib (${libDir})`);
-
+function packLib(libDir: string): void {
+  const libName = getPackageJson(libDir).name;
   const dataLibDir = join(getDataLibsDirPath(), basename(libDir));
+
+  console.log(`Packing ${libName} lib into ${dataLibDir}`);
+
   mkdirSync(dataLibDir, { recursive: true });
   rmExistingTarballsInDir(dataLibDir);
-
-  runCmd("npm", ["install"], { cwd: libDir });
-  runCmd("npm", ["pack", "--pack-destination", dataLibDir], { cwd: libDir });
+  runCmd("pnpm", ["pack", "--pack-destination", dataLibDir], { cwd: libDir });
 }
 
 function rmExistingTarballsInDir(dir: string): void {

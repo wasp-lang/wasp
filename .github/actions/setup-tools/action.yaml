@@ -67,6 +67,24 @@ runs:
         # installed. We use this step to setup the npm cache.
         cache: npm
         package-manager-cache: true
+        # The projects that still use npm.
+        cache-dependency-path: |
+          examples/**/package-lock.json
+          packages/deploy/package-lock.json
+          packages/prisma/package-lock.json
+          packages/studio/package-lock.json
+
+    - name: Probe pnpm store path
+      id: probe-pnpm-store
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pnpm store
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.probe-pnpm-store.outputs.STORE_PATH }}
+        key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-store-${{ runner.os }}-${{ runner.arch }}-
 
     # We can't have the following steps in a different action because of a
     # GitHub Actions bug with how caches interact with nested composite actions:

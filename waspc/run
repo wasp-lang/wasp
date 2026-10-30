@@ -19,9 +19,12 @@ GREEN="\033[32m"
 RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
+# The tools and prettier are workspace projects, so install before using them.
+WORKSPACE_INSTALL_CMD="(cd $REPOSITORY_ROOT && pnpm install)"
+
 # Building
-WASP_PACKAGES_COMPILE="node ${SCRIPT_DIR}/tools/packages/build.ts"
-WASP_LIBS_COMPILE="node ${SCRIPT_DIR}/tools/libs/build.ts"
+WASP_PACKAGES_COMPILE="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/packages/build.ts"
+WASP_LIBS_COMPILE="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/libs/build.ts"
 WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
@@ -46,15 +49,15 @@ WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
 
-LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
+LIBS_TESTS_CMD="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/libs/test.ts"
 
-PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
+PACKAGES_TESTS_CMD="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/packages/test.ts"
 
 # Wasp App Runner
 # Utility used for running e2e tests in Wasp apps, we use it for testing
 # e.g. examples and starters.
 WASP_APP_RUNNER_DIR="$REPOSITORY_ROOT/packages/wasp-app-runner"
-WASP_APP_RUNNER_BUILD_CMD="(cd $WASP_APP_RUNNER_DIR && npm install && npm run build)"
+WASP_APP_RUNNER_BUILD_CMD="$WORKSPACE_INSTALL_CMD && (cd $REPOSITORY_ROOT && pnpm --filter @wasp/wasp-app-runner run build)"
 # By exporting this, we are telling all of our e2e tests to use the local
 # version of Wasp App Runner, built by WASP_APP_RUNNER_BUILD_CMD (tests should
 # make sure to call that one before).
@@ -62,7 +65,7 @@ export WASP_APP_RUNNER_CLI_CMD="$WASP_APP_RUNNER_DIR/bin/index.js"
 
 KITCHEN_SINK_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
 
-STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run test:dev"
+STARTERS_E2E_TESTS_CMD="$WASP_APP_RUNNER_BUILD_CMD && cd $PROJECT_ROOT/starters-e2e-tests && pnpm run test:dev"
 
 # Copies .env.server.example to .env.server in the current directory,
 # but only if the example exists and .env.server isn't already present.
@@ -105,8 +108,8 @@ TEST_CMD="cabal test && \
 GHCID_CMD="ghcid --command=cabal repl"
 STAN_CMD="$BUILD_HS_FULL_CMD && stan report ${ARGS[*]}"
 HLINT_CMD="hlint . ${ARGS[*]}"
-PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
-PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
+PRETTIER_CHECK_CMD="$WORKSPACE_INSTALL_CMD && (cd .. && pnpm run check:prettier)"
+PRETTIER_FORMAT_CMD="$WORKSPACE_INSTALL_CMD && (cd .. && pnpm run format:prettier)"
 ORMOLU_BASE_CMD="ormolu --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
@@ -411,10 +414,11 @@ case $COMMAND in
     echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
     ;;
   get-waspc-version)
-    node "$SCRIPT_DIR/tools/get-waspc-version.ts"
+    # CI reads the output, so the install stays quiet.
+    (cd "$REPOSITORY_ROOT" && pnpm install --reporter=silent) && node "$SCRIPT_DIR/tools/get-waspc-version.ts"
     ;;
   version-bump)
-    node "$SCRIPT_DIR/tools/version-bump.ts" "${ARGS[@]}"
+    eval "$WORKSPACE_INSTALL_CMD" && node "$SCRIPT_DIR/tools/version-bump.ts" "${ARGS[@]}"
     ;;
   *)
     print_usage

@@ -22,7 +22,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
   - `run` — **Main development script** (run `./run` with no args to see all commands)
-- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests
+- `packages/` — TypeScript packages: `spec`, the FFI packages the CLI calls (`deploy`, `prisma`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests.
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
@@ -36,6 +36,7 @@ Key things to know:
 - Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
+- The repo is a pnpm workspace (`pnpm-workspace.yaml`), but not everything is in it yet. Some projects still use npm.
 
 ## Code Conventions
 
@@ -64,5 +65,5 @@ Key things to know:
 
 - **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `cd waspc && ./run build && ./run test:waspc:e2e:accept-all`.
 - **Documentation**: Only edit `web/docs/` (the latest version). Do not modify `web/versioned_docs/` — those are auto-generated snapshots of previous versions.
-- **Markdown snapshots** (`web/markdown-snapshots/`) must never be manually edited. After changing docs, blog, or resources content (or the LLM files plugin), regenerate them by running `cd web && npm run build-dev && npm run markdown-snapshots:update`, then review the diff before committing. CI checks them with `npm run markdown-snapshots:check`.
+- **Markdown snapshots** (`web/markdown-snapshots/`) must never be manually edited. After changing docs, blog, or resources content (or the LLM files plugin), regenerate them by running `cd web && pnpm run build-dev && pnpm run markdown-snapshots:update`, then review the diff before committing. CI checks them with `pnpm run markdown-snapshots:check`.
 - **Pull requests**: Always use the repo's `PULL_REQUEST_TEMPLATE.md`. Never delete any checkbox from the template — leave irrelevant ones unchecked.

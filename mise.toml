@@ -30,12 +30,16 @@ ghcup = "0.2.6.2"
 # - The compiler (Wasp.Node.Version).
 # - The docs: /docs/introduction/quick-start.md ("Requirements" section).
 # - The docs plugin: /web/src/remark/search-and-replace.ts
+# - The repo root package: /package.json (engines)
 # - The web CI: /web/.node-version
 # - The web package: /web/package.json
 # - The wasp-cli package templates: /scripts/make-npm-packages/templates/*/package.json
 # - The embedded packages: /packages/*/package.json
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.22.1"
+
+# Keep in sync with `packageManager` and `engines` in /package.json.
+pnpm = "12.15.0"
 
 jq = "1.8.2"
 railway = "5.64.2"
