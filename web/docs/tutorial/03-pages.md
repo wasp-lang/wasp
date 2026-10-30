@@ -237,7 +237,6 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [

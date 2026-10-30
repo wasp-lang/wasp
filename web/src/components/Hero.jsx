@@ -71,7 +71,6 @@ import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/tasks" with { type: "ref" };
 
 export default app({
-  wasp: { version: "^0.24.0" },
   title: "ToDo App",
   auth: {  // Full-stack auth out-of-the-box.
     userEntity: "User",

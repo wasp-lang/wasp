@@ -5,6 +5,12 @@
     ".wasp/out/*",
     ".wasp/out/sdk/wasp"
   ],
+  "scripts": {
+    "wasp": "wasp",
+    "dev": "wasp start",
+    "build": "wasp build",
+    "preview": "wasp build start"
+  },
   "dependencies": {
     "@wasp/wasp": "__waspPackageSpecifier__",
     "react": "^19.2.1",
