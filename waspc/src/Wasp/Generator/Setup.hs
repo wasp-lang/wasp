@@ -63,7 +63,7 @@ allSetupSteps = [minBound .. maxBound]
 --
 -- 'InstallNpmDeps' installs the node modules of the whole project (user project,
 -- SDK, generated server), so the steps that use installed packages depend on it.
--- 'FormatPrismaSchema' runs the project's Prisma, and matters for the steps that compare schema checksums.
+-- 'FormatPrismaSchema' matters for the steps that compare schema checksums.
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
 prerequisites FormatPrismaSchema = [InstallNpmDeps]
@@ -108,7 +108,7 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
   InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
-  FormatPrismaSchema -> liftIO $ DbGenerator.formatPrismaSchemaFileOnDisk generatedAppDir
+  FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
   WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
@@ -129,6 +129,13 @@ warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do
   warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
   tell $ maybeToList warning
+
+formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
+formatPrismaSchema generatedAppDir = do
+  result <- liftIO $ DbGenerator.formatPrismaSchema generatedAppDir
+  case result of
+    Just generatorError -> throwError [generatorError]
+    Nothing -> return ()
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 generatePrismaClient spec generatedAppDir sendMessage = do

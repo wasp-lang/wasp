@@ -355,7 +355,6 @@ library
     Wasp.Psl.Ast.WithCtx
     Wasp.Psl.Comments
     Wasp.Psl.Db
-    Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
     Wasp.Psl.Generator.Common
