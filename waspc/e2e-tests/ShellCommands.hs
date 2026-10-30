@@ -106,8 +106,9 @@ infixl 6 ~&&
 
 infixl 4 ~?
 
--- | Polls every second until the condition succeeds, failing with the error
--- message if it doesn't within the given number of seconds.
+-- | Checks the condition right away, and then once per second until it
+-- succeeds. Fails with the error message if it still doesn't succeed after the
+-- given number of seconds.
 waitUntil :: Int -> ShellCommand -> String -> ShellCommand
 waitUntil timeoutSeconds condition errorMessage =
   "( i=0; until "
