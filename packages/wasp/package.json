@@ -25,7 +25,8 @@
     "wasp": "bin.js"
   },
   "files": [
-    "bin.js"
+    "bin.js",
+    "run-spec.js"
   ],
   "dependencies": {
     "@wasp/cli": "workspace:*",

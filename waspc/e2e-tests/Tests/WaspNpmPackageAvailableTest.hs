@@ -1,4 +1,4 @@
-module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
+module Tests.WaspNpmPackageAvailableTest (waspNpmPackageAvailableTest) where
 
 import Control.Monad.Reader (ask)
 import ShellCommands
@@ -18,7 +18,6 @@ import ShellCommands
     waspCliDeploy,
     waspCliDeps,
     waspCliDockerfile,
-    waspCliInstall,
     waspCliNews,
     waspCliShowBuild,
     waspCliShowSpec,
@@ -34,12 +33,12 @@ import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Util.Terminal (styleCode)
 
-waspSpecAvailableTest :: Test
-waspSpecAvailableTest =
+waspNpmPackageAvailableTest :: Test
+waspNpmPackageAvailableTest =
   Test
-    "wasp-spec-available"
+    "wasp-npm-package-available"
     [ TestCase
-        "commands-requiring-wasp-spec-fail-with-install-hint-when-missing"
+        "commands-requiring-wasp-npm-package-fail-with-install-hint-when-missing"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
@@ -61,19 +60,29 @@ waspSpecAvailableTest =
             ]
         ),
       TestCase
-        "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli"
+        "compile-fails-with-hint-when-wasp-npm-package-version-mismatches-cli"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ corruptWaspSpecVersion,
-                  assertCommandFailsWithInstallHint waspCliCompile
+                [ corruptWaspNpmPackageVersion,
+                  assertCommandFailsWithVersionMismatchHint waspCliCompile
                 ]
             ]
         ),
       TestCase
-        "build-start-fails-with-install-hint-when-wasp-spec-missing"
+        "compile-fails-with-hint-when-wasp-npm-package-is-not-a-dependency"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ removeWaspNpmPackageDependency,
+                  assertCommandFailsWithNotADependencyHint waspCliCompile
+                ]
+            ]
+        ),
+      TestCase
+        "build-start-fails-with-install-hint-when-wasp-npm-package-missing"
         -- `wasp build start` requires `.wasp/build` to exist before its
-        -- `WaspSpecAvailable` check fires, so we build first, then nuke
+        -- `WaspNpmPackageAvailable` check fires, so we build first, then nuke
         -- node_modules to reach the install-hint failure path.
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
@@ -86,7 +95,7 @@ waspSpecAvailableTest =
             ]
         ),
       TestCase
-        "commands-not-requiring-wasp-spec-succeed-when-missing"
+        "commands-not-requiring-wasp-npm-package-succeed-when-missing"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
@@ -94,7 +103,6 @@ waspSpecAvailableTest =
                   (\command -> [removeNodeModules, command])
                   -- Project-scoped commands that don't require wasp-spec to be installed.
                   [ waspCliClean,
-                    waspCliInstall,
                     waspCliShowBuild,
                     -- Project-agnostic commands. They don't read the project,
                     -- so they should be unaffected by wasp-spec presence.
@@ -107,20 +115,36 @@ waspSpecAvailableTest =
         )
     ]
   where
-    -- Putting the project in a "wasp-spec missing" state without invoking any wasp command.
+    -- Putting the project in a "@wasp/wasp missing" state without invoking any wasp command.
     removeNodeModules :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeNodeModules = return "rm -rf node_modules"
 
-    corruptWaspSpecVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
-    corruptWaspSpecVersion = do
+    -- A project from before Wasp 0.27, which never declared @wasp/wasp.
+    removeWaspNpmPackageDependency :: ShellCommandBuilder WaspProjectContext ShellCommand
+    removeWaspNpmPackageDependency = return "npm pkg delete dependencies.@wasp/wasp && rm -rf node_modules/@wasp/wasp"
+
+    corruptWaspNpmPackageVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
+    corruptWaspNpmPackageVersion = do
       context <- ask
-      let waspSpecDir = context.waspProjectDir </> [reldir|.wasp/spec|]
-      return $ "(cd " ++ fromAbsDir waspSpecDir ++ " && npm pkg set version=9.9.9)"
+      let waspNpmPackageDir = context.waspProjectDir </> [reldir|node_modules/@wasp/wasp|]
+      return $ "(cd " ++ fromAbsDir waspNpmPackageDir ++ " && npm pkg set version=9.9.9)"
 
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
       ShellCommandBuilder WaspProjectContext ShellCommand
     assertCommandFailsWithInstallHint commandBuilder =
       -- Negate the wrapped command so the assertion holds when it fails (exit non-zero)
-      -- AND the output contains the "Run `wasp install`" hint.
-      assertCommandOutputContains (("! " ++) <$> commandBuilder) ("Run " ++ styleCode "wasp install")
+      -- AND the output contains the "Run `npm install`" hint.
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) ("Run " ++ styleCode "npm install")
+
+    assertCommandFailsWithNotADependencyHint ::
+      ShellCommandBuilder WaspProjectContext ShellCommand ->
+      ShellCommandBuilder WaspProjectContext ShellCommand
+    assertCommandFailsWithNotADependencyHint commandBuilder =
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) "Wasp is not a dependency of this project"
+
+    assertCommandFailsWithVersionMismatchHint ::
+      ShellCommandBuilder WaspProjectContext ShellCommand ->
+      ShellCommandBuilder WaspProjectContext ShellCommand
+    assertCommandFailsWithVersionMismatchHint commandBuilder =
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) "Wasp version mismatch"

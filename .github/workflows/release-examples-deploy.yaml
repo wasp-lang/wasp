@@ -74,7 +74,15 @@ jobs:
 
       - name: Install app dependencies
         working-directory: ${{ matrix.app-dir }}
-        run: wasp install
+        env:
+          WASP_VERSION: ${{ inputs.version }}
+        # The examples depend on the dev Wasp tarballs from this repo (see
+        # their package.json). We deploy with the released version instead.
+        # TODO: Remove once the examples join the pnpm workspace.
+        run: |
+          npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
+          npm pkg delete overrides "//"
+          $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}
@@ -130,7 +138,15 @@ jobs:
 
       - name: Install app dependencies
         working-directory: examples/ask-the-documents
-        run: wasp install
+        env:
+          WASP_VERSION: ${{ inputs.version }}
+        # The examples depend on the dev Wasp tarballs from this repo (see
+        # their package.json). We deploy with the released version instead.
+        # TODO: Remove once the examples join the pnpm workspace.
+        run: |
+          npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
+          npm pkg delete overrides "//"
+          $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
 
       - name: Deploy to Railway
         working-directory: examples/ask-the-documents

@@ -15,6 +15,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import Data.Maybe (fromJust)
+import qualified Data.Text as T
 import FileSystem
   ( SnapshotDir,
     SnapshotFile,
@@ -137,14 +138,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
         filterIgnoredFilePaths =
           keepUnlessMatched
             ( map isBasenameOf [".DS_Store", "node_modules"]
-                ++ [
-                     -- The @wasp/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec (built from packages/spec).
-                     -- It is only copied into .wasp because we need to reach it with `npm install`.
-                     -- If there are errors in this package, they will surface either during package tests or
-                     -- manifest in the project snapshot. We can therefore skip it.
-                     isSubpathOf ".wasp/spec",
-                     -- The project lock file persists by design and contains the PID
+                ++ [ -- The project lock file persists by design and contains the PID
                      -- of the last Wasp command, which is not deterministic.
                      isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
@@ -162,7 +156,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
 getNormalizedSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
 getNormalizedSnapshotFilesForContentCheck snapshotDir = do
   snapshotFiles <- getSnapshotFilesForContentCheck
-  formatPackageJsonFiles snapshotFiles
+  normalizeJsonFiles snapshotFiles
   return snapshotFiles
   where
     getSnapshotFilesForContentCheck :: IO [Path' Abs (File SnapshotFile)]
@@ -187,34 +181,49 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                   "tsconfig.src.tsbuildinfo",
                   "dist"
                 ]
-                ++ [ -- The @wasp/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec (built from packages/spec), so we skip it.
-                     isSubpathOf ".wasp/spec",
-                     -- The project lock file persists by design and contains the PID
+                ++ [ -- The project lock file persists by design and contains the PID
                      -- of the last Wasp command, which is not deterministic.
                      isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )
 
-    -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
-    -- Ref: https://github.com/wasp-lang/wasp/issues/482
-    formatPackageJsonFiles :: [Path' Abs (File file)] -> IO ()
-    formatPackageJsonFiles = mapM_ formatPackageJsonFile . filter isPackageJsonFile
+    -- Normalizes the JSON files that differ between machines. @package.json@
+    -- files get reformatted (ref: https://github.com/wasp-lang/wasp/issues/482),
+    -- and both they and the installed npm deps log get the dev tarball paths hidden.
+    normalizeJsonFiles :: [Path' Abs (File file)] -> IO ()
+    normalizeJsonFiles snapshotFiles = do
+      mapM_ (normalizeJsonFile formatPackageJson) $ filter isPackageJsonFile snapshotFiles
+      mapM_ (normalizeJsonFile formatInstalledNpmDepsLog) $ filter isInstalledNpmDepsLogFile snapshotFiles
       where
-        formatPackageJsonFile :: Path' Abs (File file) -> IO ()
-        formatPackageJsonFile packageJsonFile =
-          BS.readFile (SP.fromAbsFile packageJsonFile)
-            >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
+        normalizeJsonFile :: (Aeson.Value -> BSL.ByteString) -> Path' Abs (File file) -> IO ()
+        normalizeJsonFile format jsonFile =
+          BS.readFile (SP.fromAbsFile jsonFile)
+            >>= BSL.writeFile (SP.fromAbsFile jsonFile) . format . hideDevWaspNpmPackageTarballs . unsafeDecodeJson
+
+        -- In development, projects depend on the Wasp npm packages through
+        -- `file:` tarballs whose absolute paths depend on where the repo is
+        -- checked out (see "Wasp.Project.WaspNpmPackage"), so we replace those
+        -- paths with a placeholder. The lib tarballs are referenced relatively
+        -- from inside the project, so they stay as they are.
+        hideDevWaspNpmPackageTarballs :: Aeson.Value -> Aeson.Value
+        hideDevWaspNpmPackageTarballs (Aeson.Object object) = Aeson.Object $ fmap hideDevWaspNpmPackageTarballs object
+        hideDevWaspNpmPackageTarballs (Aeson.Array array) = Aeson.Array $ fmap hideDevWaspNpmPackageTarballs array
+        hideDevWaspNpmPackageTarballs (Aeson.String specifier)
+          | "file:/" `T.isPrefixOf` specifier && ".tgz" `T.isSuffixOf` specifier = Aeson.String "file:<dev-tarball>"
+        hideDevWaspNpmPackageTarballs other = other
 
         isPackageJsonFile :: Path' Abs (File file) -> Bool
         isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
 
+        isInstalledNpmDepsLogFile :: Path' Abs (File file) -> Bool
+        isInstalledNpmDepsLogFile = equalFilePath "installedNpmDepsLog.json" . takeFileName . SP.fromAbsFile
+
         unsafeDecodeJson :: BS.ByteString -> Aeson.Value
         unsafeDecodeJson = fromJust . Aeson.decodeStrict
 
-        formatJson :: Aeson.Value -> BSL.ByteString
-        formatJson =
+        formatPackageJson :: Aeson.Value -> BSL.ByteString
+        formatPackageJson =
           AesonPretty.encodePretty'
             AesonPretty.Config
               { AesonPretty.confIndent = AesonPretty.Spaces 2,
@@ -222,6 +231,10 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                 AesonPretty.confNumFormat = AesonPretty.Generic,
                 AesonPretty.confTrailingNewline = True
               }
+
+        -- Same encoding "Wasp.Generator.NpmInstall.InstalledNpmDepsLog" uses to write the file.
+        formatInstalledNpmDepsLog :: Aeson.Value -> BSL.ByteString
+        formatInstalledNpmDepsLog = AesonPretty.encodePretty
 
 defineSnapshotTestCases ::
   Path' Abs (Dir SnapshotDir) ->

@@ -12,7 +12,7 @@ Any new or modified features should be added and tested here whenever possible.
 ## Setup
 
 ```sh
-wasp install
+npm install
 ```
 
 ### Environment Variables

@@ -22,7 +22,7 @@ wasp new <project-name> -t basic
 
 ## Development
 
-After cloning the project, run `wasp install`.
+After cloning the project, run `npm install`.
 
 To start the application locally for development or preview purposes:
 

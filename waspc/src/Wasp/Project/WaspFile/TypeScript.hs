@@ -22,6 +22,7 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
+import System.Directory (createDirectoryIfMissing)
 import System.Exit (ExitCode (..))
 import System.IO (hClose)
 import System.IO.Temp (withTempFile)
@@ -33,7 +34,6 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -45,6 +45,7 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     tsConfigPaths,
   )
+import Wasp.Project.WaspNpmPackage (waspSpecAnalyzerScriptInWaspProjectDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
@@ -77,7 +78,9 @@ data SpecResultFile
 -- time (e.g. `wasp show spec` next to `wasp start`) don't conflict. The file
 -- is deleted afterwards.
 withSpecResultFile :: CompileOptions -> (Path' Abs (File SpecResultFile) -> IO a) -> IO a
-withSpecResultFile compileOptions action =
+withSpecResultFile compileOptions action = do
+  -- Nothing else guarantees the .wasp dir exists yet, e.g. right after `wasp new`.
+  createDirectoryIfMissing True (fromAbsDir dotWaspDir)
   withTempFile
     (fromAbsDir dotWaspDir)
     (fromRelFile specResultFileTemplate)
@@ -120,7 +123,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
           ]
           compileOptions.waspProjectDir
           "node"
-          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+          [ fromRelFile waspSpecAnalyzerScriptInWaspProjectDir,
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),

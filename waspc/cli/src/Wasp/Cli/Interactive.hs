@@ -3,6 +3,7 @@
 module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
+    askYesNo,
     askForRequiredInput,
     tryGettingConfirmation,
     tryGettingConfirmationWithTimeout,
@@ -13,6 +14,7 @@ module Wasp.Cli.Interactive
 where
 
 import Control.Applicative ((<|>))
+import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -129,6 +131,20 @@ askToChoose question options = do
 
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
+
+-- | Asks a yes/no question. An empty answer means yes.
+askYesNo :: String -> IO Bool
+askYesNo question = do
+  answer <- map toLower <$> askForInput (question ++ " [Y/n]")
+  case answer of
+    "" -> return True
+    "y" -> return True
+    "yes" -> return True
+    "n" -> return False
+    "no" -> return False
+    _ -> do
+      putStrLn $ Term.applyStyles [Term.Red] "Please answer y or n."
+      askYesNo question
 
 tryGettingConfirmation :: String -> String -> IO (Either ConfirmationError ())
 tryGettingConfirmation message requiredAnswer = do

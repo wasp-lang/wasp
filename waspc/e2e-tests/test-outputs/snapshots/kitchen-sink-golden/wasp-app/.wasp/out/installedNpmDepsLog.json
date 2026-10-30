@@ -7,6 +7,10 @@
                     "version": "~4.42.0"
                 },
                 {
+                    "name": "@wasp/wasp",
+                    "version": "file:<dev-tarball>"
+                },
+                {
                     "name": "chai",
                     "version": "^5.2.0"
                 },
@@ -83,10 +87,6 @@
                 {
                     "name": "@types/uuid",
                     "version": "^9.0.8"
-                },
-                {
-                    "name": "@wasp/spec",
-                    "version": "file:.wasp/spec"
                 },
                 {
                     "name": "@wasp/wasp-app-runner",

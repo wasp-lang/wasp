@@ -12,6 +12,7 @@ web/**/*.mdx
 web/static/img/
 waspc/data/packages/
 waspc/data/Generator/libs/
+waspc/.dev-packages/
 pnpm-lock.yaml
 coverage/
 web/docs/api/
