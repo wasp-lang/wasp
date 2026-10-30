@@ -67,8 +67,8 @@ allSetupSteps = [minBound .. maxBound]
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
 prerequisites FormatPrismaSchema = [InstallNpmDeps]
-prerequisites WarnIfDbNeedsMigration = [FormatPrismaSchema]
-prerequisites GeneratePrismaClient = [FormatPrismaSchema]
+prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
+prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
 prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
 -- Runs `tsc`, and the user code imports the SDK.
