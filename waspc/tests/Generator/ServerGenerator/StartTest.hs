@@ -135,9 +135,11 @@ spec_ServerProcessController =
         notifySuccessfulCompile fixture NoChange
         writeFile (serverDirPath fixture </> "release") ""
 
+        -- The server from the previous bundle runs while the server is bundled
+        -- again, so we wait for the controller to replace it first.
         waitUntil "the server is bundled again" $ (== 3) <$> readBundleCount fixture
-        serverPid <- waitForServerStart fixture
         waitUntilCompilesHandledOrFail fixture
+        serverPid <- waitForServerStart fixture
         isProcessAlive serverPid `shouldReturn` True
 
     it "starts the server again after it crashes, on the next successful compile" $
