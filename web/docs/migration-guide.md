@@ -18,6 +18,8 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 The server's Docker image now contains only the files the server needs at runtime, instead of the whole `node_modules` folder. This makes the image about half the size.
 
+Wasp finds those files by analyzing the server's imports. Some packages load their files in a non-standard way that this analysis can't follow, and you might need to list them in `server.traceDeps`.
+
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
 ## How to migrate?
@@ -154,7 +156,7 @@ Prisma 6 changed how some things are stored in the database, so `wasp db migrate
 
 **If your server doesn't use packages that serve or load files from their own folder, like `swagger-ui-express`, you can skip this step.**
 
-The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files another way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
+The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files in a non-standard way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
 List such packages in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image) to copy all of their files:
 
@@ -167,7 +169,7 @@ export default app({
 })
 ```
 
-### 6. Install Python if your app needs it
+### 6. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -179,7 +181,7 @@ RUN apk add --no-cache python3
 
 ### 7. Update your custom Dockerfile
 
-**If you don't use a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), you can skip this step.**
+**If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
 The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
 

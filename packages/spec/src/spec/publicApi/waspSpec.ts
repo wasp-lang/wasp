@@ -554,8 +554,8 @@ export interface Server {
    * Extra packages to copy into the server's Docker image.
    *
    * The Docker image contains only the files the server imports. A package
-   * that loads files another way (for example, static assets it serves from
-   * its own folder) can miss some of them. Each entry is a package name with
+   * that loads files in a non-standard way (for example, static assets it
+   * serves from its own folder) can miss some of them. Each entry is a package name with
    * an optional prefix or suffix, the same syntax as Nitro's `traceDeps`:
    *
    * - `"pkg"` traces the package even when the server doesn't import it.
@@ -563,8 +563,9 @@ export interface Server {
    * - `"!pkg"` stops copying all files of a package Wasp copies fully by
    *   default.
    *
-   * Wasp already copies all files of the packages nf3 knows need it, like
-   * `youch` and `aws-crt`.
+   * We use [nf3](https://github.com/unjs/nf3), which finds most of the files
+   * your dependencies need by default. Only use this setting if you've
+   * confirmed a necessary file is missing.
    *
    * @example
    * ```ts

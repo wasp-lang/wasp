@@ -55,7 +55,7 @@ fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll mak
 The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder.
 Wasp finds those files by following the server's imports.
 
-A package that loads files another way can end up without them in the image.
+A package that loads files in a non-standard way can end up without them in the image.
 A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
 Use `server.traceDeps` to copy such files:
@@ -75,7 +75,7 @@ Each entry is a package name with an optional prefix or suffix, the same syntax 
 - `"pkg*"` copies all of the package's files.
 - `"!pkg"` stops copying all files of a package Wasp copies fully by default.
 
-Wasp already copies all files of the packages [nf3 knows need it](https://github.com/unjs/nf3/blob/main/src/db.ts), like `youch` and `aws-crt`.
+We use [nf3](https://github.com/unjs/nf3), which finds most of the files your dependencies need by default. Only use this setting if you've confirmed a necessary file is missing.
 
 ## Customizing the Dockerfile
 
