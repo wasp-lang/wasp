@@ -13,29 +13,24 @@ Together with `scripts/make-npm-packages` and `waspc/tools`, these form the repo
 (`pnpm-workspace.yaml` at the repo root). Run `pnpm install` at the repo root once; the build scripts
 below do it for you.
 
-## Packages `waspc` ships in its data dir
+## Build outputs
 
-`waspc` expects `spec` under `waspc/data/packages/` and the libs
-under `waspc/data/Generator/libs/`. Those directories are build outputs (gitignored):
+`waspc` expects the libs under `waspc/data/Generator/libs/`, and Wasp projects in this repo
+depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs (gitignored):
 
-- `./run build:packages` builds each package and copies `dist/` and `package.json`
-  into `waspc/data/packages/<name>/`.
 - `./run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
+- `./run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
+  into `waspc/.dev-packages/`.
 
 Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.
 
 ### Adding a new package that `waspc` runs
 
 Create a directory in this folder with a `build` script in `package.json` that compiles to
-`dist/`, add it to `pnpm-workspace.yaml` and to `WASPC_PACKAGES` in
-`waspc/tools/packages/utils.ts`, and add its files to `data-files` in `waspc.cabal`:
-
-```
-packages/<package-name>/package.json
-packages/<package-name>/dist/**/*.js
-```
-
-Adjust the last line if the package emits other file extensions.
+`dist/`, add it to `pnpm-workspace.yaml`, to `WASP_PACKAGE_NAMES` in
+`waspc/tools/packages/utils.ts`, to the dependencies of `wasp/package.json` and to the
+packages `waspc/tools/dev-packages/build.ts` builds and packs. Give `@wasp/wasp` a run script
+for it (see `wasp/run-deploy.js`) and point `Wasp.Project.WaspNpmPackage` at that script.
 
 ## CI builds and release
 

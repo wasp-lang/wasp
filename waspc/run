@@ -23,10 +23,9 @@ DEFAULT_COLOR="\033[39m"
 WORKSPACE_INSTALL_CMD="(cd $REPOSITORY_ROOT && pnpm install)"
 
 # Building
-WASP_PACKAGES_COMPILE="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/packages/build.ts"
 WASP_LIBS_COMPILE="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/libs/build.ts"
 WASP_DEV_PACKAGES_COMPILE="$WORKSPACE_INSTALL_CMD && node ${SCRIPT_DIR}/tools/dev-packages/build.ts"
-WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE && $WASP_DEV_PACKAGES_COMPILE"
+WASP_ALL_DEPS_COMPILE="$WASP_LIBS_COMPILE && $WASP_DEV_PACKAGES_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
@@ -201,8 +200,6 @@ print_usage() {
     "Builds the Haskell project + all sub-projects (i.e. TS packages). Run with the \`BUILD_STATIC=1\` env to build statically."
   print_usage_cmd "build:hs" \
     "Builds the Haskell project only. Run with the \`BUILD_STATIC=1\` env to build statically."
-  print_usage_cmd "build:packages" \
-    "Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
   print_usage_cmd "build:dev-packages" \
@@ -288,9 +285,6 @@ case $COMMAND in
     ;;
   build:hs)
     echo_and_eval "$BUILD_HS_CMD"
-    ;;
-  build:packages)
-    echo_and_eval "$WASP_PACKAGES_COMPILE"
     ;;
   build:libs)
     echo_and_eval "$WASP_LIBS_COMPILE"

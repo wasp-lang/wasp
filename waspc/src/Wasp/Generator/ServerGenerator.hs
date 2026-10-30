@@ -161,9 +161,7 @@ npmDepsFromWasp spec =
         N.devDependencies =
           Npm.Dependency.fromList
             [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
-              ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-              -- Used by `prepareProduction.ts` when building the Docker image.
-              ("nf3", "0.4.2")
+              ("@tsconfig/node" <> majorNodeVersionStr, "latest")
             ],
         peerDependencies = []
       }

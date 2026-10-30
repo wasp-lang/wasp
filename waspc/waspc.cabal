@@ -53,10 +53,6 @@ data-files:
   Lsp/templates/**/*.js
   Lsp/templates/**/*.jsx
   Lsp/templates/**/*.ts
-  packages/spec/dist/**/*.d.ts
-  packages/spec/dist/**/*.js
-  packages/spec/dist/**/*.map
-  packages/spec/package.json
 
 data-dir: data/
 

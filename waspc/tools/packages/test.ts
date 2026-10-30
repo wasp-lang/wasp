@@ -2,19 +2,12 @@
 // Helper to test the packages/* packages locally and in CI.
 
 import { getPackageJson, runCmd } from "../utils.ts";
-import {
-  getPackageDirPath,
-  PUBLISHED_WASP_PACKAGE_NAMES,
-  WASPC_PACKAGE_NAMES,
-} from "./utils.ts";
+import { getPackageDirPath, WASP_PACKAGE_NAMES } from "./utils.ts";
 
 testPackages();
 
 function testPackages(): void {
-  for (const packageName of [
-    ...WASPC_PACKAGE_NAMES,
-    ...PUBLISHED_WASP_PACKAGE_NAMES,
-  ]) {
+  for (const packageName of WASP_PACKAGE_NAMES) {
     testPackage(packageName);
   }
 }
