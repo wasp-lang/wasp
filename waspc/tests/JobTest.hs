@@ -116,26 +116,29 @@ spec_Job = do
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533")
 
-    it "emits all the output of a process that exited, even if the job is stopped right after" $ do
-      pidPath <- makeTempPath "wasp-exited-process"
-      let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('x'.repeat(200000));") [pidPath]
-          -- Passing the output on slowly leaves some of it unread when the
-          -- process exits.
-          passOutputOnSlowly = Job.observeOutput (\_ _ -> threadDelay 50000)
-          waitForProcessExit = do
-            waitUntil "the process starts" $ doesFileExist pidPath
-            pid <- readProcessId pidPath
-            let pollUntilExited = isProcessAlive pid >>= \alive -> when alive $ threadDelay 10000 >> pollUntilExited
-            pollUntilExited
-      ( do
-          result <-
-            timeout (secondsToMicroSeconds 10)
-              $ Job.run
-              $ Job.captureOutput
-              $ Job.race (passOutputOnSlowly $ Job.fromProc process) (liftIO waitForProcessExit)
-          T.length . snd <$> result `shouldBe` Just 200000
-        )
-        `finally` removePidFile pidPath
+    -- The test checks whether the process exited with `isProcessAlive`, which
+    -- doesn't work on Windows.
+    unless (System.Info.os == "mingw32") $
+      it "emits all the output of a process that exited, even if the job is stopped right after" $ do
+        pidPath <- makeTempPath "wasp-exited-process"
+        let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('x'.repeat(200000));") [pidPath]
+            -- Passing the output on slowly leaves some of it unread when the
+            -- process exits.
+            passOutputOnSlowly = Job.observeOutput (\_ _ -> threadDelay 50000)
+            waitForProcessExit = do
+              waitUntil "the process starts" $ doesFileExist pidPath
+              pid <- readProcessId pidPath
+              let pollUntilExited = isProcessAlive pid >>= \alive -> when alive $ threadDelay 10000 >> pollUntilExited
+              pollUntilExited
+        ( do
+            result <-
+              timeout (secondsToMicroSeconds 10)
+                $ Job.run
+                $ Job.captureOutput
+                $ Job.race (passOutputOnSlowly $ Job.fromProc process) (liftIO waitForProcessExit)
+            T.length . snd <$> result `shouldBe` Just 200000
+          )
+          `finally` removePidFile pidPath
 
     it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"
