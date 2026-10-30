@@ -14,6 +14,8 @@ import ShellCommands
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
+-- | Each test case uses its own (client, server) ports, so they can run in
+-- parallel.
 waspStartTest :: Test
 waspStartTest =
   Test
@@ -26,7 +28,7 @@ waspStartTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
-                runWaspStartAndStopIt (AppPorts 31000 31001)
+                runWaspStartAndStopIt (31000, 31001)
                   ++ [ return $ assertDirectoryExists ".wasp",
                        return $ assertDirectoryExists "node_modules"
                      ]
@@ -38,7 +40,7 @@ waspStartTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
                 waspCliCompile
-                  : runWaspStartAndStopIt (AppPorts 31010 31011)
+                  : runWaspStartAndStopIt (31010, 31011)
             ]
         ),
       TestCase
@@ -64,18 +66,12 @@ waspStartTest =
     assertDirectoryExists :: FilePath -> ShellCommand
     assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"
 
-    crashTestPorts :: AppPorts
-    crashTestPorts = AppPorts 31020 31021
+    crashTestPorts :: (Int, Int)
+    crashTestPorts = (31020, 31021)
 
     -- Kills the Vite dev server of this test case's project.
     crashWebApp :: ShellCommand
     crashWebApp = "pkill -KILL -f \"$PWD/node_modules/.bin/vite\""
-
--- | Each test case uses its own ports, so they can run in parallel.
-data AppPorts = AppPorts
-  { clientPort :: Int,
-    serverPort :: Int
-  }
 
 -- | Runs `wasp start` in the background until the app is up, and then stops
 -- it with SIGINT. Checks that Wasp stops the processes it started, by checking
@@ -84,7 +80,7 @@ data AppPorts = AppPorts
 -- We send SIGINT only to Wasp, and not to its whole process group like Ctrl+C
 -- in a terminal would, so that it's Wasp's job to stop the processes it
 -- started.
-runWaspStartAndStopIt :: AppPorts -> [ShellCommandBuilder WaspProjectContext ShellCommand]
+runWaspStartAndStopIt :: (Int, Int) -> [ShellCommandBuilder WaspProjectContext ShellCommand]
 runWaspStartAndStopIt ports =
   [ startWaspInBackground ports,
     return $ waitUntilAppIsListening ports,
@@ -100,16 +96,16 @@ runWaspStartAndStopIt ports =
         ~&& waitUntilWaspExits "Wasp didn't stop after SIGINT."
 
 -- | Stores the PID of the background process in `$WASP_START_PID`.
-startWaspInBackground :: AppPorts -> ShellCommandBuilder WaspProjectContext ShellCommand
-startWaspInBackground ports = do
+startWaspInBackground :: (Int, Int) -> ShellCommandBuilder WaspProjectContext ShellCommand
+startWaspInBackground (clientPort, serverPort) = do
   startCommand <- waspCliStart
   let startWithPortsCommand =
         unwords
           [ startCommand,
             "--client-port",
-            show ports.clientPort,
+            show clientPort,
             "--server-port",
-            show ports.serverPort
+            show serverPort
           ]
   return $
     ("{ " ++ startWithPortsCommand ++ " > " ++ waspStartLogFile ++ " 2>&1 & }")
@@ -121,23 +117,23 @@ waspStartLogFile = "wasp-start.log"
 waitUntilWaspExits :: String -> ShellCommand
 waitUntilWaspExits = waitUntil 60 "! kill -0 \"$WASP_START_PID\" 2>/dev/null"
 
-waitUntilAppIsListening :: AppPorts -> ShellCommand
-waitUntilAppIsListening ports =
+waitUntilAppIsListening :: (Int, Int) -> ShellCommand
+waitUntilAppIsListening (clientPort, serverPort) =
   waitUntil
     300
-    (isPortListening ports.clientPort ~&& isPortListening ports.serverPort)
+    (isPortListening clientPort ~&& isPortListening serverPort)
     "The app didn't start listening on its ports."
 
 -- | Only checks the web app's port. The server runs under nodemon, which
 -- leaves it running when it's stopped with SIGTERM, so we kill the server
 -- ourselves instead, so that it doesn't affect other tests.
-waitUntilAppStopsListening :: AppPorts -> ShellCommand
-waitUntilAppStopsListening ports =
+waitUntilAppStopsListening :: (Int, Int) -> ShellCommand
+waitUntilAppStopsListening (clientPort, serverPort) =
   waitUntil
     30
-    ("! " ++ isPortListening ports.clientPort)
+    ("! " ++ isPortListening clientPort)
     "The web app kept listening on its port after Wasp stopped."
-    ~&& ("{ lsof -ti tcp:" ++ show ports.serverPort ++ " -sTCP:LISTEN | xargs kill 2>/dev/null || true ; }")
+    ~&& ("{ lsof -ti tcp:" ++ show serverPort ++ " -sTCP:LISTEN | xargs kill 2>/dev/null || true ; }")
 
 isPortListening :: Int -> ShellCommand
 isPortListening port = "curl -s -o /dev/null http://localhost:" ++ show port
