@@ -8,8 +8,7 @@
   },
   "devDependencies": {
     "@tsconfig/node24": "latest",
-    "@types/node": "^24.0.0",
-    "nf3": "0.4.2"
+    "@types/node": "^24.0.0"
   },
   "engineStrict": true,
   "engines": {
