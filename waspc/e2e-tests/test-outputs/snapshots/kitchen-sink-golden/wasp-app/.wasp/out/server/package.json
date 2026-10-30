@@ -22,6 +22,7 @@
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^24.0.0",
+    "nf3": "0.4.2",
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
