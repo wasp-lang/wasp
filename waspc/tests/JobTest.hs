@@ -77,7 +77,7 @@ spec_Job = do
                 waitUntil "the process exits" $ not <$> isProcessAlive pid
               _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
           )
-          `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+          `finally` removePidFile pidPath
 
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do
@@ -143,7 +143,7 @@ spec_Job = do
                 waitUntil "the process exits" $ not <$> isProcessAlive pid
               _ -> expectationFailure $ "Expected the job to fail, but got: " <> show result
           )
-          `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+          `finally` removePidFile pidPath
 
     -- On Windows, stopping a job waits for its process to exit by itself,
     -- because reading the process's output can't be interrupted there.
@@ -196,7 +196,7 @@ withRunningProcess script action = do
         pid <- readProcessId pidPath
         action running pid `finally` killProcess pid
     )
-    `finally` mapM_ removeIfExists [pidPath, pidPath <> ".tmp"]
+    `finally` removePidFile pidPath
 
 -- | Writes the process's ID to the file at the path given as its first
 -- argument, all at once, so that it's never read half-written.
@@ -204,9 +204,17 @@ writePidFileScript :: String
 writePidFileScript =
   unlines
     [ "const pidPath = process.argv[1];",
-      "require('node:fs').writeFileSync(pidPath + '.tmp', String(process.pid));",
-      "require('node:fs').renameSync(pidPath + '.tmp', pidPath);"
+      "require('node:fs').writeFileSync(pidPath + '" <> pidTmpFileSuffix <> "', String(process.pid));",
+      "require('node:fs').renameSync(pidPath + '" <> pidTmpFileSuffix <> "', pidPath);"
     ]
+
+-- | Removes the file written by 'writePidFileScript', and the temporary one it
+-- writes first, in case the process stopped before renaming it.
+removePidFile :: FilePath -> IO ()
+removePidFile pidPath = mapM_ removeIfExists [pidPath, pidPath <> pidTmpFileSuffix]
+
+pidTmpFileSuffix :: String
+pidTmpFileSuffix = ".tmp"
 
 tryIOException :: IO a -> IO (Either IOException a)
 tryIOException = try
