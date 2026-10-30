@@ -3,6 +3,7 @@
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import semver from "semver";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
 import { getWaspcPackageDirPath, WASPC_PACKAGES } from "./packages/utils.ts";
@@ -158,25 +159,12 @@ function bustWaspProjectsLibsCache(): void {
   }
 }
 
-// TODO: Consider using `semver` package in future.
-// So far the `tools` project only has dev dependencies.
-// Adding runtime dependencies would change the workflow.
 function bumpVersion(version: string, bumpType: BumpType): string {
-  const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
-  if (!match) {
+  const nextVersion = semver.inc(version, bumpType);
+  if (nextVersion === null) {
     throw new Error(`Invalid version format: ${version}`);
   }
-  const major = Number(match[1]);
-  const minor = Number(match[2]);
-  const patch = Number(match[3]);
-  switch (bumpType) {
-    case "major":
-      return `${major + 1}.0.0`;
-    case "minor":
-      return `${major}.${minor + 1}.0`;
-    case "patch":
-      return `${major}.${minor}.${patch + 1}`;
-  }
+  return nextVersion;
 }
 
 function isBumpType(value: string | undefined): value is BumpType {

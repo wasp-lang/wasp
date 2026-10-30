@@ -171,6 +171,9 @@ catalogs:
     '@types/node':
       specifier: ^24.0.1
       version: 24.19.2
+    '@types/semver':
+      specifier: ^7.7.1
+      version: 7.8.0
     '@vitest/coverage-v8':
       specifier: ^5.0.5
       version: 5.0.5
@@ -183,6 +186,9 @@ catalogs:
     prettier:
       specifier: 3.5.3
       version: 3.5.3
+    semver:
+      specifier: ^7.7.3
+      version: 7.8.5
     tsx:
       specifier: ^4.20.6
       version: 4.23.15
@@ -464,14 +470,14 @@ importers:
         specifier: ^7.1.1
         version: 7.1.1
       semver:
-        specifier: ^7.7.3
+        specifier: 'catalog:'
         version: 7.8.5
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: 'catalog:'
         version: 7.8.0
       typescript:
         specifier: 'catalog:'
@@ -535,9 +541,15 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
+      '@types/semver':
+        specifier: 'catalog:'
+        version: 7.8.0
       execa:
         specifier: 'catalog:'
         version: 9.6.1
+      semver:
+        specifier: 'catalog:'
+        version: 7.8.5
       tar:
         specifier: ^7.5.22
         version: 7.5.22

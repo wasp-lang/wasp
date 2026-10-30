@@ -25,11 +25,11 @@
     "commander": "catalog:",
     "dotenv": "^16.5.0",
     "p-retry": "^7.1.1",
-    "semver": "^7.7.3"
+    "semver": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/semver": "^7.7.1",
+    "@types/semver": "catalog:",
     "typescript": "catalog:"
   }
 }
