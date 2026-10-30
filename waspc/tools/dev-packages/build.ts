@@ -21,6 +21,7 @@ import {
   getRepoRootPath,
   getWaspcDirPath,
   runCmd,
+  runCmdAndGetStdout,
 } from "../utils.ts";
 
 const DEV_PACKAGES_DIR_NAME = ".dev-packages";
@@ -125,7 +126,7 @@ function writeDevCliConfig(devPackagesDir: string): void {
 }
 
 function getCabalWaspCliBinPath(): string {
-  return runCmd("cabal", ["list-bin", "wasp-cli"], {
+  return runCmdAndGetStdout("cabal", ["list-bin", "wasp-cli"], {
     cwd: getWaspcDirPath(),
   }).trim();
 }

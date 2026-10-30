@@ -54,6 +54,14 @@ export function runCmd(
   execaSync(cmd, args, options);
 }
 
+export function runCmdAndGetStdout(
+  cmd: string,
+  args: string[],
+  options: { cwd: string },
+): string {
+  return execaSync(cmd, args, options).stdout;
+}
+
 const STARTING_SEARCH_LOCATIONS = ["examples"];
 const DIRS_TO_SKIP = new Set(["node_modules"]);
 export function findWaspProjectDirsAbsPathInRepo(): string[] {
