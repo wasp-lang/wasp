@@ -15,6 +15,11 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
+    devServerStartProcess,
+    devServerStartCommand,
+    serverTscProcess,
+    serverRollupProcess,
+    serverBundleCommand,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     serverPortEnvVarName,
@@ -123,6 +128,27 @@ serverPortEnvVarName :: String
 serverPortEnvVarName =
   -- Not prefixed with `WASP_` because many deployment platforms use this env.
   "PORT"
+
+devServerStartProcess :: (String, [String])
+devServerStartProcess = ("node", ["--enable-source-maps", "-r", "dotenv/config", "bundle/server.js"])
+
+devServerStartCommand :: String
+devServerStartCommand = processToCommand devServerStartProcess
+
+-- | Through its project reference, `tsc --build` type-checks all of the user's
+-- source files, client ones included, so their type errors also fail the
+-- bundle.
+serverTscProcess :: (String, [String])
+serverTscProcess = ("tsc", ["--build"])
+
+serverRollupProcess :: (String, [String])
+serverRollupProcess = ("rollup", ["--config", "--silent"])
+
+serverBundleCommand :: String
+serverBundleCommand = processToCommand serverTscProcess <> " && " <> processToCommand serverRollupProcess
+
+processToCommand :: (String, [String]) -> String
+processToCommand (executable, args) = unwords $ executable : args
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

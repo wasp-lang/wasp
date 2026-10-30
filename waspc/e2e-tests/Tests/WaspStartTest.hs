@@ -168,8 +168,7 @@ waspCliStartWithPorts (clientPort, serverPort) = do
       ]
 
 -- | Registers an EXIT trap that stops whatever is left of the app when the
--- test case ends, even if it fails. It also stops the server, which runs under
--- nodemon and so keeps running after Wasp stops it with SIGTERM.
+-- test case ends, even if it fails.
 stopAppOnExitTrap :: (Int, Int) -> ShellCommandBuilder WaspProjectContext ShellCommand
 stopAppOnExitTrap (clientPort, serverPort) = do
   projectDir <- asks waspProjectDir
@@ -197,18 +196,14 @@ waitUntilAppIsListening (clientPort, serverPort) =
     (isPortListening clientPort ~&& isPortListening serverPort)
     "The app didn't start listening on its ports."
 
--- | Returns as soon as the web app stops listening on its port, and fails if
--- it's still listening after 30 seconds.
---
--- Only checks the web app's port. The server runs under nodemon, which leaves
--- it running when it's stopped with SIGTERM, so it's stopped by the trap from
--- 'startWaspInBackground' instead.
+-- | Returns as soon as nothing listens on the app's ports anymore, and fails
+-- if something still does after 30 seconds.
 waitUntilAppStopsListening :: (Int, Int) -> ShellCommand
-waitUntilAppStopsListening (clientPort, _) =
+waitUntilAppStopsListening (clientPort, serverPort) =
   waitUntil
     30
-    ("! " ++ isPortListening clientPort)
-    "The web app kept listening on its port after Wasp stopped."
+    (("! " ++ isPortListening clientPort) ~&& ("! " ++ isPortListening serverPort))
+    "Something kept listening on the app's ports after Wasp stopped."
 
 -- | Checks for a listening socket instead of making a request, so that it
 -- can't hang on an app that accepts connections but doesn't respond.

@@ -45,7 +45,7 @@ watchAndTest testRunner = ProjectLock.acquireWatcher $ \projectLock -> do
 
   watchOrStartResult <- liftIO $ do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspRoot outDir projectLock ongoingCompilationResultMVar
+    let watchWaspProjectSource = watch waspRoot outDir projectLock ongoingCompilationResultMVar $ const $ return ()
 
     -- Vitest must run from the root of the project because Vite won't resolve
     -- files outside of the project root (in this case, user src/ dir which the

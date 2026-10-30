@@ -3,9 +3,11 @@
 module Test.Process.Util
   ( ProcessId,
     readProcessId,
+    isPortAvailable,
     isProcessAlive,
     killProcess,
     makeTempPath,
+    trim,
     waitUntil,
   )
 where
@@ -13,7 +15,9 @@ where
 import Control.Monad (guard)
 import Data.Int (Int32)
 import System.Directory (getTemporaryDirectory, removeFile)
+import System.Exit (ExitCode (..))
 import System.IO (hClose, openTempFile, readFile')
+import qualified System.Process as P
 import Test.Hspec (expectationFailure)
 import Text.Read (readMaybe)
 import Wasp.Util.IO.Retry (constPause, retry)
@@ -70,6 +74,25 @@ killProcess pid =
 signal :: Signal -> ProcessId -> IO ()
 signal sig (ProcessId pid) = signalProcess sig $ fromIntegral pid
 #endif
+
+isPortAvailable :: String -> IO Bool
+isPortAvailable port = do
+  (exitCode, _, _) <-
+    P.readCreateProcessWithExitCode
+      (P.proc "node" ["-e", portProbeScript, trim port])
+      ""
+  return $ exitCode == ExitSuccess
+  where
+    portProbeScript =
+      unlines
+        [ "const net = require('node:net');",
+          "const server = net.createServer();",
+          "server.once('error', () => process.exit(1));",
+          "server.listen(Number(process.argv[1]), '127.0.0.1', () => server.close(() => process.exit(0)));"
+        ]
+
+trim :: String -> String
+trim = unwords . words
 
 waitUntil :: String -> IO Bool -> IO ()
 waitUntil label condition =

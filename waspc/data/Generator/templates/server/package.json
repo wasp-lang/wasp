@@ -6,13 +6,10 @@
   "type": "module",
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "scripts": {
-    "bundle": "{=& bundleScript =}",
-    "start": "{=& startScript =}",
+    "bundle": "{=& serverBundleCommand =}",
+    "start": "{= devServerStartCommand =}",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}"
-  },
-  "nodemonConfig": {
-    "delay": "1000"
   },
   "engineStrict": true,
   "engines": {
