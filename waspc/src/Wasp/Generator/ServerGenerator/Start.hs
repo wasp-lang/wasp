@@ -125,20 +125,16 @@ startServer serverRunConfig generatedAppDir controller = do
     printWaitingForChanges =
       J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
 
-    -- Same as the `bundle` script in the server's `package.json`.
-    -- Through its project reference, `tsc --build` type-checks all of the
-    -- user's source files, client ones included, so their type errors also
-    -- fail the bundle.
     bundle :: J.Job ExitCode
     bundle =
-      (J.fromProc =<< J.npmBinProc serverDir "tsc" ["--build"])
-        `J.andThen` (J.fromProc =<< J.npmBinProc serverDir "rollup" ["--config", "--silent"])
+      (J.fromProc =<< uncurry (J.npmBinProc serverDir) Common.serverTscProcess)
+        `J.andThen` (J.fromProc =<< uncurry (J.npmBinProc serverDir) Common.serverRollupProcess)
 
     serverProcess :: J.CreateJobProcess
     serverProcess =
       addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
         $ J.setCwd serverDir
-        $ J.proc Common.devServerStartExecutable Common.devServerStartArgs
+        $ uncurry J.proc Common.devServerStartProcess
 
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
