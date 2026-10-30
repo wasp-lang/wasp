@@ -24,6 +24,7 @@ catalog:
   tsx: ^4.20.6
   zx: ^8.8.5
   commander: ^14.0.2
+  execa: ^9.6.1
   "@commander-js/extra-typings": ^14.0.0
   prettier: 3.5.3
 

@@ -4,6 +4,7 @@
   "private": true,
   "devDependencies": {
     "@types/node": "catalog:",
+    "execa": "catalog:",
     "tar": "^7.5.22"
   }
 }

@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@sindresorhus/slugify": "^3.0.0",
-    "execa": "^9.6.1",
+    "execa": "catalog:",
     "fs-extra": "^11.3.2",
     "zod": "^4.3.6"
   },

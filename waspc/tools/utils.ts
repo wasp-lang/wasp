@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import { execFileSync, type ExecFileSyncOptions } from "node:child_process";
+import { execaSync } from "execa";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -49,25 +49,9 @@ export function assertPackageVersionMatchesWaspc(
 export function runCmd(
   cmd: string,
   args: string[],
-  options: ExecFileSyncOptions,
-): string {
-  return execFileSync(cmd, args.map(quoteForShell), {
-    ...options,
-    encoding: "utf-8",
-    // Required for Windows to find `npm` and `node` binaries.
-    shell: true,
-  });
-}
-
-// The shell gets the arguments joined with spaces, so each one is quoted to stay
-// a single word. Double quotes work in both POSIX shells and cmd.exe.
-function quoteForShell(arg: string): string {
-  if (arg.includes('"')) {
-    throw new Error(
-      `Cannot pass an argument containing a double quote: ${arg}`,
-    );
-  }
-  return `"${arg}"`;
+  options: { cwd: string; stdio?: "inherit" },
+): void {
+  execaSync(cmd, args, options);
 }
 
 const STARTING_SEARCH_LOCATIONS = ["examples"];
