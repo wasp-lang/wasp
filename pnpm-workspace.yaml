@@ -1,13 +1,10 @@
-# The Wasp repo is a pnpm workspace, but a few projects in it still use npm.
-# pnpm is pinned in mise.toml for us and in package.json's `packageManager`
-# for Cloudflare Pages, which builds web/ with it.
+# `packageManager` in package.json is for Cloudflare Pages, which builds web/.
 #
-# Not members yet:
-# - packages/deploy, packages/prisma, packages/studio. waspc ships them with
-#   their own package-lock.json and installs them with npm on first use.
-#   TODO: Move them in once they are part of the Wasp npm package.
-# - examples/ and the e2e test projects. They are Wasp apps, which use npm.
-#   TODO: Move them in once Wasp apps support pnpm.
+# Still on npm:
+# - packages/deploy, packages/prisma, packages/studio: waspc installs them with
+#   their own package-lock.json. TODO: Move them in once they are part of the
+#   Wasp npm package.
+# - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
   - packages/spec
   - packages/libs/*
@@ -18,9 +15,7 @@ packages:
   - waspc/starters-e2e-tests
   - waspc/tools
 
-# The tools every package uses, pinned once. A package says `catalog:` for
-# them, so their versions cannot drift between packages, and `pnpm pack`
-# writes the real version into what we publish.
+# `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:
   typescript: ~6.0.3
   "@types/node": ^24.0.1
@@ -35,9 +30,8 @@ catalog:
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 
-# None of these install scripts matter here. msw prints a support message,
-# esbuild and @swc/core look for a binary that is an optional dependency anyway,
-# core-js prints a funding message, fsevents ships prebuilt.
+# Install scripts we do not need: messages, or binaries that are optional
+# dependencies anyway.
 allowBuilds:
   "@swc/core": false
   core-js: false
@@ -45,36 +39,26 @@ allowBuilds:
   fsevents: false
   msw: false
 
-# No phantom dependencies. pnpm keeps our own packages strict by default, but
-# it also links every package into `node_modules/.pnpm/node_modules`, which
-# every third-party package can resolve from. A dependency that imports
-# something it never declared keeps working through that directory, and so
-# does a stale resolution. Without it, both fail at build time.
+# Third-party packages cannot resolve undeclared (phantom) dependencies
+# through `node_modules/.pnpm/node_modules`.
 hoist: false
 
-# typedoc loads its plugins by name from its own location, so they have to be
-# dependencies of typedoc itself for it to find them without hoisting.
+# typedoc resolves its plugins from its own location.
 packageExtensions:
   typedoc:
     dependencies:
       typedoc-plugin-markdown: "*"
       typedoc-docusaurus-theme: "*"
 
-# Before `pnpm run` and `pnpm exec`, install whatever node_modules is missing
-# compared to the lockfile and the manifests. A convenience for day-to-day
-# work, since a failed install here only warns. The build scripts and CI keep
-# their explicit `pnpm install`, which fails loudly.
+# Dev convenience only, a failed install here just warns. Scripts and CI
+# install explicitly.
 verifyDepsBeforeRun: install
 
-# `pnpm add` records the version in the catalog above when the package is in it.
 catalogMode: prefer
 
-# One copy of a package per version where the peers allow it, instead of one
-# copy per distinct set of peers.
 dedupePeers: true
 
-# Scripts run in a shell emulator, so `A=1 cmd` and `${VAR:-default}` work the
-# same on Windows.
+# `A=1 cmd` and `${VAR:-default}` in scripts work on Windows.
 shellEmulator: true
 
 # Supply chain. A version published with less trust evidence than an earlier
@@ -87,9 +71,8 @@ engineStrict: true
 
 trustPolicy: no-downgrade
 blockExoticSubdeps: true
-# Versions published before their package adopted trusted publishing, which
-# the policy reads as a downgrade. Reviewed by hand; pnpm drops an entry from
-# this list once nothing depends on it anymore.
+# Published before their packages adopted trusted publishing. Pruned
+# automatically.
 trustPolicyExclude:
   - hosted-git-info@6.1.3
   - semver@6.3.1

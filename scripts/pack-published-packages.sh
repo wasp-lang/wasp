@@ -21,7 +21,6 @@ if [ -z "$output_dir" ]; then
   exit 1
 fi
 
-# The published packages are members of the repo's pnpm workspace.
 (cd "$repo_root" && pnpm install)
 
 for package in "${publish_packages[@]}"; do

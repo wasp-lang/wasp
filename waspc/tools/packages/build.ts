@@ -92,11 +92,9 @@ function copyPackageArtifactsToDataDir(packageName: string): void {
   }
 }
 
-// npm installs the data dir copy into projects as a `file:` dependency, which
-// it treats like a workspace: it resolves the copy's devDependencies too, and
-// it does not understand pnpm's `catalog:` and `workspace:` specifiers. So the
-// copy gets the package.json `pnpm pack` writes (real versions in) without its
-// devDependencies, which a project has no use for.
+// npm installs the data dir copy as a `file:` dependency: it does not
+// understand `catalog:` and it installs devDependencies, so the copy gets the
+// package.json `pnpm pack` writes, without them.
 function writePublishedPackageJson(
   packageDir: string,
   dataPackageDir: string,
