@@ -66,8 +66,8 @@ jobs:
           npm init -y
 
           # Install the CLI package (its optional deps pull in the
-          # platform-specific sub-package for this runner). pkg.pr.new's short
-          # URL form requires the package to be published, so we qualify it.
+          # platform-specific sub-package for this runner). The short form of
+          # the pkg.pr.new URL requires the package to be published.
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/cli@$COMMIT_SHA"
 
       - name: Run Wasp CLI
