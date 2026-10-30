@@ -40,7 +40,7 @@ zerops:
       buildCommands:
         - npm install -g @wasp/cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
-        - wasp install
+        - npm install
         - wasp build
         - npx vite build
       envVariables:
@@ -62,7 +62,7 @@ zerops:
       buildCommands:
         - npm install -g @wasp/cli@<wasp-version>
         - export PATH="$(npm prefix -g)/bin:$PATH"
-        - wasp install
+        - npm install
         - wasp build
         - cd .wasp/out/server && npm install
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
@@ -96,9 +96,9 @@ zerops:
       start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
 ```
 
-Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).
+Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.27`).
 
-The `prod-client` setup runs `wasp install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
+The `prod-client` setup runs `npm install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
 The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
 

@@ -84,7 +84,6 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
 
     const app = new App("todoApp", {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
     });
 
     const mainPage = app.page("MainPage", {
@@ -110,7 +109,6 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
       spec: [
         route("MainRoute", "/", page(MainPage)),
         query(getTasks, { entities: ["Task"] }),
@@ -236,7 +234,6 @@ These were configured with mutating method calls. They are now keys of the `app(
     ```ts title="main.wasp.ts"
     const app = new App("todoApp", {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
     });
 
     app.auth({
@@ -266,7 +263,6 @@ These were configured with mutating method calls. They are now keys of the `app(
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
       auth: {
         userEntity: "User",
         methods: { google: {} },
@@ -288,9 +284,7 @@ These were configured with mutating method calls. They are now keys of the `app(
 
 ## How to migrate
 
-These steps convert an old class-based Wasp TS Config to the new Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
-
-After finishing this guide, return to the [migration guide](/docs/0.24/migration-guide) if you still need to complete the shared Wasp 0.24 migration steps.
+These steps convert an old class-based Wasp TS Config to the new Wasp Spec on a project that already runs Wasp 0.27 or newer (see the [migration guide](../../migration-guide.md)). If your project is on an older Wasp, follow this guide in the docs of that version instead, starting with the [0.24 migration guide](/docs/0.24/migration-guide), and upgrade from there.
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
@@ -312,17 +306,20 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         ```json title="package.json"
         {
           // ...
+          "dependencies": {
+            // ...
+            "@wasp/wasp": "0.27.0"
+          },
           "devDependencies": {
             // ...
-            "@types/node": "^24.0.0",
-            "@wasp/spec": "file:.wasp/spec"
+            "@types/node": "^24.0.0"
           }
         }
         ```
       </TabItem>
     </Tabs>
 
-    Keep your existing dependencies, replace `wasp-config` with `@wasp/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+    Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp` (which brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use), and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2.  Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
@@ -355,7 +352,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     }
     ```
 
-4.  Run `wasp install`.
+4.  Run `npm install`.
 
 5.  Rewrite `main.wasp.ts`:
 
@@ -368,7 +365,6 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
         const app = new App("myApp", {
           title: "My app",
-          wasp: { version: "^0.24.0" },
         });
         ```
 
@@ -380,7 +376,6 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         export default app({
           name: "myApp",
           title: "My app",
-          wasp: { version: "^0.24.0" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           spec: [
             // ...
@@ -398,7 +393,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 6.  Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
 :::note
-At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
+If the Wasp Spec package is missing or out of date (for example after `wasp clean` or in a fresh clone), Wasp tells you to run `npm install` before starting the app.
 :::
 
 See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

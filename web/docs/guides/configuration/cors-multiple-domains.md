@@ -43,7 +43,6 @@ import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
 
 export default app({
   name: "CorsTest",
-  wasp: { version: "^0.24.0" },
   head: ["<link rel='icon' href='/favicon.ico' />"],
   title: "cors-test",
   server: {
