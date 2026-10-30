@@ -6,7 +6,7 @@ A tool for creating platform-specific npm packages for distributing native execu
 
 This tool solves the problem of distributing native executables through npm. It creates:
 
-1. **Main package** - The package users install, which contains a CLI wrapper
+1. **Main package** - The package users install, which contains a CLI wrapper. Its source is the `packages/cli` workspace package; this tool adds the version and the sub-package wiring.
 2. **Sub-packages** - Platform-specific packages containing the actual executables
 
 The main package uses npm's `optionalDependencies` to install the correct platform-specific sub-package based on the user's system. The CLI wrapper then detects and runs the appropriate executable.
@@ -76,7 +76,7 @@ The tool creates:
    - `main.js` entry point
    - Extracted tarball contents
 2. One directory for the main package, containing:
-   - `package.json` with all sub-packages as optional dependencies
+   - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies
    - `bin.js` CLI wrapper
    - `CLIError.js` error handling utility
    - `data.json` with sub-package metadata
@@ -87,4 +87,4 @@ You can then run `npm publish` in each package directory to publish them to npm.
 
 The generator script is written in TypeScript. It is run through the native Node.js TypeScript support in v22.18+, so no compilation step is needed.
 
-The templates themselves are in the `templates/` directory. You can modify them as needed to change the behavior of the generated packages. They are written in regular JavaScript, but have JSDoc comments for type hinting during development.
+The sub-package template is in the `templates/` directory, and the main package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. They are written in regular JavaScript, but have JSDoc comments for type hinting during development.

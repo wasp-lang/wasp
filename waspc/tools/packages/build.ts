@@ -23,7 +23,7 @@ import {
 } from "../utils.ts";
 import {
   getDataPackagesDirPath,
-  getWaspcPackageDirPath,
+  getPackageDirPath,
   WASPC_PACKAGES,
   type WaspcPackage,
 } from "./utils.ts";
@@ -47,7 +47,7 @@ function buildPackages(): void {
 }
 
 function buildPackage({ name, packageManager }: WaspcPackage): void {
-  const packageDir = getWaspcPackageDirPath(name);
+  const packageDir = getPackageDirPath(name);
   const { version } = getPackageJson(packageDir);
 
   assertPackageVersionMatchesWaspc(name, version);
@@ -64,7 +64,7 @@ function buildPackage({ name, packageManager }: WaspcPackage): void {
 // (by `waspc` on first use) survives rebuilds. When the lockfile changed, that
 // `node_modules` is stale, so we drop it and `waspc` installs it again.
 function copyPackageArtifactsToDataDir(packageName: string): void {
-  const packageDir = getWaspcPackageDirPath(packageName);
+  const packageDir = getPackageDirPath(packageName);
   const dataPackageDir = join(getDataPackagesDirPath(), packageName);
   mkdirSync(dataPackageDir, { recursive: true });
   writePublishedPackageJson(packageDir, dataPackageDir);

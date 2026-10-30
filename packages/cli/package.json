@@ -1,0 +1,34 @@
+{
+  "name": "@wasp/cli",
+  "version": "0.27.0",
+  "type": "module",
+  "description": "The Wasp CLI",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "bin": {
+    "wasp": "bin.js"
+  },
+  "files": [
+    "CLIError.js",
+    "bin.js",
+    "data.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

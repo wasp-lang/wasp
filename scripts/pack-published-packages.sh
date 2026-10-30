@@ -5,8 +5,17 @@ set -euxo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
+# `wasp` depends on `cli` and `spec` with `workspace:*`, which `pnpm pack`
+# replaces with the versions in their package.json files, so we set the version
+# on `cli` too even though this script does not pack it (make-npm-packages does).
+versioned_packages=(
+  cli
+  spec
+  wasp
+)
 publish_packages=(
   spec
+  wasp
 )
 
 publish_version="$1"
@@ -23,6 +32,11 @@ fi
 
 (cd "$repo_root" && pnpm install)
 
+# Override the package versions with the one from the workflow.
+for package in "${versioned_packages[@]}"; do
+  (cd "$packages_dir/$package" && npm pkg set version="$publish_version")
+done
+
 for package in "${publish_packages[@]}"; do
   echo "Building $package"
 
@@ -31,11 +45,8 @@ for package in "${publish_packages[@]}"; do
 
   cd "$packages_dir/$package"
 
-  # Override the package version with the one from the workflow.
-  npm pkg set version="$publish_version"
-
   # `pnpm pack` puts only the published files in the tarball.
-  pnpm run build
+  pnpm run --if-present build
   pnpm pack --pack-destination "$pack_dir"
 
   # We extract the tarball back into a folder, because `pkg-pr-new` only accepts

@@ -6,7 +6,9 @@
 #   package.
 # - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
+  - packages/cli
   - packages/spec
+  - packages/wasp
   - packages/libs/*
   - packages/wasp-app-runner
   - web
