@@ -7,7 +7,6 @@ import { join } from "node:path";
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
-  installWorkspaceDependencies,
   runCmd,
 } from "../utils.ts";
 import {
@@ -27,8 +26,6 @@ try {
 }
 
 function buildPackages(): void {
-  installWorkspaceDependencies();
-
   for (const packageName of WASPC_PACKAGE_NAMES) {
     buildPackage(packageName);
     copyPackageArtifactsToDataDir(packageName);

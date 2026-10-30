@@ -20,7 +20,6 @@ import {
   getPackageJson,
   getRepoRootPath,
   getWaspcDirPath,
-  installWorkspaceDependencies,
   runCmd,
 } from "../utils.ts";
 
@@ -90,8 +89,6 @@ function buildDevPackages(): void {
   const devPackagesDir = join(getWaspcDirPath(), DEV_PACKAGES_DIR_NAME);
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
-
-  installWorkspaceDependencies();
 
   for (const packageName of ["spec", "deploy", "studio"]) {
     console.log(`Building @wasp/${packageName}`);

@@ -1,11 +1,7 @@
 /// <reference types="node" />
 // Helper to test the packages/* packages locally and in CI.
 
-import {
-  getPackageJson,
-  installWorkspaceDependencies,
-  runCmd,
-} from "../utils.ts";
+import { getPackageJson, runCmd } from "../utils.ts";
 import {
   getPackageDirPath,
   PUBLISHED_WASP_PACKAGE_NAMES,
@@ -15,8 +11,6 @@ import {
 testPackages();
 
 function testPackages(): void {
-  installWorkspaceDependencies();
-
   for (const packageName of [
     ...WASPC_PACKAGE_NAMES,
     ...PUBLISHED_WASP_PACKAGE_NAMES,
