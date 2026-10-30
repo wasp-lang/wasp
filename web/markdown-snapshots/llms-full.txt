@@ -15555,7 +15555,9 @@ Prisma 6 changed how some things are stored in the database, so `wasp db migrate
 
 #### 5. Check the packages your server loads at runtime
 
-**If your server doesn't use packages that serve or load files from their own folder, like `swagger-ui-express`, you can skip this step.**
+**If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
+
+Otherwise, check if any of the packages your server uses serve or load files from their own folder, like `swagger-ui-express`.
 
 The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files in a non-standard way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
 
