@@ -8,13 +8,7 @@ import {
   type MainPackageData,
 } from "../schema/output-data.ts";
 
-const SOURCE_STATIC_FILES = [
-  "bin.js",
-  "CLIError.js",
-  "readme.md",
-  "preinstall.js",
-  "postinstall.js",
-];
+const SOURCE_STATIC_FILES = ["bin.js", "CLIError.js", "readme.md"];
 
 const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
 

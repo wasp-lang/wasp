@@ -26,12 +26,6 @@
   "files": [
     "CLIError.js",
     "bin.js",
-    "data.json",
-    "postinstall.js",
-    "preinstall.js"
-  ],
-  "scripts": {
-    "postinstall": "node postinstall.js",
-    "preinstall": "node preinstall.js"
-  }
+    "data.json"
+  ]
 }
