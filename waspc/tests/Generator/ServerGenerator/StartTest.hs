@@ -25,8 +25,8 @@ import Wasp.Generator.ServerGenerator.Start
   ( CompileChanges (..),
     CompileOutcome (..),
     ServerEvent (..),
-    ServerProcessController,
-    newServerProcessController,
+    ServerInbox,
+    newServerInbox,
     notifyServer,
     startServer,
     waitUntilCompilesHandled,
@@ -34,11 +34,11 @@ import Wasp.Generator.ServerGenerator.Start
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
-spec_ServerProcessController :: Spec
-spec_ServerProcessController =
+spec_startServer :: Spec
+spec_startServer =
   -- The fake `tsc` and `rollup` that bundle the server are shell scripts, which
   -- Windows can't run.
-  unless (os == "mingw32") $ describe "server process controller" $ do
+  unless (os == "mingw32") $ describe "development server" $ do
     it "starts, restarts, and stops the server across compile outcomes" $
       withServerFixture loopingServerScript $ \fixture -> do
         initialPid <- waitForServerStart fixture
@@ -107,7 +107,7 @@ spec_ServerProcessController =
         appendFile (bundleScriptPath fixture) "setTimeout(() => {}, 60000);\n"
         notifySuccessfulCompile fixture RebundleAndRestartServer
         waitUntil "the bundle starts" $ (== 2) <$> readBundleCount fixture
-        notifyServer (_controller fixture) . FilesChanged =<< getCurrentTime
+        notifyServer (_inbox fixture) . FilesChanged =<< getCurrentTime
         waitUntilCompilesHandledOrFail fixture
         readServerPid fixture `shouldReturn` initialPid
         isProcessAlive initialPid `shouldReturn` True
@@ -182,7 +182,7 @@ serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "h
 
 data ServerFixture = ServerFixture
   { _generatedAppDirPath :: FilePath,
-    _controller :: ServerProcessController,
+    _inbox :: ServerInbox,
     _output :: IORef Text
   }
 
@@ -191,9 +191,9 @@ data ServerFixture = ServerFixture
 withServerFixture :: String -> (ServerFixture -> IO ()) -> IO ()
 withServerFixture serverScript test = do
   generatedAppDirPath <- makeTempPath "wasp-server-controller-test"
-  controller <- newServerProcessController
+  inbox <- newServerInbox
   output <- newIORef ""
-  let fixture = ServerFixture generatedAppDirPath controller output
+  let fixture = ServerFixture generatedAppDirPath inbox output
   createDirectoryIfMissing True $ serverBundleDirPath fixture
   createDirectoryIfMissing True $ dotenvModuleDirPath fixture
   createNodeBin fixture "tsc" "exit 0"
@@ -207,7 +207,7 @@ withServerFixture serverScript test = do
         Job.run
           $ Job.captureOutput
           $ Job.observeOutput (\_ chunk -> modifyIORef' output (<> chunk))
-          $ startServer serverRunConfig generatedAppDir controller
+          $ startServer serverRunConfig generatedAppDir inbox
   withAsync
     runController
     (\controllerJob -> test fixture >> stopController fixture controllerJob)
@@ -358,7 +358,7 @@ readBundleCount fixture = do
 notifySuccessfulCompile :: ServerFixture -> ServerEffect -> IO ()
 notifySuccessfulCompile fixture serverEffect = do
   compileStartTime <- getCurrentTime
-  notifyServer (_controller fixture) $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime serverEffect
+  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime serverEffect
 
 -- | The changes of a compile that started at the given time, that have the
 -- given effect on the server.
@@ -374,13 +374,13 @@ compileChangesWithEffect compileStartTime serverEffect =
     }
 
 notifyFailedCompile :: ServerFixture -> IO ()
-notifyFailedCompile fixture = notifyServer (_controller fixture) $ Compiled FailedCompile
+notifyFailedCompile fixture = notifyServer (_inbox fixture) $ Compiled FailedCompile
 
 -- | Waits until the controller has handled the compiles it was notified
 -- about, failing instead of hanging if it doesn't.
 waitUntilCompilesHandledOrFail :: ServerFixture -> IO ()
 waitUntilCompilesHandledOrFail fixture =
-  timeout (secondsToMicroSeconds 60) (waitUntilCompilesHandled $ _controller fixture)
+  timeout (secondsToMicroSeconds 60) (waitUntilCompilesHandled $ _inbox fixture)
     >>= maybe (expectationFailure "The controller didn't handle the compiles in time") return
 
 waitUntilWithin :: String -> Double -> IO Bool -> IO ()
