@@ -30,7 +30,9 @@ instance Requirable WaspNpmPackageAvailable where
     -- Reading the wasp spec runs Node.js (via the FFI), so it requires Node.js
     -- and npm to be present.
     ValidNodeAndNpm <- require
-    declaredSpecifier <- liftIO $ getDeclaredWaspNpmPackageSpecifier waspProjectDir
+    declaredSpecifier <-
+      liftIO (getDeclaredWaspNpmPackageSpecifier waspProjectDir)
+        >>= either (throwError . CommandError "Couldn't read package.json") return
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
         | installedVersion == WV.waspVersion -> return WaspNpmPackageAvailable
@@ -107,12 +109,12 @@ instance Requirable WaspNpmPackageAvailable where
             ++ "."
 
 -- | What the user's package.json asks for @wasp/wasp, if it depends on it at all.
-getDeclaredWaspNpmPackageSpecifier :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe String)
+getDeclaredWaspNpmPackageSpecifier :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Maybe String))
 getDeclaredWaspNpmPackageSpecifier waspProjectDir =
   findUserPackageJsonFile waspProjectDir >>= \case
-    Nothing -> return Nothing
+    Nothing -> return $ Right Nothing
     Just packageJsonFile ->
-      either (const Nothing) declaredSpecifier <$> P.parsePackageJsonFile packageJsonFile
+      fmap declaredSpecifier <$> P.parsePackageJsonFile packageJsonFile
   where
     declaredSpecifier packageJson =
       M.lookup waspNpmPackageName (P.dependencies packageJson)

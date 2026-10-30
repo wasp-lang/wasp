@@ -101,11 +101,11 @@ waspNpmPackageAvailableTest =
               inTestWaspProjectDir $
                 concatMap
                   (\command -> [removeNodeModules, command])
-                  -- Project-scoped commands that don't require wasp-spec to be installed.
+                  -- Project-scoped commands that don't require @wasp/wasp to be installed.
                   [ waspCliClean,
                     waspCliShowBuild,
                     -- Project-agnostic commands. They don't read the project,
-                    -- so they should be unaffected by wasp-spec presence.
+                    -- so they should be unaffected by @wasp/wasp presence.
                     waspCliVersion,
                     waspCliCompletion,
                     waspCliTelemetry,

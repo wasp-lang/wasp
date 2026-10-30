@@ -42,10 +42,10 @@ newProjectArgsParser =
       Opt.flag'
         True
         ( Opt.long "install"
-            <> Opt.help "Install the npm dependencies after creating the project (the default when not asked)"
+            <> Opt.help "Install the dependencies after creating the project. The default when there is no terminal to ask"
         )
         <|> Opt.flag'
           False
           ( Opt.long "no-install"
-              <> Opt.help "Don't install the npm dependencies after creating the project"
+              <> Opt.help "Don't install the dependencies after creating the project"
           )

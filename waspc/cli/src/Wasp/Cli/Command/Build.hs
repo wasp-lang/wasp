@@ -152,7 +152,7 @@ build = ProjectLock.acquireExclusive $ do
             ]
           devTarballSpecifiers =
             mapMaybe
-              (\field -> withField field <$> getDevTarballSpecifier (getSpecifierField field packageJson))
+              (\field -> (,) field <$> getDevTarballSpecifier (getSpecifierField field packageJson))
               specifierFields
       unless (null devTarballSpecifiers) $ do
         let devPackagesDirInBuildDir = buildDir </> libsRootDirInGeneratedAppDir </> [reldir|wasp|]
@@ -160,9 +160,6 @@ build = ProjectLock.acquireExclusive $ do
         copiedTarballs <- liftIO $ mapM (copyDevTarball waspProjectDir devPackagesDirInBuildDir) devTarballSpecifiers
         ExceptT $ updateJsonFile (\json -> foldl setDevTarballSpecifierInDocker json copiedTarballs) packageJsonInBuildDir
         ExceptT $ updateJsonFile (rewriteDevTarballSpecifiersInLock (map snd copiedTarballs)) packageLockJsonInBuildDir
-
-    withField :: field -> FilePath -> (field, FilePath)
-    withField field tarballPath = (field, tarballPath)
 
     getSpecifierField :: (String, String) -> Value -> Maybe T.Text
     getSpecifierField (section, packageName) json =

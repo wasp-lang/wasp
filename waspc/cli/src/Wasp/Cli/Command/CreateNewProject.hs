@@ -41,7 +41,8 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
   createProjectOnDisk newProjectDescription
   areDepsInstalled <- liftIO $ installDepsForNewProjectIfWanted (_shouldInstallDeps args) (getAbsWaspProjectDir newProjectDescription)
-  liftIO $ printGettingStartedInstructionsForProject areDepsInstalled newProjectDescription
+  liftIO $ printGettingStartedInstructionsForProject newProjectDescription
+  unless areDepsInstalled $ liftIO $ printInstallDepsReminder newProjectDescription
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
@@ -69,7 +70,7 @@ installDepsForNewProjectIfWanted shouldInstallDepsArg absWaspProjectDir = do
     askIfInteractive :: IO Bool
     askIfInteractive =
       Interactive.getInteractiveTerminal >>= \case
-        Just terminal -> Interactive.askYesNo terminal "Install the npm dependencies now?"
+        Just terminal -> Interactive.askYesNo terminal "Install the npm dependencies now?" Interactive.DefaultYes
         Nothing -> return True
 
     installDepsForNewProject :: IO Bool
@@ -87,12 +88,16 @@ installDepsForNewProjectIfWanted shouldInstallDepsArg absWaspProjectDir = do
           return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
-printGettingStartedInstructionsForProject :: Bool -> NewProjectDescription -> IO ()
-printGettingStartedInstructionsForProject areDepsInstalled projectDescription = do
-  let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
+printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
+printGettingStartedInstructionsForProject projectDescription = do
+  let projectDirName = getProjectDirName projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
   cliSendMessage $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
-  unless areDepsInstalled
-    $ putStrLn
-    $ "Run " ++ styleCode "npm install" ++ " in `./" ++ projectDirName ++ "` to install the dependencies, then:"
   putStrLn instructions
+
+printInstallDepsReminder :: NewProjectDescription -> IO ()
+printInstallDepsReminder projectDescription =
+  putStrLn $ "Run " ++ styleCode "npm install" ++ " in `./" ++ getProjectDirName projectDescription ++ "` before starting the app."
+
+getProjectDirName :: NewProjectDescription -> String
+getProjectDirName = init . SP.toFilePath . SP.basename . _absTemplateOutputDir

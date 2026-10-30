@@ -41,7 +41,7 @@ minimalStarterTemplate =
               unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
-                  styleCode $ "    npm run wasp start"
+                  styleCode $ "    wasp start"
                 ]
           }
     }
@@ -60,8 +60,8 @@ basicStarterTemplate =
               unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
-                  styleCode $ "    npm run wasp db migrate-dev",
-                  styleCode $ "    npm run wasp start",
+                  styleCode $ "    wasp db migrate-dev",
+                  styleCode $ "    wasp start",
                   styleText $ "",
                   styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
                 ]
@@ -99,20 +99,20 @@ openSaasStarterTemplate =
                     styleText $ "",
                     styleText $
                       "  2. Run the development database (and leave it running):",
-                    styleCode $ "    npm run wasp db start",
+                    styleCode $ "    wasp db start",
                     styleText $ "",
                     styleText $
                       "  3. Open new terminal window (or tab) in that same dir and continue in it.",
                     styleText $ "",
                     styleText $ "  4. Apply initial database migrations:",
-                    styleCode $ "    npm run wasp db migrate-dev",
+                    styleCode $ "    wasp db migrate-dev",
                     styleText $ "",
                     styleText $
                       "  5. Create initial dot env file from the template:",
                     styleCode $ "    cp .env.server.example .env.server",
                     styleText $ "",
                     styleText $ "  6. Last step: run the app!",
-                    styleCode $ "    npm run wasp start",
+                    styleCode $ "    wasp start",
                     styleText $ "",
                     styleText $
                       "Check the README for additional guidance and the link to docs!"
