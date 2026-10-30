@@ -349,6 +349,10 @@
                 "version": "^24.0.0"
             },
             {
+                "name": "nf3",
+                "version": "0.4.2"
+            },
+            {
                 "name": "rollup",
                 "version": "^4.9.6"
             },

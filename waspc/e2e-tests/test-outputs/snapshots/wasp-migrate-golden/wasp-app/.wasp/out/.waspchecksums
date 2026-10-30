@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "904025f32e11403da236ada593b41764fd108c19ba1ccab14bb683fe0b400d09"
+        "8021a5211bac6bff334d4fd203f12abf7ac6d7df7bda644a7ba9e4944652ac49"
     ],
     [
         [
@@ -508,7 +508,14 @@
             "file",
             "server/package.json"
         ],
-        "b4afcef5e588b371d8d47ff877e315f19f717f165a529110a9cc03521cdb09b2"
+        "57218a7bb1437ffbdc996179436e97fbaaae335793441efc48f96a54e55fe90f"
+    ],
+    [
+        [
+            "file",
+            "server/prepareProduction.ts"
+        ],
+        "ad065b1f25bec79020d3c26fdddf8d7be882269364a0d7c81f366a83995ce084"
     ],
     [
         [
@@ -592,7 +599,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "09ae9bcde379c54456481290933e8101a72f5bb84198c86a684ca89fe8956320"
+        "35e1a119e2e59dbf95d613db38e466fcd6611067b7ecf10b3aba9bcbfedf70a8"
     ],
     [
         [
