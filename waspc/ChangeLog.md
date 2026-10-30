@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp is now a dependency of your project. `package.json` depends on `@wasp/wasp`, which brings the Wasp CLI and the Wasp Spec, so `@wasp/spec` is no longer listed separately. `wasp install` is gone, use `npm install`. ([#5210](https://github.com/wasp-lang/wasp/pull/5210))
+- Wasp is now a dependency of your project. `package.json` depends on `@wasp/wasp`, which brings the Wasp CLI and the Wasp Spec, so `@wasp/spec` is no longer listed separately. `wasp install` is gone, use `npm install`. ([#5210](https://github.com/wasp-lang/wasp/pull/5210), [#5211](https://github.com/wasp-lang/wasp/pull/5211))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
