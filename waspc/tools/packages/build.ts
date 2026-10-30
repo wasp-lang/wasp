@@ -25,12 +25,7 @@ import {
   getDataPackagesDirPath,
   getWaspcPackageDirPath,
   WASPC_PACKAGES,
-  type WaspcPackage,
 } from "./utils.ts";
-
-// The files `waspc.cabal` lists as data files for each package, next to the
-// package.json and the lockfile written below.
-const PACKAGE_ARTIFACTS = ["dist"];
 
 try {
   buildPackages();
@@ -40,72 +35,39 @@ try {
 }
 
 function buildPackages(): void {
-  for (const waspcPackage of WASPC_PACKAGES) {
-    buildPackage(waspcPackage.name);
-    copyPackageArtifactsToDataDir(waspcPackage);
+  for (const { name, kind } of WASPC_PACKAGES) {
+    const packageDir = getWaspcPackageDirPath(name);
+    const dataPackageDir = join(getDataPackagesDirPath(), name);
+
+    buildPackage(name, packageDir);
+    mkdirSync(dataPackageDir, { recursive: true });
+    const packageJsonChanged = writePublishedPackageJson(
+      packageDir,
+      dataPackageDir,
+    );
+    copyDistToDataDir(packageDir, dataPackageDir);
+    const lockFileMissing = !existsSync(
+      join(dataPackageDir, "package-lock.json"),
+    );
+    if (kind === "runnable" && (packageJsonChanged || lockFileMissing)) {
+      writeNpmLockFile(dataPackageDir);
+    }
   }
 }
 
-function buildPackage(packageName: string): void {
-  const packageDir = getWaspcPackageDirPath(packageName);
+function buildPackage(packageName: string, packageDir: string): void {
   const { version } = getPackageJson(packageDir);
-
   assertPackageVersionMatchesWaspc(packageName, version);
 
   console.log(`Building ${packageName} package (${packageDir})`);
-
   runCmd("pnpm", ["run", "build"], { cwd: packageDir });
-}
-
-// Copies only the artifacts, so `node_modules` installed in the data dir copy
-// (by `waspc` on first use) survives rebuilds. When the package.json changed,
-// the lockfile and that `node_modules` are stale, so we write a new lockfile
-// and drop `node_modules`, and `waspc` installs it again.
-function copyPackageArtifactsToDataDir({
-  name,
-  installedByWaspc,
-}: WaspcPackage): void {
-  const packageDir = getWaspcPackageDirPath(name);
-  const dataPackageDir = join(getDataPackagesDirPath(), name);
-  mkdirSync(dataPackageDir, { recursive: true });
-
-  const packageJsonChanged = writePublishedPackageJson(
-    packageDir,
-    dataPackageDir,
-  );
-
-  for (const artifact of PACKAGE_ARTIFACTS) {
-    const src = join(packageDir, artifact);
-    const dst = join(dataPackageDir, artifact);
-    rmSync(dst, { recursive: true, force: true });
-    if (existsSync(src)) {
-      cpSync(src, dst, { recursive: true });
-    }
-  }
-
-  const lockFilePath = join(dataPackageDir, "package-lock.json");
-  if (installedByWaspc && (packageJsonChanged || !existsSync(lockFilePath))) {
-    writeNpmLockFile(dataPackageDir);
-    rmSync(join(dataPackageDir, "node_modules"), {
-      recursive: true,
-      force: true,
-    });
-  }
-}
-
-// The data dir copy is installed with npm, which needs a lockfile of its own
-// since the workspace's pnpm lockfile is not shipped.
-function writeNpmLockFile(dataPackageDir: string): void {
-  console.log(`Writing npm lockfile for ${dataPackageDir}`);
-  runCmd("npm", ["install", "--package-lock-only", "--ignore-scripts"], {
-    cwd: dataPackageDir,
-  });
 }
 
 // npm installs the data dir copy: it does not understand `catalog:` and it
 // would install devDependencies, so the copy gets the package.json `pnpm pack`
-// writes, without them. Returns whether the written package.json differs from
-// the one that was there.
+// writes, without them. Returns whether it differs from the one already there,
+// which is what decides whether the lockfile and `node_modules` next to it are
+// still valid.
 function writePublishedPackageJson(
   packageDir: string,
   dataPackageDir: string,
@@ -119,6 +81,38 @@ function writePublishedPackageJson(
     readFileSync(packageJsonPath, "utf-8") !== content;
   writeFileSync(packageJsonPath, content);
   return changed;
+}
+
+// Only `dist` is replaced, so `node_modules` installed in the data dir copy
+// (by `waspc` on first use) survives rebuilds.
+function copyDistToDataDir(packageDir: string, dataPackageDir: string): void {
+  const src = join(packageDir, "dist");
+  const dst = join(dataPackageDir, "dist");
+  rmSync(dst, { recursive: true, force: true });
+  cpSync(src, dst, { recursive: true });
+}
+
+// `waspc` installs the data dir copy with npm, which needs a lockfile of its
+// own since the workspace's pnpm lockfile is not shipped. The `node_modules`
+// installed from the previous lockfile is stale, so it goes too.
+// npm reads its project config from the nearest package.json dir, so the
+// repo's `.npmrc` does not apply here and the release window is passed by hand.
+function writeNpmLockFile(dataPackageDir: string): void {
+  console.log(`Writing npm lockfile for ${dataPackageDir}`);
+  runCmd(
+    "npm",
+    [
+      "install",
+      "--package-lock-only",
+      "--ignore-scripts",
+      "--min-release-age=7",
+    ],
+    { cwd: dataPackageDir },
+  );
+  rmSync(join(dataPackageDir, "node_modules"), {
+    recursive: true,
+    force: true,
+  });
 }
 
 function readPackedPackageJson(packageDir: string): PackageJson {

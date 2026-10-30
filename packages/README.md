@@ -27,7 +27,8 @@ Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.
 
 Create a directory in this folder with a `build` script in `package.json` that compiles to
 `dist/`, add it to `pnpm-workspace.yaml` and to `WASPC_PACKAGES` in
-`waspc/tools/packages/utils.ts`, and add its files to `data-files` in `waspc.cabal`:
+`waspc/tools/packages/utils.ts` (as `runnable` if `waspc` runs it from the data dir, which
+gets it a generated npm lockfile there), and add its files to `data-files` in `waspc.cabal`:
 
 ```
 packages/<package-name>/package.json
