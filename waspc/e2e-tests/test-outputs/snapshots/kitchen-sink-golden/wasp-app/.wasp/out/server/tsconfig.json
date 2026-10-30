@@ -27,7 +27,8 @@
   "include": [
     "src",
     "rollup.config.js",
-    "rollup.dbSeed.config.js"
+    "rollup.dbSeed.config.js",
+    "prepareProduction.ts"
   ],
   "references": [
     { "path": "../../../tsconfig.src.json" }

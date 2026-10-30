@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # NOTE: Why do we specify alpine version here?
 #   Because if not, we had situations where it would use the different version
 #   locally and on Github CI. This way we ensure exact version is used,
@@ -11,6 +12,10 @@ FROM node:24.22.1-alpine3.23 AS node
 # and just copy what we need from server-builder, avoiding intermediate
 # artifacts and any settings / pollution we don't need in production
 # but only for building.
+#
+# Docker reuses a layer only while every file copied before it is unchanged,
+# so each stage copies files in the order they change least to most often.
+# A code change then rebuilds only the steps that depend on the code.
 
 
 FROM node AS base
@@ -26,48 +31,41 @@ FROM base AS server-builder
 # `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
-# Since the framwork code in /.wasp/out/server imports the user code in /src
-# using relative imports, we must mirror the same directory structure in the
-# Docker image.
-COPY src ./src
-COPY package.json .
-COPY package-lock.json .
-COPY tsconfig*.json .
-COPY server .wasp/out/server
-COPY sdk .wasp/out/sdk
-COPY types .wasp/out/types
-COPY libs .wasp/out/libs
-# Install npm packages, resulting in node_modules/.
-RUN npm install && cd .wasp/out/server && npm install
-COPY db/schema.prisma .wasp/out/db/
-RUN cd .wasp/out/server && npx prisma generate --schema='../db/schema.prisma'
+COPY --link package.json package-lock.json ./
+COPY --link server/package.json .wasp/out/server/
+COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
+COPY --link libs .wasp/out/libs
+# Install scripts can read project files, so the full install runs again below,
+# once the code is in place. This first install fills npm's cache, so the
+# second one doesn't download the packages again.
+RUN npm ci --ignore-scripts
+COPY --link db/schema.prisma .wasp/out/db/
+# We mirror the same directory structure as the Wasp project.
+COPY --link tsconfig*.json ./
+COPY --link types .wasp/out/types
+COPY --link sdk .wasp/out/sdk
+COPY --link server .wasp/out/server
+COPY --link src ./src
+RUN npm ci
+WORKDIR /app/.wasp/out/server
+RUN npx prisma generate --schema='../db/schema.prisma'
 # Building the server should come after Prisma generation.
-RUN cd .wasp/out/server && npm run bundle
-
-# Depending on `npm`'s dependency resolution, this folder may or may not exist.
-# We ensure they are created so that the COPY instruction later does not fail.
-RUN mkdir -p ./.wasp/out/server/node_modules
+RUN npm run bundle && node prepareProduction.ts
 
 
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-# In case they want to use python3 in their app.
-RUN apk add --no-cache python3
 ENV NODE_ENV=production
-WORKDIR /app
-# Copying the top level 'node_modules' because it contains the Prisma packages
-# necessary for migrating the database.
-COPY --from=server-builder /app/node_modules ./node_modules
-# Copying 'server/node_modules' because we require dotenv package to
-# load environment variables
-# TODO: replace dotenv with native Node.js environment variable loading
-COPY --from=server-builder /app/.wasp/out/server/node_modules .wasp/out/server/node_modules
-COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
-COPY --from=server-builder /app/.wasp/out/server/package*.json .wasp/out/server/
-COPY db/ .wasp/out/db/
-EXPOSE ${PORT}
 WORKDIR /app/.wasp/out/server
+# `production/` already contains every package the server needs, so this
+# stage needs no `npm install`.
+# Dependencies and the bundle are separate layers, so a code change only ships
+# the small bundle layer.
+COPY --link --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
+COPY --link server/package.json ./
+COPY --link db/ /app/.wasp/out/db/
+COPY --link --from=server-builder /app/.wasp/out/server/production/bundle ./bundle
 ENTRYPOINT ["npm", "run", "start-production"]
 
 
