@@ -114,6 +114,8 @@ cd MyFirstProject
 wasp db start
 ```
 
+- After creating the project, `wasp new` asks whether to install its dependencies. Pass `--install` or `--no-install` to skip the question. Without an interactive terminal (e.g. in CI), it installs them unless you pass `--no-install`.
+
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app. By default, it runs on port 5432, or the next free port if that one is taken. Use `--db-port <port>` to choose the port yourself; if you do, Wasp won't look for an alternative when it's taken.
