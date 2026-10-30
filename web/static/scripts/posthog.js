@@ -3,4 +3,47 @@
 posthog.init("CdDd2A0jKTI2vFAsrI9JWm3MqpOcgHz1bMyogAcwsE4", {
   api_host: "https://us.i.posthog.com",
   person_profiles: "identified_only",
+  // The privacy policy does not name these features. These lines keep them
+  // off, also when somebody turns them on in the PostHog project.
+  disable_session_recording: true,
+  disable_surveys: true,
+  capture_dead_clicks: false,
+  capture_exceptions: false,
+  capture_performance: false,
+  // The site reads no feature flags, and the PostHog project has none. Without
+  // this, PostHog asks for flags every five minutes, also after an opt-out,
+  // and each request sends the `distinct_id` and `$device_id` of the visitor.
+  // `advanced_disable_flags` would also stop the remote config, and with it
+  // the heatmaps.
+  advanced_disable_feature_flags: true,
+  // A browser with Do Not Track or Global Privacy Control counts as "Reject all".
+  respect_dnt: true,
+  // An opt-out also removes the PostHog cookie.
+  opt_out_persistence_by_default: true,
+  loaded: function (posthog) {
+    // The visitor can click "Reject all" while this script downloads, also in
+    // another tab. This is a copy of `getConsent()` and `CONSENT_COOKIE_NAME`
+    // in `src/lib/cookie-consent.ts`, because a static script cannot import
+    // them.
+    var consentCookie = document.cookie.split("; ").find(function (cookie) {
+      return cookie.startsWith("wasp-cookies-consent=");
+    });
+    var choice = consentCookie
+      ? consentCookie.split("=")[1]
+      : window.waspCookieConsent;
+    if (choice === "false") {
+      posthog.opt_out_capturing();
+    } else if (
+      choice === "true" &&
+      posthog.get_explicit_consent_status() === "denied"
+    ) {
+      // A newer "Accept all" replaces the opt-out from an earlier "Reject
+      // all". Without a choice, PostHog keeps its own stored opt-out, for
+      // example when the browser could not store the consent cookie.
+      // Plausible counts each choice with the "Cookie Consent" events, so
+      // PostHog sends no `$opt_in` event. With Do Not Track the status is also
+      // "denied", but PostHog still records nothing after the opt-in.
+      posthog.opt_in_capturing({ captureEventName: false });
+    }
+  },
 });

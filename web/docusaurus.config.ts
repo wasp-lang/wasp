@@ -3,7 +3,10 @@ import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
-import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import {
+  COOKIE_SETTINGS_HREF,
+  SCRIPT_WITH_CONSENT_TYPE,
+} from "./src/lib/cookie-consent";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import { docusaurusPluginLlmFiles } from "./src/plugins/llm-files/docusaurus-plugin";
 import autoImportTabs from "./src/remark/auto-import-tabs";
@@ -168,6 +171,9 @@ const config: Config = {
             {
               label: "Contact",
               to: "docs/contact",
+            },
+            {
+              html: `<a class="footer__link-item" href="${COOKIE_SETTINGS_HREF}">Cookie settings</a>`,
             },
           ],
         },
@@ -400,7 +406,8 @@ function mapToDocusaurusScripts(
     ...rest,
     // Scripts requiring consent shouldn't be loaded until the cookies are accepted,
     // so we use a custom type on the script _not to load it_ automatically.
-    // Later, if cookies are accepted, the script will be loaded by the
+    // Later, if cookies are accepted or the visitor is outside the consent
+    // region, the script will be loaded by the
     // `src/components/CookieConsentBanner.tsx` component.
     ...(requiresConsent ? { type: SCRIPT_WITH_CONSENT_TYPE } : {}),
   }));
