@@ -27,7 +27,7 @@ export function captureInPostHog(...event: CaptureArguments): void {
  * until the visitor clicks "Accept all".
  */
 export async function startPostHog(requiresConsent: boolean): Promise<PostHog> {
-  copyChoiceFromEarlierBanner();
+  const earlierChoice = copyChoiceFromEarlierBanner();
 
   // The `no-external` build of PostHog contains no code that downloads other
   // scripts. The npm lockfile fixes its version.
@@ -43,8 +43,9 @@ export async function startPostHog(requiresConsent: boolean): Promise<PostHog> {
     // A second guard, in addition to the `no-external` build.
     disable_external_dependency_loading: true,
     // In the consent region, the visitor starts opted out. A stored choice
-    // counts before this default.
-    opt_out_capturing_by_default: requiresConsent,
+    // counts before this default. A "Reject all" in the earlier banner also
+    // counts when the browser could not copy it into localStorage.
+    opt_out_capturing_by_default: requiresConsent || earlierChoice === "false",
     // While the visitor is opted out, PostHog stores nothing in the browser.
     // An opt-out also deletes the PostHog cookie and localStorage data.
     opt_out_persistence_by_default: true,
@@ -99,15 +100,15 @@ function syncHeatmaps(posthog: PostHog): void {
 // The earlier banner kept the choice in a cookie with the same name, as `true`
 // or `false`. PostHog reads these values too, so this function copies the
 // cookie into localStorage before `init`, and a "Reject all" from the earlier
-// banner still counts. The cookie lasts one year, so one year after this
-// change is live, this function can go.
-function copyChoiceFromEarlierBanner(): void {
+// banner still counts. It returns the choice from the cookie. The cookie lasts
+// one year, so one year after this change is live, this function can go.
+function copyChoiceFromEarlierBanner(): "true" | "false" | undefined {
   const earlierChoice = document.cookie
     .split("; ")
     .find((cookie) => cookie.startsWith(`${CONSENT_STORAGE_KEY}=`))
     ?.slice(CONSENT_STORAGE_KEY.length + 1);
   if (earlierChoice !== "true" && earlierChoice !== "false") {
-    return;
+    return undefined;
   }
 
   try {
@@ -117,7 +118,8 @@ function copyChoiceFromEarlierBanner(): void {
   } catch {
     // The browser blocks localStorage, so PostHog keeps the choice only in
     // memory. The cookie stays for a later visit.
-    return;
+    return earlierChoice;
   }
   document.cookie = `${CONSENT_STORAGE_KEY}=; path=/; max-age=0`;
+  return earlierChoice;
 }
