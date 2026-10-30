@@ -149,6 +149,12 @@ You can configure the global middleware via the `middlewareConfigFn`. This will 
 
 Read more in the [configuring middleware section](./middleware#1-customize-global-middleware).
 
+## Trace Dependencies
+
+The server's Docker image contains only the files Wasp finds by following the server's imports. If a package loads files in a non-standard way, for example static assets it serves from a folder, list it in `traceDeps` so Wasp copies those files too.
+
+Read more in the [deployment section](../../deployment/methods/overview#missing-files-in-the-docker-image).
+
 ## API Reference
 
 <CardLink
