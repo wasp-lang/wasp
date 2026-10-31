@@ -6,8 +6,6 @@ module Wasp.Cli.Interactive
     isPromptInputEOF,
     askForInput,
     askToChoose,
-    askYesNo,
-    YesNoDefault (..),
     askForRequiredInput,
     tryGettingConfirmation,
     askForConfirmation,
@@ -168,29 +166,6 @@ askForInput :: InteractiveTerminal -> String -> IO String
 askForInput terminal question = do
   hPutStr terminal.outputHandle $ Term.applyStyles [Term.Bold] question
   prompt terminal
-
-data YesNoDefault = DefaultYes | DefaultNo
-
--- | Asks a yes/no question. An empty answer picks the default, anything else
--- than y/yes/n/no asks again.
-askYesNo :: InteractiveTerminal -> String -> YesNoDefault -> IO Bool
-askYesNo terminal question yesNoDefault = do
-  answer <- map toLower <$> askForInput terminal (question ++ " " ++ hint)
-  case answer of
-    "" -> return $ case yesNoDefault of
-      DefaultYes -> True
-      DefaultNo -> False
-    "y" -> return True
-    "yes" -> return True
-    "n" -> return False
-    "no" -> return False
-    _ -> do
-      hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] "Please answer y or n."
-      askYesNo terminal question yesNoDefault
-  where
-    hint = case yesNoDefault of
-      DefaultYes -> "[Y/n]"
-      DefaultNo -> "[y/N]"
 
 tryGettingConfirmation :: InteractiveTerminal -> String -> String -> IO (Either ConfirmationError ())
 tryGettingConfirmation terminal message requiredAnswer =
