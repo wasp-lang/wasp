@@ -6,7 +6,11 @@ import { join } from "node:path";
 import semver from "semver";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
-import { getPackageDirPath, WASPC_PACKAGES } from "./packages/utils.ts";
+import {
+  getPackageDirPath,
+  WASP_NPM_PACKAGE_NAMES,
+  WASPC_PACKAGES,
+} from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -67,10 +71,9 @@ function bumpPackagesVersion(nextVersion: string): void {
   for (const { name } of WASPC_PACKAGES) {
     bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
   }
-  // The `wasp` executable wrapper, which `scripts/make-npm-packages` publishes,
-  // and the `@wasp/wasp` project dependency.
-  bumpPackageJsonVersion(getPackageDirPath("cli"), nextVersion);
-  bumpPackageJsonVersion(getPackageDirPath("wasp"), nextVersion);
+  for (const name of WASP_NPM_PACKAGE_NAMES) {
+    bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
+  }
 }
 
 function bumpWaspProjectsVersion(nextVersion: string): void {

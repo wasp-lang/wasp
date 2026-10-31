@@ -56,10 +56,6 @@ data-files:
   packages/deploy/dist/**/*.js
   packages/deploy/package-lock.json
   packages/deploy/package.json
-  packages/spec/dist/**/*.d.ts
-  packages/spec/dist/**/*.js
-  packages/spec/dist/**/*.map
-  packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.js

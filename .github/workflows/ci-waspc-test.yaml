@@ -77,6 +77,7 @@ jobs:
 
       - name: Compile TS packages and libs
         run: |
+          ./run build:packages
           ./run build:libs
           ./run build:dev-packages
 

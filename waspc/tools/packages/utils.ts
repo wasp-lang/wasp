@@ -2,27 +2,25 @@ import { join } from "node:path";
 import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 
 // The TypeScript packages that `waspc` runs as separate processes (see
-// `Wasp.NodePackageFFI`, which names the two kinds). Their sources live in
-// `<repo>/packages/`, and the build copies their artifacts into the Cabal data
-// dir, where `waspc` expects them.
+// `Wasp.NodePackageFFI`). Their sources live in `<repo>/packages/`, and the
+// build copies their artifacts into the Cabal data dir, where `waspc` runs them
+// and installs their dependencies with npm on first use, so each gets an npm
+// lockfile.
 //
-// - runnable: `waspc` runs it from the data dir and installs its dependencies
-//   there with npm on first use, so it gets an npm lockfile.
-// - installable: `waspc` copies it into the user's project, whose lockfile
-//   covers it.
-//
-// TODO: Both kinds go away once these packages are dependencies of the Wasp
-// npm package (#4434).
+// TODO: These go away once they are dependencies of the Wasp npm package (#4434).
 export const WASPC_PACKAGES: WaspcPackage[] = [
-  { name: "spec", kind: "installable" },
-  { name: "deploy", kind: "runnable" },
-  { name: "studio", kind: "runnable" },
+  { name: "deploy" },
+  { name: "studio" },
 ];
 
 export type WaspcPackage = {
   name: string;
-  kind: "runnable" | "installable";
 };
+
+// The packages a Wasp project depends on through `@wasp/wasp`. They are
+// published with each release, and packed from this repo for development (see
+// `tools/dev-packages`).
+export const WASP_NPM_PACKAGE_NAMES = ["wasp", "cli", "spec"];
 
 export function getPackageDirPath(packageName: string): string {
   return join(getRepoRootPath(), "packages", packageName);

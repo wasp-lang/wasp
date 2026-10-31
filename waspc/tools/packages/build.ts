@@ -35,7 +35,7 @@ try {
 }
 
 function buildPackages(): void {
-  for (const { name, kind } of WASPC_PACKAGES) {
+  for (const { name } of WASPC_PACKAGES) {
     const packageDir = getPackageDirPath(name);
     const dataPackageDir = join(getDataPackagesDirPath(), name);
 
@@ -45,14 +45,11 @@ function buildPackages(): void {
       packageDir,
       dataPackageDir,
     );
-    if (kind === "runnable" && packageJsonChanged) {
+    if (packageJsonChanged) {
       removeNpmLockFile(dataPackageDir);
     }
     copyDistToDataDir(packageDir, dataPackageDir);
-    if (
-      kind === "runnable" &&
-      !existsSync(getNpmLockFilePath(dataPackageDir))
-    ) {
+    if (!existsSync(getNpmLockFilePath(dataPackageDir))) {
       writeNpmLockFile(dataPackageDir);
     }
   }
