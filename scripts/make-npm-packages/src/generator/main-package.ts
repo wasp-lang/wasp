@@ -1,21 +1,16 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { copyStaticFiles } from "../common.ts";
+import {
+  MAIN_PACKAGE_SOURCE_DIR,
+  MAIN_PACKAGE_STATIC_FILES,
+  copyStaticFiles,
+} from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
   type MainPackageData,
 } from "../schema/output-data.ts";
-
-// The main package (`@wasp/cli`) is a workspace package. This script turns it
-// into the published one: it copies these files as they are and adds the
-// version and the platform sub-packages to the package.json.
-const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
-  import.meta.dirname,
-  "../../../../packages/cli",
-);
-const COPIED_FILES = ["bin.js", "CLIError.js", "readme.md"];
 
 export function makeMainPackage({
   packageName,
@@ -33,7 +28,11 @@ export function makeMainPackage({
   console.log(`Preparing main package directory: ${outputDirPath}`);
   fs.emptyDirSync(outputDirPath);
 
-  copyStaticFiles(COPIED_FILES, MAIN_PACKAGE_SOURCE_DIR, outputDirPath);
+  copyStaticFiles(
+    MAIN_PACKAGE_STATIC_FILES,
+    MAIN_PACKAGE_SOURCE_DIR,
+    outputDirPath,
+  );
 
   const pkgJson = generatePackageJson(packageName, packageVersion, subPackages);
   const outPkgFilePath = path.join(outputDirPath, "package.json");

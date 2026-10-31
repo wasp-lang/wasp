@@ -22,13 +22,5 @@
   },
   "bin": {
     "wasp": "bin.js"
-  },
-  "files": [
-    "CLIError.js",
-    "bin.js",
-    "data.json"
-  ],
-  "publishConfig": {
-    "access": "public"
   }
 }

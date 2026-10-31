@@ -11,10 +11,15 @@
 // one given through `WASP_DEV_CLI_BIN` / `WASP_DEV_DATA_DIR`), see
 // `writeDevCliConfig` for how it finds them.
 
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { report } from "node:process";
+import {
+  MAIN_PACKAGE_SOURCE_DIR,
+  MAIN_PACKAGE_STATIC_FILES,
+  copyStaticFiles,
+} from "../../../scripts/make-npm-packages/src/common.ts";
 import { getPackageDirPath } from "../packages/utils.ts";
 import {
   getPackageJson,
@@ -27,12 +32,6 @@ import {
 const DEV_PACKAGES_DIR_NAME = ".dev-packages";
 const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";
 const DEV_SUB_PACKAGE_FILE_NAME = "dev-sub-package.js";
-const CLI_PACKAGE_FILES = [
-  "bin.js",
-  "CLIError.js",
-  "readme.md",
-  "package.json",
-];
 
 // The dev stand-in for the platform packages of `@wasp/cli`. It finds the
 // project it is installed in (the one whose package.json points at the dev
@@ -128,21 +127,26 @@ function getCabalWaspCliBinPath(): string {
 }
 
 function packDevCliPackage(devPackagesDir: string): void {
-  const cliPackageDir = getPackageDirPath("cli");
   const tmpDir = join(tmpdir(), `wasp-dev-cli-${process.pid}`);
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
 
-  for (const file of CLI_PACKAGE_FILES) {
-    cpSync(join(cliPackageDir, file), join(tmpDir, file));
-  }
+  // Same files as the published package (see `scripts/make-npm-packages`),
+  // plus the dev sub-package and a package.json that lists it.
+  copyStaticFiles(MAIN_PACKAGE_STATIC_FILES, MAIN_PACKAGE_SOURCE_DIR, tmpDir);
   writeFileSync(
     join(tmpDir, DEV_SUB_PACKAGE_FILE_NAME),
     DEV_SUB_PACKAGE_SOURCE,
   );
 
-  const packageJson = getPackageJson(tmpDir) as { files: string[] };
-  packageJson.files.push(DEV_SUB_PACKAGE_FILE_NAME);
+  const packageJson = getPackageJson(MAIN_PACKAGE_SOURCE_DIR) as {
+    files?: string[];
+  };
+  packageJson.files = [
+    ...MAIN_PACKAGE_STATIC_FILES,
+    "data.json",
+    DEV_SUB_PACKAGE_FILE_NAME,
+  ];
   writeFileSync(
     join(tmpDir, "package.json"),
     JSON.stringify(packageJson, null, 2) + "\n",
