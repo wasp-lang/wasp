@@ -56,7 +56,6 @@ function isApp(value: unknown): value is WaspSpec.App {
     typeof value === "object" &&
     value !== null &&
     "name" in value &&
-    "wasp" in value &&
     "title" in value &&
     "spec" in value
   );

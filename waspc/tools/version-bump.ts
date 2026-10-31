@@ -1,7 +1,7 @@
 /// <reference types="node" />
 
 import assert from "node:assert";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import semver from "semver";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
@@ -110,33 +110,9 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   );
 }
 
-function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
-  bumpWaspFileVersion(projectDir, nextVersion);
-  bumpDevWaspPackageTarballs(projectDir, nextVersion);
-}
-
-function bumpWaspFileVersion(projectDir: string, nextVersion: string): void {
-  const waspFilePath = findWaspFilePath(projectDir);
-  const waspFileContent = readFileSync(waspFilePath, "utf-8");
-
-  // A bit unstable, but it should be good enough for our "controlled environment".
-  const updatedWaspFileContent = waspFileContent.replace(
-    /(wasp:\s*\{[^}]*version:\s*)["'`][^"'`]+["'`]/,
-    `$1"${nextVersion}"`,
-  );
-  if (waspFileContent === updatedWaspFileContent) {
-    throw new Error(`Failed to update the ${waspFilePath} Wasp version`);
-  }
-
-  writeFileSync(waspFilePath, updatedWaspFileContent);
-}
-
 // The Wasp projects in this repo depend on the dev Wasp npm package tarballs
 // (see `tools/dev-packages/build.ts`), whose file names carry the version.
-function bumpDevWaspPackageTarballs(
-  projectDir: string,
-  nextVersion: string,
-): void {
+function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   const packageJsonPath = join(projectDir, "package.json");
   const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
 
@@ -155,14 +131,6 @@ function bumpDevWaspPackageTarballs(
   writeFileSync(packageJsonPath, updatedPackageJsonContent);
 }
 
-function findWaspFilePath(projectDir: string): string {
-  const path = join(projectDir, "main.wasp.ts");
-  if (existsSync(path)) {
-    return path;
-  }
-  throw new Error(`No main.wasp.ts file in ${projectDir}`);
-}
-
 function rebuildLibs(): void {
   runCmd("node", [join("tools", "libs", "build.ts")], {
     cwd: waspcDirPath,
@@ -171,8 +139,8 @@ function rebuildLibs(): void {
 }
 
 // The Wasp projects in this repo depend on the dev tarballs by version (see
-// `bumpDevWaspPackageTarballs`), so they must exist at the new version before
-// the projects are reinstalled below.
+// `bumpWaspProjectVersion`), so they must exist at the new version before the
+// projects are reinstalled below.
 function rebuildDevPackages(): void {
   runCmd("node", [join("tools", "dev-packages", "build.ts")], {
     cwd: waspcDirPath,
