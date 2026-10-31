@@ -2,7 +2,7 @@
   "name": "@wasp/studio",
   "version": "0.27.0",
   "type": "module",
-  "description": "The Wasp Studio server, which `wasp studio` runs.",
+  "description": "The Wasp Studio server, which `wasp studio` runs. Comes with `@wasp/wasp`.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
@@ -43,5 +43,8 @@
     "@types/node": "catalog:",
     "tsx": "^4.20.3",
     "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

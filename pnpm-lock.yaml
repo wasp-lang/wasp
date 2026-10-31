@@ -603,9 +603,15 @@ importers:
       '@wasp/cli':
         specifier: workspace:*
         version: link:../cli
+      '@wasp/deploy':
+        specifier: workspace:*
+        version: link:../deploy
       '@wasp/spec':
         specifier: workspace:*
         version: link:../spec
+      '@wasp/studio':
+        specifier: workspace:*
+        version: link:../studio
 
   packages/wasp-app-runner:
     dependencies:

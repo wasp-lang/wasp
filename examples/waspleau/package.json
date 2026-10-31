@@ -29,7 +29,9 @@
   },
   "overrides": {
     "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
-    "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz"
+    "@wasp/deploy": "file:../../waspc/.dev-packages/wasp-deploy-0.27.0.tgz",
+    "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
+    "@wasp/studio": "file:../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
   },
   "//": "TODO: Wasp is a file: tarball here so this example runs against the unreleased Wasp in this repo (run `./run build:dev-packages` in waspc/ first, see waspc/tools/dev-packages). Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and this becomes a plain version (see #4824). Releases rewrite it to the released version."
 }

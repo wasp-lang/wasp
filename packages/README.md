@@ -2,10 +2,10 @@
 
 TypeScript packages of the Wasp monorepo:
 
-- `wasp/` -> `@wasp/wasp`, the package Wasp projects depend on. It pins `@wasp/cli` and `@wasp/spec` to the same version. Published to npm.
+- `wasp/` -> `@wasp/wasp`, the package Wasp projects depend on. It pins `@wasp/cli`, `@wasp/spec`, `@wasp/deploy` and `@wasp/studio` to the same version. Published to npm.
 - `cli/` -> `@wasp/cli`, the `wasp` executable wrapper. `scripts/make-npm-packages` turns it into the published package with the platform-specific binaries as optional dependencies.
-- `spec/` -> `@wasp/spec`, the Wasp Spec users import in `main.wasp.ts`. Comes with `@wasp/wasp`. Published to npm.
-- `deploy/`, `studio/` -> packages `waspc` runs as separate processes (see `Wasp.NodePackageFFI`).
+- `spec/` -> `@wasp/spec`, the Wasp Spec users import in `main.wasp.ts`. Published to npm.
+- `deploy/`, `studio/` -> `@wasp/deploy` and `@wasp/studio`, the implementations of `wasp deploy` and `wasp studio`. `waspc` runs them from the project's `@wasp/wasp` (see `Wasp.NodePackageFFI`). Published to npm.
 - `libs/` -> Wasp libs, internal npm packages installed into generated apps. See [`libs/README.md`](libs/README.md).
 - `wasp-app-runner/` -> CLI for running Wasp apps in e2e tests. Published to npm.
 
@@ -13,35 +13,24 @@ Together with `scripts/make-npm-packages` and `waspc/tools`, these form the repo
 (`pnpm-workspace.yaml` at the repo root). Run `pnpm install` at the repo root once; the build scripts
 below do it for you.
 
-## Packages `waspc` ships in its data dir
+## Build outputs
 
-`waspc` expects `spec`, `deploy` and `studio` under `waspc/data/packages/` and the libs
-under `waspc/data/Generator/libs/`. Those directories are build outputs (gitignored):
+`waspc` expects the libs under `waspc/data/Generator/libs/`, and Wasp projects in this repo
+depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs (gitignored):
 
-- `./run build:packages` builds each package and copies `dist/` and `package.json` into
-  `waspc/data/packages/<name>/`. `deploy` and `studio` get a `package-lock.json` generated
-  there too, since `waspc` installs their dependencies with npm on first use. Their versions
-  are therefore resolved at build time, not committed (TODO: goes away with
-  [#4434](https://github.com/wasp-lang/wasp/issues/4434), when they ship with the Wasp npm package).
 - `./run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
-- `./run build:dev-packages` builds and packs `spec`, `cli` and `wasp` into `waspc/.dev-packages/`,
-  for the Wasp projects in this repo to depend on the Wasp in this repo.
+- `./run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
+  into `waspc/.dev-packages/`.
 
 Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.
 
 ### Adding a new package that `waspc` runs
 
 Create a directory in this folder with a `build` script in `package.json` that compiles to
-`dist/`, add it to `pnpm-workspace.yaml` and to `WASPC_PACKAGES` in
-`waspc/tools/packages/utils.ts` (as `runnable` if `waspc` runs it from the data dir, which
-gets it a generated npm lockfile there), and add its files to `data-files` in `waspc.cabal`:
-
-```
-packages/<package-name>/package.json
-packages/<package-name>/dist/**/*.js
-```
-
-Adjust the last line if the package emits other file extensions.
+`dist/`, add it to `pnpm-workspace.yaml`, to `WASP_PACKAGE_NAMES` in
+`waspc/tools/packages/utils.ts`, to the dependencies of `wasp/package.json` and to the
+packages `waspc/tools/dev-packages/build.ts` builds and packs. Give `@wasp/wasp` a run script
+for it (see `wasp/run-deploy.js`) and point `Wasp.Project.WaspNpmPackage` at that script.
 
 ## CI builds and release
 

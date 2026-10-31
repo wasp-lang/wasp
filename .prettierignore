@@ -10,7 +10,6 @@ web/build/
 web/**/*.md
 web/**/*.mdx
 web/static/img/
-waspc/data/packages/
 waspc/.dev-packages/
 waspc/data/Generator/libs/
 pnpm-lock.yaml

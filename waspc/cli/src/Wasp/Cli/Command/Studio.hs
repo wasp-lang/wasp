@@ -146,7 +146,7 @@ studio = do
       ]
 
   result <- liftIO $ do
-    Wasp.Project.Studio.startStudio $ SP.toFilePath waspStudioDataJsonFilePath
+    Wasp.Project.Studio.startStudio waspDir $ SP.toFilePath waspStudioDataJsonFilePath
 
   either (throwError . CommandError "Studio command failed") return result
   where

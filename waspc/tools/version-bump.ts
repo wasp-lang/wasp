@@ -6,11 +6,7 @@ import { join } from "node:path";
 import semver from "semver";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
-import {
-  getPackageDirPath,
-  WASP_NPM_PACKAGE_NAMES,
-  WASPC_PACKAGES,
-} from "./packages/utils.ts";
+import { getPackageDirPath, WASP_PACKAGE_NAMES } from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -39,7 +35,6 @@ function bumpWaspVersion(bumpType: BumpType): void {
   rebuildLibs();
 
   bumpPackagesVersion(nextVersion);
-  rebuildPackages();
   rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
@@ -68,11 +63,8 @@ function bumpLibsVersion(nextVersion: string): void {
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const { name } of WASPC_PACKAGES) {
-    bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
-  }
-  for (const name of WASP_NPM_PACKAGE_NAMES) {
-    bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
+  for (const packageDirPath of WASP_PACKAGE_NAMES.map(getPackageDirPath)) {
+    bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
 
@@ -173,13 +165,6 @@ function findWaspFilePath(projectDir: string): string {
 
 function rebuildLibs(): void {
   runCmd("node", [join("tools", "libs", "build.ts")], {
-    cwd: waspcDirPath,
-    stdio: "inherit",
-  });
-}
-
-function rebuildPackages(): void {
-  runCmd("node", [join("tools", "packages", "build.ts")], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });

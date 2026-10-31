@@ -26,11 +26,15 @@
   },
   "files": [
     "bin.js",
-    "run-spec.js"
+    "run-deploy.js",
+    "run-spec.js",
+    "run-studio.js"
   ],
   "dependencies": {
     "@wasp/cli": "workspace:*",
-    "@wasp/spec": "workspace:*"
+    "@wasp/deploy": "workspace:*",
+    "@wasp/spec": "workspace:*",
+    "@wasp/studio": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
