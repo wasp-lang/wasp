@@ -7,6 +7,7 @@ import Control.Applicative ((<|>))
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
+import Data.Either.Extra (eitherToMaybe)
 import qualified Data.Map as M
 import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
@@ -21,7 +22,7 @@ import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
 -- | Require that the project's @wasp/wasp npm package is installed in
--- node_modules and that its version matches this CLI's version.
+-- node_modules and that it and this CLI satisfy the version the project asks for.
 data WaspNpmPackageAvailable = WaspNpmPackageAvailable deriving (Typeable)
 
 instance Requirable WaspNpmPackageAvailable where
@@ -35,10 +36,8 @@ instance Requirable WaspNpmPackageAvailable where
         >>= either (throwError . CommandError "Couldn't read package.json") return
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
-        | installedVersion == WV.waspVersion -> return WaspNpmPackageAvailable
-        | declaredSpecifier `elem` [Just (show WV.waspVersion), Just ("^" ++ show WV.waspVersion), Just ("~" ++ show WV.waspVersion)] ->
-            throwError $ staleInstallError installedVersion
-        | otherwise -> throwError $ versionMismatchError installedVersion
+        | isInstalledWaspNpmPackageCompatibleWithCli declaredSpecifier installedVersion -> return WaspNpmPackageAvailable
+        | otherwise -> throwError $ versionMismatchError declaredSpecifier installedVersion
       Left reason ->
         throwError $ case declaredSpecifier of
           Just _ -> missingDepsError reason
@@ -52,22 +51,6 @@ instance Requirable WaspNpmPackageAvailable where
             ++ " to fix this.\n"
             ++ "Details: "
             ++ reason
-
-      -- The package.json already asks for this CLI's version, so the user
-      -- changed it and did not reinstall yet.
-      staleInstallError :: SV.Version -> CommandError
-      staleInstallError installedVersion =
-        CommandError
-          "Missing or stale dependencies in project"
-          $ "Your "
-            ++ styleCode "package.json"
-            ++ " asks for "
-            ++ styleCode (waspNpmPackageName ++ " " ++ show WV.waspVersion)
-            ++ ", but "
-            ++ show installedVersion
-            ++ " is installed. Run "
-            ++ styleCode "npm install"
-            ++ " to fix this."
 
       notADependencyError =
         CommandError
@@ -88,14 +71,17 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "npm install"
             ++ "."
 
-      versionMismatchError :: SV.Version -> CommandError
-      versionMismatchError installedVersion =
+      versionMismatchError :: Maybe String -> SV.Version -> CommandError
+      versionMismatchError declaredSpecifier installedVersion =
         CommandError
           "Wasp version mismatch"
           $ "This project has "
             ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
-            ++ " installed, but you are running Wasp CLI "
+            ++ " installed"
+            ++ maybe "" (\specifier -> " and asks for " ++ styleCode (waspNpmPackageName ++ " " ++ specifier)) declaredSpecifier
+            ++ ", but you are running Wasp CLI "
             ++ show WV.waspVersion
+            -- TODO: New projects only get the `wasp` npm script in #5214.
             ++ ". Run Wasp through the project (e.g. "
             ++ styleCode "npm run wasp start"
             ++ "), or set "
@@ -107,6 +93,16 @@ instance Requirable WaspNpmPackageAvailable where
             ++ " and run "
             ++ styleCode "npm install"
             ++ "."
+
+-- | The installed @wasp/wasp works with this CLI when both versions satisfy
+-- the range the project's package.json declares. Specifiers that aren't
+-- version ranges (e.g. `file:` tarballs) don't constrain the version, so then
+-- the installed version must match the CLI's exactly.
+isInstalledWaspNpmPackageCompatibleWithCli :: Maybe String -> SV.Version -> Bool
+isInstalledWaspNpmPackageCompatibleWithCli declaredSpecifier installedVersion =
+  case declaredSpecifier >>= eitherToMaybe . SV.parseRange of
+    Just declaredRange -> all (`SV.isVersionInRange` declaredRange) [installedVersion, WV.waspVersion]
+    Nothing -> installedVersion == WV.waspVersion
 
 -- | What the user's package.json asks for @wasp/wasp, if it depends on it at all.
 getDeclaredWaspNpmPackageSpecifier :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Maybe String))
