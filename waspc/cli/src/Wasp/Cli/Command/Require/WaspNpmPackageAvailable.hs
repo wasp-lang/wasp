@@ -81,7 +81,6 @@ instance Requirable WaspNpmPackageAvailable where
             ++ maybe "" (\specifier -> " and asks for " ++ styleCode (waspNpmPackageName ++ " " ++ specifier)) declaredSpecifier
             ++ ", but you are running Wasp CLI "
             ++ show WV.waspVersion
-            -- TODO: New projects only get the `wasp` npm script in #5214.
             ++ ". Run Wasp through the project (e.g. "
             ++ styleCode "npm run wasp start"
             ++ "), or set "
