@@ -1,23 +1,16 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { copyStaticFiles } from "../common.ts";
+import {
+  MAIN_PACKAGE_SOURCE_DIR,
+  MAIN_PACKAGE_STATIC_FILES,
+  copyStaticFiles,
+} from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
   type MainPackageData,
 } from "../schema/output-data.ts";
-
-// The main package (`@wasp/cli`) is a workspace package. This script turns it
-// into the published one: it copies these files as they are and adds the
-// version and the platform sub-packages to the package.json.
-const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
-  import.meta.dirname,
-  "../../../../packages/cli",
-);
-const COPIED_FILES = ["bin.js", "CLIError.js", "readme.md"];
-
-const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
 
 export function makeMainPackage({
   packageName,
@@ -35,7 +28,11 @@ export function makeMainPackage({
   console.log(`Preparing main package directory: ${outputDirPath}`);
   fs.emptyDirSync(outputDirPath);
 
-  copyStaticFiles(COPIED_FILES, MAIN_PACKAGE_SOURCE_DIR, outputDirPath);
+  copyStaticFiles(
+    MAIN_PACKAGE_STATIC_FILES,
+    MAIN_PACKAGE_SOURCE_DIR,
+    outputDirPath,
+  );
 
   const pkgJson = generatePackageJson(packageName, packageVersion, subPackages);
   const outPkgFilePath = path.join(outputDirPath, "package.json");
@@ -68,8 +65,10 @@ function generatePackageJson(
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  pkg.os = unique(subPackages.map((subPackage) => subPackage.data.target.os));
-  pkg.cpu = unique(subPackages.map((subPackage) => subPackage.data.target.cpu));
+  // No `os` / `cpu` on the main package: it is a dependency of every Wasp
+  // project (through `@wasp/wasp`), and npm would refuse to install the whole
+  // project on an unsupported platform. The platform packages carry them, and
+  // `bin.js` explains the problem when none of them is installed.
 
   console.log("Filled out package.json fields");
   console.groupEnd();

@@ -20,6 +20,8 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
+      - uses: $/.github/actions/build-dev-wasp-packages
+
       # `...` also installs the app runner the tests depend on.
       - name: Install node dependencies
         run: pnpm install --filter starters-e2e-tests... && pnpm --filter @wasp/wasp-app-runner run build

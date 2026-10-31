@@ -32,9 +32,11 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
+      - uses: $/.github/actions/build-dev-wasp-packages
+
       - name: Install app dependencies
         working-directory: examples/${{ matrix.example }}
-        run: wasp-cli install
+        run: ../../waspc/run install-dev-wasp-package
 
       # We must compile the project to generate the Wasp libs before installing deps
       - name: Compile project and install deps for ${{ matrix.example }}

@@ -3,6 +3,7 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
+import Control.Concurrent (newChan)
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, require)
@@ -20,11 +21,11 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
-import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
@@ -37,7 +38,6 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
-  -- TODO consider removing if we start doing `wasp install` automatically
   liftIO $ installDepsForNewProject (getAbsWaspProjectDir newProjectDescription)
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 
@@ -52,15 +52,16 @@ createProjectOnDisk
         liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
-installDepsForNewProject absWaspProjectDir =
-  installIO absWaspProjectDir >>= \case
+installDepsForNewProject absWaspProjectDir = do
+  messagesChan <- newChan
+  installProjectNpmDependencies messagesChan absWaspProjectDir >>= \case
     Right () -> return ()
     Left _err ->
       putStrLn
         $ Term.applyStyles [Term.Yellow]
         $ "Warning: The project was created, but dependency installation failed.\n"
           ++ "Run "
-          ++ styleCode "wasp install"
+          ++ styleCode "npm install"
           ++ " in the project directory to install the dependencies."
 
 -- | This function assumes that the project dir was created inside the current working directory.

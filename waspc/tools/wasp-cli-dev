@@ -14,5 +14,9 @@ set -e
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 WASPC_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
 
+# Tells the CLI where the packed, unreleased Wasp npm packages are (see
+# `tools/dev-packages/build.ts`), so new projects depend on the Wasp in this repo.
+export WASP_DEV_PACKAGES_DIR="$WASPC_DIR/.dev-packages"
+
 # "-v0" silences cabal's own logs so the CLI behaves like an installed binary.
 exec cabal -v0 --project-dir="$WASPC_DIR" run wasp-cli -- "$@"
