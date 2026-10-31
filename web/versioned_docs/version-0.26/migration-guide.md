@@ -281,6 +281,19 @@ If anything else in your deployment probed `GET /`, such as a platform health ch
 
 Update Fly CLI to 0.4.82 or newer and Railway CLI to 5.28.0 or newer, both locally and in CI, if you use them.
 
+To update Fly's CLI, run:
+
+
+```shell
+fly version upgrade
+```
+
+To update Railway's CLI, run:
+```shell
+railway upgrade
+```
+
+
 ### 10. Replace `wasp info` with `wasp show`
 
 `wasp info` is superseded by `wasp show`. Use `wasp show build --json` in automation scripts to read the last build's Wasp version from `lastCompile.waspVersion`.
