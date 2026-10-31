@@ -31,19 +31,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( expressTypesVersionRange,
-    expressVersionRange,
-    kyVersionRange,
-    prismaVersionRange,
-    reactDomTypesVersionRange,
-    reactDomVersionRange,
-    reactQueryVersionRange,
-    reactRouterVersionRange,
-    reactTypesVersionRange,
-    reactVersionRange,
-    superjsonVersionRange,
-    typescriptVersionRange,
-    viteVersionRange,
+  ( viteVersionRange,
     vitestVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft)
@@ -198,37 +186,22 @@ genPackageJson spec = do
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { N.dependencies =
-        Npm.Dependency.fromList
-          [ ("@prisma/client", show prismaVersionRange),
-            ("prisma", show prismaVersionRange),
-            ("express", show expressVersionRange),
-            ("ky", show kyVersionRange),
-            ("react", show reactVersionRange),
-            ("react-dom", show reactDomVersionRange),
-            ("@tanstack/react-query", show reactQueryVersionRange),
-            ("react-router", show reactRouterVersionRange),
-            ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersionRange),
-            ("@vitejs/plugin-react", "^6.0.3")
-          ]
-          ++ depsRequiredByOAuth spec
+    { -- The SDK's core dependencies (@prisma/client, ky, superjson, the
+      -- testing libraries, ...) come with @wasp/wasp, see
+      -- "Wasp.Generator.WaspNpmPackageDeps", and the ones the project must
+      -- own (react, react-router, prisma) come from the user's package.json.
+      -- Only the ones that depend on the app stay here.
+      N.dependencies =
+        depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
-          ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEnvValidation
           ++ waspLibsNpmDeps,
       N.devDependencies =
         Npm.Dependency.fromList
-          [ -- Should @types/* go into their package.json?
-            ("typescript", show typescriptVersionRange),
-            ("@types/express", show expressTypesVersionRange),
-            ("@types/express-serve-static-core", show expressTypesVersionRange),
-            ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
-            ("@types/react", show reactTypesVersionRange),
-            ("@types/react-dom", show reactDomTypesVersionRange)
+          [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
           ++ devDepsRequiredByEmail spec,
       -- The SDK imports these at runtime, but they must be the same instances
@@ -241,16 +214,6 @@ npmDepsForSdk spec =
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
-
-depsRequiredForTesting :: [Npm.Dependency.Dependency]
-depsRequiredForTesting =
-  Npm.Dependency.fromList
-    [ ("@vitest/ui", "^4.1.9"),
-      ("jsdom", "^27.4.0"),
-      ("@testing-library/react", "^16.3.1"),
-      ("@testing-library/jest-dom", "^6.9.1"),
-      ("msw", "^2.12.7")
-    ]
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
