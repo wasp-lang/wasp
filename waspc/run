@@ -298,6 +298,10 @@ case $COMMAND in
     ;;
   install)
     echo_and_eval "$INSTALL_CMD"
+    # `wasp-cli new` writes the dev Wasp npm package tarballs into new projects
+    # only when this env var is set. `./run wasp-cli` sets it for you.
+    echo -e "\n${YELLOW}${BOLD}For \`wasp-cli new\` to use the dev Wasp npm packages, add this to your shell profile:${RESET}"
+    echo "export WASP_DEV_PACKAGES_DIR=\"$SCRIPT_DIR/.dev-packages\""
     ;;
   ghcid)
     echo_and_eval "$GHCID_CMD"
