@@ -22,7 +22,9 @@ depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs 
 - `./run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
   into `waspc/.dev-packages/`.
 
-Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`.
+Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`. For a globally
+installed `wasp-cli`, also export `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` (`./run install`
+prints the exact line), so `wasp-cli new` makes projects depend on the dev packages.
 
 ### Adding a new package that `waspc` runs
 
