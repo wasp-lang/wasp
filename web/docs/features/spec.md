@@ -41,7 +41,7 @@ You build your app by:
 
 ## Installing the Spec
 
-The `@wasp/spec` package comes with `@wasp/wasp`, the npm package your project depends on, at the same version as the Wasp CLI that runs your project. A regular `npm install` is all it takes. `wasp new` offers to run it for you, and you run it yourself in a fresh clone, after `wasp clean`, or after removing the `node_modules` folder. If it's missing or out of date, Wasp tells you to run `npm install` before starting the app.
+The `@wasp/spec` package comes with `@wasp/wasp`, the npm package your project depends on, at the same version as the Wasp CLI that runs your project. A regular `npm install` is all it takes. `wasp new` runs it for you, and you run it yourself in a fresh clone, after `wasp clean`, or after removing the `node_modules` folder. If it's missing or out of date, Wasp tells you to run `npm install` before starting the app.
 
 ## Referencing your app's code
 

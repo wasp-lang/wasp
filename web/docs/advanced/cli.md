@@ -23,9 +23,6 @@ COMMANDS
       OPTIONS:
         -t|--template <template-name>
            Available starter templates are: basic, minimal, saas.
-        --install | --no-install
-           Whether to install the npm dependencies after creating the project.
-           Without either, Wasp asks (or installs, when not run interactively).
 
     help                  Prints this help message.
     version               Prints current version of CLI.
@@ -104,7 +101,7 @@ To run your new app, do:
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
 
-- The new project depends on Wasp through the `@wasp/wasp` npm package. `wasp new` asks whether to run `npm install` right away; pass `--install` or `--no-install` to decide without the question (for example in a script). Until the dependencies are installed, the commands that read the project fail with a message saying so.
+- The new project depends on Wasp through the `@wasp/wasp` npm package, and `wasp new` runs `npm install` for you. If the dependencies are missing later (for example in a fresh clone), the commands that read the project fail with a message saying to run `npm install`.
 
 ```
 $ wasp new MyFirstProject
