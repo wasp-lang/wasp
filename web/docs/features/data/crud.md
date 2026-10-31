@@ -87,7 +87,6 @@ import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
   name: "tasksCrudApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "Tasks Crud App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
 

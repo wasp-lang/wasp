@@ -102,7 +102,7 @@ Here's an example configuration file to help you get started. This example workf
           run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Install Wasp app dependencies
-          run: cd ./app && wasp install
+          run: cd ./app && npm install
 
         - name: Wasp Build
           run: cd ./app && wasp build

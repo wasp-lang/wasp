@@ -46,7 +46,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -155,7 +154,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -231,7 +229,6 @@ import { getConfig, userSignupFields } from "./src/auth/github" with { type: "re
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

@@ -32,7 +32,6 @@ import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 
 export default app({
   name: "WebsocketTest",
-  wasp: { version: "^0.24.0" },
   title: "websocket-test",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // highlight-start

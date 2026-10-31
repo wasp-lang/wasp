@@ -7,7 +7,6 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 // Configuring the social authentication
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

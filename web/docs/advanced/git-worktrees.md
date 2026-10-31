@@ -1,6 +1,6 @@
 ---
 title: "Git worktree setup: parallel coding agents in Wasp"
-description: "Set up Git worktrees of a Wasp app for parallel coding agents: run wasp install, copy env files and migrate. Each gets free ports and its own dev database."
+description: "Set up Git worktrees of a Wasp app for parallel coding agents: run npm install, copy env files and migrate. Each gets free ports and its own dev database."
 sidebar_label: Worktrees
 ---
 
@@ -29,10 +29,10 @@ Creating the worktree is only the first step. Each worktree is a fresh copy of t
 After you create a new worktree for your Wasp app, you must first run:
 
 ```bash
-wasp install
+npm install
 ```
 
-It installs the Wasp app dependencies. When creating a new project, `wasp new` installs them for you, but in a fresh clone or worktree you need to run it manually.
+It installs the app's dependencies, Wasp itself included (your project depends on it through the `@wasp/wasp` package). When creating a new project, `wasp new` installs them for you, but in a fresh clone or worktree you need to run it yourself.
 
 ### Setting up environment variables {#setting-up-environment-variables}
 
