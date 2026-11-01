@@ -73,7 +73,6 @@
 - [Server](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
 - [SocialAuthConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
 - [UsernameAndPasswordConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
-- [Wasp](https://wasp.sh/docs/api/@wasp/spec/interfaces/Wasp)
 - [WebSocket](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
 - [AuthMethods](https://wasp.sh/docs/api/@wasp/spec/type-aliases/AuthMethods)
 - [DeploymentMode](https://wasp.sh/docs/api/@wasp/spec/type-aliases/DeploymentMode)

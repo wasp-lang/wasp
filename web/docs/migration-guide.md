@@ -114,6 +114,8 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update th
   </TabItem>
 </Tabs>
 
+If your `package.json` has a `wasp.overriddenDeps` entry for a package that now comes with `@wasp/wasp` (like React, Vite or Express), move it to npm's `overrides` field. Wasp reports the old entry as an error. See [Overriding Wasp's dependencies](./advanced/dependencies#overriding-wasps-dependencies-advanced).
+
 ### 3. Remove the Wasp version from `main.wasp.ts`
 
 The version in `package.json` is now the one that counts, so the `wasp` field goes away:
