@@ -15,7 +15,8 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (isJust)
+import qualified Data.Aeson.Text as Aeson.Text
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File,
@@ -78,6 +79,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
       genFileCopy [relfile|src/createRollupBundle.js|],
+      genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
@@ -144,7 +146,7 @@ genPackageJson spec waspDependencies =
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
-                .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
+                .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
                    ),
               "dbSeedNpmScriptName" .= dbSeedNpmScriptName
@@ -152,8 +154,6 @@ genPackageJson spec waspDependencies =
       )
   where
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
-
-    hasEntities = AS.Util.hasEntities spec
 
 npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
@@ -184,7 +184,9 @@ npmDepsFromWasp spec =
               ("@types/cors", "^2.8.5"),
               ("rollup", "^4.9.6"),
               ("rollup-plugin-esbuild", "^6.1.1"),
-              ("@rollup/plugin-node-resolve", "^16.0.0")
+              ("@rollup/plugin-node-resolve", "^16.0.0"),
+              -- Used by `prepareProduction.ts` when building the Docker image.
+              ("nf3", "0.4.2")
             ],
         peerDependencies = []
       }
@@ -229,6 +231,24 @@ genNodemon =
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
       waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
+
+genPrepareProduction :: AppSpec -> Generator FileDraft
+genPrepareProduction spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|prepareProduction.ts|]
+      ( Just $
+          object
+            [ "traceDeps" .= Aeson.Text.encodeToLazyText traceDeps,
+              "runsMigrations" .= Aeson.Text.encodeToLazyText (runsMigrationsOnStart spec)
+            ]
+      )
+  where
+    traceDeps = fromMaybe [] $ AS.App.server (getApp spec) >>= AS.App.Server.traceDeps
+
+-- | The server runs DB migrations on start when the app has entities.
+runsMigrationsOnStart :: AppSpec -> Bool
+runsMigrationsOnStart = AS.Util.hasEntities
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =

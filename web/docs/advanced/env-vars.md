@@ -199,7 +199,7 @@ During development (`wasp start`), there are two ways to provide env vars to you
 
 ### 1. Using .env (dotenv) Files {#dotenv-files}
 
-![Env vars usage in development](/img/env/prod_dev_fade.svg)
+![Env vars usage in development](/img/docs/advanced/env-vars/prod_dev_fade.svg)
 
 This is the recommended method for providing env vars to your Wasp project during development.
 
@@ -340,7 +340,7 @@ Take a look at an example of defining env vars validation:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -414,7 +414,7 @@ You can define your client env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -503,7 +503,7 @@ You can define your env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({

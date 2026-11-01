@@ -1,1 +1,1 @@
-export { defineEnvValidationSchema } from '@wasp.sh/lib-sdk-core'
+export { defineEnvValidationSchema } from '@wasp/lib-sdk-core'

@@ -11,7 +11,7 @@ import { CardLink } from '@site/src/components/CardLink';
 Each Wasp project can have only one `app` spec. It is used to configure your app and its components.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "todoApp",
@@ -32,7 +32,7 @@ We'll go through some common customizations you might want to do to your app. Fo
 You may want to change the title of your app, which appears in the browser tab, next to the favicon. You can change it by changing the `title` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -49,7 +49,7 @@ If you are looking to add additional style sheets or scripts to your app, you ca
 An example of adding extra style sheets and scripts:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -68,7 +68,7 @@ export default app({
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/App"
+  to="../../api/@wasp/spec/interfaces/App"
   kind="api"
   title="App"
   description="All the options for the app spec."

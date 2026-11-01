@@ -26,7 +26,7 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/MainPage" with { type: "ref" }
 import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 

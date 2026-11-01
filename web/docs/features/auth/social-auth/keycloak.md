@@ -41,7 +41,7 @@ Enabling Keycloak Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -84,19 +84,19 @@ model User {
 1. Log into your Keycloak admin console.
 2. Under **Clients**, click on **Create Client**.
 
-![Keycloak Screenshot 1](/img/auth/keycloak/1-keycloak.png)
+![Keycloak Screenshot 1](/img/docs/features/auth/social-auth/keycloak/1-keycloak.png)
 
 1. Fill in the **Client ID** and choose a name for the client.
 
-![Keycloak Screenshot 2](/img/auth/keycloak/2-keycloak.png)
+![Keycloak Screenshot 2](/img/docs/features/auth/social-auth/keycloak/2-keycloak.png)
 
 1. In the next step, enable **Client Authentication**.
 
-![Keycloak Screenshot 3](/img/auth/keycloak/3-keycloak.png)
+![Keycloak Screenshot 3](/img/docs/features/auth/social-auth/keycloak/3-keycloak.png)
 
 1. Under **Valid Redirect URIs**, add `http://localhost:3001/auth/keycloak/callback` for local development.
 
-![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
+![Keycloak Screenshot 4](/img/docs/features/auth/social-auth/keycloak/4-keycloak.png)
 
 - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
 - For example: `https://my-server-url.com/auth/keycloak/callback`.
@@ -104,7 +104,7 @@ model User {
 1. Click **Save**.
 2. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.
 
-![Keycloak Screenshot 5](/img/auth/keycloak/5-keycloak.png)
+![Keycloak Screenshot 5](/img/docs/features/auth/social-auth/keycloak/5-keycloak.png)
 
 ### 4. Adding Environment Variables
 
@@ -125,7 +125,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -154,7 +154,7 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `keycloak: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -206,7 +206,7 @@ The fields you receive will depend on the scopes you requested. The default scop
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "ref" }
 
 export default app({
@@ -270,7 +270,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec/interfaces/SocialAuthConfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the keycloak auth method."

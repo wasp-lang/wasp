@@ -33,17 +33,9 @@ const waspProdClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
 });
 
-// Tests (e.g., with Vitest) run without `wasp start`, which provides the
-// server URL in development. They mock the server, so a placeholder is enough.
-const waspTestClientEnvSchema = z.object({
-  "{= serverUrlEnvVarName =}": serverUrlSchema.default("http://localhost:3001"),
-});
-
 const waspClientEnvSchema = import.meta.env.MODE === "production"
   ? waspProdClientEnvSchema
-  : import.meta.env.MODE === "test"
-    ? waspTestClientEnvSchema
-    : waspDevClientEnvSchema;
+  : waspDevClientEnvSchema;
 
 export type CompleteClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
 

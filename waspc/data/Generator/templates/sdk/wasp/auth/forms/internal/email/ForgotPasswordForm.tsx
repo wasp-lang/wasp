@@ -1,8 +1,8 @@
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { useAuthContext } from '@wasp/lib-auth/browser'
 import { useForm } from 'react-hook-form'
 
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError, emailFieldRules, emailInputProps, getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
+import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError, emailFieldRules, emailInputProps, getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
 
 type ForgotPasswordFormFields = { email: string };
 

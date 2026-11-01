@@ -76,7 +76,7 @@
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",
-    {=! Users: Vitest helpers from @wasp.sh/lib-test-utils. Its vitest, msw, and @testing-library/react peer dependencies are optional, so users install them when they write tests. =}
+    {=! Users: Vitest helpers. Has optional peer dependencies: vitest, msw, and @testing-library/react. =}
     "./client/test": "./dist/client/test/index.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
@@ -100,6 +100,8 @@
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
     {=! Server: type ServerType. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
+    {=! Users: the Vitest config helper. =}
+    "./test": "./dist/test/index.js",
 
     {=!
       ===============================================================
@@ -122,6 +124,7 @@
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",
+    "./server/errors": "./dist/server/errors/index.js",
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}

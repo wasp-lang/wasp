@@ -73,7 +73,7 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
 | Configuring the app       | `app.auth(...);` <br/> `app.server(...);` <br/> `app.client(...);` <br/> `app.db(...);` <br/> `app.emailSender(...);` <br/> `app.webSocket(...);` | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/> client: ...,<br/> db: ...,<br/> emailSender: ...,<br/> webSocket: ...,<br/>});</pre> |
 | Adding app specifications | `app.route(...);` <br/> `app.query(...);` <br/> `app.action(...);` <br/> etc                                                                      | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>});</pre>                                       |
 | Imports                   | `{ import, from }`                                                                                                                                | `import { ... } from "./src/..." with { type: "ref" };`                                                                                 |
-| Package name              | `wasp-config`                                                                                                                                     | `@wasp.sh/spec`                                                                                                                         |
+| Package name              | `wasp-config`                                                                                                                                     | `@wasp/spec`                                                                                                                         |
 
 ### App and specifications
 
@@ -103,7 +103,7 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, query, route } from "@wasp.sh/spec";
+    import { app, page, query, route } from "@wasp/spec";
     import MainPage from "./src/MainPage" with { type: "ref" };
     import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -142,7 +142,7 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from "@wasp.sh/spec";
+    import { api, apiNamespace, app } from "@wasp/spec";
     import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
     export default app({
@@ -176,7 +176,7 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from "@wasp.sh/spec";
+    import { app, job } from "@wasp/spec";
     import { foo } from "./src/jobs/bar" with { type: "ref" };
 
     export default app({
@@ -210,7 +210,7 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec";
+    import { app, crud } from "@wasp/spec";
     import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
@@ -260,7 +260,7 @@ These were configured with mutating method calls. They are now keys of the `app(
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec";
+    import { app } from "@wasp/spec";
     import App from "./src/App" with { type: "ref" };
 
     export default app({
@@ -315,14 +315,14 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           "devDependencies": {
             // ...
             "@types/node": "^24.0.0",
-            "@wasp.sh/spec": "file:.wasp/spec"
+            "@wasp/spec": "file:.wasp/spec"
           }
         }
         ```
       </TabItem>
     </Tabs>
 
-    Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+    Keep your existing dependencies, replace `wasp-config` with `@wasp/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2.  Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
@@ -375,7 +375,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
       </TabItem>
       <TabItem value="after" label="After">
         ```ts title="main.wasp.ts"
-        import { app } from "@wasp.sh/spec";
+        import { app } from "@wasp/spec";
 
         export default app({
           name: "myApp",

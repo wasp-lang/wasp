@@ -22,6 +22,7 @@ data Call
   | PrintBashCompletionInstruction
   | BashCompletionListCommands
   | Deploy Arguments -- deploy cmd passthrough args
+  | Help
   | Unknown Arguments -- all args
   deriving (Eq)
 
