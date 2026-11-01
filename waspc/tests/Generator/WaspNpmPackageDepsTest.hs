@@ -8,27 +8,24 @@ import qualified Data.Text as T
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson.Common (requiredUserDevelopmentDeps, requiredUserRuntimeDeps)
 import Wasp.Generator.WaspNpmPackageDeps (waspNpmPackageDeps)
 
 -- The packages @wasp/wasp declares live in two places: its package.json (what
--- npm installs) and the Haskell lists (what the generator and the package.json
--- validator assume is installed). This keeps them from drifting.
+-- npm installs) and the Haskell lists (what the generator, `wasp deps` and the
+-- `wasp.overriddenDeps` validator assume is installed). This keeps them from
+-- drifting.
 spec_waspNpmPackageDeps :: Spec
 spec_waspNpmPackageDeps = do
   describe "waspNpmPackageDeps" $ do
-    -- Everything a project gets through @wasp/wasp is a peer dependency: the
-    -- core deps the generated code imports and the packages the project owns.
-    -- npm installs peers at the project root and refuses conflicting versions,
+    -- Everything a project gets through @wasp/wasp is a peer dependency. npm
+    -- installs peers at the project root and refuses conflicting versions,
     -- which is what makes bare imports in the generated code resolve to them.
-    it "and the user's required deps are the peer dependencies in packages/wasp/package.json" $ do
+    it "are the peer dependencies in packages/wasp/package.json" $ do
       packageJson <-
         either (error . ("Couldn't parse packages/wasp/package.json: " ++)) return
           =<< Aeson.eitherDecodeFileStrict' waspNpmPackageJsonPath
       let peerDepsInPackageJson = getStringMap "peerDependencies" packageJson
-          coreDeps = M.fromList [(D.name dep, D.version dep) | dep <- waspNpmPackageDeps]
-          requiredUserDeps = M.fromList $ requiredUserRuntimeDeps <> requiredUserDevelopmentDeps
-      peerDepsInPackageJson `shouldBe` M.union coreDeps requiredUserDeps
+      peerDepsInPackageJson `shouldBe` M.fromList [(D.name dep, D.version dep) | dep <- waspNpmPackageDeps]
 
     it "is not duplicated in the dependencies of packages/wasp/package.json" $ do
       packageJson <-
