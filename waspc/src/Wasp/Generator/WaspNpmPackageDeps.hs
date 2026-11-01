@@ -1,6 +1,5 @@
 module Wasp.Generator.WaspNpmPackageDeps
   ( waspNpmPackageDeps,
-    serverCoreDeps,
   )
 where
 
@@ -12,34 +11,37 @@ import Wasp.Generator.DepVersions
     kyVersionRange,
     prismaVersionRange,
     reactDomTypesVersionRange,
+    reactDomVersionRange,
     reactQueryVersionRange,
+    reactRouterVersionRange,
     reactTypesVersionRange,
+    reactVersionRange,
     superjsonVersionRange,
     typescriptVersionRange,
+    viteVersionRange,
+    vitestVersionRange,
   )
 
 -- | The packages @wasp/wasp (packages/wasp/package.json) declares as peer
--- dependencies for every Wasp project, everything the generated server and
--- SDK need no matter what the app uses. Generated code imports them without
--- declaring them. They are peers and not regular dependencies on purpose: npm
--- installs a peer at the project root and refuses a conflicting version there,
--- while it would quietly nest a regular dependency under @wasp/wasp when
--- something else in the project wants another version, where the generated
--- code would not find it.
+-- dependencies for every Wasp project: everything the generated server and
+-- SDK need no matter what the app uses, and the packages the project imports
+-- itself. Generated code imports them without declaring them. They are peers
+-- and not regular dependencies on purpose: npm installs a peer at the project
+-- root and refuses a conflicting version there, while it would quietly nest a
+-- regular dependency under @wasp/wasp when something else in the project wants
+-- another version, where the generated code would not find it.
+--
+-- Since npm enforces their versions, the package.json validator doesn't check
+-- them. A project that needs another version uses npm's `overrides`.
 --
 -- Not here are the dependencies that depend on the app (WebSockets, jobs,
--- email senders), which the generated packages still declare, and the ones
--- the project owns (react, react-router, prisma, vite, vitest), which the
--- user's package.json declares.
+-- email senders), which the generated packages still declare.
 --
 -- Keep in sync with packages/wasp/package.json, a unit test checks that.
 waspNpmPackageDeps :: [Npm.Dependency.Dependency]
-waspNpmPackageDeps = serverCoreDeps ++ sdkCoreDeps
+waspNpmPackageDeps = serverCoreDeps ++ sdkCoreDeps ++ projectDeps
 
--- | What the generated server used to declare itself. The package.json
--- validator checks that the user's package.json doesn't ask for a conflicting
--- version of these, which would make npm nest our copy where the generated
--- code can't see it.
+-- | What the generated server used to declare itself.
 serverCoreDeps :: [Npm.Dependency.Dependency]
 serverCoreDeps =
   Npm.Dependency.fromList
@@ -62,9 +64,7 @@ serverCoreDeps =
       ("typescript", show typescriptVersionRange)
     ]
 
--- | What the generated SDK used to declare itself. Not validated against the
--- user's package.json, same as before (the starters themselves pin e.g.
--- react-hook-form to a newer range than this one).
+-- | What the generated SDK used to declare itself.
 sdkCoreDeps :: [Npm.Dependency.Dependency]
 sdkCoreDeps =
   Npm.Dependency.fromList
@@ -75,9 +75,26 @@ sdkCoreDeps =
       ("@types/react", show reactTypesVersionRange),
       ("@types/react-dom", show reactDomTypesVersionRange),
       ("@vitejs/plugin-react", "^6.0.3"),
+      -- TODO: Installing @wasp/wasp in a project that doesn't declare vitest
+      -- (the npm-package-test smoke test) fails with ERESOLVE: npm resolves
+      -- vite's optional `vitest@*` peer to vitest 5, which conflicts with this
+      -- one. Goes away when Vitest moves to user-land (#5060) and the testing
+      -- packages leave @wasp/wasp.
       ("@vitest/ui", "^4.1.9"),
       ("jsdom", "^27.4.0"),
       ("ky", show kyVersionRange),
       ("msw", "^2.12.7"),
       ("react-hook-form", "^7.45.4")
+    ]
+
+-- | What the project imports itself, so its package.json declares them too.
+projectDeps :: [Npm.Dependency.Dependency]
+projectDeps =
+  Npm.Dependency.fromList
+    [ ("prisma", show prismaVersionRange),
+      ("react", show reactVersionRange),
+      ("react-dom", show reactDomVersionRange),
+      ("react-router", show reactRouterVersionRange),
+      ("vite", show viteVersionRange),
+      ("vitest", show vitestVersionRange)
     ]

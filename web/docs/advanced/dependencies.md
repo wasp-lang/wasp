@@ -1,7 +1,7 @@
 ---
 title: "Dependencies: npm packages and overrides in Wasp"
 sidebar_label: Dependencies
-description: Add npm packages to a Wasp project in package.json, override a version Wasp manages with wasp.overriddenDeps, and change the 7-day min-release-age.
+description: Add npm packages to a Wasp project in package.json, override a version Wasp manages with npm overrides or wasp.overriddenDeps, and change the 7-day min-release-age.
 ---
 
 # Dependencies
@@ -22,11 +22,13 @@ You will notice that there are some other packages in the `dependencies` section
 
 ### Using Packages that are Already Used by Wasp Internally
 
-Wasp internally uses certain dependencies (e.g. React, Prisma, Vite) with specific versions. By default, you cannot specify a different version for these packages - if you try, you'll get an error telling you which version Wasp requires.
+Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `wasp deps` to see them.
+
+A few other dependencies, like `socket.io` when you use WebSockets, come with Wasp's generated code instead. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
 
 #### Overriding Wasp's Dependencies (Advanced)
 
-If you need to use a different version of a Wasp-managed dependency, you can override it using the `wasp.overriddenDeps` field in your `package.json`. This is an advanced feature intended for:
+If you need to use a different version of a Wasp-managed dependency, you can override it. This is an advanced feature intended for:
 
 - Testing newer versions of dependencies before Wasp officially supports them
 - Working around bugs in a specific dependency version
@@ -49,14 +51,15 @@ If you find the need to override any dependency, we'd appreciate for you to [pos
 
 :::
 
-The packages Wasp uses are peer dependencies of `@wasp/wasp`, so npm itself refuses to install a conflicting version. To override one, you need two things in your `package.json`: npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field, which makes npm accept your version for every package that asks for it, and Wasp's `wasp.overriddenDeps` object, which tells Wasp you know what you are doing. The keys are the package names. In `overriddenDeps`, the values are **what Wasp currently requires** (not your desired version):
+To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, the override must use the same version:
 
 <Tabs>
   <TabItem value="before" label="Before">
     ```json title="package.json"
     {
       "dependencies": {
-        "@wasp/wasp": "0.27.0"
+        "react": "^19.2.1",
+        "react-dom": "^19.2.1"
       }
     }
     ```
@@ -66,28 +69,34 @@ The packages Wasp uses are peer dependencies of `@wasp/wasp`, so npm itself refu
     ```json title="package.json"
     {
       "dependencies": {
-        "@wasp/wasp": "0.27.0",
-        "express": "5.0.1"
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
       },
       "overrides": {
-        "express": "5.0.1"
-      },
-      "wasp": {
-        "overriddenDeps": {
-          "express": "~5.1.0"
-        }
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
       }
     }
     ```
   </TabItem>
 </Tabs>
 
-In this example:
-- You want to use Express 5.0.1 (specified in `dependencies` and forced everywhere through `overrides`)
-- Wasp requires Express `~5.1.0` (specified in `overriddenDeps`)
-- By declaring this, you acknowledge you're deviating from Wasp's tested version
+To override a dependency that comes with Wasp's generated code, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
 
-When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
+```json title="package.json"
+{
+  "dependencies": {
+    "socket.io": "^4.8.0"
+  },
+  "wasp": {
+    "overriddenDeps": {
+      "socket.io": "^4.6.1"
+    }
+  }
+}
+```
+
+By declaring this, you acknowledge you're deviating from Wasp's tested version. When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 
 ### Supply Chain Protection
 
