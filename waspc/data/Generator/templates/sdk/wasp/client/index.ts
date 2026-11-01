@@ -1,5 +1,5 @@
 // PUBLIC API
-export { HttpMethod, type ClientConfig, type Route } from '@wasp.sh/lib-sdk-core'
+export { HttpMethod, type ClientConfig, type Route } from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 export { config } from './config';

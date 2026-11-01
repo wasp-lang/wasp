@@ -6,7 +6,7 @@ description: Write unit tests and React component tests for the client code of a
 
 # Testing
 
-Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/) in the `@wasp.sh/test-utils` package.
+Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/) in the `@wasp/test-utils` package.
 
 ## Setting up Vitest for client tests
 
@@ -15,21 +15,23 @@ Wasp provides helpers for testing your client code with [Vitest](https://vitest.
 Install Vitest and the testing libraries:
 
 ```bash
-npm install -D vitest jsdom@29 @testing-library/jest-dom @wasp.sh/test-utils
+npm install -D vitest jsdom@29 @testing-library/jest-dom @wasp/test-utils
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests. Version 29 supports all Node.js versions Wasp supports, while version 30 needs Node.js 24.15 or newer.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
-- [`@wasp.sh/test-utils`](https://www.npmjs.com/package/@wasp.sh/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries the helpers build on along with it:
+- [`@wasp/test-utils`](https://www.npmjs.com/package/@wasp/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs. npm installs the libraries the helpers build on along with it:
   - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
   - [`msw`](https://mswjs.io/): mocks HTTP requests.
 
 ### Configuring Vitest
 
-Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it:
+Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it, built with Wasp's `waspTestConfig` helper:
 
 ```ts title="vite.config.ts" auto-js
+// highlight-next-line
+import { waspTestConfig } from "@wasp/test-utils/config";
 // highlight-next-line
 import { defineConfig } from "vitest/config";
 import { wasp } from "wasp/client/vite";
@@ -37,22 +39,20 @@ import { wasp } from "wasp/client/vite";
 export default defineConfig({
   plugins: [wasp()],
   // highlight-start
-  test: {
-    environment: "jsdom",
+  test: waspTestConfig({
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
-  },
+  }),
   // highlight-end
 });
 ```
 
-With this config, Vitest:
+`waspTestConfig` sets the Vitest options a Wasp app needs, so Vitest:
 
 - runs the test files in your `src` folder (e.g., `TaskList.test.tsx` or `helpers.spec.js`),
 - runs them in `jsdom`, a simulated browser, so your components can render,
-- runs `src/test/setup.ts` before each test file.
+- gives your client code a placeholder server URL, since your tests mock the server instead of running it.
 
-Create that setup file:
+The options you pass to `waspTestConfig` are regular [Vitest options](https://vitest.dev/config/), and they override Wasp's. Here, `setupFiles` runs `src/test/setup.ts` before each test file. Create it:
 
 ```ts title="src/test/setup.ts" auto-js
 import "@testing-library/jest-dom/vitest";
@@ -132,7 +132,7 @@ test("areThereAnyTasks", () => {
 Wasp wraps every page of your app in providers: React Query for queries and actions, and React Router for links.
 A component that uses queries, actions, or links fails to render without them.
 
-`renderInContext` from `@wasp.sh/test-utils` renders a component inside the same providers:
+`renderInContext` from `@wasp/test-utils` renders a component inside the same providers:
 
 ```tsx title="src/tasks/TasksHeader.tsx" auto-js
 import { Link } from "wasp/client/router";
@@ -149,7 +149,7 @@ export function TasksHeader() {
 
 ```tsx title="src/tasks/TasksHeader.test.tsx" auto-js
 import { screen } from "@testing-library/react";
-import { renderInContext } from "@wasp.sh/test-utils";
+import { renderInContext } from "@wasp/test-utils";
 import { expect, test } from "vitest";
 import { TasksHeader } from "./TasksHeader";
 
@@ -187,7 +187,7 @@ export function TaskList() {
 
 ```tsx title="src/tasks/TaskList.test.tsx" auto-js
 import { screen } from "@testing-library/react";
-import { mockServer, renderInContext } from "@wasp.sh/test-utils";
+import { mockServer, renderInContext } from "@wasp/test-utils";
 import { expect, test } from "vitest";
 import { getTasks } from "wasp/client/operations";
 import { TaskList } from "./TaskList";
@@ -232,7 +232,7 @@ export function TaskStats() {
 
 ```tsx title="src/tasks/TaskStats.test.tsx" auto-js
 import { screen } from "@testing-library/react";
-import { mockServer, renderInContext } from "@wasp.sh/test-utils";
+import { mockServer, renderInContext } from "@wasp/test-utils";
 import { test } from "vitest";
 import { HttpMethod } from "wasp/client";
 import { TaskStats } from "./TaskStats";
@@ -250,7 +250,13 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`@wasp.sh/test-utils` exports these helpers.
+`@wasp/test-utils/config` exports the helper for your Vitest config:
+
+- `waspTestConfig(options?)`
+
+  Returns Vitest's `test` options with the defaults a Wasp app needs: `environment: "jsdom"`, test files in `src`, and a placeholder `REACT_APP_API_URL` in `env`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults, and the variables you pass in `env` are added to Wasp's.
+
+`@wasp/test-utils` exports the helpers for your tests:
 
 - `renderInContext(ui, options?)`
 

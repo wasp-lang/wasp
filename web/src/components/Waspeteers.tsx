@@ -54,7 +54,7 @@ const Waspeteers = () => {
           </div>
           <div className="flex flex-1 items-center justify-center">
             <img
-              src="/img/lp/daboi.webp"
+              src="/img/site/daboi.webp"
               loading="lazy"
               alt="Da Boi, Wasp's mascot"
               className="w-40 max-w-full"

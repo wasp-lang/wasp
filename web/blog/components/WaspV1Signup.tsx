@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 
-export const WaspV1Signup = () => {
+export const WaspV1Signup = ({ source }: { source: string }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
@@ -18,7 +18,7 @@ export const WaspV1Signup = () => {
           body: new URLSearchParams({
             email,
             mailingLists: "cmvfc4mns050y0kzb72vw51px",
-            source: "Blog: Wasp 1.0 is coming",
+            source,
           }).toString(),
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         },

@@ -31,7 +31,7 @@ Let's write an example Job that will print a message to the console and return a
 1. Start by creating a Job spec in your Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp.sh/spec"
+import { app, job } from "@wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -131,7 +131,7 @@ In our example, `mySpecialJob` takes an argument, but passing arguments to jobs 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job spec:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp.sh/spec"
+import { app, job } from "@wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -233,7 +233,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 ### `job` specification
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/job"
+  to="../api/@wasp/spec/functions/job"
   kind="api"
   title="job"
   description="All the options for defining a job in the Wasp spec."

@@ -1,4 +1,4 @@
-import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
+import { action, page, route, type Auth, type Spec } from "@wasp/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
