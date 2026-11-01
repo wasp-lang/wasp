@@ -1,0 +1,76 @@
+name: "Automation - Destroy leftover Fly CI apps"
+
+# The deploy tests (ci-deploy-test.yaml) create temporary `ci-*` apps in the
+# `wasp-testing` Fly organization and destroy them at the end of the run.
+# That cleanup sometimes fails (e.g., due to a transient Fly API error, or
+# because the cleanup job itself dies before running), and every leftover app
+# keeps running and costing us money.
+# This workflow is the safety net: it destroys all old `ci-*` apps.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+concurrency:
+  group: "automation-fly-destroy-leftover-ci-apps"
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
+  FLY_ORG: wasp-testing
+  # A CI run's apps are only in use while its deploy job runs, and GitHub
+  # caps jobs at 6 hours, so anything older than this is certainly a leftover.
+  MAX_APP_AGE_HOURS: 8
+
+jobs:
+  destroy-leftover-ci-apps:
+    name: Destroy leftover Fly CI apps
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+        with:
+          # NOTE: We pinned the Fly version because we don't want the changes in the
+          # Fly CLI to affect our cleanup procedure.
+          version: v0.3.164
+
+      - name: Destroy leftover CI apps
+        run: |
+          # The age check is there to make sure we never destroy apps
+          # belonging to a CI run that is still in progress. Only Fly's
+          # GraphQL API exposes app creation times (machines have creation
+          # times too, but half-deployed apps have no machines).
+          graphql_payload=$(jq --null-input --arg org "$FLY_ORG" '{
+            query: "query($slug: String!) { organization(slug: $slug) { apps(first: 500) { nodes { name createdAt } } } }",
+            variables: {slug: $org}
+          }')
+          apps_response=$(curl --fail --silent --show-error https://api.fly.io/graphql \
+            --header "Authorization: Bearer $FLY_API_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data "$graphql_payload")
+
+          # GraphQL reports errors (e.g., a bad token) in a 200 response.
+          if jq --exit-status '.errors' <<< "$apps_response" > /dev/null; then
+            echo "Fly GraphQL API returned an error:"
+            echo "$apps_response"
+            exit 1
+          fi
+
+          cutoff_time=$(date --utc --date "$MAX_APP_AGE_HOURS hours ago" +%Y-%m-%dT%H:%M:%SZ)
+          # NOTE: ISO 8601 UTC timestamps compare correctly as strings.
+          leftover_apps=$(jq --raw-output --arg cutoff "$cutoff_time" \
+            '.data.organization.apps.nodes[] | select((.name | startswith("ci-")) and .createdAt < $cutoff) | .name' \
+            <<< "$apps_response")
+
+          if [ -z "$leftover_apps" ]; then
+            echo "Nothing to destroy - no leftover apps found."
+          else
+            # `xargs` keeps going when a destroy fails and exits non-zero at
+            # the end, failing the job so we notice.
+            xargs --delimiter '\n' --max-args 1 --verbose flyctl apps destroy -y \
+              <<< "$leftover_apps"
+          fi

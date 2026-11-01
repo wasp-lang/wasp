@@ -505,12 +505,24 @@ const NodeIcon = () => (
 
 /* Prisma mark: the official Prisma symbol from their press kit. */
 const PrismaIcon = () => (
-  <image href="img/lp/prisma-logo.svg" x="0" y="0" width="16" height="16" />
+  <image
+    href="img/site/logos/prisma-logo.svg"
+    x="0"
+    y="0"
+    width="16"
+    height="16"
+  />
 );
 
 /* Docker mark: the official Docker brand SVG. */
 const DockerIcon = () => (
-  <image href="img/lp/docker-logo.svg" x="0" y="0" width="16" height="16" />
+  <image
+    href="img/site/logos/docker-logo.svg"
+    x="0"
+    y="0"
+    width="16"
+    height="16"
+  />
 );
 
 export default HowItWorksDiagram;

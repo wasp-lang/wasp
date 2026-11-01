@@ -49,7 +49,7 @@ import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
-import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
@@ -125,6 +125,7 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
             "To install a specific version of Wasp, do:",
             indent 2 $ getInstallationCommand $ Just "x.y.z",
             "where x.y.z is your desired version.",
+            legacyVersionsNote,
             "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
           ]
 

@@ -1,7 +1,7 @@
 ---
 title: "A Gentle Introduction to Database Migrations in Prisma with Visuals"
 authors: [miho]
-image: /img/database-migrations/database-migrations.webp
+image: /img/blog/2025-04-02-an-introduction-to-database-migrations/database-migrations.webp
 tags: [webdev, wasp, prisma, database]
 description: "Database migrations evolve your schema. Learn them with visuals and Prisma: a first migration, a new field in production, a safe breaking change."
 ---
@@ -18,7 +18,7 @@ In this post, we'll go from the basics of developing your app and applying datab
 - We'll update an existing production database (without losing user data).
 - We'll change the database in a way which introduces a breaking change. It will feel like you have to refuel a fighter jet mid-air, but don't worry, we'll go step by step!
 
-<ImgWithCaption alt="Database Migrations in production" source="img/database-migrations/migrations.jpg" caption="It looks scarier than it really is!" />
+<ImgWithCaption alt="Database Migrations in production" source="img/blog/2025-04-02-an-introduction-to-database-migrations/migrations.jpg" caption="It looks scarier than it really is!" />
 
 One great analogy by Vadim Kravcenko (who wrote a great migration post, linked below):
 
@@ -32,7 +32,7 @@ Let's first introduce the app that we will work on.
 
 We've built a small but complex enough tennis score tracking app:
 
-<ImgWithCaption alt="Tennis score tracking app interface" source="img/database-migrations/score_page.png" caption="The main interface of our tennis score tracking app" />
+<ImgWithCaption alt="Tennis score tracking app interface" source="img/blog/2025-04-02-an-introduction-to-database-migrations/score_page.png" caption="The main interface of our tennis score tracking app" />
 
 Imagine you are organizing a tennis tournament and you want to keep track of the scores in real-time. Judges can update the scores live and the app users can see all match scores.
 
@@ -47,11 +47,11 @@ We've built this app with [Wasp](https://wasp.sh/) framework which provides a ni
 
 Users can log in and create matches…
 
-<ImgWithCaption alt="Match creation interface" source="img/database-migrations/shapes_at_25-03-25_17.27.40.png" caption="Users can create new matches through this interface" />
+<ImgWithCaption alt="Match creation interface" source="img/blog/2025-04-02-an-introduction-to-database-migrations/shapes_at_25-03-25_17.27.40.png" caption="Users can create new matches through this interface" />
 
 … enter match scores and track all other users' matches.
 
-<ImgWithCaption alt="Match score tracking interface" source="img/database-migrations/Screenshot_2025-03-22_at_11.43.19.png" caption="Users can track match scores in real-time" />
+<ImgWithCaption alt="Match score tracking interface" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-22_at_11.43.19.png" caption="Users can track match scores in real-time" />
 
 Since Wasp uses [Prisma](https://www.prisma.io/) as its database abstraction layer, we'll show all the database schema changes in Prisma, but all the ideas and techniques are pretty much universal. This means all the steps apply with using only raw SQL or Drizzle.
 
@@ -135,7 +135,7 @@ Prisma will then apply the change to your local database (we're using PostgreSQL
 
 Here's what your **local** database table looks like after you've applied the migration:
 
-<ImgWithCaption alt="Database table structure" source="img/database-migrations/Screenshot_2025-03-17_at_11.56.51.png" caption="The structure of our matches table in the database" />
+<ImgWithCaption alt="Database table structure" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_11.56.51.png" caption="The structure of our matches table in the database" />
 
 As you can see, migrations are something we do as we change our database's data schema. They updated your local database to have the **tables** that match your current Prisma models.
 
@@ -145,7 +145,7 @@ When you deploy a Wasp app, the server app's `Dockerfile` runs a Prisma command 
 
 Let's deploy our app to Fly using Wasp's one-line deploy command `wasp deploy fly launch` and we are live at: [https://tennis-score-app-client.fly.dev/](https://tennis-score-app-client.fly.dev/)
 
-<ImgWithCaption alt="Deployed app interface" source="img/database-migrations/Screenshot_2025-03-17_at_12.23.40.png" caption="Our app deployed and running on Fly" />
+<ImgWithCaption alt="Deployed app interface" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_12.23.40.png" caption="Our app deployed and running on Fly" />
 
 ## Database Migration Scenario No. 2: Adding a new field to the deployed app
 
@@ -153,7 +153,7 @@ After some time we realized we want to enable users to play private matches. Not
 
 To enable this in the app's UI, we'll add a public/private toggle button:
 
-<ImgWithCaption alt="Public/private match toggle" source="img/database-migrations/score_page_public_toggle.png" caption="New toggle button for making matches private" />
+<ImgWithCaption alt="Public/private match toggle" source="img/blog/2025-04-02-an-introduction-to-database-migrations/score_page_public_toggle.png" caption="New toggle button for making matches private" />
 
 To support this functionality, you need to add some extra info in our matches model:
 
@@ -189,7 +189,7 @@ In hindsight, I think `true` is the better choice, but I've put it `false` becau
 
 Our **local** and **production** database now looks like this:
 
-<ImgWithCaption alt="Updated database structure" source="img/database-migrations/Screenshot_2025-03-17_at_13.33.24.png" caption="Database structure after adding the isPublic field" />
+<ImgWithCaption alt="Updated database structure" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_13.33.24.png" caption="Database structure after adding the isPublic field" />
 
 ### Finding this article useful?
 
@@ -252,7 +252,7 @@ We will do this migration in multiple steps to change the score format without o
 
 ### The trick - our app will use both new and old fields at the same time
 
-<ImgWithCaption alt="Old score format" source="img/database-migrations/old-format.jpg" caption="The old way we stored match scores" />
+<ImgWithCaption alt="Old score format" source="img/blog/2025-04-02-an-introduction-to-database-migrations/old-format.jpg" caption="The old way we stored match scores" />
 
 The "trick" we will use here is that we'll first create the new field, without touching anything else, and the app will still keep using the old format. Then, we'll refactor the app to start using the new field and the old fields both at the same time. Finally, we'll migrate all the "old" data to the new format and remove the "old" fields and logic in its entirety. This is how you do a complex migration like this without any downtime for users.
 
@@ -282,7 +282,7 @@ The next important change isn't in our database, but in our **application code**
 
 Visually, it can be represented like this:
 
-<ImgWithCaption alt="Expand and contract step 1" source="img/database-migrations/ec_step_1.gif" caption="Step 1: Writing to both old and new fields" />
+<ImgWithCaption alt="Expand and contract step 1" source="img/blog/2025-04-02-an-introduction-to-database-migrations/ec_step_1.gif" caption="Step 1: Writing to both old and new fields" />
 
 You can see that we are writing to both old and new fields, but still reading from the old fields.
 
@@ -290,7 +290,7 @@ Alright, cool, we can deploy this now. Nothing should change for our users, in t
 
 Our production database should look like this now:
 
-<ImgWithCaption alt="Database with new score field" source="img/database-migrations/Screenshot_2025-03-17_at_13.34.38.png" caption="Database structure after adding the new score field" />
+<ImgWithCaption alt="Database with new score field" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_13.34.38.png" caption="Database structure after adding the new score field" />
 
 ### **Step 2**: Migrate the existing matches data to the new format
 
@@ -385,11 +385,11 @@ That's fine, we took care of that in our previous step when we filled in the `sc
 
 Now that we have the new format ready, we'll start **reading from the new format** so that our app stops depending on the old format in its entirety:
 
-<ImgWithCaption alt="Database reading from new format" source="img/database-migrations/Screenshot_2025-03-17_at_13.48.23.png" caption="Database structure when reading from new format" />
+<ImgWithCaption alt="Database reading from new format" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_13.48.23.png" caption="Database structure when reading from new format" />
 
 This change looks like this:
 
-<ImgWithCaption alt="Expand and contract step 2" source="img/database-migrations/ec_step_2.gif" caption="Step 2: Reading from new format" />
+<ImgWithCaption alt="Expand and contract step 2" source="img/blog/2025-04-02-an-introduction-to-database-migrations/ec_step_2.gif" caption="Step 2: Reading from new format" />
 
 We stop reading from the old format, and start reading from the new format.
 
@@ -422,7 +422,7 @@ There are some warnings in the migration file: all the data will be lost in the 
 
 Dropping the old fields looks like this:
 
-<ImgWithCaption alt="Expand and contract step 3" source="img/database-migrations/ec_step_3.gif" caption="Step 3: Removing old fields" />
+<ImgWithCaption alt="Expand and contract step 3" source="img/blog/2025-04-02-an-introduction-to-database-migrations/ec_step_3.gif" caption="Step 3: Removing old fields" />
 
 We no longer need the old fields, we remove them and all that's left is the new format fields.
 
@@ -430,7 +430,7 @@ Deploy the app one more time… and we completed the migration.
 
 This is our final database schema:
 
-<ImgWithCaption alt="Final database structure" source="img/database-migrations/Screenshot_2025-03-17_at_17.18.19.png" caption="Final database structure after migration" />
+<ImgWithCaption alt="Final database structure" source="img/blog/2025-04-02-an-introduction-to-database-migrations/Screenshot_2025-03-17_at_17.18.19.png" caption="Final database structure after migration" />
 
 Since we used Prisma for our database modeling, it was quite easy to see what was going on with the new fields, old fields, and the migration files that Prisma generated with the extra comments.
 

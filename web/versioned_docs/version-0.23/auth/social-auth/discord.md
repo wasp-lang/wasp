@@ -81,7 +81,7 @@ To use Discord as an authentication method, you'll first need to create a Discor
 2. Select **New Application**.
 3. Supply required information.
 
-<img alt="Discord Applications Screenshot" src={useBaseUrl('img/integrations-discord-1.png')} width="400px" />
+<img alt="Discord Applications Screenshot" src={useBaseUrl('img/docs/features/auth/social-auth/discord/integrations-discord-1.png')} width="400px" />
 
 4. Go to the **OAuth2** tab on the sidebar and click **Add Redirect**
 
@@ -126,7 +126,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 Yay, we've successfully set up Discord Auth! 🎉
 
-![Discord Auth](/img/auth/discord.png)
+![Discord Auth](/img/docs/features/auth/social-auth/discord/discord.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).

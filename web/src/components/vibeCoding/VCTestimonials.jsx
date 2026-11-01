@@ -124,7 +124,7 @@ const VCTestimonials = () => {
         <Link to="https://discord.gg/rzdnErX" className="flex h-full">
           <div className="flex h-full flex-1 flex-col items-center justify-center rounded-none border-l-2 border-yellow-500 bg-white p-6">
             <img
-              src="img/discord-logo.webp"
+              src="img/site/logos/discord-logo.webp"
               alt="Discord"
               className="mb-3 h-10 w-10"
             />
@@ -149,7 +149,7 @@ const VCTestimonials = () => {
           Backed by{" "}
           <img
             className="ml-2 w-20"
-            src="img/lp/yc-logo-rounded.webp"
+            src="img/site/logos/yc-logo-rounded.webp"
             alt="Y Combinator"
           />
         </span>
