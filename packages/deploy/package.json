@@ -17,7 +17,6 @@
     "url": "https://wasp.sh"
   },
   "license": "MIT",
-  "bin": "dist/index.js",
   "main": "dist/index.js",
   "files": [
     "dist"
