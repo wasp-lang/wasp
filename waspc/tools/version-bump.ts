@@ -141,7 +141,7 @@ function bumpDevWaspPackageTarballs(
   const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
 
   const devTarballRegex =
-    /(file:.*\/wasp-(?:wasp|cli|spec)-)\d+\.\d+\.\d+(\.tgz)/g;
+    /(file:.*\/wasp-(?:wasp|cli|spec|deploy|studio)-)\d+\.\d+\.\d+(\.tgz)/g;
   const updatedPackageJsonContent = packageJsonContent.replace(
     devTarballRegex,
     `$1${nextVersion}$2`,
