@@ -18,8 +18,7 @@ const defaultTestConfig = {
  * - test files in `src`
  * - a placeholder server URL in `env`
  *
- * Your options override the defaults. `env` is merged instead, so passing your
- * own variables keeps the server URL the Wasp SDK needs to load.
+ * Your options override the defaults, only the `env` is merged instead.
  *
  * @see https://vitest.dev/config/
  */
