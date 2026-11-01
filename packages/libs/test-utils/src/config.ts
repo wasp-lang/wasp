@@ -13,9 +13,13 @@ const defaultTestConfig = {
 } satisfies TestConfig;
 
 /**
- * Returns Vitest's `test` options with the defaults Wasp apps need: a `jsdom`
- * environment, test files in `src`, and a placeholder server URL. Your options
- * override the defaults, and your `env` variables are added to Wasp's.
+ * Returns Vitest's `test` options with the defaults Wasp apps need:
+ * - a `jsdom` environment
+ * - test files in `src`
+ * - a placeholder server URL in `env`
+ *
+ * Your options override the defaults. `env` is merged instead, so passing your
+ * own variables keeps the server URL the Wasp SDK needs to load.
  *
  * @see https://vitest.dev/config/
  */

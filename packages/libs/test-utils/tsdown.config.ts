@@ -3,8 +3,8 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
   entry: {
     index: "./src/index.ts",
-    // Keep the testing libraries out of the config entry, which vite.config.ts
-    // imports.
+    // Keep the testing libraries out of the config entry,
+    // which vite.config.ts imports.
     config: "./src/config.ts",
   },
   platform: "neutral",

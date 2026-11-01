@@ -254,7 +254,7 @@ test("shows the stats", async () => {
 
 - `waspTestConfig(options?)`
 
-  Returns Vitest's `test` options with the defaults a Wasp app needs: `environment: "jsdom"`, test files in `src`, and a placeholder `REACT_APP_API_URL` in `env`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults, and the variables you pass in `env` are added to Wasp's.
+  Returns Vitest's `test` options with the defaults a Wasp app needs: `environment: "jsdom"`, test files in `src`, and a placeholder `REACT_APP_API_URL` in `env`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults. `env` is merged instead, so passing your own variables keeps the server URL the Wasp SDK needs to load.
 
 `@wasp/test-utils` exports the helpers for your tests:
 
