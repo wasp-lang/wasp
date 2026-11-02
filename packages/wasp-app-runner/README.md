@@ -118,31 +118,32 @@ To publish a new version of `wasp-app-runner`, follow these steps:
 
 ### 1. Update Package Version
 
-**Using npm version command:**
+**Using pnpm version command:**
 
 ```bash
 # For patch releases (bug fixes)
-npm version patch
+pnpm version patch
 
 # For minor releases (new features)
-npm version minor
+pnpm version minor
 
 # For major releases (breaking changes)
-npm version major
+pnpm version major
 ```
 
 ### 2. Authenticate with npm
 
 ```bash
 # Login to npm with an account that has access to the @wasp organization
-npm login
+pnpm login
 ```
 
 ### 3. Publish to npm Registry
 
 ```bash
-# Publish the package publicly
-npm publish --access public
+# Publish the package publicly. `pnpm publish` replaces the `catalog:`
+# versions with real ones, `npm publish` would publish them as they are.
+pnpm publish --access public
 ```
 
 ### 4. Ensure new published version is used in the apps

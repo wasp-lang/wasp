@@ -38,6 +38,7 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
+import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
@@ -50,6 +51,11 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.
   hSetBuffering stdout LineBuffering
+
+  -- So that Wasp also cleans up after itself (e.g. stops the processes it
+  -- started) when it's stopped with SIGTERM (process managers, `kill`) or
+  -- SIGHUP (closed terminal), and not only with Ctrl+C.
+  handleTerminationSignalsLikeInterrupt
 
   args <- getArgs
   let commandCall = case args of

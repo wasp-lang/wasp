@@ -4,17 +4,16 @@ module Wasp.Generator.WebAppGenerator.Test
 where
 
 import StrongPath (Abs, Dir, Path')
-import Wasp.Env (getEnvVars)
+import System.Exit (ExitCode)
+import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir)
 
-testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job
-testWebApp clientRunConfig args waspProjectDir = do
-  runNodeCommandAsJobWithExtraEnv
-    (getEnvVars clientRunConfig)
-    waspProjectDir
-    "npx"
-    ("vitest" : args)
-    J.WebApp
+testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
+testWebApp clientRunConfig args waspProjectDir =
+  J.fromProc
+    . addEnvVarsOverride (getEnvVars clientRunConfig)
+    -- Vitest only runs in watch mode when its stdin is a TTY.
+    . J.markInteractive
+    =<< J.npmBinProc waspProjectDir "vitest" args

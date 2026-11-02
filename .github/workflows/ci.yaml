@@ -89,7 +89,7 @@ jobs:
   # binary.
   waspc-build-all:
     needs: [waspc-build-linux, waspc-build-macos]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: {}
     outputs:
       waspc_version: ${{ needs.waspc-build-linux.outputs.waspc_version }}

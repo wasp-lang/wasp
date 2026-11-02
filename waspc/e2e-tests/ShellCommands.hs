@@ -8,6 +8,7 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
+    waitUntil,
     writeToFile,
     appendToFile,
     replaceLineInFile,
@@ -104,6 +105,19 @@ infixl 6 ~&&
   "if " ++ condition ++ "; then " ++ command ++ " ;fi"
 
 infixl 4 ~?
+
+-- | Checks the condition right away, and then once per second until it
+-- succeeds. Fails with the error message if it still doesn't succeed after the
+-- given number of seconds.
+waitUntil :: Int -> ShellCommand -> String -> ShellCommand
+waitUntil timeoutSeconds condition errorMessage =
+  "( i=0; until "
+    ++ condition
+    ++ "; do i=$((i+1)); [ \"$i\" -lt "
+    ++ show timeoutSeconds
+    ++ " ] || { echo "
+    ++ show errorMessage
+    ++ " >&2; exit 1; }; sleep 1; done )"
 
 -- General commands
 

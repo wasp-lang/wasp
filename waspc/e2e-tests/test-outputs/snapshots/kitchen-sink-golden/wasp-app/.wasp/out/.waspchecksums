@@ -32,7 +32,7 @@
             "file",
             "libs/auth/wasp-lib-auth-0.27.0.tgz"
         ],
-        "07aa6abbd5ceff77c9c405a1390f1c20b694f2318ffe589d83da5a6f9f2da4e2"
+        "bec87999ce5bc31582e7f2435d7878afcd06965b5b3d74fbff79e5ed8445a0c3"
     ],
     [
         [
@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "5c17c627a50ce19f6f4cbdffe70d70a236899db4727c2f37799b69f20f5ec2ce"
+        "8f4a497cb5779f7cac6a6eb43a840a0eb7feed84db24104ee6e7d289502d4115"
     ],
     [
         [
@@ -1075,28 +1075,21 @@
             "file",
             "server/README.md"
         ],
-        "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
+        "21cc62fbd5283f0e140d73854a35a714a618bd2c89765fb9f173e841040d8ed5"
     ],
     [
         [
             "file",
             "server/loadDotEnv.cjs"
         ],
-        "6b1c9d7e2e3d5d23d00a88655167b0116ad5e59d42ef14ed030f45f8a9ee7f86"
-    ],
-    [
-        [
-            "file",
-            "server/nodemon.json"
-        ],
-        "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
+        "31a019e226b1c4c28ed560ae0efa6f840b63099f42a1d997508eaa277505f268"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "e82a97a143a276be3cf2f8579e32822ff849e47ef2c33fd1a5e8ba75fa4a498c"
+        "30a3413a9b7a08f6277b723b462f3e967b6e59e5230c4b1c11efe32a4c68814a"
     ],
     [
         [

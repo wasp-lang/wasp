@@ -3,55 +3,60 @@ module Wasp.Generator.Start
   )
 where
 
-import Control.Concurrent (Chan, dupChan, newChan, readChan)
-import Control.Concurrent.Async (concurrently, race, withAsync)
-import Control.Concurrent.Extra (threadDelay)
-import Control.Monad (void)
+import Control.Concurrent (MVar, newEmptyMVar, takeMVar, threadDelay, tryPutMVar)
+import qualified Control.Concurrent.Async as Async
+import Control.Monad (forever, void)
+import Control.Monad.IO.Class (liftIO)
+import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
-import Wasp.Generator.ServerGenerator.Start (startServer)
+import Wasp.Generator.ServerGenerator.Start (ServerInbox, startServer)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util (secondsToMicroSeconds)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
---   It will run as long as one of those processes does not fail.
+--   It will run until the web app exits. The server is kept up to date with the events sent to the given inbox.
 --   It alo receives 'onJobsQuietDown' IO action, which it executes every time all the processes
 --   go quiet (don't produce any stdout/err) for some time (5s), after they have previously
 --   produced some output.
-start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> IO () -> IO (Either String ())
-start (webAppRunConfig, serverRunConfig) waspProjectDir outDir onJobsQuietDown = do
-  chan <- newChan
+start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> IO () -> IO (Either String ())
+start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverInbox onJobsQuietDown = do
+  -- `Left` (the server) is `Void`, because it always gets restarted and never
+  -- exits. Only web app can exit normally.
+  webAppExitCode <-
+    fmap (either absurd id)
+      $ J.run
+      $ withJobsQuietDownListener onJobsQuietDown
+      $ J.race
+        (J.prefixWith J.Server $ startServer serverRunConfig outDir serverInbox)
+        (J.prefixWith J.WebApp $ startWebApp webAppRunConfig waspProjectDir)
 
-  let runStartJobs =
-        startServer serverRunConfig outDir chan
-          `race` startWebApp webAppRunConfig waspProjectDir chan
+  return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 
-  quietDownChan <- dupChan chan
-  -- Listening for jobs quieting down never ends, so we stop it once the jobs
-  -- are done, instead of waiting for it.
-  (serverOrWebExitCode, _) <-
-    withAsync (listenForJobsQuietDown quietDownChan onJobsQuietDown) $ \_ ->
-      runStartJobs `concurrently` readJobMessagesAndPrintThemPrefixed chan
+-- | Calls 'onJobsQuietDown' every time the job goes quiet: it emits some
+-- output, and then nothing for 5 seconds. Stops listening once the job
+-- finishes.
+withJobsQuietDownListener :: IO () -> J.Job a -> J.Job a
+withJobsQuietDownListener onJobsQuietDown job = do
+  jobOutputSignal <- liftIO newEmptyMVar
+  either id absurd
+    <$> J.race
+      (J.observeOutput (\_ _ -> void $ tryPutMVar jobOutputSignal ()) job)
+      (liftIO $ listenForJobsQuietDown jobOutputSignal onJobsQuietDown)
 
-  case serverOrWebExitCode of
-    Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
-    Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
-
-listenForJobsQuietDown :: Chan J.JobMessage -> IO () -> IO ()
-listenForJobsQuietDown jobsChan onJobsQuietDown = do
-  waitForJobMsg
+listenForJobsQuietDown :: MVar () -> IO () -> IO Void
+listenForJobsQuietDown jobOutputSignal onJobsQuietDown = forever $ do
+  waitForJobOutput
   waitForPeriodOfSilence
   onJobsQuietDown
-  listenForJobsQuietDown jobsChan onJobsQuietDown
   where
-    waitForJobMsg = void $ readChan jobsChan
+    waitForJobOutput = takeMVar jobOutputSignal
     waitForPeriodOfSilence = do
-      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsAsMs 5)
-      case jobMsgOrTimeout of
+      jobOutputOrTimeout <- waitForJobOutput `Async.race` threadDelay (secondsToMicroSeconds 5)
+      case jobOutputOrTimeout of
         Left _ -> waitForPeriodOfSilence
         Right _ -> return ()
-    secondsAsMs s = s * 1000000
