@@ -118,12 +118,10 @@ export default function CookieConsentBanner() {
       className={`ph-no-capture ${classes.container}`}
     >
       <p className={classes.content}>
-        We use PostHog to learn how people use this site. If you accept, PostHog
-        stores an ID in your browser and records the pages you visit and the
-        links you click. PostHog processes this data and your IP address in the
-        United States. You can change your choice at any time with the "Cookie
-        settings" link at the bottom of every page.{" "}
-        <a href="/privacy-policy">Learn more in our privacy policy</a>.
+        We use PostHog for analytics. If you accept, it stores an ID in your
+        browser and records your visits and clicks. PostHog processes this data
+        and your IP address in the US. You can change this in "Cookie settings"
+        at any time. <a href="/privacy-policy">Privacy policy</a>
       </p>
       <div className={classes.buttonWrapper}>
         <button
