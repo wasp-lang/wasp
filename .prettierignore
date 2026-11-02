@@ -12,4 +12,8 @@ web/**/*.mdx
 web/static/img/
 waspc/data/packages/
 waspc/data/Generator/libs/
-packages/studio/public/assets/
+pnpm-lock.yaml
+coverage/
+web/docs/api/
+packages/studio/public/
+web/tutorial-actions-executor/e2e-tests/.result/
