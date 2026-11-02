@@ -26,7 +26,7 @@ env:
 jobs:
   test_fly_deployment:
     name: Test Fly deployment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: fly-deploy-test
 
@@ -94,7 +94,7 @@ jobs:
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test_fly_deployment
     # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.
@@ -120,7 +120,7 @@ jobs:
 
   test_railway_deployment:
     name: Test Railway deployment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: railway-deploy-test
 
@@ -186,7 +186,7 @@ jobs:
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test_railway_deployment
     # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.

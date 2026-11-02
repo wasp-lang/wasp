@@ -16,7 +16,7 @@ permissions: {}
 jobs:
   restart-crawler:
     name: Restart Algolia Crawler
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Wait for Wasp web to finish deploying
         env:
