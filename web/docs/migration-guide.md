@@ -310,6 +310,25 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
    });
    ```
 
+   The `import "@testing-library/jest-dom/vitest"` line also adds the types for the DOM matchers, so you can remove the `@testing-library/jest-dom` reference from `src/vite-env.d.ts`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="src/vite-env.d.ts"
+       /// <reference types="vite/client" />
+       /// <reference types="vitest/globals" />
+       // highlight-next-line
+       /// <reference types="@testing-library/jest-dom" />
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="src/vite-env.d.ts"
+       /// <reference types="vite/client" />
+       /// <reference types="vitest/globals" />
+       ```
+     </TabItem>
+   </Tabs>
+
 4. Run your tests with Vitest instead of `wasp test client`. Add a `test` script to your `package.json`, or change it if it runs `wasp test client`:
 
    <Tabs sideBySide>
