@@ -14,6 +14,12 @@ Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp 
 
 Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) for the full list of changes.
 
+### Testing with your own Vitest setup
+
+Wasp no longer installs and runs [Vitest](https://vitest.dev/) for you. You set it up like in any other Vite app, so you choose the versions of Vitest and the testing libraries.
+
+The `wasp/client/test` helpers for rendering components and mocking queries and APIs still work. Read more in the [testing docs](./advanced/testing.md).
+
 ### Smaller Docker images
 
 The server's Docker image now contains only the files the server needs at runtime, instead of the whole `node_modules` folder. This makes the image about half the size.
@@ -108,7 +114,237 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 4. Upgrade to Prisma 6
+### 4. Update your Vitest setup
+
+The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
+
+Follow the part that matches your app.
+
+#### If you don't use `wasp test client`
+
+Wasp no longer needs `vitest`, so you can remove it from your project:
+
+1. If your `vite.config.ts` imports `defineConfig` from `vitest/config`, import it from `vite` instead, and remove the `test` section. Otherwise, Vite can't load your config after you remove `vitest`.
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="vite.config.ts"
+       // highlight-next-line
+       import { defineConfig } from "vitest/config";
+       import { wasp } from "wasp/client/vite";
+
+       export default defineConfig({
+         plugins: [wasp()],
+         // highlight-start
+         test: {
+           exclude: ["./e2e-tests/**"],
+         },
+         // highlight-end
+       });
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="vite.config.ts"
+       // highlight-next-line
+       import { defineConfig } from "vite";
+       import { wasp } from "wasp/client/vite";
+
+       export default defineConfig({
+         plugins: [wasp()],
+       });
+       ```
+     </TabItem>
+   </Tabs>
+
+2. Remove `vitest` from your `devDependencies`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```json title="package.json"
+       {
+         "devDependencies": {
+           // highlight-next-line
+           "vitest": "^4.1.9",
+           "vite": "^8.1.0"
+         }
+       }
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```json title="package.json"
+       {
+         "devDependencies": {
+           "vite": "^8.1.0"
+         }
+       }
+       ```
+     </TabItem>
+   </Tabs>
+
+3. Remove the `vitest/globals` and `@testing-library/jest-dom` references from `src/vite-env.d.ts`, if you have them:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="src/vite-env.d.ts"
+       /// <reference types="vite/client" />
+       // highlight-start
+       /// <reference types="vitest/globals" />
+       /// <reference types="@testing-library/jest-dom" />
+       // highlight-end
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="src/vite-env.d.ts"
+       /// <reference types="vite/client" />
+       ```
+     </TabItem>
+   </Tabs>
+
+#### If you use `wasp test client`
+
+1. Install Vitest and the testing libraries your tests use:
+
+   ```bash
+   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+   ```
+
+   Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
+
+2. Set up Vitest in your `vite.config.ts` with Wasp's `waspTestConfig` helper. It sets the options Wasp used to set for you:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="vite.config.ts"
+       import { defineConfig } from "vite";
+       import { wasp } from "wasp/client/vite";
+
+       export default defineConfig({
+         plugins: [wasp()],
+       });
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="vite.config.ts"
+       // highlight-next-line
+       import { defineConfig } from "vitest/config";
+       import { wasp } from "wasp/client/vite";
+       // highlight-next-line
+       import { waspTestConfig } from "wasp/test";
+
+       export default defineConfig({
+         plugins: [wasp()],
+         // highlight-start
+         test: waspTestConfig({
+           setupFiles: ["./src/test/setup.ts"],
+         }),
+         // highlight-end
+       });
+       ```
+     </TabItem>
+   </Tabs>
+
+   Wasp used to make `test`, `expect`, and the other test functions available globally. If your tests use them without importing them, pass `globals: true` to `waspTestConfig`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="vite.config.ts"
+       test: waspTestConfig({
+         setupFiles: ["./src/test/setup.ts"],
+       }),
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="vite.config.ts"
+       test: waspTestConfig({
+         setupFiles: ["./src/test/setup.ts"],
+         // highlight-next-line
+         globals: true,
+       }),
+       ```
+     </TabItem>
+   </Tabs>
+
+   Keep the `vitest/globals` types in `src/vite-env.d.ts`, so TypeScript knows about the globals when Wasp type-checks your tests:
+
+   ```ts title="src/vite-env.d.ts"
+   /// <reference types="vite/client" />
+   // highlight-next-line
+   /// <reference types="vitest/globals" />
+   ```
+
+   Or import them from `vitest` in each test file instead:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="src/utils.test.ts"
+       import { add } from "./utils";
+
+       test("adds numbers", () => {
+         expect(add(1, 2)).toBe(3);
+       });
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="src/utils.test.ts"
+       // highlight-next-line
+       import { expect, test } from "vitest";
+       import { add } from "./utils";
+
+       test("adds numbers", () => {
+         expect(add(1, 2)).toBe(3);
+       });
+       ```
+     </TabItem>
+   </Tabs>
+
+
+3. Create the setup file you referenced in `setupFiles`. It adds the DOM matchers, like `toBeInTheDocument()`, and removes what a test rendered when the test ends:
+
+   ```ts title="src/test/setup.ts"
+   import "@testing-library/jest-dom/vitest";
+   import { cleanup } from "@testing-library/react";
+   import { afterEach } from "vitest";
+
+   afterEach(() => {
+     cleanup();
+   });
+   ```
+
+4. Run your tests with Vitest instead of `wasp test client`. Add a `test` script to your `package.json`, or change it if it runs `wasp test client`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```json title="package.json"
+       {
+         "scripts": {
+           // highlight-next-line
+           "test": "wasp test client"
+         }
+       }
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```json title="package.json"
+       {
+         "scripts": {
+           // highlight-next-line
+           "test": "vitest"
+         }
+       }
+       ```
+     </TabItem>
+   </Tabs>
+
+   Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
+
+   ```bash
+   wasp compile
+   npm test
+   ```
+
+Read more in the [testing docs](./advanced/testing.md).
+
+### 5. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -152,7 +388,7 @@ wasp db migrate-dev
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 5. Check the packages your server loads at runtime
+### 6. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -171,7 +407,7 @@ export default app({
 })
 ```
 
-### 6. Install the system dependencies your app needs
+### 7. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -181,7 +417,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-### 7. Update your custom Dockerfile
+### 8. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -193,6 +429,6 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 8. Enjoy your updated Wasp app
+### 9. Enjoy your updated Wasp app
 
 That's it!
