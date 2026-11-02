@@ -5,7 +5,6 @@ dist-newstyle
 .hie/
 .bin/
 stan.html
-module-graph.png
 
 # editor related
 *.orig
