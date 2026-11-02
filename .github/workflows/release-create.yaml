@@ -94,5 +94,5 @@ jobs:
           esac
 
           for pkg in ./npm-packages/*; do
-            npx npm@^11.15.0 stage publish --tag "$DIST_TAG" "$pkg"
+            (cd "$pkg" && npx npm@^11.15.0 stage publish --tag "$DIST_TAG")
           done
