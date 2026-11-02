@@ -1,0 +1,188 @@
+# Common commands used during building / developing `waspc`.
+# Run `mise tasks` to list them and `mise run <task>` to run one from anywhere in the repo.
+
+[workspace-install]
+description = "The tools and prettier are workspace projects, so install before using them."
+hide = true
+dir = "{{config_root}}"
+run = "pnpm install"
+
+# Building
+
+[build]
+description = "Builds the Haskell project + all sub-projects (i.e. TS packages). Run with the `BUILD_STATIC=1` env to build statically."
+run = [{ task = "build:packages" }, { task = "build:libs" }, { task = "build:hs" }]
+
+["build:hs"]
+description = "Builds the Haskell project only. Run with the `BUILD_STATIC=1` env to build statically."
+dir = "{{config_root}}/waspc"
+run = "cabal build all ${BUILD_STATIC:+--enable-executable-static}"
+
+["build:packages"]
+description = "Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
+depends = ["workspace-install"]
+dir = "{{config_root}}/waspc"
+run = "node tools/packages/build.ts"
+
+["build:libs"]
+description = "Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
+depends = ["workspace-install"]
+dir = "{{config_root}}/waspc"
+run = "node tools/libs/build.ts"
+
+[install]
+description = "Installs the wasp executable as 'wasp-cli' globally on the machine."
+dir = "{{config_root}}/waspc"
+run = [{ task = "build:packages" }, { task = "build:libs" }, "cabal install --overwrite-policy=always"]
+
+# Wasp CLI
+
+[wasp-cli]
+description = "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed."
+dir = "{{ env.WASP_CALLER_DIR | default(value=cwd) }}"
+run = "{{config_root}}/waspc/tools/wasp-cli-dev"
+
+# Testing
+
+["test:waspc"]
+description = "Executes all waspc tests (unit + e2e). Builds the project first if needed."
+run = [{ task = "test:waspc:unit" }, { task = "test:waspc:e2e" }]
+
+["test:waspc:unit"]
+description = "Executes only waspc unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+usage = 'arg "[pattern]"'
+dir = "{{config_root}}/waspc"
+run = '''
+#!/usr/bin/env bash
+cabal test waspc-tests --test-option=--hide-successes ${usage_pattern:+--test-option=-p "--test-option=$usage_pattern"}
+'''
+
+["test:waspc:e2e"]
+description = "Executes only cli e2e tests. Builds the project first if needed."
+dir = "{{config_root}}/waspc"
+env = { WASP_CLI_CMD = "{{config_root}}/waspc/tools/wasp-cli-dev" }
+run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
+
+["test:waspc:e2e:accept-all"]
+description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+dir = "{{config_root}}/waspc"
+run = ["rm -rf e2e-tests/test-outputs/snapshots/*-golden", { task = "test:waspc:e2e" }]
+
+["test:cli"]
+description = "Executes only cli tests. Builds the project first if needed."
+dir = "{{config_root}}/waspc"
+run = "cabal test wasp-cli-tests --test-option=--hide-successes"
+
+["test:libs"]
+description = "Run tests on Wasp libs (types, unit, type-exports)."
+depends = ["workspace-install"]
+dir = "{{config_root}}/waspc"
+run = "node tools/libs/test.ts"
+
+["test:packages"]
+description = "Run tests on Wasp packages (spec, deploy, etc.)."
+depends = ["workspace-install"]
+dir = "{{config_root}}/waspc"
+run = "node tools/packages/test.ts"
+
+# Wasp App Runner
+# Utility used for running e2e tests in Wasp apps, we use it for testing
+# e.g. examples and starters.
+
+[build-wasp-app-runner]
+hide = true
+depends = ["workspace-install"]
+dir = "{{config_root}}"
+run = "pnpm --filter @wasp/wasp-app-runner run build"
+
+["test:kitchen-sink"]
+description = "Executes only kitchen-sink e2e tests. Installs deps first if needed."
+depends = ["build-wasp-app-runner"]
+dir = "{{config_root}}/examples/kitchen-sink"
+env = { WASP_CLI_CMD = "{{config_root}}/waspc/tools/wasp-cli-dev", WASP_APP_RUNNER_CLI_CMD = "{{config_root}}/packages/wasp-app-runner/bin/index.js" }
+run = ["{{config_root}}/waspc/tools/wasp-cli-dev install", "npm run test"]
+
+["test:starters"]
+description = "Executes only starter templates e2e tests. Installs deps first if needed."
+depends = ["build-wasp-app-runner"]
+dir = "{{config_root}}/waspc/starters-e2e-tests"
+env = { WASP_CLI_CMD = "{{config_root}}/waspc/tools/wasp-cli-dev", WASP_APP_RUNNER_CLI_CMD = "{{config_root}}/packages/wasp-app-runner/bin/index.js" }
+run = "pnpm run test:dev"
+
+# Utility
+
+[ghcid]
+description = "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
+dir = "{{config_root}}/waspc"
+run = "ghcid --command=cabal repl"
+
+[ghcid-test]
+description = "Runs ghcid on both source and tests."
+dir = "{{config_root}}/waspc"
+# --color always is needed for Tasty to turn on the coloring.
+run = "ghcid '-T=:main --color always' --command=cabal repl tests/TastyDiscoverDriver.hs"
+
+[stan]
+description = "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
+dir = "{{config_root}}/waspc"
+run = ["cabal build all --enable-tests --enable-benchmarks", "stan report"]
+
+[hlint]
+description = "Runs linter on the codebase."
+dir = "{{config_root}}/waspc"
+run = "hlint ."
+
+[format]
+description = "Runs all code formatters (ormolu, cabal-gild, prettier) and formats the code in place."
+run = [{ task = "format:ormolu" }, { task = "format:cabal" }, { task = "format:prettier" }]
+
+[check]
+description = "Runs all code formatters in check mode and reports if code is correctly formatted or not."
+run = [{ task = "check:ormolu" }, { task = "check:cabal" }, { task = "check:prettier" }]
+
+["format:ormolu"]
+description = "Runs the Haskell code formatter and formats the code in place."
+dir = "{{config_root}}/waspc"
+run = "git ls-files -z '*.hs' '*.hs-boot' | xargs -0 ormolu --color always --check-idempotence --mode inplace"
+
+["check:ormolu"]
+description = "Runs the Haskell code formatter and reports if code is correctly formatted or not."
+dir = "{{config_root}}/waspc"
+run = "git ls-files -z '*.hs' '*.hs-boot' | xargs -0 ormolu --color always --check-idempotence --mode check"
+
+["format:cabal"]
+description = "Runs the .cabal file formatter and formats the code in place."
+dir = "{{config_root}}/waspc"
+run = "git ls-files -z '*.cabal' | xargs -0 cabal-gild --mode format"
+
+["check:cabal"]
+description = "Runs the .cabal file formatter and reports if code is correctly formatted or not."
+dir = "{{config_root}}/waspc"
+run = "git ls-files -z '*.cabal' | xargs -0 cabal-gild --mode check"
+
+["format:prettier"]
+description = "Runs the repo-wide code formatter and formats the code in place."
+depends = ["workspace-install"]
+dir = "{{config_root}}"
+run = "pnpm run format:prettier"
+
+["check:prettier"]
+description = "Runs the repo-wide code formatter and reports if code is correctly formatted or not."
+depends = ["workspace-install"]
+dir = "{{config_root}}"
+run = "pnpm run check:prettier"
+
+# Versioning
+
+[get-waspc-version]
+description = "Gets the current version of waspc from the Haskell project."
+quiet = true
+dir = "{{config_root}}/waspc"
+run = ["pnpm -C .. install --reporter=silent", "node tools/get-waspc-version.ts"]
+
+[version-bump]
+description = "Bumps the Wasp version across waspc.cabal, libs, and example projects, then rebuilds libs and busts each project's libs cache."
+usage = 'arg "<level>" { choices "major" "minor" "patch" }'
+depends = ["workspace-install"]
+dir = "{{config_root}}/waspc"
+run = "node tools/version-bump.ts ${usage_level}"

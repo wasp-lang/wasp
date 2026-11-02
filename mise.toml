@@ -101,3 +101,6 @@ experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to 
 # The Node backend has a knack for compiling from source on Alpine even when
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
+
+[task_config]
+includes = ["waspc/tools/tasks"]
