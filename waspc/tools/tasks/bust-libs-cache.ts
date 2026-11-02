@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 //MISE description="Busts the npm cache for all @wasp/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
-//MISE depends=["workspace-install"]
-//MISE dir="{{ env.WASP_CALLER_DIR | default(value=cwd) }}"
+//MISE dir="{{cwd}}"
 
 import { execa } from "execa";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";

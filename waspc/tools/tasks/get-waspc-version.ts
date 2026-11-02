@@ -1,9 +1,12 @@
+#!/usr/bin/env node
+//MISE description="Gets the current version of waspc from the Haskell project."
+//MISE quiet=true
 /// <reference types="node" />
 // Gets the waspc version from the Cabal package file.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { getWaspcDirPath } from "./utils.ts";
+import { getWaspcDirPath } from "../utils.ts";
 
 let waspcVersion: string | undefined;
 

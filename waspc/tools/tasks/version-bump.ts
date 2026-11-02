@@ -1,18 +1,21 @@
+#!/usr/bin/env node
+//MISE description="Bumps the Wasp version across waspc.cabal, libs, and example projects, then rebuilds libs and busts each project's libs cache."
+//USAGE arg "<level>" { choices "major" "minor" "patch" }
 /// <reference types="node" />
 
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import semver from "semver";
-import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
-import { getLibsDirPath } from "./libs/utils.ts";
-import { getPackageDirPath, WASPC_PACKAGES } from "./packages/utils.ts";
+import { getLibsDirPath } from "../libs/utils.ts";
+import { getPackageDirPath, WASPC_PACKAGES } from "../packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
   getWaspcDirPath,
   runCmd,
-} from "./utils.ts";
+} from "../utils.ts";
+import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 
 const waspcDirPath = getWaspcDirPath();
 const waspProjectDirsPaths = findWaspProjectDirsPathsInRepo();
@@ -151,10 +154,8 @@ function rebuildPackages(): void {
 }
 
 function bustWaspProjectsLibsCache(): void {
-  const runScriptFilePath = join(waspcDirPath, "run");
-
   for (const waspProjectDirPath of waspProjectDirsPaths) {
-    runCmd(runScriptFilePath, ["bust-libs-cache"], {
+    runCmd("mise", ["run", "bust-libs-cache"], {
       cwd: waspProjectDirPath,
       stdio: "inherit",
     });
