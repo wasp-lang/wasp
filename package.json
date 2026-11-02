@@ -18,10 +18,14 @@
     "typescript": "catalog:"
   },
   "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.15.0",
-      "onFail": "ignore"
-    }
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "12.15.0"
+      },
+      {
+        "name": "npm"
+      }
+    ]
   }
 }
