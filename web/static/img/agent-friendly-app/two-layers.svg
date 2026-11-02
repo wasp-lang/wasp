@@ -6,12 +6,7 @@
       --bg: #ffffff; --band: #f3f5f8; --box: #f8fafb; --ink: #15202b; --muted: #5a6774; --line: #cbd3db;
       --dash: #2f5bd8; --mcp: #8b3fcf; --rest: #0f8577; --cli: #b06a00; --ok: #23863a; --ok-bg: #e9f5ec;
     }
-    @media (prefers-color-scheme: dark) {
-      svg {
-        --bg: #0e141a; --band: #151d25; --box: #1b2530; --ink: #e4ebf1; --muted: #95a3b0; --line: #2c3845;
-        --dash: #7d9dff; --mcp: #c18bf2; --rest: #3fc1ae; --cli: #f0a63a; --ok: #5ccb74; --ok-bg: #173323;
-      }
-    }
+    
     text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
     .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
     .bg { fill: var(--bg); }

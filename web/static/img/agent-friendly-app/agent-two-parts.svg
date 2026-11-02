@@ -8,11 +8,7 @@
     svg {
       --bg: #ffffff; --band: #f3f5f8; --box: #f8fafb; --ink: #15202b; --muted: #5a6774; --line: #cbd3db; --req: #2f5bd8;
     }
-    @media (prefers-color-scheme: dark) {
-      svg {
-        --bg: #0e141a; --band: #151d25; --box: #1b2530; --ink: #e4ebf1; --muted: #95a3b0; --line: #2c3845; --req: #7d9dff;
-      }
-    }
+    
     text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
     .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
     .bg { fill: var(--bg); }

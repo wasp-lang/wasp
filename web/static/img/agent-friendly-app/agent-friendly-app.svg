@@ -6,6 +6,7 @@
       --bg: #ffffff; --band: #f3f5f8; --box: #f8fafb; --ink: #15202b; --muted: #5a6774; --line: #cbd3db; --req: #2f5bd8;
       --term: #15202b; --term-ink: #e4ebf1; --ok: #23863a;
     }
+    
     text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
     .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
     .bg { fill: var(--bg); }

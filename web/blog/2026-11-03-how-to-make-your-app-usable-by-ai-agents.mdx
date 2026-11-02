@@ -14,11 +14,7 @@ import { VideoWithCaption } from './components/VideoWithCaption';
 
 ## TL;DR
 
-*This is how I'd do it: Put most of your effort into an MCP server, build a REST API on the same server logic alongside it, and only add a CLI if agents need to work with local files.*
-
-You’re building a web app and you need to make it agent-friendly, but you’re not sure how. 
-
-**Should you build an MCP server, a REST API, a CLI, or all three?** And how do you add them so they bring the most value to agents?
+You’re building a web app and you need to make it agent-friendly, but you’re not sure how. **Should you build an MCP server, a REST API, a CLI, or all three?** And how do you add them so they bring the most value to agents?
 
 These are the questions I answer in this post by explaining what are the best choices and why, and then showing you how to build them into your apps.
 
@@ -78,6 +74,7 @@ Those are the questions I set out to answer with this post, and it has two parts
 
 <ImgWithCaption
   source="/img/agent-friendly-app/agent-friendly-app.svg"
+  darkSource="/img/agent-friendly-app/agent-friendly-app-dark.svg"
   caption="How do you choose the right agent tool(s) for your web app?"
   alt="How do you choose the right agent tool(s) for your web app?"
 />
@@ -90,6 +87,7 @@ To help me figure out how to do that for myself, I built an example app with a d
 
 <ImgWithCaption
   source="/img/agent-friendly-app/two-layers.svg"
+  darkSource="/img/agent-friendly-app/two-layers-dark.svg"
   caption="This diagram is a sneak peek of things to come, e.g. the four surfaces (Dashboard, MCP, API, and CLI) all calling the same createLink operation on the server."
   alt="This diagram is a sneak peek of things to come, e.g. the four surfaces (Dashboard, MCP, API, and CLI) all calling the same createLink operation on the server"
 />
@@ -113,6 +111,7 @@ One thing that’s important to remember is that when you use an agent, there ar
 
 <ImgWithCaption
   source="/img/agent-friendly-app/agent-two-parts.svg"
+  darkSource="/img/agent-friendly-app/agent-two-parts-dark.svg"
   caption="Your agent is two parts: the MCP client (harness / app), the interaction layer with the chat window you type into, and the LLM underneath that decides what to do. The client talks to the model and to your MCP server."
   alt="Your agent is two parts: the MCP client (harness / app), the interaction layer with the chat window you type into, and the LLM underneath that decides what to do. The client talks to the model and to your MCP server"
 />
@@ -148,6 +147,7 @@ Here's an example from Linkly. Say you have two short links to [wasp.sh](/): an 
 
 <ImgWithCaption
   source="/img/agent-friendly-app/confirmation-paths.svg"
+  darkSource="/img/agent-friendly-app/confirmation-paths-dark.svg"
   caption="With a confirm flag, the agent sets confirm=true itself and /r/wasp is deleted. With MCP, your app's confirmation page shows /r/wasp, you click Cancel, and nothing is deleted."
   alt="With a confirm flag, the agent sets confirm=true itself and /r/wasp is deleted. With MCP, your app's confirmation page shows /r/wasp, you click Cancel, and nothing is deleted"
 />
@@ -212,6 +212,7 @@ Notice that the API's advantage isn't really volume. Without code mode, every ro
 
 <ImgWithCaption
   source="/img/agent-friendly-app/code-mode-paths.svg"
+  darkSource="/img/agent-friendly-app/code-mode-paths-dark.svg"
   caption="Tagging 300 links through MCP: without code mode, every call and result passes through the model; with code mode, the client runs the loop in a sandbox and only the last line comes back"
   alt="Tagging 300 links through MCP: without code mode, every call and result passes through the model; with code mode, the client runs the loop in a sandbox and only the last line comes back"
 />
@@ -281,6 +282,7 @@ By splitting your app into two layers, every surface you build gets the same log
 
 <ImgWithCaption
   source="/img/agent-friendly-app/two-layers.svg"
+  darkSource="/img/agent-friendly-app/two-layers-dark.svg"
   caption="Four callers land on the same createLink operation"
   alt="Four callers land on the same createLink operation"
 />

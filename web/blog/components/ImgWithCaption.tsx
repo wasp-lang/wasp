@@ -1,8 +1,11 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import ThemedImage from "@theme/ThemedImage";
 import type { ReactNode } from "react";
 
 interface ImgWithCaptionProps {
   source: string;
+  /** Optional dark-mode version of `source`, shown when the site is in dark mode. */
+  darkSource?: string;
   caption?: ReactNode;
   width?: number | string;
   height?: number | string;
@@ -23,26 +26,31 @@ interface ImgWithCaptionProps {
 
 export function ImgWithCaption(props: ImgWithCaptionProps) {
   const resolvedSrc = useBaseUrl(props.source);
+  const resolvedDarkSrc = useBaseUrl(props.darkSource ?? props.source);
   const isFramed = props.framed === true;
   const frameBg = props.frameBackgroundColor ?? "#F5C842";
   const frameBorderColor = props.frameBorderColor ?? "#111";
   const frameBorderWidth = props.frameBorderWidth ?? 3;
   const framePadding = props.framePadding ?? 14;
 
-  const img = (
-    <img
-      style={{
-        width: props.width,
-        height: props.height,
-        display: isFramed ? "block" : undefined,
-        border: isFramed
-          ? `${frameBorderWidth}px solid ${frameBorderColor}`
-          : undefined,
-        boxSizing: isFramed ? "border-box" : undefined,
-      }}
+  const imgStyle = {
+    width: props.width,
+    height: props.height,
+    display: isFramed ? "block" : undefined,
+    border: isFramed
+      ? `${frameBorderWidth}px solid ${frameBorderColor}`
+      : undefined,
+    boxSizing: isFramed ? ("border-box" as const) : undefined,
+  };
+
+  const img = props.darkSource ? (
+    <ThemedImage
+      style={imgStyle}
       alt={props.alt}
-      src={resolvedSrc}
+      sources={{ light: resolvedSrc, dark: resolvedDarkSrc }}
     />
+  ) : (
+    <img style={imgStyle} alt={props.alt} src={resolvedSrc} />
   );
 
   return (
