@@ -80,7 +80,21 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 [settings]
 lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
-idiomatic_version_file_enable_tools = ["node", "pnpm"] # (Use package.json)
+
+# Node and pnpm versions are read from `devEngines` in /package.json.
+#
+# The Node version should be equal to Wasp's lowest supported Node version.
+# Keep in sync with:
+# - The compiler (Wasp.Node.Version).
+# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
+# - The docs plugin: /web/src/remark/search-and-replace.ts
+# - The repo root package: /package.json (devEngines)
+# - The web CI: /web/.node-version
+# - The web package: /web/package.json
+# - The wasp-cli packages: /packages/cli/package.json, /scripts/make-npm-packages/templates/sub-package/package.json
+# - The embedded packages: /packages/*/package.json
+# (Also just grep for the version in case we forgot somewhere.)
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
 
 [settings.node]
 # The Node backend has a knack for compiling from source on Alpine even when

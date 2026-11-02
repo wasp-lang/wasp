@@ -10,7 +10,7 @@
     },
     "packageManager": {
       "name": "pnpm",
-      "version": "12"
+      "version": "12.15.0"
     }
   },
   "scripts": {
