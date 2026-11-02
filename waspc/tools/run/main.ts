@@ -3,7 +3,8 @@
 import { ExecaError } from "execa";
 import { constants } from "node:os";
 import { styleText } from "node:util";
-import { type Command, commandGroups, findCommand } from "./commands.ts";
+import type { Command } from "./command.ts";
+import { commandGroups, findCommand } from "./commands/index.ts";
 
 const [commandName, ...commandArgs] = process.argv.slice(2);
 const command = commandName ? findCommand(commandName) : undefined;

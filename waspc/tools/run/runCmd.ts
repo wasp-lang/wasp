@@ -2,6 +2,10 @@
 
 import { execa } from "execa";
 import { styleText } from "node:util";
+import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
+
+export const waspcDir = getWaspcDirPath();
+export const repoRootDir = getRepoRootPath();
 
 export async function runCmd(
   cmd: string,
@@ -31,4 +35,19 @@ function formatCmdLine(cmd: string, args: string[]): string {
 
 function quoteIfHasWhitespace(arg: string): string {
   return /\s/.test(arg) ? JSON.stringify(arg) : arg;
+}
+
+export async function runInWaspc(
+  cmd: string,
+  args: string[],
+  env?: Record<string, string>,
+): Promise<void> {
+  await runCmd(cmd, args, { cwd: waspcDir, env });
+}
+
+export async function runInRepoRoot(
+  cmd: string,
+  args: string[],
+): Promise<void> {
+  await runCmd(cmd, args, { cwd: repoRootDir });
 }
