@@ -60,12 +60,17 @@ runs:
         bootstrap: true
         bootstrap_args: --update --yes
 
+    - name: Probe pnpm store path
+      id: probe-pnpm-store
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+
     - name: Cache pnpm store
-      uses: actions/setup-node@v6
+      uses: actions/cache@v5
       with:
-        # We don't specify a node-version here because we already have it
-        # installed. We use this step to set up the pnpm cache.
-        cache: pnpm
+        path: ${{ steps.probe-pnpm-store.outputs.STORE_PATH }}
+        key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-store-${{ runner.os }}-${{ runner.arch }}-
 
     # We can't have the following steps in a different action because of a
     # GitHub Actions bug with how caches interact with nested composite actions:
