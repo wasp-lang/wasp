@@ -7,7 +7,7 @@
   - `bundle/server.js`: the bundled server. Rollup leaves the packages it
     imports out of the bundle, so following those imports finds the files the
     server needs at runtime.
-  - `dotenv/config`: preloaded with `node -r dotenv/config` in the `start` script.
+  - `loadDotEnv.cjs`: preloaded with `node -r` in the `start` script.
   - The Prisma CLI, copied in full, but only when `start-production` runs
     migrations.
   - The packages the user lists in `app.server.traceDeps`.
@@ -67,7 +67,7 @@ async function prepareProduction({
   const layout = await traceNodeModules(
     [
       path.join(serverDir, "bundle/server.js"),
-      requireFromServer.resolve("dotenv/config"),
+      path.join(serverDir, "loadDotEnv.cjs"),
     ],
     {
       rootDir: serverDir,
