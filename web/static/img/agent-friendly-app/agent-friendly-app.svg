@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="668" viewBox="0 0 1100 668" role="img" aria-labelledby="t d">
+  <title id="t">Designing an agent-friendly web app</title>
+  <desc id="d">Your web app sits in the middle with one set of operations (createLink, listLinks, deleteLink). Four spokes go out from it: a dashboard for people, an MCP server with tools like create_link, a REST API with endpoints like POST /api/v1/links, and a CLI run from a terminal. All four call the same operations.</desc>
+  <style>
+    svg {
+      --bg: #ffffff; --band: #f3f5f8; --box: #f8fafb; --ink: #15202b; --muted: #5a6774; --line: #cbd3db; --req: #2f5bd8;
+      --term: #15202b; --term-ink: #e4ebf1; --ok: #23863a;
+    }
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
+    .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .bg { fill: var(--bg); }
+    .band { fill: var(--band); }
+    .title { font-size: 30px; font-weight: 700; }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 1; }
+    .hub { stroke: var(--req); stroke-width: 2.5; }
+    .t { font-size: 24px; font-weight: 600; }
+    .s { font-size: 18px; fill: var(--muted); }
+    .row { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+    .row-t { font-size: 16px; }
+    .verb { font-weight: 700; fill: var(--req); }
+    .spoke { fill: none; stroke: var(--req); stroke-width: 3; stroke-linecap: round; }
+    .end { fill: var(--req); }
+    .chat { fill: var(--bg); stroke: var(--line); stroke-width: 1.5; }
+    .chat-dot { fill: var(--line); }
+    .chat-rule { stroke: var(--line); stroke-width: 1; }
+    .url { fill: var(--box); stroke: var(--line); stroke-width: 1; }
+    .bar-bot { fill: var(--muted); opacity: .45; }
+    .bar-chart { fill: var(--req); opacity: .8; }
+    .mcp-mark { fill: none; stroke: var(--ink); stroke-width: 12; stroke-linecap: round; }
+    .term { fill: var(--term); }
+    .term-dot { fill: var(--term-ink); opacity: .3; }
+    .term-t { font-size: 15px; fill: var(--term-ink); }
+    .term-bar { fill: var(--term-ink); opacity: .3; }
+    .prompt { fill: var(--ok); font-weight: 700; }
+    .cursor { fill: var(--term-ink); opacity: .7; }
+  </style>
+
+  <rect class="bg" width="1100" height="668" rx="14"/>
+  <rect class="band" x="8" y="8" width="1084" height="652" rx="10"/>
+  <text class="title" x="550.0" y="66" text-anchor="middle">Designing an Agent-friendly web app</text>
+  <path class="spoke" d="M360 222.0 C380.0 222.0 380.0 328 400 328"/>
+  <circle class="end" cx="360" cy="222.0" r="5"/>
+  <circle class="end" cx="400" cy="328" r="5"/>
+  <path class="spoke" d="M360 530.0 C380.0 530.0 380.0 448 400 448"/>
+  <circle class="end" cx="360" cy="530.0" r="5"/>
+  <circle class="end" cx="400" cy="448" r="5"/>
+  <path class="spoke" d="M740 222.0 C720.0 222.0 720.0 328 700 328"/>
+  <circle class="end" cx="740" cy="222.0" r="5"/>
+  <circle class="end" cx="700" cy="328" r="5"/>
+  <path class="spoke" d="M740 530.0 C720.0 530.0 720.0 448 700 448"/>
+  <circle class="end" cx="740" cy="530.0" r="5"/>
+  <circle class="end" cx="700" cy="448" r="5"/>
+  <rect class="box hub" x="400" y="268" width="300" height="240" rx="12"/>
+  <text class="t" x="422" y="310">Your web app</text>
+  <text class="s" x="422" y="338">one set of operations</text>
+  <rect class="row" x="422" y="362" width="256" height="36" rx="8"/>
+  <text class="row-t mono" x="440" y="386">createLink()</text>
+  <rect class="row" x="422" y="408" width="256" height="36" rx="8"/>
+  <text class="row-t mono" x="440" y="432">listLinks()</text>
+  <rect class="row" x="422" y="454" width="256" height="36" rx="8"/>
+  <text class="row-t mono" x="440" y="478">deleteLink()</text>
+  <rect class="box" x="40" y="112" width="320" height="220" rx="12"/>
+  <text class="t" x="62" y="154">Dashboard</text>
+  <rect class="chat" x="62" y="176" width="276" height="134" rx="8"/>
+  <circle class="chat-dot" cx="75" cy="188" r="3"/>
+  <circle class="chat-dot" cx="85" cy="188" r="3"/>
+  <circle class="chat-dot" cx="95" cy="188" r="3"/>
+  <rect class="url" x="110" y="182" width="214" height="12" rx="6"/>
+  <line class="chat-rule" x1="62" y1="200" x2="338" y2="200"/>
+  <line class="chat-rule" x1="122" y1="200" x2="122" y2="310"/>
+  <rect class="bar-bot" x="74" y="212" width="36" height="6" rx="3"/>
+  <rect class="bar-bot" x="74" y="230" width="26" height="6" rx="3"/>
+  <rect class="bar-bot" x="74" y="248" width="36" height="6" rx="3"/>
+  <rect class="bar-bot" x="74" y="266" width="26" height="6" rx="3"/>
+  <rect class="bar-chart" x="140" y="270" width="16" height="26" rx="3"/>
+  <rect class="bar-chart" x="166" y="252" width="16" height="44" rx="3"/>
+  <rect class="bar-chart" x="192" y="262" width="16" height="34" rx="3"/>
+  <rect class="bar-chart" x="218" y="234" width="16" height="62" rx="3"/>
+  <rect class="bar-chart" x="244" y="246" width="16" height="50" rx="3"/>
+  <rect class="bar-chart" x="270" y="224" width="16" height="72" rx="3"/>
+  <line class="chat-rule" x1="134" y1="296" x2="326" y2="296"/>
+  <rect class="box" x="740" y="112" width="320" height="220" rx="12"/>
+  <g transform="translate(756,128) scale(0.2)"><path class="mcp-mark" d="M25 97.8528L92.8822 29.9706C102.255 20.598 117.451 20.598 126.823 29.9706V29.9706C136.196 39.3431 136.196 54.5391 126.823 63.9117L75.5581 115.177"/><path class="mcp-mark" d="M76.2652 114.47L126.823 63.9117C136.196 54.5391 151.392 54.5391 160.765 63.9117L161.118 64.2652C170.491 73.6378 170.491 88.8338 161.118 98.2063L99.7248 159.6C96.6006 162.724 96.6006 167.789 99.7248 170.913L112.331 183.52"/><path class="mcp-mark" d="M109.853 46.9411L59.6482 97.1457C50.2756 106.518 50.2756 121.714 59.6482 131.087V131.087C69.0208 140.459 84.2167 140.459 93.5893 131.087L143.794 80.8822"/></g>
+  <text class="t" x="800" y="154">MCP</text>
+  <rect class="row" x="762" y="176" width="276" height="36" rx="8"/>
+  <text class="row-t mono" x="780" y="200">create_link</text>
+  <rect class="row" x="762" y="222" width="276" height="36" rx="8"/>
+  <text class="row-t mono" x="780" y="246">list_links</text>
+  <rect class="row" x="762" y="268" width="276" height="36" rx="8"/>
+  <text class="row-t mono" x="780" y="292">delete_link</text>
+  <rect class="box" x="40" y="420" width="320" height="220" rx="12"/>
+  <text class="t" x="62" y="462">API</text>
+  <rect class="row" x="62" y="484" width="276" height="36" rx="8"/>
+  <text class="row-t mono" x="76" y="508"><tspan class="verb">POST</tspan> /api/v1/links</text>
+  <rect class="row" x="62" y="530" width="276" height="36" rx="8"/>
+  <text class="row-t mono" x="76" y="554"><tspan class="verb">GET</tspan> /api/v1/links</text>
+  <rect class="row" x="62" y="576" width="276" height="36" rx="8"/>
+  <text class="row-t mono" x="76" y="600"><tspan class="verb">DELETE</tspan> /api/v1/links/{id}</text>
+  <rect class="box" x="740" y="420" width="320" height="220" rx="12"/>
+  <text class="t" x="762" y="462">CLI</text>
+  <rect class="term" x="762" y="484" width="276" height="134" rx="8"/>
+  <circle class="term-dot" cx="775" cy="496" r="3"/>
+  <circle class="term-dot" cx="785" cy="496" r="3"/>
+  <circle class="term-dot" cx="795" cy="496" r="3"/>
+  <text class="term-t mono" x="776" y="530"><tspan class="prompt">$</tspan> linkly links list</text>
+  <rect class="term-bar" x="776" y="546" width="180" height="6" rx="3"/>
+  <rect class="term-bar" x="776" y="562" width="150" height="6" rx="3"/>
+  <rect class="term-bar" x="776" y="578" width="196" height="6" rx="3"/>
+  <text class="term-t mono" x="776" y="608"><tspan class="prompt">$</tspan> <tspan class="cursor">▍</tspan></text>
+</svg>

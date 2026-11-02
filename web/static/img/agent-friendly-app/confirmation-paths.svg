@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="856" viewBox="0 0 1000 856" role="img" aria-labelledby="t d">
+  <title id="t">Who answers "are you sure?": a confirm flag vs. MCP</title>
+  <desc id="d">Two panels, one above the other. Your agent tried to delete the wrong Linkly link, /r/wasp. With a confirm flag on an API or CLI, Linkly asks "confirm=true?", the client (where you are) just passes the question on to the model, the model answers confirm=true itself, and /r/wasp is deleted. You're never asked. With MCP, Linkly asks "are you sure?" and the question goes to the client, which opens Linkly's confirmation page right where you are: "Delete /r/wasp?" You click Cancel, the answer goes straight back to Linkly, and nothing is deleted. The model never sees the question.</desc>
+  <defs><marker id="a-req" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--req)"/></marker><marker id="a-warn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--warn)"/></marker><marker id="a-ok" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--ok)"/></marker></defs>
+  <style>
+    svg {
+      --bg: #ffffff; --band: #f3f5f8; --box: #f8fafb; --ink: #15202b; --muted: #5a6774; --line: #cbd3db; --req: #2f5bd8;
+      --warn: #c4382f; --warn-bg: #fbeaea; --ok: #23863a; --ok-bg: #e9f5ec; --on: #ffffff;
+    }
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
+    .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .bg { fill: var(--bg); }
+    .band { fill: var(--band); }
+    .head { font-size: 15px; font-weight: 700; letter-spacing: .08em; fill: var(--ink); }
+    .agent { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 6 5; opacity: .7; }
+    .logo-claude { fill: #D97757; }
+    .logo-mono { fill: var(--ink); }
+    .cap-sm { font-size: 15px; font-weight: 700; letter-spacing: .08em; fill: var(--muted); }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 1; }
+    .box-warn { stroke: var(--warn); stroke-width: 2.5; }
+    .t { font-size: 24px; font-weight: 600; }
+    .s { font-size: 18px; fill: var(--muted); }
+    .s-warn { font-size: 18px; fill: var(--warn); font-weight: 600; }
+    .s-req { font-size: 18px; fill: var(--req); font-weight: 600; }
+    .tq { font-size: 20px; font-weight: 400; fill: var(--muted); }
+    .chat { fill: var(--bg); stroke: var(--line); stroke-width: 1.5; }
+    .chat-dot { fill: var(--line); }
+    .chat-rule { stroke: var(--line); stroke-width: 1; }
+    .bub-you { fill: var(--req); }
+    .bar-you { fill: var(--bg); opacity: .8; }
+    .bub-bot { fill: var(--box); stroke: var(--line); stroke-width: 1; }
+    .bar-bot { fill: var(--muted); opacity: .45; }
+    .chat-in { fill: var(--box); stroke: var(--line); stroke-width: 1; }
+    .send { fill: var(--ink); }
+    .nn-edge { stroke: var(--muted); stroke-width: 1; opacity: .35; }
+    .nn-node { fill: var(--bg); stroke: var(--muted); stroke-width: 1.5; }
+    .row { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+    .row-t { font-size: 17px; }
+    .w-req { fill: none; stroke: var(--req); stroke-width: 3; stroke-linecap: round; }
+    .w-warn { fill: none; stroke: var(--warn); stroke-width: 3; stroke-linecap: round; }
+    .w-ok { fill: none; stroke: var(--ok); stroke-width: 3; stroke-linecap: round; }
+    .lbl { font-size: 14px; font-weight: 700; }
+    .l-req { fill: var(--req); } .l-warn { fill: var(--warn); } .l-ok { fill: var(--ok); }
+    .n-req { fill: var(--req); } .n-warn { fill: var(--warn); } .n-ok { fill: var(--ok); }
+    .num { font-size: 13px; font-weight: 700; fill: var(--on); }
+    .bad-bg { fill: var(--warn-bg); }
+    .ok-bg { fill: var(--ok-bg); }
+    .x { fill: none; stroke: var(--warn); stroke-width: 2.4; stroke-linecap: round; }
+    .tag-warn { font-size: 18px; fill: var(--warn); font-weight: 600; }
+    .res-bad { font-size: 19px; fill: var(--warn); font-weight: 700; }
+    .res-ok { font-size: 19px; fill: var(--ok); font-weight: 700; }
+    .dialog { fill: var(--bg); stroke: var(--req); stroke-width: 1.5; }
+    .dq { font-size: 16px; font-weight: 600; }
+    .btn-ghost { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+    .btn-del { fill: var(--warn); }
+    .press { fill: none; stroke: var(--ok); stroke-width: 2.5; }
+    .bt { font-size: 14px; font-weight: 600; }
+    .bt-on { fill: var(--on); }
+  </style>
+
+  <rect class="bg" width="1000" height="856" rx="14"/>
+  <g transform="translate(0,8)">
+  <rect class="band" x="8" width="984" height="412" rx="10"/>
+  <text class="head" x="24" y="36">WITH A CONFIRM FLAG (API OR CLI)</text>
+  <rect class="agent" x="24" y="56" width="540" height="340" rx="14"/>
+  <text class="cap-sm" x="48" y="94">YOUR AGENT</text>
+  <text class="s" x="172" y="94">e.g.</text>
+  <g transform="translate(210,74) scale(0.95)"><path class="logo-claude" fill-rule="evenodd" d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z"/></g>
+  <g transform="translate(246,74) scale(0.95)"><path class="logo-mono" fill-rule="evenodd" d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"/></g>
+  <g transform="translate(282,74) scale(0.95)"><path class="logo-mono" fill-rule="evenodd" d="M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815"/></g>
+  <g opacity=".4">
+  <rect class="box" x="48" y="116" width="492" height="150" rx="12"/><text class="t" x="70" y="158">Client <tspan class="tq">(where you are)</tspan></text><text class="s" x="70" y="186">just passes the question on</text>
+  <rect class="chat" x="310" y="123" width="216" height="136" rx="10"/>
+  <circle class="chat-dot" cx="324" cy="136" r="3"/>
+  <circle class="chat-dot" cx="334" cy="136" r="3"/>
+  <circle class="chat-dot" cx="344" cy="136" r="3"/>
+  <line class="chat-rule" x1="310" y1="149" x2="526" y2="149"/>
+  <rect class="bub-you" x="400" y="161" width="112" height="22" rx="11"/>
+  <rect class="bar-you" x="412" y="169" width="74" height="6" rx="3"/>
+  <rect class="bub-bot" x="324" y="193" width="140" height="34" rx="10"/>
+  <rect class="bar-bot" x="336" y="203" width="112" height="6" rx="3"/>
+  <rect class="bar-bot" x="336" y="214" width="76" height="6" rx="3"/>
+  <rect class="chat-in" x="322" y="233" width="192" height="18" rx="9"/>
+  <circle class="send" cx="504" cy="242" r="5.5"/>
+  <text class="s" x="70" y="230">you're never asked</text>
+  </g>
+  <rect class="box box-warn" x="48" y="290" width="492" height="90" rx="12"/><text class="t" x="70" y="332">Model</text><text class="s-warn" x="70" y="360">answers it itself</text>
+  <line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="311.0"/>
+  <line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="327.0"/>
+  <line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="343.0"/>
+  <line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="359.0"/>
+  <line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="311.0"/>
+  <line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="327.0"/>
+  <line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="343.0"/>
+  <line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="359.0"/>
+  <line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="311.0"/>
+  <line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="327.0"/>
+  <line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="343.0"/>
+  <line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="359.0"/>
+  <line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="311.0"/>
+  <line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="327.0"/>
+  <line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="343.0"/>
+  <line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="359.0"/>
+  <line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="311.0"/>
+  <line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="327.0"/>
+  <line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="343.0"/>
+  <line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="359.0"/>
+  <line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="311.0"/>
+  <line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="327.0"/>
+  <line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="343.0"/>
+  <line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="359.0"/>
+  <line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="311.0"/>
+  <line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="327.0"/>
+  <line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="343.0"/>
+  <line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="359.0"/>
+  <line class="nn-edge" x1="446.0" y1="311.0" x2="502.0" y2="327.0"/>
+  <line class="nn-edge" x1="446.0" y1="311.0" x2="502.0" y2="343.0"/>
+  <line class="nn-edge" x1="446.0" y1="327.0" x2="502.0" y2="327.0"/>
+  <line class="nn-edge" x1="446.0" y1="327.0" x2="502.0" y2="343.0"/>
+  <line class="nn-edge" x1="446.0" y1="343.0" x2="502.0" y2="327.0"/>
+  <line class="nn-edge" x1="446.0" y1="343.0" x2="502.0" y2="343.0"/>
+  <line class="nn-edge" x1="446.0" y1="359.0" x2="502.0" y2="327.0"/>
+  <line class="nn-edge" x1="446.0" y1="359.0" x2="502.0" y2="343.0"/>
+  <circle class="nn-node" cx="334.0" cy="319.0" r="5.5"/>
+  <circle class="nn-node" cx="334.0" cy="335.0" r="5.5"/>
+  <circle class="nn-node" cx="334.0" cy="351.0" r="5.5"/>
+  <circle class="nn-node" cx="390.0" cy="311.0" r="5.5"/>
+  <circle class="nn-node" cx="390.0" cy="327.0" r="5.5"/>
+  <circle class="nn-node" cx="390.0" cy="343.0" r="5.5"/>
+  <circle class="nn-node" cx="390.0" cy="359.0" r="5.5"/>
+  <circle class="nn-node" cx="446.0" cy="311.0" r="5.5"/>
+  <circle class="nn-node" cx="446.0" cy="327.0" r="5.5"/>
+  <circle class="nn-node" cx="446.0" cy="343.0" r="5.5"/>
+  <circle class="nn-node" cx="446.0" cy="359.0" r="5.5"/>
+  <circle class="nn-node" cx="502.0" cy="327.0" r="5.5"/>
+  <circle class="nn-node" cx="502.0" cy="343.0" r="5.5"/>
+  <rect class="box" x="730" y="116" width="246" height="264" rx="12"/><text class="t" x="752" y="158">Linkly</text><text class="s" x="752" y="186">your API or CLI</text>
+  <rect class="row" x="752" y="210" width="202" height="46" rx="8"/>
+  <text class="row-t mono" x="770" y="239">delete_link</text>
+  <rect class="bad-bg" x="752" y="280" width="202" height="76" rx="10"/>
+  <text class="res-bad" x="853.0" y="312" text-anchor="middle">/r/wasp</text>
+  <text class="res-bad" x="853.0" y="338" text-anchor="middle">deleted</text>
+  <path class="w-req" d="M730 318 H548" marker-end="url(#a-req)"/><text class="lbl mono l-req" x="600" y="306">confirm=true?</text>
+  <circle cx="582" cy="301" r="12" class="n-req"/><text class="num" x="582" y="306" text-anchor="middle">1</text>
+  <path class="w-warn" d="M540 352 H722" marker-end="url(#a-warn)"/><text class="lbl mono l-warn" x="600" y="378">confirm=true</text>
+  <circle cx="582" cy="373" r="12" class="n-warn"/><text class="num" x="582" y="378" text-anchor="middle">2</text>
+  </g>
+  <g transform="translate(0,436)">
+  <rect class="band" x="8" width="984" height="412" rx="10"/>
+  <text class="head" x="24" y="36">WITH MCP</text>
+  <rect class="agent" x="24" y="56" width="540" height="340" rx="14"/>
+  <text class="cap-sm" x="48" y="94">YOUR AGENT</text>
+  <text class="s" x="172" y="94">e.g.</text>
+  <g transform="translate(210,74) scale(0.95)"><path class="logo-claude" fill-rule="evenodd" d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z"/></g>
+  <g transform="translate(246,74) scale(0.95)"><path class="logo-mono" fill-rule="evenodd" d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"/></g>
+  <g transform="translate(282,74) scale(0.95)"><path class="logo-mono" fill-rule="evenodd" d="M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815"/></g>
+  <rect class="box" x="48" y="116" width="492" height="150" rx="12"/><text class="t" x="70" y="158">Client <tspan class="tq">(where you are)</tspan></text><text class="s-req" x="70" y="186">opens Linkly's page for you</text>
+  <rect class="chat" x="310" y="123" width="216" height="136" rx="10"/>
+  <circle class="chat-dot" cx="324" cy="136" r="3"/>
+  <circle class="chat-dot" cx="334" cy="136" r="3"/>
+  <circle class="chat-dot" cx="344" cy="136" r="3"/>
+  <line class="chat-rule" x1="310" y1="149" x2="526" y2="149"/>
+  <rect class="dialog" x="322" y="161" width="192" height="86" rx="8"/>
+  <text class="dq" x="336" y="189">Delete /r/wasp?</text>
+  <rect class="btn-del" x="336" y="205" width="80" height="28" rx="6"/>
+  <text class="bt bt-on" x="376" y="224" text-anchor="middle">Delete</text>
+  <rect class="btn-ghost" x="426" y="205" width="80" height="28" rx="6"/>
+  <rect class="press" x="423" y="202" width="86" height="34" rx="8"/>
+  <text class="bt" x="466" y="224" text-anchor="middle">Cancel</text>
+  <g opacity=".4"><rect class="box" x="48" y="290" width="492" height="90" rx="12"/><text class="t" x="70" y="332">Model</text><text class="s" x="70" y="360">never sees the question</text><line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="311.0"/><line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="327.0"/><line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="343.0"/><line class="nn-edge" x1="334.0" y1="319.0" x2="390.0" y2="359.0"/><line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="311.0"/><line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="327.0"/><line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="343.0"/><line class="nn-edge" x1="334.0" y1="335.0" x2="390.0" y2="359.0"/><line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="311.0"/><line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="327.0"/><line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="343.0"/><line class="nn-edge" x1="334.0" y1="351.0" x2="390.0" y2="359.0"/><line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="311.0"/><line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="327.0"/><line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="343.0"/><line class="nn-edge" x1="390.0" y1="311.0" x2="446.0" y2="359.0"/><line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="311.0"/><line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="327.0"/><line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="343.0"/><line class="nn-edge" x1="390.0" y1="327.0" x2="446.0" y2="359.0"/><line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="311.0"/><line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="327.0"/><line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="343.0"/><line class="nn-edge" x1="390.0" y1="343.0" x2="446.0" y2="359.0"/><line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="311.0"/><line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="327.0"/><line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="343.0"/><line class="nn-edge" x1="390.0" y1="359.0" x2="446.0" y2="359.0"/><line class="nn-edge" x1="446.0" y1="311.0" x2="502.0" y2="327.0"/><line class="nn-edge" x1="446.0" y1="311.0" x2="502.0" y2="343.0"/><line class="nn-edge" x1="446.0" y1="327.0" x2="502.0" y2="327.0"/><line class="nn-edge" x1="446.0" y1="327.0" x2="502.0" y2="343.0"/><line class="nn-edge" x1="446.0" y1="343.0" x2="502.0" y2="327.0"/><line class="nn-edge" x1="446.0" y1="343.0" x2="502.0" y2="343.0"/><line class="nn-edge" x1="446.0" y1="359.0" x2="502.0" y2="327.0"/><line class="nn-edge" x1="446.0" y1="359.0" x2="502.0" y2="343.0"/><circle class="nn-node" cx="334.0" cy="319.0" r="5.5"/><circle class="nn-node" cx="334.0" cy="335.0" r="5.5"/><circle class="nn-node" cx="334.0" cy="351.0" r="5.5"/><circle class="nn-node" cx="390.0" cy="311.0" r="5.5"/><circle class="nn-node" cx="390.0" cy="327.0" r="5.5"/><circle class="nn-node" cx="390.0" cy="343.0" r="5.5"/><circle class="nn-node" cx="390.0" cy="359.0" r="5.5"/><circle class="nn-node" cx="446.0" cy="311.0" r="5.5"/><circle class="nn-node" cx="446.0" cy="327.0" r="5.5"/><circle class="nn-node" cx="446.0" cy="343.0" r="5.5"/><circle class="nn-node" cx="446.0" cy="359.0" r="5.5"/><circle class="nn-node" cx="502.0" cy="327.0" r="5.5"/><circle class="nn-node" cx="502.0" cy="343.0" r="5.5"/></g>
+  <rect class="box" x="730" y="116" width="246" height="264" rx="12"/><text class="t" x="752" y="158">Linkly</text><text class="s" x="752" y="186">your MCP server</text>
+  <rect class="row" x="752" y="210" width="202" height="46" rx="8"/>
+  <text class="row-t mono" x="770" y="239">delete_link</text>
+  <rect class="ok-bg" x="752" y="280" width="202" height="76" rx="10"/>
+  <text class="res-ok" x="853.0" y="312" text-anchor="middle">nothing</text>
+  <text class="res-ok" x="853.0" y="338" text-anchor="middle">deleted</text>
+  <path class="w-req" d="M730 152 H548" marker-end="url(#a-req)"/><text class="lbl mono l-req" x="600" y="140">are you sure?</text>
+  <circle cx="582" cy="135" r="12" class="n-req"/><text class="num" x="582" y="140" text-anchor="middle">1</text>
+  <path class="w-ok" d="M520 219 H722" marker-end="url(#a-ok)"/><text class="lbl mono l-ok" x="600" y="245">Cancel</text>
+  <circle cx="582" cy="240" r="12" class="n-ok"/><text class="num" x="582" y="245" text-anchor="middle">2</text>
+  </g>
+</svg>
