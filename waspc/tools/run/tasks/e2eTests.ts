@@ -10,6 +10,12 @@ import { runWaspCli, waspCliDevEnv } from "./waspCli.ts";
 const repoRootDir = getRepoRootPath();
 const waspcDir = getWaspcDirPath();
 
+// Wasp App Runner
+// Utility used for running e2e tests in Wasp apps, we use it for testing
+// e.g. examples and starters.
+// By passing this, we are telling all of our e2e tests to use the local
+// version of Wasp App Runner, built by `buildWaspAppRunner` (tests should
+// make sure to call that one before).
 const waspAppRunnerCliPath = join(
   repoRootDir,
   "packages/wasp-app-runner/bin/index.js",
@@ -71,6 +77,8 @@ async function testExampleApp(exampleAppPath: string): Promise<void> {
   });
 }
 
+// Copies .env.server.example to .env.server in the app directory,
+// but only if the example exists and .env.server isn't already present.
 function copyEnvServerExampleIfNeeded(appDir: string): void {
   const envServerExamplePath = join(appDir, ".env.server.example");
   const envServerPath = join(appDir, ".env.server");

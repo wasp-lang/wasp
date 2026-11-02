@@ -18,10 +18,9 @@ function installToolsDependenciesIfMissing(): void {
     return;
   }
 
-  // Not `getRepoRootPath()` from utils.ts, which needs the dependencies.
   const repoRootDir = fileURLToPath(new URL("../../..", import.meta.url));
-  // pnpm's output goes to stderr so commands like `get-waspc-version` keep a
-  // clean stdout. The shell resolves `pnpm.cmd` on Windows.
+  // CI reads the output of `get-waspc-version`, so the install output goes to
+  // stderr. The shell resolves `pnpm.cmd` on Windows.
   const { status } = spawnSync("pnpm install", {
     cwd: repoRootDir,
     stdio: ["inherit", process.stderr, "inherit"],

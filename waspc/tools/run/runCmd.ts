@@ -12,8 +12,7 @@ export async function runCmd(
   await execa(cmd, args, { ...options, stdio: "inherit" });
 }
 
-// Long argument lists, such as every tracked Haskell file passed to ormolu,
-// are shortened in the log so the command stays readable.
+// Long argument lists are shortened in the log.
 const MAX_LOGGED_ARGS = 25;
 
 function logRunning(cmd: string, args: string[]): void {

@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
+
+# This script defines common commands used during building / developing `waspc` project
+# and makes it easy to run them.
 exec node "$(dirname "${BASH_SOURCE[0]}")/tools/run/main.ts" "$@"

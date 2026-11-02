@@ -43,7 +43,6 @@ function reportFailure(error: unknown): number {
     return 1;
   }
 
-  // The failed process already printed its own output.
   if (error.exitCode !== undefined) {
     return error.exitCode;
   }

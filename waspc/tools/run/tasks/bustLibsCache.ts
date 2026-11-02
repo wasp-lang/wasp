@@ -11,19 +11,20 @@ export async function bustLibsCache(appDir: string): Promise<void> {
     throw new Error(`${appDir} is not a Wasp app directory.`);
   }
 
+  // `wasp install` must run before compile so @wasp/spec matches CLI version.
+  // Old generated workspaces point at old lib tarballs, so remove them from disk
+  // and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
   removeGeneratedPaths(appDir);
   removeStaleGeneratedLockEntries(appDir);
-
-  // `wasp install` must run before compile so @wasp/spec matches the CLI version.
   await runWaspCli(["install"], appDir);
-  // Compiling the project copies the new lib tarballs to the out dir.
+
+  // Compiling the project copies the new lib tarball to the out dir.
   await runWaspCli(["compile"], appDir);
-  // The --force flag tells `npm` to ignore its local cache.
+
+  // The --force flag tells `npm` to ignore local cache when installing packages.
   await runCmd("npm", ["install", "--force"], { cwd: appDir });
 }
 
-// Apps generated before Wasp 0.27 used the `@wasp.sh` npm scope instead of
-// `@wasp`, so we match both scopes here and in `isWaspLibName`.
 const REMOVED_GENERATED_PATHS = [
   ".wasp/out",
   "node_modules/@wasp/generated-server",
@@ -40,9 +41,11 @@ function removeGeneratedPaths(appDir: string): void {
 type PackageLockEntry = { dependencies?: Record<string, string> };
 type PackageLock = { packages: Record<string, PackageLockEntry> };
 
-// Removing the generated paths makes their lock entries, and the lock entries
-// of their local tarball deps, stale. Dropping them makes npm rebuild those
-// entries from the freshly generated package.json files.
+// We remove .wasp/out before `wasp install`, so package-lock entries for
+// generated workspaces and their local tarball deps become stale. Drop them so
+// npm rebuilds those entries from the freshly generated package.json files.
+// Apps generated before Wasp 0.27 used the `@wasp.sh` npm scope instead of
+// `@wasp`, so we match both.
 function removeStaleGeneratedLockEntries(appDir: string): void {
   const packageLockPath = join(appDir, "package-lock.json");
   const packageLock: PackageLock = JSON.parse(

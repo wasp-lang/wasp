@@ -43,8 +43,6 @@ export async function testWaspCli(): Promise<void> {
   await runCabalTestSuite("wasp-cli-tests");
 }
 
-// The ghcid arguments are the ones the bash script passed: `repl` and the
-// test driver path are separate arguments after `--command=cabal`.
 export async function runGhcid(): Promise<void> {
   await runCmd("ghcid", ["--command=cabal", "repl"], { cwd: waspcDir });
 }
@@ -53,7 +51,7 @@ export async function runGhcidOnTests(): Promise<void> {
   await runCmd(
     "ghcid",
     [
-      // `--color always` is needed for Tasty to turn on the coloring.
+      // --color always is needed for Tasty to turn on the coloring.
       "-T=:main --color always",
       "--command=cabal",
       "repl",

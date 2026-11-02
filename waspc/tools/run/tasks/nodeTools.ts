@@ -7,6 +7,7 @@ import { runCmd } from "../runCmd.ts";
 const repoRootDir = getRepoRootPath();
 const waspcDir = getWaspcDirPath();
 
+// The tools and prettier are workspace projects, so install before using them.
 export async function installWorkspace(): Promise<void> {
   await runCmd("pnpm", ["install"], { cwd: repoRootDir });
 }
