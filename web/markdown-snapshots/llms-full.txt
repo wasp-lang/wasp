@@ -21376,7 +21376,7 @@ zerops:
         JWT_SECRET: ${APP_SECRET}
         WASP_SERVER_URL: ${API_URL}
         WASP_WEB_CLIENT_URL: ${APP_URL}
-      start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
+      start: sh -c 'cd .wasp/out/server && npm run start'
 ```
 
 Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).
