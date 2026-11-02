@@ -4,10 +4,9 @@ import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { getWaspcDirPath } from "../../utils.ts";
 import { runCmd } from "../runCmd.ts";
-import { waspCliDevPath } from "./waspCli.ts";
+import { waspCliDevEnv } from "./waspCli.ts";
 
 const waspcDir = getWaspcDirPath();
-const waspCliEnv = { WASP_CLI_CMD: waspCliDevPath };
 
 export async function buildHaskell(): Promise<void> {
   const staticBuildFlags = process.env.BUILD_STATIC
@@ -21,7 +20,7 @@ export async function installWaspCli(): Promise<void> {
 }
 
 export async function testAllCabalSuites(): Promise<void> {
-  await runCabal(["test"], waspCliEnv);
+  await runCabal(["test"], waspCliDevEnv);
 }
 
 export async function testWaspcUnit(testPattern?: string): Promise<void> {
@@ -32,7 +31,7 @@ export async function testWaspcUnit(testPattern?: string): Promise<void> {
 }
 
 export async function testWaspcE2e(): Promise<void> {
-  await runCabalTestSuite("waspc-e2e-tests", { env: waspCliEnv });
+  await runCabalTestSuite("waspc-e2e-tests", { env: waspCliDevEnv });
 }
 
 export async function acceptAllWaspcE2eSnapshots(): Promise<void> {

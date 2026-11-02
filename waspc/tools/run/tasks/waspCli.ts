@@ -5,6 +5,7 @@ import { getWaspcDirPath } from "../../utils.ts";
 import { runCmd } from "../runCmd.ts";
 
 export const waspCliDevPath = join(getWaspcDirPath(), "tools", "wasp-cli-dev");
+export const waspCliDevEnv = { WASP_CLI_CMD: waspCliDevPath };
 
 export async function runWaspCli(
   args: string[],
