@@ -4,6 +4,8 @@ module Wasp.Job.Process
 where
 
 import qualified Control.Concurrent.Async as Async
+import Control.Exception (onException)
+import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
 import Data.Conduit (runConduit, (.|))
@@ -14,8 +16,10 @@ import Data.Text (Text)
 import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
+import System.Timeout (timeout)
 import Wasp.Job.Common (Job (..), OutputType (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
+import Wasp.Util (secondsToMicroSeconds)
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code once all of it has been emitted.
@@ -25,22 +29,51 @@ fromProc jobProcess = Job $ do
   sink <- ask
   liftIO $ run (sink Nothing) process
 
--- | If this is stopped before the process finishes, it terminates the process
--- (SIGTERM on *nix) without waiting for it to exit. The same happens if
--- emitting the output fails. We only signal the process itself, and rely on it
--- to stop the processes it started.
+-- | Runs the process to completion, passing its output to the given function,
+-- and returns its exit code once all of its output has been passed on.
+--
+-- If this is stopped before the process finishes, it terminates the process
+-- (SIGTERM on *nix), and returns once it exits, so that whatever runs next,
+-- e.g. a restarted server, doesn't find the resources it held still in use. If
+-- the process takes too long to exit, it stops waiting for it. The same happens
+-- if emitting the output fails. We only signal the process itself, and rely on
+-- it to stop the processes it started.
 run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
-    \stdinHandle stdoutHandle stderrHandle processHandle -> do
-      mapM_ hClose stdinHandle
-      fst
-        <$> Async.concurrently
-          (P.waitForProcess processHandle)
-          ( Async.concurrently_
-              (forwardOutput (emit Stdout) stdoutHandle)
-              (forwardOutput (emit Stderr) stderrHandle)
-          )
+    \stdinHandle stdoutHandle stderrHandle processHandle ->
+      -- Forwarded outside of `concurrently`, so that it keeps going if the job
+      -- is stopped, and the output can be drained.
+      Async.withAsync
+        ( Async.concurrently_
+            (forwardOutput (emit Stdout) stdoutHandle)
+            (forwardOutput (emit Stderr) stderrHandle)
+        )
+        $ \outputForwarding -> do
+          mapM_ hClose stdinHandle
+          (fst <$> Async.concurrently (P.waitForProcess processHandle) (Async.wait outputForwarding))
+            `onException` stopProcess processHandle outputForwarding
+  where
+    -- Once the process exited, the rest of its output, e.g. a crash's stack
+    -- trace, is about to be emitted. If it doesn't exit in time, we leave it to
+    -- `withCreateProcess`, which signals it again and doesn't wait for it.
+    stopProcess processHandle outputForwarding = do
+      P.terminateProcess processHandle
+      timeout maxProcessExitWaitMicroseconds (P.waitForProcess processHandle) >>= \case
+        Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
+        Nothing -> return ()
+
+-- | The longest a job that is stopped waits for its process to exit. Usually it
+-- exits much sooner, and the job stops right then. The wait is bounded because
+-- the process can ignore the signal.
+maxProcessExitWaitMicroseconds :: Int
+maxProcessExitWaitMicroseconds = secondsToMicroSeconds 5
+
+-- | How long a job that is stopped still emits the output of its exited
+-- process for. It's bounded because the process's children can keep
+-- its output open.
+outputDrainTimeoutMicroseconds :: Int
+outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
 
 forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
 forwardOutput _ Nothing = return ()

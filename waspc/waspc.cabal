@@ -144,6 +144,7 @@ library
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
     split ^>=0.2.5,
+    stm ^>=2.5.1,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
     temporary ^>=1.3,
@@ -277,6 +278,7 @@ library
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.RunConfig
+    Wasp.Generator.ServerGenerator.ServerEffect
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
@@ -388,6 +390,7 @@ library
     Wasp.Util.Docker
     Wasp.Util.FilePath
     Wasp.Util.GitRev
+    Wasp.Util.Glob
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -558,6 +561,7 @@ test-suite waspc-tests
     deepseq,
     directory,
     filepath,
+    Glob,
     hspec >=2.11,
     megaparsec,
     mtl,
@@ -597,6 +601,8 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.ServerEffectTest
+    Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
     Generator.VirtualUserModulesTest
@@ -638,6 +644,7 @@ test-suite waspc-tests
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
+    Util.GlobTest
     Util.IO.RetryTest
     Util.JsTest
     Util.Prisma

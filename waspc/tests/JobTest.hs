@@ -15,7 +15,7 @@ import System.Exit (ExitCode (..))
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import System.Timeout (timeout)
-import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldReturn, shouldThrow)
+import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
@@ -106,6 +106,40 @@ spec_Job = do
       runProcessJob (Job.captureOutput $ Job.fromProc process)
         `shouldReturn` Just (ExitFailure 7, T.replicate 200000 "x")
 
+    it "decodes UTF-8 output split across chunks, replacing incomplete characters" $ do
+      let euroSignCount = 40000 :: Int
+          process =
+            node $
+              "process.stdout.write(Buffer.concat([Buffer.from('\8364'.repeat("
+                <> show euroSignCount
+                <> ")), Buffer.from([0xe2])]));"
+      runProcessJob (Job.captureOutput $ Job.fromProc process)
+        `shouldReturn` Just (ExitSuccess, T.replicate euroSignCount "\8364" <> "\65533")
+
+    -- The test checks whether the process exited with `isProcessAlive`, which
+    -- doesn't work on Windows.
+    unless (System.Info.os == "mingw32") $
+      it "emits all the output of a process that exited, even if the job is stopped right after" $ do
+        pidPath <- makeTempPath "wasp-exited-process"
+        let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('x'.repeat(200000));") [pidPath]
+            -- Passing the output on slowly leaves some of it unread when the
+            -- process exits.
+            passOutputOnSlowly = Job.observeOutput (\_ _ -> threadDelay 50000)
+            waitForProcessExit = do
+              waitUntil "the process starts" $ doesFileExist pidPath
+              pid <- readProcessId pidPath
+              let pollUntilExited = isProcessAlive pid >>= \alive -> when alive $ threadDelay 10000 >> pollUntilExited
+              pollUntilExited
+        ( do
+            result <-
+              timeout (secondsToMicroSeconds 10)
+                $ Job.run
+                $ Job.captureOutput
+                $ Job.race (passOutputOnSlowly $ Job.fromProc process) (liftIO waitForProcessExit)
+            T.length . snd <$> result `shouldBe` Just 200000
+          )
+          `finally` removePidFile pidPath
+
     it "gives the process Wasp's env vars, overridden by the ones set on it" $ do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"
           overriddenVar = "WASP_JOB_TEST_OVERRIDDEN"
@@ -156,6 +190,22 @@ spec_Job = do
             Async.poll second >>= \case
               Nothing -> isProcessAlive secondPid `shouldReturn` True
               Just _ -> expectationFailure "Stopping one job stopped another job's process"
+
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "waits for the process to exit when the job is stopped" $
+        withRunningProcess "process.on('SIGTERM', () => setTimeout(() => process.exit(0), 1500));" $ \running pid -> do
+          Async.cancel running
+          isProcessAlive pid `shouldReturn` False
+
+    -- On Windows, stopping a job waits for its process to exit by itself,
+    -- because reading the process's output can't be interrupted there.
+    unless (System.Info.os == "mingw32") $
+      it "stops waiting for the process to exit after a while when the job is stopped" $
+        withRunningProcess "process.on('SIGTERM', () => {});" $ \running pid -> do
+          timeout (secondsToMicroSeconds 10) (Async.cancel running) `shouldReturn` Just ()
+          isProcessAlive pid `shouldReturn` True
 
   describe "npmBinProc" $
     it "fails if the executable isn't in any node_modules/.bin directory" $

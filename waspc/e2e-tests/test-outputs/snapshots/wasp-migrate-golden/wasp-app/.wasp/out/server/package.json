@@ -21,7 +21,6 @@
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^24.0.0",
     "nf3": "0.4.2",
-    "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
     "typescript": "6.0.3"
@@ -31,9 +30,6 @@
     "node": ">=24.22.1"
   },
   "name": "@wasp/generated-server",
-  "nodemonConfig": {
-    "delay": "1000"
-  },
   "private": true,
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",
