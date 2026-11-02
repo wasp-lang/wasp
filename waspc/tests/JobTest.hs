@@ -5,13 +5,16 @@ import Control.Exception (finally)
 import Control.Monad (unless, void)
 import Control.Monad.IO.Class (liftIO)
 import Data.IORef (modifyIORef', newIORef, readIORef)
+import Data.Maybe (fromJust)
 import qualified Data.Text as T
+import qualified StrongPath as SP
 import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
+import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, expectationFailure, it, shouldReturn)
+import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldReturn, shouldThrow)
 import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
@@ -77,6 +80,19 @@ spec_Job = do
             waitForProcessToExit (read $ T.unpack output) `shouldReturn` True
           _ -> expectationFailure $ "Expected the race to finish, but got: " <> show result
 
+  describe "andThen" $ do
+    it "runs the second job if the first one succeeds" $ do
+      let job =
+            (Job.emitOutput Job.Stdout "first " >> return ExitSuccess)
+              `Job.andThen` (Job.emitOutput Job.Stdout "second" >> return (ExitFailure 2))
+      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 2, "first second")
+
+    it "doesn't run the second job if the first one fails" $ do
+      let job =
+            (Job.emitOutput Job.Stdout "first" >> return (ExitFailure 1))
+              `Job.andThen` (Job.emitOutput Job.Stdout " second" >> return ExitSuccess)
+      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 1, "first")
+
   describe "fromProc" $ do
     it "returns the exit code of the process" $ do
       runProcessJob (Job.fromProc $ node "process.exit(7)") `shouldReturn` Just (ExitFailure 7)
@@ -105,6 +121,13 @@ spec_Job = do
       let readsStdinToEnd = node "process.stdin.resume(); process.stdin.on('end', () => process.exit(3));"
       runProcessJob (Job.fromProc readsStdinToEnd)
         `shouldReturn` Just (ExitFailure 3)
+
+  describe "npmBinProc" $
+    it "fails if the executable isn't in any node_modules/.bin directory" $
+      withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
+        let dir = fromJust $ SP.parseAbsDir tempDir
+        Job.run (Job.npmBinProc dir "missing-tool" [])
+          `shouldThrow` anyIOException
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)

@@ -16,7 +16,7 @@ import Data.Text (Text)
 
 -- | An action that runs processes and emits their output.
 newtype Job a = Job (ReaderT Sink IO a)
-  deriving (Functor, Applicative, Monad, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadFail, MonadIO)
 
 -- | Labels the output of a job, e.g. "[Server]".
 data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)

@@ -319,6 +319,7 @@ library
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
+    Wasp.Node.NpmBin
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
@@ -551,6 +552,7 @@ test-suite waspc-tests
     base,
     containers,
     deepseq,
+    directory,
     filepath,
     hspec >=2.11,
     megaparsec,
@@ -563,6 +565,7 @@ test-suite waspc-tests
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
+    temporary,
     text,
     time,
     waspc,
@@ -596,6 +599,7 @@ test-suite waspc-tests
     JobTest
     JsImportTest
     Node.InternalTest
+    Node.NpmBinTest
     Paths_waspc
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
