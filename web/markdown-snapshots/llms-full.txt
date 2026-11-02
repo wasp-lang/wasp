@@ -13296,6 +13296,20 @@ You can configure the global middleware via the `middlewareConfigFn`. This will 
 
 Read more in the [configuring middleware section](https://wasp.sh/docs/advanced/server-customization/middleware#1-customize-global-middleware).
 
+### Working Directory
+
+The server runs with your project's root directory as its working directory, both with `wasp start` and in production. Relative paths in your server code, like `fs.readFile("src/data/countries.json")` or an `uploads/` folder for file uploads, resolve from the project root.
+
+:::caution[Don't write files into src/ at runtime]
+`wasp start` watches your project's `src/` folder and top-level files. If your server writes there, `wasp start` restarts the server or rebuilds your app, and a server that writes into `src/` on startup gets stuck in a restart loop. Write files to a subfolder of the project root instead, like `uploads/`.
+:::
+
+In the Docker image that `wasp build` generates, the project root is `/app`. The image doesn't include your project's files, so if your server reads any of them at runtime, keep them in `src/` and copy them into the image with a [custom Dockerfile](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile):
+
+```dockerfile title="Dockerfile"
+COPY src/data/ /app/src/data/
+```
+
 ### Trace Dependencies
 
 The server's Docker image contains only the files Wasp finds by following the server's imports. If a package loads files in a non-standard way, for example static assets it serves from a folder, list it in `traceDeps` so Wasp copies those files too.
@@ -15553,7 +15567,13 @@ wasp db migrate-dev
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 5. Check the packages your server loads at runtime
+#### 5. Check relative paths in your server code
+
+The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
+
+If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
+
+#### 6. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -15572,7 +15592,7 @@ export default app({
 })
 ```
 
-#### 6. Install the system dependencies your app needs
+#### 7. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -15582,7 +15602,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 7. Update your custom Dockerfile
+#### 8. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -15594,7 +15614,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 8. Enjoy your updated Wasp app
+#### 9. Enjoy your updated Wasp app
 
 That's it!
 
@@ -21356,7 +21376,7 @@ zerops:
         JWT_SECRET: ${APP_SECRET}
         WASP_SERVER_URL: ${API_URL}
         WASP_WEB_CLIENT_URL: ${APP_URL}
-      start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
+      start: sh -c 'cd .wasp/out/server && npm run start'
 ```
 
 Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.26`).

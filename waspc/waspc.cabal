@@ -38,6 +38,7 @@ data-files:
   Cli/starters/skeleton/npmrc
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
+  Generator/templates/**/*.cjs
   Generator/templates/**/*.css
   Generator/templates/**/*.js
   Generator/templates/**/*.json
