@@ -81,19 +81,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
 
-# The Node version is read from /.node-version, which Cloudflare also uses to
-# build the website. The pnpm version is read from `devEngines` in
-# /package.json.
-#
-# The Node version should be equal to Wasp's lowest supported Node version.
-# Keep in sync with:
-# - The compiler (Wasp.Node.Version).
-# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
-# - The docs plugin: /web/src/remark/search-and-replace.ts
-# - The web package: /web/package.json
-# - The wasp-cli packages: /packages/cli/package.json, /scripts/make-npm-packages/templates/sub-package/package.json
-# - The embedded packages: /packages/*/package.json
-# (Also just grep for the version in case we forgot somewhere.)
+# The Node version is read from /.node-version, and the pnpm version from
+# `devEngines` in /package.json.
 idiomatic_version_file_enable_tools = ["node", "pnpm"]
 
 [settings.node]
