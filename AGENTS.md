@@ -36,7 +36,7 @@ Key things to know:
 - Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
-- The repo is a pnpm workspace (`pnpm-workspace.yaml`), but not everything is in it yet. Some projects still use npm.
+- The repo is a pnpm workspace (`pnpm-workspace.yaml`). Only Wasp apps (`examples/`, e2e test apps) use npm, since Wasp requires it.
 
 ## Code Conventions
 
