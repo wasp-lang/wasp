@@ -61,9 +61,11 @@ jobs:
           |
           set -eux
 
-          # Create a test project to install into
+          # Create a test project to install into. We write its package.json
+          # ourselves because npm can't run before it exists: it would fall
+          # back to the repo root's package.json, which only allows pnpm.
           mkdir install-test && cd install-test
-          npm init -y
+          echo '{}' > package.json
 
           # Install the CLI package (its optional deps pull in the
           # platform-specific sub-package for this runner). The short form of
