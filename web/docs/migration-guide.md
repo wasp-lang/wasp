@@ -114,92 +114,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 4. Upgrade to Prisma 6
-
-Update the Prisma packages in your `package.json`:
-
-<Tabs sideBySide>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // highlight-next-line
-        "@prisma/client": "5.19.1" // if already present
-      },
-      "devDependencies": {
-        // highlight-next-line
-        "prisma": "5.19.1"
-      }
-    }
-    ```
-  </TabItem>
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // highlight-next-line
-        "@prisma/client": "6.19.3" // if already present
-      },
-      "devDependencies": {
-        // highlight-next-line
-        "prisma": "6.19.3"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-Then run:
-
-```sh
-wasp install
-wasp db migrate-dev
-```
-
-Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
-
-### 5. Check the packages your server loads at runtime
-
-**If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
-
-Otherwise, check if any of the packages your server uses serve or load files from their own folder, like `swagger-ui-express`.
-
-The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files in a non-standard way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
-
-List such packages in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image) to copy all of their files:
-
-```ts title="main.wasp.ts"
-export default app({
-  // ...
-  server: {
-    traceDeps: ["swagger-ui-dist*"],
-  },
-})
-```
-
-### 6. Install the system dependencies your app needs
-
-**If your app doesn't run Python on the server, you can skip this step.**
-
-The generated Dockerfile no longer installs `python3` in the final image, because the Wasp server doesn't use it. If your app runs Python, install it in a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile):
-
-```dockerfile title="Dockerfile"
-RUN apk add --no-cache python3
-```
-
-### 7. Update your custom Dockerfile
-
-**If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
-
-The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
-
-The final stage (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`. If your steps use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
-
-```dockerfile title="Dockerfile"
-COPY --from=server-builder /app/node_modules /app/node_modules
-```
-
-### 8. Update your Vitest setup
+### 4. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The testing helpers (`renderInContext` and `mockServer`) moved from `wasp/client/test` to the `@wasp/test-utils` package, which you now install yourself.
 
@@ -328,7 +243,36 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-   Wasp used to make `test`, `expect`, and the other test functions available globally. If your tests use them without importing them, import them from `vitest`:
+   Wasp used to make `test`, `expect`, and the other test functions available globally. If your tests use them without importing them, pass `globals: true` to `waspTestConfig`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="vite.config.ts"
+       test: waspTestConfig({
+         setupFiles: ["./src/test/setup.ts"],
+       }),
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="vite.config.ts"
+       test: waspTestConfig({
+         setupFiles: ["./src/test/setup.ts"],
+         // highlight-next-line
+         globals: true,
+       }),
+       ```
+     </TabItem>
+   </Tabs>
+
+   Keep the `vitest/globals` types in `src/vite-env.d.ts`, so TypeScript knows about the globals when Wasp type-checks your tests:
+
+   ```ts title="src/vite-env.d.ts"
+   /// <reference types="vite/client" />
+   // highlight-next-line
+   /// <reference types="vitest/globals" />
+   ```
+
+   Or import them from `vitest` in each test file instead:
 
    <Tabs sideBySide>
      <TabItem value="before" label="Before">
@@ -353,7 +297,6 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-   Or pass `globals: true` to `waspTestConfig` to keep them global.
 
 3. Create the setup file you referenced in `setupFiles`. It adds the DOM matchers, like `toBeInTheDocument()`, and removes what a test rendered when the test ends:
 
@@ -417,6 +360,91 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
    ```
 
 Read more in the [testing docs](./advanced/testing.md).
+
+### 5. Upgrade to Prisma 6
+
+Update the Prisma packages in your `package.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // highlight-next-line
+        "@prisma/client": "5.19.1" // if already present
+      },
+      "devDependencies": {
+        // highlight-next-line
+        "prisma": "5.19.1"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // highlight-next-line
+        "@prisma/client": "6.19.3" // if already present
+      },
+      "devDependencies": {
+        // highlight-next-line
+        "prisma": "6.19.3"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Then run:
+
+```sh
+wasp install
+wasp db migrate-dev
+```
+
+Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+### 6. Check the packages your server loads at runtime
+
+**If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
+
+Otherwise, check if any of the packages your server uses serve or load files from their own folder, like `swagger-ui-express`.
+
+The Docker image now contains only the files Wasp finds by following the server's imports. A package that loads files in a non-standard way misses them in the image. A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
+
+List such packages in [`server.traceDeps`](./deployment/methods/overview#missing-files-in-the-docker-image) to copy all of their files:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  server: {
+    traceDeps: ["swagger-ui-dist*"],
+  },
+})
+```
+
+### 7. Install the system dependencies your app needs
+
+**If your app doesn't run Python on the server, you can skip this step.**
+
+The generated Dockerfile no longer installs `python3` in the final image, because the Wasp server doesn't use it. If your app runs Python, install it in a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile):
+
+```dockerfile title="Dockerfile"
+RUN apk add --no-cache python3
+```
+
+### 8. Update your custom Dockerfile
+
+**If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
+
+The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
+
+The final stage (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`. If your steps use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
+
+```dockerfile title="Dockerfile"
+COPY --from=server-builder /app/node_modules /app/node_modules
+```
 
 ### 9. Enjoy your updated Wasp app
 

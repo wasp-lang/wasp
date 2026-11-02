@@ -6,9 +6,10 @@ const defaultTestConfig = {
   environment: "jsdom",
   include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
   env: {
-    // Tests run without `wasp start`, which provides the server URL in
-    // development. They mock the server, so a placeholder is enough.
-    REACT_APP_API_URL: "http://localhost:3001",
+    // Tests mock the server, so they get a URL that never resolves (`.invalid`
+    // is a reserved domain). A request the test didn't mock fails instead of
+    // reaching a server that happens to run on the machine.
+    REACT_APP_API_URL: "http://fake-testing-server.invalid",
   },
 } satisfies TestConfig;
 
