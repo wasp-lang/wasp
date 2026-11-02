@@ -122,7 +122,7 @@ nvm install {minimumNodeJsVersion}
 Install the Wasp CLI:
 
 ```bash
-npm i -g @wasp.sh/wasp-cli
+npm i -g @wasp/cli
 ```
 
 Add Wasp to your PATH by adding this line to `~/.bashrc`:

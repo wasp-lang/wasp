@@ -5,7 +5,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc && node ./scripts/copy-assets.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
   },
@@ -121,6 +120,7 @@
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",
+    "./server/errors": "./dist/server/errors/index.js",
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}

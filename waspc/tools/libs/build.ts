@@ -1,16 +1,20 @@
 /// <reference types="node" />
-// Helper to compile the waspc/data/Generator/libs/* packages locally and in CI
-// and then move them into the Cabal data dir.
+// Helper to compile the packages/libs/* packages locally and in CI and pack
+// them into tarballs inside the Cabal data dir, where `waspc` expects them.
 
-import { readdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
+import { basename, join } from "node:path";
 import {
   assertPackageVersionMatchesWaspc,
   discoverSubDirs,
   getPackageJson,
   runCmd,
 } from "../utils.ts";
-import { getDataLibsDirPath } from "./utils.ts";
+import {
+  getDataLibsDirPath,
+  getLibsDirPath,
+  runScriptInEveryLib,
+} from "./utils.ts";
 
 try {
   buildLibs();
@@ -20,25 +24,29 @@ try {
 }
 
 function buildLibs(): void {
-  const dataLibsDirPath = getDataLibsDirPath();
-  const libDirs = discoverSubDirs(dataLibsDirPath);
+  const libDirs = discoverSubDirs(getLibsDirPath());
+  for (const libDir of libDirs) {
+    const { name, version } = getPackageJson(libDir);
+    assertPackageVersionMatchesWaspc(name, version);
+  }
+
+  console.log("Building libs");
+  runScriptInEveryLib("build");
 
   for (const libDir of libDirs) {
-    buildLib(libDir);
+    packLib(libDir);
   }
 }
 
-function buildLib(libDir: string): void {
-  const { name: libName, version: libVersion } = getPackageJson(libDir);
+function packLib(libDir: string): void {
+  const libName = getPackageJson(libDir).name;
+  const dataLibDir = join(getDataLibsDirPath(), basename(libDir));
 
-  assertPackageVersionMatchesWaspc(libName, libVersion);
+  console.log(`Packing ${libName} lib into ${dataLibDir}`);
 
-  console.log(`Building ${libName} lib (${libDir})`);
-
-  rmExistingTarballsInDir(libDir);
-
-  runCmd("npm", ["install"], { cwd: libDir });
-  runCmd("npm", ["pack"], { cwd: libDir });
+  mkdirSync(dataLibDir, { recursive: true });
+  rmExistingTarballsInDir(dataLibDir);
+  runCmd("pnpm", ["pack", "--pack-destination", dataLibDir], { cwd: libDir });
 }
 
 function rmExistingTarballsInDir(dir: string): void {

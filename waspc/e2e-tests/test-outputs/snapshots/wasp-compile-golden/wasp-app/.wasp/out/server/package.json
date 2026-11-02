@@ -1,9 +1,10 @@
 {
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
-    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.1.tgz",
-    "@wasp.sh/lib-sdk-core": "file:../libs/sdk-core/wasp.sh-lib-sdk-core-0.26.1.tgz",
-    "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.1.tgz",
+    "@wasp/lib-auth": "file:../libs/auth/wasp-lib-auth-0.27.0.tgz",
+    "@wasp/lib-sdk-core": "file:../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz",
+    "@wasp/lib-test-utils": "file:../libs/test-utils/wasp-lib-test-utils-0.27.0.tgz",
+    "@wasp/lib-vite-ssr": "file:../libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -19,7 +20,7 @@
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^24.0.0",
-    "nodemon": "^2.0.19",
+    "nf3": "0.4.2",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
     "typescript": "6.0.3"
@@ -28,21 +29,13 @@
   "engines": {
     "node": ">=24.22.1"
   },
-  "name": "@wasp.sh/generated-server",
-  "nodemonConfig": {
-    "delay": "1000"
-  },
-  "prisma": {},
+  "name": "@wasp/generated-server",
   "private": true,
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",
-    "bundle-and-start": "npm run bundle && npm run start",
-    "bundle-db-seed": "tsc --build && rollup --config rollup.dbSeed.config.js --silent",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "db-seed": "npm run bundle-db-seed && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
-    "start-production": "NODE_ENV=production npm run start",
-    "watch": "nodemon --exec 'npm run bundle-and-start || exit 1'"
+    "start-production": "NODE_ENV=production npm run start"
   },
   "type": "module",
   "version": "0.0.0"

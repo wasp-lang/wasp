@@ -18,7 +18,7 @@ import Wasp.Version (waspVersion)
 
 {-
   `WaspLib` represents an internal Wasp npm package that are located in the
-  ./data/Generator/libs directory. This npm package contain code that is used in the generated
+  <repo>/packages/libs directory and packed into the ./data/Generator/libs directory. This npm package contain code that is used in the generated
   Wasp app. They are packaged into npm tarballs which are copied to the
   generated Wasp app and are installed as an npm dependency.
 -}

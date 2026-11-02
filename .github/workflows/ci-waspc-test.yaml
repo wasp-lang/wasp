@@ -2,6 +2,14 @@ name: "Test - waspc"
 
 on:
   workflow_call:
+    inputs:
+      exclude-runner:
+        description: >
+          Runner to skip testing on (e.g. `macos-15-intel`). If empty, all
+          tests run.
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
 
 env:
@@ -32,6 +40,8 @@ jobs:
           - windows-latest
         extra-tools:
           - node@latest
+        exclude:
+          - os: ${{ inputs.exclude-runner }}
 
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
@@ -74,7 +84,7 @@ jobs:
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
       - name: Build wasp code
-        run: cabal build all
+        run: cabal build all -v0
 
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests

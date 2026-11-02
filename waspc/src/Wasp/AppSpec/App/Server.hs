@@ -15,6 +15,7 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 data Server = Server
   { setupFn :: Maybe ExtImport,
     middlewareConfigFn :: Maybe ExtImport,
-    envValidationSchema :: Maybe ExtImport
+    envValidationSchema :: Maybe ExtImport,
+    traceDeps :: Maybe [String]
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)

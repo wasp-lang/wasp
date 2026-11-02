@@ -237,7 +237,7 @@ const features: Feature[] = [
       {
         head: "main.wasp.ts",
         language: "typescript",
-        source: `import { app, job, page, query, route } from "@wasp.sh/spec";
+        source: `import { app, job, page, query, route } from "@wasp/spec";
 
 import { AdminDashboard } from "./src/admin/Dashboard" with { type: "ref" };
 import { dailyDigest, getMetrics } from "./src/admin/ops" with { type: "ref" };

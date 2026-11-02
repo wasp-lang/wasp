@@ -1,0 +1,71 @@
+module Generator.ServerGenerator.ServerEffectTest where
+
+import qualified StrongPath as SP
+import Test.Hspec (Spec, describe, it, shouldBe)
+import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
+
+spec_classifyServerEffect :: Spec
+spec_classifyServerEffect =
+  describe "classifyServerEffect" $ do
+    it "detects watched project src runtime-input extensions" $ do
+      classifyServerEffect [[SP.relfile|src/actions/foo.ts|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.mts|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.js|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.mjs|]] [] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [[SP.relfile|src/actions/foo.json|]] [] `shouldBe` RebundleAndRestartServer
+
+    it "ignores project src files that are not server runtime inputs" $ do
+      classifyServerEffect [[SP.relfile|src/styles/foo.css|]] [] `shouldBe` NoChange
+
+    it "ignores top-level project changes unless generated server runtime inputs changed" $ do
+      classifyServerEffect [[SP.relfile|main.wasp.ts|]] [] `shouldBe` NoChange
+
+    it "detects generated server src runtime-input changes" $ do
+      classifyServerEffect [] [Left [SP.relfile|server/src/foo.ts|]] `shouldBe` RebundleAndRestartServer
+
+    it "detects generated server src directory changes" $ do
+      classifyServerEffect [] [Right [SP.reldir|server/src/routes|]] `shouldBe` RebundleAndRestartServer
+
+    it "detects generated server env changes" $ do
+      classifyServerEffect [] [Left [SP.relfile|server/.env|]] `shouldBe` RestartServer
+
+    it "detects generated server dependency manifest changes" $ do
+      classifyServerEffect [] [Left [SP.relfile|server/package.json|]] `shouldBe` RebundleAndRestartServer
+
+    it "uses the strongest effect in a change batch" $ do
+      let envChange = Left [SP.relfile|server/.env|]
+      let sourceChange = Left [SP.relfile|server/src/foo.ts|]
+      classifyServerEffect [] [envChange, sourceChange] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [sourceChange, envChange] `shouldBe` RebundleAndRestartServer
+
+    it "does not mix project and generated-app path namespaces" $ do
+      classifyServerEffect [[SP.relfile|server/.env|]] [] `shouldBe` NoChange
+      classifyServerEffect [] [Left [SP.relfile|src/actions/foo.ts|]] `shouldBe` NoChange
+      classifyServerEffect [] [Right [SP.reldir|server/.env|]] `shouldBe` NoChange
+
+    it "rebundles when email configuration changes only generated SDK code" $ do
+      classifyServerEffect
+        [[SP.relfile|main.wasp.ts|]]
+        [Left [SP.relfile|sdk/wasp/server/email/core/helpers.ts|]]
+        `shouldBe` RebundleAndRestartServer
+
+    it "detects generated server SDK directory changes" $ do
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/server/email|]]
+        `shouldBe` RebundleAndRestartServer
+
+    it "detects generated SDK changes outside the SDK's client code" $ do
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/auth/session.ts|]] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/core/serialization/index.ts|]] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/entities/index.ts|]] `shouldBe` RebundleAndRestartServer
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/auth|]] `shouldBe` RebundleAndRestartServer
+
+    it "ignores generated SDK client code" $ do
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client|]] `shouldBe` NoChange
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/client/router|]] `shouldBe` NoChange
+
+    it "restarts the server when the Prisma schema changes" $ do
+      classifyServerEffect [] [Left [SP.relfile|db/schema.prisma|]] `shouldBe` RestartServer
+
+    it "ignores generated paths outside server runtime inputs" $ do
+      classifyServerEffect [] [Left [SP.relfile|server/README.md|]] `shouldBe` NoChange
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/client/index.ts|]] `shouldBe` NoChange

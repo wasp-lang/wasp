@@ -71,7 +71,7 @@ function emptySubscribe() {
 	const emptyUnsubscribe = () => {};
 	return emptyUnsubscribe;
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
 	display: "flex",
 	minHeight: "80vh",
@@ -85,15 +85,25 @@ function FullPageWrapper({ children, className }) {
 		children
 	});
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
+// node_modules/@wasp/lib-sdk-core/dist/WaspHttpError.mjs
+var WaspHttpError = class extends Error {
+	statusCode;
+	data;
+	constructor(statusCode, message, data) {
+		super(message);
+		this.statusCode = statusCode;
+		this.data = data;
+	}
+};
+// node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -144,17 +154,34 @@ function createLocalStorageDataStore(prefix) {
 		}
 	};
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
-var defaultQueryClientConfig = {};
+// node_modules/@wasp/lib-sdk-core/dist/browser/operations/queryClient.mjs
+var MAX_QUERY_RETRIES = 3;
+var RETRYABLE_CLIENT_ERROR_STATUS_CODES = /* @__PURE__ */ new Set([408, 429]);
 var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
 function initializeQueryClient() {
-	const queryClient = new QueryClient(defaultQueryClientConfig);
+	const queryClient = new QueryClient(withWaspQueryDefaults({}));
 	resolveQueryClientInitialized(queryClient);
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs
+function withWaspQueryDefaults(config) {
+	return {
+		...config,
+		defaultOptions: {
+			...config.defaultOptions,
+			queries: {
+				retry: shouldRetryQuery,
+				...config.defaultOptions?.queries
+			}
+		}
+	};
+}
+function shouldRetryQuery(failureCount, error) {
+	if (failureCount >= MAX_QUERY_RETRIES) return false;
+	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
 	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
@@ -167,7 +194,7 @@ if (typeof window !== "undefined") window.addEventListener("storage", (event) =>
 	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
 	else apiEventsEmitter.emit("sessionId.clear");
 });
-// node_modules/@wasp.sh/lib-sdk-core/dist/utils/ansiColors.mjs
+// node_modules/@wasp/lib-sdk-core/dist/utils/ansiColors.mjs
 /**
 * Wraps each line of text with ANSI color codes.
 * Only works in Node.js (server-side), not in the browser.
@@ -201,7 +228,7 @@ var ansiColorCodes = {
 	yellow: "\x1B[33m"
 };
 var ansiResetCode = "\x1B[0m";
-// node_modules/@wasp.sh/lib-sdk-core/dist/env/validation.mjs
+// node_modules/@wasp/lib-sdk-core/dist/env/validation.mjs
 function ensureEnvSchema(data, schema) {
 	const result = getValidatedEnvOrError(data, schema);
 	if (result.success) return result.data;
@@ -225,7 +252,7 @@ function formatZodEnvError(error) {
 		"════════════════════════════════"
 	].join("\n");
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/router/interpolatePath.mjs
+// node_modules/@wasp/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
 	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
@@ -248,7 +275,7 @@ function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
 	return paramString.slice(1);
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/utils/url.mjs
+// node_modules/@wasp/lib-sdk-core/dist/utils/url.mjs
 function stripTrailingSlash(url) {
 	return url?.replace(/\/$/, "");
 }

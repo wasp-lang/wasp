@@ -30,7 +30,7 @@ Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp
 For routes with no [dynamic segments](../features/pages-and-routes.md#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
@@ -54,7 +54,7 @@ export default app({
 If your route has [dynamic segments](../features/pages-and-routes.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 export default app({
@@ -75,7 +75,7 @@ The prerendered paths must match the route's pattern, with all dynamic segments 
 If you have a lot of dynamic paths to prerender, you can generate the list of paths from your data or other sources. For example, if you want to prerender the routes for your Top 10 countries, you can fetch them from your analytics and generate the paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 async function getTopCountries(): Promise<string[]> {
@@ -135,7 +135,7 @@ You can learn more in our SEO guide, which explains exactly how prerendering hel
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashPage } from "./src/DashPage" with { type: "ref" }
 
 export default app({
@@ -207,7 +207,7 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 ## API reference
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/Route#prerender"
+  to="../api/@wasp/spec/interfaces/Route#prerender"
   kind="api"
   title="Route.prerender"
   description="The full description of the prerender option of the route spec."

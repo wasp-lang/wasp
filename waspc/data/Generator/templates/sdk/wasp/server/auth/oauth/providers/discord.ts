@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Discord  } from 'arctic';
 
-import { defineProvider } from '@wasp.sh/lib-sdk-core/node';
+import { defineProvider } from '@wasp/lib-sdk-core/node';
 import { getRedirectUriForCallback } from '../redirect.js';
 import { env } from '../../../env.js';
 

@@ -8,10 +8,11 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
+    waitUntil,
     writeToFile,
     appendToFile,
     replaceLineInFile,
-    waspCliNewInteractive,
+    waspCliNewWithPipedAnswersFails,
     waspCliNew,
     waspCliCompletion,
     waspCliVersion,
@@ -105,6 +106,19 @@ infixl 6 ~&&
 
 infixl 4 ~?
 
+-- | Checks the condition right away, and then once per second until it
+-- succeeds. Fails with the error message if it still doesn't succeed after the
+-- given number of seconds.
+waitUntil :: Int -> ShellCommand -> String -> ShellCommand
+waitUntil timeoutSeconds condition errorMessage =
+  "( i=0; until "
+    ++ condition
+    ++ "; do i=$((i+1)); [ \"$i\" -lt "
+    ++ show timeoutSeconds
+    ++ " ] || { echo "
+    ++ show errorMessage
+    ++ " >&2; exit 1; }; sleep 1; done )"
+
 -- General commands
 
 writeToFile :: Path' Abs (File a) -> T.Text -> ShellCommandBuilder context ShellCommand
@@ -136,9 +150,13 @@ replaceLineInFile fileName lineNumber line =
 
     tempFileName = fileName ++ ".tmp"
 
-waspCliNewInteractive :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNewInteractive appName starterTemplate =
-  return $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
+-- | Pipes the answers into `wasp new`'s prompts. This is not supported: without
+-- an interactive terminal, Wasp refuses to prompt and the command must fail.
+waspCliNewWithPipedAnswersFails :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewWithPipedAnswersFails appName starterTemplate =
+  assertCommandOutputContains
+    (return $ "! " ++ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new")
+    "stdin is not an interactive terminal"
 
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
@@ -224,9 +242,12 @@ waspCliDbMigrateDev migrationName = do
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "$WASP_CLI_CMD db seed " ++ seedName
 
+-- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g. when
+-- the e2e tests are run from Claude Code), unless the consent env var is set.
+-- The test only resets its own throwaway database, so we always consent.
 waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbReset =
-  return "$WASP_CLI_CMD db reset --force"
+  return "PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='Resetting the throwaway e2e test database' $WASP_CLI_CMD db reset --force"
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"

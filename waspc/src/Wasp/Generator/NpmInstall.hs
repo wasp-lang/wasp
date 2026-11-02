@@ -4,38 +4,34 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
-import Control.Concurrent.Async (concurrently)
-import Control.Monad (when)
+import Control.Concurrent (threadDelay)
+import Control.Monad (forever, when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
+import Data.Functor ((<&>))
 import qualified Data.Text as T
+import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
-import Wasp.Job (Job, JobMessage, JobType)
-import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
 
--- Runs `npm install` in the user's Wasp project directory.
--- Thanks to npm workspaces, this single install covers the user's project deps,
--- the generated server deps, and the Wasp SDK.
+-- Installs the npm deps of the user's project and its workspaces (the generated server and the
+-- Wasp SDK). Skips the install if `node_modules` exists and the installed npm deps log matches
+-- the current deps. Saves the log after a successful install.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO (Either GeneratorError ())
 installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
-  messagesChan <- liftIO newChan
-
   let allNpmDeps = getAllNpmDeps spec
 
   shouldInstallNpmDeps <-
@@ -53,7 +49,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
-    liftIO (installProjectNpmDependencies messagesChan waspProjectDirPath)
+    liftIO (installProjectNpmDependencies waspProjectDirPath)
       >>= onLeftThrowError
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
@@ -63,48 +59,36 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
     waspProjectDirPath = waspProjectDir spec
 
--- Installs npm dependencies from the user's package.json, by running `npm install` .
+-- Runs `npm install` in the user's Wasp project directory, which also installs the deps of all of
+-- its npm workspaces (the generated server and the Wasp SDK).
 installProjectNpmDependencies ::
-  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir = do
-  (_, installExitCode) <- handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
-  return $ case installExitCode of
-    ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
-    _success -> Right ()
-  where
-    installProjectDepsJob =
-      installNpmDependenciesAndReport
-        (runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp)
-        messagesChan
-        J.Wasp
-    handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
-    handleProjectInstallMessages = runPrefixedWriter . processMessages
-      where
-        processMessages :: Chan J.JobMessage -> PrefixedWriter ()
-        processMessages chan = do
-          jobMsg <- liftIO $ readChan chan
-          case J._data jobMsg of
-            J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
-            J.JobExit {} -> return ()
+  SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependencies projectDir =
+  Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
+    <&> checkExitSuccess "Project setup"
 
-installNpmDependenciesAndReport :: Job -> Chan JobMessage -> JobType -> IO ExitCode
-installNpmDependenciesAndReport installJob chan jobType = do
-  writeChan chan $ J.JobMessage {J._data = J.JobOutput "Starting npm install\n" J.Stdout, J._jobType = jobType}
-  result <- installJob chan `race` reportInstallationProgress chan jobType
-  case result of
-    Left exitCode -> return exitCode
-    Right _ -> error "This should never happen, reporting installation progress should run forever."
+{- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}
 
-reportInstallationProgress :: Chan JobMessage -> JobType -> IO ()
-reportInstallationProgress chan jobType =
-  mapM_ reportMessage $ cycle possibleMessages
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
+installNpmDependenciesAndReport projectDir = do
+  Job.emitOutput Job.Stdout "Starting npm install\n"
+
+  either absurd id
+    <$> Job.race
+      reportInstallationProgress
+      ( Job.fromProc
+          $ Job.setCwd projectDir
+          $ Job.proc "npm" ["install"]
+      )
+
+reportInstallationProgress :: Job.Job Void
+reportInstallationProgress =
+  forever $ mapM_ reportMessage possibleMessages
   where
     reportMessage message = do
-      threadDelay $ secToMicroSec 5
-      writeChan chan $ J.JobMessage {J._data = J.JobOutput (T.append message "\n") J.Stdout, J._jobType = jobType}
-      threadDelay $ secToMicroSec 5
-
-    secToMicroSec = (* 1000000)
+      liftIO $ threadDelay $ secondsToMicroSeconds 5
+      Job.emitOutput Job.Stdout $ T.append message "\n"
+      liftIO $ threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =
       [ "Still installing npm dependencies!",
@@ -116,15 +100,11 @@ reportInstallationProgress chan jobType =
         "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
       ]
 
--- | Figure out if installation of npm deps is needed, be it for npm workspace deps (top level
--- package.json + server), or for wasp sdk npm deps.
+-- | Checks if the deps of the user's project, the generated server, and the Wasp SDK differ from
+-- the ones recorded in the installed npm deps log during the last successful install.
 --
--- To this end, this code keeps track of the dependencies installed with a metadata file, which it
--- updates after each install.
---
--- Note: Here, we do a single check for all the deps, as the npm workspace ensures `npm install`
--- takes care of the user project and server, all at once. The SDK is also installed as
--- part of our installation logic, so we don't need to check it separately.
+-- Note: A single check covers all of them because the server and the SDK are npm workspaces of the
+-- user's project, so one `npm install` installs them all at once.
 areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir

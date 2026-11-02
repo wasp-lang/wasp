@@ -15,11 +15,8 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
-import Data.Maybe
-  ( isJust,
-    maybeToList,
-  )
+import qualified Data.Aeson.Text as Aeson.Text
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File,
@@ -28,7 +25,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    fromRelDir,
     reldirP,
     relfile,
     (</>),
@@ -61,7 +57,7 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -71,7 +67,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -82,11 +78,11 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
       genFileCopy [relfile|src/createRollupBundle.js|],
+      genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
-      genGitignore,
-      genNodemon
+      genGitignore
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -146,23 +142,17 @@ genPackageJson spec waspDependencies =
             [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
+              "serverBundleCommand" .= C.serverBundleCommand,
+              "devServerStartCommand" .= C.devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
-                .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
+                .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
-                   ),
-              "prisma" .= ByteStringLazyUTF8.toString (Aeson.encode $ getPackageJsonPrismaField spec)
+                   )
             ]
       )
   where
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
-
-    hasEntities = AS.Util.hasEntities spec
-
-getPackageJsonPrismaField :: AppSpec -> Aeson.Value
-getPackageJsonPrismaField spec = object $ [] <> seedEntry
-  where
-    seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
 npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
@@ -182,8 +172,7 @@ npmDepsFromWasp spec =
             ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
-            [ ("nodemon", "^2.0.19"),
-              -- TODO: Allow users to choose whether they want to use TypeScript
+            [ -- TODO: Allow users to choose whether they want to use TypeScript
               -- in their projects and install these dependencies accordingly.
               ("typescript", show typescriptVersionRange),
               ("@types/express", show expressTypesVersionRange),
@@ -193,7 +182,9 @@ npmDepsFromWasp spec =
               ("@types/cors", "^2.8.5"),
               ("rollup", "^4.9.6"),
               ("rollup-plugin-esbuild", "^6.1.1"),
-              ("@rollup/plugin-node-resolve", "^16.0.0")
+              ("@rollup/plugin-node-resolve", "^16.0.0"),
+              -- Used by `prepareProduction.ts` when building the Docker image.
+              ("nf3", "0.4.2")
             ],
         peerDependencies = []
       }
@@ -229,15 +220,23 @@ genGitignore =
       (C.asServerFile [relfile|.gitignore|])
       Nothing
 
-genNodemon :: Generator FileDraft
-genNodemon =
+genPrepareProduction :: AppSpec -> Generator FileDraft
+genPrepareProduction spec =
   return $
     C.mkTmplFdWithData
-      [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
+      [relfile|prepareProduction.ts|]
+      ( Just $
+          object
+            [ "traceDeps" .= Aeson.Text.encodeToLazyText traceDeps,
+              "runsMigrations" .= Aeson.Text.encodeToLazyText (runsMigrationsOnStart spec)
+            ]
+      )
   where
-    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
-      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
+    traceDeps = fromMaybe [] $ AS.App.server (getApp spec) >>= AS.App.Server.traceDeps
+
+-- | The server runs DB migrations on start when the app has entities.
+runsMigrationsOnStart :: AppSpec -> Bool
+runsMigrationsOnStart = AS.Util.hasEntities
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
