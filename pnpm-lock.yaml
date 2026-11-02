@@ -421,6 +421,9 @@ importers:
       react-router:
         specifier: ^8.0.1
         version: 8.5.0(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.1)(react@19.3.1)
+      superjson:
+        specifier: ^2.2.1
+        version: 2.2.6
       tsdown:
         specifier: ^0.21.5
         version: 0.21.10(@arethetypeswrong/core@0.18.5)(@tsdown/css@0.21.10)(typescript@6.0.3)

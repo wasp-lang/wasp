@@ -1,5 +1,5 @@
 export {
-  createMockServer,
+  mockServer,
   type MockApi,
   type MockQuery,
   type MockServer,
