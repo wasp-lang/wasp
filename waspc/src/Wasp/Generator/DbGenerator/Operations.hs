@@ -1,6 +1,7 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
+    formatSchema,
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
     areAllMigrationsAppliedToDb,
@@ -168,6 +169,14 @@ generatePrismaClient generatedAppDir = runExceptT $ do
   where
     updateDbSchemaChecksumOnLastGenerate =
       writeDbSchemaChecksumToFile generatedAppDir dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir
+
+-- | Formats schema.prisma in place, without printing Prisma's output unless it fails.
+formatSchema :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+formatSchema generatedAppDir = do
+  (exitCode, output) <- Job.run $ Job.captureOutput $ DbJobs.formatSchema generatedAppDir
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left $ "Prisma schema formatting failed with exit code " ++ show code ++ ":\n" ++ T.unpack output
 
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
 -- different than the DB. Returns Nothing on error as we do not know the current state.

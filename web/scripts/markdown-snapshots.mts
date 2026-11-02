@@ -9,7 +9,7 @@
  *
  * Usage: node ./scripts/markdown-snapshots.mts <check|update>
  *
- * Run `npm run build-dev` first, then `update` to (re)create the snapshots
+ * Run `pnpm run build-dev` first, then `update` to (re)create the snapshots
  * or `check` to compare the build output against them.
  */
 
@@ -73,11 +73,11 @@ if (MODE === "check") {
 async function assertBuildIncludesNextDocsVersion(): Promise<void> {
   assert(
     await fileExists(path.join(BUILD_DIR, "llms.txt")),
-    "No build output found. Run `npm run build-dev` first.",
+    "No build output found. Run `pnpm run build-dev` first.",
   );
   assert(
     await fileExists(path.join(BUILD_DIR, `llms-${NEXT_DOCS_VERSION}.txt`)),
-    "Build output does not include the next docs version. Rebuild with `npm run build-dev`.",
+    "Build output does not include the next docs version. Rebuild with `pnpm run build-dev`.",
   );
 }
 
@@ -92,7 +92,7 @@ async function checkSnapshots(): Promise<void> {
   if (errors.length > 0) {
     throw new AggregateError(
       errors,
-      "Markdown output drifted from the snapshots. You can preview the changes by running `npm run markdown-snapshots:update`. Inspect the git diffs, and commit the results if they are intended.",
+      "Markdown output drifted from the snapshots. You can preview the changes by running `pnpm run markdown-snapshots:update`. Inspect the git diffs, and commit the results if they are intended.",
     );
   }
 
@@ -127,7 +127,7 @@ async function updateSnapshots(): Promise<void> {
     );
     assert(
       snapshotContent !== null,
-      `Missing "${snapshotRelPath}" in build output. Run \`npm run build-dev\` first, or update the snapshot list.`,
+      `Missing "${snapshotRelPath}" in build output. Run \`pnpm run build-dev\` first, or update the snapshot list.`,
     );
 
     const snapshotFilePath = path.join(SNAPSHOTS_DIR, snapshotRelPath);
