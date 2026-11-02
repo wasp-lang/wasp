@@ -1,0 +1,13 @@
+24.22.1
+# This file sets the Node version for mise, and for Cloudflare Pages when it
+# builds the website (through the /web/.node-version symlink).
+#
+# It should be equal to Wasp's lowest supported Node version.
+# Keep in sync with:
+# - The compiler (Wasp.Node.Version).
+# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
+# - The docs plugin: /web/src/remark/search-and-replace.ts
+# - The web package: /web/package.json
+# - The wasp-cli packages: /packages/cli/package.json, /scripts/make-npm-packages/templates/sub-package/package.json
+# - The embedded packages: /packages/*/package.json
+# (Also just grep for the version in case we forgot somewhere.)

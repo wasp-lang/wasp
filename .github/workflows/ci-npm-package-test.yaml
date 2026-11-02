@@ -63,7 +63,7 @@ jobs:
 
           # Create a test project to install into
           mkdir install-test && cd install-test
-          npm init -y
+          echo '{}' > package.json
 
           # Install the CLI package (its optional deps pull in the
           # platform-specific sub-package for this runner). The short form of
