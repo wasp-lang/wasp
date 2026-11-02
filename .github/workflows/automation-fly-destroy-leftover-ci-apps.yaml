@@ -28,7 +28,7 @@ env:
 jobs:
   destroy-leftover-ci-apps:
     name: Destroy leftover Fly CI apps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Install Fly CLI

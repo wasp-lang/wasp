@@ -4,10 +4,10 @@ module Wasp.Project.Studio
 where
 
 import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import Wasp.NodePackageFFI (RunnablePackage (WaspStudioPackage), getPackageProcessOptions)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util (checkExitSuccess)
 
 startStudio ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -31,6 +31,4 @@ startStudio waspProjectDir pathToDataFile = do
             P.delegate_ctlc = True
           }
   exitCode <- P.withCreateProcess cpInheritHandles $ \_ _ _ ph -> P.waitForProcess ph
-  case exitCode of
-    ExitSuccess -> return $ Right ()
-    ExitFailure code -> return $ Left $ "Studio command failed with exit code: " ++ show code
+  return $ checkExitSuccess "Studio command" exitCode

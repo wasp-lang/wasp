@@ -25,7 +25,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    fromRelDir,
     reldirP,
     relfile,
     (</>),
@@ -51,7 +50,7 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNpmScriptName, genDbSeed)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -61,7 +60,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, UserSrcDir, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -76,8 +75,7 @@ genServer spec =
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
-      genGitignore,
-      genNodemon
+      genGitignore
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -137,12 +135,13 @@ genPackageJson spec waspDependencies =
             [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
+              "serverBundleCommand" .= C.serverBundleCommand,
+              "devServerStartCommand" .= C.devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
-                   ),
-              "dbSeedNpmScriptName" .= dbSeedNpmScriptName
+                   )
             ]
       )
   where
@@ -196,16 +195,6 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asServerFile [relfile|.gitignore|])
       Nothing
-
-genNodemon :: Generator FileDraft
-genNodemon =
-  return $
-    C.mkTmplFdWithData
-      [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
-  where
-    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir UserSrcDir) =
-      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genPrepareProduction :: AppSpec -> Generator FileDraft
 genPrepareProduction spec =
