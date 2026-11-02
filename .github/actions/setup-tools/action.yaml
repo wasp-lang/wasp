@@ -60,22 +60,6 @@ runs:
         bootstrap: true
         bootstrap_args: --update --yes
 
-    - name: Probe npm cache path
-      id: probe-npm-cache
-      shell: bash
-      # The repo root only allows pnpm (through `devEngines`), so we run npm
-      # outside of it.
-      working-directory: ${{ runner.temp }}
-      run: echo "CACHE_PATH=$(npm config get cache)" >> "$GITHUB_OUTPUT"
-
-    - name: Cache npm dependencies
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.probe-npm-cache.outputs.CACHE_PATH }}
-        # The projects that still use npm.
-        key: npm-cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('examples/**/package-lock.json') }}
-        restore-keys: npm-cache-${{ runner.os }}-${{ runner.arch }}-
-
     - name: Probe pnpm store path
       id: probe-pnpm-store
       shell: bash
