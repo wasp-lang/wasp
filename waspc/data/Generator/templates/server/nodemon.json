@@ -17,5 +17,19 @@
     ".env"
   ],
   "comment-filip": "We now have to watch {= relativeUserSrcDirPath =} because we're importing client files directly",
-  "ext": "ts,mts,js,mjs,json"
+  "ext": "ts,mts,js,mjs,json",
+  {=!
+    nodemon handles two different kinds of POSIX signals:
+    a. Which signal is sent to the child process when an update occurs.
+    b. Which signal we can send nodemon to trigger a manual restart.
+
+    The `signal` option here specifies (a), but nodemon internally also uses it
+    to choose (b): If (a) is on its default value of SIGUSR2, nodemon will use
+    SIGHUP for (b), or SIGUSR2 otherwise.
+
+    We don't want nodemon to react to terminal closing (SIGHUP) as a reload, and
+    instead want it to terminate. That's why we're changing the signal off its
+    default.
+  =}
+  "signal": "SIGTERM"
 }
