@@ -93,8 +93,6 @@ jobs:
             *) DIST_TAG="latest" ;;
           esac
 
-          # We run npm from inside each package, because the repo root only
-          # allows pnpm (through `devEngines`).
           for pkg in ./npm-packages/*; do
             (cd "$pkg" && npx npm@^11.15.0 stage publish --tag "$DIST_TAG")
           done
