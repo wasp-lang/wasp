@@ -373,6 +373,7 @@ function getScripts(): DocusaurusScript[] {
       defer: true,
       "data-domain": "wasp.sh",
       "data-api": "/waspara/wasp/event",
+      // Plausible doesn't use cookies, so it can be loaded right away.
     },
   ];
 
