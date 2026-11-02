@@ -1,5 +1,6 @@
 # Keep in sync with .github/actions/setup-tools/action.yaml
 min_version = "2026.10.17"
+monorepo_root = true
 
 [tools]
 ghcup = "0.2.6.2"
@@ -102,5 +103,5 @@ experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to 
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
 
-[task_config]
-includes = ["waspc/tools/tasks"]
+[monorepo]
+config_roots = ["waspc"]
