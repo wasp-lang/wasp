@@ -4,7 +4,7 @@ import { execaSync } from "execa";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getWaspcVersion } from "./tasks/get-waspc-version.ts";
+import { getWaspcVersion } from "./get-waspc-version.ts";
 
 export function getRepoRootPath(): string {
   return fileURLToPath(new URL("../..", import.meta.url));

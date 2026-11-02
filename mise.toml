@@ -114,4 +114,5 @@ wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
 auto = true
 
 [task_config]
-includes = ["tasks", "waspc/tools/tasks"]
+includes = ["tasks"]
+excludes = ["tasks/node_modules"]

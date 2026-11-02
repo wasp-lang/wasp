@@ -7,15 +7,21 @@ import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import semver from "semver";
-import { getLibsDirPath } from "../libs/utils.ts";
-import { getPackageDirPath, WASPC_PACKAGES } from "../packages/utils.ts";
+import {
+  cabalVersionRegex,
+  getWaspcVersion,
+} from "../waspc/tools/get-waspc-version.ts";
+import { getLibsDirPath } from "../waspc/tools/libs/utils.ts";
+import {
+  getPackageDirPath,
+  WASPC_PACKAGES,
+} from "../waspc/tools/packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
   getWaspcDirPath,
   runCmd,
-} from "../utils.ts";
-import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
+} from "../waspc/tools/utils.ts";
 
 const waspcDirPath = getWaspcDirPath();
 const waspProjectDirsPaths = findWaspProjectDirsPathsInRepo();

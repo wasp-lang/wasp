@@ -68,7 +68,7 @@ wasp start
 
 ### Development
 
-To run the application with the development version of Wasp, please use the `wasp-cli` mise task.
+To run the application with the development version of Wasp, please use `mise run wasp-cli`.
 
 For example:
 

@@ -1,0 +1,11 @@
+{
+  "name": "wasp-tasks",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/semver": "catalog:",
+    "execa": "catalog:",
+    "semver": "catalog:"
+  }
+}

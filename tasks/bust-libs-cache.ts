@@ -5,7 +5,7 @@
 import { execa } from "execa";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getWaspcDirPath } from "../utils.ts";
+import { getWaspcDirPath } from "../waspc/tools/utils.ts";
 
 const waspCliDevPath = join(getWaspcDirPath(), "tools", "wasp-cli-dev");
 const execaOptions = { stdio: "inherit", verbose: "short" } as const;
