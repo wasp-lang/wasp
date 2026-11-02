@@ -328,7 +328,32 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-   Wasp used to make `test`, `expect`, and the other test functions available globally. If your tests use them without importing them from `vitest`, pass `globals: true` to `waspTestConfig`, or add the imports to your tests.
+   Wasp used to make `test`, `expect`, and the other test functions available globally. If your tests use them without importing them, import them from `vitest`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="src/utils.test.ts"
+       import { add } from "./utils";
+
+       test("adds numbers", () => {
+         expect(add(1, 2)).toBe(3);
+       });
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="src/utils.test.ts"
+       // highlight-next-line
+       import { expect, test } from "vitest";
+       import { add } from "./utils";
+
+       test("adds numbers", () => {
+         expect(add(1, 2)).toBe(3);
+       });
+       ```
+     </TabItem>
+   </Tabs>
+
+   Or pass `globals: true` to `waspTestConfig` to keep them global.
 
 3. Create the setup file you referenced in `setupFiles`. It adds the DOM matchers, like `toBeInTheDocument()`, and removes what a test rendered when the test ends:
 
