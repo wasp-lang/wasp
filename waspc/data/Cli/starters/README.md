@@ -12,6 +12,8 @@ When you create a new project using `wasp new`, Wasp creates the project in 3 st
 
 Due to this behavior, all files shared by all starters are placed in the [`skeleton`](./skeleton) directory.
 
+The `basic` starter builds on top of `minimal`: `basic/src/Main.css` is a copy of `minimal/src/Main.css`, which `basic` loads into Tailwind's base layer. Keep both files identical.
+
 ## Development Workflow
 
 The recommended approach for developing starter templates:

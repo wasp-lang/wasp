@@ -3,8 +3,8 @@ index 0735bbe..da377bb 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -1,6 +1,7 @@
--import { app, page, query, route } from "@wasp.sh/spec";
-+import { action, app, page, query, route } from "@wasp.sh/spec";
+-import { app, page, query, route } from "@wasp/spec";
++import { action, app, page, query, route } from "@wasp/spec";
  import { MainPage } from "./src/MainPage" with { type: "ref" };
  import { getTasks } from "./src/queries" with { type: "ref" };
 +import { createTask } from "./src/actions" with { type: "ref" };

@@ -1,4 +1,7 @@
 ---
+title: "Render: deploy a Wasp app with a Blueprint"
+sidebar_label: Render
+description: "Deploy a Wasp app to Render, which builds it from source: define the server, client and database in a render.yaml Blueprint, then push to redeploy."
 comments: true
 ---
 
@@ -38,7 +41,7 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -67,7 +70,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&

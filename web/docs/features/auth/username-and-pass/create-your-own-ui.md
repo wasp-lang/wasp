@@ -1,3 +1,9 @@
+---
+title: Create your own UI for username and password auth
+sidebar_label: Create your own UI
+description: Build your own sign-up and login forms for username and password auth in Wasp, and call the signup() and login() functions from wasp/client/auth.
+---
+
 import { Required } from '@site/src/components/Tag'
 
 # Create your own UI

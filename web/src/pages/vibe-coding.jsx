@@ -45,6 +45,10 @@ const VibeCoding = () => {
     <div className="twLandingPage">
       <Head>
         <title>Wasp: The Framework Built for Vibe Coding</title>
+        <meta
+          name="description"
+          content="Wasp keeps your AI coding agents on track and handles complex features, so pros and first-time builders can vibe code real full-stack apps."
+        />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://wasp.sh/vibe-coding" />
         <meta

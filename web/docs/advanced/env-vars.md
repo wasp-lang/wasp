@@ -1,3 +1,9 @@
+---
+title: "Environment variables in Wasp: client and server"
+sidebar_label: Environment variables
+description: Define client and server environment variables in Wasp with .env.client and .env.server files, read them with the env object and validate them with Zod.
+---
+
 import ClientEnvVarsNote from './_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
@@ -193,7 +199,7 @@ During development (`wasp start`), there are two ways to provide env vars to you
 
 ### 1. Using .env (dotenv) Files {#dotenv-files}
 
-![Env vars usage in development](/img/env/prod_dev_fade.svg)
+![Env vars usage in development](/img/docs/advanced/env-vars/prod_dev_fade.svg)
 
 This is the recommended method for providing env vars to your Wasp project during development.
 
@@ -334,7 +340,7 @@ Take a look at an example of defining env vars validation:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -408,7 +414,7 @@ You can define your client env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -497,7 +503,7 @@ You can define your env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({

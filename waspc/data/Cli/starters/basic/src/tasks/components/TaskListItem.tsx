@@ -24,22 +24,19 @@ export function TaskListItem({ task }: TaskListItemProps) {
 
   return (
     <li>
-      <label
-        className={twJoin(
-          "card flex w-full flex-wrap items-center justify-between gap-4 rounded-lg px-6 py-3",
-          task.isDone ? "bg-primary-50" : "bg-neutral-50",
-        )}
-      >
+      <label className="flex w-full cursor-pointer flex-wrap items-center justify-between gap-4 px-4 py-3">
         <div className="flex min-w-0 items-center gap-4">
           <input
             type="checkbox"
-            className="h-5 w-5 shrink-0 accent-primary-500"
+            className="size-5 shrink-0 accent-yellow"
             checked={task.isDone}
             onChange={setTaskDone}
           />
           <div className="flex min-w-0 flex-col wrap-break-word">
-            <p>{task.description}</p>
-            <span className="text-xs text-neutral-500">
+            <p className={twJoin(task.isDone && "text-gray line-through")}>
+              {task.description}
+            </p>
+            <span className="text-xs text-gray">
               {task.createdAt.toLocaleDateString()}
             </span>
           </div>

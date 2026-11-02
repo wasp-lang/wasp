@@ -100,7 +100,7 @@ Opening paragraph that hooks the reader and stands alone as an excerpt.
 
 ### CTA Resources
 
-- Install the Wasp CLI globally: `npm i -g @wasp.sh/wasp-cli`
+- Install the Wasp CLI globally: `npm i -g @wasp/cli`
 - GitHub: https://github.com/wasp-lang/wasp
 - Discord: https://discord.gg/rzdnErX
 

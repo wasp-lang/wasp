@@ -1,4 +1,4 @@
-import type { PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
+import type { PrerenderFn } from "@wasp/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";
 import { prerenderToNodeStream as reactPrerender } from "react-dom/static";

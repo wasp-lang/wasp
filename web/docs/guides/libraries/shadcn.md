@@ -1,4 +1,7 @@
 ---
+title: "Shadcn in a Wasp app: Vite setup and components"
+sidebar_label: Shadcn
+description: "Set up Shadcn in a Wasp project: add Tailwind CSS, set the @ alias only for shadcn init, then add components and fix their utils import."
 comments: true
 ---
 

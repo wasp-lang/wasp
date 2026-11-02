@@ -1,10 +1,13 @@
 ---
+title: "Custom OAuth provider in Wasp: Spotify example"
+sidebar_label: Custom OAuth Provider
+description: "Add a custom OAuth provider to a Wasp app, using Spotify as the example: add API routes, write handlers with Arctic and create users from the profile."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# Custom OAuth Provider
+# Custom OAuth provider
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 

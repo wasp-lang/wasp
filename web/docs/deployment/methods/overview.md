@@ -1,6 +1,12 @@
+---
+title: "Deployment methods: Wasp Deploy or other hosts"
+sidebar_label: Overview
+description: Deploy the Node.js server, static client and PostgreSQL database of a Wasp app with Wasp Deploy or elsewhere, and add steps to the generated Dockerfile.
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 
-# Overview
+# Deployment methods
 
 Wasp apps are full-stack apps that consist of:
 
@@ -43,6 +49,33 @@ Do you have a Wasp app running in production? If yes, we'd love to send some swa
 fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll make it happen.
 
 :::
+
+## Missing files in the Docker image
+
+The Docker image contains only the files the server needs at runtime, not the whole `node_modules` folder.
+Wasp finds those files by following the server's imports.
+
+A package that loads files in a non-standard way can end up without them in the image.
+A common case is a package that serves static assets from its own folder (e.g. `swagger-ui-express`), which would fail in production.
+
+Use `server.traceDeps` to copy such files:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  server: {
+    traceDeps: ["swagger-ui-dist*"],
+  },
+})
+```
+
+Each entry is a package name with an optional prefix or suffix, the same syntax as Nitro's [`traceDeps`](https://nitro.build/config#tracedeps):
+
+- `"pkg"` adds the package even when the server doesn't import it.
+- `"pkg*"` copies all of the package's files.
+- `"!pkg"` stops copying all files of a package Wasp copies fully by default.
+
+We use [nf3](https://github.com/unjs/nf3), which finds most of the files your dependencies need by default. Only use this setting if you've confirmed a necessary file is missing.
 
 ## Customizing the Dockerfile
 

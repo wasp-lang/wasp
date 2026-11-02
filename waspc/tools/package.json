@@ -1,7 +1,12 @@
 {
   "name": "waspc-tools",
   "type": "module",
+  "private": true,
   "devDependencies": {
-    "@types/node": "^22.19.2"
+    "@types/node": "catalog:",
+    "@types/semver": "catalog:",
+    "execa": "catalog:",
+    "semver": "catalog:",
+    "tar": "^7.5.22"
   }
 }

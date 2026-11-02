@@ -1,3 +1,9 @@
+---
+title: "Telemetry: what Wasp collects and how to opt out"
+sidebar_label: Telemetry
+description: The Wasp CLI sends anonymized usage data over HTTPS, no more than three times in 12 hours. See the exact data and opt out with WASP_TELEMETRY_DISABLE.
+---
+
 # Telemetry
 
 ## Overview
@@ -40,18 +46,6 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
     // Randomly generated id.
     "distinct_id": "274701613078193779564259",
     "os": "linux"
-  }
-  ```
-
-- Information is also sent once via HTTPS request when the `wasp` npm package is installed (postinstall hook). Exact information as it is sent:
-  ```json
-  {
-    // Randomly generated id.
-    "distinct_id": "274701613078193779564259",
-    "os": "linux",
-    "arch": "x86_64",
-    // "CI" if running on CI, empty string otherwise.
-    "context": "CI"
   }
   ```
 

@@ -1,4 +1,6 @@
 ---
+title: Migrating from the Wasp TS Config in 0.24
+description: Wasp 0.24 retired the class-based TS Config (new App) for the function-based Wasp Spec. Convert the app, specifications, imports, APIs, jobs and CRUD.
 sidebar_label: "Wasp TS Config"
 comments: true
 ---

@@ -18,8 +18,8 @@ data LibsSourceDir
 --
 -- LibsRootDir has a flat structure with tarball files at the top level:
 --   libs/
---   ├── wasp.sh-lib-auth-<wasp-version>.tgz
---   └── wasp.sh-lib-other-<wasp-version>.tgz
+--   ├── wasp-lib-auth-<wasp-version>.tgz
+--   └── wasp-lib-other-<wasp-version>.tgz
 data LibsRootDir
 
 libsRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir LibsRootDir)

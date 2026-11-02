@@ -90,7 +90,7 @@ formatJobMessage (PrefixedWriterState outputsWithPendingPrefix lastJobMessage) j
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
     addPrefixWhereNeeded :: Maybe J.JobMessage -> T.Text -> T.Text
-    addPrefixWhereNeeded lastJobMessage =
+    addPrefixWhereNeeded lastJobMessage' =
       ensureNewlineAtStartIfInterruptingAnotherOutput
         . ensurePrefixAtStartIfNotContinuingOnSameOutput
         . addPrefixAfterSubstr "\r"
@@ -102,7 +102,7 @@ formatJobMessage (PrefixedWriterState outputsWithPendingPrefix lastJobMessage) j
         ensurePrefixAtStartIfNotContinuingOnSameOutput :: T.Text -> T.Text
         ensurePrefixAtStartIfNotContinuingOnSameOutput text =
           let continuingOnSameOutput =
-                (getJobMessageOutput <$> lastJobMessage) == Just (getJobMessageOutput jobMessage)
+                (getJobMessageOutput <$> lastJobMessage') == Just (getJobMessageOutput jobMessage)
               prefixAtStart =
                 or [(delimiter <> prefix) `T.isPrefixOf` text | delimiter <- ["\r", "\n", ""]]
            in if not continuingOnSameOutput && not prefixAtStart then prefix <> text else text
@@ -110,9 +110,9 @@ formatJobMessage (PrefixedWriterState outputsWithPendingPrefix lastJobMessage) j
         ensureNewlineAtStartIfInterruptingAnotherOutput :: T.Text -> T.Text
         ensureNewlineAtStartIfInterruptingAnotherOutput text =
           let interruptingAnotherOutput =
-                (getJobMessageOutput <$> lastJobMessage) /= Just (getJobMessageOutput jobMessage)
+                (getJobMessageOutput <$> lastJobMessage') /= Just (getJobMessageOutput jobMessage)
               newlineAtStart = "\n" `T.isPrefixOf` text
-              previousLineComplete = maybe False (T.isSuffixOf "\n" . getJobMessageContent) lastJobMessage
+              previousLineComplete = maybe False (T.isSuffixOf "\n" . getJobMessageContent) lastJobMessage'
            in if interruptingAnotherOutput && not newlineAtStart && not previousLineComplete then "\n" <> text else text
 
         prefix :: T.Text

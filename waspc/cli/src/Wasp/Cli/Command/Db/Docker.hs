@@ -24,14 +24,24 @@ import Wasp.Job.IO.PrefixedWriter (printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Job.Process (runProcessAsJob)
 import qualified Wasp.Message as Msg
 import Wasp.Util.Docker (DockerImageName)
+import qualified Wasp.Util.Docker as Docker
 
 ensureDockerDaemonAvailable :: Command ()
 ensureDockerDaemonAvailable = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
-  (exitCode, _, stderr) <- liftIO $ readProcessWithExitCode "docker" ["info", "--format", "{{.ServerVersion}}"] ""
-  when (exitCode /= ExitSuccess) $ E.throwError $ CommandError "Docker unavailable" (printf "Start Docker and retry. %s" stderr)
+  liftIO Docker.checkDockerDaemonConnection >>= \case
+    Right () -> return ()
+    Left dockerError ->
+      E.throwError $
+        CommandError
+          "Couldn't connect to the Docker daemon"
+          ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
+              <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
+              <> "Docker reported:\n"
+              <> dockerError
+          )
 
 ensureImageAvailable :: DockerImageName -> Command ()
 ensureImageAvailable dbDockerImage = do

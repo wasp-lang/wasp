@@ -222,7 +222,7 @@ function buildApiSectionItems(
  *
  * Depends on `typedoc` package generated output format.
  *
- * @example "api/@wasp.sh/spec/index" -> "@wasp.sh/spec"
+ * @example "api/@wasp/spec/index" -> "@wasp/spec"
  */
 function extractApiDocsPackageName(docId: string): string | null {
   const API_DOCS_PACKAGE_INDEX_PAGE_PATTERN = /^api\/(.+)\/index$/;

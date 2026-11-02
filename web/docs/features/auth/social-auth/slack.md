@@ -1,3 +1,9 @@
+---
+title: "Slack auth in Wasp: login setup, HTTPS and user data"
+sidebar_label: Slack
+description: "Add Slack login to a Wasp app: create a Slack app, set the client ID and secret, use HTTPS in development with localtunnel, and store Slack user data."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
@@ -36,7 +42,7 @@ Enabling Slack Authentication comes down to a series of steps:
 Now let's properly configure the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -83,7 +89,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 3. Click "From scratch"
 3. Enter App Name and select workspace that should host your app.
 
-<img alt="Slack Applications Screenshot" src={useBaseUrl('img/integrations-slack-1.png')} width="400px" />
+<img alt="Slack Applications Screenshot" src={useBaseUrl('img/docs/features/auth/social-auth/slack/integrations-slack-1.png')} width="400px" />
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
     - Enter the value `https://<subdomain>.loca.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
@@ -116,7 +122,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -137,7 +143,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 Yay, we've successfully set up Slack Auth! 🎉
 
-![Slack Auth](/img/auth/slack.png)
+![Slack Auth](/img/docs/features/auth/social-auth/slack/slack.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).
@@ -183,7 +189,7 @@ wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -258,7 +264,7 @@ The fields you receive depend on the scopes you request. In the example above, t
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
@@ -323,7 +329,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec/interfaces/SocialAuthConfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the slack auth method."

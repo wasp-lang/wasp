@@ -1,10 +1,13 @@
 ---
+title: "Local network testing: Wasp on phones and tablets"
+sidebar_label: Local Network Testing
+description: "Test a Wasp app on phones and tablets on your local network: pass network URLs to wasp start, allow the nip.io host in Vite and update OAuth redirects."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# Local Network Testing
+# Local network testing
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.26" }} />
 

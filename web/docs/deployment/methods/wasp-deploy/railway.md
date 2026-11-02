@@ -1,3 +1,9 @@
+---
+title: "Railway: deploy a Wasp app with a single command"
+sidebar_label: Railway
+description: Deploy a Wasp app to Railway with wasp deploy railway launch, which sets up client, server and Postgres services. Then add a custom domain and env vars.
+---
+
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CustomPostgresOption from './_railway-custom-postgres-option.md'
@@ -137,6 +143,8 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 ### The `deploy` command
 
 The `deploy` command deploys your client and server apps to Railway.
+
+It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
 
 ```shell
 wasp deploy railway deploy <project-name>
