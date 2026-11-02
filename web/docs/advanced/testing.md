@@ -8,18 +8,22 @@ description: Write unit tests and React component tests for the client code of a
 
 Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/).
 
-## Setting up Vitest for client tests
+## Testing server code
+
+Wasp doesn't provide helpers for testing server code yet. You can follow the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
+
+## Setting up client tests
 
 ### Installing the packages
 
 Install Vitest and the libraries for testing React components:
 
 ```bash
-npm install -D vitest jsdom@29 @testing-library/react @testing-library/jest-dom msw
+npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
-- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests. Version 29 supports all Node.js versions Wasp supports, while version 30 needs Node.js 24.15 or newer.
+- [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
 - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
 - [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
@@ -100,10 +104,10 @@ Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in t
 
 ```sh
 npm install -D @vitest/ui
-npx vitest --ui
+npm test -- --ui
 ```
 
-## Testing your client code
+## Writing client tests
 
 ### Testing plain functions
 
@@ -272,7 +276,3 @@ test("shows the stats", async () => {
 - `WaspTestWrapper`
 
   The component `renderInContext` wraps your element in. Pass it as the `wrapper` option when you call [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#wrapper) or `renderHook` yourself.
-
-## Testing server code
-
-Wasp doesn't provide helpers for testing server code yet. You can follow the progress in [this GitHub issue](https://github.com/wasp-lang/wasp/issues/2049).
