@@ -3,10 +3,6 @@
   "type": "module",
   "private": true,
   "packageManager": "pnpm@12.15.0",
-  "engines": {
-    "node": ">=24.22.1",
-    "pnpm": ">=12"
-  },
   "scripts": {
     "check:prettier": "prettier --ignore-unknown --check --config prettier.config.mjs .",
     "format:check": "pnpm run check:prettier",
@@ -20,5 +16,11 @@
     "prettier-plugin-sh": "0.17.4",
     "prettier-plugin-tailwindcss": "0.7.2",
     "typescript": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.15.0"
+    }
   }
 }
