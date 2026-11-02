@@ -2,7 +2,8 @@
 
 set -euxo pipefail
 
-packages_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../packages" && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+packages_dir="$repo_root/packages"
 
 publish_packages=(
   spec
@@ -20,6 +21,8 @@ if [ -z "$output_dir" ]; then
   exit 1
 fi
 
+(cd "$repo_root" && pnpm install)
+
 for package in "${publish_packages[@]}"; do
   echo "Building $package"
 
@@ -28,14 +31,12 @@ for package in "${publish_packages[@]}"; do
 
   cd "$packages_dir/$package"
 
-  npm ci
-
   # Override the package version with the one from the workflow.
   npm pkg set version="$publish_version"
 
-  # `npm pack` puts only the published files in the tarball.
-  npm run build
-  npm pack --pack-destination "$pack_dir"
+  # `pnpm pack` puts only the published files in the tarball.
+  pnpm run build
+  pnpm pack --pack-destination "$pack_dir"
 
   # We extract the tarball back into a folder, because `pkg-pr-new` only accepts
   # package directories, not tarballs.

@@ -16,20 +16,20 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepack": "npm run build",
-    "start": "npm run build && node ./bin/index.js"
+    "prepack": "pnpm run build",
+    "start": "pnpm run build && node ./bin/index.js"
   },
   "dependencies": {
-    "@commander-js/extra-typings": "^13.1.0",
+    "@commander-js/extra-typings": "catalog:",
     "chalk": "^5.4.1",
-    "commander": "^13.1.0",
+    "commander": "catalog:",
     "dotenv": "^16.5.0",
     "p-retry": "^7.1.1",
-    "semver": "^7.7.3"
+    "semver": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22.15.12",
-    "@types/semver": "^7.7.1",
-    "typescript": "^6.0.3"
+    "@types/node": "catalog:",
+    "@types/semver": "catalog:",
+    "typescript": "catalog:"
   }
 }

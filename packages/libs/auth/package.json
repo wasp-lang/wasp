@@ -23,8 +23,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "vitest dev",
-    "prepare": "npm run build",
-    "test": "npm run test:types && npm run test:coverage && npm run test:type-exports",
+    "test": "pnpm run test:types && pnpm run test:coverage && pnpm run test:type-exports",
     "test:coverage": "vitest run --coverage",
     "test:type-exports": "attw -P --profile esm-only",
     "test:types": "tsc --noEmit"
@@ -38,11 +37,11 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@types/node": "^22.17.1",
+    "@types/node": "catalog:",
     "@types/react": "^19.2.7",
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/coverage-v8": "catalog:",
     "tsdown": "^0.21.5",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
