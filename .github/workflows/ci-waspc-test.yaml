@@ -33,7 +33,7 @@ jobs:
         os:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
           # prevent the version from changing on its own.
-          - ubuntu-22.04
+          - ubuntu-24.04
           - ubuntu-24.04-arm
           - macos-15-intel
           - macos-15 # Apple Silicon
@@ -46,11 +46,11 @@ jobs:
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
-        # Ubuntu 22.04.
+        # Ubuntu 24.04.
         include:
           - # No extra tool here, so we use our default Node.js version, which
             # comes from mise and is equal to our lowest supported one.
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             extra-tools: ""
 
     steps:

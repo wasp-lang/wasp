@@ -3,7 +3,6 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
-import Control.Concurrent (newChan)
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, require)
@@ -52,9 +51,8 @@ createProjectOnDisk
         liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
-installDepsForNewProject absWaspProjectDir = do
-  messagesChan <- newChan
-  installProjectNpmDependencies messagesChan absWaspProjectDir >>= \case
+installDepsForNewProject absWaspProjectDir =
+  installProjectNpmDependencies absWaspProjectDir >>= \case
     Right () -> return ()
     Left _err ->
       putStrLn

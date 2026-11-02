@@ -57,7 +57,6 @@ serverCoreDeps =
       ("morgan", "~1.12.1"),
       -- Used by `prepareProduction.ts` when building the Docker image.
       ("nf3", "0.4.2"),
-      ("nodemon", "^2.0.19"),
       ("rollup", "^4.9.6"),
       ("rollup-plugin-esbuild", "^6.1.1"),
       ("superjson", show superjsonVersionRange),
