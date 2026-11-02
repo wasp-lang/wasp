@@ -14,8 +14,7 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "prepare": "npm run build",
-    "test": "npm run test:types",
+    "test": "pnpm run test:types",
     "test:types": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -42,17 +41,17 @@
     "@arethetypeswrong/core": "^0.18.2",
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/react": "^16.3.1",
-    "@types/node": "^22.17.1",
+    "@types/node": "catalog:",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@wasp/lib-sdk-core": "file:../sdk-core",
+    "@wasp/lib-sdk-core": "workspace:*",
     "msw": "^2.12.7",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router": "^8.0.1",
     "tsdown": "^0.21.5",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "sideEffects": false
 }

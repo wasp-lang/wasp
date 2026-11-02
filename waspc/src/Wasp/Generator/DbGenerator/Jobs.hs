@@ -7,6 +7,7 @@ module Wasp.Generator.DbGenerator.Jobs
     seed,
     dbExecuteTest,
     migrateStatus,
+    formatSchema,
     asPrismaCliArgs,
   )
 where
@@ -84,6 +85,16 @@ migrateStatus generatedAppDir =
     =<< prismaProc
       generatedAppDir
       ["migrate", "status", "--schema", SP.fromAbsFile schema]
+  where
+    schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
+
+-- | Runs `prisma format`, which formats schema.prisma in place.
+formatSchema :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
+formatSchema generatedAppDir =
+  J.fromProc
+    =<< prismaProc
+      generatedAppDir
+      ["format", "--schema", SP.fromAbsFile schema]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
