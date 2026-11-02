@@ -3,9 +3,15 @@
   "type": "module",
   "private": true,
   "packageManager": "pnpm@12.15.0",
-  "engines": {
-    "node": ">=24.22.1",
-    "pnpm": ">=12"
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.22.1"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12"
+    }
   },
   "scripts": {
     "check:prettier": "prettier --ignore-unknown --check --config prettier.config.mjs .",
