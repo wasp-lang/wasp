@@ -45,7 +45,7 @@ for package in "${publish_packages[@]}"; do
   cd "$packages_dir/$package_path"
 
   # Override the package version with the one from the workflow.
-  npm pkg set version="$publish_version"
+  pnpm pkg set version="$publish_version"
 
   if [ -n "$publish_name" ]; then
     npm pkg set name="$publish_name"

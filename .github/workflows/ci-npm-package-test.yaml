@@ -22,10 +22,10 @@ jobs:
       matrix:
         runner:
           - # Regular Linux with Glibc
-            os: ubuntu-latest
+            os: ubuntu-24.04
 
           - # Linux with Musl
-            os: ubuntu-latest
+            os: ubuntu-24.04
             container: alpine:3.23
 
           - # Linux ARM64 with Glibc
