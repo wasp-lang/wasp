@@ -48,7 +48,7 @@ jobs:
 
     name: Deploy ${{ matrix.app-dir }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     environment:
       name: ${{ matrix.app-dir }}-production
@@ -102,7 +102,7 @@ jobs:
 
   deploy-railway:
     name: Deploy ask-the-documents to Railway
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     environment:

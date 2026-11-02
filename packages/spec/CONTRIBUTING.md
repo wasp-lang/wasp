@@ -11,8 +11,8 @@ When linking to other Wasp docs from TSDoc comments in this package, write the f
 ## Testing
 
 ```bash
-npm run test
-npm run test:unit
-npm run test:integration
-npm run coverage
+pnpm run test
+pnpm run test:unit
+pnpm run test:integration
+pnpm run coverage
 ```

@@ -21,13 +21,13 @@ Read more about versioning and why we keep the version in sync with the Wasp com
 Install the dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Start unit tests in watch mode:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Develop code and write unit tests for it.
@@ -62,7 +62,7 @@ When you need to add a new entry point e.g. `@wasp/lib-auth/web-app`:
 We have a few tests that we run to ensure the library is in good shape. You can run them all at once with:
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 ### Tests coverage
@@ -70,7 +70,7 @@ npm run test
 To check the test coverage, run:
 
 ```bash
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ### Type checking
@@ -78,7 +78,7 @@ npm run test:coverage
 To type check the code, run:
 
 ```bash
-npm run test:types
+pnpm run test:types
 ```
 
 ### Verifying type exports
@@ -93,7 +93,7 @@ We use the `--profile esm-only` when running the test because we only care about
 To test the type exports are okay run:
 
 ```bash
-npm run test:type-exports
+pnpm run test:type-exports
 ```
 
 You want to see `🟢` for all ESM related tests since this library will be only imported using ESM. This means the library's
@@ -104,7 +104,7 @@ types will resolve correctly when used in the SDK, the server and the web app.
 To build the library, run:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 We are using `tsdown` to build the library which you can configure in `tsdown.config.ts`.

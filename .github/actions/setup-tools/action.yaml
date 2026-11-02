@@ -141,11 +141,12 @@ runs:
       run: |
         set -euxo pipefail
         # Detect the libc so the Cabal cache key keeps glibc and musl builds
-        # apart.
+        # apart. We include the glibc version because libraries built against
+        # a newer glibc fail to load on runners with an older one.
         ldd_version="$(ldd --version 2>&1 || true)"
         case "$ldd_version" in
           *musl*) libc=musl ;;
-          *) libc=default ;;
+          *) libc="glibc-$(getconf GNU_LIBC_VERSION | cut -d' ' -f2)" ;;
         esac
         echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
 
