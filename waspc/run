@@ -2,4 +2,11 @@
 
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
-exec node "$(dirname "${BASH_SOURCE[0]}")/tools/run/main.ts" "$@"
+
+WASPC_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# The run script needs the tools' dependencies, so install them if missing.
+# CI reads the output of `get-waspc-version`, so the install output goes to stderr.
+[ -d "$WASPC_DIR/tools/node_modules" ] || (cd "$WASPC_DIR/.." && pnpm install >&2) || exit
+
+exec node "$WASPC_DIR/tools/run/main.ts" "$@"
