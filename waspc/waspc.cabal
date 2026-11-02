@@ -549,6 +549,7 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
@@ -570,6 +571,8 @@ test-suite waspc-tests
     time,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     AppComponentUrlTest
     AppSpec.EntityTest
@@ -628,6 +631,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Process.Util
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
