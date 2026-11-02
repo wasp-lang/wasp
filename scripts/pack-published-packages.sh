@@ -34,7 +34,7 @@ fi
 
 # Override the package versions with the one from the workflow.
 for package in "${versioned_packages[@]}"; do
-  (cd "$packages_dir/$package" && npm pkg set version="$publish_version")
+  (cd "$packages_dir/$package" && pnpm pkg set version="$publish_version")
 done
 
 for package in "${publish_packages[@]}"; do

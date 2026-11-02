@@ -30,6 +30,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - The Wasp server now exits with an error code when it fails to start. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - `routes.<name>.build()` no longer crashes at runtime when called without arguments on a route with an optional static segment (e.g. `/about/details?`). TypeScript now reports the missing `path` option instead. ([#5153](https://github.com/wasp-lang/wasp/pull/5153))
 - Wasp commands no longer crash with `hGetLine: end of file` when they need to ask a question but stdin isn't an interactive terminal (e.g. in CI, scripts, or AI agents). They now fail with the command's `--help` text telling you how to pass the arguments non-interactively. Pressing Ctrl+D at a prompt now prints `Aborted.` and exits. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
+- `wasp start` now manages the development server process directly instead of through `nodemon`, reducing the likelihood of crashes and orphaned processes. ([#4976](https://github.com/wasp-lang/wasp/pull/4976))
+- Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
+- Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
+- Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
 
 ### 🔧 Small improvements
 

@@ -13,7 +13,6 @@ import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens (key, _Object, _String)
-import Data.Either (fromLeft)
 import Data.List (find, isSuffixOf, stripPrefix)
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as T
@@ -34,6 +33,7 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
 import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedAppDir)
 import qualified Wasp.Message as Msg
+import Wasp.Project (compileResultWarningsAndErrors)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -212,9 +212,7 @@ buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir =
-  fmap (fromLeft [])
-    <$> compileIOWithOptions options waspProjectDir buildDir
+buildIO waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
