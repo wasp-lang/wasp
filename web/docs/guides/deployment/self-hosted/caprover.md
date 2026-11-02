@@ -1,11 +1,14 @@
 ---
+title: "CapRover: deploy a Wasp app to your own server"
+sidebar_label: CapRover
+description: "Deploy a Wasp app to CapRover, a self-hosted PaaS: create the client, server and PostgreSQL apps, then build and deploy Docker images with GitHub Actions."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock";
 
-# Caprover
+# CapRover
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: "1.14.1" }} />
 
@@ -156,7 +159,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
 
       - name: Install Wasp app dependencies
         run: wasp install

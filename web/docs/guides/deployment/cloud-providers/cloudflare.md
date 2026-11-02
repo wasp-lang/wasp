@@ -1,4 +1,7 @@
 ---
+title: "Cloudflare: deploy a Wasp app's client to Workers"
+sidebar_label: Cloudflare
+description: "Deploy a Wasp app's client to Cloudflare Workers with Wrangler: add wrangler.toml and worker.js for SPA routing, or deploy from GitHub Actions."
 comments: true
 ---
 
@@ -96,7 +99,7 @@ Here's an example configuration file to help you get started. This example workf
             node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
+          run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Install Wasp app dependencies
           run: cd ./app && wasp install

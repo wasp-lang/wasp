@@ -1,3 +1,9 @@
+---
+title: "CI & CD: run tests and deploy your Wasp app"
+sidebar_label: CI & CD
+description: Run Playwright end-to-end tests and client unit tests in GitHub Actions, then deploy your Wasp app on each push with Docker images or static files.
+---
+
 # CI & CD
 
 Setting up a CI/CD pipeline is an optional but highly recommended part of deploying applications.

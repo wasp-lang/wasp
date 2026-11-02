@@ -1,4 +1,7 @@
 ---
+title: "Railway: deploy a Wasp app manually with the CLI"
+sidebar_label: Railway
+description: "Deploy a Wasp app to Railway by hand with the Railway CLI: create a project with PostgreSQL, deploy the server and the client, and redeploy after changes."
 comments: true
 ---
 
@@ -105,7 +108,7 @@ You'll deploy the server first:
 
     <!--
       NOTE: When updating this railway.json, make sure to also update it in the deployment package at:
-      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+      packages/deploy/src/providers/railway/commands/deploy/client.ts
     -->
     ```json title=".wasp/out/web-app/build/railway.json"
     {
@@ -120,7 +123,7 @@ You'll deploy the server first:
 
     <!--
       NOTE: When updating this Caddyfile, make sure to also update it in the deployment package at:
-      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+      packages/deploy/src/providers/railway/commands/deploy/client.ts
     -->
     ```caddyfile title=".wasp/out/web-app/build/Caddyfile"
     {

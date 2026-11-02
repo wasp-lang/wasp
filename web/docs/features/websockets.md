@@ -1,3 +1,9 @@
+---
+title: "WebSockets: Socket.IO on client and server in Wasp"
+sidebar_label: WebSockets
+description: "Add WebSockets to a Wasp app with Socket.IO: enable webSocket in the spec, write an events handler and use the useSocket and useSocketListener hooks."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
@@ -23,7 +29,7 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({
@@ -281,7 +287,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 ## API Reference
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/WebSocket"
+  to="../api/@wasp/spec/interfaces/WebSocket"
   kind="api"
   title="WebSocket"
   description="All the options for the webSocket field of the app spec."

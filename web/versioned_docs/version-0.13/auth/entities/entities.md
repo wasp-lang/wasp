@@ -29,7 +29,7 @@ psl=}
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
 
-<ImgWithCaption alt="Auth Entities in a Wasp App" source="img/auth-entities/model.png" caption="Auth Entities in a Wasp App" />
+<ImgWithCaption alt="Auth Entities in a Wasp App" source="img/docs/features/auth/entities/model.png" caption="Auth Entities in a Wasp App" />
 
 On the other hand, the `Auth`, `AuthIdentity` and `Session` entities are created behind the scenes and are used to store the user's login credentials. You as the developer don't need to care about this entity most of the time. Wasp **owns** these entities.
 
@@ -44,7 +44,7 @@ Let's imagine we created a simple tasks management app:
 
 Let's look at how would that look in the database:
 
-<ImgWithCaption alt="Example of Auth Entities" source="img/auth-entities/model-example.png" caption="Example of Auth Entities" />
+<ImgWithCaption alt="Example of Auth Entities" source="img/docs/features/auth/entities/model-example.png" caption="Example of Auth Entities" />
 
 If we take a look at an example user in the database, we can see:
 

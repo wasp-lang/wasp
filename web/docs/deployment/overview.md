@@ -1,6 +1,12 @@
+---
+title: "Deployment overview: the three parts of a Wasp app"
+sidebar_label: Overview
+description: "A deployed Wasp app has three parts: a React client, an Express server and a PostgreSQL database. Host the client and server on one server or two."
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
-# Overview
+# Deployment overview
 
 After developing your app locally on your machine, the next step is to deploy it to the web so that others can access it.
 
@@ -25,7 +31,7 @@ What we call a "Wasp app" consists of three different parts:
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-<ImgWithCaption source="/img/deploying/wasp-app-flow.gif" alt="Wasp app structure" caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately" />
+<ImgWithCaption source="/img/docs/deployment/overview/wasp-app-flow.gif" alt="Wasp app structure" caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately" />
 
 The thing to take away from this: the client app and server app are separate applications that communicate with each other over HTTP. This means you can deploy them on the same or different servers, depending on your needs.
 

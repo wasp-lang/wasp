@@ -1,14 +1,15 @@
 ---
 title: Feature Announcement - TypeScript Support
 authors: [sodic]
-image: /img/wasp-ts-banner.png
+image: /img/blog/2022-11-29-typescript-feature-announcement/wasp-ts-banner.png
 tags: [webdev, wasp, feature, typescript, javascript]
+description: "Wasp TypeScript support: use .ts and .tsx on the client and server, mix them with JavaScript, no extra config. Server imports still use .js."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 import { InBlogCta } from './components/InBlogCta';
 
-<ImgWithCaption alt="Wasp TS support" source="img/wasp-ts-banner.png" />
+<ImgWithCaption alt="Wasp TS support" source="img/blog/2022-11-29-typescript-feature-announcement/wasp-ts-banner.png" />
 
 {/* truncate */}
 
@@ -202,7 +203,7 @@ function Task({ id, isdone, description }: Task) {
 
 As soon as we change our code, TypeScript detects three errors:
 
-<ImgWithCaption alt="TypeScript erros" source="img/typescript-errors.png" caption="The errors are pretty simple (almost as if we've made them up for this example :)" />
+<ImgWithCaption alt="TypeScript erros" source="img/blog/2022-11-29-typescript-feature-announcement/typescript-errors.png" caption="The errors are pretty simple (almost as if we've made them up for this example :)" />
 
 1. The first error warns us that `tasks` might be `undefined` (e.g., on the first render), which `TaskList` does not expect
 2. The second error tells us that the property `len` does not exist on the array `tasks`. In other words, we misspelled `length`.

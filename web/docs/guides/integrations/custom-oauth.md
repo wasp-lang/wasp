@@ -1,10 +1,13 @@
 ---
+title: "Custom OAuth provider in Wasp: Spotify example"
+sidebar_label: Custom OAuth Provider
+description: "Add a custom OAuth provider to a Wasp app, using Spotify as the example: add API routes, write handlers with Arctic and create users from the profile."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# Custom OAuth Provider
+# Custom OAuth provider
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
@@ -22,7 +25,7 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 Set up the auth configuration and API routes:
 
 ```ts title="main.wasp.ts"
-import { api, app, page, route } from "@wasp.sh/spec"
+import { api, app, page, route } from "@wasp/spec"
 import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 

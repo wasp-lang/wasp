@@ -1,3 +1,9 @@
+---
+title: "Database: production setup and migrations for Wasp"
+sidebar_label: Database
+description: "Set up a production PostgreSQL database for a Wasp app: connect with DATABASE_URL, create migrations, fix failed ones and inspect it with wasp db studio."
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 
 # Database

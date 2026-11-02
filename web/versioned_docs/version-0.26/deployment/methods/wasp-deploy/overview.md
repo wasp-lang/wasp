@@ -1,6 +1,12 @@
+---
+title: "Wasp Deploy: one command for Fly.io and Railway"
+sidebar_label: Overview
+description: "Wasp Deploy is the recommended way to deploy a Wasp app: one wasp deploy command sets up the services on Fly.io or Railway, builds the app and deploys it."
+---
+
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
 
-# Overview
+# Wasp Deploy
 
 Wasp CLI can deploy your full-stack application with a single command.
 The command automates the manual deployment process and is the recommended way of deploying Wasp apps.

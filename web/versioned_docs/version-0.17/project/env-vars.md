@@ -184,7 +184,7 @@ During development (`wasp start`), there are two ways to provide env vars to you
 
 ### 1. Using .env (dotenv) Files
 
-![Env vars usage in development](/img/env/prod_dev_fade.svg)
+![Env vars usage in development](/img/docs/advanced/env-vars/prod_dev_fade.svg)
 
 This is the recommended method for providing env vars to your Wasp project during development.
 

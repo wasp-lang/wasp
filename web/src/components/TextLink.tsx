@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import { ReactNode } from "react";
+import { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
 const variantClassNames = {
@@ -9,18 +9,15 @@ const variantClassNames = {
 };
 
 const TextLink = ({
-  to,
   variant = "yellow",
   className,
-  children,
-}: {
+  ...props
+}: ComponentProps<typeof Link> & {
   to: string;
   variant?: keyof typeof variantClassNames;
-  className?: string;
-  children: ReactNode;
 }) => (
   <Link
-    to={to}
+    {...props}
     className={twMerge(
       "box-decoration-clone px-0.5 text-wasp-black",
       "underline decoration-2 underline-offset-2",
@@ -29,9 +26,7 @@ const TextLink = ({
       variantClassNames[variant],
       className,
     )}
-  >
-    {children}
-  </Link>
+  />
 );
 
 export default TextLink;

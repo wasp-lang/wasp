@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 
+import { trackPlacementAttributes } from "../lib/analytics";
 import SectionContainer from "./Layouts/SectionContainer";
 import SubscribeForm from "./SubscribeForm";
 
@@ -60,7 +61,7 @@ const company = [
 const Logo = () => (
   <div className="flex flex-shrink-0 items-center">
     <Link to="/">
-      <img src="img/lp/wasp-logo.webp" width={35} height={35} alt="Wasp Logo" />
+      <img src="img/wasp-logo.webp" width={35} height={35} alt="Wasp Logo" />
     </Link>
     <span className="ml-3 text-lg font-semibold text-neutral-700">Wasp</span>
   </div>
@@ -88,7 +89,7 @@ const Segment = ({ title, links }) => (
 
 const Footer = () => {
   return (
-    <footer className="border-t">
+    <footer className="border-t" {...trackPlacementAttributes("footer")}>
       <SectionContainer>
         <div className="grid grid-cols-1 gap-8 xl:grid xl:grid-cols-3">
           {/* cols with links */}
@@ -117,7 +118,7 @@ const Footer = () => {
               <small className="text-xs text-neutral-500">Backed by</small>
               <img
                 className="ml-2 w-24"
-                src="img/lp/yc-logo-rounded.webp"
+                src="img/site/logos/yc-logo-rounded.webp"
                 alt="YC"
               />
             </span>

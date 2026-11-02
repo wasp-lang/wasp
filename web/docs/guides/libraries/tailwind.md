@@ -1,4 +1,6 @@
 ---
+title: "Tailwind CSS in a Wasp app: Vite setup and plugins"
+sidebar_label: Tailwind CSS
 comments: true
 ---
 

@@ -1,4 +1,7 @@
 ---
+title: "Cloudflare: deploy a Wasp app's client to Workers"
+sidebar_label: Cloudflare
+description: "Deploy a Wasp app's client to Cloudflare Workers with Wrangler: add wrangler.toml and worker.js for SPA routing, or deploy from GitHub Actions."
 comments: true
 ---
 

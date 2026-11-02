@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { api, handleApiError } from '../../../api/index.js';
-import { initSession } from '@wasp.sh/lib-sdk-core/browser';
-import { SessionResponseSchema } from '@wasp.sh/lib-sdk-core';
+import { initSession } from '@wasp/lib-sdk-core/browser';
+import { SessionResponseSchema } from '@wasp/lib-sdk-core';
 
 // PUBLIC API
 export async function login(data: { email: string; password: string }): Promise<void> {

@@ -162,58 +162,58 @@ To use Google as an authentication method, you'll first need to create a Google 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
 2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
 
-![Google Console Screenshot 1](/img/integrations-google-1.jpg)
+![Google Console Screenshot 1](/img/docs/auth/social-auth/google/integrations-google-1.jpg)
 
-![Google Console Screenshot 2](/img/integrations-google-2.jpg)
+![Google Console Screenshot 2](/img/docs/auth/social-auth/google/integrations-google-2.jpg)
 
 3. Search for **OAuth** in the top bar, click on **OAuth consent screen**.
 
-![Google Console Screenshot 3](/img/integrations-google-3.jpg)
+![Google Console Screenshot 3](/img/docs/auth/social-auth/google/integrations-google-3.jpg)
 
 - Select what type of app you want, we will go with **External**.
 
-  ![Google Console Screenshot 4](/img/integrations-google-4.jpg)
+  ![Google Console Screenshot 4](/img/docs/auth/social-auth/google/integrations-google-4.jpg)
 
 - Fill out applicable information on Page 1.
 
-  ![Google Console Screenshot 5](/img/integrations-google-5.jpg)
+  ![Google Console Screenshot 5](/img/docs/auth/social-auth/google/integrations-google-5.jpg)
 
 - On Page 2, Scopes, you should select `userinfo.profile`. You can optionally search for other things, like `email`.
 
-  ![Google Console Screenshot 6](/img/integrations-google-6.jpg)
+  ![Google Console Screenshot 6](/img/docs/auth/social-auth/google/integrations-google-6.jpg)
 
-  ![Google Console Screenshot 7](/img/integrations-google-7.jpg)
+  ![Google Console Screenshot 7](/img/docs/auth/social-auth/google/integrations-google-7.jpg)
 
-  ![Google Console Screenshot 8](/img/integrations-google-8.jpg)
+  ![Google Console Screenshot 8](/img/docs/auth/social-auth/google/integrations-google-8.jpg)
 
 - Add any test users you want on Page 3.
 
-  ![Google Console Screenshot 9](/img/integrations-google-9.jpg)
+  ![Google Console Screenshot 9](/img/docs/auth/social-auth/google/integrations-google-9.jpg)
 
 4. Next, click **Credentials**.
 
-![Google Console Screenshot 10](/img/integrations-google-10.jpg)
+![Google Console Screenshot 10](/img/docs/auth/social-auth/google/integrations-google-10.jpg)
 
 - Select **Create Credentials**.
 
 - Select **OAuth client ID**.
 
-  ![Google Console Screenshot 11](/img/integrations-google-11.jpg)
+  ![Google Console Screenshot 11](/img/docs/auth/social-auth/google/integrations-google-11.jpg)
 
 - Complete the form
 
-  ![Google Console Screenshot 12](/img/integrations-google-12.jpg)
+  ![Google Console Screenshot 12](/img/docs/auth/social-auth/google/integrations-google-12.jpg)
 
 - Under Authorized redirect URIs, put in: `http://localhost:3000/auth/login/google`
 
-  ![Google Console Screenshot 13](/img/integrations-google-13.jpg)
+  ![Google Console Screenshot 13](/img/docs/auth/social-auth/google/integrations-google-13.jpg)
 
   - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
     - For example: `https://someotherhost.com/auth/login/google`
 
 - When you save, you can click the Edit icon and your credentials will be shown.
 
-  ![Google Console Screenshot 14](/img/integrations-google-14.jpg)
+  ![Google Console Screenshot 14](/img/docs/auth/social-auth/google/integrations-google-14.jpg)
 
 5. Copy your Client ID and Client secret as you will need them in the next step.
 
@@ -333,7 +333,7 @@ Our pages use an automatically-generated Auth UI component. Read more about Auth
 
 Yay, we've successfully set up Google Auth! 🎉
 
-![Google Auth](/img/auth/google.png)
+![Google Auth](/img/docs/features/auth/social-auth/google/google.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).

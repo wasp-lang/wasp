@@ -1,3 +1,9 @@
+---
+title: "SEO & GEO in Wasp: built-in defaults and tools"
+sidebar_label: SEO & GEO
+description: Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible to search engines and AI assistants. Here's how Wasp is doing it for you.
+---
+
 import { CardLink } from "@site/src/components/CardLink"
 
 # SEO & GEO
