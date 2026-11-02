@@ -290,7 +290,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 1. Install Vitest, the testing libraries your tests use, and Wasp's testing helpers:
 
    ```bash
-   npm install -D vitest jsdom@29 @testing-library/react @testing-library/jest-dom msw @wasp/test-utils
+   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp/test-utils
    ```
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
@@ -384,11 +384,36 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-5. Run your tests with Vitest instead of `wasp test client`. Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
+5. Run your tests with Vitest instead of `wasp test client`. Add a `test` script to your `package.json`, or change it if it runs `wasp test client`:
+
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```json title="package.json"
+       {
+         "scripts": {
+           // highlight-next-line
+           "test": "wasp test client"
+         }
+       }
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```json title="package.json"
+       {
+         "scripts": {
+           // highlight-next-line
+           "test": "vitest"
+         }
+       }
+       ```
+     </TabItem>
+   </Tabs>
+
+   Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
 
    ```bash
    wasp compile
-   npx vitest
+   npm test
    ```
 
 Read more in the [testing docs](./advanced/testing.md).
