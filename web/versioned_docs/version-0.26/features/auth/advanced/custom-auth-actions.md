@@ -1,3 +1,9 @@
+---
+title: Custom sign-up actions for Wasp auth
+sidebar_label: Custom sign-up actions
+description: Write your own sign-up action in Wasp to add validation or store more data, with email and username examples. Wasp advises auth hooks or custom UI first.
+---
+
 # Custom sign-up actions
 
 If you need to deeply hook into the sign-up process, you can create your own sign-up action and customize the code to, for example, add extra validation, store more data, or otherwise call custom code at registration time.

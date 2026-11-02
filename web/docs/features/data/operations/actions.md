@@ -1,3 +1,9 @@
+---
+title: "Actions: create and update data in Wasp"
+sidebar_label: Actions
+description: Actions create and update data in Wasp. Declare one in the spec, implement it in Node.js and call it from client or server code.
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
@@ -38,7 +44,7 @@ Once these two steps are completed, you can use the Action from anywhere in your
 To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -426,13 +432,21 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 ### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](../entities.md).
 To use an Entity in your Action, add it to the `action` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -538,7 +552,7 @@ Here are the key differences between Queries and Actions:
 ### Specifying Actions in Wasp Spec
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/functions/action"
+  to="../../../api/@wasp/spec/functions/action"
   kind="api"
   title="action"
   description="All the options for declaring an action in the Wasp spec."
@@ -604,7 +618,7 @@ Since both arguments are positional, you can name the parameters however you wan
     The following Action:
 
     ```ts
-    import { action, app } from "@wasp.sh/spec"
+    import { action, app } from "@wasp/spec"
     import { createFoo } from "./src/actions" with { type: "ref" }
 
     export default app({
@@ -628,7 +642,7 @@ Since both arguments are positional, you can name the parameters however you wan
     The following Action:
 
     ```ts
-    import { action, app } from "@wasp.sh/spec"
+    import { action, app } from "@wasp/spec"
     import { createFoo } from "./src/actions" with { type: "ref" }
 
     export default app({

@@ -21,7 +21,7 @@ We’re working hard to help you build performant web apps as easily as possibly
 
 We would be super grateful if you could help us out by starring our repo on GitHub: <https://www.github.com/wasp-lang/wasp> 🙏
 
-![https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
+![https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 …e*ven Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)* 🤩
 
@@ -29,7 +29,7 @@ We would be super grateful if you could help us out by starring our repo on GitH
 
 Twitter is a great marketing tool. It’s also a great way to explore ideas and refine your own. But it can be time-consuming and difficult to maintain a tweeting habit.
 
-![https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
+![https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g](https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 That’s why I decided to build my own personal twitter agent with [LangChain](https://js.langchain.com) on the basis of these assumptions:
 
@@ -57,7 +57,7 @@ If you’re not familiar with [similarity search](https://www.pinecone.io/learn/
 
 You can see why that’s so powerful, because if we have non-exact but related notes, our similarity search will still return them!
 
-![https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
+![https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 For example, if our favorite trend-setting twitter user makes a post about the benefits of typescript, but we only have a note on “our favorite React hooks”, our similarity search would still likely return such a result. And that’s huge!
 
@@ -99,9 +99,9 @@ wasp new twitter-agent
 cd twitter-agent && wasp start
 ```
 
-Great! When running `wasp start`, Wasp will install all the necessary npm packages, start our server on port 3001, and our React client on port 3000. Head to [localhost:3000](http://localhost:3000) in your browser to check it out.
+Great! When running `wasp start`, Wasp will install all the necessary npm packages, start our server on port 3001, and our React client on port 3000. Head to [localhost\:3000](http://localhost\:3000) in your browser to check it out.
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 1-17379de3a20e07adb3a2db0b5ccaa36f.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-1-17379de3a20e07adb3a2db0b5ccaa36f.png)
 
 :::tip[Tip ℹ️]
 you can install the [Wasp vscode extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) for the best developer experience.
@@ -148,7 +148,7 @@ AUTH_TOKEN=
 
 We need a way for us to store all our great ideas. So let’s first head to [Pinecone.io](http://Pinecone.io) and set up a free trial account.
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 2-8c0f54a8fce31101547ab18262df086c.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-2-8c0f54a8fce31101547ab18262df086c.png)
 
 In the Pinecone dashboard, go to API keys and create a new one. Copy and paste your `Environment` and `API Key` into `.env.server`
 
@@ -278,7 +278,7 @@ and make sure to give your database migration a name.
 
 If you stopped the wasp dev server to run this command, go ahead and start it again with `wasp start`.
 
-At this point, our app will be navigating us to [localhost:3000/login](http://localhost:3000/login) but because we haven’t implemented a login screen/flow yet, we will be seeing a blank screen. Don’t worry, we’ll get to that.
+At this point, our app will be navigating us to [localhost\:3000/login](http://localhost\:3000/login) but because we haven’t implemented a login screen/flow yet, we will be seeing a blank screen. Don’t worry, we’ll get to that.
 
 ## Embedding Ideas & Notes
 
@@ -464,7 +464,7 @@ export default () => {
 In the `auth` object on the `main.wasp` file, we used the `usernameAndPassword` method which is the simplest form of auth Wasp offers. If you’re interested, [Wasp](https://wasp.sh/docs) does provide abstractions for Google, Github, and Email Verified Authentication, but we will stick with the simplest auth for this tutorial.
 :::
 
-With authentication all set up, if we try to go to [localhost:3000](http://localhost:3000) we will be automatically directed to the login/register form.
+With authentication all set up, if we try to go to [localhost\:3000](http://localhost\:3000) we will be automatically directed to the login/register form.
 
 You’ll see that Wasp creates Login and Signup forms for us because of the `auth` object we defined in the `main.wasp` file. Sweet! 🎉
 
@@ -472,7 +472,7 @@ But even though we’ve added some style classes, we haven’t set up any css st
 
 🤢 Barf.
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 3-98a581cb23715d6bdd07a7c02bcf34e5.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-3-98a581cb23715d6bdd07a7c02bcf34e5.png)
 
 ### Adding Tailwind CSS
 
@@ -1120,11 +1120,11 @@ At this point, you. might need to restart the wasp dev server running in your te
 
 You’ll now be prompted with the login / register screen. Go ahead and click on `register` and you will be automatically logged in and redirected to the main page, which at this point only has this:
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 4-3746cd395d77cc114d45fe9d362c1b4a.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-4-3746cd395d77cc114d45fe9d362c1b4a.png)
 
 Let’s go back to our `MainPage.tsx` file and add the magic!
 
-![https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
+![https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g](https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 First, let’s create a buttons component so we don’t have to constantly style a new button. Create a new `src/client/Button.tsx` file:
 
@@ -1304,23 +1304,23 @@ In a new terminal tab, in the root of your project, run:
 wasp db studio
 ```
 
-Then, in a new browswer tab, at [localhost:5555](http://localhost:5555) you should see your database.
+Then, in a new browswer tab, at [localhost\:5555](http://localhost\:5555) you should see your database.
 
 Go to `user`, and you should be the only user in there. Add the usernames of a couple of your favorite trend-setting twitter users.
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 6-e9b23cea32b4395ffc1c27e963cc856a.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-6-e9b23cea32b4395ffc1c27e963cc856a.png)
 
 Make sure the accounts have tweeted recently or your function won’t be able to scrape or generate anything!
 
 :::tip[Hey ✋]
-While you’re at it, if you’re liking this tutorial, give me a [follow @hot\_town](https://twitter.com/hot_town) for more future content like this
+While you’re at it, if you’re liking this tutorial, give me a [follow @hot_town](https://twitter.com/hot_town) for more future content like this
 :::
 
 After adding the twitter usernames, make sure you click `save 1 change`.
 
 Go back to your client and click the `Generate New Ideas` button again. This might take a while depending on how many tweets it’s generating ideas for, so be patient — and watch the console output in your terminal if you’re curious ;)
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 7-0be1acc7318b274a747d1bd2f74192fb.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-7-0be1acc7318b274a747d1bd2f74192fb.png)
 
 Awesome! Now we should be getting back some generated ideas from our twitter “intern” which will help us brainstorm further notes and generate our own BANGER TWEETS.
 
@@ -1352,7 +1352,7 @@ Let’s try it out now in our `MainPage` by adding the following snippet above o
 
 Great. Now we should be sitting pretty 😻
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 8-520e26c0f08c60eea93de0b79d082269.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-8-520e26c0f08c60eea93de0b79d082269.png)
 
 You might remember from the beginning of the tutorial when we defined the LLM calls, that if your vector store notes don’t turn back a cosine similarity of at least 0.7, your agent will generate its own ideas entirely without using your notes as a guide.
 
@@ -1402,7 +1402,7 @@ export default AccountPage;
 
 When you navigate to <localhost:3000/account>, you’ll notice two things, one of them being a logout button. You can see in our `SettingsPage` above that we imported a Wasp-provided `logout` function. We get this “for free” since we defined our `auth` strategy in the `main.wasp` file — a big time-saver!
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 9-574a4169dc9f5461fce0f374bd242653.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-9-574a4169dc9f5461fce0f374bd242653.png)
 
 Because we also defined the `AccountPage` route with the `authRequired: true` property, Wasp will automatically pass the logged in user as a prop argument to our page. We can use the user object to display and update our `favUsers`, just as we can see in the image above.
 
@@ -1619,9 +1619,9 @@ function InputFields({ user }: { user: User }) {
 }
 ```
 
-And here’s what your `AccountPage` should look like when navigating to [localhost:3000/account](http://localhost:3000/account) (note: the styling may be a bit ugly, but we’ll take care of that later):
+And here’s what your `AccountPage` should look like when navigating to [localhost\:3000/account](http://localhost\:3000/account) (note: the styling may be a bit ugly, but we’ll take care of that later):
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 10-f45502b68be60aa98d7f9a653b9675fb.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-10-f45502b68be60aa98d7f9a653b9675fb.png)
 
 Fantastic. So we’ve got the majority of the app logic finished — our own personal twitter “intern” to help us all become thought leaders and thread bois 🤣.
 
@@ -1968,7 +1968,7 @@ export default NotesPage;
 
 Cool! Now we should be fetching all our embedded notes and ideas, signified by the `isEmbedded` tag in our postgres database. Your Notes page should now look something like this:
 
-![Untitled](<https://wasp.sh/assets/images/Untitled 11-d87b176d0e50f0da849f071829b910ef.png>)
+![Untitled](https://wasp.sh/assets/images/Untitled-11-d87b176d0e50f0da849f071829b910ef.png)
 
 ## You Did it! Your own Twitter Intern 🤖
 
@@ -1997,4 +1997,4 @@ And, once again, here's the repo for the finished app we built in this tutorial:
 - [react](https://wasp.sh/blog/tags/react)
 - [agent](https://wasp.sh/blog/tags/agent)
 
-[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/blog/2023-06-27-build-your-own-twitter-agent-langchain.mdx)Last updated on **Feb 13, 2026**
+[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/blog/2023-06-27-build-your-own-twitter-agent-langchain.mdx)Last updated on **Oct 23, 2026**

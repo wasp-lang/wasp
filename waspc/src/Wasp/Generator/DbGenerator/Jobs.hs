@@ -9,6 +9,7 @@ module Wasp.Generator.DbGenerator.Jobs
     seed,
     dbExecuteTest,
     migrateStatus,
+    formatSchema,
     asPrismaCliArgs,
   )
 where
@@ -21,7 +22,7 @@ import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
+import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName, dbSeedNpmScriptName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnvAndStdin)
@@ -89,6 +90,15 @@ migrateStatus generatedAppDir =
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
+-- | Runs `prisma format`, which formats schema.prisma in place.
+formatSchema :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+formatSchema generatedAppDir =
+  runPrismaCommandAsJobFromWaspServerDir
+    generatedAppDir
+    ["format", "--schema", SP.fromAbsFile schema]
+  where
+    schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
+
 -- | Runs `prisma migrate reset`, which drops the tables (so schemas and data is lost) and then
 -- reapplies all the migrations.
 reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job
@@ -109,20 +119,16 @@ reset generatedAppDir resetArgs =
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
--- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
---   prisma.seed field.
---   NOTE: We are running this command from server dir since that's where we defined the "prisma.seed"
---   script in package.json. In the future, we might want to allow users to specify the script name
---   in the project package.json, in which case we would run this command from project root dir.
+-- | Runs the server's db seed npm script, which bundles and runs the seed with the given name.
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
--- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed serverRunConfig generatedAppDir seedName =
-  runPrismaCommandAsJobWithExtraEnvAndStdin
+  runNodeCommandAsJobWithExtraEnvAndStdin
     CP.Inherited
-    serverDir
     ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
-    generatedAppDir
-    ["db", "seed"]
+    serverDir
+    "npm"
+    ["run", dbSeedNpmScriptName]
+    J.Db
   where
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
 

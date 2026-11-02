@@ -1,3 +1,9 @@
+---
+title: "GitHub auth in Wasp: login setup and user data"
+sidebar_label: GitHub
+description: Add GitHub login to a Wasp app, a good choice for developer apps. Create a GitHub App, set the client ID and secret, and request a scope to read emails.
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
@@ -81,22 +87,22 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 1. Create a GitHub account if you do not already have one: https://github.com.
 2. Create and configure a new GitHub App: https://github.com/settings/apps.
 
-   ![GitHub App Screenshot 1](/img/github-social-login/github-app-1.png)
+   ![GitHub App Screenshot 1](/img/docs/features/auth/social-auth/github/github-app-1.png)
 
 3. We have to fill out **App name** and **Homepage URL** fields.
    Additionally we will add our authorization **Callback URL**s:
     - For development, put: `http://localhost:3001/auth/github/callback`.
     - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
 
-   ![GitHub App Screenshot 2](/img/github-social-login/github-app-2.png)
+   ![GitHub App Screenshot 2](/img/docs/features/auth/social-auth/github/github-app-2.png)
 
 4. We will turn off the **Active** checkbox under the Webhook title, and then we can click **Create GitHub App**.
 
-   ![GitHub App Screenshot 3](/img/github-social-login/github-app-3.png)
+   ![GitHub App Screenshot 3](/img/docs/features/auth/social-auth/github/github-app-3.png)
 
 5. Finally, we can click **Generate a new client secret** button and then copy both **Client ID** and **Client secret**.
 
-   ![GitHub App Screenshot 4](/img/github-social-login/github-app-4.png)
+   ![GitHub App Screenshot 4](/img/docs/features/auth/social-auth/github/github-app-4.png)
 
 ### 4. Adding Environment Variables
 
@@ -135,7 +141,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 Yay, we've successfully set up GitHub Auth! 🎉
 
-![GitHub Auth](/img/auth/github.png)
+![GitHub Auth](/img/docs/features/auth/social-auth/github/github.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).

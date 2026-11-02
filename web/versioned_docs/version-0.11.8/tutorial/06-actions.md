@@ -219,7 +219,7 @@ Try creating a "Build a Todo App in Wasp" task and see it appear in the list bel
 
 Try refreshing the page or opening it in another browser, you'll see the tasks are still there!
 
-<img alt="Todo App - creating new task" src={useBaseUrl('img/todo-app-new-task.png')} style={{ border: "1px solid black" }} />
+<img alt="Todo App - creating new task" src={useBaseUrl('img/docs/tutorial/06-actions/todo-app-new-task.png')} style={{ border: "1px solid black" }} />
 
 <br />
 

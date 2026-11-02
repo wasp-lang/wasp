@@ -2,9 +2,8 @@ cabal-version: 2.4
 -- TODO:
 --  - Rename wasp-cli back to just wasp.
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
---    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.26.1
+version: 0.27.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -57,13 +56,9 @@ data-files:
   packages/deploy/dist/**/*.js
   packages/deploy/package-lock.json
   packages/deploy/package.json
-  packages/prisma/dist/**/*.js
-  packages/prisma/package-lock.json
-  packages/prisma/package.json
   packages/spec/dist/**/*.d.ts
   packages/spec/dist/**/*.js
   packages/spec/dist/**/*.map
-  packages/spec/package-lock.json
   packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html
@@ -84,6 +79,7 @@ common common-all
     -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
     -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
     -Wall
+    -Werror
     -Wunused-packages
     -optP-Wno-nonportable-include-path
     -fwrite-ide-info
@@ -359,7 +355,6 @@ library
     Wasp.Psl.Ast.WithCtx
     Wasp.Psl.Comments
     Wasp.Psl.Db
-    Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
     Wasp.Psl.Generator.Common

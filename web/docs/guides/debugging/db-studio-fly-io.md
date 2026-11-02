@@ -1,4 +1,6 @@
 ---
+title: "Database Studio with Fly.io: inspect production data"
+sidebar_label: Database Studio with Fly.io
 comments: true
 ---
 
