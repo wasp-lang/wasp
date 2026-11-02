@@ -83,7 +83,7 @@ const realApps: RealApp[] = [
       "AI writing platform with workspaces for novels, blogs, essays, and notes.",
     linkText: "visit site →",
     linkUrl: "https://scribeist.com/",
-    imageSrc: "/img/lp/examples/scribeist.webp",
+    imageSrc: "/img/site/examples/scribeist.webp",
   },
   {
     name: "Microinfluencer Club",
@@ -91,7 +91,7 @@ const realApps: RealApp[] = [
       "Connect brands with micro-influencers to run marketing campaigns.",
     linkText: "visit site →",
     linkUrl: "https://microinfluencer.club/",
-    imageSrc: "/img/lp/examples/microinfluencers.webp",
+    imageSrc: "/img/site/examples/microinfluencers.webp",
   },
   {
     name: "Searchcraft",
@@ -99,7 +99,7 @@ const realApps: RealApp[] = [
       "AI-powered search engine for product teams, with keyword precision plus semantic understanding.",
     linkText: "visit site →",
     linkUrl: "https://www.searchcraft.io/",
-    imageSrc: "/img/lp/examples/searchcraft.webp",
+    imageSrc: "/img/site/examples/searchcraft.webp",
     storyText: "read the story →",
     storyUrl: "/blog/2026/07/20/made-with-wasp-searchcraft",
   },

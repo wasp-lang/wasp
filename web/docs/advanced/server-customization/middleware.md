@@ -1,3 +1,9 @@
+---
+title: "Middleware: Express defaults and overrides in Wasp"
+sidebar_label: Middleware
+description: Wasp adds Helmet, CORS, Morgan, express.json and other Express middleware to every app. Change it globally, for one api or for all routes under a path.
+---
+
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { CardLink } from '@site/src/components/CardLink';
 
@@ -60,7 +66,7 @@ Below is the actual definitions of default middleware which you can override.
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    export type MiddlewareConfig = Map<string, express.RequestHandler>
+    type MiddlewareConfig = Map<string, express.RequestHandler>
 
     // Used in the examples below 👇
     export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
@@ -82,7 +88,7 @@ Below is the actual definitions of default middleware which you can override.
 If you would like to modify the middleware for _all_ operations and APIs, you can do something like:
 
 ```ts {7} title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
@@ -127,7 +133,7 @@ export default app({
 If you would like to modify the middleware for a single API, you can do something like:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
+import { api, app } from "@wasp/spec"
 import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -199,7 +205,7 @@ router.post("/webhook/callback", webhookCallbackMiddleware, ...)
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from "@wasp.sh/spec"
+import { apiNamespace, app } from "@wasp/spec"
 import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({

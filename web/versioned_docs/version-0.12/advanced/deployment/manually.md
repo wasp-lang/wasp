@@ -163,7 +163,7 @@ If your attempts to initiate a new app fail for whatever reason, then you should
   <div>
     <p>When your DB is deployed correctly, you'll see it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
 
-    <img width="662" alt="image" src="/img/deploying/fly-db.png" />
+    <img width="662" alt="image" src="/img/docs/guides/deployment/cloud-providers/flyio/fly-db.png" />
   </div>
 </details>
 
@@ -290,7 +290,7 @@ Let's create our Railway project:
 3. Once it initializes, click on it, go to **Settings > General** and change the name to `server`
 4. Go ahead and create another empty service and name it `client`
 
-![Changing the name](/img/deploying/railway-rename.png)
+![Changing the name](/img/docs/deployment/deployment-methods/paas/railway-rename.png)
 
 ### Deploy Your App to Railway
 

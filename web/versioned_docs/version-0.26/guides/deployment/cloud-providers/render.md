@@ -1,4 +1,7 @@
 ---
+title: "Render: deploy a Wasp app with a Blueprint"
+sidebar_label: Render
+description: "Deploy a Wasp app to Render, which builds it from source: define the server, client and database in a render.yaml Blueprint, then push to redeploy."
 comments: true
 ---
 

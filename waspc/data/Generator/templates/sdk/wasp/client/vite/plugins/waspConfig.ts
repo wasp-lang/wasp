@@ -63,7 +63,7 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          noExternal: ["@wasp.sh/lib-sdk-core"],
+          noExternal: ["@wasp/lib-sdk-core"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
@@ -74,20 +74,6 @@ export function waspConfig(): PluginOption {
             "react-dom",
             "@tanstack/react-query",
             "react-router",
-          ],
-          alias: [
-            {
-              // Vite doesn't look for `.prisma/client` imports in the `node_modules`
-              // folder. We point it to the correct place here.
-              // TODO: Check if we can remove when updating Prisma (#2504)
-              find: /^\.prisma\/client\/(.+)$/,
-              replacement: "node_modules/.prisma/client/$1.js",
-            },
-            {
-              // Handle bare .prisma/client import
-              find: /^\.prisma\/client$/,
-              replacement: "node_modules/.prisma/client",
-            },
           ],
         },
         test: {

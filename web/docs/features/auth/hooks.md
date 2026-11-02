@@ -1,4 +1,6 @@
 ---
+title: "Auth hooks: run custom code on signup and login"
+description: Run custom code at stages of the Wasp auth flow with hooks like onBeforeSignup and onAfterLogin, to block certain emails or send a welcome email.
 sidebar_label: Hooks
 ---
 
@@ -23,9 +25,9 @@ The following auth hooks are available in Wasp:
 
 We'll go through each of these hooks in detail. But first, let's see how the hooks fit into the auth flows:
 
-<ImgWithCaption source="/img/auth-hooks/signup_flow_with_hooks.png" alt="Signup Flow with Hooks" caption="Signup Flow with Hooks" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/signup_flow_with_hooks.png" alt="Signup Flow with Hooks" caption="Signup Flow with Hooks" />
 
-<ImgWithCaption source="/img/auth-hooks/login_flow_with_hooks.png" alt="Login Flow with Hooks" caption="Login Flow with Hooks *" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/login_flow_with_hooks.png" alt="Login Flow with Hooks" caption="Login Flow with Hooks *" />
 
 <small>
   \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
@@ -34,21 +36,21 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 Users registering with [email](./email/overview.md) must verify it before they can log in. This verification triggers the Email verification flow:
 
 <ImgWithCaption
-  source="/img/auth-hooks/email_verification_flow_with_hooks.png"
+  source="/img/docs/features/auth/hooks/email_verification_flow_with_hooks.png"
   alt="Email Verification Flow with Hooks"
   caption="Email Verification Flow with Hooks"
 />
 
 Users signing in with [OAuth](./social-auth/overview.md) must authorize access before completing login. This authorization triggers the OAuth consent flow:
 
-<ImgWithCaption source="/img/auth-hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
+<ImgWithCaption source="/img/docs/features/auth/hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
 
 ## Using hooks
 
 To use auth hooks, you must first declare them in the Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,
@@ -94,7 +96,7 @@ The `onBeforeSignup` hook can be useful if you want to reject a user based on so
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -175,7 +177,7 @@ Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -263,7 +265,7 @@ The `onAfterEmailVerified` hook receives an `email` string and `user` object, th
 Works with <EmailPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -333,7 +335,7 @@ The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.
 Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -396,7 +398,7 @@ The `onBeforeLogin` hook can be useful if you want to reject a user based on som
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -460,7 +462,7 @@ Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to updat
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -549,11 +551,11 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log("new tokens", newTokens)
+        console.log("new tokens", newTokens)
       }
     }
     ```
@@ -565,11 +567,11 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log("new tokens", newTokens)
+        console.log("new tokens", newTokens)
       }
     }
     ```
@@ -583,7 +585,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../jobs.md).
 ## API Reference
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,

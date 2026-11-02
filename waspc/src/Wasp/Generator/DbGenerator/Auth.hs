@@ -3,6 +3,7 @@ module Wasp.Generator.DbGenerator.Auth
     authEntityName,
     authIdentityEntityName,
     sessionEntityName,
+    authFieldOnSessionEntityName,
     userFieldOnAuthEntityName,
     authFieldOnUserEntityName,
     identitiesFieldOnAuthEntityName,

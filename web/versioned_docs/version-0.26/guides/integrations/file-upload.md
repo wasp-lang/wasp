@@ -1,10 +1,13 @@
 ---
+title: File uploads in a Wasp app with Multer
+sidebar_label: File Uploads
+description: "Accept file uploads in a Wasp app with Multer: add an API endpoint with upload middleware, post a form with FormData, and limit file size and type."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# File Uploads
+# File uploads
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", multer: "2.1.1" }} />
 

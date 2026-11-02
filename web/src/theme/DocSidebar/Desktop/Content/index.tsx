@@ -4,6 +4,7 @@ import {
   useScrollPosition,
 } from "@docusaurus/theme-common/internal";
 import { translate } from "@docusaurus/Translate";
+import { trackPlacementAttributes } from "@site/src/lib/analytics";
 import type { Props } from "@theme/DocSidebar/Desktop/Content";
 import DocSidebarItems from "@theme/DocSidebarItems";
 import clsx from "clsx";
@@ -40,6 +41,7 @@ export default function DocSidebarDesktopContent({
   return (
     <nav
       ref={containerRef}
+      {...trackPlacementAttributes("sidebar")}
       aria-label={translate({
         id: "theme.docs.sidebar.navAriaLabel",
         message: "Docs sidebar",

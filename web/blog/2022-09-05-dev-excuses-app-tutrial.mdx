@@ -2,13 +2,15 @@
 title: Building an app to find an excuse for our sloppy work
 authors: [maksym36ua]
 tags: [wasp]
+description: "Build a small Wasp app with React and Node.js that fetches developer excuses from a public API and saves your favorites to a database."
 ---
 
 import { InBlogCta } from './components/InBlogCta';
+import Trackable from '@site/src/components/Trackable';
 
 We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! And will do it with a single config file that covers the full-stack app architecture plus several dozen lines of code. In the quickest possible way, so we can’t excuse ourselves from building it!
 
-![Best excuse of all time](../static/img/compiling.png)
+![Best excuse of all time](../static/img/blog/2022-09-05-dev-excuses-app-tutrial/compiling.png)
 
 Best excuse of all time! [Taken from here.](https://xkcd.com/303/)
 
@@ -25,7 +27,7 @@ We’ll use Michele Gerarduzzi’s [open-source project](https://github.com/mich
 
 As a result – we’ll get a simple and fun pet project. You can find the complete codebase [here](https://github.com/wasp-lang/wasp/tree/590a08bb14284835c9785d416980da61fe9e0db0/examples/tutorials/ItWaspsOnMyMachine).
 
-![Final result](../static/img/final-excuse-app.png)
+![Final result](../static/img/blog/2022-09-05-dev-excuses-app-tutrial/final-excuse-app.png)
 
 ## There’s an issue with the third party library.
 
@@ -37,7 +39,7 @@ Ideally – use a framework that will create a project infrastructure quickly wi
 
 How it works: developer starts from a single config file that specifies the app architecture. Routes, CRUD API, auth, and so on. Then adds React/Node.js code for the specific business logic. Behind the scenes, Wasp compiler will produce the entire source code of the app - back-end, front-end, deployment template, database migrations and everything else you’ve used to have in any other full-stack app.
 
-![Wasp architecture](../static/img/wasp-compilation.png)
+![Wasp architecture](../static/img/blog/2021-03-02-wasp-alpha/wasp-compilation.png)
 
 So let’s jump right in.
 
@@ -47,9 +49,13 @@ Wasp intentionally works with the LTS Node.js version since it guarantees stabil
 
 Installing Wasp on Linux (for Mac/Windows, please [check the docs](https://wasp.sh/docs#2-installation)):
 
+<Trackable event="Install Command: Copy">
+
 ```
 npm i -g @wasp.sh/wasp-cli
 ```
+
+</Trackable>
 
 Now let’s create a new web app named ItWaspsOnMyMachine.
 
@@ -71,7 +77,7 @@ wasp start
 
 Now your default browser should open up with a simple predefined text message. That’s it! 🥳 We’ve built and run a NodeJS + React application. And for now – the codebase consists of only two files! `main.wasp` is the config file that defines the application’s functionality. And `MainPage.js` is the front-end.
 
-![Initial page](../static/img/init-page.png)
+![Initial page](../static/img/blog/2022-09-05-dev-excuses-app-tutrial/init-page.png)
 
 ## That worked perfectly when I developed it.
 
@@ -245,11 +251,11 @@ You’ll be prompted to enter a name for the migration. Something like `init` wi
 wasp start
 ```
 
-![Final empty result](../static/img/final-result.png)
+![Final empty result](../static/img/blog/2022-09-05-dev-excuses-app-tutrial/final-result.png)
 
 Now you can click the “Get excuse” button to receive an excuse. And save the ones you like into the DB with the “Save excuse” button. Our final project should look like this:
 
-![Final result](../static/img/final-excuse-app.png)
+![Final result](../static/img/blog/2022-09-05-dev-excuses-app-tutrial/final-excuse-app.png)
 
 ## It would have taken twice as long to build it properly.
 
@@ -262,6 +268,6 @@ Now we can think of some additional improvements. For example:
 
 So, we’ve been able to build a full-stack application with a database and external API call in a couple of minutes. And now we have a box full of excuses for all our development needs.
 
-![Box of excuses for the win!](../static/img/accessible-website-excuse.jpg)
+![Box of excuses for the win!](../static/img/blog/2022-09-05-dev-excuses-app-tutrial/accessible-website-excuse.jpg)
 
 <InBlogCta />
