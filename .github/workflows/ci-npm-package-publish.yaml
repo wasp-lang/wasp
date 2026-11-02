@@ -21,4 +21,4 @@ jobs:
           path: npm-packages/
 
       - name: Publish Wasp npm packages
-        run: npx pkg-pr-new publish --bin --compact ./npm-packages/*
+        run: pnpm dlx pkg-pr-new publish --bin --compact ./npm-packages/*
