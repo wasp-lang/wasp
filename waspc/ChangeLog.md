@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.26.1
+
+### ⚠️ Breaking Changes
+
+- Wasp now requires Node.js >=24.22.1 (previously >=24.14.1), which includes fixes for the [October 2026 Node.js security vulnerabilities](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). ([#5113](https://github.com/wasp-lang/wasp/pull/5113))
+
 ## 0.26.0
 
 ### ⚠️ Breaking Changes

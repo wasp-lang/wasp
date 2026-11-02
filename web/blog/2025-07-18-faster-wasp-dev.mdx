@@ -1,12 +1,12 @@
 ---
 title: "Cleaning up 5 years of tech debt in a full-stack JS framework"
 authors: [cprecioso]
-image: /img/faster-wasp-dev/da-boi-in-a-fast-car.png
+image: /img/blog/2025-07-18-faster-wasp-dev/da-boi-in-a-fast-car.png
 tags: [wasp, launch-week, inside-wasp, open-source]
 description: "5 years of tech debt in Wasp: TypeScript libraries to replace Mustache templates, two starters, one tested example app and wasp build start."
 ---
 
-![Wasp's mascot, "Da Boi", driving a fast, pimped ride through a blurred city](/img/faster-wasp-dev/da-boi-in-a-fast-car.png)
+![Wasp's mascot, "Da Boi", driving a fast, pimped ride through a blurred city](/img/blog/2025-07-18-faster-wasp-dev/da-boi-in-a-fast-car.png)
 
 > We’re building Wasp, a full-stack web framework the sweats the details and the boilerplate, so you go straight into building. It’s like having a senior engineer set up your architecture (server APIs, client routing, authentication, async jobs, and more!), so you focus only in the interesting parts of **your** app. [Try it out!](https://wasp.sh/docs/quick-start)
 
@@ -57,7 +57,7 @@ When you run `wasp start`, we read your `.wasp` files and stitch together your a
     >
     > In reality, it didn’t matter even then - almost nobody “ejected” the code, even in Alpha. And now it’s completely irrelevant.
 
-![A screenshot of a code editor with the same code as above, showing lots of syntatic and static analysis errors](/img/faster-wasp-dev/bad-editor.png)
+![A screenshot of a code editor with the same code as above, showing lots of syntatic and static analysis errors](/img/blog/2025-07-18-faster-wasp-dev/bad-editor.png)
 
 Yeesh... templates are very unpleasant to maintain at scale. Can you think of all the nice features you have in modern JS land?
 
@@ -95,7 +95,7 @@ But, when Earth most needed them, [Franjo](./2025-03-20-meet-franjo-engineer-at-
 
 First, we consolidated the starters. We now have two, and only two, official starters, living directly inside the main Wasp repo: one for a basic app with guidance on enabling common features, and a minimal one for users who know exactly what they want. Gone are the super-specialized starters that saw basically no usage. Don't worry though, [OpenSaas](https://opensaas.sh/) and [Mage](https://usemage.ai/) are still offered in `wasp new` to help you with more advanced needs.
 
-![A screenshot of a terminal running `wasp new`, asking the user to choose between 4 different starters: `basic`, `minimal`, `saas`, and `ai-generated`.](/img/faster-wasp-dev/new-wasp-new.png)
+![A screenshot of a terminal running `wasp new`, asking the user to choose between 4 different starters: `basic`, `minimal`, `saas`, and `ai-generated`.](/img/blog/2025-07-18-faster-wasp-dev/new-wasp-new.png)
 
 <small>
 When you run `wasp new`, this is what you see, starting from Wasp 0.17
@@ -103,7 +103,7 @@ When you run `wasp new`, this is what you see, starting from Wasp 0.17
 
 Second, our four separate test apps have been merged into a single, comprehensive ["kitchen sink" example project](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp). And instead of having to know a route for a specific test, the app is well laid out and explained. And this app is covered by a suite of end-to-end tests that run against every single pull request.
 
-![A screenshot of our Kitchen Sink app, focusing on its navigation sidebar, with multiple tests easily accessible.](/img/faster-wasp-dev/todo-app-sidebar.png)
+![A screenshot of our Kitchen Sink app, focusing on its navigation sidebar, with multiple tests easily accessible.](/img/blog/2025-07-18-faster-wasp-dev/todo-app-sidebar.png)
 
 <small>Who knew a sidebar would alleviate navigation issues 💁‍♀️</small>
 
@@ -119,7 +119,7 @@ Testing shouldn't be an afterthought, but it also shouldn't be a pain. We realiz
 
 <div style={{float: "right", maxWidth: "50%", margin: "1em"}}>
 
-![Wasp's mascot, "Da Boi", with a wig, on a stage, with a spotlight](/img/faster-wasp-dev/da-boi-dress-rehearsal.png)
+![Wasp's mascot, "Da Boi", with a wig, on a stage, with a spotlight](/img/blog/2025-07-18-faster-wasp-dev/da-boi-dress-rehearsal.png)
 
 </div>
 
@@ -137,7 +137,7 @@ This lets you debug production-only issues on your own machine, long before your
 
 <div style={{float: "right", maxWidth: "50%", margin: "1em"}}>
 
-![image.png](/img/faster-wasp-dev/github-actions-deploy.png)
+![image.png](/img/blog/2025-07-18-faster-wasp-dev/github-actions-deploy.png)
 
 </div>
 
@@ -163,7 +163,7 @@ This isn't just about testing our code; it's about testing the entire ecosystem 
 
 ## Third stop: release faster
 
-![Wasp's mascot, "Da Boi", reading our super long release checklist with steps and sub-steps, with a worried face](/img/faster-wasp-dev/scared-to-release.png)
+![Wasp's mascot, "Da Boi", reading our super long release checklist with steps and sub-steps, with a worried face](/img/blog/2025-07-18-faster-wasp-dev/scared-to-release.png)
 
 Our current release process is, to put it mildly, **long**. You can see the [checklist for yourself](https://github.com/wasp-lang/wasp/blob/main/waspc/README.md#typical-release-process). It's a long document with dozens of manual steps:
 
