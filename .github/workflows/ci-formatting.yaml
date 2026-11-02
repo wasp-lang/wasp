@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   prettier:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,7 +24,7 @@ jobs:
           pnpm run check:prettier
 
   ormolu:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - run: |
@@ -41,7 +41,7 @@ jobs:
         run: ./run check:ormolu
 
   cabal-gild:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v7

@@ -4,17 +4,16 @@ module Wasp.Generator.WebAppGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path')
-import Wasp.Env (getEnvVars)
+import System.Exit (ExitCode)
+import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig (..))
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir)
 
-startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job
-startWebApp webAppRunConfig waspProjectDir = do
-  runNodeCommandAsJobWithExtraEnv
-    (getEnvVars webAppRunConfig)
-    waspProjectDir
-    "npx"
-    ["vite"]
-    J.WebApp
+startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
+startWebApp webAppRunConfig waspProjectDir =
+  J.fromProc
+    . addEnvVarsOverride (getEnvVars webAppRunConfig)
+    -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
+    . J.markInteractive
+    =<< J.npmBinProc waspProjectDir "vite" []

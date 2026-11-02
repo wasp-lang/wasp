@@ -4,38 +4,28 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
-import Data.Function ((&))
+import System.Exit (ExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Env (getEnvVars)
-import qualified Wasp.Job as J
-import Wasp.Job.Except (ExceptJob, toExceptJob)
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Env (addEnvVarsOverride, getEnvVars)
+import qualified Wasp.Job as Job
 
-buildClient :: BuildStartConfig -> ExceptJob
+buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
-  runNodeCommandAsJobWithExtraEnv
-    envVars
-    projectDir
-    "npx"
-    ["vite", "build"]
-    J.WebApp
-    & toExceptJob (("Building the client failed with exit code: " <>) . show)
+  Job.fromProc
+    . addEnvVarsOverride envVars
+    =<< Job.npmBinProc config.projectDir "vite" ["build"]
   where
     envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
 
-startClient :: BuildStartConfig -> ExceptJob
+startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
-  runNodeCommandAsJobWithExtraEnv
-    envVars
-    projectDir
-    "npx"
-    [ "vite",
-      "preview", -- `preview` launches a static file server for the built client.
-      "--strictPort" -- This will make it fail if the port is already in use.
-    ]
-    J.WebApp
-    & toExceptJob (("Serving the client failed with exit code: " <>) . show)
+  Job.fromProc
+    . addEnvVarsOverride envVars
+    =<< Job.npmBinProc
+      config.projectDir
+      "vite"
+      [ "preview", -- `preview` launches a static file server for the built client.
+        "--strictPort" -- This will make it fail if the port is already in use.
+      ]
   where
     envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
