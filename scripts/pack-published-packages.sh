@@ -32,7 +32,7 @@ for package in "${publish_packages[@]}"; do
   cd "$packages_dir/$package"
 
   # Override the package version with the one from the workflow.
-  npm pkg set version="$publish_version"
+  pnpm pkg set version="$publish_version"
 
   # `pnpm pack` puts only the published files in the tarball.
   pnpm run build
