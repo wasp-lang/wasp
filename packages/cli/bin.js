@@ -3,6 +3,9 @@
 // @ts-check
 
 import { execFileSync } from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
@@ -28,6 +31,8 @@ try {
 }
 
 async function main() {
+  assertNoLegacyInstallerConflict();
+
   const { waspBinPath, dataDirPath } = await getSubPackage().catch(
     CLIError.rethrowWith("Can't find the Wasp executable."),
   );
@@ -40,7 +45,7 @@ async function main() {
 async function getSubPackage() {
   debug("Loading main package data...");
 
-  /** @type {{ default: import("../../src/schema/output-data.ts").MainPackageData }} */
+  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").MainPackageData }} */
   const { default: data } = await import(
     // @ts-expect-error This file does not exist at dev time, only in the built package.
     "./data.json",
@@ -55,7 +60,7 @@ async function getSubPackage() {
       ? isGlibc()
         ? "glibc"
         : "musl"
-      : /** @satisfies {typeof import("../../src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
+      : /** @satisfies {typeof import("../../scripts/make-npm-packages/src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
           "unknown"
         );
 
@@ -68,7 +73,7 @@ async function getSubPackage() {
 
   debug("Selected sub-package: %j", selectedSubPackage);
 
-  /** @type {{ default: import("../../src/schema/output-data.ts").SubPackageAPI }} */
+  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").SubPackageAPI }} */
   const importedPackage = await import(selectedSubPackage.packageName)
     .catch(async (error) => {
       // A common case for failure here is that the Node.js version is not
@@ -92,7 +97,7 @@ async function getSubPackage() {
 }
 
 async function runWasp(
-  /** @type {import("../../src/schema/output-data.ts").SubPackageAPI} */ {
+  /** @type {import("../../scripts/make-npm-packages/src/schema/output-data.ts").SubPackageAPI} */ {
     waspBinPath,
     dataDirPath,
   },
@@ -198,6 +203,84 @@ function checkNodeVersionIsSupported(
   // If we reach the end it's because all parts are equal, so the current
   // version satisfies the requirement.
   return true;
+}
+
+// Wasp used to be installed with a shell installer script into
+// `~/.local/share/wasp-lang`. Having both that and the npm package installed
+// leads to confusing conflicts, so we refuse to run until the user migrates.
+//
+// We check on every CLI invocation, not in an install script, because package
+// managers increasingly block install scripts of dependencies (pnpm, bun).
+//
+// TODO: Consider removing this check once we no longer expect any users to
+// have a shell-installer based Wasp installation.
+function assertNoLegacyInstallerConflict() {
+  const waspLangDir = tryGetWaspLangDir();
+  // No home dir (some containers), so no installer-based Wasp to conflict with.
+  if (waspLangDir === undefined) {
+    return;
+  }
+
+  // The installer script checks for this marker to warn about the same
+  // conflict from its side.
+  const npmMarkerFile = path.join(waspLangDir, ".uses-npm");
+  if (fs.existsSync(npmMarkerFile)) {
+    return;
+  }
+
+  if (hasInstallerWasp(waspLangDir)) {
+    throw new CLIError(`\
+Detected an existing legacy Wasp installation.
+
+You have Wasp installed via the curl installer script. To prevent conflicts,
+please migrate to npm before using the npm package.
+
+To migrate, run:
+
+  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
+
+and follow the instructions.`);
+  }
+
+  ensureNpmMarker(waspLangDir, npmMarkerFile);
+}
+
+// The path is also defined in:
+// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
+// - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+// TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
+function tryGetWaspLangDir() {
+  try {
+    return path.join(os.homedir(), ".local", "share", "wasp-lang");
+  } catch {
+    return undefined;
+  }
+}
+
+function hasInstallerWasp(/** @type {string} */ waspLangDir) {
+  try {
+    // If the folder exists and has any subdirectories (for the installed version(s)),
+    // we assume it's an installer-based Wasp installation.
+    const entries = fs.readdirSync(waspLangDir, { withFileTypes: true });
+    return entries.some((entry) => entry.isDirectory());
+  } catch {
+    return false;
+  }
+}
+
+function ensureNpmMarker(
+  /** @type {string} */ waspLangDir,
+  /** @type {string} */ npmMarkerFile,
+) {
+  try {
+    fs.mkdirSync(waspLangDir, { recursive: true });
+
+    // Same as `touch` - By appending nothing, we create the file if it doesn't
+    // exist, or leave the contents unchanged if it does.
+    fs.appendFileSync(npmMarkerFile, "");
+  } catch {
+    // Ignore errors - marker file is best-effort
+  }
 }
 
 // Adapted from rollup
