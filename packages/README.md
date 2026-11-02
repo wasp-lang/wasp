@@ -44,4 +44,5 @@ Adjust the last line if the package emits other file extensions.
 
 CI runs the same build scripts, and `waspc/tools/make_binary_package.sh` copies the data files
 into the release archive. `scripts/pack-published-packages.sh` packs the packages that get
-published to npm with the same version as the Wasp CLI.
+published to npm with the same version as the Wasp CLI. Libs from `packages/libs` can be
+listed there too, optionally with a different name for npm.
