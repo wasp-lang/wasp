@@ -7,7 +7,6 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
