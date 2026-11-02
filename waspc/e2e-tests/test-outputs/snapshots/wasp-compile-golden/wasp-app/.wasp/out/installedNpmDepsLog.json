@@ -43,10 +43,6 @@
                 {
                     "name": "vite",
                     "version": "^8.1.0"
-                },
-                {
-                    "name": "vitest",
-                    "version": "^4.1.9"
                 }
             ],
             "peerDependencies": []
@@ -99,26 +95,6 @@
                 "version": "^6.0.3"
             },
             {
-                "name": "@vitest/ui",
-                "version": "^4.1.9"
-            },
-            {
-                "name": "jsdom",
-                "version": "^27.4.0"
-            },
-            {
-                "name": "@testing-library/react",
-                "version": "^16.3.1"
-            },
-            {
-                "name": "@testing-library/jest-dom",
-                "version": "^6.9.1"
-            },
-            {
-                "name": "msw",
-                "version": "^2.12.7"
-            },
-            {
                 "name": "zod",
                 "version": "^4.3.6"
             },
@@ -169,10 +145,6 @@
             {
                 "name": "vite",
                 "version": "^8.1.0"
-            },
-            {
-                "name": "vitest",
-                "version": "^4.1.9"
             }
         ]
     },

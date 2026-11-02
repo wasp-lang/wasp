@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
+    },
+    "./config": {
+      "types": "./dist/config.d.mts",
+      "default": "./dist/config.mjs"
     }
   },
   "files": [
@@ -21,13 +25,17 @@
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/react": "^16.3.1",
     "@wasp/lib-sdk-core": "^0.27.0",
-    "msw": "^2.12.0",
+    "jsdom": "*",
+    "msw": "^3.0.0",
     "react": "^19.2.1",
     "react-router": "^8.0.1",
-    "vitest": "^4.1.0"
+    "vitest": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "@testing-library/react": {
+      "optional": true
+    },
+    "jsdom": {
       "optional": true
     },
     "msw": {
@@ -40,12 +48,12 @@
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
     "@tanstack/react-query": "~4.42.0",
-    "@testing-library/react": "^16.3.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "catalog:",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@wasp/lib-sdk-core": "workspace:*",
-    "msw": "^2.12.7",
+    "msw": "^3.0.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router": "^8.0.1",
