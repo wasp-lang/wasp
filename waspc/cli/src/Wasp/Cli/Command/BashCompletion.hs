@@ -32,6 +32,7 @@ bashCompletion = do
   where
     commands =
       [ "new",
+        "help",
         "version",
         "doctor",
         "completion",

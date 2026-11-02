@@ -21,7 +21,7 @@ Let's create and run our first Wasp app in 3 short steps:
    <Trackable event="Install Command: Copy">
 
    ```shell
-   npm i -g @wasp.sh/wasp-cli@latest
+   npm i -g @wasp/cli@latest
    ```
 
    </Trackable>
@@ -169,7 +169,7 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     <Trackable event="Install Command: Copy">
 
     ```shell
-    npm i -g @wasp.sh/wasp-cli@latest
+    npm i -g @wasp/cli@latest
     ```
 
     </Trackable>

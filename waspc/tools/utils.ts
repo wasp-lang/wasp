@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import { execFileSync, type ExecFileSyncOptions } from "node:child_process";
+import { execaSync } from "execa";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,11 +20,14 @@ export function discoverSubDirs(baseDirPath: string): string[] {
     .map((dir) => join(baseDirPath, dir.name));
 }
 
-export function getPackageJson(dir: string): {
+export type PackageJson = {
   name: string;
   version: string;
   scripts?: Record<string, string>;
-} {
+  devDependencies?: Record<string, string>;
+};
+
+export function getPackageJson(dir: string): PackageJson {
   const packageJsonPath = join(dir, "package.json");
   return JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 }
@@ -46,14 +49,9 @@ export function assertPackageVersionMatchesWaspc(
 export function runCmd(
   cmd: string,
   args: string[],
-  options: ExecFileSyncOptions,
-): string {
-  return execFileSync(cmd, args, {
-    ...options,
-    encoding: "utf-8",
-    // Required for Windows to find `npm` and `node` binaries.
-    shell: true,
-  });
+  options: { cwd: string; stdio?: "inherit" },
+): void {
+  execaSync(cmd, args, options);
 }
 
 const STARTING_SEARCH_LOCATIONS = ["examples"];

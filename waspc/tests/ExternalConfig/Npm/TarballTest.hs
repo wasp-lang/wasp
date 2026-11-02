@@ -24,7 +24,7 @@ spec_createTarballFilenamesCorrectly = do
     "~package" ~> "~package"
 
   describe "makeTarballFilename" $ do
-    itShouldCreateValidTarballPath ("@wasp.sh/lib-auth", "1.0.0") "wasp.sh-lib-auth-1.0.0.tgz"
+    itShouldCreateValidTarballPath ("@wasp/lib-auth", "1.0.0") "wasp-lib-auth-1.0.0.tgz"
   where
     (~>) :: String -> String -> Spec
     (~>) input expected = do

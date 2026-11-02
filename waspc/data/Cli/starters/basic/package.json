@@ -30,6 +30,6 @@
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0",
     "vitest": "^4.1.9",
-    "@wasp.sh/spec": "__waspSpecPackageSpecifier__"
+    "@wasp/spec": "__waspSpecPackageSpecifier__"
   }
 }

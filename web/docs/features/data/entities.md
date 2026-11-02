@@ -144,8 +144,10 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
     import { prisma } from "wasp/server"
 
     prisma.task.create({
+      data: {
         description: "Read the Entities doc",
         isDone: true // almost :)
+      }
     })
     ```
   </TabItem>
@@ -155,8 +157,10 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
     import { prisma } from "wasp/server"
 
     prisma.task.create({
+      data: {
         description: "Read the Entities doc",
         isDone: true // almost :)
+      }
     })
     ```
   </TabItem>

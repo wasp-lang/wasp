@@ -9,9 +9,9 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 waspLibs :: [WaspLib.WaspLib]
 waspLibs =
   [ -- NOTE: The package names of the libs should match the names in the
-    -- `package.json` files of the libs in the ./data/Generator/libs directory.
-    WaspLib.makeWaspLib "@wasp.sh/lib-auth" [reldir|auth|],
-    WaspLib.makeWaspLib "@wasp.sh/lib-sdk-core" [reldir|sdk-core|],
-    WaspLib.makeWaspLib "@wasp.sh/lib-test-utils" [reldir|test-utils|],
-    WaspLib.makeWaspLib "@wasp.sh/lib-vite-ssr" [reldir|vite-ssr|]
+    -- `package.json` files of the libs in the <repo>/packages/libs directory.
+    WaspLib.makeWaspLib "@wasp/lib-auth" [reldir|auth|],
+    WaspLib.makeWaspLib "@wasp/lib-sdk-core" [reldir|sdk-core|],
+    WaspLib.makeWaspLib "@wasp/lib-test-utils" [reldir|test-utils|],
+    WaspLib.makeWaspLib "@wasp/lib-vite-ssr" [reldir|vite-ssr|]
   ]

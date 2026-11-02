@@ -72,7 +72,7 @@ waspShowTest =
     routeFromEnvVarMainWaspTs :: T.Text
     routeFromEnvVarMainWaspTs =
       [trimming|
-        import { app, page, route } from "@wasp.sh/spec";
+        import { app, page, route } from "@wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" }
 
         export default app({

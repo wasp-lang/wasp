@@ -12,7 +12,7 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -141,7 +141,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp.sh/spec/interfaces/Server.md#setupfn).
+For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec/interfaces/Server.md#setupfn).
 
 ## Middleware Config Function
 
@@ -163,10 +163,16 @@ In the Docker image that `wasp build` generates, the project root is `/app`. The
 COPY src/data/ /app/src/data/
 ```
 
+## Trace Dependencies
+
+The server's Docker image contains only the files Wasp finds by following the server's imports. If a package loads files in a non-standard way, for example static assets it serves from a folder, list it in `traceDeps` so Wasp copies those files too.
+
+Read more in the [deployment section](../../deployment/methods/overview#missing-files-in-the-docker-image).
+
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Server"
+  to="../../api/@wasp/spec/interfaces/Server"
   kind="api"
   title="Server"
   description="All the options for the server field of the app spec."

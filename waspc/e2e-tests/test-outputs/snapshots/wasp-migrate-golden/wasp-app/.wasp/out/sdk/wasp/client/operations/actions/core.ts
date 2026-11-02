@@ -3,18 +3,18 @@ import {
   type SpecificOptimisticUpdateDefinition,
   registerActionInProgress,
   registerActionDone,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'
 import {
   makeOperationRoute,
   type OperationRpcFor,
   type GenericBackendOperation,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp/lib-sdk-core'
 import { callOperation } from '../internal/index.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
   relativeActionRoute: string,
-  entitiesUsed: unknown[]
+  entitiesUsed: string[]
 ): ActionFor<BackendAction> {
   const actionRoute = makeOperationRoute(relativeActionRoute)
 
