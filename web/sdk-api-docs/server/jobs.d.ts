@@ -31,7 +31,7 @@ import type {
   JSONObject,
   JSONValue,
   SubmittedJob,
-} from "@wasp.sh/lib-sdk-core";
+} from "@wasp/lib-sdk-core";
 
 /**
  * The type of a Job's worker function: an `async` function that performs the

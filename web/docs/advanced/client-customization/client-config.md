@@ -14,7 +14,7 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 You can configure the client using the `client` field inside the `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -42,7 +42,7 @@ It can be used for a variety of purposes, but the most common ones are:
 Let's define a common layout for your application:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -105,7 +105,7 @@ You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/O
 This is how to set up various providers that your application needs:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -153,7 +153,7 @@ export default app({
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp.sh/spec/interfaces/Client.md#rootcomponent).
+For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec/interfaces/Client.md#rootcomponent).
 
 ## Setup Function
 
@@ -266,14 +266,14 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp.sh/spec/interfaces/Client.md#setupfn).
+For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec/interfaces/Client.md#setupfn).
 
 ## Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -293,7 +293,7 @@ router will work correctly, and all the assets will be served from
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Client"
+  to="../../api/@wasp/spec/interfaces/Client"
   kind="api"
   title="Client"
   description="All the options for the client field of the app spec."

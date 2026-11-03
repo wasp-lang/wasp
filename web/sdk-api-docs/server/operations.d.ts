@@ -34,7 +34,7 @@
  * @module
  */
 
-import type { Payload } from "@wasp.sh/lib-sdk-core";
+import type { Payload } from "@wasp/lib-sdk-core";
 import type { AuthUser } from "../auth";
 
 /**
@@ -90,7 +90,7 @@ import type { AuthUser } from "../auth";
  * The Query `getFoo`, declared like this:
  *
  * ```ts
- * import { app, query } from "@wasp.sh/spec";
+ * import { app, query } from "@wasp/spec";
  * import { getFoo } from "./src/queries" with { type: "ref" };
  *
  * export default app({
@@ -245,7 +245,7 @@ export type UnauthenticatedQueryDefinition<
  * The Action `createFoo`, declared like this:
  *
  * ```ts
- * import { action, app } from "@wasp.sh/spec";
+ * import { action, app } from "@wasp/spec";
  * import { createFoo } from "./src/actions" with { type: "ref" };
  *
  * export default app({

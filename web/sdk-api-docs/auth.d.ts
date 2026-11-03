@@ -8,7 +8,7 @@
  * @module
  */
 
-import type { EmailProviderData } from "@wasp.sh/lib-sdk-core";
+import type { EmailProviderData } from "@wasp/lib-sdk-core";
 
 /**
  * Your app's user entity: the Prisma model you set as `auth.userEntity` in

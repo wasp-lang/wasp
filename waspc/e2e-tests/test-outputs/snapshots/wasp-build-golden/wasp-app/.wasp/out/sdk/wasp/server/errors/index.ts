@@ -1,4 +1,4 @@
-import { HttpError } from "@wasp.sh/lib-sdk-core";
+import { HttpError } from "@wasp/lib-sdk-core";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";

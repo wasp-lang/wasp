@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ClientConfig } from "@wasp.sh/lib-sdk-core";
+import type { ClientConfig } from "@wasp/lib-sdk-core";
 
 /**
  * The client's configuration object.
@@ -89,7 +89,7 @@ type ClientEnv = {
  * Use it to describe a {@link Route}, for example when mocking an API with
  * `mockApi` from `wasp/client/test`.
  */
-export { HttpMethod } from "@wasp.sh/lib-sdk-core";
+export { HttpMethod } from "@wasp/lib-sdk-core";
 
 /**
  * An HTTP method and path that identify an endpoint of your server.
@@ -101,7 +101,7 @@ export { HttpMethod } from "@wasp.sh/lib-sdk-core";
  * const route: Route = { method: HttpMethod.Get, path: "/foo/bar" };
  * ```
  */
-export type { Route } from "@wasp.sh/lib-sdk-core";
+export type { Route } from "@wasp/lib-sdk-core";
 
 /** The type of the {@link config} object. */
-export type { ClientConfig } from "@wasp.sh/lib-sdk-core";
+export type { ClientConfig } from "@wasp/lib-sdk-core";

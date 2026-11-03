@@ -117,11 +117,11 @@ export declare const api: KyInstance;
  * }
  * ```
  */
-export { handleApiError } from "@wasp.sh/lib-sdk-core/browser";
+export { handleApiError } from "@wasp/lib-sdk-core/browser";
 
 /**
  * An error that a request to your server failed with.
  *
  * {@link handleApiError} creates it from the errors that {@link api} throws.
  */
-export { WaspHttpError } from "@wasp.sh/lib-sdk-core";
+export { WaspHttpError } from "@wasp/lib-sdk-core";

@@ -44,7 +44,7 @@
  *
  * ```ts
  * // main.wasp.ts
- * import { app } from "@wasp.sh/spec";
+ * import { app } from "@wasp/spec";
  * import {
  *   clientEnvValidationSchema,
  *   serverEnvValidationSchema,
@@ -64,4 +64,4 @@
  *
  * @see [Custom env var validations](https://wasp.sh/docs/advanced/env-vars#custom-env-var-validations)
  */
-export { defineEnvValidationSchema } from "@wasp.sh/lib-sdk-core";
+export { defineEnvValidationSchema } from "@wasp/lib-sdk-core";

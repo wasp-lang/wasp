@@ -18,7 +18,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
+    import { app, page, route } from "@wasp/spec"
     import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
@@ -34,7 +34,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
+    import { app, page, route } from "@wasp/spec"
     import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
@@ -61,7 +61,7 @@ import "./Main.css";
 
 export function MainPage() {
   // ...
-};
+}
 ```
 
 This is a regular functional React component. It also imports some CSS and a logo from the `assets` folder.
@@ -79,7 +79,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../features/pages-and-routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
@@ -105,13 +105,13 @@ Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
+  Since you are using TypeScript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#link-component) for more details.
   :::
 </ShowForTs>
 
 ## Cleaning Up
 
-Now that you've seen how Wasp deals with Routes and Pages, it's finally time to build the Todo app.
+Now that you've seen how Wasp deals with Routes and Pages, it's time to build something useful: a full-stack Todo app where users sign up, log in, and manage their own tasks stored in a database.
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
@@ -232,7 +232,7 @@ Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `mai
 Your Wasp file should now look like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({

@@ -32,7 +32,7 @@
  */
 
 import type { QueryClientConfig, UseQueryResult } from "@tanstack/react-query";
-import type { Route } from "@wasp.sh/lib-sdk-core";
+import type { Route } from "@wasp/lib-sdk-core";
 
 /**
  * Calls a Query from a React component and keeps its result up to date.

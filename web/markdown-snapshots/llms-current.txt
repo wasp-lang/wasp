@@ -119,6 +119,7 @@
 - [Railway](https://wasp.sh/docs/guides/deployment/cloud-providers/railway.md)
 - [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render.md)
 - [Vercel](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel.md)
+- [Zerops](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops.md)
 #### Self-Hosted
 - [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
 - [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
@@ -142,7 +143,7 @@
 - [SEO & GEO](https://wasp.sh/docs/guides/optimization/seo.md)
 
 ## API
-- [@wasp.sh/spec](https://wasp.sh/docs/api/@wasp.sh/spec.md)
+- [@wasp/spec](https://wasp.sh/docs/api/@wasp/spec.md)
 - [wasp/auth](https://wasp.sh/docs/api/wasp/auth.md)
 - [wasp/auth/providers](https://wasp.sh/docs/api/wasp/auth/providers.md)
 - [wasp/client/api](https://wasp.sh/docs/api/wasp/client/api.md)
@@ -165,3 +166,4 @@
 - [wasp/server/jobs](https://wasp.sh/docs/api/wasp/server/jobs.md)
 - [wasp/server/operations](https://wasp.sh/docs/api/wasp/server/operations.md)
 - [wasp/server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket.md)
+- [wasp/test](https://wasp.sh/docs/api/wasp/test.md)

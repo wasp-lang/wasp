@@ -341,7 +341,7 @@ Take a look at an example of defining env vars validation:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -382,7 +382,7 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 ### Client Env Vars {#client-env-vars-api}
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/Client#envvalidationschema"
+  to="../api/@wasp/spec/interfaces/Client#envvalidationschema"
   kind="api"
   title="Client.envValidationSchema"
   description="The option of the client spec that sets your client env vars validation schema."
@@ -398,7 +398,7 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 ### Server Env Vars
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/Server#envvalidationschema"
+  to="../api/@wasp/spec/interfaces/Server#envvalidationschema"
   kind="api"
   title="Server.envValidationSchema"
   description="The option of the server spec that sets your server env vars validation schema."

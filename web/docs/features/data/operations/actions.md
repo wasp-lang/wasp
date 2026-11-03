@@ -42,7 +42,7 @@ Once these two steps are completed, you can use the Action from anywhere in your
 To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -444,7 +444,7 @@ In most cases, resources used in Actions will be [Entities](../entities.md).
 To use an Entity in your Action, add it to the `action` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -550,7 +550,7 @@ Here are the key differences between Queries and Actions:
 ### Specifying Actions in Wasp Spec
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/functions/action"
+  to="../../../api/@wasp/spec/functions/action"
   kind="api"
   title="action"
   description="All the options for declaring an action in the Wasp spec."

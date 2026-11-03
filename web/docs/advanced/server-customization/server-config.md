@@ -12,7 +12,7 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -141,7 +141,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp.sh/spec/interfaces/Server.md#setupfn).
+For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec/interfaces/Server.md#setupfn).
 
 ## Middleware Config Function
 
@@ -149,10 +149,30 @@ You can configure the global middleware via the `middlewareConfigFn`. This will 
 
 Read more in the [configuring middleware section](./middleware#1-customize-global-middleware).
 
+## Working Directory
+
+The server runs with your project's root directory as its working directory, both with `wasp start` and in production. Relative paths in your server code, like `fs.readFile("src/data/countries.json")` or an `uploads/` folder for file uploads, resolve from the project root.
+
+:::caution Don't write files into `src/` at runtime
+`wasp start` watches your project's `src/` folder and top-level files. If your server writes there, `wasp start` restarts the server or rebuilds your app, and a server that writes into `src/` on startup gets stuck in a restart loop. Write files to a subfolder of the project root instead, like `uploads/`.
+:::
+
+In the Docker image that `wasp build` generates, the project root is `/app`. The image doesn't include your project's files, so if your server reads any of them at runtime, keep them in `src/` and copy them into the image with a [custom Dockerfile](../../deployment/methods/overview.md#customizing-the-dockerfile):
+
+```dockerfile title="Dockerfile"
+COPY src/data/ /app/src/data/
+```
+
+## Trace Dependencies
+
+The server's Docker image contains only the files Wasp finds by following the server's imports. If a package loads files in a non-standard way, for example static assets it serves from a folder, list it in `traceDeps` so Wasp copies those files too.
+
+Read more in the [deployment section](../../deployment/methods/overview#missing-files-in-the-docker-image).
+
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Server"
+  to="../../api/@wasp/spec/interfaces/Server"
   kind="api"
   title="Server"
   description="All the options for the server field of the app spec."

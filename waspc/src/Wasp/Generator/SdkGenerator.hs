@@ -7,13 +7,10 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
-import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -44,7 +41,6 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
     viteVersionRange,
-    vitestVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -78,26 +74,20 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as Job
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
-  ( Version (major),
-  )
-import Wasp.Util ((<++>))
+import Wasp.Util (checkExitSuccess, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
-  chan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
+  exitCode <-
+    Job.run . Job.prefixWith Job.Wasp $
+      (Job.fromProc =<< Job.npmBinProc sdkRootDir "tsc" [])
+        `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
+
+  return $ checkExitSuccess "SDK build" exitCode
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
@@ -117,9 +107,9 @@ genSdk spec =
       C.genFileCopy [relfile|server/errors/httpErrors.ts|],
       C.genFileCopy [relfile|server/errors/unknownErrors.ts|],
       C.genFileCopy [relfile|server/errors/utils.ts|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/index.ts|],
+      C.genFileCopy [relfile|client/test/index.ts|],
+      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
@@ -216,7 +206,6 @@ npmDepsForSdk spec =
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
-          ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEnvValidation
           ++ waspLibsNpmDeps,
@@ -231,26 +220,15 @@ npmDepsForSdk spec =
             ("@types/react-dom", show reactDomTypesVersionRange)
           ]
           ++ devDepsRequiredByEmail spec,
-      -- The SDK imports these at runtime, but they must be the same instances
-      -- the user's project uses, so the user's package.json provides them.
+      -- The SDK imports `vite` at runtime, but it must be the same instance
+      -- the user's project uses, so the user's package.json provides it.
       N.peerDependencies =
         Npm.Dependency.fromList
-          [ ("vite", show viteVersionRange),
-            ("vitest", show vitestVersionRange)
+          [ ("vite", show viteVersionRange)
           ]
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
-
-depsRequiredForTesting :: [Npm.Dependency.Dependency]
-depsRequiredForTesting =
-  Npm.Dependency.fromList
-    [ ("@vitest/ui", "^4.1.9"),
-      ("jsdom", "^27.4.0"),
-      ("@testing-library/react", "^16.3.1"),
-      ("@testing-library/jest-dom", "^6.9.1"),
-      ("msw", "^2.12.7")
-    ]
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
@@ -264,8 +242,8 @@ genClientConfigFile =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData]
-      ++ maybeToList prismaSerializationFile
+    C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+      : maybeToList prismaSerializationFile
   where
     tmplData =
       object

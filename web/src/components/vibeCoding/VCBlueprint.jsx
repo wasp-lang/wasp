@@ -1,7 +1,7 @@
 import CodeHighlight from "../CodeHighlight";
 import { VCSection } from "./vcWrappers";
 
-const waspCode = `import { app, job, page, query, route } from "@wasp.sh/spec";
+const waspCode = `import { app, job, page, query, route } from "@wasp/spec";
 
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" };
 import { dailyReport } from "./src/jobs/report" with { type: "ref" };

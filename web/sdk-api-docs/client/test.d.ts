@@ -6,8 +6,8 @@
  * @module
  */
 
-import type { Query, Route } from "@wasp.sh/lib-sdk-core";
-import type { ReactElement } from "react";
+import type { Query, Route } from "@wasp/lib-sdk-core";
+import type { ReactElement, ReactNode } from "react";
 
 /**
  * The options of React Testing Library's
@@ -59,29 +59,23 @@ type RenderResult = {
  * React component tests, so they can use Queries, Actions, and links. Each
  * call gets its own query client, so tests don't share cached data.
  *
+ * It wraps the element in {@link WaspTestWrapper}.
+ *
  * @param ui The element to render.
  * @param options Options for Testing Library's `render`.
  * @returns What Testing Library's `render` returns.
  *
  * @example
  * ```tsx
- * import { test, expect } from "vitest";
  * import { screen } from "@testing-library/react";
- * import { mockServer, renderInContext } from "wasp/client/test";
- * import { getTasks } from "wasp/client/operations";
- * import Todo from "./Todo";
+ * import { expect, test } from "vitest";
+ * import { renderInContext } from "wasp/client/test";
+ * import { TasksHeader } from "./TasksHeader";
  *
- * const { mockQuery } = mockServer();
+ * test("links back home", () => {
+ *   renderInContext(<TasksHeader />);
  *
- * test("handles mock data", async () => {
- *   mockQuery(getTasks, [
- *     { id: 1, description: "test todo 1", isDone: true, userId: 1 },
- *   ]);
- *
- *   renderInContext(<Todo />);
- *
- *   await screen.findByText("test todo 1");
- *   expect(screen.getByRole("checkbox")).toBeChecked();
+ *   expect(screen.getByRole("link", { name: "Back home" })).toBeInTheDocument();
  * });
  * ```
  *
@@ -169,33 +163,61 @@ type MockServer = {
  * inside a test case. It starts an [MSW](https://mswjs.io/) server before the
  * file's tests, and resets the mocks after each test.
  *
- * Make sure your `devDependencies` include `vitest`.
- *
  * @returns The mock helpers.
  *
  * @example
  * ```tsx
- * import { test, expect } from "vitest";
  * import { screen } from "@testing-library/react";
+ * import { expect, test } from "vitest";
  * import { HttpMethod } from "wasp/client";
- * import { mockServer, renderInContext } from "wasp/client/test";
  * import { getTasks } from "wasp/client/operations";
- * import Todo from "./Todo";
+ * import { mockServer, renderInContext } from "wasp/client/test";
+ * import { TaskList } from "./TaskList";
  *
  * const { mockQuery, mockApi } = mockServer();
  *
- * test("handles mock data", async () => {
- *   mockQuery(getTasks, []);
- *   mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
+ * test("shows the tasks", async () => {
+ *   mockQuery(getTasks, [
+ *     { id: 1, description: "Buy milk", isDone: true, userId: 1 },
+ *   ]);
+ *   mockApi({ method: HttpMethod.Get, path: "/stats" }, { doneTasks: 3 });
  *
- *   renderInContext(<Todo />);
- *   // ...
+ *   renderInContext(<TaskList />);
+ *
+ *   await screen.findByText("Buy milk");
+ *   expect(screen.getByRole("checkbox")).toBeChecked();
  * });
  * ```
  *
  * @see [Testing](https://wasp.sh/docs/advanced/testing)
  */
 export declare function mockServer(): MockServer;
+
+/**
+ * Wraps its children in the providers that Wasp's client code needs: React
+ * Query's `QueryClientProvider` and React Router's router. Each wrapper gets
+ * its own query client, so tests don't share cached data.
+ *
+ * {@link renderInContext} uses it. Pass it as the
+ * [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper)
+ * option when you call Testing Library's `render` or `renderHook` yourself.
+ *
+ * @example
+ * ```tsx
+ * import { renderHook } from "@testing-library/react";
+ * import { WaspTestWrapper } from "wasp/client/test";
+ * import { useTaskCount } from "./useTaskCount";
+ *
+ * const { result } = renderHook(() => useTaskCount(), {
+ *   wrapper: WaspTestWrapper,
+ * });
+ * ```
+ *
+ * @see [Testing](https://wasp.sh/docs/advanced/testing)
+ */
+export declare function WaspTestWrapper(props: {
+  children: ReactNode;
+}): ReactNode;
 
 // Only the declarations marked with `export` are exported.
 export {};

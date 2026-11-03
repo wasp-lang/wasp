@@ -11,7 +11,7 @@ import { CardLink } from '@site/src/components/CardLink'
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -78,7 +78,7 @@ To speed up development, Wasp offers a `Dummy` email sender that `console.log`s 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -94,7 +94,7 @@ export default app({
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -126,7 +126,7 @@ If you run into issues, check their documentation for a solution, or consider us
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -169,7 +169,7 @@ As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -197,7 +197,7 @@ SENDGRID_API_KEY=
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -225,7 +225,7 @@ RESEND_API_KEY=
 ### `emailSender` specification
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/EmailSender"
+  to="../api/@wasp/spec/interfaces/EmailSender"
   kind="api"
   title="EmailSender"
   description="All the options for the emailSender field of the app spec."

@@ -1,0 +1,35 @@
+{
+  "name": "@wasp/wasp-app-runner",
+  "version": "0.0.19",
+  "type": "module",
+  "description": "CLI tool for running Wasp applications for e2e testing",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git"
+  },
+  "homepage": "https://github.com/wasp-lang/wasp#readme",
+  "bugs": "https://github.com/wasp-lang/wasp/issues",
+  "author": "Wasp Team <info@wasp-lang.dev> (https://wasp.sh)",
+  "license": "MIT",
+  "bin": {
+    "run-wasp-app": "bin/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepack": "pnpm run build",
+    "start": "pnpm run build && node ./bin/index.js"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "catalog:",
+    "chalk": "^5.4.1",
+    "commander": "catalog:",
+    "dotenv": "^16.5.0",
+    "p-retry": "^7.1.1",
+    "semver": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/semver": "catalog:",
+    "typescript": "catalog:"
+  }
+}

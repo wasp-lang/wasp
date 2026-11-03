@@ -8,11 +8,13 @@
     "@types/express-serve-static-core": "^5.1.3",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
-    "@wasp.sh/lib-auth": "file:../../waspc/data/Generator/libs/auth",
-    "@wasp.sh/lib-sdk-core": "file:../../waspc/data/Generator/libs/sdk-core",
+    "@wasp/lib-auth": "workspace:*",
+    "@wasp/lib-sdk-core": "workspace:*",
+    "@wasp/lib-test-utils": "workspace:*",
     "react-router": "^8.5.0",
     "socket.io": "^4.8.4",
     "socket.io-client": "^4.8.4",
+    "vitest": "catalog:",
     "zod": "^4.6.7"
   }
 }

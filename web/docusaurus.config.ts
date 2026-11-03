@@ -20,7 +20,7 @@ const lightCodeTheme = {
 
 const darkCodeTheme = {
   ...themes.dracula,
-  plain: { ...themes.dracula.plain, backgroundColor: "#1e1e1e" },
+  plain: { ...themes.dracula.plain, backgroundColor: "var(--wasp-code-bg)" },
 };
 
 const includeCurrentVersion =
@@ -62,13 +62,10 @@ const config: Config = {
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {
-        /*
-        margin: 24,
-        background: '#BADA55',
-        scrollOffset: 0,
-        container: '#zoom-container',
-        template: '#zoom-template',
-        */
+        // medium-zoom defaults to a white overlay, which shows through images
+        // with transparent backgrounds. The overlay lives on <body>, so a CSS
+        // variable resolves to the current theme's page background.
+        background: "var(--ifm-background-color)",
       },
     },
     navbar: {
@@ -322,7 +319,7 @@ const config: Config = {
         alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
 
         // Documents types that our packages reference but don't export, e.g.
-        // the `@wasp.sh/lib-sdk-core` types used in the Wasp SDK's signatures,
+        // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures,
         // and groups them so we can keep them out of the sidebar.
         plugin: [
           "typedoc-plugin-missing-exports",
@@ -332,7 +329,7 @@ const config: Config = {
 
         // input packages
         entryPointStrategy: "packages",
-        entryPoints: ["../waspc/data/packages/spec", "./sdk-api-docs"],
+        entryPoints: ["../packages/spec", "./sdk-api-docs"],
 
         // If you want to set an option to a specific package, you can create a
         // `typedoc.jsonc` file in that package's folder with the desired

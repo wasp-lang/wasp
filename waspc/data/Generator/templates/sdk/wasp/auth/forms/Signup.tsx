@@ -2,7 +2,7 @@ import Auth from './Auth'
 import type {
   CustomizationOptions,
   AdditionalSignupFields,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'
 import { State } from './types'
 
 // PUBLIC API
