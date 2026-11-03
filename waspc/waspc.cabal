@@ -2,9 +2,8 @@ cabal-version: 2.4
 -- TODO:
 --  - Rename wasp-cli back to just wasp.
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
---    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.26.1
+version: 0.27.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -39,6 +38,7 @@ data-files:
   Cli/starters/skeleton/npmrc
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
+  Generator/templates/**/*.cjs
   Generator/templates/**/*.css
   Generator/templates/**/*.js
   Generator/templates/**/*.json
@@ -57,13 +57,9 @@ data-files:
   packages/deploy/dist/**/*.js
   packages/deploy/package-lock.json
   packages/deploy/package.json
-  packages/prisma/dist/**/*.js
-  packages/prisma/package-lock.json
-  packages/prisma/package.json
   packages/spec/dist/**/*.d.ts
   packages/spec/dist/**/*.js
   packages/spec/dist/**/*.map
-  packages/spec/package-lock.json
   packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html
@@ -84,6 +80,7 @@ common common-all
     -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
     -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
     -Wall
+    -Werror
     -Wunused-packages
     -optP-Wno-nonportable-include-path
     -fwrite-ide-info
@@ -148,8 +145,10 @@ library
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
     split ^>=0.2.5,
+    stm ^>=2.5.1,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
+    temporary ^>=1.3,
     text ^>=2.1.3,
     time ^>=1.12.2,
     unliftio ^>=0.2.25,
@@ -280,13 +279,13 @@ library
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.RunConfig
+    Wasp.Generator.ServerGenerator.ServerEffect
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
-    Wasp.Generator.Test
     Wasp.Generator.TypeAugmentationGenerator
     Wasp.Generator.TypeAugmentationGenerator.App
     Wasp.Generator.TypeAugmentationGenerator.App.Common
@@ -310,19 +309,18 @@ library
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
-    Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
-    Wasp.Job.Except
-    Wasp.Job.IO
+    Wasp.Job.CreateProcess
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
+    Wasp.Node.NpmBin
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
@@ -358,7 +356,6 @@ library
     Wasp.Psl.Ast.WithCtx
     Wasp.Psl.Comments
     Wasp.Psl.Db
-    Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
     Wasp.Psl.Generator.Common
@@ -392,6 +389,7 @@ library
     Wasp.Util.Docker
     Wasp.Util.FilePath
     Wasp.Util.GitRev
+    Wasp.Util.Glob
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -436,7 +434,7 @@ library cli-lib
     process,
     strong-path,
     tar ^>=0.6.3,
-    temporary ^>=1.3,
+    temporary,
     text,
     time,
     utf8-string,
@@ -444,6 +442,8 @@ library cli-lib
     waspc,
     zlib ^>=0.7.1,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     Paths_waspc
 
@@ -507,10 +507,10 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
-    Wasp.Cli.Command.Test
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
+    Wasp.Cli.Compile
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -518,8 +518,11 @@ library cli-lib
     Wasp.Cli.Message
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
+    Wasp.Cli.ProjectLock.Data
+    Wasp.Cli.ProjectLock.Handle
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
+    Wasp.Cli.TerminationSignals
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
     Wasp.Cli.Util.Parser
@@ -550,24 +553,31 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
+    directory,
     filepath,
+    Glob,
     hspec >=2.11,
     megaparsec,
     mtl,
     neat-interpolation,
     network-uri,
     parsec,
+    process,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
+    temporary,
     text,
     time,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
     AppComponentUrlTest
     AppSpec.EntityTest
@@ -589,12 +599,17 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.ServerEffectTest
+    Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
     Generator.VirtualUserModulesTest
     Generator.WriteFileDraftsTest
+    Job.IO.PrefixedWriterTest
+    JobTest
     JsImportTest
     Node.InternalTest
+    Node.NpmBinTest
     Paths_waspc
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
@@ -623,9 +638,11 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Process.Util
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
+    Util.GlobTest
     Util.IO.RetryTest
     Util.JsTest
     Util.Prisma
@@ -655,9 +672,9 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
-    DbMigrateTest
     Paths_waspc
     TerminalTest
+    Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
@@ -707,6 +724,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.WaspNewSnapshotTest
     Tests.ViteBuildTest
     Tests.ViteConfigTest
+    Tests.VitestTest
     Tests.WaspBuildStartTest
     Tests.WaspBuildTest
     Tests.WaspCleanTest

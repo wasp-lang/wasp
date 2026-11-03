@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (filterM, unless)
+import Control.Monad (filterM, forM_, unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
@@ -19,8 +19,9 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Cli.Interactive (InteractiveTerminal)
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -36,9 +37,19 @@ import Wasp.Util.InstallMethod (uninstallationCommand)
 -- | Removes Wasp from the system.
 uninstall :: Arguments -> Command ()
 uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConfirmation} -> do
-  cliSendMessageC $ Msg.Start "Removing Wasp data..."
-  liftIO $ removeWaspFiles skipConfirmation
-  cliSendMessageC $ Msg.Success "Removed Wasp data."
+  waspPathsToRemove <- liftIO findWaspPathsToRemove
+
+  if null $ toFilePaths waspPathsToRemove
+    then cliSendMessageC $ Msg.Info "No Wasp data was found on this system."
+    else do
+      confirmationTerminal <-
+        if skipConfirmation
+          then return Nothing
+          else Just <$> requireInteractiveTerminal uninstallArgsParser
+      cliSendMessageC $ Msg.Start "Removing Wasp data..."
+      liftIO $ removeWaspPaths confirmationTerminal waspPathsToRemove
+      cliSendMessageC $ Msg.Success "Removed Wasp data."
+
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
   cliSendMessageC $ Msg.Info $ indent 2 uninstallationCommand
@@ -65,42 +76,45 @@ dockerVolumeMsg =
       <> " deleted all the docker volumes it might have created."
       <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
 
-removeWaspFiles :: Bool -> IO ()
-removeWaspFiles skipConfirmation = do
-  dirsToRemove <- filterM doesDirectoryExist =<< getWaspDirectories
-  filesToRemove <- filterM doesFileExist =<< getWaspFiles
+type PathsToRemove = ([Path' Abs Dir'], [Path' Abs File'])
 
-  let allPathsToRemove =
-        (SP.fromAbsDir <$> dirsToRemove)
-          ++ (SP.fromAbsFile <$> filesToRemove)
-
-  unless (null allPathsToRemove) $ do
-    putStr $
-      unlines
-        [ "We will remove the following files and directories:",
-          indent 2 $ unlines allPathsToRemove
+findWaspPathsToRemove :: IO PathsToRemove
+findWaspPathsToRemove =
+  (,)
+    <$> (filterM doesDirectoryExist =<< getWaspDirectories)
+    <*> (filterM doesFileExist =<< getWaspFiles)
+  where
+    getWaspDirectories = do
+      homeDir <- getHomeDir
+      userCacheDir <- getUserCacheDir
+      return
+        [ homeDir </> waspInstallationDirInHomeDir,
+          SP.castDir $ getWaspCacheDir userCacheDir
         ]
 
-    unless skipConfirmation $
-      Interactive.tryGettingConfirmation "Are you sure you want to continue? [y/N]" "y" >>= \case
-        Right () -> return ()
-        Left _ -> die "Aborted."
+    getWaspFiles = do
+      homeDir <- getHomeDir
+      return
+        [ homeDir </> waspExecutableInHomeDir
+        ]
 
-    mapM_ deleteDirectoryIfExists dirsToRemove
-    mapM_ deleteFileIfExists filesToRemove
+-- | Asks for confirmation on the given terminal before deleting anything.
+-- Without one (`--force`), deletes right away.
+removeWaspPaths :: Maybe InteractiveTerminal -> PathsToRemove -> IO ()
+removeWaspPaths confirmationTerminal pathsToRemove = do
+  putStr $
+    unlines
+      [ "We will remove the following files and directories:",
+        indent 2 $ unlines $ toFilePaths pathsToRemove
+      ]
 
-getWaspDirectories :: IO [Path' Abs Dir']
-getWaspDirectories = do
-  homeDir <- getHomeDir
-  userCacheDir <- getUserCacheDir
+  forM_ confirmationTerminal $ \terminal -> do
+    confirmed <- Interactive.askForConfirmation terminal "Are you sure you want to continue?"
+    unless confirmed $ die "Aborted."
 
-  return
-    [ homeDir </> waspInstallationDirInHomeDir,
-      SP.castDir $ getWaspCacheDir userCacheDir
-    ]
+  mapM_ deleteDirectoryIfExists $ fst pathsToRemove
+  mapM_ deleteFileIfExists $ snd pathsToRemove
 
-getWaspFiles :: IO [Path' Abs File']
-getWaspFiles = do
-  homeDir <- getHomeDir
-
-  return [homeDir </> waspExecutableInHomeDir]
+toFilePaths :: PathsToRemove -> [FilePath]
+toFilePaths (dirs, files) =
+  (SP.fromAbsDir <$> dirs) ++ (SP.fromAbsFile <$> files)

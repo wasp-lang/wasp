@@ -340,7 +340,7 @@ Take a look at an example of defining env vars validation:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -414,7 +414,7 @@ You can define your client env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -503,7 +503,7 @@ You can define your env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({

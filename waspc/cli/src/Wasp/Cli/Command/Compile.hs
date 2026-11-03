@@ -1,13 +1,14 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Wasp.Cli.Command.Compile
-  ( compileIO,
+  ( CompileResult (..),
+    compileIO,
     compileCommand,
     compile,
     compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
-    withSetupGoal,
+    withSetupGoals,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
     analyze,
@@ -19,7 +20,6 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Either (fromLeft)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -32,13 +32,13 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
-import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
+import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -47,7 +47,7 @@ import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
 compileCommand :: Command ([CompileWarning], AS.AppSpec)
-compileCommand = withProjectLock compile
+compileCommand = ProjectLock.acquireExclusive compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
@@ -88,15 +88,16 @@ compileWithOptions options = do
       $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (warnings, appSpecOrErrors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
-  case appSpecOrErrors of
+  liftIO $ printCompilationResult (warnings, errors)
+  case _compileOutcome compileResult of
     Right appSpec -> return (warnings, appSpec)
-    Left errors ->
+    Left compileErrors ->
       throwError
         $ CommandError "Compilation of wasp project failed"
-        $ show (length errors) ++ " errors found"
+        $ show (length compileErrors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,
@@ -143,14 +144,15 @@ analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length e
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
-compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
+  IO CompileResult
+compileIO waspProjectDir outDir =
+  compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
 
 compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
+  IO CompileResult
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 
@@ -160,11 +162,11 @@ defaultCompileOptions waspProjectDir =
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
-      setupGoal = GeneratedAppReady
+      setupGoals = allSetupGoals
     }
 
-withSetupGoal :: SetupGoal -> CompileOptions -> CompileOptions
-withSetupGoal goal options = options {setupGoal = goal}
+withSetupGoals :: [SetupGoal] -> CompileOptions -> CompileOptions
+withSetupGoals goals options = options {setupGoals = goals}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do

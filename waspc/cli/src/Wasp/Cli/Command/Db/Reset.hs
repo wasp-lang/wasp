@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.Db.Reset
   ( reset,
     ResetArgs (..),
+    resetArgsParser,
   )
 where
 
@@ -9,20 +10,19 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
-reset :: Arguments -> Command ()
-reset = withArguments resetArgsParser $ \resetArgs -> makeDbCommand PrismaCliReady $ \_appSpec -> do
+reset :: ResetArgs -> Command ()
+reset resetArgs = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir =

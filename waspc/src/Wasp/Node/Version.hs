@@ -22,7 +22,7 @@ import Wasp.Util (indent)
 -- | Wasp supports any node version equal or greater to this version.
 -- | We usually keep this one equal to the latest LTS.
 -- NOTE: Don't change Wasp's lowest supported Node version without updating it
--- in all required places. Check /mise.toml for the full list.
+-- in all required places. Check /.node-version for the full list.
 oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 24 22 1
 
@@ -42,6 +42,8 @@ isRangeInWaspSupportedRange range =
 type VersionCheckResult = Either ErrorMessage ()
 
 type ErrorMessage = String
+
+{- HLINT ignore checkUserNodeAndNpmMeetWaspRequirements "Avoid npm and npx" -}
 
 checkUserNodeAndNpmMeetWaspRequirements :: IO VersionCheckResult
 checkUserNodeAndNpmMeetWaspRequirements =
@@ -70,6 +72,8 @@ checkUserToolVersion commandName commandArgs oldestSupportedToolVersion =
 
 getUserNodeVersion :: IO (Either ErrorMessage SV.Version)
 getUserNodeVersion = getToolVersionFromCommandOutput "node" ["--version"]
+
+{- HLINT ignore getUserNpmVersion "Avoid npm and npx" -}
 
 getUserNpmVersion :: IO (Either ErrorMessage SV.Version)
 getUserNpmVersion = getToolVersionFromCommandOutput "npm" ["--version"]

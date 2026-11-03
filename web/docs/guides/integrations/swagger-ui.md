@@ -29,7 +29,7 @@ npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 Add an API namespace for the Swagger UI endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp.sh/spec"
+import { api, apiNamespace, app } from "@wasp/spec"
 import { getStatus } from "./src/apis" with { type: "ref" }
 import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 

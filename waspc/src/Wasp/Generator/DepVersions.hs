@@ -11,7 +11,6 @@ module Wasp.Generator.DepVersions
     expressVersionRange,
     expressTypesVersionRange,
     viteVersionRange,
-    vitestVersionRange,
     dotenvVersionRange,
     kyVersionRange,
   )
@@ -19,10 +18,9 @@ where
 
 import qualified Wasp.SemanticVersion as SV
 
--- When updating the value, also update it in `waspc/packages/prisma/package.json`.
 -- Also ensure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
 prismaVersionRange :: SV.Range
-prismaVersionRange = [SV.r|5.19.1|]
+prismaVersionRange = [SV.r|6.19.3|]
 
 superjsonVersionRange :: SV.Range
 superjsonVersionRange = [SV.r|^2.2.1|]
@@ -61,9 +59,6 @@ expressTypesVersionRange = [SV.r|^5.0.0|]
 
 viteVersionRange :: SV.Range
 viteVersionRange = [SV.r|^8.1.0|]
-
-vitestVersionRange :: SV.Range
-vitestVersionRange = [SV.r|^4.1.9|]
 
 dotenvVersionRange :: SV.Range
 dotenvVersionRange = [SV.r|^16.6.1|]

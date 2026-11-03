@@ -78,7 +78,7 @@ withTakenLocalPortsAt ports action =
 
 openLocalSocketOnPort :: S.PortNumber -> IO S.Socket
 openLocalSocketOnPort port = do
-  sock <- S.socket S.AF_INET S.Stream S.defaultProtocol
+  sock <- Socket.createIPv4TCPSocket
   S.bind sock $ Socket.makeLocalHostSocketAddress port
   S.listen sock 1
   return sock

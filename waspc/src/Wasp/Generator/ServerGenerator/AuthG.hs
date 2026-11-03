@@ -137,8 +137,7 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
     maybeAuth = AS.App.auth $ getApp spec
     authDeps =
       Npm.Dependency.fromList
-        [ ("lucia", "^3.0.1"),
-          ("@lucia-auth/adapter-prisma", "^4.0.0")
+        [ ("lucia", "^3.0.1")
         ]
 
 jwtSecretEnvVarName :: String
