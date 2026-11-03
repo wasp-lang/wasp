@@ -57,16 +57,16 @@ async function main() {
 }
 
 async function getSubPackage() {
-  debug("Loading main package data...");
+  debug("Loading CLI package data...");
 
-  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").MainPackageData }} */
+  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").CliPackageData }} */
   const { default: data } = await import(
     // @ts-expect-error This file does not exist at dev time, only in the built package.
     "./data.json",
     { with: { type: "json" } }
   );
 
-  debug("Loaded main package data: %j", data);
+  debug("Loaded CLI package data: %j", data);
 
   const { platform, arch } = process;
   const libc =

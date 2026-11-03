@@ -7,7 +7,7 @@ export interface SubPackageInfo {
 // The usual convention is to call it "unknown".
 export const UNDEFINED_LIBC_NAME = "unknown" as const;
 
-export interface MainPackageData {
+export interface CliPackageData {
   subPackages: {
     [os: string]: {
       [arch: string]: {

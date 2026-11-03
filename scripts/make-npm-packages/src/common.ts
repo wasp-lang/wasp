@@ -3,14 +3,14 @@ import * as path from "node:path";
 
 export const TEMPLATES_DIR = path.resolve(import.meta.dirname, "../templates");
 
-// The main package (`@wasp/cli`) comes from the `packages/cli` workspace
+// The CLI package (`@wasp/cli`) comes from the `packages/cli` workspace
 // package. The published package gets these files unchanged, and a
 // `package.json` generated from the source one.
-export const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
+export const CLI_PACKAGE_SOURCE_DIR = path.resolve(
   import.meta.dirname,
   "../../../packages/cli",
 );
-export const MAIN_PACKAGE_STATIC_FILES = [
+export const CLI_PACKAGE_STATIC_FILES = [
   "bin.js",
   "CLIError.js",
   "projectWaspCli.js",

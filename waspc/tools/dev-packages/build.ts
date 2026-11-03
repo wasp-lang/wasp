@@ -16,12 +16,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { report } from "node:process";
 import {
-  MAIN_PACKAGE_SOURCE_DIR,
-  MAIN_PACKAGE_STATIC_FILES,
+  CLI_PACKAGE_SOURCE_DIR,
+  CLI_PACKAGE_STATIC_FILES,
   copyStaticFiles,
 } from "../../../scripts/make-npm-packages/src/common.ts";
 import {
-  type MainPackageData,
+  type CliPackageData,
   UNDEFINED_LIBC_NAME,
 } from "../../../scripts/make-npm-packages/src/schema/output-data.ts";
 import { getPackageDirPath } from "../packages/utils.ts";
@@ -157,17 +157,17 @@ function packDevCliPackage(devPackagesDir: string): void {
 
   // Same files as the published package (see `scripts/make-npm-packages`),
   // plus the dev sub-package and a package.json that lists it.
-  copyStaticFiles(MAIN_PACKAGE_STATIC_FILES, MAIN_PACKAGE_SOURCE_DIR, tmpDir);
+  copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
   writeFileSync(
     join(tmpDir, DEV_SUB_PACKAGE_FILE_NAME),
     DEV_SUB_PACKAGE_SOURCE,
   );
 
-  const packageJson = getPackageJson(MAIN_PACKAGE_SOURCE_DIR) as {
+  const packageJson = getPackageJson(CLI_PACKAGE_SOURCE_DIR) as {
     files?: string[];
   };
   packageJson.files = [
-    ...MAIN_PACKAGE_STATIC_FILES,
+    ...CLI_PACKAGE_STATIC_FILES,
     "data.json",
     DEV_SUB_PACKAGE_FILE_NAME,
   ];
@@ -186,7 +186,7 @@ function packDevCliPackage(devPackagesDir: string): void {
         [cpu]: { [libc]: { packageName: `./${DEV_SUB_PACKAGE_FILE_NAME}` } },
       },
     },
-  } satisfies MainPackageData;
+  } satisfies CliPackageData;
   writeFileSync(join(tmpDir, "data.json"), JSON.stringify(data));
 
   packPackage(tmpDir, devPackagesDir);
