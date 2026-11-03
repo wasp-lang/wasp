@@ -1,4 +1,4 @@
-name: "Check - Web Markdown Output"
+name: "Check - Web"
 
 on:
   workflow_call:
@@ -39,3 +39,28 @@ jobs:
       - name: Check markdown snapshots
         working-directory: web
         run: pnpm run markdown-snapshots:check
+
+  build-web-production:
+    name: Build web for production
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: $/.github/actions/setup-tools
+        with:
+          haskell: false
+
+      - name: Install web dependencies
+        run: pnpm install --filter web...
+
+      - name: Build website
+        working-directory: web
+        # This is the same build the production deploy runs. It excludes the
+        # "current" docs version, which moves the latest released version to
+        # the unprefixed `/docs` path. The job above can't catch problems that
+        # only show up in that layout, e.g. a link to `/docs/<latest-version>/`,
+        # so without this job they would only fail the deploy after merging.
+        run: pnpm run build
