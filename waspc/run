@@ -203,7 +203,7 @@ print_usage() {
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
   print_usage_cmd "build:dev-packages" \
-    "Packs the unreleased @wasp/wasp, @wasp/cli and @wasp/spec into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
+    "Packs the unreleased @wasp/wasp and the packages it depends on into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
   echo ""
   print_usage_cmd "install-dev-wasp-package" \
     "Installs the current Wasp app's npm dependencies against the dev Wasp npm packages (drops their stale lockfile entries first). Must be run from a Wasp app directory."

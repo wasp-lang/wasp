@@ -2,8 +2,8 @@ module Wasp.Project.WaspNpmPackage
   ( -- * The Wasp npm package
 
     -- Wasp projects depend on Wasp through the @wasp/wasp npm package. It pins
-    -- the Wasp CLI (@wasp/cli) and the Wasp Spec (@wasp/spec) to one version
-    -- and ships the entry point the CLI uses to run the Spec analyzer.
+    -- the Wasp CLI (@wasp/cli), the Wasp Spec (@wasp/spec), @wasp/deploy and
+    -- @wasp/studio to one version, and ships the scripts the CLI runs them with.
     waspNpmPackageName,
     waspCliNpmPackageName,
     waspSpecNpmPackageName,
@@ -65,10 +65,13 @@ waspNpmPackageDirInWaspProjectDir = nodeModulesDirInWaspProjectDir </> [reldir|@
 waspSpecAnalyzerScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspSpecAnalyzerScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-spec.js|]
 
--- | The scripts that run the project's @wasp/deploy and @wasp/studio, the same way.
+-- | The script that runs the project's @wasp/deploy, by path like
+-- 'waspSpecAnalyzerScriptInWaspProjectDir'.
 waspDeployScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspDeployScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-deploy.js|]
 
+-- | The script that runs the project's @wasp/studio, by path like
+-- 'waspSpecAnalyzerScriptInWaspProjectDir'.
 waspStudioScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspStudioScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-studio.js|]
 

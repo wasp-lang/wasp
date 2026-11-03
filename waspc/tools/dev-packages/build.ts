@@ -33,6 +33,13 @@ const DEV_PACKAGES_DIR_NAME = ".dev-packages";
 const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";
 const DEV_SUB_PACKAGE_FILE_NAME = "dev-sub-package.js";
 
+// The packages `@wasp/wasp` depends on, besides `@wasp/cli`.
+const WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES: string[] = [
+  "spec",
+  "deploy",
+  "studio",
+];
+
 // The dev stand-in for the platform packages of `@wasp/cli`. It finds the
 // project it is installed in (the one whose package.json points at the dev
 // `@wasp/wasp` tarball), and reads the binary and data dir paths from the
@@ -90,18 +97,15 @@ function buildDevPackages(): void {
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
 
-  for (const packageName of ["spec", "deploy", "studio"]) {
-    console.log(`Building @wasp/${packageName}`);
-    runCmd("pnpm", ["--filter", `@wasp/${packageName}`, "run", "build"], {
+  for (const packageDirName of WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES) {
+    console.log(`Building @wasp/${packageDirName}`);
+    runCmd("pnpm", ["--filter", `@wasp/${packageDirName}`, "run", "build"], {
       cwd: getRepoRootPath(),
     });
+    packPackage(getPackageDirPath(packageDirName), devPackagesDir);
   }
 
   writeDevCliConfig(devPackagesDir);
-
-  packPackage(getPackageDirPath("spec"), devPackagesDir);
-  packPackage(getPackageDirPath("deploy"), devPackagesDir);
-  packPackage(getPackageDirPath("studio"), devPackagesDir);
   packDevCliPackage(devPackagesDir);
   packPackage(getPackageDirPath("wasp"), devPackagesDir);
 

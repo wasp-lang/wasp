@@ -29,10 +29,19 @@ prints the exact line), so `wasp-cli new` makes projects depend on the dev packa
 ### Adding a new package that `waspc` runs
 
 Create a directory in this folder with a `build` script in `package.json` that compiles to
-`dist/`, add it to `pnpm-workspace.yaml`, to `WASP_PACKAGE_NAMES` in
-`waspc/tools/packages/utils.ts`, to the dependencies of `wasp/package.json` and to the
-packages `waspc/tools/dev-packages/build.ts` builds and packs. Give `@wasp/wasp` a run script
-for it (see `wasp/run-deploy.js`) and point `Wasp.Project.WaspNpmPackage` at that script.
+`dist/`. Then add the package to:
+
+- `pnpm-workspace.yaml`
+- `WASP_PACKAGE_NAMES` in `waspc/tools/packages/utils.ts`
+- both lists in `scripts/pack-published-packages.sh`
+- the `dependencies` of `wasp/package.json`
+- the packages `waspc/tools/dev-packages/build.ts` builds and packs
+- the dev tarball lists in `Wasp.Project.WaspNpmPackage`, `Wasp.Cli.Command.Build`,
+  `waspc/e2e-tests/ShellCommands.hs`, `waspc/run` and `waspc/tools/version-bump.ts`
+- the `overrides` of the example apps
+
+Give `@wasp/wasp` a run script for the package (see `wasp/run-deploy.js`), add the script to
+the `files` of `wasp/package.json`, and point `Wasp.Project.WaspNpmPackage` at it.
 
 ## CI builds and release
 

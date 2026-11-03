@@ -12,7 +12,7 @@ function testPackages(): void {
   }
 }
 
-function testPackage(packageName: string) {
+function testPackage(packageName: string): void {
   const packageDir = getPackageDirPath(packageName);
   const packageJson = getPackageJson(packageDir);
 

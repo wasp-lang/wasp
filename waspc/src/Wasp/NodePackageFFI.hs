@@ -1,8 +1,8 @@
 module Wasp.NodePackageFFI
   ( -- * Node Package FFI
 
-    -- Provides utilities for running the TypeScript packages that come with
-    -- the project's @wasp/wasp (see "Wasp.Project.WaspNpmPackage").
+    -- Runs @wasp/deploy and @wasp/studio, which come with the project's
+    -- @wasp/wasp, as separate Node.js processes (see "Wasp.Project.WaspNpmPackage").
     RunnablePackage (..),
     getPackageProcessOptions,
   )

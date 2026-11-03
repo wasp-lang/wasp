@@ -132,8 +132,8 @@ build = ProjectLock.acquireExclusive $ do
 
       ExceptT $ prepareDevWaspNpmPackageForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir
 
-    -- While developing Wasp, the project depends on dev tarballs of @wasp/wasp,
-    -- @wasp/cli and @wasp/spec outside the project (see "Wasp.Project.WaspNpmPackage").
+    -- While developing Wasp, the project depends on dev tarballs of @wasp/wasp
+    -- and its dependencies outside the project (see "Wasp.Project.WaspNpmPackage").
     -- Docker's build context is `.wasp/out/`, so we copy the tarballs next to
     -- the Wasp libs and point the build's package.json and package-lock.json at
     -- the copies. The lock entries keep their integrity, since the tarballs are
