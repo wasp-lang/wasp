@@ -68,6 +68,7 @@ import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelD
 import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
+import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackagesDirEnvVarName)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
@@ -287,23 +288,21 @@ npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 npmInstall = return "npm install"
 
 -- | Points the project's package.json at the dev Wasp npm package tarballs
--- (see "Wasp.Project.WaspNpmPackage"), the way `wasp new` does for new
+-- (see "Wasp.Cli.DevWaspNpmPackages"), the way `wasp new` does for new
 -- projects. Needed for projects copied from the repo (e.g. the examples),
 -- whose package.json refers to the tarballs relative to their place in the repo.
--- The tarballs live next to the dev CLI wrapper we run the tests with.
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
   return $
-    "WASP_E2E_DEV_PACKAGES_DIR=\"$(cd \"$(dirname \"$WASP_CLI_CMD\")/../.dev-packages\" && pwd)\""
-      ~&& unwords
-        [ "npm pkg set",
-          devTarballField "dependencies.@wasp/wasp" "wasp-wasp",
-          devTarballField "overrides.@wasp/cli" "wasp-cli",
-          devTarballField "overrides.@wasp/spec" "wasp-spec"
-        ]
+    unwords
+      [ "npm pkg set",
+        devTarballField "dependencies.@wasp/wasp" "wasp-wasp",
+        devTarballField "overrides.@wasp/cli" "wasp-cli",
+        devTarballField "overrides.@wasp/spec" "wasp-spec"
+      ]
   where
     devTarballField field tarballName =
-      "\"" ++ field ++ "=file:$WASP_E2E_DEV_PACKAGES_DIR/" ++ tarballName ++ "-" ++ show waspVersion ++ ".tgz\""
+      "\"" ++ field ++ "=file:$" ++ devWaspNpmPackagesDirEnvVarName ++ "/" ++ tarballName ++ "-" ++ show waspVersion ++ ".tgz\""
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand

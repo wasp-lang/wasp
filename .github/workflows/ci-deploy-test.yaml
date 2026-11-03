@@ -42,7 +42,7 @@ jobs:
 
       - name: Install app dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
+        run: $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       - name: Install Fly CLI
         # NOTE: We tell users to install the latest version of Fly CLI,
@@ -138,7 +138,7 @@ jobs:
 
       - name: Install app dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
+        run: $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       - name: Install Railway CLI
         run: mise use -g railway@5.28.0

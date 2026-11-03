@@ -20,7 +20,7 @@ export type WaspcPackage = {
 // The packages a Wasp project depends on through `@wasp/wasp`. They are
 // published with each release, and packed from this repo for development (see
 // `tools/dev-packages`).
-export const WASP_NPM_PACKAGE_NAMES = ["wasp", "cli", "spec"];
+export const WASP_NPM_PACKAGE_DIRS = ["wasp", "cli", "spec"];
 
 export function getPackageDirPath(packageName: string): string {
   return join(getRepoRootPath(), "packages", packageName);

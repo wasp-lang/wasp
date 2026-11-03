@@ -27,9 +27,9 @@ under `waspc/data/Generator/libs/`. Those directories are build outputs (gitigno
 - `./run build:dev-packages` builds and packs `spec`, `cli` and `wasp` into `waspc/.dev-packages/`,
   for the Wasp projects in this repo to depend on the Wasp in this repo.
 
-Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`. For a globally
-installed `wasp-cli`, also export `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` (`./run install`
-prints the exact line), so `wasp-cli new` makes projects depend on the dev packages.
+Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`. A globally
+installed `wasp-cli` also needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` exported,
+so that `wasp-cli new` makes projects depend on the dev packages. `./run install` prints the exact line.
 
 ### Adding a new package that `waspc` runs
 

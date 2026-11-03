@@ -36,7 +36,7 @@ jobs:
 
       - name: Install app dependencies
         working-directory: examples/${{ matrix.example }}
-        run: $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
+        run: $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       # We must compile the project to generate the Wasp libs before installing deps
       - name: Compile project and install deps for ${{ matrix.example }}

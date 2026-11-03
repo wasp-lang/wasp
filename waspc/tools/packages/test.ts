@@ -4,7 +4,7 @@
 import { getPackageJson, runCmd } from "../utils.ts";
 import {
   getPackageDirPath,
-  WASP_NPM_PACKAGE_NAMES,
+  WASP_NPM_PACKAGE_DIRS,
   WASPC_PACKAGES,
 } from "./utils.ts";
 
@@ -13,7 +13,7 @@ testPackages();
 function testPackages(): void {
   const packageNames = [
     ...WASPC_PACKAGES.map(({ name }) => name),
-    ...WASP_NPM_PACKAGE_NAMES,
+    ...WASP_NPM_PACKAGE_DIRS,
   ];
   for (const packageName of packageNames) {
     testPackage(packageName);

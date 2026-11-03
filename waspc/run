@@ -40,8 +40,8 @@ INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 WASP_CLI_CMD="${PROJECT_ROOT}/tools/wasp-cli-dev"
 WASP_CLI_RUN_CMD="${WASP_CLI_CMD} ${ARGS[@]}"
 # Installs a Wasp app's dependencies against the dev Wasp npm packages. Must
-# run from the app's directory. See `install-dev-wasp-package` below.
-WASP_APP_INSTALL_CMD="${SCRIPT_DIR}/run install-dev-wasp-package"
+# run from the app's directory. See `reinstall-dev-wasp-app-deps` below.
+WASP_APP_INSTALL_CMD="${SCRIPT_DIR}/run reinstall-dev-wasp-app-deps"
 
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests --test-options='--hide-successes'"
@@ -206,8 +206,8 @@ print_usage() {
   print_usage_cmd "build:dev-packages" \
     "Packs the unreleased @wasp/wasp, @wasp/cli and @wasp/spec into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
   echo ""
-  print_usage_cmd "install-dev-wasp-package" \
-    "Installs the current Wasp app's npm dependencies against the dev Wasp npm packages (drops their stale lockfile entries first). Must be run from a Wasp app directory."
+  print_usage_cmd "reinstall-dev-wasp-app-deps" \
+    "Reinstalls the current Wasp app's npm dependencies against the dev Wasp npm packages, after dropping their stale lockfile entries. Run it from a Wasp app directory."
   print_usage_cmd "bust-libs-cache" \
     "Busts the npm cache for all @wasp/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
   echo ""
@@ -360,14 +360,14 @@ case $COMMAND in
   wasp-cli)
     echo_and_eval "$WASP_CLI_RUN_CMD"
     ;;
-  install-dev-wasp-package)
-    # The dev Wasp npm packages are `file:` tarballs that change with every
-    # build, so the lockfile's entries for them (hash included) go stale.
+  reinstall-dev-wasp-app-deps)
+    # The dev Wasp npm packages are `file:` tarballs that change whenever
+    # their sources change, and then the lockfile's entries for them go stale.
     remove_stale_generated_wasp_lock_entries
     npm install
     ;;
   bust-libs-cache)
-    # The dependencies must be installed before compile so @wasp/wasp matches the CLI version.
+    # Install the dependencies before compiling, so the installed @wasp/wasp matches the CLI version.
     # Old generated workspaces point at old lib tarballs, so remove them from disk
     # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
     rm -rf .wasp/out node_modules/@wasp/generated-server node_modules/@wasp.sh/generated-server node_modules/wasp

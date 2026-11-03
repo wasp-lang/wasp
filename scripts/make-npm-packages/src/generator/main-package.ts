@@ -65,10 +65,10 @@ function generatePackageJson(
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  // No `os` / `cpu` on the main package: it is a dependency of every Wasp
-  // project (through `@wasp/wasp`), and npm would refuse to install the whole
-  // project on an unsupported platform. The platform packages carry them, and
-  // `bin.js` explains the problem when none of them is installed.
+  // The main package has no `os` and `cpu` fields. Every Wasp project depends
+  // on it through `@wasp/wasp`, so with them npm would refuse to install the
+  // whole project on an unsupported platform. The platform packages declare
+  // `os` and `cpu`, and `bin.js` explains the problem when none is installed.
 
   console.log("Filled out package.json fields");
   console.groupEnd();
