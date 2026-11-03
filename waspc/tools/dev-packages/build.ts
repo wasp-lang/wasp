@@ -19,11 +19,11 @@ import {
   CLI_PACKAGE_SOURCE_DIR,
   CLI_PACKAGE_STATIC_FILES,
   copyStaticFiles,
-} from "../../../scripts/make-npm-packages/src/common.ts";
+} from "../../../scripts/make-cli-npm-packages/src/common.ts";
 import {
   type CliPackageData,
   UNDEFINED_LIBC_NAME,
-} from "../../../scripts/make-npm-packages/src/schema/output-data.ts";
+} from "../../../scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import { getPackageDirPath } from "../packages/utils.ts";
 import {
   getPackageJson,
@@ -49,7 +49,7 @@ const WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES: string[] = [
 // `@wasp/wasp` tarball), and reads the binary and data dir paths from the
 // config file next to that tarball. The env vars win when set.
 // Its default export must match `SubPackageAPI` in
-// `scripts/make-npm-packages/src/schema/output-data.ts`, which `bin.js` reads.
+// `scripts/make-cli-npm-packages/src/schema/output-data.ts`, which `bin.js` reads.
 const DEV_SUB_PACKAGE_SOURCE = `\
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -155,7 +155,7 @@ function packDevCliPackage(devPackagesDir: string): void {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
 
-  // Same files as the published package (see `scripts/make-npm-packages`),
+  // Same files as the published package (see `scripts/make-cli-npm-packages`),
   // plus the dev sub-package and a package.json that lists it.
   copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
   writeFileSync(
@@ -176,7 +176,7 @@ function packDevCliPackage(devPackagesDir: string): void {
     JSON.stringify(packageJson, null, 2) + "\n",
   );
 
-  // Same shape `scripts/make-npm-packages` writes, with the dev sub-package
+  // Same shape `scripts/make-cli-npm-packages` writes, with the dev sub-package
   // for this machine's platform. `bin.js` passes `packageName` to `import()`,
   // which resolves the relative path against `bin.js`.
   const { os, cpu, libc } = getCurrentTarget();

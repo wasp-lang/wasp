@@ -8,6 +8,6 @@
 # - The docs: /docs/introduction/quick-start.md ("Requirements" section).
 # - The docs plugin: /web/src/remark/search-and-replace.ts
 # - The web package: /web/package.json
-# - The published packages: /packages/cli/package.json, /packages/wasp/package.json, /scripts/make-npm-packages/templates/sub-package/package.json
+# - The published packages: /packages/cli/package.json, /packages/wasp/package.json, /scripts/make-cli-npm-packages/templates/sub-package/package.json
 # - The embedded packages: /packages/*/package.json
 # (Also just grep for the version in case we forgot somewhere.)

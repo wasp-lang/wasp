@@ -7,7 +7,7 @@ packages_dir="$repo_root/packages"
 
 # `wasp` depends on the other packages through `workspace:*`, and `pnpm pack`
 # replaces that with the versions in their package.json files. So we also set
-# the version of `cli`, which make-npm-packages packs instead of this script.
+# the version of `cli`, which make-cli-npm-packages packs instead of this script.
 versioned_packages=(
   cli
   deploy
