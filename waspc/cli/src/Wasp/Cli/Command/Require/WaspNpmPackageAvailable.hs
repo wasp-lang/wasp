@@ -31,9 +31,12 @@ instance Requirable WaspNpmPackageAvailable where
     -- they also need Node.js and npm.
     ValidNodeAndNpm <- require
     declaredSpecifier <-
-      liftIO (getDeclaredWaspNpmPackageSpecifier waspProjectDir)
+      liftIO (getWaspNpmPackageDeclaration waspProjectDir)
         >>= either (throwError . CommandError "Couldn't read package.json") return
-        >>= maybe (throwError notADependencyError) return
+        >>= \case
+          DeclaredInDependencies specifier -> return specifier
+          DeclaredInDevDependencies -> throwError inDevDependenciesError
+          NotDeclared -> throwError notADependencyError
     let declaredRange = eitherToMaybe $ SV.parseRange declaredSpecifier
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
@@ -84,6 +87,21 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "npm install"
             ++ "."
 
+      inDevDependenciesError =
+        CommandError
+          "Wasp is a dev dependency of this project"
+          $ "The "
+            ++ styleCode waspNpmPackageName
+            ++ " npm package brings your app's runtime dependencies, so it must be a regular dependency. Move it from "
+            ++ styleCode "devDependencies"
+            ++ " to "
+            ++ styleCode "dependencies"
+            ++ " in your "
+            ++ styleCode "package.json"
+            ++ " and run "
+            ++ styleCode "npm install"
+            ++ "."
+
       versionMismatchError :: String -> SV.Version -> CommandError
       versionMismatchError declaredSpecifier installedVersion =
         CommandError
@@ -120,14 +138,23 @@ isCliCompatibleWithInstalledWaspNpmPackage declaredRange installedVersion =
     Just range -> SV.isVersionInRange WV.waspVersion range
     Nothing -> installedVersion == WV.waspVersion
 
--- | What the user's package.json asks for \@wasp/wasp in its `dependencies`,
--- if anything.
-getDeclaredWaspNpmPackageSpecifier :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Maybe String))
-getDeclaredWaspNpmPackageSpecifier waspProjectDir =
+-- | Where the user's package.json lists \@wasp/wasp, if anywhere.
+data WaspNpmPackageDeclaration
+  = -- | Listed in `dependencies`, with this specifier.
+    DeclaredInDependencies String
+  | DeclaredInDevDependencies
+  | NotDeclared
+
+getWaspNpmPackageDeclaration :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspNpmPackageDeclaration)
+getWaspNpmPackageDeclaration waspProjectDir =
   findUserPackageJsonFile waspProjectDir >>= \case
-    Nothing -> return $ Right Nothing
+    Nothing -> return $ Right NotDeclared
     Just packageJsonFile ->
-      fmap declaredSpecifier <$> P.parsePackageJsonFile packageJsonFile
+      fmap getDeclaration <$> P.parsePackageJsonFile packageJsonFile
   where
-    declaredSpecifier packageJson =
-      M.lookup waspNpmPackageName (P.dependencies packageJson)
+    getDeclaration packageJson =
+      case M.lookup waspNpmPackageName (P.dependencies packageJson) of
+        Just specifier -> DeclaredInDependencies specifier
+        Nothing
+          | M.member waspNpmPackageName (P.devDependencies packageJson) -> DeclaredInDevDependencies
+          | otherwise -> NotDeclared

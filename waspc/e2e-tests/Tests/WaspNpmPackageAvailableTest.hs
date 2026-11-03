@@ -91,6 +91,16 @@ waspNpmPackageAvailableTest =
             ]
         ),
       TestCase
+        "compile-fails-with-hint-when-wasp-npm-package-is-a-dev-dependency"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ moveWaspNpmPackageToDevDependencies,
+                  assertCommandFailsWithDevDependencyHint waspCliCompile
+                ]
+            ]
+        ),
+      TestCase
         "build-start-fails-with-install-hint-when-wasp-npm-package-missing"
         -- `wasp build start` requires `.wasp/build` to exist before its
         -- `WaspNpmPackageAvailable` check fires, so we build first, then nuke
@@ -134,6 +144,11 @@ waspNpmPackageAvailableTest =
     removeWaspNpmPackageDependency :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeWaspNpmPackageDependency = return "npm pkg delete dependencies.@wasp/wasp && rm -rf node_modules/@wasp/wasp"
 
+    moveWaspNpmPackageToDevDependencies :: ShellCommandBuilder WaspProjectContext ShellCommand
+    moveWaspNpmPackageToDevDependencies =
+      return
+        "npm pkg set \"devDependencies.@wasp/wasp=$(npm pkg get dependencies.@wasp/wasp | jq -r .)\" && npm pkg delete dependencies.@wasp/wasp"
+
     setDeclaredWaspNpmPackageVersion :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     setDeclaredWaspNpmPackageVersion version = return $ "npm pkg set dependencies.@wasp/wasp=" ++ version
 
@@ -156,6 +171,12 @@ waspNpmPackageAvailableTest =
       ShellCommandBuilder WaspProjectContext ShellCommand
     assertCommandFailsWithNotADependencyHint commandBuilder =
       assertCommandOutputContains (("! " ++) <$> commandBuilder) "Wasp is not a dependency of this project"
+
+    assertCommandFailsWithDevDependencyHint ::
+      ShellCommandBuilder WaspProjectContext ShellCommand ->
+      ShellCommandBuilder WaspProjectContext ShellCommand
+    assertCommandFailsWithDevDependencyHint commandBuilder =
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) "Wasp is a dev dependency of this project"
 
     assertCommandFailsWithVersionMismatchHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
