@@ -1,10 +1,10 @@
 module Tests.WaspVersionTest (waspVersionTest) where
 
 import qualified Data.Text as T
-import E2e
+import E2E
 import Wasp.Version (waspVersion)
 
-waspVersionTest :: E2eTest
+waspVersionTest :: E2ETest
 waspVersionTest =
   testGroup
     "wasp-version"

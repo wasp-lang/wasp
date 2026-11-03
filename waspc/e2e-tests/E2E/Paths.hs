@@ -1,4 +1,4 @@
-module E2e.Paths
+module E2E.Paths
   ( getWaspcDir,
     getTestOutputsDir,
     getSnapshotsDir,

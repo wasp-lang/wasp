@@ -1,9 +1,9 @@
 module Tests.WaspInstallTest (waspInstallTest) where
 
-import E2e
+import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspInstallTest :: E2eTest
+waspInstallTest :: E2ETest
 waspInstallTest =
   testGroup
     "wasp-install"

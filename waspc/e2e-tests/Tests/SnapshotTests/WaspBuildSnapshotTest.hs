@@ -1,13 +1,13 @@
 module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import Control.Monad (void)
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
-waspBuildSnapshotTest :: E2eTest
+waspBuildSnapshotTest :: E2ETest
 waspBuildSnapshotTest =
   snapshotTest "wasp-build" $
     withNewWaspProject minimalStarterTemplate $ do

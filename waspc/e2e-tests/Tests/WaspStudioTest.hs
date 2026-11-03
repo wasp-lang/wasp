@@ -1,12 +1,12 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
-import E2e
-import qualified E2e.Ports as Ports
+import E2E
+import qualified E2E.Ports as Ports
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | NOTE: Studio will probably get its own Playwright tests in its package,
 -- so here we only test that the command works.
-waspStudioTest :: E2eTest
+waspStudioTest :: E2ETest
 waspStudioTest =
   testGroup
     "wasp-studio"

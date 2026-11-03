@@ -2,12 +2,12 @@ module Tests.WaspShowTest (waspShowTest) where
 
 import Control.Monad (forM_)
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import UnliftIO.Async (mapConcurrently)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspShowTest :: E2eTest
+waspShowTest :: E2ETest
 waspShowTest =
   testGroup
     "wasp-show"

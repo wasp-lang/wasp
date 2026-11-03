@@ -1,8 +1,8 @@
 module Tests.WaspTelemetryTest (waspTelemetryTest) where
 
-import E2e
+import E2E
 
-waspTelemetryTest :: E2eTest
+waspTelemetryTest :: E2ETest
 waspTelemetryTest =
   testGroup
     "wasp-telemetry"

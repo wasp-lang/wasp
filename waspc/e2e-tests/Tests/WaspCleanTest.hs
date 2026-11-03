@@ -1,9 +1,9 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
-import E2e
+import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspCleanTest :: E2eTest
+waspCleanTest :: E2ETest
 waspCleanTest =
   testGroup
     "wasp-clean"

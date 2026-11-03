@@ -1,10 +1,10 @@
 module Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest) where
 
-import E2e
+import E2E
 import Tests.Fixtures (writeTasksQuery, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-incrementalTypeCheckingTest :: E2eTest
+incrementalTypeCheckingTest :: E2ETest
 incrementalTypeCheckingTest =
   testGroup
     "incremental-type-checking"

@@ -1,11 +1,11 @@
 module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
-import E2e
-import E2e.Ports (appPortArgs, appPortList)
-import qualified E2e.Ports as Ports
+import E2E
+import E2E.Ports (appPortArgs, appPortList)
+import qualified E2E.Ports as Ports
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspBuildStartTest :: E2eTest
+waspBuildStartTest :: E2ETest
 waspBuildStartTest =
   testGroup
     "wasp-build-start"

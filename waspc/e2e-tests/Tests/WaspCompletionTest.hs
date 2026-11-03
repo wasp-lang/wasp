@@ -1,9 +1,9 @@
 module Tests.WaspCompletionTest (waspCompletionTest) where
 
 import qualified Data.Text as T
-import E2e
+import E2E
 
-waspCompletionTest :: E2eTest
+waspCompletionTest :: E2ETest
 waspCompletionTest =
   testGroup
     "wasp-completion"

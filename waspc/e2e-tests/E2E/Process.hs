@@ -1,5 +1,5 @@
 -- | Running commands as processes, without a shell.
-module E2e.Process
+module E2E.Process
   ( Command (..),
     Program (..),
     StdinMode (..),
@@ -50,8 +50,8 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Encoding.Error as TE
 import Data.Time.Clock (UTCTime, diffUTCTime, getCurrentTime)
-import E2e.Signals (Signal (..), signalProcess, signalProcessGroup)
-import E2e.TestM (RunConfig (..), TestEnv (..), TestLog, TestM, failTest, getWorkingDir, logLine, registerCleanup, resolvePath, runTestM, writeToLog)
+import E2E.Signals (Signal (..), signalProcess, signalProcessGroup)
+import E2E.TestM (RunConfig (..), TestEnv (..), TestLog, TestM, failTest, getWorkingDir, logLine, registerCleanup, resolvePath, runTestM, writeToLog)
 import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
 import System.FilePath (searchPathSeparator, (</>))
