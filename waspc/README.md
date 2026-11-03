@@ -75,12 +75,15 @@ If `mise run test` fails for you when installing Playwright browsers and their s
 ### Run the `wasp` CLI
 
 ```sh
-mise run wasp-cli
+wasp-cli
 ```
 
-to run the `wasp-cli` executable (that you previously built with `mise run build`)!
+to run the `wasp-cli` executable!
+It runs the current state of the `waspc` source through `cabal run`, building it first if needed.
 
 Since you provided no arguments, you should see help/usage.
+
+`wasp-cli` is on `PATH` anywhere inside the repo, as long as mise is [activated](../CONTRIBUTING.md#global-mise-setup) in your shell. Otherwise, use `mise x -- wasp-cli`. To use it outside of the repo, run `mise run install` to install it globally.
 
 Note that the executable during development is named `wasp-cli`, unlike `wasp` which is how it is named when you install a public release of Wasp via official installation method.
 This is to make it easier to differentiate between the development version of wasp CLI and the released version.
@@ -92,13 +95,13 @@ First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-s
 Then, run the dev database:
 
 ```sh
-mise run wasp-cli db start
+wasp-cli db start
 ```
 
 Leave it running, open a new terminal (tab), and run
 
 ```sh
-mise run wasp-cli db migrate-dev
+wasp-cli db migrate-dev
 ```
 
 to update the database schema.
@@ -114,7 +117,7 @@ to set up some mock env vars for the server, just to get the things running.
 Finally, run
 
 ```sh
-mise run wasp-cli start
+wasp-cli start
 ```
 
 to run the example app in the development mode.
@@ -134,7 +137,7 @@ When done, new tab in your browser should open and you will see the Kitchen Sink
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
-4. Use `mise run build:hs` to build the Haskell/cabal project, and `mise run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `mise run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `mise run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
+4. Use `mise run build:hs` to build the Haskell/cabal project, and `wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `mise run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `mise run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `mise run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `mise run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).

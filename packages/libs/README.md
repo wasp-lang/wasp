@@ -83,7 +83,7 @@ you need to make sure the Wasp CLI can find them.
 To do that, you need to pack the compiled libs into the `waspc/data/Generator/libs/` folder, which is
 packaged with the Wasp CLI.
 Run `mise run build:libs` to compile the libs and pack them into `waspc/data/Generator/libs/`.
-Then you can use `mise run wasp-cli` as you normally would.
+Then you can use `wasp-cli` as you normally would.
 
 ### `npm` cache busting
 

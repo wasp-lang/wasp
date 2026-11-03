@@ -24,7 +24,7 @@ under `waspc/data/Generator/libs/`. Those directories are build outputs (gitigno
   [#4434](https://github.com/wasp-lang/wasp/issues/4434), when they ship with the Wasp npm package).
 - `mise run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
 
-Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`.
+Then use `wasp-cli` as normal.
 
 ### Adding a new package that `waspc` runs
 

@@ -18,21 +18,11 @@ description = "Installs the wasp executable as 'wasp-cli' globally on the machin
 dir = "waspc"
 run = [{ task = "build:packages" }, { task = "build:libs" }, "cabal install --overwrite-policy=always"]
 
-# Wasp CLI
-
-# `raw_args` forwards every argument, including `--help`, to the wrapped tool.
-[wasp-cli]
-description = "Runs the dev version of wasp executable in the current directory while forwarding arguments. Builds the project (hs) first if needed."
-dir = "{{cwd}}"
-raw_args = true
-run = "{{vars.wasp_cli_dev}}"
-
 # Testing
 
 [test]
 description = "Executes all tests (waspc + Wasp CLI + examples + starters). Builds the project first if needed."
 dir = "waspc"
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = ["cabal test", { task = "test:starters" }, { task = "test:examples" }, { task = "test:libs" }, { task = "test:packages" }]
 
 ["test:waspc"]
@@ -49,7 +39,6 @@ run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pat
 ["test:waspc:e2e"]
 description = "Executes only cli e2e tests. Builds the project first if needed."
 dir = "waspc"
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
 
 ["test:waspc:e2e:accept-all"]
@@ -75,15 +64,13 @@ run = "pnpm --filter @wasp/wasp-app-runner run build"
 description = "Executes only kitchen-sink e2e tests. Installs deps first if needed."
 depends = ["build-wasp-app-runner"]
 dir = "examples/kitchen-sink"
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
-run = ["{{vars.wasp_cli_dev}} install", "npm run test"]
+run = ["wasp-cli install", "npm run test"]
 
 ["test:starters"]
 description = "Executes only starter templates e2e tests. Installs deps first if needed."
 depends = ["build-wasp-app-runner"]
 dir = "waspc/starters-e2e-tests"
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
 run = "pnpm run test:dev"
 
@@ -105,16 +92,23 @@ run = "ghcid '-T=:main --color always' --command=cabal repl tests/TastyDiscoverD
 description = "Checks code by running it through formatter, linter and static analysis."
 depends = ["check:*", "hlint", "stan"]
 
+# Use the same versions of HLint and Stan as the ones used inside the HLS binary
+# in `mise.toml`. You can run the following command to find the plugin versions
+# in the current GHC+HLS combination:
+# `haskell-language-server-$(ghc --numeric-version) --list-plugins`
+
 [stan]
 description = "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
 dir = "waspc"
 raw_args = true
+tools."mise-cabal:stan" = "0.2.1.0"
 run = ["cabal build all --enable-tests --enable-benchmarks", "stan report"]
 
 [hlint]
 description = "Runs linter on the codebase."
 dir = "waspc"
 raw_args = true
+tools."mise-cabal:hlint" = "3.8"
 run = "hlint ."
 
 [format]

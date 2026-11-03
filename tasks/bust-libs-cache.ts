@@ -7,7 +7,7 @@ import { readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getWaspcDirPath } from "../waspc/tools/utils.ts";
 
-const waspCliDevPath = join(getWaspcDirPath(), "tools", "wasp-cli-dev");
+const waspCliPath = join(getWaspcDirPath(), "tools", "bin", "wasp-cli");
 const $ = execa({ stdio: "inherit", verbose: "short" });
 
 const GENERATED_WASP_PATHS = [
@@ -24,10 +24,10 @@ for (const generatedPath of GENERATED_WASP_PATHS) {
   await rm(generatedPath, { recursive: true, force: true });
 }
 await removeStaleGeneratedWaspLockEntries();
-await $`${waspCliDevPath} install`;
+await $`${waspCliPath} install`;
 
 // Compiling the project copies the new lib tarball to the out dir.
-await $`${waspCliDevPath} compile`;
+await $`${waspCliPath} compile`;
 
 // The --force flag tells `npm` to ignore local cache when installing packages.
 await $`npm install --force`;

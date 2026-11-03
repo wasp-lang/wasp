@@ -16,14 +16,10 @@ ghcup = "0.2.6.2"
 # Check that the HLS version has a prebuilt binary for the GHC version we are
 # using by running the following command:
 # `type haskell-language-server-$(ghc --numeric-version)`
+#
+# HLint and Stan are only installed when their tasks run (see `tasks/waspc.toml`),
+# and must match the versions inside HLS.
 "mise-ghcup:hls" = "recommended"
-
-# Use the same versions of HLint and Stan as the ones used inside the HLS binary
-# above. You can run the following command to find the plugin versions in the
-# current GHC+HLS combination:
-# `haskell-language-server-$(ghc --numeric-version) --list-plugins`
-"mise-cabal:hlint" = "3.8"
-"mise-cabal:stan" = "0.2.1.0"
 
 jq = "1.8.2"
 railway = "5.64.2"
@@ -90,10 +86,13 @@ idiomatic_version_file_enable_tools = ["node", "pnpm"]
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
 
+[env]
+# Puts the dev `wasp-cli` on the `PATH` inside the repo.
+_.path = ["{{config_root}}/waspc/tools/bin"]
+
 [vars]
 # `{{config_root}}` in a task's `env` resolves to the task file's directory,
-# so the tasks use these absolute paths instead.
-wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
+# so the tasks use this absolute path instead.
 wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
 
 # Installs the workspace dependencies before `mise run` and `mise exec` when

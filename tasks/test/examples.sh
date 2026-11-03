@@ -4,8 +4,6 @@
 set -e
 
 REPOSITORY_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-WASP_CLI_CMD="$REPOSITORY_ROOT/waspc/tools/wasp-cli-dev"
-export WASP_CLI_CMD
 export WASP_APP_RUNNER_CLI_CMD="$REPOSITORY_ROOT/packages/wasp-app-runner/bin/index.js"
 
 paths=(
@@ -25,7 +23,7 @@ copy_env_server_example_if_needed() {
 }
 
 test_example() {
-  cd "$REPOSITORY_ROOT/$1" && copy_env_server_example_if_needed && "$WASP_CLI_CMD" install && npm run test
+  cd "$REPOSITORY_ROOT/$1" && copy_env_server_example_if_needed && wasp-cli install && npm run test
 }
 
 for path in "${paths[@]}"; do

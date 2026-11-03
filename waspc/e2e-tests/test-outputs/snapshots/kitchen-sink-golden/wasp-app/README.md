@@ -68,15 +68,12 @@ wasp start
 
 ### Development
 
-To run the application with the development version of Wasp, please use `mise run wasp-cli`.
+To run the application with the development version of Wasp, use `wasp-cli`, which mise puts on `PATH` inside the repo.
 
 For example:
 
 ```sh
 # From inside the kitchen-sink directory:
-mise run wasp-cli start db
-
-# Or if you installed the development `waspc` binary globally:
 wasp-cli start db
 ```
 

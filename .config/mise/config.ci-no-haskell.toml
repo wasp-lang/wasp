@@ -12,6 +12,4 @@ disable_tools = [
   "mise-ghcup:cabal",
   "mise-ghcup:ghc",
   "mise-ghcup:hls",
-  "mise-cabal:hlint",
-  "mise-cabal:stan",
 ]

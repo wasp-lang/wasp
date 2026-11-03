@@ -7,6 +7,4 @@
 [settings]
 disable_tools = [
   "mise-ghcup:hls",
-  "mise-cabal:hlint",
-  "mise-cabal:stan",
 ]

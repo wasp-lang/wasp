@@ -165,4 +165,4 @@ jobs:
       - name: Set job outputs
         id: set-outputs
         run: |
-          echo "waspc_version=$(mise run --no-deps get-waspc-version)" >> $GITHUB_OUTPUT
+          echo "waspc_version=$(node tasks/get-waspc-version.ts)" >> $GITHUB_OUTPUT
