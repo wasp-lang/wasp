@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 //MISE description="Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
+//MISE sources=["packages/spec/**/*", "packages/deploy/**/*", "packages/studio/**/*", "!packages/**/node_modules/**", "!packages/**/dist/**", "!packages/**/coverage/**", "!packages/studio/public/**", "pnpm-lock.yaml", "pnpm-workspace.yaml", "waspc/waspc.cabal", "waspc/tools/**/*.ts", "!waspc/tools/node_modules/**"]
+//MISE outputs=["waspc/data/packages/spec/dist/**/*", "waspc/data/packages/deploy/dist/**/*", "waspc/data/packages/deploy/package-lock.json", "waspc/data/packages/studio/dist/**/*", "waspc/data/packages/studio/package-lock.json"]
 /// <reference types="node" />
 
 import {

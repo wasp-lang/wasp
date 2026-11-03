@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 //MISE description="Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
+//MISE sources=["packages/libs/**/*", "!packages/libs/**/node_modules/**", "!packages/libs/**/dist/**", "!packages/libs/**/coverage/**", "!packages/libs/**/*.tgz", "pnpm-lock.yaml", "pnpm-workspace.yaml", "waspc/waspc.cabal", "waspc/tools/**/*.ts", "!waspc/tools/node_modules/**"]
+//MISE outputs=["waspc/data/Generator/libs/auth/*.tgz", "waspc/data/Generator/libs/sdk-core/*.tgz", "waspc/data/Generator/libs/test-utils/*.tgz", "waspc/data/Generator/libs/vite-ssr/*.tgz"]
 /// <reference types="node" />
 
 import { mkdirSync, readdirSync, rmSync } from "node:fs";

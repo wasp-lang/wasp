@@ -22,6 +22,7 @@ run = [{ task = "build:packages" }, { task = "build:libs" }, "cabal install --ov
 
 [test]
 description = "Executes all tests (waspc + Wasp CLI + examples + starters). Builds the project first if needed."
+depends = ["build:packages", "build:libs"]
 dir = "waspc"
 run = ["cabal test", { task = "test:starters" }, { task = "test:examples" }, { task = "test:libs" }, { task = "test:packages" }]
 
@@ -38,6 +39,7 @@ run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pat
 
 ["test:waspc:e2e"]
 description = "Executes only cli e2e tests. Builds the project first if needed."
+depends = ["build:packages", "build:libs"]
 dir = "waspc"
 run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
 

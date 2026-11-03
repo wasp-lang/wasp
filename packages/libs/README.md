@@ -112,6 +112,8 @@ Keep in mind:
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
 The package will be packaged using `pnpm pack` by the `mise run build:libs` script.
+Add its tarball to the `outputs` of `tasks/build/libs.ts`, so the task rebuilds
+when it is missing.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
 module so that the Wasp CLI knows about it.

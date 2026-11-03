@@ -63,7 +63,7 @@ Key things to know:
 
 ## Important Rules
 
-- **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `mise run build && mise run test:waspc:e2e:accept-all`.
+- **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `mise run test:waspc:e2e:accept-all`.
 - **Documentation**: Only edit `web/docs/` (the latest version). Do not modify `web/versioned_docs/` — those are auto-generated snapshots of previous versions.
 - **Markdown snapshots** (`web/markdown-snapshots/`) must never be manually edited. After changing docs, blog, or resources content (or the LLM files plugin), regenerate them by running `cd web && pnpm run build-dev && pnpm run markdown-snapshots:update`, then review the diff before committing. CI checks them with `pnpm run markdown-snapshots:check`.
 - **Pull requests**: Always use the repo's `PULL_REQUEST_TEMPLATE.md`. Never delete any checkbox from the template — leave irrelevant ones unchecked.

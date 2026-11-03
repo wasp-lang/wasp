@@ -24,6 +24,9 @@ under `waspc/data/Generator/libs/`. Those directories are build outputs (gitigno
   [#4434](https://github.com/wasp-lang/wasp/issues/4434), when they ship with the Wasp npm package).
 - `mise run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
 
+Both skip the build when their sources haven't changed since the last one (`mise run --force` to
+build anyway). The tasks that need them, like `mise run test:waspc:e2e`, run them first.
+
 Then use `wasp-cli` as normal.
 
 ### Adding a new package that `waspc` runs
@@ -31,7 +34,8 @@ Then use `wasp-cli` as normal.
 Create a directory in this folder with a `build` script in `package.json` that compiles to
 `dist/`, add it to `pnpm-workspace.yaml` and to `WASPC_PACKAGES` in
 `waspc/tools/packages/utils.ts` (as `runnable` if `waspc` runs it from the data dir, which
-gets it a generated npm lockfile there), and add its files to `data-files` in `waspc.cabal`:
+gets it a generated npm lockfile there), add it to the `sources` and `outputs` of `tasks/build/packages.ts`, and add its files to
+`data-files` in `waspc.cabal`:
 
 ```
 packages/<package-name>/package.json
