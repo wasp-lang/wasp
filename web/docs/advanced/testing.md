@@ -256,28 +256,28 @@ test("shows the stats", async () => {
 ## API reference
 
 <CardLink
-  to="../api/wasp/test/functions/waspTestConfig"
+  to="../api/wasp/test#wasptestconfig"
   kind="api"
   title="waspTestConfig"
   description="Configure Vitest with the defaults a Wasp app needs."
 />
 
 <CardLink
-  to="../api/wasp/client/test/functions/renderInContext"
+  to="../api/wasp/client/test#renderincontext"
   kind="api"
   title="renderInContext"
   description="Render a component with the providers Wasp needs."
 />
 
 <CardLink
-  to="../api/wasp/client/test/functions/mockServer"
+  to="../api/wasp/client/test#mockserver-1"
   kind="api"
   title="mockServer"
   description="Set up a mock server and mock your Queries and APIs."
 />
 
 <CardLink
-  to="../api/wasp/client/test/functions/WaspTestWrapper"
+  to="../api/wasp/client/test#wasptestwrapper"
   kind="api"
   title="WaspTestWrapper"
   description="Wrap your own Testing Library renders in the providers Wasp needs."

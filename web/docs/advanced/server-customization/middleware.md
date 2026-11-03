@@ -265,14 +265,14 @@ router.use("/foo/bar", fooBarNamespaceMiddleware)
 ## API Reference
 
 <CardLink
-  to="../../api/wasp/server/type-aliases/MiddlewareConfigFn"
+  to="../../api/wasp/server#middlewareconfigfn"
   kind="api"
   title="MiddlewareConfigFn"
   description="The type of the middlewareConfigFn functions that customize middleware."
 />
 
 <CardLink
-  to="../../api/wasp/server/variables/config"
+  to="../../api/wasp/server#config"
   kind="api"
   title="config"
   description="The server's configuration, e.g. the allowed CORS origins."

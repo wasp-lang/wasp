@@ -256,7 +256,7 @@ We suggest using the built-in field validators for your authentication flow. You
 #### Username
 
 <CardLink
-  to="../../../api/wasp/server/auth/functions/ensureValidUsername"
+  to="../../../api/wasp/server/auth#ensurevalidusername"
   kind="api"
   title="ensureValidUsername"
   description="Check that the username is valid."
@@ -265,7 +265,7 @@ We suggest using the built-in field validators for your authentication flow. You
 #### Email
 
 <CardLink
-  to="../../../api/wasp/server/auth/functions/ensureValidEmail"
+  to="../../../api/wasp/server/auth#ensurevalidemail"
   kind="api"
   title="ensureValidEmail"
   description="Check that the email is valid."
@@ -274,14 +274,14 @@ We suggest using the built-in field validators for your authentication flow. You
 #### Password
 
 <CardLink
-  to="../../../api/wasp/server/auth/functions/ensurePasswordIsPresent"
+  to="../../../api/wasp/server/auth#ensurepasswordispresent"
   kind="api"
   title="ensurePasswordIsPresent"
   description="Check that the password is present."
 />
 
 <CardLink
-  to="../../../api/wasp/server/auth/functions/ensureValidPassword"
+  to="../../../api/wasp/server/auth#ensurevalidpassword"
   kind="api"
   title="ensureValidPassword"
   description="Check that the password is valid."

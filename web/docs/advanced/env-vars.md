@@ -373,7 +373,7 @@ Read more about the env object in the [API Reference](#api-reference).
 There are **Wasp-defined** and **user-defined** env vars. Wasp already comes with built-in validation for Wasp-defined env vars. For your env vars, you can define your own validation.
 
 <CardLink
-  to="../api/wasp/env/functions/defineEnvValidationSchema"
+  to="../api/wasp/env#defineenvvalidationschema"
   kind="api"
   title="defineEnvValidationSchema"
   description="Define a type-checked Zod schema to validate your client or server env vars."
@@ -382,14 +382,14 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 ### Client Env Vars {#client-env-vars-api}
 
 <CardLink
-  to="../api/@wasp/spec/interfaces/Client#envvalidationschema"
+  to="../api/@wasp/spec#envvalidationschema"
   kind="api"
   title="Client.envValidationSchema"
   description="The option of the client spec that sets your client env vars validation schema."
 />
 
 <CardLink
-  to="../api/wasp/client/variables/env"
+  to="../api/wasp/client#env"
   kind="api"
   title="env (wasp/client)"
   description="The validated Wasp-defined and user-defined client env vars."
@@ -398,14 +398,14 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 ### Server Env Vars
 
 <CardLink
-  to="../api/@wasp/spec/interfaces/Server#envvalidationschema"
+  to="../api/@wasp/spec#envvalidationschema-1"
   kind="api"
   title="Server.envValidationSchema"
   description="The option of the server spec that sets your server env vars validation schema."
 />
 
 <CardLink
-  to="../api/wasp/server/variables/env"
+  to="../api/wasp/server#env-1"
   kind="api"
   title="env (wasp/server)"
   description="The validated Wasp-defined and user-defined server env vars."

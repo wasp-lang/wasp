@@ -58,7 +58,7 @@ export declare const config: ClientConfig;
  *
  * @see [Client env vars](https://wasp.sh/docs/advanced/env-vars#client-env-vars)
  * @see [Custom env var validations](https://wasp.sh/docs/advanced/env-vars#custom-env-var-validations)
- * @see [`defineEnvValidationSchema`](https://wasp.sh/docs/api/wasp/env/functions/defineEnvValidationSchema) to define your validation schema.
+ * @see {@link "env"!defineEnvValidationSchema | defineEnvValidationSchema} to define your validation schema.
  */
 export declare const env: ClientEnv;
 

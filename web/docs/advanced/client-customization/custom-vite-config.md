@@ -154,7 +154,7 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 ## API Reference
 
 <CardLink
-  to="../../api/wasp/client/vite/functions/wasp"
+  to="../../api/wasp/client/vite#wasp"
   kind="api"
   title="wasp"
   description="The Wasp Vite plugin and all its options."

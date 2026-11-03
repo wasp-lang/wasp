@@ -586,7 +586,7 @@ export const SignupPage = () => {
 ### Auth Fields
 
 <CardLink
-  to="../../api/@wasp/spec/interfaces/Auth"
+  to="../../api/@wasp/spec#auth-3"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec."
@@ -595,7 +595,7 @@ export const SignupPage = () => {
 ### Signup Fields Customization
 
 <CardLink
-  to="../../api/wasp/server/auth/functions/defineUserSignupFields"
+  to="../../api/wasp/server/auth#defineusersignupfields"
   kind="api"
   title="defineUserSignupFields"
   description="Define the extra fields Wasp saves on the user entity when a user signs up."
@@ -604,7 +604,7 @@ export const SignupPage = () => {
 ### `SignupForm` Customization
 
 <CardLink
-  to="../../api/wasp/client/auth/functions/SignupForm"
+  to="../../api/wasp/client/auth#signupform"
   kind="api"
   title="SignupForm"
   description="The signup form component, including its additionalFields prop."

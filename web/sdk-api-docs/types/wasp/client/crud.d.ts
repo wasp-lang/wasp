@@ -49,7 +49,7 @@ import type {
  * It only has the fields for the operations you enabled in the spec. In
  * TypeScript, their input and output types come from the operations' default
  * implementations, or from your overrides (see
- * [`wasp/server/crud`](https://wasp.sh/docs/api/wasp/server/crud)).
+ * {@link "server/crud"! | wasp/server/crud}).
  *
  * This type itself isn't exported from `wasp/client/crud`.
  *

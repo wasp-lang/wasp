@@ -550,7 +550,7 @@ Here are the key differences between Queries and Actions:
 ### Specifying Actions in Wasp Spec
 
 <CardLink
-  to="../../../api/@wasp/spec/functions/action"
+  to="../../../api/@wasp/spec#action-1"
   kind="api"
   title="action"
   description="All the options for declaring an action in the Wasp spec."
@@ -573,14 +573,14 @@ Here are the key differences between Queries and Actions:
 ### Implementing Actions
 
 <CardLink
-  to="../../../api/wasp/server/operations/type-aliases/AuthenticatedActionDefinition"
+  to="../../../api/wasp/server/operations#authenticatedactiondefinition"
   kind="api"
   title="AuthenticatedActionDefinition"
   description="The arguments and return value of an Action's implementation, and the generic type Wasp generates for typing it."
 />
 
 <CardLink
-  to="../../../api/wasp/server/operations/type-aliases/UnauthenticatedActionDefinition"
+  to="../../../api/wasp/server/operations#unauthenticatedactiondefinition"
   kind="api"
   title="UnauthenticatedActionDefinition"
   description="The same, for Actions that don't use auth."
@@ -589,14 +589,14 @@ Here are the key differences between Queries and Actions:
 ### The `useAction` Hook and Optimistic Updates
 
 <CardLink
-  to="../../../api/wasp/client/operations/functions/useAction"
+  to="../../../api/wasp/client/operations#useaction"
   kind="api"
   title="useAction"
   description="All the arguments of the useAction hook, and how to use react-query's lower-level API directly."
 />
 
 <CardLink
-  to="../../../api/wasp/client/operations/type-aliases/OptimisticUpdateDefinition"
+  to="../../../api/wasp/client/operations#optimisticupdatedefinition"
   kind="api"
   title="OptimisticUpdateDefinition"
   description="How to define an optimistic update, and the rules it must follow."

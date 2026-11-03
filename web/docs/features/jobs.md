@@ -232,7 +232,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 ### `job` specification
 
 <CardLink
-  to="../api/@wasp/spec/functions/job"
+  to="../api/@wasp/spec#job-1"
   kind="api"
   title="job"
   description="All the options for defining a job in the Wasp spec."
@@ -250,7 +250,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 #### The worker function {#worker-api}
 
 <CardLink
-  to="../api/wasp/server/jobs/type-aliases/JobFn"
+  to="../api/wasp/server/jobs#jobfn"
   kind="api"
   title="JobFn"
   description="The type of a Job's worker function, which the generated Job types (e.g. MySpecialJob) use."
@@ -259,7 +259,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 #### Submitting a Job
 
 <CardLink
-  to="../api/wasp/server/jobs/interfaces/PgBossJob"
+  to="../api/wasp/server/jobs#pgbossjob"
   kind="api"
   title="PgBossJob"
   description="The type of the generated Jobs (e.g. mySpecialJob), with the submit and delay methods, and how to track submitted Jobs."

@@ -458,7 +458,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away.
-To change this, set `retry` for a [single Query](../../../api/wasp/client/operations/functions/useQuery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
+To change this, set `retry` for a [single Query](../../../api/wasp/client/operations#usequery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
 
 ### Using Entities in Queries
 
@@ -525,7 +525,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 ### Specifying Queries
 
 <CardLink
-  to="../../../api/@wasp/spec/functions/query"
+  to="../../../api/@wasp/spec#query-1"
   kind="api"
   title="query"
   description="All the options for declaring a query in the Wasp spec."
@@ -548,14 +548,14 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 ### Implementing Queries
 
 <CardLink
-  to="../../../api/wasp/server/operations/type-aliases/AuthenticatedQueryDefinition"
+  to="../../../api/wasp/server/operations#authenticatedquerydefinition"
   kind="api"
   title="AuthenticatedQueryDefinition"
   description="The arguments and return value of a Query's implementation, and the generic type Wasp generates for typing it."
 />
 
 <CardLink
-  to="../../../api/wasp/server/operations/type-aliases/UnauthenticatedQueryDefinition"
+  to="../../../api/wasp/server/operations#unauthenticatedquerydefinition"
   kind="api"
   title="UnauthenticatedQueryDefinition"
   description="The same, for Queries that don't use auth."
@@ -564,7 +564,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 ### The `useQuery` Hook
 
 <CardLink
-  to="../../../api/wasp/client/operations/functions/useQuery"
+  to="../../../api/wasp/client/operations#usequery"
   kind="api"
   title="useQuery"
   description="All the arguments of the useQuery hook."

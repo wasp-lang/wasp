@@ -41,7 +41,7 @@ import type {
  * Gets the logged-in user from a React component, and keeps it up to date.
  *
  * It's a thin wrapper over the
- * [`useQuery`](https://wasp.sh/docs/api/wasp/client/operations/functions/useQuery)
+ * {@link "client/operations"!useQuery | useQuery}
  * hook (calling the {@link getMe} Query), and returns data in the same format.
  *
  * You can use it in any page. In pages with `authRequired`, you can use the
@@ -85,7 +85,7 @@ export declare function useAuth(): UseQueryResult<AuthUser | null>;
  * The Query that {@link useAuth} uses to fetch the logged-in user.
  *
  * You can call it directly, or pass it to
- * [`useQuery`](https://wasp.sh/docs/api/wasp/client/operations/functions/useQuery).
+ * {@link "client/operations"!useQuery | useQuery}.
  * It resolves to the logged-in {@link AuthUser}, or `null` if the user isn't
  * logged in.
  */

@@ -147,7 +147,7 @@ interface AuthUserIdentities {
 
 /**
  * The logged-in user, as you receive it on the client (from
- * [`useAuth`](https://wasp.sh/docs/api/wasp/client/auth/functions/useAuth) or
+ * {@link "client/auth"!useAuth | useAuth} or
  * the `user` prop of pages with `authRequired`) and on the server (as
  * `context.user` in Operations).
  *

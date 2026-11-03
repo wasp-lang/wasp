@@ -287,14 +287,14 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 ## API Reference
 
 <CardLink
-  to="../api/@wasp/spec/interfaces/WebSocket"
+  to="../api/@wasp/spec#websocket-1"
   kind="api"
   title="WebSocket"
   description="All the options for the webSocket field of the app spec."
 />
 
 <CardLink
-  to="../api/wasp/server/webSocket/type-aliases/WebSocketDefinition"
+  to="../api/wasp/server/webSocket#websocketdefinition"
   kind="api"
   title="WebSocketDefinition"
   description="The type of your webSocketFn function, and how to type your events."

@@ -473,7 +473,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `login()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/login"
+  to="../../../api/wasp/client/auth#login"
   kind="api"
   title="login"
   description="Log the user in with their email and password."
@@ -482,7 +482,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `signup()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/signup"
+  to="../../../api/wasp/client/auth#signup"
   kind="api"
   title="signup"
   description="Sign the user up with their email and password, and send the verification email."
@@ -491,7 +491,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `verifyEmail()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/verifyEmail"
+  to="../../../api/wasp/client/auth#verifyemail"
   kind="api"
   title="verifyEmail"
   description="Verify the user's email with the token from the verification email."
@@ -500,7 +500,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `requestPasswordReset()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/requestPasswordReset"
+  to="../../../api/wasp/client/auth#requestpasswordreset"
   kind="api"
   title="requestPasswordReset"
   description="Send the user a password reset email."
@@ -509,7 +509,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `resetPassword()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/resetPassword"
+  to="../../../api/wasp/client/auth#resetpassword"
   kind="api"
   title="resetPassword"
   description="Set the user's new password with the token from the password reset email."

@@ -17,7 +17,7 @@
  * It's an object with one property for each field you defined in
  * `auth.methods.email.userSignupFields`, typed with the return type of that
  * field's function. It's also part of the input of the email
- * [`signup`](https://wasp.sh/docs/api/wasp/client/auth/functions/signup)
+ * {@link "client/auth"!signup | signup}
  * function from `wasp/client/auth`.
  *
  * Wasp only exports this type if you define
@@ -50,7 +50,7 @@ export type UserEmailSignupFields = { [field: string]: unknown };
  * `auth.methods.usernameAndPassword.userSignupFields`, typed with the return
  * type of that field's function. It's also part of the input of the username
  * and password
- * [`signup`](https://wasp.sh/docs/api/wasp/client/auth/functions/signup)
+ * {@link "client/auth"!signup | signup}
  * function from `wasp/client/auth`.
  *
  * Wasp only exports this type if you define

@@ -156,7 +156,7 @@ We also overrode the `create` operation with a custom implementation. This means
 
 We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
 Automatic CRUD doesn't yet support this by default.
-Read more about the default implementations in the [`CrudOperations` API Reference](../../api/@wasp/spec/interfaces/CrudOperations.md).
+Read more about the default implementations in the [`CrudOperations` API Reference](../../api/@wasp/spec.md#crudoperations-1).
 
 Here's the `src/tasks.{js,ts}` file:
 
@@ -452,7 +452,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 ### Specifying CRUD Operations
 
 <CardLink
-  to="../../api/@wasp/spec/functions/crud"
+  to="../../api/@wasp/spec#crud-1"
   kind="api"
   title="crud"
   description="All the options for declaring CRUD operations in the Wasp spec."
@@ -470,7 +470,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 ### Using the CRUD operations in client code
 
 <CardLink
-  to="../../api/wasp/client/crud/interfaces/Crud"
+  to="../../api/wasp/client/crud#crud"
   kind="api"
   title="Crud"
   description="The client-side object Wasp generates for each crud spec, with its Queries and Actions."

@@ -619,7 +619,7 @@ export default app({
 ### The `onBeforeSignup` hook
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OnBeforeSignupHook"
+  to="../../api/wasp/server/auth#onbeforesignuphook"
   kind="api"
   title="OnBeforeSignupHook"
   description="The type of the onBeforeSignup hook, and the input it receives."
@@ -628,7 +628,7 @@ export default app({
 ### The `onAfterSignup` hook
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OnAfterSignupHook"
+  to="../../api/wasp/server/auth#onaftersignuphook"
   kind="api"
   title="OnAfterSignupHook"
   description="The type of the onAfterSignup hook, and the input it receives."
@@ -637,7 +637,7 @@ export default app({
 ### The `onAfterEmailVerified` hook
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OnAfterEmailVerifiedHook"
+  to="../../api/wasp/server/auth#onafteremailverifiedhook"
   kind="api"
   title="OnAfterEmailVerifiedHook"
   description="The type of the onAfterEmailVerified hook, and the input it receives."
@@ -646,7 +646,7 @@ export default app({
 ### The `onBeforeOAuthRedirect` hook
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OnBeforeOAuthRedirectHook"
+  to="../../api/wasp/server/auth#onbeforeoauthredirecthook"
   kind="api"
   title="OnBeforeOAuthRedirectHook"
   description="The type of the onBeforeOAuthRedirect hook, the input it receives, and what it returns."
@@ -655,7 +655,7 @@ export default app({
 ### The `onBeforeLogin` hook
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OnBeforeLoginHook"
+  to="../../api/wasp/server/auth#onbeforeloginhook"
   kind="api"
   title="OnBeforeLoginHook"
   description="The type of the onBeforeLogin hook, and the input it receives."
@@ -664,7 +664,7 @@ export default app({
 ### The `onAfterLogin` hook
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OnAfterLoginHook"
+  to="../../api/wasp/server/auth#onafterloginhook"
   kind="api"
   title="OnAfterLoginHook"
   description="The type of the onAfterLogin hook, and the input it receives."
@@ -673,7 +673,7 @@ export default app({
 ### ProviderId fields
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/ProviderId"
+  to="../../api/wasp/server/auth#providerid-4"
   kind="api"
   title="ProviderId"
   description="The object that identifies the user for the current auth method."
@@ -682,7 +682,7 @@ export default app({
 ### OAuth fields
 
 <CardLink
-  to="../../api/wasp/server/auth/type-aliases/OAuthData"
+  to="../../api/wasp/server/auth#oauthdata"
   kind="api"
   title="OAuthData"
   description="The OAuth flow data, including the OAuth tokens."

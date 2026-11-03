@@ -353,14 +353,14 @@ async function fetchStream(
 ## API Reference
 
 <CardLink
-  to="../api/@wasp/spec/functions/api"
+  to="../api/@wasp/spec#api-1"
   kind="api"
   title="api"
   description="All the options for declaring an API endpoint in the Wasp spec."
 />
 
 <CardLink
-  to="../api/@wasp/spec/functions/apiNamespace"
+  to="../api/@wasp/spec#apinamespace-1"
   kind="api"
   title="apiNamespace"
   description="All the options for declaring an API namespace in the Wasp spec."
@@ -374,7 +374,7 @@ async function fetchStream(
 />
 
 <CardLink
-  to="../api/wasp/server/api/type-aliases/AuthenticatedApi"
+  to="../api/wasp/server/api#authenticatedapi"
   kind="api"
   title="AuthenticatedApi"
   description="The type of an API's implementation: its req, res, and context arguments, and its type arguments."

@@ -68,14 +68,14 @@ console.log(config.apiUrl)
 ## API Reference
 
 <CardLink
-  to="../api/wasp/server/variables/config"
+  to="../api/wasp/server#config"
   kind="api"
   title="config (wasp/server)"
   description="All the fields of the server configuration object."
 />
 
 <CardLink
-  to="../api/wasp/client/variables/config"
+  to="../api/wasp/client#config"
   kind="api"
   title="config (wasp/client)"
   description="All the fields of the client configuration object."

@@ -153,7 +153,7 @@ export default app({
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec/interfaces/Client.md#rootcomponent).
+For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec.md#rootcomponent).
 
 ## Setup Function
 
@@ -215,7 +215,7 @@ export default async function mySetupFunction(): Promise<void> {
 ### Overriding Default Behaviour for Queries
 
 :::info
-You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](../../api/wasp/client/operations/functions/useQuery.md).
+You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](../../api/wasp/client/operations.md#usequery).
 :::
 
 Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
@@ -266,7 +266,7 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec/interfaces/Client.md#setupfn).
+For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec.md#setupfn).
 
 ## Base Directory
 
@@ -293,14 +293,14 @@ router will work correctly, and all the assets will be served from
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp/spec/interfaces/Client"
+  to="../../api/@wasp/spec#client-1"
   kind="api"
   title="Client"
   description="All the options for the client field of the app spec."
 />
 
 <CardLink
-  to="../../api/wasp/client/operations/functions/configureQueryClient"
+  to="../../api/wasp/client/operations#configurequeryclient"
   kind="api"
   title="configureQueryClient"
   description="Configure the default options of the QueryClient that Wasp's Queries use."

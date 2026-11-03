@@ -319,6 +319,11 @@ const config: Config = {
 
         router: "module",
 
+        // Gives headings the same IDs that TypeDoc's links use. Otherwise
+        // Docusaurus generates its own, which don't always match, e.g. when
+        // two members share a name.
+        useCustomAnchors: true,
+
         // Documents types that our packages reference but don't export, e.g.
         // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures,
         // and groups them so we can keep them out of the sidebar.

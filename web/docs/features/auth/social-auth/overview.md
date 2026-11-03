@@ -171,7 +171,7 @@ Each provider has their own rules for defining the `userSignupFields` and `confi
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec#socialauthconfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the social auth methods."

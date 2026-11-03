@@ -750,35 +750,35 @@ You can use whichever method suits your needs better: either the `createUser` fu
 ## API Reference
 
 <CardLink
-  to="../../api/wasp/auth/type-aliases/AuthUser"
+  to="../../api/wasp/auth#authuser"
   kind="api"
   title="AuthUser"
   description="The logged-in user's object, with their auth identities."
 />
 
 <CardLink
-  to="../../api/wasp/auth/functions/getEmail"
+  to="../../api/wasp/auth#getemail"
   kind="api"
   title="getEmail"
   description="Get the user's email from a user entity object."
 />
 
 <CardLink
-  to="../../api/wasp/auth/functions/getUsername"
+  to="../../api/wasp/auth#getusername"
   kind="api"
   title="getUsername"
   description="Get the user's username from a user entity object."
 />
 
 <CardLink
-  to="../../api/wasp/auth/functions/getFirstProviderUserId"
+  to="../../api/wasp/auth#getfirstprovideruserid"
   kind="api"
   title="getFirstProviderUserId"
   description="Get any of the user's auth IDs from a user entity object."
 />
 
 <CardLink
-  to="../../api/wasp/server/auth/functions/createUser"
+  to="../../api/wasp/server/auth#createuser"
   kind="api"
   title="createUser"
   description="Create a user with an auth identity."

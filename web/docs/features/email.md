@@ -225,7 +225,7 @@ RESEND_API_KEY=
 ### `emailSender` specification
 
 <CardLink
-  to="../api/@wasp/spec/interfaces/EmailSender"
+  to="../api/@wasp/spec#emailsender-1"
   kind="api"
   title="EmailSender"
   description="All the options for the emailSender field of the app spec."
@@ -234,7 +234,7 @@ RESEND_API_KEY=
 ### JavaScript API
 
 <CardLink
-  to="../api/wasp/server/email/variables/emailSender"
+  to="../api/wasp/server/email#emailsender-1"
   kind="api"
   title="emailSender"
   description="Send emails from your server code, and all the fields of an email."

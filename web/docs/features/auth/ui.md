@@ -338,7 +338,7 @@ We use CSS variables in our styling so you can customize the styles by overridin
 
 :::info List of all available tokens
 
-See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth/type-aliases/CustomizationOptions).
+See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth#customizationoptions).
 
 :::
 
@@ -543,42 +543,42 @@ We get a form looking like this:
 ## API Reference
 
 <CardLink
-  to="../../api/wasp/client/auth/functions/LoginForm"
+  to="../../api/wasp/client/auth#loginform"
   kind="api"
   title="LoginForm"
   description="The login form component."
 />
 
 <CardLink
-  to="../../api/wasp/client/auth/functions/SignupForm"
+  to="../../api/wasp/client/auth#signupform"
   kind="api"
   title="SignupForm"
   description="The signup form component, including its additionalFields prop."
 />
 
 <CardLink
-  to="../../api/wasp/client/auth/functions/ForgotPasswordForm"
+  to="../../api/wasp/client/auth#forgotpasswordform"
   kind="api"
   title="ForgotPasswordForm"
   description="The forgot password form component."
 />
 
 <CardLink
-  to="../../api/wasp/client/auth/functions/ResetPasswordForm"
+  to="../../api/wasp/client/auth#resetpasswordform"
   kind="api"
   title="ResetPasswordForm"
   description="The reset password form component."
 />
 
 <CardLink
-  to="../../api/wasp/client/auth/functions/VerifyEmailForm"
+  to="../../api/wasp/client/auth#verifyemailform"
   kind="api"
   title="VerifyEmailForm"
   description="The verify email form component."
 />
 
 <CardLink
-  to="../../api/wasp/client/auth/type-aliases/CustomizationOptions"
+  to="../../api/wasp/client/auth#customizationoptions"
   kind="api"
   title="CustomizationOptions"
   description="The props for customizing the look of all the forms."

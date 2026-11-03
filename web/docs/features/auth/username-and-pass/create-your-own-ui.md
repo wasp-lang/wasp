@@ -229,7 +229,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `login()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/login"
+  to="../../../api/wasp/client/auth#login"
   kind="api"
   title="login"
   description="Log the user in with their username and password."
@@ -238,7 +238,7 @@ You can import the following functions from `wasp/client/auth`:
 ### `signup()`
 
 <CardLink
-  to="../../../api/wasp/client/auth/functions/signup"
+  to="../../../api/wasp/client/auth#signup"
   kind="api"
   title="signup"
   description="Sign the user up with a username and password."

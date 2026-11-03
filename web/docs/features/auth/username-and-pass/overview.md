@@ -72,7 +72,7 @@ export default app({
 })
 ```
 
-Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../../../api/@wasp/spec/interfaces/UsernameAndPasswordConfig.md).
+Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../../../api/@wasp/spec.md#usernameandpasswordconfig).
 
 ### 2. Add the User Entity
 
@@ -246,14 +246,14 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp/spec/interfaces/Auth"
+  to="../../../api/@wasp/spec#auth-3"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec, including userEntity."
 />
 
 <CardLink
-  to="../../../api/@wasp/spec/interfaces/UsernameAndPasswordConfig"
+  to="../../../api/@wasp/spec#usernameandpasswordconfig"
   kind="api"
   title="UsernameAndPasswordConfig"
   description="All the options for the usernameAndPassword auth method."

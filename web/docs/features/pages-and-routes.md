@@ -364,14 +364,14 @@ See the [Prerendering](../advanced/prerendering.md) page for the full documentat
 ### `page` and `route` specifications
 
 <CardLink
-  to="../api/@wasp/spec/functions/page"
+  to="../api/@wasp/spec#page-2"
   kind="api"
   title="page"
   description="All the options for declaring a page in the Wasp spec."
 />
 
 <CardLink
-  to="../api/@wasp/spec/functions/route"
+  to="../api/@wasp/spec#route-1"
   kind="api"
   title="route"
   description="All the options for declaring a route in the Wasp spec."
@@ -380,21 +380,21 @@ See the [Prerendering](../advanced/prerendering.md) page for the full documentat
 ### `wasp/client/router`
 
 <CardLink
-  to="../api/wasp/client/router/functions/Link"
+  to="../api/wasp/client/router#link"
   kind="api"
   title="Link"
   description="All the props of the type-safe Link component."
 />
 
 <CardLink
-  to="../api/wasp/client/router/functions/NavLink"
+  to="../api/wasp/client/router#navlink"
   kind="api"
   title="NavLink"
   description="All the props of the type-safe NavLink component, and its render-prop functions."
 />
 
 <CardLink
-  to="../api/wasp/client/router/variables/routes"
+  to="../api/wasp/client/router#routes"
   kind="api"
   title="routes"
   description="The object for building the URL of each route, with its params, search, and hash."

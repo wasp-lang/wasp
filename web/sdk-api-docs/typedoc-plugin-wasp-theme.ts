@@ -73,9 +73,8 @@ class WaspMarkdownThemeContext extends MarkdownThemeContext {
 
       memberTitle: (model) =>
         isComponent(model)
-          ? // The tag is escaped so MDX doesn't parse it as JSX. The explicit
-            // ID keeps the anchor that TypeDoc links to.
-            `\\<${model.name}\\> {#${this.router.getAnchor(model)}}`
+          ? // The tag is escaped so MDX doesn't parse it as JSX.
+            `\\<${model.name}\\>`
           : memberTitle(model),
 
       // Wraps the properties of an inlined object parameter, so we can style

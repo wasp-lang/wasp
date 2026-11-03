@@ -598,9 +598,9 @@ interface Email {
  * @param email The user's email.
  * @param clientRoute The path of the client route that verifies the email
  * (e.g. `"/email-verification"`), where you use
- * [`VerifyEmailForm`](https://wasp.sh/docs/api/wasp/client/auth/functions/VerifyEmailForm)
+ * {@link "client/auth"!VerifyEmailForm | VerifyEmailForm}
  * or call
- * [`verifyEmail`](https://wasp.sh/docs/api/wasp/client/auth/functions/verifyEmail).
+ * {@link "client/auth"!verifyEmail | verifyEmail}.
  * @returns The full verification link.
  *
  * @example
@@ -670,9 +670,9 @@ export declare function sendEmailVerificationEmail(
  * @param email The user's email.
  * @param clientRoute The path of the client route that resets the password
  * (e.g. `"/password-reset"`), where you use
- * [`ResetPasswordForm`](https://wasp.sh/docs/api/wasp/client/auth/functions/ResetPasswordForm)
+ * {@link "client/auth"!ResetPasswordForm | ResetPasswordForm}
  * or call
- * [`resetPassword`](https://wasp.sh/docs/api/wasp/client/auth/functions/resetPassword).
+ * {@link "client/auth"!resetPassword | resetPassword}.
  * @returns The full password reset link.
  */
 export declare function createPasswordResetLink(
@@ -761,7 +761,7 @@ export declare function isEmailResendAllowed<
  * });
  * ```
  *
- * @see [`EmailFlowConfig`](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig)
+ * @see {@link "@wasp/spec"!EmailFlowConfig | EmailFlowConfig}
  */
 export type { GetVerificationEmailContentFn } from "@wasp/lib-sdk-core/node";
 
@@ -789,7 +789,7 @@ export type { GetVerificationEmailContentFn } from "@wasp/lib-sdk-core/node";
  * });
  * ```
  *
- * @see [`EmailFlowConfig`](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig)
+ * @see {@link "@wasp/spec"!EmailFlowConfig | EmailFlowConfig}
  */
 export type { GetPasswordResetEmailContentFn } from "@wasp/lib-sdk-core/node";
 
