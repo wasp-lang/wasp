@@ -32,10 +32,8 @@ run = "{{vars.wasp_cli_dev}}"
 [test]
 description = "Executes all tests (waspc + Wasp CLI + examples + starters). Builds the project first if needed."
 dir = "waspc"
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = ["cabal test", { task = "test:starters" }, { task = "test:examples" }, { task = "test:libs" }, { task = "test:packages" }]
-
-[test.env]
-WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 
 ["test:waspc"]
 description = "Executes all waspc tests (unit + e2e). Builds the project first if needed."
@@ -51,10 +49,8 @@ run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pat
 ["test:waspc:e2e"]
 description = "Executes only cli e2e tests. Builds the project first if needed."
 dir = "waspc"
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
-
-["test:waspc:e2e".env]
-WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 
 ["test:waspc:e2e:accept-all"]
 description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
@@ -79,21 +75,17 @@ run = "pnpm --filter @wasp/wasp-app-runner run build"
 description = "Executes only kitchen-sink e2e tests. Installs deps first if needed."
 depends = ["build-wasp-app-runner"]
 dir = "examples/kitchen-sink"
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
+env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
 run = ["{{vars.wasp_cli_dev}} install", "npm run test"]
-
-["test:kitchen-sink".env]
-WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
 
 ["test:starters"]
 description = "Executes only starter templates e2e tests. Installs deps first if needed."
 depends = ["build-wasp-app-runner"]
 dir = "waspc/starters-e2e-tests"
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
+env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
 run = "pnpm run test:dev"
-
-["test:starters".env]
-WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
 
 # Utility
 
