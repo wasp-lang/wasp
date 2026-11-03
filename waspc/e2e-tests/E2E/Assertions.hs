@@ -1,4 +1,4 @@
-module E2e.Assertions
+module E2E.Assertions
   ( assertTrue,
     assertEqual,
     assertOutputContains,
@@ -9,8 +9,8 @@ where
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
-import E2e.Process (ProcessResult (..))
-import E2e.TestM (TestM, failTest, resolvePath)
+import E2E.Process (ProcessResult (..))
+import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (doesDirectoryExist)
 
 assertTrue :: String -> Bool -> TestM ()

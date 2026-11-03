@@ -1,5 +1,5 @@
 -- | File system steps. Relative paths are resolved against the working directory.
-module E2e.Files
+module E2E.Files
   ( writeToFile,
     appendToFile,
     replaceInFile,
@@ -12,7 +12,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2e.TestM (TestM, failTest, resolvePath)
+import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath (takeDirectory)
 

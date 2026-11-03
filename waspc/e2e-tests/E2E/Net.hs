@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module E2e.Net
+module E2E.Net
   ( waitUntilListening,
     waitUntilNotListening,
   )
@@ -9,7 +9,7 @@ where
 import Control.Exception (IOException, bracket, try)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either (fromRight)
-import E2e.TestM (TestM, waitUntil)
+import E2E.TestM (TestM, waitUntil)
 import qualified Network.Socket as Socket
 
 -- | Waits until something listens on all of the ports.

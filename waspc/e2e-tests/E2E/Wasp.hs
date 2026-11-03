@@ -1,5 +1,5 @@
 -- | Steps for working with the Wasp CLI and Wasp projects.
-module E2e.Wasp
+module E2E.Wasp
   ( waspAppDirName,
     wasp,
     waspFails,
@@ -17,9 +17,9 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
-import E2e.Files (replaceInFile)
-import E2e.Process (ProcessResult, run, runExpectingFailure, waspCli)
-import E2e.TestM (TestM, failTest, inDirectory, resolvePath)
+import E2E.Files (replaceInFile)
+import E2E.Process (ProcessResult, run, runExpectingFailure, waspCli)
+import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, listDirectory, renameDirectory)
 import System.FilePath ((</>))

@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP #-}
 
 -- | Sending signals to processes. The only module with platform specific code.
-module E2e.Signals
+module E2E.Signals
   ( Signal (..),
     signalProcess,
     signalProcessGroup,
