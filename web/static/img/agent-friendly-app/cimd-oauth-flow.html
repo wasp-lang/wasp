@@ -507,7 +507,9 @@ Authorization: Bearer lk_at_…
 
   // Header: actors + "what each one knows"
   const head = document.getElementById("head");
-  const HEAD_H = 176;
+  // Tall enough for the most pills any actor holds in any step.
+  const MAX_PILLS = Math.max(...STEPS.flatMap((s) => Object.values(s.hold).map((keys) => keys.length)));
+  const HEAD_H = 101 + MAX_PILLS * 25;
   head.setAttribute("viewBox", `0 0 ${W} ${HEAD_H}`);
   for (const a of ACTORS) {
     const x = LANE_X[a.id];
