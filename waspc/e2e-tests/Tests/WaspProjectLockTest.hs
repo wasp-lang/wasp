@@ -1,191 +1,147 @@
 module Tests.WaspProjectLockTest (waspProjectLockTest) where
 
+import Control.Monad (void)
 import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy.Char8 as BLC
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext,
-    createTestWaspProject,
-    inTestWaspProjectDir,
-    waspCliClean,
-    waspCliCompile,
-    waspCliInstall,
-    (~&&),
-  )
-import Test (Test (..), TestCase (..))
+import qualified Data.ByteString.Lazy as BSL
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
+import E2e
+import NeatInterpolation (trimming)
+import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
 
-waspProjectLockTest :: Test
+waspProjectLockTest :: E2eTest
 waspProjectLockTest =
-  Test
+  testGroup
     "wasp-project-lock"
-    [ TestCase
-        "fail-while-another-wasp-command-holds-the-lock"
-        -- To test the lock we need a Wasp command that holds it for as long as
-        -- we want. We get that by running `wasp install` in the background and
-        -- stalling the `npm install` it does, via an npm preinstall hook that
-        -- waits for a signal file we create. In short:
-        --   1. `wasp install` starts, acquires the lock, and gets stuck inside
-        --      `npm install`, so it keeps holding the lock.
-        --   2. Meanwhile, `wasp clean` must fail and name the holder's PID.
-        --   3. We signal the hook to stop waiting, so `wasp install` finishes
-        --      and drops the lock, and `wasp clean` works again.
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ return addBlockingNpmPreinstallHook,
-                  startWaspInstallInBackground,
-                  return waitForLockToBeHeld,
-                  assertWaspCleanFailsMentioningLockHolder,
-                  return releaseLockAndAwaitWaspInstall,
-                  -- The lock died with its holder, so the next command just works.
-                  waspCliClean
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-with-leftover-lock-file"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ -- A lock file whose owner died: the file exists, but no
-                  -- process holds the OS-level lock on it.
-                  -- Even if that owner was a watcher that had the generated app
-                  -- up to date, nobody is keeping it up to date anymore.
-                  return $
-                    "mkdir -p .wasp"
-                      ~&& writeLockFile ProjectLockData {pid = 999999999, watcherStatus = Just UpToDate},
-                  waspCliClean
-                ]
-            ]
-        ),
-      TestCase
-        "db-command-runs-alongside-watcher-only-while-generated-app-is-up-to-date"
-        -- We can't run a real watcher (e.g. `wasp start`) here, so we fake one:
-        -- we hold the lock with a stalled `wasp install` (see the first test
-        -- case), and then rewrite the lock file on its behalf, to go through
-        -- the statuses a watcher reports.
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ -- The db command won't compile the project while the lock
-                  -- is held, so the generated app must already be there.
-                  waspCliCompile,
-                  return addBlockingNpmPreinstallHook,
-                  startWaspInstallInBackground,
-                  return waitForLockToBeHeld,
-                  -- `wasp install` is not a watcher, so the db command waits for
-                  -- it to finish, and gives up after a while.
-                  return $ assertWaspDbMigrateDevFailsWith "is working on this project right now.",
-                  return $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
-                  return $ setLockFileWatcherStatus CompilationFailed,
-                  return $ assertWaspDbMigrateDevFailsWith "is running for this project, but it failed to compile it.",
-                  -- While the watcher compiles, the db command waits for it, and
-                  -- goes on without compiling once the watcher is done.
-                  return $ setLockFileWatcherStatus Compiling,
-                  return startWaspDbMigrateDevInBackground,
-                  return $ waitUntil $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
-                  return $ setLockFileWatcherStatus UpToDate,
-                  return "wait \"$WASP_E2E_DB_PID\"",
-                  return "grep -qF 'is already watching this project, skipping compilation.' .wasp-e2e-db.log",
-                  return releaseLockAndAwaitWaspInstall
-                ]
-            ]
-        )
+    [ -- To test the lock we need a Wasp command that holds it for as long as
+      -- we want. We get that by running `wasp install` in the background and
+      -- stalling the `npm install` it does, via an npm preinstall hook that
+      -- waits for a signal file we create. In short:
+      --   1. `wasp install` starts, acquires the lock, and gets stuck inside
+      --      `npm install`, so it keeps holding the lock.
+      --   2. Meanwhile, `wasp clean` must fail and name the holder's PID.
+      --   3. We signal the hook to stop waiting, so `wasp install` finishes
+      --      and drops the lock, and `wasp clean` works again.
+      test "fail-while-another-wasp-command-holds-the-lock" $
+        withNewWaspProject minimalStarterTemplate $ do
+          lockHolder <- startLockHolder
+          lockHolderMessage <- getLockHolderMessage
+          waspFails ["clean"] >>= assertOutputContains (lockHolderMessage "is already running for this project.")
+          releaseLock lockHolder
+          -- The lock died with its holder, so the next command just works.
+          wasp ["clean"],
+      test "succeed-with-leftover-lock-file" $
+        withNewWaspProject minimalStarterTemplate $ do
+          -- A lock file whose owner died: the file exists, but no process
+          -- holds the OS-level lock on it.
+          -- Even if that owner was a watcher that had the generated app up to
+          -- date, nobody is keeping it up to date anymore.
+          writeLockFile ProjectLockData {pid = 999999999, watcherStatus = Just UpToDate}
+          wasp ["clean"],
+      -- We can't run a real watcher (e.g. `wasp start`) here, so we fake one:
+      -- we hold the lock with a stalled `wasp install` (see the first test),
+      -- and then rewrite the lock file on its behalf, to go through the
+      -- statuses a watcher reports.
+      test "db-command-runs-alongside-watcher-only-while-generated-app-is-up-to-date" $
+        withNewWaspProject minimalStarterTemplate $ do
+          -- The db command won't compile the project while the lock is held,
+          -- so the generated app must already be there.
+          wasp ["compile"]
+          lockHolder <- startLockHolder
+          lockHolderMessage <- getLockHolderMessage
+
+          -- `wasp install` is not a watcher, so the db command waits for it to
+          -- finish, and gives up after a while.
+          result <- runExpectingFailure waspDbMigrateDevCommand
+          assertOutputContains (lockHolderMessage "is working on this project right now.") result
+          assertOutputContains waitingForCompilationMessage result
+
+          setLockFileWatcherStatus CompilationFailed
+          runExpectingFailure waspDbMigrateDevCommand
+            >>= assertOutputContains (lockHolderMessage "is running for this project, but it failed to compile it.")
+
+          -- While the watcher compiles, the db command waits for it, and goes
+          -- on without compiling once the watcher is done.
+          setLockFileWatcherStatus Compiling
+          dbCommand <- startInBackground waspDbMigrateDevCommand
+          waitForOutput dbCommand waitingForCompilationMessage 120
+          setLockFileWatcherStatus UpToDate
+          waitForExit dbCommand 120 >>= assertEqual "exit code of the db command" ExitSuccess
+          getBackgroundOutput dbCommand
+            >>= assertTrue "the db command skips compilation"
+              . T.isInfixOf "is already watching this project, skipping compilation."
+
+          releaseLock lockHolder
     ]
   where
-    -- The lock holder is a real `wasp install` process: it acquires the
-    -- project lock and then runs `npm install` in the project dir, which this
-    -- hook stalls until 'releaseLockAndAwaitWaspInstall' signals it (or ~120s
-    -- pass). The hook also tells us, via the marker file, when `wasp install`
-    -- is far enough along to be holding the lock.
-    addBlockingNpmPreinstallHook :: ShellCommand
-    addBlockingNpmPreinstallHook =
-      "npm pkg set 'scripts.preinstall=" ++ preinstallHookScript ++ "'"
+    waspDbMigrateDevCommand :: Command
+    waspDbMigrateDevCommand = waspCli ["db", "migrate-dev", "--name", "foo"]
 
-    preinstallHookScript :: String
-    preinstallHookScript =
-      "touch "
-        ++ lockAcquiredMarkerFile
-        ++ " && i=0 && until [ -f "
-        ++ releaseLockSignalFile
-        ++ " ]; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done"
+    waitingForCompilationMessage :: T.Text
+    waitingForCompilationMessage = "Waiting for compilation to finish"
 
-    startWaspInstallInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
-    startWaspInstallInBackground = do
-      installCommand <- waspCliInstall
-      return $
-        ("{ " ++ installCommand ++ " > .wasp-e2e-install.log 2>&1 & }")
-          ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
+    -- The PID in the message must be exactly the one the holding process wrote
+    -- into the lock file.
+    getLockHolderMessage :: TestM (T.Text -> T.Text)
+    getLockHolderMessage = do
+      lockHolderPid <- waspPidFromLockFile
+      return $ \message -> "A Wasp command (PID " <> T.pack (show lockHolderPid) <> ") " <> message
 
-    waitForLockToBeHeld :: ShellCommand
-    waitForLockToBeHeld = waitUntil $ "[ -f " ++ lockAcquiredMarkerFile ++ " ]"
+-- | Starts a real `wasp install`, which acquires the project lock and then runs
+-- `npm install`, which a preinstall hook stalls until 'releaseLock' (or two
+-- minutes pass). Returns once `wasp install` holds the lock.
+startLockHolder :: TestM BackgroundProcess
+startLockHolder = do
+  writeToFile
+    preinstallHookFile
+    [trimming|
+      import fs from "node:fs";
 
-    -- Polls the given condition for up to ~120s.
-    waitUntil :: ShellCommand -> ShellCommand
-    waitUntil condition =
-      "( i=0; until " ++ condition ++ "; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done )"
+      fs.writeFileSync("${lockAcquiredMarkerFileText}", "");
+      const deadline = Date.now() + 120_000;
+      while (!fs.existsSync("${releaseLockSignalFileText}")) {
+        if (Date.now() > deadline) process.exit(1);
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+    |]
+  void $ run addPreinstallHook
+  lockHolder <- startInBackground $ waspCli ["install"]
+  waitForFile lockAcquiredMarkerFile 120
+  return lockHolder
+  where
+    lockAcquiredMarkerFileText = T.pack lockAcquiredMarkerFile
+    releaseLockSignalFileText = T.pack releaseLockSignalFile
 
-    -- The reported PID must be exactly the one the holding process wrote into
-    -- the lock file.
-    assertWaspCleanFailsMentioningLockHolder :: ShellCommandBuilder WaspProjectContext ShellCommand
-    assertWaspCleanFailsMentioningLockHolder = do
-      cleanCommand <- waspCliClean
-      return $
-        ("! " ++ cleanCommand ++ " > .wasp-e2e-clean.log 2>&1")
-          ~&& assertLogMentionsLockHolder ".wasp-e2e-clean.log" "is already running for this project."
+releaseLock :: BackgroundProcess -> TestM ()
+releaseLock lockHolder = do
+  writeToFile releaseLockSignalFile ""
+  waitForExit lockHolder 120 >>= assertEqual "exit code of the lock holder" ExitSuccess
 
-    assertWaspDbMigrateDevFailsWith :: String -> ShellCommand
-    assertWaspDbMigrateDevFailsWith messageAfterLockHolder =
-      ("! " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1")
-        ~&& assertLogMentionsLockHolder ".wasp-e2e-db.log" messageAfterLockHolder
+{- HLINT ignore addPreinstallHook "Avoid npm and npx" -}
+addPreinstallHook :: Command
+addPreinstallHook = command "npm" ["pkg", "set", "scripts.preinstall=node " ++ preinstallHookFile]
 
-    assertLogMentionsLockHolder :: FilePath -> String -> ShellCommand
-    assertLogMentionsLockHolder logFile messageAfterLockHolder =
-      "grep -qF \"A Wasp command (PID " ++ lockOwnerPid ++ ") " ++ messageAfterLockHolder ++ "\" " ++ logFile
+preinstallHookFile :: FilePath
+preinstallHookFile = ".wasp-e2e-preinstall.mjs"
 
-    -- Shell expression for the PID that the lock holder wrote into the lock file.
-    lockOwnerPid :: String
-    lockOwnerPid = "$(jq .pid .wasp/.projectlock)"
+lockAcquiredMarkerFile :: FilePath
+lockAcquiredMarkerFile = ".wasp-e2e-lock-acquired"
 
-    writeLockFile :: ProjectLockData -> ShellCommand
-    writeLockFile projectLockData =
-      "printf %s '" ++ BLC.unpack (Aeson.encode projectLockData) ++ "' > .wasp/.projectlock"
+-- | Created by the test to tell the preinstall hook to stop waiting, which
+-- lets `wasp install` (and with it the lock) finish.
+releaseLockSignalFile :: FilePath
+releaseLockSignalFile = ".wasp-e2e-release-lock"
 
-    -- Rewrites the lock file on behalf of the process holding the lock, keeping
-    -- its PID.
-    -- NOTE: The redirection rewrites the lock file in place. That's important
-    -- because the OS-level lock is tied to the file itself, so replacing the
-    -- file with a new one would leave us with an unlocked lock file.
-    setLockFileWatcherStatus :: WatcherStatus -> ShellCommand
-    setLockFileWatcherStatus watcherStatus =
-      ( "WASP_E2E_LOCK_FILE_CONTENTS=$(jq -c --argjson watcherStatus '"
-          ++ BLC.unpack (Aeson.encode watcherStatus)
-          ++ "' '.watcherStatus = $watcherStatus' .wasp/.projectlock)"
-      )
-        ~&& "printf %s \"$WASP_E2E_LOCK_FILE_CONTENTS\" > .wasp/.projectlock"
+writeLockFile :: ProjectLockData -> TestM ()
+writeLockFile =
+  -- 'writeToFile' overwrites the file in place, instead of replacing it with a
+  -- new one. That's important, since the OS-level lock is tied to the file itself.
+  writeToFile ".wasp/.projectlock" . TE.decodeUtf8 . BSL.toStrict . Aeson.encode
 
-    startWaspDbMigrateDevInBackground :: ShellCommand
-    startWaspDbMigrateDevInBackground =
-      ("{ " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1 & }")
-        ~&& "WASP_E2E_DB_PID=$!"
-
-    waspCliDbMigrateDev :: ShellCommand
-    waspCliDbMigrateDev = "$WASP_CLI_CMD db migrate-dev --name foo"
-
-    waitingForCompilationMessage :: String
-    waitingForCompilationMessage = "'Waiting for compilation to finish'"
-
-    releaseLockAndAwaitWaspInstall :: ShellCommand
-    releaseLockAndAwaitWaspInstall =
-      "touch " ++ releaseLockSignalFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
-
-    lockAcquiredMarkerFile :: FilePath
-    lockAcquiredMarkerFile = ".wasp-e2e-lock-acquired"
-
-    -- Created by the test to tell the preinstall hook to stop waiting, which
-    -- lets `wasp install` (and with it the lock) finish.
-    releaseLockSignalFile :: FilePath
-    releaseLockSignalFile = ".wasp-e2e-release-lock"
+-- | Rewrites the lock file on behalf of the process holding the lock, keeping its PID.
+setLockFileWatcherStatus :: WatcherStatus -> TestM ()
+setLockFileWatcherStatus watcherStatus = do
+  pid <- fromIntegral <$> waspPidFromLockFile
+  writeLockFile ProjectLockData {pid, watcherStatus = Just watcherStatus}

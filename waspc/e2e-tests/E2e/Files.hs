@@ -8,6 +8,7 @@ module E2e.Files
     deleteFile,
     deleteDirectory,
     copyGitTrackedDir,
+    waitForFile,
   )
 where
 
@@ -18,8 +19,8 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2e.Process (ProcessResult (..), command, run)
-import E2e.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, resolvePath)
-import System.Directory (createDirectoryIfMissing, createFileLink, getSymbolicLinkTarget, pathIsSymbolicLink, removeFile, removePathForcibly)
+import E2e.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, resolvePath, waitUntil)
+import System.Directory (createDirectoryIfMissing, createFileLink, doesFileExist, getSymbolicLinkTarget, pathIsSymbolicLink, removeFile, removePathForcibly)
 import qualified System.Directory as Directory
 import System.FilePath (makeRelative, takeDirectory, (</>))
 
@@ -83,3 +84,9 @@ copyGitTrackedDir srcDirInGitRoot destDir = do
       if isSymlink
         then getSymbolicLinkTarget srcFile >>= (`createFileLink` destFile)
         else Directory.copyFile srcFile destFile
+
+-- | Waits until some process creates the file.
+waitForFile :: FilePath -> Int -> TestM ()
+waitForFile path seconds = do
+  absPath <- resolvePath path
+  waitUntil (path ++ " exists") seconds $ liftIO $ doesFileExist absPath

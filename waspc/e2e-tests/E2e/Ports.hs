@@ -10,6 +10,9 @@ module E2e.Ports
     waspStartSigterm,
     waspStartSighup,
     waspStartTerminalHangup,
+    waspBuildStart,
+    waspStudioPort,
+    prismaStudioPort,
   )
 where
 
@@ -32,3 +35,11 @@ waspStartWebAppCrash = AppPorts 31020 31021
 waspStartSigterm = AppPorts 31030 31031
 waspStartSighup = AppPorts 31040 31041
 waspStartTerminalHangup = AppPorts 31050 31051
+
+waspBuildStart :: AppPorts
+waspBuildStart = AppPorts 31060 31061
+
+-- | Fixed by Wasp. Only one test may use each of them.
+waspStudioPort, prismaStudioPort :: Int
+waspStudioPort = 4000
+prismaStudioPort = 5555

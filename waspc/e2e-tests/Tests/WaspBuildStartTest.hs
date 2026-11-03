@@ -1,39 +1,29 @@
 module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
-import Test (Test (..), TestCase (..))
+import E2e
+import E2e.Ports (appPortArgs, appPortList)
+import qualified E2e.Ports as Ports
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
--- FIXME: @waspCliBuildStart@ - figure out long lasting processes
-waspBuildStartTest :: Test
+waspBuildStartTest :: E2eTest
 waspBuildStartTest =
-  Test
+  testGroup
     "wasp-build-start"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliBuildStartFails]),
-      TestCase
-        "fail-unbuilt-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  return waspCliBuildStartFails
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-built-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  waspCliBuild,
-                  waspCliBuildStart "-s DATABASE_URL=none"
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["build", "start"],
+      test "fail-unbuilt-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          setDbToPostgres
+          waspFails ["build", "start"],
+      -- `wasp build start` builds and runs the server's Docker image.
+      test "succeed-built-project" $ do
+        skipIfDockerDisabled
+        withNewWaspProject minimalStarterTemplate $ do
+          let ports = Ports.waspBuildStart
+          setDbToPostgres
+          wasp ["build"]
+          app <- startInBackground $ waspCli (["build", "start", "-s", "DATABASE_URL=none"] ++ appPortArgs ports)
+          waitUntilListening (appPortList ports) (15 * 60)
+          interrupt app
+          waitForExit app 60
+          waitUntilNotListening (appPortList ports) 30
     ]
-  where
-    waspCliBuildStartFails :: ShellCommand
-    waspCliBuildStartFails = "! $WASP_CLI_CMD build start"
