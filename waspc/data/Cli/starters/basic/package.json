@@ -30,5 +30,11 @@
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0",
     "@wasp/spec": "__waspSpecPackageSpecifier__"
+  },
+  "allowScripts": {
+    "prisma": true,
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true
   }
 }

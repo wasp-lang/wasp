@@ -1,4 +1,10 @@
 {
+  "allowScripts": {
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true,
+    "prisma": true
+  },
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
