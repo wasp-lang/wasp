@@ -35,6 +35,10 @@ import Wasp.Util.Json (readJsonFile, updateJsonFile)
 import Wasp.Version (waspVersion)
 
 {-
+NOTE: This module is a temporary black box, so it doesn't need a detailed
+review. Only the repo's own Wasp apps go through it, and it goes away with the
+TODO at the end of this comment.
+
 This module lets the Wasp apps in the Wasp repo run against the Wasp in the
 repo, before its npm packages are published.
 

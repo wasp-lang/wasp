@@ -10,6 +10,11 @@
 // dev sub-package inside it, which runs the `wasp-cli` binary built in this
 // repo. See `DEV_SUB_PACKAGE_SOURCE` for how it finds the binary, and
 // `writeDevCliConfig` for the `WASP_DEV_CLI_BIN` and `WASP_DEV_DATA_DIR` overrides.
+//
+// TODO: Remove this script, or most of it, once Wasp apps can run under pnpm
+// and the repo's examples and other Wasp apps join the pnpm workspace. They
+// then depend on `@wasp/wasp` through `workspace:*` instead of tarballs. Only
+// finding the dev `wasp-cli` binary stays, as a dev fallback in `packages/cli`.
 
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
