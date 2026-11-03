@@ -103,7 +103,7 @@ Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your 
   </TabItem>
 </Tabs>
 
-If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update the lines that mention the old package, the Wasp version in `main.wasp.ts`, or `wasp install`, so coding agents don't follow outdated instructions:
+If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or remove the lines that mention the old package, the Wasp version in `main.wasp.ts`, or `wasp install`, so coding agents don't follow outdated instructions:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -116,9 +116,8 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update th
   </TabItem>
   <TabItem value="after" label="After">
     ```md title="AGENTS.md"
-    - Pick the docs map matching the Wasp version in `package.json` (the `@wasp/wasp` dependency).
+    - Pick the docs map matching the version of the `@wasp/wasp` dependency in `package.json`.
     - `main.wasp.ts` contains the Wasp app specification.
-    - `@wasp/spec` comes with the `@wasp/wasp` dependency, don't add it to `package.json`.
     - Run `npm install` before other Wasp commands in a fresh clone or worktree.
     ```
   </TabItem>
