@@ -1,16 +1,18 @@
 /**
- * TypeDoc plugin that titles React components as `<Name>`, instead of
- * `Name()`, and puts them in the "Components" group unless they set a
- * `@group`.
+ * TypeDoc plugin with the Wasp docs' Markdown theme, which:
  *
- * Mark a component with the `@component` modifier tag (declared in the
- * package's `tsdoc.json`) in its doc comment.
+ * - Titles module pages with the module's full import path, e.g.
+ *   `wasp/auth/providers` instead of `auth/providers`.
+ * - Titles React components as `<Name>`, instead of `Name()`, and puts them in
+ *   the "Components" group unless they set a `@group`. Mark a component with
+ *   the `@component` modifier tag in its doc comment.
  */
 
 import {
   CommentTag,
   Converter,
   DeclarationReflection,
+  ReflectionKind,
   type Application,
   type Reflection,
 } from "typedoc";
@@ -19,8 +21,6 @@ import {
   MarkdownThemeContext,
   type MarkdownPageEvent,
 } from "typedoc-plugin-markdown";
-
-export const WASP_MARKDOWN_THEME_NAME = "wasp-markdown";
 
 const COMPONENT_TAG = "@component";
 const DEFAULT_GROUP_TAG = "@group";
@@ -46,7 +46,7 @@ export function load(app: Application) {
     }
   });
 
-  app.renderer.defineTheme(WASP_MARKDOWN_THEME_NAME, WaspMarkdownTheme);
+  app.renderer.defineTheme("wasp-markdown", WaspMarkdownTheme);
 }
 
 class WaspMarkdownTheme extends MarkdownTheme {
@@ -58,7 +58,7 @@ class WaspMarkdownTheme extends MarkdownTheme {
 class WaspMarkdownThemeContext extends MarkdownThemeContext {
   constructor(...args: ConstructorParameters<typeof MarkdownThemeContext>) {
     super(...args);
-    const { comment, memberTitle } = this.partials;
+    const { comment, memberTitle, pageTitle } = this.partials;
 
     this.partials = {
       ...this.partials,
@@ -77,6 +77,11 @@ class WaspMarkdownThemeContext extends MarkdownThemeContext {
             // ID keeps the anchor that TypeDoc links to.
             `\\<${model.name}\\> {#${this.router.getAnchor(model)}}`
           : memberTitle(model),
+
+      pageTitle: () =>
+        this.page.model.kindOf(ReflectionKind.Module)
+          ? this.page.model.getFullName("/")
+          : pageTitle(),
     };
   }
 }

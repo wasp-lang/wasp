@@ -2,7 +2,6 @@ import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
-import { WASP_MARKDOWN_THEME_NAME } from "./sdk-api-docs/typedoc-plugin-react-components";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
@@ -325,9 +324,9 @@ const config: Config = {
         // and groups them so we can keep them out of the sidebar.
         plugin: [
           "typedoc-plugin-missing-exports",
-          "./sdk-api-docs/typedoc-plugin-react-components.ts",
+          "./sdk-api-docs/typedoc-plugin-wasp-theme.ts",
         ],
-        theme: WASP_MARKDOWN_THEME_NAME,
+        theme: "wasp-markdown",
 
         // input packages
         entryPointStrategy: "packages",
