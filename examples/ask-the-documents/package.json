@@ -8,12 +8,14 @@
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server",
-    "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
-    "test:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}"
+    "test": "npm run test:e2e",
+    "test:e2e": "npm run test:e2e:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
+    "test:e2e:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}"
   },
   "dependencies": {
     "@heroui/react": "^2.8.7",
     "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
+    "@tanstack/react-query": "~4.42.0",
     "cheerio": "1.0.0-rc.12",
     "framer-motion": "^12.23.26",
     "ky": "^2.0.0-0",
@@ -25,7 +27,8 @@
     "react-hook-form": "^7.45.4",
     "react-markdown": "^10.1.0",
     "react-router": "^8.0.1",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
@@ -36,8 +39,7 @@
     "@wasp/wasp-app-runner": "^0.0.19",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
-    "vite": "^8.1.0",
-    "vitest": "^4.1.9"
+    "vite": "^8.1.0"
   },
   "overrides": {
     "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",

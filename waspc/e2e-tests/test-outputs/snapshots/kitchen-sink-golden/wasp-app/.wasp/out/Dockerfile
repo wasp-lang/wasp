@@ -63,7 +63,7 @@ WORKDIR /app/.wasp/out/server
 # Dependencies and the bundle are separate layers, so a code change only ships
 # the small bundle layer.
 COPY --link --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
-COPY --link server/package.json ./
+COPY --link server/package.json server/loadDotEnv.cjs ./
 COPY --link db/ /app/.wasp/out/db/
 COPY --link --from=server-builder /app/.wasp/out/server/production/bundle ./bundle
 ENTRYPOINT ["npm", "run", "start-production"]

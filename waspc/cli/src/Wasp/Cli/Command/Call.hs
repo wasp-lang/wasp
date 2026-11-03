@@ -21,7 +21,6 @@ data Call
   | PrintBashCompletionInstruction
   | BashCompletionListCommands
   | Deploy Arguments -- deploy cmd passthrough args
-  | Test Arguments -- "client" | "server", then test cmd passthrough args
   | Help
   | Unknown Arguments -- all args
   deriving (Eq)

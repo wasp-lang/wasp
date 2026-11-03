@@ -28,7 +28,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import qualified Wasp.Job as J
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 -- We disable this lint because we use it for clarity here, because it is
 -- complex code:
@@ -133,10 +133,11 @@ startServer serverRunConfig generatedAppDir inbox = do
     serverProcess :: J.CreateJobProcess
     serverProcess =
       addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-        $ J.setCwd serverDir
+        $ J.setCwd waspProjectDir
         $ uncurry J.proc Common.devServerStartProcess
 
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
+    waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
 -- | What the compiles that `startServer` hasn't handled yet, newest first,
 -- require of the server.

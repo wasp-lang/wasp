@@ -18,7 +18,7 @@ import System.Exit (ExitCode)
 import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
+import Wasp.Generator.ServerGenerator.Common (dbSeedProcess, serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
@@ -134,12 +134,13 @@ seed serverRunConfig generatedAppDir seedName =
     runSeed =
       J.fromProc
         $ addEnvVarsOverride envVars
-        $ J.setCwd serverDir
+        $ J.setCwd waspProjectDir
         -- The user's seed function can ask for input.
         $ J.markInteractive
-        $ J.proc "node" ["--enable-source-maps", "-r", "dotenv/config", "bundle/dbSeed.js"]
+        $ uncurry J.proc dbSeedProcess
     envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
+    waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
 -- | Checks if the DB is running and connectable by running
 -- `prisma db execute --stdin --schema <path to db schema>`.
