@@ -902,7 +902,7 @@ importers:
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
-      wasp:
+      wasp-sdk-api-docs:
         specifier: workspace:*
         version: link:sdk-api-docs
 

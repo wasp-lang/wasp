@@ -1,6 +1,9 @@
 {
   "$schema": "https://typedoc.org/schema.json",
 
+  // Document the package as the `wasp` package that Wasp apps import.
+  "name": "wasp",
+
   "readme": "none",
   "disableSources": true,
   "excludeInternal": true,

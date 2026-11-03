@@ -1,5 +1,5 @@
 {
-  "name": "wasp",
+  "name": "wasp-sdk-api-docs",
   "type": "module",
   "private": true,
   "devDependencies": {
