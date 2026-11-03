@@ -19354,7 +19354,7 @@ async function createSocialLoginMigration(
 
 # Guides
 
-## Guides / About these guides
+## About these guides
 
 The guides in this section will walk you through common scenarios you'll encounter when building real-world apps with Wasp. They're more hands-on and to-the-point than the main docs. Pick the one that matches what you're trying to do and follow along!
 
@@ -19363,7 +19363,7 @@ Since many guides involve third-party libraries or services, some details may dr
 Looking for a guide we don't have yet? [Open an issue](https://github.com/wasp-lang/wasp/issues) or drop by [our Discord](https://discord.gg/rzdnErX). We're always looking for new ideas.
 
 
-## Guides / Configuration / Multiple Domains CORS
+## Configuration / Multiple Domains CORS
 
 :::note
 Last checked with Wasp 0.24.
@@ -19546,7 +19546,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
 - Regularly audit your allowed domains list
 
 
-## Guides / Debugging / Database Studio with Fly.io
+## Debugging / Database Studio with Fly.io
 
 :::note
 Last checked with Wasp 0.24 and Fly CLI 0.4.11.
@@ -19664,7 +19664,7 @@ This will open a web interface where you can view and modify your database recor
 - Never commit production credentials to version control
 
 
-## Guides / Debugging / Local Network Testing
+## Debugging / Local Network Testing
 
 :::note
 Last checked with Wasp 0.26.
@@ -19787,7 +19787,7 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 3. Restart the app after changing URLs or environment variables
 
 
-## Guides / Deployment / Cloud Providers / Cloudflare
+## Deployment / Cloud Providers / Cloudflare
 
 :::note
 Last checked with Wasp 0.24 and Cloudflare Workers (as of Apr 6, 2026).
@@ -19922,7 +19922,7 @@ How do I get the Environment Variables?
 After getting the environment variables, you need to set these in GitHub Repository Secrets.
 
 
-## Guides / Deployment / Cloud Providers / Fly.io
+## Deployment / Cloud Providers / Fly.io
 
 :::note
 Last checked with Wasp 0.24 and Fly.io (as of Apr 6, 2026).
@@ -20052,7 +20052,7 @@ When the `fly.toml` file exists in .wasp/out/ dir, you do not need to specify th
 1. Run `fly config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
 
-## Guides / Deployment / Cloud Providers / Heroku
+## Deployment / Cloud Providers / Heroku
 
 :::note
 Last checked with Wasp 0.24 and Heroku (as of Apr 6, 2026).
@@ -20165,7 +20165,7 @@ Read more: <https://devcenter.heroku.com/articles/connecting-heroku-postgres#con
 :::
 
 
-## Guides / Deployment / Cloud Providers / Netlify
+## Deployment / Cloud Providers / Netlify
 
 :::note
 Last checked with Wasp 0.24 and Netlify (as of May 28, 2026).
@@ -20295,7 +20295,7 @@ How do I get the Environment Variables?
 After getting the environment variables, you need to set these in GitHub Repository Secrets.
 
 
-## Guides / Deployment / Cloud Providers / Railway
+## Deployment / Cloud Providers / Railway
 
 :::note
 Last checked with Wasp 0.24 and Railway (as of Apr 6, 2026).
@@ -20516,7 +20516,7 @@ When you make updates and need to redeploy:
    ```
 
 
-## Guides / Deployment / Cloud Providers / Render
+## Deployment / Cloud Providers / Render
 
 :::note
 Last checked with Wasp 0.24 and Render (as of Apr 15, 2026).
@@ -20677,7 +20677,7 @@ Both services install Wasp and compile the app from source on each deploy. On th
 :::
 
 
-## Guides / Deployment / Cloud Providers / Vercel
+## Deployment / Cloud Providers / Vercel
 
 :::note
 Last checked with Wasp 0.26 and Vercel (as of Sep 7, 2026).
@@ -20880,7 +20880,7 @@ When you make updates and need to redeploy:
    ```
 
 
-## Guides / Deployment / Self-Hosted / CapRover
+## Deployment / Self-Hosted / CapRover
 
 :::note
 Last checked with Wasp 0.24 and Caprover 1.14.1.
@@ -21130,7 +21130,7 @@ Push to the `main` branch and the GitHub Action will:
 4. Deploy both apps to Caprover
 
 
-## Guides / Deployment / Self-Hosted / Coolify
+## Deployment / Self-Hosted / Coolify
 
 :::note
 Last checked with Wasp 0.24 and Coolify 4.0.0-beta.462.
@@ -21365,7 +21365,7 @@ Push to the `main` branch and the GitHub Action will:
 4. Trigger Coolify to deploy the new images
 
 
-## Guides / Deployment / Self-Hosted / Simple VPS
+## Deployment / Self-Hosted / Simple VPS
 
 :::note
 Last checked with Wasp 0.24, Caddy 2.10.2, and Ubuntu LTS 24.04.
@@ -21699,7 +21699,7 @@ api.myapp.com {
 This makes Caddy wait up to 15 seconds for the server to become available again.
 
 
-## Guides / Integrations / Custom OAuth Provider
+## Integrations / Custom OAuth Provider
 
 :::note
 Last checked with Wasp 0.24.
@@ -21959,7 +21959,7 @@ Each provider follows the same pattern. For example, to use Twitch instead of Sp
 - Update the `User` schema and the fields passed to `createUser` to match the provider's response.
 
 
-## Guides / Integrations / File Uploads
+## Integrations / File Uploads
 
 :::note
 Last checked with Wasp 0.24 and multer 2.1.1.
@@ -22118,7 +22118,7 @@ export const configureFileUploadMiddleware: MiddlewareConfigFn = (config) => {
 For more options, see the [Multer documentation](https://github.com/expressjs/multer).
 
 
-## Guides / Integrations / Sentry
+## Integrations / Sentry
 
 :::note
 Last checked with Wasp 0.24, @sentry/node 8, and @sentry/react 8.
@@ -22320,7 +22320,7 @@ export const App = ({ children }) => {
 For more configuration options, see the [Sentry documentation](https://docs.sentry.io/).
 
 
-## Guides / Integrations / Swagger UI
+## Integrations / Swagger UI
 
 :::note
 Last checked with Wasp 0.24, swagger-jsdoc 6, and swagger-ui-express 5.
@@ -22640,7 +22640,7 @@ const spec = swaggerJsdoc({
 For more options, see the [swagger-jsdoc documentation](https://github.com/Surnet/swagger-jsdoc) and [swagger-ui-express documentation](https://github.com/scottie1984/swagger-ui-express).
 
 
-## Guides / Integrations / WebSocket Namespaces
+## Integrations / WebSocket Namespaces
 
 :::note
 Last checked with Wasp 0.24.
@@ -22844,7 +22844,7 @@ messagesNamespace.on("connection", (socket) => {
 For more information about Socket.IO namespaces, see the [Socket.IO documentation](https://socket.io/docs/v4/namespaces/).
 
 
-## Guides / Legacy / Wasp Installer
+## Legacy / Wasp Installer
 
 :::note
 Last checked with Wasp 0.21.
@@ -22955,7 +22955,7 @@ You have two options to run Wasp on your Mac with Mx chip:
    Once installed, Wasp will run on your system as normal.
 
 
-## Guides / Legacy / Wasp DSL
+## Legacy / Wasp DSL
 
 :::note
 Last checked with Wasp 0.24.
@@ -23349,7 +23349,7 @@ At some points, when the Spec needs to be regenerated, Wasp will tell you to run
 See the full [Wasp Spec reference](https://wasp.sh/docs/features/spec#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
 
 
-## Guides / Legacy / Wasp TS Config
+## Legacy / Wasp TS Config
 
 :::note
 Last checked with Wasp 0.24.
@@ -23748,7 +23748,7 @@ At some points, when the Spec needs to be regenerated, Wasp will tell you to run
 See the full [Wasp Spec reference](https://wasp.sh/docs/features/spec#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
 
 
-## Guides / Libraries / Radix Themes
+## Libraries / Radix Themes
 
 :::note
 Last checked with Wasp 0.24 and Radix Themes 3.
@@ -23852,7 +23852,7 @@ export function Layout({ children }: { children?: ReactNode }) {
 See the [Radix Themes documentation](https://www.radix-ui.com/themes/docs/overview/getting-started) for more customization options.
 
 
-## Guides / Libraries / Shadcn
+## Libraries / Shadcn
 
 :::note
 Last checked with Wasp 0.24 and Shadcn (as of May 28, 2026).
@@ -23997,7 +23997,7 @@ export const MainPage = () => {
 ```
 
 
-## Guides / Libraries / Tailwind CSS
+## Libraries / Tailwind CSS
 
 :::note
 Last checked with Wasp 0.24 and Tailwind 4.
@@ -24070,7 +24070,7 @@ npm install -D @tailwindcss/typography
 ```
 
 
-## Guides / Optimization / Meta tags
+## Optimization / Meta tags
 
 :::note
 Last checked with Wasp 0.24.
@@ -24206,7 +24206,7 @@ After deploying, you can verify your meta tags using these tools:
 - [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
 
 
-## Guides / Optimization / SEO & GEO
+## Optimization / SEO & GEO
 
 :::note
 Last checked with Wasp 0.24, Lighthouse 13, and industry standards (as of Jun 8, 2026).
