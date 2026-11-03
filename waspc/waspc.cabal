@@ -310,7 +310,6 @@ library
     Wasp.Node.Internal
     Wasp.Node.NpmBin
     Wasp.Node.Version
-    Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType

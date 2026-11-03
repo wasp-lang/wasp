@@ -12,6 +12,7 @@ module Wasp.Project.WaspNpmPackage
     waspSpecAnalyzerScriptInWaspProjectDir,
     waspDeployScriptInWaspProjectDir,
     waspStudioScriptInWaspProjectDir,
+    waspNpmPackageScriptProcess,
     tryGettingInstalledWaspNpmPackageVersion,
   )
 where
@@ -20,7 +21,8 @@ import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.Extra (unlessM)
 import Control.Monad.IO.Class (liftIO)
 import Data.Bifunctor (first)
-import StrongPath (Abs, Dir, File, File', Path', Rel, castFile, fromAbsFile, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, castFile, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
+import qualified System.Process as P
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
@@ -63,6 +65,16 @@ waspDeployScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfil
 -- 'waspSpecAnalyzerScriptInWaspProjectDir'.
 waspStudioScriptInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspStudioScriptInWaspProjectDir = waspNpmPackageDirInWaspProjectDir </> [relfile|run-studio.js|]
+
+-- | A process that runs one of the scripts \@wasp/wasp ships, like
+-- 'waspDeployScriptInWaspProjectDir', with `node` in the project dir. The
+-- calling command must require Node.js and the project's installed
+-- dependencies (@ValidNodeAndNpm@ and @WaspNpmPackageAvailable@).
+waspNpmPackageScriptProcess :: Path' Abs (Dir WaspProjectDir) -> Path' (Rel WaspProjectDir) File' -> [String] -> P.CreateProcess
+waspNpmPackageScriptProcess waspProjectDir script args =
+  (P.proc "node" (fromAbsFile (waspProjectDir </> script) : args))
+    { P.cwd = Just $ fromAbsDir waspProjectDir
+    }
 
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String SV.Version)
 tryGettingInstalledWaspNpmPackageVersion projectDir = runExceptT $ do

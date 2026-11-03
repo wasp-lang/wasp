@@ -5,8 +5,8 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import qualified System.Process as P
-import Wasp.NodePackageFFI (RunnablePackage (WaspStudioPackage), getPackageProcessOptions)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.WaspNpmPackage (waspNpmPackageScriptProcess, waspStudioScriptInWaspProjectDir)
 import Wasp.Util (checkExitSuccess)
 
 startStudio ::
@@ -17,7 +17,7 @@ startStudio ::
 startStudio waspProjectDir pathToDataFile = do
   let startStudioArgs = ["--data-file", pathToDataFile]
 
-  cp <- getPackageProcessOptions waspProjectDir WaspStudioPackage startStudioArgs
+  let cp = waspNpmPackageScriptProcess waspProjectDir waspStudioScriptInWaspProjectDir startStudioArgs
   -- Set up the process so that it:
   -- - Inherits handles from the waspc process (it will print and read from stdin/out/err)
   -- - Delegates Ctrl+C: when waspc receives Ctrl+C while this process is running,
