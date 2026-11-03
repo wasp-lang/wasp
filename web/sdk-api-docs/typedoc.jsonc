@@ -21,4 +21,6 @@
   // One module per SDK import path, e.g. `server.d.ts` documents `wasp/server`.
   "entryPoints": ["./types/**/*.d.ts"],
   "exclude": ["node_modules/**"],
+
+  "modifierTags": ["@component"],
 }

@@ -2,6 +2,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
+import { WASP_MARKDOWN_THEME_NAME } from "./sdk-api-docs/typedoc-plugin-react-components";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
@@ -322,7 +323,11 @@ const config: Config = {
         // Documents types that our packages reference but don't export, e.g.
         // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures,
         // and groups them so we can keep them out of the sidebar.
-        plugin: ["typedoc-plugin-missing-exports"],
+        plugin: [
+          "typedoc-plugin-missing-exports",
+          "./sdk-api-docs/typedoc-plugin-react-components.ts",
+        ],
+        theme: WASP_MARKDOWN_THEME_NAME,
 
         // input packages
         entryPointStrategy: "packages",

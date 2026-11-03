@@ -132,6 +132,8 @@ export declare function logout(): Promise<void>;
  * ```
  *
  * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#login-form)
+ *
+ * @component
  */
 export declare function LoginForm(props: CustomizationOptions): JSX.Element;
 
@@ -252,6 +254,8 @@ export declare function LoginForm(props: CustomizationOptions): JSX.Element;
  *
  * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#signup-form)
  * @see [Customizing the signup component](https://wasp.sh/docs/features/auth/overview#2-customizing-the-signup-component)
+ *
+ * @component
  */
 export declare function SignupForm(
   props: CustomizationOptions & { additionalFields?: AdditionalSignupFields },
@@ -277,6 +281,8 @@ export declare function SignupForm(
  * ```
  *
  * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#forgot-password-form)
+ *
+ * @component
  */
 export declare function ForgotPasswordForm(
   props: CustomizationOptions,
@@ -303,6 +309,8 @@ export declare function ForgotPasswordForm(
  * ```
  *
  * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#reset-password-form)
+ *
+ * @component
  */
 export declare function ResetPasswordForm(
   props: CustomizationOptions,
@@ -329,6 +337,8 @@ export declare function ResetPasswordForm(
  * ```
  *
  * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#verify-email-form)
+ *
+ * @component
  */
 export declare function VerifyEmailForm(
   props: CustomizationOptions,
@@ -389,6 +399,8 @@ export type { CustomizationOptions } from "@wasp/lib-sdk-core/browser";
  * look like the rest of the form.
  *
  * @see [Using a list of extra fields](https://wasp.sh/docs/features/auth/overview#using-a-list-of-extra-fields)
+ *
+ * @component
  */
 export { FormItemGroup } from "@wasp/lib-sdk-core/browser";
 
@@ -397,6 +409,8 @@ export { FormItemGroup } from "@wasp/lib-sdk-core/browser";
  * the extra fields you pass to {@link SignupForm}.
  *
  * @see [Using a list of extra fields](https://wasp.sh/docs/features/auth/overview#using-a-list-of-extra-fields)
+ *
+ * @component
  */
 export { FormLabel } from "@wasp/lib-sdk-core/browser";
 
@@ -405,6 +419,8 @@ export { FormLabel } from "@wasp/lib-sdk-core/browser";
  * fields you pass to {@link SignupForm}.
  *
  * @see [Using a list of extra fields](https://wasp.sh/docs/features/auth/overview#using-a-list-of-extra-fields)
+ *
+ * @component
  */
 export { FormInput } from "@wasp/lib-sdk-core/browser";
 
@@ -413,6 +429,8 @@ export { FormInput } from "@wasp/lib-sdk-core/browser";
  * fields you pass to {@link SignupForm}.
  *
  * @see [Using a list of extra fields](https://wasp.sh/docs/features/auth/overview#using-a-list-of-extra-fields)
+ *
+ * @component
  */
 export { FormTextarea } from "@wasp/lib-sdk-core/browser";
 
@@ -421,6 +439,8 @@ export { FormTextarea } from "@wasp/lib-sdk-core/browser";
  * build the extra fields you pass to {@link SignupForm}.
  *
  * @see [Using a list of extra fields](https://wasp.sh/docs/features/auth/overview#using-a-list-of-extra-fields)
+ *
+ * @component
  */
 export { FormError } from "@wasp/lib-sdk-core/browser";
 
@@ -671,6 +691,8 @@ export declare const googleSignInUrl: string;
  * ```
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+ *
+ * @component
  */
 export declare function GoogleSignInButton(): JSX.Element;
 
@@ -709,6 +731,8 @@ export declare const githubSignInUrl: string;
  * ```
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+ *
+ * @component
  */
 export declare function GitHubSignInButton(): JSX.Element;
 
@@ -729,6 +753,8 @@ export declare const discordSignInUrl: string;
  * Only available with Discord auth.
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+ *
+ * @component
  */
 export declare function DiscordSignInButton(): JSX.Element;
 
@@ -749,6 +775,8 @@ export declare const slackSignInUrl: string;
  * Only available with Slack auth.
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+ *
+ * @component
  */
 export declare function SlackSignInButton(): JSX.Element;
 
@@ -769,6 +797,8 @@ export declare const keycloakSignInUrl: string;
  * Only available with Keycloak auth.
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+ *
+ * @component
  */
 export declare function KeycloakSignInButton(): JSX.Element;
 
@@ -789,6 +819,8 @@ export declare const microsoftSignInUrl: string;
  * Only available with Microsoft auth.
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+ *
+ * @component
  */
 export declare function MicrosoftSignInButton(): JSX.Element;
 

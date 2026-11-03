@@ -214,6 +214,8 @@ export declare function mockServer(): MockServer;
  * ```
  *
  * @see [Testing](https://wasp.sh/docs/advanced/testing)
+ *
+ * @component
  */
 export declare function WaspTestWrapper(props: {
   children: ReactNode;

@@ -95,6 +95,8 @@ export type LinkProps = Omit<
  * ```
  *
  * @see [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#link-component)
+ *
+ * @component
  */
 export declare function Link(props: LinkProps): JSX.Element;
 
@@ -160,6 +162,8 @@ export type NavLinkProps = Omit<
  * ```
  *
  * @see [Reacting to navigation state with `NavLink`](https://wasp.sh/docs/features/pages-and-routes#reacting-to-navigation-state-with-navlink)
+ *
+ * @component
  */
 export declare function NavLink(props: NavLinkProps): JSX.Element;
 
