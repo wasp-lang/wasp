@@ -11,7 +11,7 @@ import { Client } from '../DeploymentTag'
 
 # Cloudflare
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Cloudflare Workers": new Date("2026-04-06") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", "Cloudflare Workers": new Date("2026-04-06") }} />
 
 ## Deploy Wasp to Cloudflare Workers <Client />
 
@@ -72,8 +72,6 @@ Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment vari
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
 Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Workers whenever changes are pushed to the main branch.
-
-The workflow runs Wasp through the `wasp` script in your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 <details>
   <summary>Example GitHub Action</summary>

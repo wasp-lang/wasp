@@ -29,8 +29,6 @@ The workflow needs to include the following steps:
 3. Install any provider-specific dependencies
 4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
 
-`npm run wasp` uses the `wasp` script from your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
-
 To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the
 environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
 

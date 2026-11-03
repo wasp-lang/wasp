@@ -10,7 +10,7 @@ import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock"
 
 # CapRover
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: "1.14.1" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Caprover: "1.14.1" }} />
 
 ## Deploy Wasp with Caprover
 
@@ -95,8 +95,6 @@ Add any other environment variables your app needs (from `.env.server`).
    - **Image Prefix**: Your GitHub username
 
 ### Step 5: Create GitHub Action
-
-The workflow below runs Wasp through the `wasp` script in your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 Create `.github/workflows/deploy.yml` in your repository:
 

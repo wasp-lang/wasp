@@ -10,7 +10,7 @@ import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock"
 
 # Simple VPS
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caddy: "2.10.2", "Ubuntu LTS": "24.04" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Caddy: "2.10.2", "Ubuntu LTS": "24.04" }} />
 
 ## Deploy Wasp to a VPS
 
@@ -126,8 +126,6 @@ npm ci
 npm run wasp -- build
 ```
 
-`npm ci` installs your project's Wasp version, so the server doesn't need a global Wasp install. `npm run wasp` uses the `wasp` script from your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
-
 ### Step 9: Start the Database
 
 Create a Docker network:
@@ -184,7 +182,6 @@ Create an `.env.production` environment file in your project directory and add:
 | `PORT`                | `3001`                                                                 |
 | `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
 | `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
-
 
 Add any other environment variables your app needs (from `.env.server`).
 

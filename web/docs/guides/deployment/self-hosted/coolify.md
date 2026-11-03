@@ -10,7 +10,7 @@ import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock"
 
 # Coolify
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Coolify: "4.0.0-beta.462" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Coolify: "4.0.0-beta.462" }} />
 
 ## Deploy Wasp with Coolify
 
@@ -84,8 +84,6 @@ In the server app, go to **Environment Variables** and add:
 Add any other environment variables your app needs (from `.env.server`).
 
 ### Step 4: Create GitHub Action
-
-The workflow below runs Wasp through the `wasp` script in your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 Create `.github/workflows/deploy.yml` in your repository:
 

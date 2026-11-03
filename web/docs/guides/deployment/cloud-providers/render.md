@@ -11,7 +11,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Render
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Render: new Date("2026-04-15") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Render: new Date("2026-04-15") }} />
 
 ## Deploy Wasp on Render <Server /> <Client /> <Database />
 
@@ -96,8 +96,6 @@ You should replace the following values for your app:
 | `<app-name>` | A unique name for your app | `my-wasp-app` |
 | `<plan>` | The Render plan for your services | `free` |
 | `<region>` | The Render region closest to your users | `oregon` |
-
-`npm install` installs your project's Wasp version, and `npm run wasp -- build` runs it through the `wasp` script in your `package.json`. New projects come with this script. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 :::caution
 The Render free-tier PostgreSQL database [expires after 30 days](https://render.com/docs/free#30-day-limit). Use the Starter plan or an external provider for production.

@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Local network testing
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27" }} />
 
 This guide shows you how to test your Wasp application on other devices (phones, tablets) connected to the same local network during development.
 

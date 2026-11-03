@@ -11,7 +11,7 @@ import { Client } from '../DeploymentTag'
 
 # Netlify
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Netlify: new Date("2026-05-28") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Netlify: new Date("2026-05-28") }} />
 
 ## Deploy Wasp to Netlify <Client />
 This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
@@ -67,8 +67,6 @@ Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIE
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
 Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
-
-The workflow runs Wasp through the `wasp` script in your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 <details>
   <summary>Example GitHub Action</summary>

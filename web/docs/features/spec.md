@@ -39,10 +39,6 @@ You build your app by:
 
 `spec` is short for specification: the pages, routes, queries, actions, APIs, jobs and CRUDs that make up your app.
 
-## Installing the Spec
-
-The `@wasp/spec` package comes with `@wasp/wasp`, the npm package that sets your project's Wasp version, so `npm install` installs it. `wasp new` runs `npm install` for you. Run it yourself in a fresh clone, after `wasp clean`, or after you delete `node_modules`. If `@wasp/spec` is missing or out of date, Wasp tells you to run `npm install` before it starts the app.
-
 ## Referencing your app's code
 
 Anywhere the Wasp Spec expects your app's function or component (like a page's `component` or a query's `fn`), you can provide it in one of two ways:

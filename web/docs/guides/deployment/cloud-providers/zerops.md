@@ -9,7 +9,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Zerops
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Zerops: new Date("2026-10-23") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Zerops: new Date("2026-10-23") }} />
 
 ## Deploy Wasp on Zerops <Server /> <Client /> <Database />
 
@@ -91,8 +91,6 @@ zerops:
         WASP_WEB_CLIENT_URL: ${APP_URL}
       start: sh -c 'cd .wasp/out/server && npm run start'
 ```
-
-`npm install` installs your project's Wasp version, and `npm run wasp -- build` runs it through the `wasp` script in your `package.json`. New projects come with this script. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 The `prod-client` setup runs `npm install` and `npm run wasp -- build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 

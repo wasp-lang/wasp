@@ -73,8 +73,6 @@ Wasp provides helpers for testing your client code with Vitest. The [testing doc
 2. Run `npm run wasp -- compile` to generate the Wasp SDK your code imports.
 3. Run the tests with your testing framework.
 
-The `npm run wasp` commands on this page use the `wasp` script from your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../advanced/cli.md#running-your-projects-wasp-version).
-
 ## Continuous deployment
 
 We'll look at two ways you can use the CI/CD pipeline to deploy your Wasp app:
