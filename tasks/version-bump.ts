@@ -146,14 +146,14 @@ function findWaspFilePath(projectDir: string): string {
 }
 
 function rebuildLibs(): void {
-  runCmd("node", [join("tools", "libs", "build.ts")], {
+  runCmd("mise", ["run", "build:libs"], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });
 }
 
 function rebuildPackages(): void {
-  runCmd("node", [join("tools", "packages", "build.ts")], {
+  runCmd("mise", ["run", "build:packages"], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });

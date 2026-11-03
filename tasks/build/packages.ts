@@ -1,6 +1,6 @@
+#!/usr/bin/env node
+//MISE description="Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
 /// <reference types="node" />
-// Helper to compile the packages/* packages that waspc depends on, locally and
-// in CI, and copy their artifacts into the Cabal data dir.
 
 import {
   cpSync,
@@ -16,16 +16,16 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { extract } from "tar";
 import {
+  getDataPackagesDirPath,
+  getPackageDirPath,
+  WASPC_PACKAGES,
+} from "../../waspc/tools/packages/utils.ts";
+import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
   runCmd,
   type PackageJson,
-} from "../utils.ts";
-import {
-  getDataPackagesDirPath,
-  getPackageDirPath,
-  WASPC_PACKAGES,
-} from "./utils.ts";
+} from "../../waspc/tools/utils.ts";
 
 try {
   buildPackages();

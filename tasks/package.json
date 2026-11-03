@@ -6,6 +6,7 @@
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "execa": "catalog:",
-    "semver": "catalog:"
+    "semver": "catalog:",
+    "tar": "^7.5.22"
   }
 }

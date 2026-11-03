@@ -671,6 +671,9 @@ importers:
       semver:
         specifier: 'catalog:'
         version: 7.8.5
+      tar:
+        specifier: ^7.5.22
+        version: 7.5.22
 
   waspc/starters-e2e-tests:
     dependencies:
@@ -705,9 +708,6 @@ importers:
       execa:
         specifier: 'catalog:'
         version: 9.6.1
-      tar:
-        specifier: ^7.5.22
-        version: 7.5.22
 
   web:
     dependencies:

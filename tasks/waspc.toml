@@ -13,16 +13,6 @@ dir = "waspc"
 shell = "bash -c"
 run = "cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 
-["build:packages"]
-description = "Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
-dir = "waspc"
-run = "node tools/packages/build.ts"
-
-["build:libs"]
-description = "Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
-dir = "waspc"
-run = "node tools/libs/build.ts"
-
 [install]
 description = "Installs the wasp executable as 'wasp-cli' globally on the machine."
 dir = "waspc"
@@ -76,16 +66,6 @@ run = ["rm -rf e2e-tests/test-outputs/snapshots/*-golden", { task = "test:waspc:
 description = "Executes only cli tests. Builds the project first if needed."
 dir = "waspc"
 run = "cabal test wasp-cli-tests --test-option=--hide-successes"
-
-["test:libs"]
-description = "Run tests on Wasp libs (types, unit, type-exports)."
-dir = "waspc"
-run = "node tools/libs/test.ts"
-
-["test:packages"]
-description = "Run tests on Wasp packages (spec, deploy, etc.)."
-dir = "waspc"
-run = "node tools/packages/test.ts"
 
 # Wasp App Runner
 # Utility used for running e2e tests in Wasp apps, we use it for testing
