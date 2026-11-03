@@ -143,4 +143,4 @@
 - [SEO & GEO](https://wasp.sh/docs/guides/optimization/seo.md)
 
 ## API
-- [@wasp/spec](https://wasp.sh/docs/api/@wasp/spec.md)
+- [wasp](https://wasp.sh/docs/api/wasp.md)

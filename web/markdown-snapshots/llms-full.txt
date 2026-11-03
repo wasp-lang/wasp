@@ -663,11 +663,11 @@ Notice the `with { type: "ref" }` part at the end of the import statement. This 
 
 This Wasp app uses three specifications:
 
-- [**app**](https://wasp.sh/docs/api/@wasp/spec/functions/app): Top-level configuration information about your app.
+- [**app**](https://wasp.sh/docs/api/@wasp/spec#app-1): Top-level configuration information about your app.
 
-- [**route**](https://wasp.sh/docs/api/@wasp/spec/functions/route): Describes which path each page should be accessible from.
+- [**route**](https://wasp.sh/docs/api/@wasp/spec#route-1): Describes which path each page should be accessible from.
 
-- [**page**](https://wasp.sh/docs/api/@wasp/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
+- [**page**](https://wasp.sh/docs/api/@wasp/spec#page-2): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.
 
@@ -2242,117 +2242,37 @@ See the [Prerendering](https://wasp.sh/docs/advanced/prerendering) page for the 
 
 #### `page` and `route` specifications
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/page)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#page-2)
 
-#### [page »](https://wasp.sh/docs/api/@wasp/spec/functions/page)
+#### [page »](https://wasp.sh/docs/api/@wasp/spec#page-2)
 
-[All the options for declaring a page in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/page)
+[All the options for declaring a page in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#page-2)
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/route)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#route-1)
 
-#### [route »](https://wasp.sh/docs/api/@wasp/spec/functions/route)
+#### [route »](https://wasp.sh/docs/api/@wasp/spec#route-1)
 
-[All the options for declaring a route in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/route)
+[All the options for declaring a route in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#route-1)
 
-#### `Link` Component
+#### `wasp/client/router`
 
-The `Link` component accepts the following props:
+[API reference](https://wasp.sh/docs/api/wasp/client/router#link)
 
-- `to` required
+#### [Link »](https://wasp.sh/docs/api/wasp/client/router#link)
 
-  - A valid Wasp Route path from your `main.wasp.ts` file.
+[All the props of the type-safe Link component.](https://wasp.sh/docs/api/wasp/client/router#link)
 
-    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
+[API reference](https://wasp.sh/docs/api/wasp/client/router#navlink)
 
-- `params: { [name: string]: string | number }` required (if the path contains params)
+#### [NavLink »](https://wasp.sh/docs/api/wasp/client/router#navlink)
 
-  - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
+[All the props of the type-safe NavLink component, and its render-prop functions.](https://wasp.sh/docs/api/wasp/client/router#navlink)
 
-- `search: string[][] | Record<string, string> | string | URLSearchParams`
+[API reference](https://wasp.sh/docs/api/wasp/client/router#routes)
 
-  - The search params, in any shape the [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams) constructor accepts.
-  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
+#### [routes »](https://wasp.sh/docs/api/wasp/client/router#routes)
 
-- `hash: string`
-
-- All other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
-
-#### `NavLink` Component
-
-The `NavLink` component accepts the same `to`, `params`, `search`, and `hash` props as the [`Link` component](#link-component), plus:
-
-- All other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
-
-  The most useful ones are:
-
-  - `className`, `style`, and `children`
-
-    - Besides regular values, these can be functions. `NavLink` calls them with an object describing the link's state and uses what they return. The object has these fields:
-
-      - `isActive`: the link points to the current page.
-      - `isPending`: the user clicked the link, and the page is still loading.
-      - `isTransitioning`: a [view transition](https://reactrouter.com/8.0.1/how-to/view-transitions) to the page is in progress.
-
-  - `end: boolean`
-
-    - By default, a link is also active on nested paths. For example, a link to `/tasks` is active on `/tasks/123`. Set `end` to only make it active on its exact path.
-
-  - `caseSensitive: boolean`
-
-    - By default, the link ignores letter case when checking if it's active. Set `caseSensitive` to take case into account.
-
-#### `routes` Object
-
-The `routes` object contains a function for each route in your app.
-
-```ts title="router.tsx"
-export const routes = {
-  // RootRoute has a path like "/"
-  RootRoute: {
-    build: (options?: {
-      search?: string[][] | Record<string, string> | string | URLSearchParams
-      hash?: string
-    }) => // ...
-  },
-
-  // DetailRoute has a path like "/task/:id/:userId?"
-  DetailRoute: {
-    build: (
-      options: {
-        params: { id: ParamValue; userId?: ParamValue; },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // OptionalRoute has a path like "/task/:id/details?"
-  OptionalRoute: {
-    build: (
-      options: {
-        path: "/task/:id/details" | "/task/:id",
-        params: { id: ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // CatchAllRoute has a path like "/pages/*"
-  CatchAllRoute: {
-    build: (
-      options: {
-        params: { "*": ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-}
-```
-
-The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
+[The object for building the URL of each route, with its params, search, and hash.](https://wasp.sh/docs/api/wasp/client/router#routes)
 
 #### React Router API
 
@@ -2809,7 +2729,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 })
 ```
 
-When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. To change this, set `retry` for a [single Query](#the-usequery-hook-1) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
+When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. To change this, set `retry` for a [single Query](https://wasp.sh/docs/api/wasp/client/operations#usequery) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
 
 #### Using Entities in Queries
 
@@ -2856,109 +2776,45 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 #### Specifying Queries
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/query)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#query-1)
 
-#### [query »](https://wasp.sh/docs/api/@wasp/spec/functions/query)
+#### [query »](https://wasp.sh/docs/api/@wasp/spec#query-1)
 
-[All the options for declaring a query in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/query)
+[All the options for declaring a query in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#query-1)
 
-Declaring a Query enables you to import and use it anywhere in your code (on the server or the client). For example, for a Query that we declared as `getFoo`, Wasp generates two functions with the same name that you can import and use:
+[API reference](https://wasp.sh/docs/api/wasp/client/operations)
 
-```ts
-// Use it on the client
-import { getFoo } from "wasp/client/operations"
+#### [wasp/client/operations »](https://wasp.sh/docs/api/wasp/client/operations)
 
-// Use it on the server
-import { getFoo } from "wasp/server/operations"
-```
+[The functions Wasp generates for calling your Queries on the client.](https://wasp.sh/docs/api/wasp/client/operations)
 
-It also creates a type you can import on the server:
+[API reference](https://wasp.sh/docs/api/wasp/server/operations)
 
-```ts
-import { type GetFoo } from "wasp/server/operations"
-```
+#### [wasp/server/operations »](https://wasp.sh/docs/api/wasp/server/operations)
+
+[The functions Wasp generates for calling your Queries on the server, and the types for implementing them.](https://wasp.sh/docs/api/wasp/server/operations)
 
 #### Implementing Queries
 
-The Query's implementation is a NodeJS function that takes two arguments (it can be an `async` function if you need to use the `await` keyword). Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
+[API reference](https://wasp.sh/docs/api/wasp/server/operations#authenticatedquerydefinition)
 
-1. `args` (type depends on the Query)
+#### [AuthenticatedQueryDefinition »](https://wasp.sh/docs/api/wasp/server/operations#authenticatedquerydefinition)
 
-   An object containing the data **passed in when calling the query** (e.g., filtering conditions). Check [the usage examples](#using-queries) to see how to pass this object to the Query.
+[The arguments and return value of a Query's implementation, and the generic type Wasp generates for typing it.](https://wasp.sh/docs/api/wasp/server/operations#authenticatedquerydefinition)
 
-2. `context` (type depends on the Query)
+[API reference](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedquerydefinition)
 
-   An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
+#### [UnauthenticatedQueryDefinition »](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedquerydefinition)
 
-After you [declare the query](#specifying-queries), Wasp generates a generic type you can use when defining its implementation. For the Query declared as `getSomething`, the generated type is called `GetSomething`:
-
-```ts
-import { type GetSomething } from "wasp/server/operations"
-```
-
-It expects two (optional) type arguments:
-
-1. `Input`
-
-   The type of the `args` object (the Query's input payload). The default value is `never`.
-
-2. `Output`
-
-   The type of the Query's return value (the Query's output payload). The default value is `unknown`.
-
-The defaults were chosen to make the type signature as permissive as possible. If don't want your Query to take/return anything, use `void` as a type argument.
-
-##### Example
-
-The following Query:
-
-```ts
-import { app, query } from "@wasp/spec"
-import { getFoo } from "./src/queries" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    query(getFoo, { entities: ["Foo"] }),
-  ],
-})
-```
-
-Expects to find a named export `getFoo` from the file `src/queries.ts`
-
-You can use the generated type `GetFoo` and specify the Query's inputs and outputs using its type arguments.
-
-```ts title="src/queries.ts"
-import { type GetFoo } from "wasp/server/operations"
-
-type Foo = // ...
-
-export const getFoo: GetFoo<{ id: number }, Foo> = (args, context) => {
-  // implementation
-};
-```
-
-In this case, the Query expects to receive an object with an `id` field of type `number` (this is the type of `args`), and return a value of type `Foo` (this must match the type of the Query's return value).
+[The same, for Queries that don't use auth.](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedquerydefinition)
 
 #### The `useQuery` Hook
 
-Wasp's `useQuery` hook is a thin wrapper around the `useQuery` hook from [*react-query*](https://github.com/tannerlinsley/react-query). One key difference is that Wasp doesn't expect you to supply the cache key - it takes care of it under the hood.
+[API reference](https://wasp.sh/docs/api/wasp/client/operations#usequery)
 
-Wasp's `useQuery` hook accepts three arguments:
+#### [useQuery »](https://wasp.sh/docs/api/wasp/client/operations#usequery)
 
-- `queryFn` required
-
-  The client-side query function generated by Wasp based on a `query` spec in your Wasp file.
-
-- `queryFnArgs`
-
-  The arguments object (payload) you wish to pass into the Query. The Query's NodeJS implementation will receive this object as its first positional argument.
-
-- `options`
-
-  A *react-query* `options` object. Use this to change [the default behavior](https://react-query.tanstack.com/guides/important-defaults) for this particular Query. If you want to change the global defaults, you can do so in the [client setup function](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
-
-For an example of usage, check [this section](#the-usequery-hook).
+[All the arguments of the useQuery hook.](https://wasp.sh/docs/api/wasp/client/operations#usequery)
 
 
 ## Features / Data / Operations / Actions
@@ -3335,195 +3191,51 @@ Here are the key differences between Queries and Actions:
 
 #### Specifying Actions in Wasp Spec
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/action)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#action-1)
 
-#### [action »](https://wasp.sh/docs/api/@wasp/spec/functions/action)
+#### [action »](https://wasp.sh/docs/api/@wasp/spec#action-1)
 
-[All the options for declaring an action in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/action)
+[All the options for declaring an action in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#action-1)
 
-Declaring an Action enables you to import and use it anywhere in your code (on the server or the client). For example, for an Action that we declared as `createFoo`, Wasp generates two functions with the same name that you can import and use:
+[API reference](https://wasp.sh/docs/api/wasp/client/operations)
 
-```ts
-// Use it on the client
-import { createFoo } from "wasp/client/operations"
+#### [wasp/client/operations »](https://wasp.sh/docs/api/wasp/client/operations)
 
-// Use it on the server
-import { createFoo } from "wasp/server/operations"
-```
+[The functions Wasp generates for calling your Actions on the client.](https://wasp.sh/docs/api/wasp/client/operations)
 
-It also creates a type you can import on the server:
+[API reference](https://wasp.sh/docs/api/wasp/server/operations)
 
-```ts
-import { type CreateFoo } from "wasp/server/operations"
-```
+#### [wasp/server/operations »](https://wasp.sh/docs/api/wasp/server/operations)
+
+[The functions Wasp generates for calling your Actions on the server, and the types for implementing them.](https://wasp.sh/docs/api/wasp/server/operations)
 
 #### Implementing Actions
 
-The Action's implementation is a NodeJS function that takes two arguments (it can be an `async` function if you need to use the `await` keyword). Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
+[API reference](https://wasp.sh/docs/api/wasp/server/operations#authenticatedactiondefinition)
 
-1. `args` (type depends on the Action)
+#### [AuthenticatedActionDefinition »](https://wasp.sh/docs/api/wasp/server/operations#authenticatedactiondefinition)
 
-   An object containing the data **passed in when calling the Action** (e.g., filtering conditions). Check [the usage examples](#using-actions) to see how to pass this object to the Action.
+[The arguments and return value of an Action's implementation, and the generic type Wasp generates for typing it.](https://wasp.sh/docs/api/wasp/server/operations#authenticatedactiondefinition)
 
-2. `context` (type depends on the Action)
+[API reference](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedactiondefinition)
 
-   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object) to see how to use the `user` object.
+#### [UnauthenticatedActionDefinition »](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedactiondefinition)
 
-After you [declare the Action](#specifying-actions), Wasp generates a generic type you can use when defining its implementation. For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
-
-```ts
-import { type CreateSomething } from "wasp/server/operations"
-```
-
-It expects two (optional) type arguments:
-
-1. `Input`
-
-   The type of the `args` object (the Action's input payload). The default value is `never`.
-
-2. `Output`
-
-   The type of the Action's return value (the Action's output payload). The default value is `unknown`.
-
-The defaults were chosen to make the type signature as permissive as possible. If don't want your Action to take/return anything, use `void` as a type argument.
-
-##### Example
-
-The following Action:
-
-```ts
-import { action, app } from "@wasp/spec"
-import { createFoo } from "./src/actions" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    action(createFoo, { entities: ["Foo"] }),
-  ],
-})
-```
-
-Expects to find a named export `createFoo` from the file `src/actions.ts`
-
-You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
-
-```ts title="src/actions.ts"
-import { type CreateFoo } from "wasp/server/operations"
-
-type Foo = // ...
-
-export const createFoo: CreateFoo<{ bar: string }, Foo> = (args, context) => {
-  // implementation
-};
-```
-
-In this case, the Action expects to receive an object with a `bar` field of type `string` (this is the type of `args`), and return a value of type `Foo` (this must match the type of the Action's return value).
+[The same, for Actions that don't use auth.](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedactiondefinition)
 
 #### The `useAction` Hook and Optimistic Updates
 
-Make sure you understand how [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Cache Invalidation](#cache-invalidation) work before reading this chapter.
+[API reference](https://wasp.sh/docs/api/wasp/client/operations#useaction)
 
-When using Actions in components, you can enhance them with the help of the `useAction` hook. This hook comes bundled with Wasp, and is used for decorating Wasp Actions. In other words, the hook returns a function whose API matches the original Action while also doing something extra under the hood (depending on how you configure it).
+#### [useAction »](https://wasp.sh/docs/api/wasp/client/operations#useaction)
 
-The `useAction` hook accepts two arguments:
+[All the arguments of the useAction hook, and how to use react-query's lower-level API directly.](https://wasp.sh/docs/api/wasp/client/operations#useaction)
 
-- `actionFn` required
+[API reference](https://wasp.sh/docs/api/wasp/client/operations#optimisticupdatedefinition)
 
-  The Wasp Action (the client-side Action function generated by Wasp based on an Action spec) you wish to enhance.
+#### [OptimisticUpdateDefinition »](https://wasp.sh/docs/api/wasp/client/operations#optimisticupdatedefinition)
 
-- `actionOptions`
-
-  An object configuring the extra features you want to add to the given Action. While this argument is technically optional, there is no point in using the `useAction` hook without providing it (it would be the same as using the Action directly). The Action options object supports the following fields:
-
-  - `optimisticUpdates`
-
-    An array of objects where each object defines an [optimistic update](https://stackoverflow.com/a/33009713) to perform on the Query cache. To define an optimistic update, you must specify the following properties:
-
-    - `getQuerySpecifier` required
-
-    A function returning the Query specifier (a value used to address the Query you want to update). A Query specifier is an array specifying the query function and arguments. For example, to optimistically update the Query used with `useQuery(fetchFilteredTasks, {isDone: true }]`, your `getQuerySpecifier` function would have to return the array `[fetchFilteredTasks, { isDone: true}]`. Wasp will forward the argument you pass into the decorated Action to this function (you can use the properties of the added/changed item to address the Query).
-
-    - `updateQuery` required
-
-    The function used to perform the optimistic update. It should return the desired state of the cache. Wasp will call it with the following arguments:
-
-    - `item` - The argument you pass into the decorated Action.
-    - `oldData` - The currently cached value for the Query identified by the specifier.
-
-:::caution
-The `updateQuery` function must be a pure function. It must return the desired cache value identified by the `getQuerySpecifier` function and *must not* perform any side effects.
-
-Also, make sure you only update the Query caches affected by your Action causing the optimistic update (Wasp cannot yet verify this).
-
-Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use *react-query*'s lower-level API (read more about it [here](#advanced-usage)).
-:::
-
-Here's an example showing how to configure the Action `markTaskAsDone` that toggles a task's `isDone` status to perform an optimistic update:
-
-```tsx title="src/pages/Task.tsx"
-import React from "react"
-import {
-  useQuery,
-  useAction,
-  type OptimisticUpdateDefinition,
-  getTask,
-  markTaskAsDone,
-} from "wasp/client/operations"
-
-type TaskPayload = Pick<Task, "id">;
-
-const TaskPage = ({ id }: { id: number }) => {
-  const { data: task } = useQuery(getTask, { id });
-  // Typescript automatically type-checks the payload type.
-  const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
-    optimisticUpdates: [
-      {
-        getQuerySpecifier: ({ id }) => [getTask, { id }],
-        updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
-      } as OptimisticUpdateDefinition<TaskPayload, Task>,
-    ],
-  });
-
-  if (!task) {
-    return <h1>"Loading"</h1>;
-  }
-
-  const { description, isDone } = task;
-  return (
-    <div>
-      <p>
-        <strong>Description: </strong>
-        {description}
-      </p>
-      <p>
-        <strong>Is done: </strong>
-        {isDone ? "Yes" : "No"}
-      </p>
-      {isDone || (
-        <button onClick={() => markTaskAsDoneOptimistically({ id })}>
-          Mark as done.
-        </button>
-      )}
-    </div>
-  );
-};
-
-export default TaskPage;
-```
-
-##### Advanced usage
-
-The `useAction` hook currently only supports specifying optimistic updates. You can expect more features in future versions of Wasp.
-
-Wasp's optimistic update API is deliberately small and focuses exclusively on updating Query caches (as that's the most common use case). You might need an API that offers more options or a higher level of control. If that's the case, instead of using Wasp's `useAction` hook, you can use *react-query*'s `useMutation` hook and directly work with [their low-level API](https://tanstack.com/query/v4/docs/framework/react/guides/optimistic-updates).
-
-If you decide to use *react-query*'s API directly, you will need access to Query cache key. Wasp internally uses this key but abstracts it from the programmer. Still, you can easily obtain it by accessing the `queryCacheKey` property on any Query:
-
-```ts
-import { getTasks } from "wasp/client/operations"
-
-const queryKey = getTasks.queryCacheKey
-```
+[How to define an optimistic update, and the rules it must follow.](https://wasp.sh/docs/api/wasp/client/operations#optimisticupdatedefinition)
 
 
 ## Features / Data / Automatic CRUD
@@ -3677,7 +3389,7 @@ We also overrode the `create` operation with a custom implementation. This means
 
 #### Our Custom `create` Operation
 
-We need a custom `create` operation because we want to make sure that the task is connected to the user creating it. Automatic CRUD doesn't yet support this by default. Read more about the default implementations in the [`CrudOperations` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/CrudOperations).
+We need a custom `create` operation because we want to make sure that the task is connected to the user creating it. Automatic CRUD doesn't yet support this by default. Read more about the default implementations in the [`CrudOperations` API Reference](https://wasp.sh/docs/api/@wasp/spec#crudoperations-1).
 
 Here's the `src/tasks.ts` file:
 
@@ -3828,67 +3540,27 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 #### Specifying CRUD Operations
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#crud-1)
 
-#### [crud »](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
+#### [crud »](https://wasp.sh/docs/api/@wasp/spec#crud-1)
 
-[All the options for declaring CRUD operations in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
+[All the options for declaring CRUD operations in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#crud-1)
 
 #### Defining the overrides
 
-Like with actions and queries, you can define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
+[API reference](https://wasp.sh/docs/api/wasp/server/crud)
 
-- `args`
+#### [wasp/server/crud »](https://wasp.sh/docs/api/wasp/server/crud)
 
-  The arguments of the operation i.e. the data sent from the client.
-
-- `context`
-
-  Context contains the `user` making the request and the `entities` object with the entity that's being operated on.
-
-You can also import types for each of the functions you want to override by importing the `{crud name}` from `wasp/server/crud`. The available types are:
-
-- `{crud name}.GetAllQuery`
-- `{crud name}.GetQuery`
-- `{crud name}.CreateAction`
-- `{crud name}.UpdateAction`
-- `{crud name}.DeleteAction`
-
-If you have a CRUD named `Tasks`, you would import the types like this:
-
-```ts
-import { type Tasks } from "wasp/server/crud"
-
-// Each of the types is a generic type, so you can use it like this:
-export const getAllOverride: Tasks.GetAllQuery<Input, Output> = async (
-  args,
-  context
-) => {
-  // ...
-}
-```
-
-For a usage example, check the [example guide](https://wasp.sh/docs/features/data/crud#adding-crud-to-the-task-entity-).
+[The arguments of the CRUD overrides, and the types Wasp generates for typing them.](https://wasp.sh/docs/api/wasp/server/crud)
 
 #### Using the CRUD operations in client code
 
-On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
+[API reference](https://wasp.sh/docs/api/wasp/client/crud#crud)
 
-```tsx title="SomePage.tsx"
-import { Tasks } from "wasp/client/crud"
-```
+#### [Crud »](https://wasp.sh/docs/api/wasp/client/crud#crud)
 
-You can then access the operations like this:
-
-```tsx title="SomePage.tsx"
-const { data } = Tasks.getAll.useQuery()
-const { data } = Tasks.get.useQuery({ id: 1 })
-const createAction = Tasks.create.useAction()
-const updateAction = Tasks.update.useAction()
-const deleteAction = Tasks.delete.useAction()
-```
-
-All CRUD operations are implemented with [Queries and Actions](https://wasp.sh/docs/features/data/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
+[The client-side object Wasp generates for each crud spec, with its Queries and Actions.](https://wasp.sh/docs/api/wasp/client/crud#crud)
 
 
 ## Features / Data / Databases
@@ -4209,11 +3881,23 @@ export const setUpPrisma = () => {
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#db-1)
 
-#### [Db »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
+#### [Db »](https://wasp.sh/docs/api/@wasp/spec#db-1)
 
-[All the options for the db field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
+[All the options for the db field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#db-1)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#dbseedfn)
+
+#### [DbSeedFn »](https://wasp.sh/docs/api/wasp/server#dbseedfn)
+
+[The type of your seed functions.](https://wasp.sh/docs/api/wasp/server#dbseedfn)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#prisma)
+
+#### [prisma »](https://wasp.sh/docs/api/wasp/server#prisma)
+
+[The Prisma Client instance Wasp uses to access the database.](https://wasp.sh/docs/api/wasp/server#prisma)
 
 #### CLI Commands for Seeding the Database
 
@@ -5070,154 +4754,47 @@ Read more about the render function in the [API Reference](#signupform-customiza
 
 #### Auth Fields
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-#### [Auth »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+#### [Auth »](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
 #### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields)
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+#### [defineUserSignupFields »](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields)
 
-export default app({
-  name: "myApp",
-  // ...
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {
-        userSignupFields,
-      },
-    },
-    onAuthFailedRedirectTo: "/login",
-  },
-  // ...
-})
-```
-
-Then we'll export the `userSignupFields` object from the `src/auth/signup.ts` file:
-
-```ts title="src/auth/signup.ts"
-import { defineUserSignupFields } from "wasp/server/auth";
-
-export const userSignupFields = defineUserSignupFields({
-  address: async (data) => {
-    const address = data.address;
-    if (typeof address !== "string") {
-      throw new Error("Address is required");
-    }
-    if (address.length < 5) {
-      throw new Error("Address must be at least 5 characters long");
-    }
-    return address;
-  },
-});
-```
-
-The `userSignupFields` object is an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
-
-If the value that the function received is invalid, the function should throw an error.
-
-\* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
+[Define the extra fields Wasp saves on the user entity when a user signs up.](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields)
 
 #### `SignupForm` Customization
 
-To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#signupform)
 
-```tsx title="src/SignupPage.tsx"
-import {
-  SignupForm,
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from "wasp/client/auth";
+#### [SignupForm »](https://wasp.sh/docs/api/wasp/client/auth#signupform)
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: "address",
-          label: "Address",
-          type: "input",
-          validations: {
-            required: "Address is required",
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register("phoneNumber", {
-                  required: "Phone number is required",
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          );
-        },
-      ]}
-    />
-  );
-};
-```
+[The signup form component, including its additionalFields prop.](https://wasp.sh/docs/api/wasp/client/auth#signupform)
 
-The extra fields can be either **objects** or **render functions** (you can combine them):
+#### Auth APIs
 
-1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
+[API reference](https://wasp.sh/docs/api/wasp/auth)
 
-   The objects have the following properties:
+#### [wasp/auth »](https://wasp.sh/docs/api/wasp/auth)
 
-   - `name` required
+[The AuthUser type and helpers for reading a user's auth data, on the client and the server.](https://wasp.sh/docs/api/wasp/auth)
 
-     - the name of the field
+[API reference](https://wasp.sh/docs/api/wasp/client/auth)
 
-   - `label` required
+#### [wasp/client/auth »](https://wasp.sh/docs/api/wasp/client/auth)
 
-     - the label of the field (used in the UI)
+[Client-side auth APIs, like useAuth, logout, and the Auth UI components.](https://wasp.sh/docs/api/wasp/client/auth)
 
-   - `type` required
+[API reference](https://wasp.sh/docs/api/wasp/server/auth)
 
-     - the type of the field, which can be `input` or `textarea`
+#### [wasp/server/auth »](https://wasp.sh/docs/api/wasp/server/auth)
 
-   - `validations`
-
-     - an object with the validation rules for the field. The keys are the validation names, and the values are the validation error messages. Read more about the available validation rules in the [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
-
-2. Render functions receive the `react-hook-form` object and the form state as arguments, and they can use them to render arbitrary UI elements.
-
-   The render function has the following signature:
-
-   ```ts
-   type AdditionalSignupFieldRenderFn = (
-      hookForm: UseFormReturn,
-      formState: FormState
-    ) => React.ReactNode
-   ```
-
-   - `form` required
-
-     The `react-hook-form` object, read more about it in the [react-hook-form docs](https://react-hook-form.com/api/useform). You need to use the `form.register` function to register your fields
-
-   - `state` required
-
-     The form state object, which has the following properties:
-
-     - `isLoading: boolean`
-
-       Whether the form is currently submitting
+[Server-side auth APIs, like the auth hook types and helpers for working with auth identities.](https://wasp.sh/docs/api/wasp/server/auth)
 
 
 ## Features / Auth / Auth UI
@@ -5470,7 +5047,7 @@ Props you can pass to all of the forms:
 We use CSS variables in our styling so you can customize the styles by overriding the default theme tokens.
 
 :::info[List of all available tokens]
-See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/sdk/wasp/auth/forms/types.ts) which you can override.
+See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](https://wasp.sh/docs/api/wasp/client/auth#customizationoptions).
 :::
 
 ```ts title="src/appearance.ts"
@@ -5573,6 +5150,44 @@ We get a form looking like this:
 
 ![Custom login form](https://wasp.sh/img/docs/features/auth/ui/custom_login.webp)
 
+### API Reference
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#loginform)
+
+#### [LoginForm »](https://wasp.sh/docs/api/wasp/client/auth#loginform)
+
+[The login form component.](https://wasp.sh/docs/api/wasp/client/auth#loginform)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#signupform)
+
+#### [SignupForm »](https://wasp.sh/docs/api/wasp/client/auth#signupform)
+
+[The signup form component, including its additionalFields prop.](https://wasp.sh/docs/api/wasp/client/auth#signupform)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#forgotpasswordform)
+
+#### [ForgotPasswordForm »](https://wasp.sh/docs/api/wasp/client/auth#forgotpasswordform)
+
+[The forgot password form component.](https://wasp.sh/docs/api/wasp/client/auth#forgotpasswordform)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#resetpasswordform)
+
+#### [ResetPasswordForm »](https://wasp.sh/docs/api/wasp/client/auth#resetpasswordform)
+
+[The reset password form component.](https://wasp.sh/docs/api/wasp/client/auth#resetpasswordform)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#verifyemailform)
+
+#### [VerifyEmailForm »](https://wasp.sh/docs/api/wasp/client/auth#verifyemailform)
+
+[The verify email form component.](https://wasp.sh/docs/api/wasp/client/auth#verifyemailform)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#customizationoptions)
+
+#### [CustomizationOptions »](https://wasp.sh/docs/api/wasp/client/auth#customizationoptions)
+
+[The props for customizing the look of all the forms.](https://wasp.sh/docs/api/wasp/client/auth#customizationoptions)
+
 
 ## Features / Auth / Username and password / Overview
 
@@ -5635,7 +5250,7 @@ export default app({
 })
 ```
 
-Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig).
+Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec#usernameandpasswordconfig).
 
 #### 2. Add the User Entity
 
@@ -5754,17 +5369,17 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-#### [Auth »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+#### [Auth »](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#usernameandpasswordconfig)
 
-#### [UsernameAndPasswordConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
+#### [UsernameAndPasswordConfig »](https://wasp.sh/docs/api/@wasp/spec#usernameandpasswordconfig)
 
-[All the options for the usernameAndPassword auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
+[All the options for the usernameAndPassword auth method.](https://wasp.sh/docs/api/@wasp/spec#usernameandpasswordconfig)
 
 Read more about the `userSignupFields` function in the [Auth Overview docs](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
 
@@ -5886,39 +5501,19 @@ You can import the following functions from `wasp/client/auth`:
 
 #### `login()`
 
-An action for logging in the user.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#login)
 
-It takes one argument:
+#### [login »](https://wasp.sh/docs/api/wasp/client/auth#login)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `username: string` required
-
-  - `password: string` required
-
-:::note
-When using the exposed `login()` function, make sure to implement your redirect on success login logic (e.g. redirecting to home).
-:::
+[Log the user in with their username and password.](https://wasp.sh/docs/api/wasp/client/auth#login)
 
 #### `signup()`
 
-An action for signing up the user. This action does not log in the user, you still need to call `login()`.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#signup)
 
-It takes one argument:
+#### [signup »](https://wasp.sh/docs/api/wasp/client/auth#signup)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `username: string` required
-
-  - `password: string` required
-
-:::info
-By default, Wasp will only save the `username` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process).
-:::
+[Sign the user up with a username and password.](https://wasp.sh/docs/api/wasp/client/auth#signup)
 
 
 ## Features / Auth / Email / Overview
@@ -6008,7 +5603,7 @@ export default app({
 })
 ```
 
-Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig).
+Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec#emailauthconfig).
 
 #### 2. Add the User Entity
 
@@ -6231,7 +5826,7 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec#getemailcontentfn).
 
 #### Email Verification Page
 
@@ -6277,7 +5872,7 @@ When the user receives an e-mail, they receive a link that goes to the client ro
 
 Users can enter their new password there.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](https://wasp.sh/docs/api/@wasp/spec#getemailcontentfn).
 
 ##### Password
 
@@ -6315,17 +5910,17 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-#### [Auth »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+#### [Auth »](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
+[All the options for the auth field of the app spec, including userEntity.](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#emailauthconfig)
 
-#### [EmailAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
+#### [EmailAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#emailauthconfig)
 
-[All the options for the email auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
+[All the options for the email auth method.](https://wasp.sh/docs/api/@wasp/spec#emailauthconfig)
 
 Read more about the `userSignupFields` function in the [Auth Overview docs](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
 
@@ -6572,79 +6167,43 @@ You can import the following functions from `wasp/client/auth`:
 
 #### `login()`
 
-An action for logging in the user. Make sure to do a redirect on success (e.g. to the main page of the app).
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#login)
 
-It takes one argument:
+#### [login »](https://wasp.sh/docs/api/wasp/client/auth#login)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `email: string` required
-
-  - `password: string` required
+[Log the user in with their email and password.](https://wasp.sh/docs/api/wasp/client/auth#login)
 
 #### `signup()`
 
-An action for signing up the user and starting the email verification. The user will not be logged in after this, as they still need to verify their email.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#signup)
 
-It takes one argument:
+#### [signup »](https://wasp.sh/docs/api/wasp/client/auth#signup)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `email: string` required
-
-  - `password: string` required
-
-:::info
-By default, Wasp will only save the `email` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process).
-:::
+[Sign the user up with their email and password, and send the verification email.](https://wasp.sh/docs/api/wasp/client/auth#signup)
 
 #### `verifyEmail()`
 
-An action for marking the email as valid and the user account as active. Make sure to do a redirect on success (e.g. to the login page).
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#verifyemail)
 
-It takes one argument:
+#### [verifyEmail »](https://wasp.sh/docs/api/wasp/client/auth#verifyemail)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `token: string` required
-
-    The token that was created when signing up. It will be set as a URL Query Parameter named `token`.
+[Verify the user's email with the token from the verification email.](https://wasp.sh/docs/api/wasp/client/auth#verifyemail)
 
 #### `requestPasswordReset()`
 
-An action for asking for a password reset email. This doesn't immediately reset their password, just sends the email.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#requestpasswordreset)
 
-It takes one argument:
+#### [requestPasswordReset »](https://wasp.sh/docs/api/wasp/client/auth#requestpasswordreset)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `email: string` required
+[Send the user a password reset email.](https://wasp.sh/docs/api/wasp/client/auth#requestpasswordreset)
 
 #### `resetPassword()`
 
-An action for confirming a password reset and providing the new password. Make sure to do a redirect on success (e.g. to the login page).
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#resetpassword)
 
-It takes one argument:
+#### [resetPassword »](https://wasp.sh/docs/api/wasp/client/auth#resetpassword)
 
-- `data: object` required
-
-  It has the following fields:
-
-  - `token: string` required
-
-    The token that was created when requesting the password reset. It will be set as a URL Query Parameter named `token`.
-
-  - `password: string` required
-
-    The new password for the user.
+[Set the user's new password with the token from the password reset email.](https://wasp.sh/docs/api/wasp/client/auth#resetpassword)
 
 
 ## Features / Auth / Social auth / Overview
@@ -6846,11 +6405,11 @@ Click on each provider for more details.
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the social auth methods.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the social auth methods.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For more information on the provider-specific behavior of the `userSignupFields` and `configFn` functions, check the provider-specific API References:
 
@@ -7210,11 +6769,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the gitHub auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the gitHub auth method.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -7587,11 +7146,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the google auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the google auth method.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -7910,11 +7469,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the keycloak auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the keycloak auth method.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -8279,11 +7838,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the slack auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the slack auth method.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -8600,11 +8159,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the discord auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the discord auth method.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -8955,11 +8514,11 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
-[All the options for the microsoft auth method.](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
+[All the options for the microsoft auth method.](https://wasp.sh/docs/api/@wasp/spec#socialauthconfig)
 
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/features/auth/social-auth/overview).
 
@@ -8994,6 +8553,14 @@ export const LoginPage = () => {
   );
 };
 ```
+
+### API Reference
+
+[API reference](https://wasp.sh/docs/api/wasp/client/auth)
+
+#### [wasp/client/auth »](https://wasp.sh/docs/api/wasp/client/auth)
+
+[The sign-in buttons and URLs of each social auth provider, like GoogleSignInButton and googleSignInUrl.](https://wasp.sh/docs/api/wasp/client/auth)
 
 
 ## Features / Auth / Accessing user data
@@ -9558,6 +9125,44 @@ export const customSignup: CustomSignup<
 
 You can use whichever method suits your needs better: either the `createUser` function or Prisma's `User.create` method. The `createUser` function is a bit more convenient to use because it hides some of the complexity. On the other hand, the `User.create` method gives you more control over the data that is stored in the `Auth` and `AuthIdentity` entities.
 
+### API Reference
+
+[API reference](https://wasp.sh/docs/api/wasp/auth#authuser)
+
+#### [AuthUser »](https://wasp.sh/docs/api/wasp/auth#authuser)
+
+[The logged-in user's object, with their auth identities.](https://wasp.sh/docs/api/wasp/auth#authuser)
+
+[API reference](https://wasp.sh/docs/api/wasp/auth#getemail)
+
+#### [getEmail »](https://wasp.sh/docs/api/wasp/auth#getemail)
+
+[Get the user's email from a user entity object.](https://wasp.sh/docs/api/wasp/auth#getemail)
+
+[API reference](https://wasp.sh/docs/api/wasp/auth#getusername)
+
+#### [getUsername »](https://wasp.sh/docs/api/wasp/auth#getusername)
+
+[Get the user's username from a user entity object.](https://wasp.sh/docs/api/wasp/auth#getusername)
+
+[API reference](https://wasp.sh/docs/api/wasp/auth#getfirstprovideruserid)
+
+#### [getFirstProviderUserId »](https://wasp.sh/docs/api/wasp/auth#getfirstprovideruserid)
+
+[Get any of the user's auth IDs from a user entity object.](https://wasp.sh/docs/api/wasp/auth#getfirstprovideruserid)
+
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#createuser)
+
+#### [createUser »](https://wasp.sh/docs/api/wasp/server/auth#createuser)
+
+[Create a user with an auth identity.](https://wasp.sh/docs/api/wasp/server/auth#createuser)
+
+[API reference](https://wasp.sh/docs/api/wasp/server/auth)
+
+#### [wasp/server/auth »](https://wasp.sh/docs/api/wasp/server/auth)
+
+[Helpers for working with auth identities, like createProviderId and sanitizeAndSerializeProviderData.](https://wasp.sh/docs/api/wasp/server/auth)
+
 
 ## Features / Auth / Hooks
 
@@ -9995,239 +9600,69 @@ export default app({
 })
 ```
 
-#### Common hook input
-
-The following properties are available in all auth hooks:
-
-- `prisma: PrismaClient`
-
-  The Prisma client instance which you can use to query your database.
-
-- `req: Request`
-
-  The [Express request object](https://expressjs.com/en/api.html#req) from which you can access the request headers, cookies, etc.
-
 #### The `onBeforeSignup` hook
 
-```ts title="src/auth/hooks.ts"
-import type { OnBeforeSignupHook } from "wasp/server/auth"
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#onbeforesignuphook)
 
-export const onBeforeSignup: OnBeforeSignupHook = async ({
-  providerId,
-  prisma,
-  req,
-}) => {
-  // Hook code goes here
-}
-```
+#### [OnBeforeSignupHook »](https://wasp.sh/docs/api/wasp/server/auth#onbeforesignuphook)
 
-The hook receives an object as **input** with the following properties:
-
-- [`providerId: ProviderId`](#providerid-fields)
-
-- Plus the [common hook input](#common-hook-input)
-
-Wasp ignores this hook's **return value**.
+[The type of the onBeforeSignup hook, and the input it receives.](https://wasp.sh/docs/api/wasp/server/auth#onbeforesignuphook)
 
 #### The `onAfterSignup` hook
 
-```ts title="src/auth/hooks.ts"
-import type { OnAfterSignupHook } from "wasp/server/auth"
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#onaftersignuphook)
 
-export const onAfterSignup: OnAfterSignupHook = async ({
-  providerId,
-  user,
-  oauth,
-  prisma,
-  req,
-}) => {
-  // Hook code goes here
-}
-```
+#### [OnAfterSignupHook »](https://wasp.sh/docs/api/wasp/server/auth#onaftersignuphook)
 
-The hook receives an object as **input** with the following properties:
-
-- [`providerId: ProviderId`](#providerid-fields)
-
-- `user: User`
-
-  The user object that was created.
-
-- [`oauth?: OAuthFields`](#oauth-fields)
-
-- Plus the [common hook input](#common-hook-input)
-
-Wasp ignores this hook's **return value**.
+[The type of the onAfterSignup hook, and the input it receives.](https://wasp.sh/docs/api/wasp/server/auth#onaftersignuphook)
 
 #### The `onAfterEmailVerified` hook
 
-```ts title="src/auth/hooks.ts"
-import type { OnAfterEmailVerifiedHook } from "wasp/server/auth"
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#onafteremailverifiedhook)
 
-export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
-  email,
-  user,
-  prisma,
-  req,
-}) => {
-  // Hook code goes here
-}
-```
+#### [OnAfterEmailVerifiedHook »](https://wasp.sh/docs/api/wasp/server/auth#onafteremailverifiedhook)
 
-The hook receives an object as **input** with the following properties:
-
-- `email: string`
-
-  The user's veriried email address.
-
-- `user: User`
-
-  The user who completed email verification.
-
-- Plus the [common hook input](#common-hook-input)
-
-Wasp ignores this hook's **return value**.
+[The type of the onAfterEmailVerified hook, and the input it receives.](https://wasp.sh/docs/api/wasp/server/auth#onafteremailverifiedhook)
 
 #### The `onBeforeOAuthRedirect` hook
 
-```ts title="src/auth/hooks.ts"
-import type { OnBeforeOAuthRedirectHook } from "wasp/server/auth"
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#onbeforeoauthredirecthook)
 
-export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
-  url,
-  oauth,
-  prisma,
-  req,
-}) => {
-  // Hook code goes here
+#### [OnBeforeOAuthRedirectHook »](https://wasp.sh/docs/api/wasp/server/auth#onbeforeoauthredirecthook)
 
-  return { url }
-}
-```
-
-The hook receives an object as **input** with the following properties:
-
-- `url: URL`
-
-  Wasp uses the URL for the OAuth redirect.
-
-- `oauth: { uniqueRequestId: string }`
-
-  The `oauth` object has the following fields:
-
-  - `uniqueRequestId: string`
-
-    The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
-
-    You can use the unique request ID to save data (e.g. request query params) that you can later use in the `onAfterSignup` or `onAfterLogin` hooks.
-
-- Plus the [common hook input](#common-hook-input)
-
-This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
+[The type of the onBeforeOAuthRedirect hook, the input it receives, and what it returns.](https://wasp.sh/docs/api/wasp/server/auth#onbeforeoauthredirecthook)
 
 #### The `onBeforeLogin` hook
 
-```ts title="src/auth/hooks.ts"
-import type { OnBeforeLoginHook } from "wasp/server/auth"
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#onbeforeloginhook)
 
-export const onBeforeLogin: OnBeforeLoginHook = async ({
-  providerId,
-  prisma,
-  req,
-}) => {
-  // Hook code goes here
-}
-```
+#### [OnBeforeLoginHook »](https://wasp.sh/docs/api/wasp/server/auth#onbeforeloginhook)
 
-The hook receives an object as **input** with the following properties:
-
-- [`providerId: ProviderId`](#providerid-fields)
-
-- `user: User`
-
-  The user that is trying to log in.
-
-- Plus the [common hook input](#common-hook-input)
-
-Wasp ignores this hook's **return value**.
+[The type of the onBeforeLogin hook, and the input it receives.](https://wasp.sh/docs/api/wasp/server/auth#onbeforeloginhook)
 
 #### The `onAfterLogin` hook
 
-```ts title="src/auth/hooks.ts"
-import type { OnAfterLoginHook } from "wasp/server/auth"
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#onafterloginhook)
 
-export const onAfterLogin: OnAfterLoginHook = async ({
-  providerId,
-  user,
-  oauth,
-  prisma,
-  req,
-}) => {
-  // Hook code goes here
-}
-```
+#### [OnAfterLoginHook »](https://wasp.sh/docs/api/wasp/server/auth#onafterloginhook)
 
-The hook receives an object as **input** with the following properties:
-
-- [`providerId: ProviderId`](#providerid-fields)
-
-- `user: User`
-
-  The logged-in user's object.
-
-- [`oauth?: OAuthFields`](#oauth-fields)
-
-- Plus the [common hook input](#common-hook-input)
-
-Wasp ignores this hook's **return value**.
+[The type of the onAfterLogin hook, and the input it receives.](https://wasp.sh/docs/api/wasp/server/auth#onafterloginhook)
 
 #### ProviderId fields
 
-The `providerId` object represents the user for the current authentication method. Wasp passes it to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#providerid-4)
 
-It has the following fields:
+#### [ProviderId »](https://wasp.sh/docs/api/wasp/server/auth#providerid-4)
 
-- `providerName: string`
-
-  The provider's name (e.g. `"email"`, `"google"`, `"github"`)
-
-- `providerUserId: string`
-
-  The user's unique ID in the provider's system (e.g. email, Google ID, GitHub ID)
+[The object that identifies the user for the current auth method.](https://wasp.sh/docs/api/wasp/server/auth#providerid-4)
 
 #### OAuth fields
 
-Wasp passes the `oauth` object to the `onAfterSignup` and `onAfterLogin` hooks only when the user is authenticated with [Social Auth](https://wasp.sh/docs/features/auth/social-auth/overview).
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#oauthdata)
 
-It has the following fields:
+#### [OAuthData »](https://wasp.sh/docs/api/wasp/server/auth#oauthdata)
 
-- `providerName: string`
-
-  The name of the OAuth provider the user authenticated with (e.g. `"google"`, `"github"`).
-
-- `tokens: Tokens`
-
-  You can use the OAuth tokens to make requests to the provider's API on the user's behalf.
-
-  Depending on the OAuth provider, the `tokens` object might have different fields. For example, Google has the fields `accessToken`, `refreshToken`, `idToken`, and `accessTokenExpiresAt`.
-
-  To access the provider-specific fields, you must first narrow down the `oauth.tokens` object type to the specific OAuth provider type.
-
-  ```ts
-  if (oauth && oauth.providerName === "google") {
-    console.log(oauth.tokens.accessToken)
-    //                  ^ Google specific tokens are available here
-    console.log(oauth.tokens.refreshToken)
-    console.log(oauth.tokens.idToken)
-    console.log(oauth.tokens.accessTokenExpiresAt)
-  }
-  ```
-
-- `uniqueRequestId: string`
-
-  The unique request ID for the OAuth flow (you might know it as the `state` parameter in OAuth.)
-
-  You can use the unique request ID to get the data that was saved in the `onBeforeOAuthRedirect` hook.
+[The OAuth flow data, including the OAuth tokens.](https://wasp.sh/docs/api/wasp/server/auth#oauthdata)
 
 
 ## Features / Auth / Advanced / Custom sign-up actions
@@ -10476,25 +9911,33 @@ We suggest using the built-in field validators for your authentication flow. You
 
 ##### Username
 
-- `ensureValidUsername(args)`
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidusername)
 
-  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](https://wasp.sh/docs/features/auth/overview#default-validations).
+#### [ensureValidUsername »](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidusername)
+
+[Check that the username is valid.](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidusername)
 
 ##### Email
 
-- `ensureValidEmail(args)`
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidemail)
 
-  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](https://wasp.sh/docs/features/auth/overview#default-validations).
+#### [ensureValidEmail »](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidemail)
+
+[Check that the email is valid.](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidemail)
 
 ##### Password
 
-- `ensurePasswordIsPresent(args)`
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#ensurepasswordispresent)
 
-  Checks if the password is present and throws an error if it's not.
+#### [ensurePasswordIsPresent »](https://wasp.sh/docs/api/wasp/server/auth#ensurepasswordispresent)
 
-- `ensureValidPassword(args)`
+[Check that the password is present.](https://wasp.sh/docs/api/wasp/server/auth#ensurepasswordispresent)
 
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](https://wasp.sh/docs/features/auth/overview#default-validations).
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidpassword)
+
+#### [ensureValidPassword »](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidpassword)
+
+[Check that the password is valid.](https://wasp.sh/docs/api/wasp/server/auth#ensurevalidpassword)
 
 
 ## Features / Email
@@ -10713,61 +10156,19 @@ RESEND_API_KEY=
 
 #### `emailSender` specification
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#emailsender-1)
 
-#### [EmailSender »](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
+#### [EmailSender »](https://wasp.sh/docs/api/@wasp/spec#emailsender-1)
 
-[All the options for the emailSender field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
+[All the options for the emailSender field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#emailsender-1)
 
 #### JavaScript API
 
-Using the `emailSender` in Typescript:
+[API reference](https://wasp.sh/docs/api/wasp/server/email#emailsender-1)
 
-```ts title="src/actions/sendEmail.ts"
-import { emailSender } from "wasp/server/email";
+#### [emailSender »](https://wasp.sh/docs/api/wasp/server/email#emailsender-1)
 
-// In some action handler...
-const info = await emailSender.send({
-  from: {
-    name: "John Doe",
-    email: "john@doe.com",
-  },
-  to: "user@domain.com",
-  subject: "Saying hello",
-  text: "Hello world",
-  html: "Hello <strong>world</strong>",
-});
-```
-
-The `send` method accepts an object with the following fields:
-
-- `from: object`
-
-  The sender's details. If you set up the `defaultFrom` field in the `emailSender` config in your Wasp file, this field is optional.
-
-  - `name: string`
-
-    The name of the sender.
-
-  - `email: string`
-
-    The email address of the sender.
-
-- `to: string` required
-
-  The recipient's email address.
-
-- `subject: string` required
-
-  The subject of the email.
-
-- `text: string` required
-
-  The text version of the email.
-
-- `html: string` required
-
-  The HTML version of the email
+[Send emails from your server code, and all the fields of an email.](https://wasp.sh/docs/api/wasp/server/email#emailsender-1)
 
 
 ## Features / Jobs
@@ -10959,95 +10360,35 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
 
 #### `job` specification
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/job)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#job-1)
 
-#### [job »](https://wasp.sh/docs/api/@wasp/spec/functions/job)
+#### [job »](https://wasp.sh/docs/api/@wasp/spec#job-1)
 
-[All the options for defining a job in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/job)
+[All the options for defining a job in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#job-1)
 
 #### JavaScript API
 
+[API reference](https://wasp.sh/docs/api/wasp/server/jobs)
+
+#### [wasp/server/jobs »](https://wasp.sh/docs/api/wasp/server/jobs)
+
+[The Jobs Wasp generates for your app, and the types for implementing them.](https://wasp.sh/docs/api/wasp/server/jobs)
+
 ##### The worker function {#worker-api}
 
-An `async` function that performs the Job's work. Since Wasp executes Jobs on the server, its import path must lead to a NodeJS file. It receives two arguments:
+[API reference](https://wasp.sh/docs/api/wasp/server/jobs#jobfn)
 
-- `args: Input`: The data passed to the job when it's submitted.
-- `context: { entities: Entities }`: The context object containing the entities you put in the Job spec.
+#### [JobFn »](https://wasp.sh/docs/api/wasp/server/jobs#jobfn)
 
-Here's an example worker function:
+[The type of a Job's worker function, which the generated Job types (e.g. MySpecialJob) use.](https://wasp.sh/docs/api/wasp/server/jobs#jobfn)
 
-```ts title="src/workers/bar.ts"
-import { type MySpecialJob } from "wasp/server/jobs"
+##### Submitting a Job
 
-type Input = { name: string; }
-type Output = { tasks: Task[]; }
+[API reference](https://wasp.sh/docs/api/wasp/server/jobs#pgbossjob)
 
-export const mySpecialJob: MySpecialJob<Input, Output> = async ({ name }, context) => {
-  console.log(`Hello ${name}!`)
-  const tasks = await context.entities.Task.findMany({})
-  return { tasks }
-}
-```
+#### [PgBossJob »](https://wasp.sh/docs/api/wasp/server/jobs#pgbossjob)
 
-Read more about type-safe jobs in the [JavaScript API section](#javascript-api).
-
-##### Importing a Job:
-
-```ts title="someAction.ts"
-import { mySpecialJob, type MySpecialJob } from "wasp/server/jobs"
-```
-
-:::info[Type-safe jobs]
-Wasp generates a generic type for each Job, which you can use to type your worker function. The type is named after the worker function you pass to `job`, converted to PascalCase, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
-
-The type takes two type arguments:
-
-- `Input`: The type of the `args` argument of the worker function.
-- `Output`: The type of the return value of the worker function.
-:::
-
-##### `submit(jobArgs, executorOptions)`
-
-- `jobArgs: Input`
-- `executorOptions: object`
-
-Submits a Job to be executed by an executor, optionally passing in a JSON job argument your job handler function receives, and executor-specific submit options.
-
-```ts title="someAction.ts"
-const submittedJob = await mySpecialJob.submit({ name: "Johnny" })
-```
-
-##### `delay(startAfter)`
-
-- `startAfter: int | string | Date` required
-
-Delaying the invocation of the job handler. The delay can be one of:
-
-- Integer: number of seconds to delay. \[Default 0]
-- String: ISO date string to run at.
-- Date: Date to run at.
-
-```ts title="someAction.ts"
-const submittedJob = await mySpecialJob
-  .delay(10)
-  .submit({ name: "Johnny" }, { "retryLimit": 2 })
-```
-
-##### Tracking
-
-The return value of `submit()` is an instance of `SubmittedJob`, which has the following fields:
-
-- `jobId`: The ID for the job in that executor.
-- `jobName`: The Job name Wasp derived from the worker function you passed to `job`.
-- `executorName`: The Symbol of the name of the job executor.
-
-There are also some namespaced, job executor-specific objects.
-
-- For pg-boss, you may access: `pgBoss`
-
-  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#getjobbyidid)
-  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
-  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
+[The type of the generated Jobs (e.g. mySpecialJob), with the submit and delay methods, and how to track submitted Jobs.](https://wasp.sh/docs/api/wasp/server/jobs#pgbossjob)
 
 
 ## Features / WebSockets
@@ -11239,11 +10580,23 @@ export const ChatPage = () => {
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#websocket-1)
 
-#### [WebSocket »](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
+#### [WebSocket »](https://wasp.sh/docs/api/@wasp/spec#websocket-1)
 
-[All the options for the webSocket field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
+[All the options for the webSocket field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#websocket-1)
+
+[API reference](https://wasp.sh/docs/api/wasp/server/webSocket#websocketdefinition)
+
+#### [WebSocketDefinition »](https://wasp.sh/docs/api/wasp/server/webSocket#websocketdefinition)
+
+[The type of your webSocketFn function, and how to type your events.](https://wasp.sh/docs/api/wasp/server/webSocket#websocketdefinition)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/webSocket)
+
+#### [wasp/client/webSocket »](https://wasp.sh/docs/api/wasp/client/webSocket)
+
+[The useSocket and useSocketListener hooks, and the payload helper types.](https://wasp.sh/docs/api/wasp/client/webSocket)
 
 
 ## Features / API routes
@@ -11591,17 +10944,29 @@ async function fetchStream(
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/api)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#api-1)
 
-#### [api »](https://wasp.sh/docs/api/@wasp/spec/functions/api)
+#### [api »](https://wasp.sh/docs/api/@wasp/spec#api-1)
 
-[All the options for declaring an API endpoint in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/api)
+[All the options for declaring an API endpoint in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#api-1)
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#apinamespace-1)
 
-#### [apiNamespace »](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
+#### [apiNamespace »](https://wasp.sh/docs/api/@wasp/spec#apinamespace-1)
 
-[All the options for declaring an API namespace in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
+[All the options for declaring an API namespace in the Wasp spec.](https://wasp.sh/docs/api/@wasp/spec#apinamespace-1)
+
+[API reference](https://wasp.sh/docs/api/wasp/server/api)
+
+#### [wasp/server/api »](https://wasp.sh/docs/api/wasp/server/api)
+
+[The types Wasp generates for implementing your APIs (e.g. FooBar).](https://wasp.sh/docs/api/wasp/server/api)
+
+[API reference](https://wasp.sh/docs/api/wasp/server/api#authenticatedapi)
+
+#### [AuthenticatedApi »](https://wasp.sh/docs/api/wasp/server/api#authenticatedapi)
+
+[The type of an API's implementation: its req, res, and context arguments, and its type arguments.](https://wasp.sh/docs/api/wasp/server/api#authenticatedapi)
 
 
 ## Advanced / Dependencies
@@ -12098,111 +11463,39 @@ Read more about the env object in the [API Reference](#api-reference).
 
 There are **Wasp-defined** and **user-defined** env vars. Wasp already comes with built-in validation for Wasp-defined env vars. For your env vars, you can define your own validation.
 
+[API reference](https://wasp.sh/docs/api/wasp/env#defineenvvalidationschema)
+
+#### [defineEnvValidationSchema »](https://wasp.sh/docs/api/wasp/env#defineenvvalidationschema)
+
+[Define a type-checked Zod schema to validate your client or server env vars.](https://wasp.sh/docs/api/wasp/env#defineenvvalidationschema)
+
 #### Client Env Vars {#client-env-vars-api}
 
-##### User-defined env vars validation
+[API reference](https://wasp.sh/docs/api/@wasp/spec#envvalidationschema)
 
-You can define your client env vars validation like this:
+#### [Client.envValidationSchema »](https://wasp.sh/docs/api/@wasp/spec#envvalidationschema)
 
-```ts title="src/env.ts"
-import * as z from "zod"
+[The option of the client spec that sets your client env vars validation schema.](https://wasp.sh/docs/api/@wasp/spec#envvalidationschema)
 
-import { defineEnvValidationSchema } from "wasp/env"
+[API reference](https://wasp.sh/docs/api/wasp/client#env)
 
-export const envValidationSchema = defineEnvValidationSchema(
-  z.object({
-    REACT_APP_ANALYTICS_ID: z.string({
-      required_error: "REACT_APP_ANALYTICS_ID is required.",
-    }),
-  })
-)
-```
+#### [env (wasp/client) »](https://wasp.sh/docs/api/wasp/client#env)
 
-The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { envValidationSchema } from "./src/env" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  client: {
-    envValidationSchema,
-  },
-  // ...
-})
-```
-
-Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `import.meta.env` object.
-
-##### Accessing env vars in client code
-
-You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
-
-```ts title="src/App.ts"
-import { env } from "wasp/client"
-
-// Wasp-defined
-const apiUrl = env.REACT_APP_API_URL
-
-// User-defined
-const analyticsId = env.REACT_APP_ANALYTICS_ID
-```
-
-You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this since `import.meta.env` isn't validated and missing env vars can cause runtime errors.
+[The validated Wasp-defined and user-defined client env vars.](https://wasp.sh/docs/api/wasp/client#env)
 
 #### Server Env Vars
 
-##### User-defined env vars validation
+[API reference](https://wasp.sh/docs/api/@wasp/spec#envvalidationschema-1)
 
-You can define your env vars validation like this:
+#### [Server.envValidationSchema »](https://wasp.sh/docs/api/@wasp/spec#envvalidationschema-1)
 
-```ts title="src/env.ts"
-import * as z from "zod"
+[The option of the server spec that sets your server env vars validation schema.](https://wasp.sh/docs/api/@wasp/spec#envvalidationschema-1)
 
-import { defineEnvValidationSchema } from "wasp/env"
+[API reference](https://wasp.sh/docs/api/wasp/server#env-1)
 
-export const envValidationSchema = defineEnvValidationSchema(
-  z.object({
-    STRIPE_API_KEY: z.string({
-      required_error: "STRIPE_API_KEY is required.",
-    }),
-  })
-)
-```
+#### [env (wasp/server) »](https://wasp.sh/docs/api/wasp/server#env-1)
 
-The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { envValidationSchema } from "./src/env" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  server: {
-    envValidationSchema,
-  },
-  // ...
-})
-```
-
-Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object.
-
-##### Accessing env vars in server code
-
-You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
-
-```ts title="src/stripe.ts"
-import { env } from "wasp/server"
-
-// Wasp-defined
-const serverUrl = env.WASP_SERVER_URL
-
-// User-defined
-const stripeApiKey = env.STRIPE_API_KEY
-```
-
-You can use `process.env.SOME_SECRET` directly in your code. We don't recommend this since `process.env` isn't validated and missing env vars can cause runtime errors.
+[The validated Wasp-defined and user-defined server env vars.](https://wasp.sh/docs/api/wasp/server#env-1)
 
 
 ## Advanced / Testing
@@ -12448,29 +11741,29 @@ test("shows the stats", async () => {
 
 ### API reference
 
-`wasp/test` exports the helper for your Vitest config:
+[API reference](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
 
-- `waspTestConfig(options?)`
+#### [waspTestConfig »](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
 
-  Returns Vitest's `test` options with the defaults a Wasp app needs: `environment: "jsdom"`, `include` with the test files in `src`, and `env` with a placeholder `REACT_APP_API_URL`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults, only the `env` is merged instead.
+[Configure Vitest with the defaults a Wasp app needs.](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
 
-`wasp/client/test` exports the helpers for your tests:
+[API reference](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
 
-- `renderInContext(ui, options?)`
+#### [renderInContext »](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
 
-  Renders a React element inside the providers Wasp's client code needs. It takes the same options as [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#render), except `wrapper`, and returns the same result.
+[Render a component with the providers Wasp needs.](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
 
-- `mockServer()`
+[API reference](https://wasp.sh/docs/api/wasp/client/test#mockserver-1)
 
-  Starts an [MSW](https://mswjs.io/) server for the current test file and resets its mocks after each test. Call it once, at the top level of the test file. It returns:
+#### [mockServer »](https://wasp.sh/docs/api/wasp/client/test#mockserver-1)
 
-  - `mockQuery(query, data)`: makes `query` return `data`.
-  - `mockApi(route, data)`: makes the API at `route` (an object with `method` and `path`) respond with `data` as JSON.
-  - `server`: the underlying MSW server, for mocking any other request.
+[Set up a mock server and mock your Queries and APIs.](https://wasp.sh/docs/api/wasp/client/test#mockserver-1)
 
-- `WaspTestWrapper`
+[API reference](https://wasp.sh/docs/api/wasp/client/test#wasptestwrapper)
 
-  The component `renderInContext` wraps your element in. Pass it as the `wrapper` option when you call [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#wrapper) or `renderHook` yourself.
+#### [WaspTestWrapper »](https://wasp.sh/docs/api/wasp/client/test#wasptestwrapper)
+
+[Wrap your own Testing Library renders in the providers Wasp needs.](https://wasp.sh/docs/api/wasp/client/test#wasptestwrapper)
 
 
 ## Advanced / Accessing the configuration
@@ -12526,6 +11819,20 @@ import { config } from 'wasp/client'
 
 console.log(config.apiUrl)
 ```
+
+### API Reference
+
+[API reference](https://wasp.sh/docs/api/wasp/server#config)
+
+#### [config (wasp/server) »](https://wasp.sh/docs/api/wasp/server#config)
+
+[All the fields of the server configuration object.](https://wasp.sh/docs/api/wasp/server#config)
+
+[API reference](https://wasp.sh/docs/api/wasp/client#config)
+
+#### [config (wasp/client) »](https://wasp.sh/docs/api/wasp/client#config)
+
+[All the fields of the client configuration object.](https://wasp.sh/docs/api/wasp/client#config)
 
 
 ## Advanced / Prerendering
@@ -12723,11 +12030,11 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ### API reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route#prerender)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#prerender)
 
-#### [Route.prerender »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route#prerender)
+#### [Route.prerender »](https://wasp.sh/docs/api/@wasp/spec#prerender)
 
-[The full description of the prerender option of the route spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route#prerender)
+[The full description of the prerender option of the route spec.](https://wasp.sh/docs/api/@wasp/spec#prerender)
 
 
 ## Advanced / SEO & GEO
@@ -12824,11 +12131,11 @@ export default app({
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#app)
 
-#### [App »](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
+#### [App »](https://wasp.sh/docs/api/@wasp/spec#app)
 
-[All the options for the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
+[All the options for the app spec.](https://wasp.sh/docs/api/@wasp/spec#app)
 
 
 ## Advanced / Client customization / Client configuration
@@ -12929,7 +12236,7 @@ export default function Root() {
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-For the full description of the `rootComponent` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client#rootcomponent).
+For the full description of the `rootComponent` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#rootcomponent).
 
 ### Setup Function
 
@@ -12975,7 +12282,7 @@ export default async function mySetupFunction(): Promise<void> {
 #### Overriding Default Behaviour for Queries
 
 :::info
-You can change the options for a **single** Query using the `options` object, as described [here](https://wasp.sh/docs/features/data/operations/queries#the-usequery-hook-1).
+You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](https://wasp.sh/docs/api/wasp/client/operations#usequery).
 :::
 
 Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)).
@@ -13002,7 +12309,7 @@ export default async function mySetupFunction(): Promise<void> {
 
 Make sure to pass in an object expected by the `QueryClient`'s constructor, as explained in [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client#setupfn).
+For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn).
 
 ### Base Directory
 
@@ -13030,11 +12337,17 @@ For example, if you are serving your app from `https://example.com/my-app`, the 
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#client-1)
 
-#### [Client »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
+#### [Client »](https://wasp.sh/docs/api/@wasp/spec#client-1)
 
-[All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
+[All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#client-1)
+
+[API reference](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
+
+#### [configureQueryClient »](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
+
+[Configure the default options of the QueryClient that Wasp's Queries use.](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
 
 
 ## Advanced / Client customization / Static assets
@@ -13215,28 +12528,11 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 
 ### API Reference
 
-```ts title="vite.config.ts"
-import { wasp } from "wasp/client/vite";
-import { defineConfig } from "vite";
+[API reference](https://wasp.sh/docs/api/wasp/client/vite#wasp)
 
-export default defineConfig({
-  plugins: [
-    wasp({
-      reactOptions: {
-        // ...
-      },
-    }),
-  ],
-});
-```
+#### [wasp »](https://wasp.sh/docs/api/wasp/client/vite#wasp)
 
-The `wasp()` plugin accepts the following options:
-
-- ##### `reactOptions: ReactOptions` optional {#reactoptions-reactoptions-}
-
-  Object to customize the underlying [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react) plugin.
-
-  This allows you to configure React-specific options like Babel plugins, Fast Refresh settings, and JSX configuration.
+[The Wasp Vite plugin and all its options.](https://wasp.sh/docs/api/wasp/client/vite#wasp)
 
 
 ## Advanced / Server customization / Server config
@@ -13319,7 +12615,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server#setupfn).
+For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn-1).
 
 ### Middleware Config Function
 
@@ -13349,11 +12645,23 @@ Read more in the [deployment section](https://wasp.sh/docs/deployment/methods/ov
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#server-1)
 
-#### [Server »](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
+#### [Server »](https://wasp.sh/docs/api/@wasp/spec#server-1)
 
-[All the options for the server field of the app spec.](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
+[All the options for the server field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#server-1)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#serversetupfn)
+
+#### [ServerSetupFn »](https://wasp.sh/docs/api/wasp/server#serversetupfn)
+
+[The type of your setupFn function.](https://wasp.sh/docs/api/wasp/server#serversetupfn)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
+
+#### [MiddlewareConfigFn »](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
+
+[The type of your middlewareConfigFn function.](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
 
 
 ## Advanced / Server customization / Middleware
@@ -13541,6 +12849,20 @@ This gets installed at the router level for the path. Behind the scenes, this re
 router.use("/foo/bar", fooBarNamespaceMiddleware)
 ```
 :::
+
+### API Reference
+
+[API reference](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
+
+#### [MiddlewareConfigFn »](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
+
+[The type of the middlewareConfigFn functions that customize middleware.](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#config)
+
+#### [config »](https://wasp.sh/docs/api/wasp/server#config)
+
+[The server's configuration, e.g. the allowed CORS origins.](https://wasp.sh/docs/api/wasp/server#config)
 
 
 ## Advanced / CLI reference
@@ -25592,86 +24914,32 @@ You should read Google's guide on creating good content for more tips on what to
 
 # API
 
-## @wasp/spec
+## wasp
 
-### Wasp Spec
+### Modules
 
-- [App](https://wasp.sh/docs/api/@wasp/spec/interfaces/App)
-- [AppConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/AppConfig)
-- [app](https://wasp.sh/docs/api/@wasp/spec/functions/app)
-
-### Constructors
-
-- [ActionConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ActionConfig)
-- [ApiConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ApiConfig)
-- [ApiNamespaceConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ApiNamespaceConfig)
-- [JobConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/JobConfig)
-- [PageConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/PageConfig)
-- [QueryConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/QueryConfig)
-- [RouteConfig](https://wasp.sh/docs/api/@wasp/spec/type-aliases/RouteConfig)
-- [action](https://wasp.sh/docs/api/@wasp/spec/functions/action)
-- [api](https://wasp.sh/docs/api/@wasp/spec/functions/api)
-- [apiNamespace](https://wasp.sh/docs/api/@wasp/spec/functions/apiNamespace)
-- [crud](https://wasp.sh/docs/api/@wasp/spec/functions/crud)
-- [job](https://wasp.sh/docs/api/@wasp/spec/functions/job)
-- [page](https://wasp.sh/docs/api/@wasp/spec/functions/page)
-- [query](https://wasp.sh/docs/api/@wasp/spec/functions/query)
-- [route](https://wasp.sh/docs/api/@wasp/spec/functions/route)
-
-### Specifications
-
-- [Action](https://wasp.sh/docs/api/@wasp/spec/interfaces/Action)
-- [Api](https://wasp.sh/docs/api/@wasp/spec/interfaces/Api)
-- [ApiNamespace](https://wasp.sh/docs/api/@wasp/spec/interfaces/ApiNamespace)
-- [Crud](https://wasp.sh/docs/api/@wasp/spec/interfaces/Crud)
-- [Job](https://wasp.sh/docs/api/@wasp/spec/interfaces/Job)
-- [Page](https://wasp.sh/docs/api/@wasp/spec/interfaces/Page)
-- [Query](https://wasp.sh/docs/api/@wasp/spec/interfaces/Query)
-- [Route](https://wasp.sh/docs/api/@wasp/spec/interfaces/Route)
-- [Spec](https://wasp.sh/docs/api/@wasp/spec/type-aliases/Spec)
-- [SpecElement](https://wasp.sh/docs/api/@wasp/spec/type-aliases/SpecElement)
-
-### References
-
-- [DefaultRefObjectDescriptor](https://wasp.sh/docs/api/@wasp/spec/interfaces/DefaultRefObjectDescriptor)
-- [NamedRefObjectDescriptor](https://wasp.sh/docs/api/@wasp/spec/interfaces/NamedRefObjectDescriptor)
-- [Reference](https://wasp.sh/docs/api/@wasp/spec/type-aliases/Reference)
-- [RefObject](https://wasp.sh/docs/api/@wasp/spec/type-aliases/RefObject)
-- [RefObjectDescriptor](https://wasp.sh/docs/api/@wasp/spec/type-aliases/RefObjectDescriptor)
-- [ZodSchema](https://wasp.sh/docs/api/@wasp/spec/type-aliases/ZodSchema)
-- [ref](https://wasp.sh/docs/api/@wasp/spec/functions/ref)
-
-### Errors
-
-- [WaspSpecUserError](https://wasp.sh/docs/api/@wasp/spec/classes/WaspSpecUserError)
-
-### Fields
-
-- [Auth](https://wasp.sh/docs/api/@wasp/spec/interfaces/Auth)
-- [Client](https://wasp.sh/docs/api/@wasp/spec/interfaces/Client)
-- [CrudOperationOptions](https://wasp.sh/docs/api/@wasp/spec/interfaces/CrudOperationOptions)
-- [CrudOperations](https://wasp.sh/docs/api/@wasp/spec/interfaces/CrudOperations)
-- [Db](https://wasp.sh/docs/api/@wasp/spec/interfaces/Db)
-- [Deployment](https://wasp.sh/docs/api/@wasp/spec/interfaces/Deployment)
-- [EmailAuthConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailAuthConfig)
-- [EmailFlowConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFlowConfig)
-- [EmailFromField](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailFromField)
-- [EmailSender](https://wasp.sh/docs/api/@wasp/spec/interfaces/EmailSender)
-- [ExecutorOptions](https://wasp.sh/docs/api/@wasp/spec/interfaces/ExecutorOptions)
-- [ExternalAuthMethods](https://wasp.sh/docs/api/@wasp/spec/interfaces/ExternalAuthMethods)
-- [LocalAuthMethods](https://wasp.sh/docs/api/@wasp/spec/interfaces/LocalAuthMethods)
-- [Schedule](https://wasp.sh/docs/api/@wasp/spec/interfaces/Schedule)
-- [Server](https://wasp.sh/docs/api/@wasp/spec/interfaces/Server)
-- [SocialAuthConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/SocialAuthConfig)
-- [UsernameAndPasswordConfig](https://wasp.sh/docs/api/@wasp/spec/interfaces/UsernameAndPasswordConfig)
-- [Wasp](https://wasp.sh/docs/api/@wasp/spec/interfaces/Wasp)
-- [WebSocket](https://wasp.sh/docs/api/@wasp/spec/interfaces/WebSocket)
-- [AuthMethods](https://wasp.sh/docs/api/@wasp/spec/type-aliases/AuthMethods)
-- [DeploymentMode](https://wasp.sh/docs/api/@wasp/spec/type-aliases/DeploymentMode)
-- [EmailSenderProviderName](https://wasp.sh/docs/api/@wasp/spec/type-aliases/EmailSenderProviderName)
-- [EntityName](https://wasp.sh/docs/api/@wasp/spec/type-aliases/EntityName)
-- [HttpMethod](https://wasp.sh/docs/api/@wasp/spec/type-aliases/HttpMethod)
-- [JobExecutor](https://wasp.sh/docs/api/@wasp/spec/type-aliases/JobExecutor)
+- [auth](https://wasp.sh/docs/api/wasp/auth)
+- [auth/providers](https://wasp.sh/docs/api/wasp/auth/providers)
+- [client](https://wasp.sh/docs/api/wasp/client)
+- [client/api](https://wasp.sh/docs/api/wasp/client/api)
+- [client/auth](https://wasp.sh/docs/api/wasp/client/auth)
+- [client/crud](https://wasp.sh/docs/api/wasp/client/crud)
+- [client/operations](https://wasp.sh/docs/api/wasp/client/operations)
+- [client/router](https://wasp.sh/docs/api/wasp/client/router)
+- [client/test](https://wasp.sh/docs/api/wasp/client/test)
+- [client/vite](https://wasp.sh/docs/api/wasp/client/vite)
+- [client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket)
+- [entities](https://wasp.sh/docs/api/wasp/entities)
+- [env](https://wasp.sh/docs/api/wasp/env)
+- [server](https://wasp.sh/docs/api/wasp/server)
+- [server/api](https://wasp.sh/docs/api/wasp/server/api)
+- [server/auth](https://wasp.sh/docs/api/wasp/server/auth)
+- [server/crud](https://wasp.sh/docs/api/wasp/server/crud)
+- [server/email](https://wasp.sh/docs/api/wasp/server/email)
+- [server/jobs](https://wasp.sh/docs/api/wasp/server/jobs)
+- [server/operations](https://wasp.sh/docs/api/wasp/server/operations)
+- [server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket)
+- [test](https://wasp.sh/docs/api/wasp/test)
 
 
 ------
