@@ -30,6 +30,7 @@ run = [{ task = "build:packages" }, { task = "build:libs" }, "cabal install --ov
 
 # Wasp CLI
 
+# `raw_args` forwards every argument, including `--help`, to the wrapped tool.
 [wasp-cli]
 description = "Runs the dev version of wasp executable in the current directory while forwarding arguments. Builds the project (hs) first if needed."
 dir = "{{cwd}}"

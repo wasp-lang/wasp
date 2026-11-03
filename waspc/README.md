@@ -43,7 +43,7 @@ Running `mise tasks` lists them, which is a good way to discover the typical `wa
 
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> The tasks and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt in Windows.
+> Tasks need Bash. On Windows, install Git Bash and make sure `bash` is on `PATH`.
 
 ### Dev tooling
 

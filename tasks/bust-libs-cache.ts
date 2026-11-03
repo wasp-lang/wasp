@@ -3,12 +3,12 @@
 //MISE dir="{{cwd}}"
 
 import { execa } from "execa";
-import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getWaspcDirPath } from "../waspc/tools/utils.ts";
 
 const waspCliDevPath = join(getWaspcDirPath(), "tools", "wasp-cli-dev");
-const execaOptions = { stdio: "inherit", verbose: "short" } as const;
+const $ = execa({ stdio: "inherit", verbose: "short" });
 
 const GENERATED_WASP_PATHS = [
   ".wasp/out",
@@ -21,16 +21,16 @@ const GENERATED_WASP_PATHS = [
 // Old generated workspaces point at old lib tarballs, so remove them from disk
 // and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
 for (const generatedPath of GENERATED_WASP_PATHS) {
-  rmSync(generatedPath, { recursive: true, force: true });
+  await rm(generatedPath, { recursive: true, force: true });
 }
-removeStaleGeneratedWaspLockEntries();
-await execa(waspCliDevPath, ["install"], execaOptions);
+await removeStaleGeneratedWaspLockEntries();
+await $`${waspCliDevPath} install`;
 
 // Compiling the project copies the new lib tarball to the out dir.
-await execa(waspCliDevPath, ["compile"], execaOptions);
+await $`${waspCliDevPath} compile`;
 
 // The --force flag tells `npm` to ignore local cache when installing packages.
-await execa("npm", ["install", "--force"], execaOptions);
+await $`npm install --force`;
 
 type PackageLockEntry = { dependencies?: Record<string, string> };
 
@@ -39,10 +39,10 @@ type PackageLockEntry = { dependencies?: Record<string, string> };
 // npm rebuilds those entries from the freshly generated package.json files.
 // Apps generated before Wasp 0.27 used the `@wasp.sh` npm scope instead of
 // `@wasp`, so we match both.
-function removeStaleGeneratedWaspLockEntries(): void {
+async function removeStaleGeneratedWaspLockEntries(): Promise<void> {
   const packageLockPath = "package-lock.json";
   const packageLock: { packages: Record<string, PackageLockEntry> } =
-    JSON.parse(readFileSync(packageLockPath, "utf-8"));
+    JSON.parse(await readFile(packageLockPath, "utf-8"));
   const freshLockEntries = Object.entries(packageLock.packages)
     .filter(([packagePath]) => !isStaleGeneratedWaspPackage(packagePath))
     .map(([packagePath, lockEntry]) => [
@@ -51,7 +51,7 @@ function removeStaleGeneratedWaspLockEntries(): void {
     ]);
 
   packageLock.packages = Object.fromEntries(freshLockEntries);
-  writeFileSync(packageLockPath, `${JSON.stringify(packageLock, null, 2)}\n`);
+  await writeFile(packageLockPath, `${JSON.stringify(packageLock, null, 2)}\n`);
 }
 
 function isStaleGeneratedWaspPackage(packagePath: string): boolean {
