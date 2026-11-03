@@ -16,8 +16,8 @@ waspNewTest =
       -- NOTE: We can't test the `saas` template here, since its "dev" tag doesn't exist.
     ]
   where
-    -- Without an interactive terminal, Wasp refuses to prompt for the answers.
     createWaspProjectWithPipedAnswersFails :: StarterTemplate -> TestM ()
     createWaspProjectWithPipedAnswersFails template =
-      runExpectingFailure (withStdinText (T.pack $ waspAppDirName ++ "\n" ++ show template ++ "\n") $ waspCli ["new"])
-        >>= assertOutputContains "stdin is not an interactive terminal"
+      assertFailsWithoutInteractiveTerminal "wasp new"
+        $ withStdinText (T.pack $ waspAppDirName ++ "\n" ++ show template ++ "\n")
+        $ waspCli ["new"]
