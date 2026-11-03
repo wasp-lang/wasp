@@ -248,7 +248,8 @@ const sidebars: SidebarsConfig = {
   api: [
     {
       type: "category",
-      label: "packages",
+      label: "API",
+      link: { type: "doc", id: "api/index" },
       collapsed: false,
       collapsible: false,
       items: typedocSidebar.items,

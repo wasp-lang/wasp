@@ -316,6 +316,7 @@ const config: Config = {
 
         // typedoc-plugin-markdown options
         readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
+        name: "API Reference", // The title of the index page.
 
         router: "module",
 
