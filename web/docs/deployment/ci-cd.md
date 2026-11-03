@@ -21,7 +21,7 @@ manually testing your app after every change.
 
 **To run e2e tests with Wasp in the CI**, you'll need to:
 
-1. Install Wasp in the CI environment.
+1. Install your project's dependencies, which include Wasp, with `npm ci`.
 2. Run your app (with the database) in the CI environment.
 3. Run the e2e tests against the running app.
 
@@ -69,9 +69,11 @@ You can use Wasp's built in [client tests](../advanced/testing.md) support to te
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 
-1. Install Wasp in the CI environment.
-2. Run the client tests with `wasp test client run`.
+1. Install your project's dependencies, which include Wasp, with `npm ci`.
+2. Run the client tests with `npm run wasp -- test client run`.
 3. Run the server tests with your testing framework.
+
+The `npm run wasp` commands on this page use the `wasp` script from your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../advanced/cli.md#running-your-projects-wasp-version).
 
 ## Continuous deployment
 
@@ -87,7 +89,7 @@ The most common way to package your app for deployment is using Docker images. T
 **To build the app as a Docker image**, you'll need to:
 
 1. Install Docker in the CD environment.
-2. Install dependencies with `npm install` and build the app with `wasp build`.
+2. Install dependencies with `npm ci` and build the app with `npm run wasp -- build`.
 3. Build the Docker image and push it to a Docker registry:
    - for our server app
    - for our client app
@@ -113,7 +115,7 @@ Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade739649
 
    We are using the `docker/metadata-action` action to prepare some extra info that we'll use later in the deployment process.
 
-3. Next, we **install dependencies** with `npm install` and **build the Wasp app** with `wasp build`.
+3. Next, we **install dependencies** with `npm ci` and **build the Wasp app** with `npm run wasp -- build`.
 
    This creates our server and the client app in the `.wasp/out` folder.
 
@@ -135,7 +137,7 @@ Wasp's client app is a single page application (SPA) which you build into static
 
 **To deploy the client app as static files**, you'll need to:
 
-1. Install dependencies with `npm install` and build the app with `wasp build` in the CD environment.
+1. Install dependencies with `npm ci` and build the app with `npm run wasp -- build` in the CD environment.
 2. Build the client app with `npx vite build`.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 

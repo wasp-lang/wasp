@@ -8,7 +8,7 @@ sidebar_label: From 0.26 to 0.27
 
 ### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec at the version your `package.json` declares. The `wasp install` command and the `wasp: { version }` field in `main.wasp.ts` are gone. `npm install` installs everything, and `package.json` is the one place that says which Wasp version the project uses. The `wasp` command you install globally keeps working: inside a project, it runs that project's version.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it runs the project's Wasp version.
 
 ### New npm organization
 
@@ -39,7 +39,7 @@ npm i -g @wasp/cli@0.27
 
 ### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec`
 
-Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinned to the exact Wasp version. The `wasp` script is optional, but it lets you run Wasp through the project (`npm run wasp start`, with `--` before any flags) without a global install:
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. The `wasp` script is optional. It lets you run Wasp without a global install, for example `npm run wasp start`. Put `--` before Wasp commands that have flags, for example `npm run wasp -- db migrate-dev --name init`:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -68,7 +68,9 @@ Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinn
   </TabItem>
 </Tabs>
 
-Your project's `.npmrc` keeps npm from installing packages published less than 7 days ago. Wasp's own packages are published with each release, so exempt them, otherwise the install below fails until the release is a week old:
+If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, move that entry to npm's `overrides` field. Wasp reports such `overriddenDeps` entries as errors. See [Overriding Wasp's dependencies](./advanced/dependencies.md#overriding-wasps-dependencies-advanced).
+
+If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days. Wasp publishes its packages on release day, so exclude them. Otherwise `npm install` fails for the first week after a release:
 
 ```ini title=".npmrc"
 min-release-age=7
@@ -76,7 +78,9 @@ min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-The Wasp Spec package is now `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
+### 3. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+
+Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -114,11 +118,9 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update th
   </TabItem>
 </Tabs>
 
-If your `package.json` has a `wasp.overriddenDeps` entry for a package that now comes with `@wasp/wasp` (like React, Vite or Express), move it to npm's `overrides` field. Wasp reports the old entry as an error. See [Overriding Wasp's dependencies](./advanced/dependencies#overriding-wasps-dependencies-advanced).
+### 4. Remove the Wasp version from `main.wasp.ts`
 
-### 3. Remove the Wasp version from `main.wasp.ts`
-
-The version in `package.json` is now the one that counts, so the `wasp` field goes away:
+`package.json` now sets the Wasp version, so remove the `wasp` field:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -141,7 +143,7 @@ The version in `package.json` is now the one that counts, so the `wasp` field go
   </TabItem>
 </Tabs>
 
-### 4. Upgrade to Prisma 6
+### 5. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -176,7 +178,7 @@ Update the Prisma packages in your `package.json`:
   </TabItem>
 </Tabs>
 
-Then start from a clean state, install the dependencies, which now include Wasp, and migrate. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
+Now delete the old build output and `node_modules`, install the dependencies, and run the migrations. Don't run `npm install` before this step. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5:
 
 ```sh
 wasp clean
@@ -186,7 +188,7 @@ wasp db migrate-dev
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 5. Check the packages your server loads at runtime
+### 6. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -205,7 +207,7 @@ export default app({
 })
 ```
 
-### 6. Install the system dependencies your app needs
+### 7. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -215,7 +217,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-### 7. Update your custom Dockerfile
+### 8. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -227,6 +229,6 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 8. Enjoy your updated Wasp app
+### 9. Enjoy your updated Wasp app
 
 That's it!

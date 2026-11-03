@@ -85,6 +85,8 @@ Add any other environment variables your app needs (from `.env.server`).
 
 ### Step 4: Create GitHub Action
 
+The workflow below runs Wasp through the `wasp` script in your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
+
 Create `.github/workflows/deploy.yml` in your repository:
 
 ```yaml title=".github/workflows/deploy.yml"
@@ -100,7 +102,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "{pinnedLatestWaspVersion}"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -146,15 +147,11 @@ jobs:
         with:
           node-version: "{minimumNodeJsVersion}"
 
-      - name: Install Wasp
-        shell: bash
-        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
-
       - name: Install Wasp app dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Wasp app
-        run: wasp build
+        run: npm run wasp -- build
 
       - name: (client) Build
         run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build

@@ -50,7 +50,7 @@ Let's create and run our first Wasp app in 3 short steps:
    </Trackable>
 
    :::note
-   Your new project depends on Wasp through the `@wasp/wasp` npm package, so it always runs the Wasp version it declares. The `wasp` command you installed in step 1 runs that version inside the project, and `npm run wasp start` works without it.
+   Your new project depends on Wasp through the `@wasp/wasp` npm package, which sets the Wasp version the project uses. Inside the project, the `wasp` command from step 1 runs that version. `npm run dev` starts the app without a global install.
    :::
 
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually [http://localhost:3000](http://localhost:3000), unless it's taken) to see it.

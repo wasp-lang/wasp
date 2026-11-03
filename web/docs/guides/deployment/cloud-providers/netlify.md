@@ -68,6 +68,8 @@ To enable automatic deployment of the client whenever you push to the `main` bra
 
 Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
 
+The workflow runs Wasp through the `wasp` script in your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
+
 <details>
   <summary>Example GitHub Action</summary>
 
@@ -93,14 +95,11 @@ Here's an example configuration file to help you get started. This example workf
           with:
             node-version: "{minimumNodeJsVersion}"
 
-        - name: Install Wasp
-          run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
-
         - name: Install app dependencies
-          run: npm install
+          run: npm ci
 
         - name: Wasp Build
-          run: wasp build
+          run: npm run wasp -- build
 
         - name: Build the client
           run: REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build

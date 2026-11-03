@@ -117,42 +117,18 @@ source ~/.bashrc
 nvm install {minimumNodeJsVersion}
 ```
 
-### Step 8: Install Wasp CLI
-
-Install the Wasp CLI:
-
-```bash
-npm i -g @wasp/cli
-```
-
-Add Wasp to your PATH by adding this line to `~/.bashrc`:
-
-```bash
-export PATH=$PATH:~/.local/bin
-```
-
-Reload your shell:
-
-```bash
-source ~/.bashrc
-```
-
-Confirm the Wasp CLI works by running:
-
-```bash
-wasp version
-```
-
-### Step 9: Build the Application
+### Step 8: Build the Application
 
 In your project directory, install dependencies and build the app:
 
 ```bash
-npm install
-wasp build
+npm ci
+npm run wasp -- build
 ```
 
-### Step 10: Start the Database
+`npm ci` installs your project's Wasp version, so the server doesn't need a global Wasp install. `npm run wasp` uses the `wasp` script from your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
+
+### Step 9: Start the Database
 
 Create a Docker network:
 
@@ -180,16 +156,16 @@ docker exec -it myapp-db psql -U postgres -d myapp
 
 Verify you are connected to the `myapp` database by typing `\conninfo`. You can exit `psql` by typing in `\q`.
 
-### Step 11: Configure Your Domain
+### Step 10: Configure Your Domain
 
 Set up DNS A records pointing to your server IP:
 
 - `@` (root) → your server IP (for `myapp.com`)
 - `api` → your server IP (for `api.myapp.com`)
 
-### Step 12: Start the Server
+### Step 11: Start the Server
 
-After you built the app with `wasp build`, build the server app Docker image:
+After you built the app with `npm run wasp -- build`, build the server app Docker image:
 
 ```bash
 # Navigate to the out directory
@@ -235,7 +211,7 @@ curl -I http://localhost:3001
 
 You should see a `200 OK` HTTP status code.
 
-### Step 13: Build the Client
+### Step 12: Build the Client
 
 In the project directory run:
 
@@ -250,7 +226,7 @@ sudo cp -R .wasp/out/web-app/build/* /var/www/
 sudo chown -R caddy:caddy /var/www
 ```
 
-### Step 14: Configure Caddy
+### Step 13: Configure Caddy
 
 Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 ```caddyfile
@@ -290,8 +266,11 @@ echo "Pulling latest changes..."
 cd ~/"$APP_DIR"
 git pull
 
+echo "Installing dependencies..."
+npm ci
+
 echo "Building Wasp project..."
-wasp build
+npm run wasp -- build
 
 echo "Building Docker image..."
 cd .wasp/out/

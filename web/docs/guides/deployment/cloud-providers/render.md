@@ -41,10 +41,8 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
       npm install &&
-      wasp build &&
+      npm run wasp -- build &&
       cd .wasp/out/server &&
       npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
@@ -70,10 +68,8 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
       npm install &&
-      wasp build &&
+      npm run wasp -- build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
     envVars:
@@ -98,9 +94,10 @@ You should replace the following values for your app:
 | Variable | Value | Example |
 |---|---|---|
 | `<app-name>` | A unique name for your app | `my-wasp-app` |
-| `<wasp-version>` | The Wasp CLI version you're using | `0.24` |
 | `<plan>` | The Render plan for your services | `free` |
 | `<region>` | The Render region closest to your users | `oregon` |
+
+`npm install` installs your project's Wasp version, and `npm run wasp -- build` runs it through the `wasp` script in your `package.json`. New projects come with this script. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 :::caution
 The Render free-tier PostgreSQL database [expires after 30 days](https://render.com/docs/free#30-day-limit). Use the Starter plan or an external provider for production.

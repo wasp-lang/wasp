@@ -18,7 +18,7 @@ npm install date-fns
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
-You will notice that there are some other packages in the `dependencies` section, like `react` and `@wasp/wasp`. These are the packages that Wasp uses internally, and you should not modify or remove them.
+You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't modify or remove them.
 
 ### Using Packages that are Already Used by Wasp Internally
 
@@ -101,6 +101,8 @@ By declaring this, you acknowledge you're deviating from Wasp's tested version. 
 ### Supply Chain Protection
 
 New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
+
+The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`. Wasp publishes them on release day, so keep this line when you edit the file.
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 

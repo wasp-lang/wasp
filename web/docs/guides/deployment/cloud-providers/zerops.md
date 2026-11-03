@@ -38,10 +38,8 @@ zerops:
     build:
       base: nodejs@24
       buildCommands:
-        - npm install -g @wasp/cli@<wasp-version>
-        - export PATH="$(npm prefix -g)/bin:$PATH"
         - npm install
-        - wasp build
+        - npm run wasp -- build
         - npx vite build
       envVariables:
         # Vite embeds this at build time - must be the public API URL
@@ -60,10 +58,8 @@ zerops:
       base: nodejs@24
       os: ubuntu
       buildCommands:
-        - npm install -g @wasp/cli@<wasp-version>
-        - export PATH="$(npm prefix -g)/bin:$PATH"
         - npm install
-        - wasp build
+        - npm run wasp -- build
         - cd .wasp/out/server && npm install
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
         - cd .wasp/out/server && npm run bundle
@@ -96,9 +92,9 @@ zerops:
       start: sh -c 'cd .wasp/out/server && NODE_ENV=production node --enable-source-maps bundle/server.js'
 ```
 
-Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.27`).
+`npm install` installs your project's Wasp version, and `npm run wasp -- build` runs it through the `wasp` script in your `package.json`. New projects come with this script. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
-The `prod-client` setup runs `npm install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
+The `prod-client` setup runs `npm install` and `npm run wasp -- build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
 The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
 

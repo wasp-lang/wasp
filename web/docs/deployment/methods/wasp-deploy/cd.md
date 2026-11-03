@@ -25,9 +25,11 @@ To automate deployment, you need to create a workflow file in your repository th
 The workflow needs to include the following steps:
 
 1. Checkout the code from the repository
-2. Install Node.js and the Wasp CLI
+2. Install Node.js and your project's dependencies, which include Wasp
 3. Install any provider-specific dependencies
-4. Deploy the application using `wasp deploy <provider> deploy`
+4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
+
+`npm run wasp` uses the `wasp` script from your `package.json`. New projects come with it. If your project doesn't have it, add `"wasp": "wasp"` to its `scripts`. Read more in [Running your project's Wasp version](../../../advanced/cli.md#running-your-projects-wasp-version).
 
 To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the
 environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
@@ -52,8 +54,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      WASP_VERSION: "{pinnedLatestWaspVersion}"
 
     steps:
       - uses: actions/checkout@v6
@@ -63,15 +63,14 @@ jobs:
         with:
           node-version: "{minimumNodeJsVersion}"
 
-      - name: Install Wasp
-        # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp/cli@$WASP_VERSION
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy
-        run: wasp deploy fly deploy
+        run: npm run wasp -- deploy fly deploy
         env:
           # You must add FLY_API_TOKEN to your Repository Secrets
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -96,7 +95,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: "{pinnedLatestWaspVersion}"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
@@ -108,15 +106,14 @@ jobs:
         with:
           node-version: "{minimumNodeJsVersion}"
 
-      - name: Install Wasp
-        # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp/cli@$WASP_VERSION
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
       - name: Deploy
-        run: wasp deploy railway deploy $RAILWAY_PROJECT_NAME --existing-project-id $RAILWAY_PROJECT_ID
+        run: npm run wasp -- deploy railway deploy $RAILWAY_PROJECT_NAME --existing-project-id $RAILWAY_PROJECT_ID
         env:
           # You must add RAILWAY_API_TOKEN to your Repository Secrets
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}

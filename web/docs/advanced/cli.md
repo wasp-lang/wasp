@@ -101,8 +101,6 @@ To run your new app, do:
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
 
-- The new project depends on Wasp through the `@wasp/wasp` npm package, and `wasp new` runs `npm install` for you. If the dependencies are missing later (for example in a fresh clone), the commands that read the project fail with a message saying to run `npm install`.
-
 ```
 $ wasp new MyFirstProject
 
@@ -113,6 +111,18 @@ Created a new Wasp app in `./MyFirstProject`.
 To run your new app, do:
 cd MyFirstProject
 wasp db start
+```
+
+- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, Wasp commands like `wasp start` stop and tell you to run it.
+
+### Running your project's Wasp version
+
+A Wasp project sets its Wasp version with the `@wasp/wasp` dependency in `package.json`. When you run the global `wasp` command inside a project, it runs the project's version instead of its own.
+
+New projects also come with npm scripts that run the project's Wasp without a global install. `npm run dev` runs `wasp start`, `npm run build` runs `wasp build`, and `npm run preview` runs `wasp build start`. `npm run wasp <command>` runs any other Wasp command. npm reads flags after `npm run` as its own options, so put `--` before a Wasp command that has flags:
+
+```shell
+npm run wasp -- db migrate-dev --name init
 ```
 
 ### Project Commands
@@ -185,7 +195,7 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
 
 
 ### Miscellaneous commands
-- `wasp version` displays the current version of the CLI.
+- `wasp version` displays the Wasp version. Inside a project, that's the project's version.
 
 ```
 
@@ -203,8 +213,6 @@ Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
 ```
-
-  A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher. Inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well. npm passes positional arguments through but swallows flags, so put `--` before them: `npm run wasp -- db migrate-dev --name init`.
 
 - `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 
