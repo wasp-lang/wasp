@@ -82,8 +82,6 @@ warmUpWaspCli = do
   when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliCmd ++ " version` failed:\n" ++ err
 
 -- TODO: Investigate automatically discovering the tests.
--- TODO: Port the remaining tests from the shell commands DSL to the 'E2E' one.
---       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: TestTree
 e2eTests =
   testGroup
