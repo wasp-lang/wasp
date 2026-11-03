@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module E2e.TestM
+module E2E.TestM
   ( TestM,
     TestEnv (..),
     RunConfig (..),

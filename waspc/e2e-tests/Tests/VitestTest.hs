@@ -1,13 +1,13 @@
 module Tests.VitestTest (vitestTest) where
 
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
 -- client tests that use the `wasp/client/test` helpers.
-vitestTest :: E2eTest
+vitestTest :: E2ETest
 vitestTest =
   testGroup
     "vitest"

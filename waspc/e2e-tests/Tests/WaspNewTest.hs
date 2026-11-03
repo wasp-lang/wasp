@@ -1,11 +1,11 @@
 module Tests.WaspNewTest (waspNewTest) where
 
 import qualified Data.Text as T
-import E2e
+import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 
-waspNewTest :: E2eTest
+waspNewTest :: E2ETest
 waspNewTest =
   testGroup
     "wasp-new"

@@ -1,11 +1,11 @@
 module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
 
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspTsSpecNodeEnvTest :: E2eTest
+waspTsSpecNodeEnvTest :: E2ETest
 waspTsSpecNodeEnvTest =
   testGroup
     "wasp-ts-spec-node-env"

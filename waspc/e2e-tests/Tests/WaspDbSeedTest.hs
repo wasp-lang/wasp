@@ -2,14 +2,14 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import System.Directory (createDirectoryIfMissing, removePathForcibly, renameDirectory)
 import System.FilePath (takeDirectory)
 import Tests.Fixtures (TaskSeed (..), taskPrismaModel, taskSeedName, writeTaskSeedsApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspDbSeedTest :: E2eTest
+waspDbSeedTest :: E2ETest
 waspDbSeedTest =
   testGroup
     "wasp-db-seed"

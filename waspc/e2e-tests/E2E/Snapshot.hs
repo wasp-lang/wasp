@@ -8,7 +8,7 @@
 --   1. By existence: the manifest file lists every file in the snapshot and
 --      is itself part of the snapshot.
 --   2. By content: files that are deterministic must be identical.
-module E2e.Snapshot
+module E2E.Snapshot
   ( snapshotTest,
   )
 where
@@ -25,9 +25,9 @@ import Data.List (isInfixOf, sort)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2e.Paths (getSnapshotsDir)
-import E2e.Test (E2eTest (..), runTestSteps)
-import E2e.TestM (TestM)
+import E2E.Paths (getSnapshotsDir)
+import E2E.Test (E2ETest (..), runTestSteps)
+import E2E.TestM (TestM)
 import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName, (</>))
@@ -43,8 +43,8 @@ import Test.Tasty.Golden.Advanced (goldenTest)
 --
 -- The whole snapshot is a single test, since we only know which files it has
 -- after its steps run.
-snapshotTest :: String -> TestM a -> E2eTest
-snapshotTest name steps = E2eTest $ \_ ->
+snapshotTest :: String -> TestM a -> E2ETest
+snapshotTest name steps = E2ETest $ \_ ->
   goldenTest
     name
     (getSnapshotDir Golden >>= readGoldenSnapshot)

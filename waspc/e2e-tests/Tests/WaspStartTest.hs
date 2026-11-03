@@ -3,14 +3,14 @@ module Tests.WaspStartTest (waspStartTest) where
 import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
-import E2e
-import E2e.Ports (AppPorts, appPortArgs, appPortList)
-import qualified E2e.Ports as Ports
-import E2e.Signals (processGroupExists)
+import E2E
+import E2E.Ports (AppPorts, appPortArgs, appPortList)
+import qualified E2E.Ports as Ports
+import E2E.Signals (processGroupExists)
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspStartTest :: E2eTest
+waspStartTest :: E2ETest
 waspStartTest =
   testGroup
     "wasp-start"

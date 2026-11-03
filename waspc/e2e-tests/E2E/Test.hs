@@ -1,6 +1,6 @@
 -- | Turns test steps into tasty tests.
-module E2e.Test
-  ( E2eTest (..),
+module E2E.Test
+  ( E2ETest (..),
     test,
     testGroup,
     sequentialTestGroup,
@@ -14,8 +14,8 @@ import Control.Exception (displayException, finally, fromException, throwIO)
 import Control.Monad (forM_, (>=>))
 import Data.IORef (newIORef, readIORef)
 import Data.List (intercalate)
-import E2e.Paths (getTestOutputsDir, getWaspcDir)
-import E2e.TestM (RunConfig (..), TestEnv (..), TestFailure (..), TestLog (..), TestM, TestSkipped (..), runTestM)
+import E2E.Paths (getTestOutputsDir, getWaspcDir)
+import E2E.TestM (RunConfig (..), TestEnv (..), TestFailure (..), TestLog (..), TestM, TestSkipped (..), runTestM)
 import System.Directory (createDirectoryIfMissing, removePathForcibly)
 import System.Environment (lookupEnv)
 import System.FilePath (joinPath, takeDirectory, (</>))
@@ -26,17 +26,17 @@ import UnliftIO.Exception (catch, tryAny)
 
 -- | A tasty test tree that knows the names of the e2e groups it is in, which
 -- decide where its tests run (see 'test').
-newtype E2eTest = E2eTest ([String] -> Tasty.TestTree)
+newtype E2ETest = E2ETest ([String] -> Tasty.TestTree)
 
-toTestTree :: E2eTest -> Tasty.TestTree
-toTestTree (E2eTest makeTestTree) = makeTestTree []
+toTestTree :: E2ETest -> Tasty.TestTree
+toTestTree (E2ETest makeTestTree) = makeTestTree []
 
 -- | A test that passes when all of its steps succeed.
 --
 -- It runs in a fresh @test-outputs/<groups>/<name>/@ dir, and writes the
 -- output of the commands it runs to @output.log@ in it.
-test :: String -> TestM a -> E2eTest
-test name steps = E2eTest $ \groupNames ->
+test :: String -> TestM a -> E2ETest
+test name steps = E2ETest $ \groupNames ->
   singleTest name . TestSteps $ do
     testDir <- (</> joinPath (groupNames ++ [name])) <$> getTestOutputsDir
     removePathForcibly testDir
@@ -46,17 +46,17 @@ test name steps = E2eTest $ \groupNames ->
       `catch` (\(TestSkipped message) -> return $ testPassed message)
 
 -- | Tests in the group run in parallel.
-testGroup :: String -> [E2eTest] -> E2eTest
+testGroup :: String -> [E2ETest] -> E2ETest
 testGroup = makeGroup Tasty.testGroup
 
 -- | Tests in the group run one after another, in order. For tests that can't
 -- run at the same time, e.g. because they use the same port.
-sequentialTestGroup :: String -> [E2eTest] -> E2eTest
+sequentialTestGroup :: String -> [E2ETest] -> E2ETest
 sequentialTestGroup = makeGroup Tasty.inOrderTestGroup
 
-makeGroup :: (String -> [Tasty.TestTree] -> Tasty.TestTree) -> String -> [E2eTest] -> E2eTest
-makeGroup makeTastyGroup name tests = E2eTest $ \groupNames ->
-  makeTastyGroup name [makeTestTree (groupNames ++ [name]) | E2eTest makeTestTree <- tests]
+makeGroup :: (String -> [Tasty.TestTree] -> Tasty.TestTree) -> String -> [E2ETest] -> E2ETest
+makeGroup makeTastyGroup name tests = E2ETest $ \groupNames ->
+  makeTastyGroup name [makeTestTree (groupNames ++ [name]) | E2ETest makeTestTree <- tests]
 
 newtype TestSteps = TestSteps (IO Result)
 

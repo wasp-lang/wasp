@@ -1,10 +1,10 @@
 module Tests.ViteConfigTest (viteConfigTest) where
 
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-viteConfigTest :: E2eTest
+viteConfigTest :: E2ETest
 viteConfigTest =
   testGroup
     "vite-config-validation"
