@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.8.7",
+    "@tanstack/react-query": "~4.42.0",
     "cheerio": "1.0.0-rc.12",
     "framer-motion": "^12.23.26",
     "ky": "^2.0.0-0",
@@ -25,7 +26,8 @@
     "react-hook-form": "^7.45.4",
     "react-markdown": "^10.1.0",
     "react-router": "^8.0.1",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
