@@ -81,7 +81,7 @@ jobs:
         # TODO: Remove once the examples join the pnpm workspace.
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
-          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "//"
+          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "overrides.@wasp/deploy" "overrides.@wasp/studio" "//"
           $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       - name: Deploy
@@ -145,7 +145,7 @@ jobs:
         # TODO: Remove once the examples join the pnpm workspace.
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
-          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "//"
+          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "overrides.@wasp/deploy" "overrides.@wasp/studio" "//"
           $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       - name: Deploy to Railway
