@@ -1,7 +1,8 @@
+#!/usr/bin/env node
+//MISE description="Run tests on Wasp libs (types, unit, type-exports)."
 /// <reference types="node" />
-// Helper to test the packages/libs/* packages locally and in CI.
 
-import { runScriptInEveryLib } from "./utils.ts";
+import { runScriptInEveryLib } from "../../waspc/tools/libs/utils.ts";
 
 testLibs();
 
