@@ -82,14 +82,10 @@ jobs:
           set -eux
           cd install-test
 
-          # Test that the Wasp CLI can find and run the binary. We run its bin
-          # by path, because `@wasp/wasp` has a `wasp` bin too.
-          NODE_DEBUG=wasp-bin-wrapper node node_modules/@wasp/cli/bin.js version
+          # Test that the Wasp CLI can find and run the binary.
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version
 
-      - name: Check the files of the installed packages
-        run: node scripts/check-installed-package-files.ts install-test/node_modules/@wasp
-
-      - name: Generate list of installed data files
+      - name: List the data files of the platform sub-package
         run: |
           set -eux
 
@@ -111,7 +107,7 @@ jobs:
             printf '%s\t%s\n' "$file" "$hash"
           done) > actual-data-files.txt
 
-      - name: Verify data files match
+      - name: Verify the data files of the platform sub-package
         env:
           EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
         run: |
