@@ -54,7 +54,7 @@ waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev|]
 
 data DevWaspNpmPackagesDir
 
--- | Where `./run build:dev-packages` packs the dev Wasp npm packages
+-- | Where `mise run build:dev-packages` packs the dev Wasp npm packages
 -- (see "Wasp.Cli.DevWaspNpmPackages").
 devWaspNpmPackagesDirInWaspcDir :: Path' (Rel WaspcDir) (Dir DevWaspNpmPackagesDir)
 devWaspNpmPackagesDirInWaspcDir = [reldir|.dev-packages|]

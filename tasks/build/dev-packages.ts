@@ -1,8 +1,10 @@
+#!/usr/bin/env node
+//MISE description="Packs the unreleased @wasp/wasp and the packages it depends on into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
 /// <reference types="node" />
 // Packs the unreleased `@wasp/wasp` and the packages it depends on
 // (`@wasp/cli`, `@wasp/spec`, `@wasp/deploy`, `@wasp/studio`) into tarballs
 // under `waspc/.dev-packages/`, so Wasp projects can depend on the Wasp in
-// this repo before it is published. `tools/wasp-cli-dev` points the
+// this repo before it is published. `waspc/tools/wasp-cli-dev` points the
 // CLI at that directory, and `wasp new` then writes the tarball paths into the
 // new project's package.json (see `Wasp.Cli.DevWaspNpmPackages`).
 //
@@ -24,19 +26,19 @@ import {
   CLI_PACKAGE_SOURCE_DIR,
   CLI_PACKAGE_STATIC_FILES,
   copyStaticFiles,
-} from "../../../scripts/make-cli-npm-packages/src/common.ts";
+} from "../../scripts/make-cli-npm-packages/src/common.ts";
 import {
   type CliPackageData,
   UNDEFINED_LIBC_NAME,
-} from "../../../scripts/make-cli-npm-packages/src/schema/output-data.ts";
-import { getPackageDirPath } from "../packages/utils.ts";
+} from "../../scripts/make-cli-npm-packages/src/schema/output-data.ts";
+import { getPackageDirPath } from "../../waspc/tools/packages/utils.ts";
 import {
   getPackageJson,
   getRepoRootPath,
   getWaspcDirPath,
   runCmd,
   runCmdAndGetStdout,
-} from "../utils.ts";
+} from "../../waspc/tools/utils.ts";
 
 const DEV_PACKAGES_DIR_NAME = ".dev-packages";
 const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";

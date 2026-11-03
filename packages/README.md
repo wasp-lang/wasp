@@ -18,13 +18,13 @@ below do it for you.
 `waspc` expects the libs under `waspc/data/Generator/libs/`, and Wasp projects in this repo
 depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs (gitignored):
 
-- `./run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
-- `./run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
+- `mise run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
+- `mise run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
   into `waspc/.dev-packages/`.
 
-Then use `./run wasp-cli` as normal, or `./run install` and then `wasp-cli`. A globally
+Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`. A globally
 installed `wasp-cli` also needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` exported,
-so that `wasp-cli new` makes projects depend on the dev packages. `./run install` prints the exact line.
+so that `wasp-cli new` makes projects depend on the dev packages. `mise run install` prints the exact line.
 
 ### Adding a new package that `waspc` runs
 
@@ -35,9 +35,9 @@ Create a directory in this folder with a `build` script in `package.json` that c
 - `WASP_PACKAGE_DIRS` in `waspc/tools/packages/utils.ts`
 - both lists in `scripts/pack-published-packages.sh`
 - the `dependencies` of `wasp/package.json`
-- the packages `waspc/tools/dev-packages/build.ts` builds and packs
-- the dev tarball lists in `Wasp.Project.WaspNpmPackage`, `Wasp.Cli.Command.Build`,
-  `waspc/e2e-tests/ShellCommands.hs`, `waspc/run` and `waspc/tools/version-bump.ts`
+- the packages `tasks/build/dev-packages.ts` builds and packs
+- the dev tarball lists in `Wasp.Cli.DevWaspNpmPackages`, `waspc/e2e-tests/ShellCommands.hs`
+  and `waspc/tools/waspAppPackageLock.ts`
 - the `overrides` of the example apps
 
 Give `@wasp/wasp` a run script for the package (see `wasp/run-deploy.js`), add the script to

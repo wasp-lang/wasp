@@ -42,5 +42,5 @@
     "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
     "@wasp/studio": "file:../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
   },
-  "//": "TODO: This example depends on Wasp through `file:` tarballs, so it runs against the unreleased Wasp in this repo. Run `./run build:dev-packages` in waspc/ before installing, see waspc/tools/dev-packages. The release-examples-deploy workflow switches to the released version. Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and depend on a plain version, see #4824."
+  "//": "TODO: This example depends on Wasp through `file:` tarballs, so it runs against the unreleased Wasp in this repo. Run `mise run build:dev-packages` before installing, see tasks/build/dev-packages.ts. The release-examples-deploy workflow switches to the released version. Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and depend on a plain version, see #4824."
 }

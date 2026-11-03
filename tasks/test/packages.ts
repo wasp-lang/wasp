@@ -1,8 +1,12 @@
+#!/usr/bin/env node
+//MISE description="Run tests on Wasp packages (spec, deploy, etc.)."
 /// <reference types="node" />
-// Helper to test the packages/* packages locally and in CI.
 
-import { getPackageJson, runCmd } from "../utils.ts";
-import { getPackageDirPath, WASP_PACKAGE_DIRS } from "./utils.ts";
+import {
+  getPackageDirPath,
+  WASP_PACKAGE_DIRS,
+} from "../../waspc/tools/packages/utils.ts";
+import { getPackageJson, runCmd } from "../../waspc/tools/utils.ts";
 
 testPackages();
 

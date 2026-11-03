@@ -47,8 +47,8 @@ A Wasp project depends on Wasp through the @wasp/wasp npm package (see
 install it: the registry doesn't have @wasp/wasp at that version yet, nor the
 versions of the packages it depends on.
 
-So `./run build:dev-packages` packs the packages from the repo into tarballs
-in `waspc/.dev-packages/` (see @waspc/tools/dev-packages/build.ts@), and the
+So `mise run build:dev-packages` packs the packages from the repo into tarballs
+in `waspc/.dev-packages/` (see @tasks/build/dev-packages.ts@), and the
 repo's Wasp apps depend on those tarballs instead:
 
 > "dependencies": {
@@ -110,7 +110,7 @@ findDevWaspNpmPackageTarballs =
           $ devWaspNpmPackagesDirEnvVarName
             ++ " is set, but "
             ++ fromAbsFile tarball
-            ++ " does not exist. Run `./run build:dev-packages` in waspc/."
+            ++ " does not exist. Run `mise run build:dev-packages`."
       return $ Just tarballs
   where
     -- Named the way `npm pack` and `pnpm pack` name tarballs.

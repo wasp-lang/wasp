@@ -82,7 +82,7 @@ jobs:
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
           npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "overrides.@wasp/deploy" "overrides.@wasp/studio" "//"
-          $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
+          mise run reinstall-dev-wasp-app-deps
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}
@@ -146,7 +146,7 @@ jobs:
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
           npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "overrides.@wasp/deploy" "overrides.@wasp/studio" "//"
-          $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
+          mise run reinstall-dev-wasp-app-deps
 
       - name: Deploy to Railway
         working-directory: examples/ask-the-documents
