@@ -1,5 +1,5 @@
-module Wasp.Generator.WaspNpmPackageDeps
-  ( waspNpmPackageDeps,
+module Wasp.Generator.WaspNpmPackagePeerDeps
+  ( waspNpmPackagePeerDeps,
   )
 where
 
@@ -22,26 +22,37 @@ import Wasp.Generator.DepVersions
     vitestVersionRange,
   )
 
--- | The packages @wasp/wasp (packages/wasp/package.json) declares as peer
--- dependencies for every Wasp project: everything the generated server and
--- SDK need no matter what the app uses, and the packages the project imports
--- itself. Generated code imports them without declaring them. They are peers
--- and not regular dependencies on purpose: npm installs a peer at the project
--- root and refuses a conflicting version there, while it would quietly nest a
--- regular dependency under @wasp/wasp when something else in the project wants
--- another version, where the generated code would not find it.
---
--- Since npm enforces their versions, the package.json validator doesn't check
--- them. A project that needs another version uses npm's `overrides`.
---
--- Not here are the dependencies that depend on the app (WebSockets, jobs,
--- email senders), which the generated packages still declare.
---
--- Keep in sync with packages/wasp/package.json, a unit test checks that.
-waspNpmPackageDeps :: [Npm.Dependency.Dependency]
-waspNpmPackageDeps = serverCoreDeps ++ sdkCoreDeps ++ projectDeps
+{-
+The generated server and SDK import packages like express, react and
+@prisma/client, but their package.json files don't list them. @wasp/wasp
+(packages/wasp/package.json) lists them as peer dependencies instead, so
+every Wasp project gets them by depending on @wasp/wasp.
 
--- | What the generated server used to declare itself.
+Regular dependencies of @wasp/wasp wouldn't work. If something else in the
+project wants another version of a package, npm installs @wasp/wasp's copy in
+node_modules/@wasp/wasp/node_modules, and the generated code in .wasp/out
+can't import it from there.
+
+npm installs a peer dependency at the project root and refuses to install a
+conflicting version. So the generated code finds the package, and npm checks
+its version, which is why the package.json validator skips these packages.
+A project that needs another version uses npm's `overrides` field.
+
+E.g., a project with `"react": "18.2.0"` in its dependencies fails
+`npm install` with ERESOLVE, because @wasp/wasp asks for `react@^19.2.1`.
+
+The generated packages list the dependencies that depend on the app
+themselves, like socket.io for WebSockets or pg-boss for jobs.
+
+"Generator.WaspNpmPackagePeerDepsTest" checks that this list matches
+packages/wasp/package.json.
+-}
+
+-- | The peer dependencies of @wasp/wasp.
+waspNpmPackagePeerDeps :: [Npm.Dependency.Dependency]
+waspNpmPackagePeerDeps = serverCoreDeps ++ sdkCoreDeps ++ projectDeps
+
+-- | Packages the generated server needs to build and run in every app.
 serverCoreDeps :: [Npm.Dependency.Dependency]
 serverCoreDeps =
   Npm.Dependency.fromList
@@ -63,7 +74,7 @@ serverCoreDeps =
       ("typescript", show typescriptVersionRange)
     ]
 
--- | What the generated SDK used to declare itself.
+-- | Packages the generated SDK needs in every app.
 sdkCoreDeps :: [Npm.Dependency.Dependency]
 sdkCoreDeps =
   Npm.Dependency.fromList
@@ -74,10 +85,11 @@ sdkCoreDeps =
       ("@types/react", show reactTypesVersionRange),
       ("@types/react-dom", show reactDomTypesVersionRange),
       ("@vitejs/plugin-react", "^6.0.3"),
-      -- TODO: Installing @wasp/wasp in a project that doesn't declare vitest
-      -- (the npm-package-test smoke test) fails with ERESOLVE: npm resolves
-      -- vite's optional `vitest@*` peer to vitest 5, which conflicts with this
-      -- one. Goes away when Vitest moves to user-land (#5060) and the testing
+      -- TODO: Installing @wasp/wasp in a project without vitest fails with
+      -- ERESOLVE. npm follows vite's optional peers down to
+      -- @vitejs/devtools-vitest and resolves its optional `vitest@*` peer to
+      -- vitest 5, which conflicts with @vitest/ui's exact vitest 4 peer. This
+      -- goes away when Vitest moves to user-land (#5060) and the testing
       -- packages leave @wasp/wasp.
       ("@vitest/ui", "^4.1.9"),
       ("jsdom", "^27.4.0"),
@@ -86,7 +98,8 @@ sdkCoreDeps =
       ("react-hook-form", "^7.45.4")
     ]
 
--- | What the project imports itself, so its package.json declares them too.
+-- | Packages the user's code imports directly. The starters list them in
+-- package.json too.
 projectDeps :: [Npm.Dependency.Dependency]
 projectDeps =
   Npm.Dependency.fromList

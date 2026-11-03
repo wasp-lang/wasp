@@ -19,8 +19,10 @@ where
 
 import qualified Wasp.SemanticVersion as SV
 
--- When updating the value, also update it in `packages/wasp/package.json`
--- (see "Wasp.Generator.WaspNpmPackageDeps").
+-- Every range here is also a peer dependency in `packages/wasp/package.json`
+-- (see "Wasp.Generator.WaspNpmPackagePeerDeps"). When you change one, change it
+-- there too.
+
 -- Also ensure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
 prismaVersionRange :: SV.Range
 prismaVersionRange = [SV.r|6.19.3|]

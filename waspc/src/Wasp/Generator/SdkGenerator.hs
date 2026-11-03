@@ -177,11 +177,9 @@ genPackageJson spec = do
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { -- The SDK's core dependencies (@prisma/client, ky, superjson, the
-      -- testing libraries, ...) come with @wasp/wasp, see
-      -- "Wasp.Generator.WaspNpmPackageDeps", and the ones the project must
-      -- own (react, react-router, prisma) come from the user's package.json.
-      -- Only the ones that depend on the app stay here.
+    { -- @wasp/wasp brings the SDK's core dependencies as peer dependencies
+      -- (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The SDK lists only the
+      -- ones that depend on the app.
       N.dependencies =
         depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
