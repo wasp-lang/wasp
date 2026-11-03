@@ -1,74 +1,43 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Tests.WaspShowTest (waspShowTest) where
 
+import Control.Monad (forM_)
 import qualified Data.Text as T
+import E2e
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliShowBuild, waspCliShowBuildJson, waspCliShowSpec, waspCliShowSpecJson, (~&&))
-import Test (Test (..), TestCase (..))
+import UnliftIO.Async (mapConcurrently)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
-waspShowTest :: Test
+waspShowTest :: E2eTest
 waspShowTest =
-  Test
+  testGroup
     "wasp-show"
-    [ TestCase
-        "fail-without-subcommand"
-        (return [waspCliShowFails]),
-      TestCase
-        "fail-outside-project"
-        (return [waspCliShowSpecFails, waspCliShowBuildFails]),
-      TestCase
-        "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliShowSpec,
-                  waspCliShowSpecJson,
-                  waspCliShowBuild,
-                  waspCliShowBuildJson
-                ]
-            ]
-        ),
-      TestCase
-        "concurrent-spec-analyses-read-their-own-results"
-        -- `wasp show spec` doesn't lock the project, so its analysis can overlap
-        -- with others (e.g. a `wasp start` recompile). Each analysis here
-        -- declares a different route (taken from an env var), and must only see
-        -- its own.
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ replaceMainWaspTsFile routeFromEnvVarMainWaspTs,
-                  return runConcurrentSpecAnalyses,
-                  return assertEachSpecAnalysisSawItsOwnRoute
-                ]
-            ]
-        )
+    [ test "fail-without-subcommand" $ waspFails ["show"],
+      test "fail-outside-project" $ do
+        waspFails ["show", "spec"]
+        waspFails ["show", "build"],
+      test "succeed-inside-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          wasp ["show", "spec"]
+          -- With `--json`, stdout alone must be valid JSON.
+          wasp ["show", "spec", "--json"] >>= assertValidJson . (.stdout)
+          wasp ["show", "build"]
+          wasp ["show", "build", "--json"] >>= assertValidJson . (.stdout),
+      -- `wasp show spec` doesn't lock the project, so its analysis can overlap
+      -- with others (e.g. a `wasp start` recompile). Each analysis here
+      -- declares a different route (taken from an env var), and must only see
+      -- its own.
+      test "concurrent-spec-analyses-read-their-own-results" $
+        withNewWaspProject minimalStarterTemplate $ do
+          writeToFile "main.wasp.ts" routeFromEnvVarMainWaspTs
+          let routes = ["e2e-route-" ++ show index | index <- [1 .. 8 :: Int]]
+          results <-
+            mapConcurrently
+              (\route -> run $ withEnv [("E2E_ROUTE", route)] $ waspCli ["show", "spec", "--json"])
+              routes
+          forM_ (zip routes results) $ \(route, result) ->
+            assertOutputContains (T.pack $ "/" ++ route ++ "\"") result
     ]
   where
-    concurrentSpecAnalysesIndices :: String
-    concurrentSpecAnalysesIndices = "1 2 3 4 5 6 7 8"
-
-    runConcurrentSpecAnalyses :: ShellCommand
-    runConcurrentSpecAnalyses =
-      "WASP_E2E_SPEC_PIDS=''"
-        ~&& ( "for i in "
-                ++ concurrentSpecAnalysesIndices
-                ++ "; do"
-                ++ " { E2E_ROUTE=\"e2e-route-$i\" $WASP_CLI_CMD show spec --json > \".wasp-e2e-spec-$i.json\" 2>&1 & };"
-                ++ " WASP_E2E_SPEC_PIDS=\"$WASP_E2E_SPEC_PIDS $!\";"
-                ++ " done"
-            )
-        ~&& "for pid in $WASP_E2E_SPEC_PIDS; do wait \"$pid\" || exit 1; done"
-
-    assertEachSpecAnalysisSawItsOwnRoute :: ShellCommand
-    assertEachSpecAnalysisSawItsOwnRoute =
-      "for i in "
-        ++ concurrentSpecAnalysesIndices
-        ++ "; do grep -qF \"/e2e-route-$i\\\"\" \".wasp-e2e-spec-$i.json\" || exit 1; done"
-
     routeFromEnvVarMainWaspTs :: T.Text
     routeFromEnvVarMainWaspTs =
       [trimming|
@@ -85,15 +54,3 @@ waspShowTest =
           ]
         })
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
-
-    waspCliShowFails :: ShellCommand
-    waspCliShowFails = "! $WASP_CLI_CMD show"
-
-    waspCliShowSpecFails :: ShellCommand
-    waspCliShowSpecFails = "! $WASP_CLI_CMD show spec"
-
-    waspCliShowBuildFails :: ShellCommand
-    waspCliShowBuildFails = "! $WASP_CLI_CMD show build"

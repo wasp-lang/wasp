@@ -6,6 +6,7 @@ module E2e.Wasp
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
+    waspDbResetForce,
     setDbToPostgres,
     waspPidFromLockFile,
     textWaspVersion,
@@ -18,7 +19,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
 import E2e.Files (replaceInFile)
-import E2e.Process (ProcessResult, run, runExpectingFailure, waspCli)
+import E2e.Process (Command, ProcessResult, run, runExpectingFailure, waspCli, withEnv)
 import E2e.TestM (TestM, failTest, inDirectory, resolvePath)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, listDirectory, renameDirectory)
@@ -77,6 +78,14 @@ waspDbMigrateDev migrationName = do
             SP.</> dbRootDirInGeneratedAppDir
             SP.</> dbMigrationsDirInDbRootDir
       ]
+
+-- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g.
+-- when the e2e tests are run from Claude Code), unless the consent env var is
+-- set. Tests only reset their own throwaway database, so we always consent.
+waspDbResetForce :: Command
+waspDbResetForce =
+  withEnv [("PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION", "Resetting the throwaway e2e test database")] $
+    waspCli ["db", "reset", "--force"]
 
 setDbToPostgres :: TestM ()
 setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provider = \"postgresql\""

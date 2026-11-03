@@ -1,169 +1,115 @@
 module Tests.ViteBuildTest (viteBuildTest) where
 
-import Control.Monad.Reader (ask)
+import Control.Monad (filterM)
+import Control.Monad.IO.Class (liftIO)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BSC
 import qualified Data.Text as T
+import E2e
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    TestContext,
-    WaspProjectContext (..),
-    appendToFile,
-    createTestWaspProject,
-    inTestWaspProjectDir,
-    setWaspDbToPSQL,
-    waspCliBuild,
-    writeToFile,
-  )
-import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
-import Test (Test (..), TestCase (..))
+import System.Directory (doesFileExist)
+import System.Directory.Recursive (getDirRecursive)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
-viteBuildTest :: Test
+viteBuildTest :: E2eTest
 viteBuildTest =
-  Test
+  testGroup
     "vite-build"
-    [ TestCase
-        "fail-on-missing-required-env-vars"
-        (createViteBuildTestCase [expectCommandFailure <$> viteBuild]),
-      TestCase
-        "success-with-required-env-vars"
-        (createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]),
-      TestCase
-        "fail-missing-inline-env-var"
-        ( createViteBuildTestCase
-            [ appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild,
-              expectCommandFailure <$> assertBuildOutputContains inlineEnvVarValue
-            ]
-        ),
-      TestCase
-        -- Based on https://github.com/wasp-lang/wasp/issues/3741
-        "succeed-inline-env-var"
-        ( createViteBuildTestCase
-            [ appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
-              assertBuildOutputContains inlineEnvVarValue
-            ]
-        ),
-      TestCase
-        "ignore-dotenv-client-file-in-build"
-        ( createViteBuildTestCase
-            [ writeDotEnvClientFile dotEnvFileValue,
-              appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild,
-              expectCommandFailure <$> assertBuildOutputContains dotEnvFileValue
-            ]
-        ),
-      TestCase
-        "inline-env-vars-work-with-env-file-present"
-        ( createViteBuildTestCase
-            [ writeDotEnvClientFile dotEnvFileValue,
-              appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
-              assertBuildOutputContains inlineEnvVarValue
-            ]
-        ),
-      TestCase
-        "fail-on-user-code-type-error"
-        ( createViteBuildTestCase
-            [ addTypeErrorToSrcFile,
-              expectCommandFailure <$> viteBuildWithApiUrl
-            ]
-        ),
-      TestCase
-        "ignore-wasp-ts-type-errors"
-        ( createViteBuildTestCase
-            [ addTypeErrorToWaspTsFile,
-              viteBuildWithApiUrl
-            ]
-        ),
-      TestCase
-        "fail-on-user-defined-client-port"
-        ( createViteBuildTestCase
-            [ writeViteConfigWithServerPort,
-              expectCommandFailure <$> viteBuildWithApiUrl
-            ]
-        )
+    [ viteBuildTestCase "fail-on-missing-required-env-vars" $
+        runExpectingFailure viteBuild,
+      viteBuildTestCase "success-with-required-env-vars" $
+        run viteBuildWithApiUrl,
+      viteBuildTestCase "fail-missing-inline-env-var" $ do
+        run viteBuildWithApiUrl
+        assertBuildOutputDoesNotContain inlineEnvVarValue,
+      -- Based on https://github.com/wasp-lang/wasp/issues/3741
+      viteBuildTestCase "succeed-inline-env-var" $ do
+        run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrl
+        assertBuildOutputContains inlineEnvVarValue,
+      viteBuildTestCase "ignore-dotenv-client-file-in-build" $ do
+        writeDotEnvClientFile
+        run viteBuildWithApiUrl
+        assertBuildOutputDoesNotContain dotEnvFileValue,
+      viteBuildTestCase "inline-env-vars-work-with-env-file-present" $ do
+        writeDotEnvClientFile
+        run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrl
+        assertBuildOutputContains inlineEnvVarValue,
+      viteBuildTestCase "fail-on-user-code-type-error" $ do
+        appendToFile "src/MainPage.tsx" typeError
+        runExpectingFailure viteBuildWithApiUrl,
+      viteBuildTestCase "ignore-wasp-ts-type-errors" $ do
+        appendToFile "main.wasp.ts" typeError
+        run viteBuildWithApiUrl,
+      viteBuildTestCase "fail-on-user-defined-client-port" $ do
+        writeToFile
+          "vite.config.ts"
+          [trimming|
+            import { wasp } from "wasp/client/vite";
+            import { defineConfig } from "vite";
+
+            export default defineConfig({
+              plugins: [wasp()],
+              server: {
+                port: 4000,
+              },
+            });
+          |]
+        runExpectingFailure viteBuildWithApiUrl
     ]
   where
-    createViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
-    createViteBuildTestCase commands =
-      sequence
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
-        ]
+    viteBuildTestCase :: String -> TestM a -> E2eTest
+    viteBuildTestCase name steps =
+      test name $
+        withNewWaspProject minimalStarterTemplate $ do
+          setDbToPostgres
+          writeToFile
+            "src/MainPage.tsx"
+            [trimming|
+              export function MainPage() {
+                return <h2>{import.meta.env.${testEnvVarKeyText}}</h2>
+              }
+            |]
+          wasp ["build"]
+          steps
 
-    viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
-    viteBuild = return "npx vite build"
+    viteBuild :: Command
+    viteBuild = nodeModulesBin "vite" ["build"]
 
-    viteBuildWithApiUrl :: ShellCommandBuilder WaspProjectContext ShellCommand
-    viteBuildWithApiUrl = appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
+    viteBuildWithApiUrl :: Command
+    viteBuildWithApiUrl = withEnv [("REACT_APP_API_URL", "http://localhost:3001")] viteBuild
 
-    assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-    assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
+    assertBuildOutputContains :: String -> TestM ()
+    assertBuildOutputContains value =
+      buildOutputContains value >>= assertTrue ("the build output contains " ++ show value)
 
-    writeMainPageTsx :: ShellCommandBuilder WaspProjectContext ShellCommand
-    writeMainPageTsx = do
-      waspProjectContext <- ask
-      let testEnvVarKeyText = T.pack testEnvVarKey
-      writeToFile
-        (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|])
-        [trimming|
-          export function MainPage() {
-            return <h2>{import.meta.env.${testEnvVarKeyText}}</h2>
-          }
-        |]
+    assertBuildOutputDoesNotContain :: String -> TestM ()
+    assertBuildOutputDoesNotContain value =
+      buildOutputContains value >>= assertTrue ("the build output doesn't contain " ++ show value) . not
 
-    writeViteConfigWithServerPort :: ShellCommandBuilder WaspProjectContext ShellCommand
-    writeViteConfigWithServerPort = do
-      waspProjectContext <- ask
-      writeToFile
-        (waspProjectContext.waspProjectDir </> [relfile|vite.config.ts|])
-        [trimming|
-          import { wasp } from "wasp/client/vite";
-          import { defineConfig } from "vite";
+    buildOutputContains :: String -> TestM Bool
+    buildOutputContains value = do
+      buildDir <- resolvePath $ SP.fromRelDir viteBuildDirPath
+      liftIO $ do
+        files <- getDirRecursive buildDir >>= filterM doesFileExist
+        any (BSC.pack value `BS.isInfixOf`) <$> mapM BS.readFile files
 
-          export default defineConfig({
-            plugins: [wasp()],
-            server: {
-              port: 4000,
-            },
-          });
-        |]
-
-    writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-    writeDotEnvClientFile value = do
-      waspProjectContext <- ask
-      writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient)
-        $ T.pack
-        $ testEnvVarKey ++ "=" ++ value
-
-    addTypeErrorToSrcFile :: ShellCommandBuilder WaspProjectContext ShellCommand
-    addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError
-
-    addTypeErrorToWaspTsFile :: ShellCommandBuilder WaspProjectContext ShellCommand
-    addTypeErrorToWaspTsFile = appendToFile "main.wasp.ts" typeError
+    writeDotEnvClientFile :: TestM ()
+    writeDotEnvClientFile = writeToFile (SP.fromRelFile dotEnvClient) $ T.pack $ testEnvVarKey ++ "=" ++ dotEnvFileValue
 
     typeError :: T.Text
     typeError = "const shouldBeString: string = 123"
 
-    appendInlineEnvVars :: [(String, String)] -> ShellCommand -> ShellCommand
-    appendInlineEnvVars envVars command = foldr appendInlineEnvVar command envVars
-
-    appendInlineEnvVar :: (String, String) -> ShellCommand -> ShellCommand
-    appendInlineEnvVar (key, value) command = key ++ "=" ++ value ++ " " ++ command
-
-    apiUrlEnvVar :: (String, String)
-    apiUrlEnvVar = ("REACT_APP_API_URL", "http://localhost:3001")
-
     testEnvVarKey :: String
     testEnvVarKey = "REACT_APP_NAME"
+
+    testEnvVarKeyText :: T.Text
+    testEnvVarKeyText = T.pack testEnvVarKey
 
     inlineEnvVarValue :: String
     inlineEnvVarValue = "RandomNameTest"
 
     dotEnvFileValue :: String
     dotEnvFileValue = "DotEnvFileValue"
-
-    expectCommandFailure :: ShellCommand -> ShellCommand
-    expectCommandFailure command = "! " ++ command

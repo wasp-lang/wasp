@@ -7,6 +7,7 @@ module E2e.Process
     BackgroundProcess (processGroupId),
     command,
     waspCli,
+    nodeModulesBin,
     withEnv,
     withoutEnv,
     withStdinText,
@@ -50,9 +51,10 @@ import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Encoding.Error as TE
 import Data.Time.Clock (UTCTime, diffUTCTime, getCurrentTime)
 import E2e.Signals (Signal (..), signalProcess, signalProcessGroup)
-import E2e.TestM (RunConfig (..), TestEnv (..), TestLog, TestM, failTest, getWorkingDir, logLine, registerCleanup, runTestM, writeToLog)
-import System.Environment (getEnvironment)
+import E2e.TestM (RunConfig (..), TestEnv (..), TestLog, TestM, failTest, getWorkingDir, logLine, registerCleanup, resolvePath, runTestM, writeToLog)
+import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
+import System.FilePath (searchPathSeparator, (</>))
 import System.IO (BufferMode (NoBuffering), Handle, hClose, hSetBuffering)
 import System.Process
   ( CreateProcess (..),
@@ -80,6 +82,9 @@ data Program
   = -- | The Wasp CLI under test.
     WaspCli
   | Executable String
+  | -- | A binary of an npm package installed in the working directory. Like
+    -- with @npx@, the other binaries there are on its @PATH@.
+    NodeModulesBin String
 
 data StdinMode
   = -- | The process reads EOF from stdin right away.
@@ -102,6 +107,11 @@ command executable = makeCommand (Executable executable)
 
 waspCli :: [String] -> Command
 waspCli = makeCommand WaspCli
+
+-- | We run the package's binary directly instead of through @npx@, which
+-- doesn't forward signals correctly in some environments.
+nodeModulesBin :: String -> [String] -> Command
+nodeModulesBin = makeCommand . NodeModulesBin
 
 makeCommand :: Program -> [String] -> Command
 makeCommand commandProgram commandArguments =
@@ -184,7 +194,13 @@ startInBackground :: Command -> TestM BackgroundProcess
 startInBackground cmd = do
   executable <- resolveExecutable cmd.program
   workingDir <- getWorkingDir
-  environment <- liftIO $ buildEnvironment cmd.environmentOverrides
+  pathOverride <- case cmd.program of
+    NodeModulesBin _ -> do
+      binDir <- resolvePath nodeModulesBinDir
+      path <- liftIO $ lookupEnv "PATH"
+      return [("PATH", Just $ binDir ++ maybe "" (searchPathSeparator :) path)]
+    _ -> return []
+  environment <- liftIO $ buildEnvironment (pathOverride ++ cmd.environmentOverrides)
   testEnv <- ask
   logLine $ "\n==> " ++ showCommand cmd ++ "\n    in " ++ workingDir
 
@@ -250,6 +266,10 @@ startInBackground cmd = do
 resolveExecutable :: Program -> TestM FilePath
 resolveExecutable WaspCli = asks (.runConfig.waspCliPath)
 resolveExecutable (Executable executable) = return executable
+resolveExecutable (NodeModulesBin bin) = resolvePath $ nodeModulesBinDir </> bin
+
+nodeModulesBinDir :: FilePath
+nodeModulesBinDir = "node_modules" </> ".bin"
 
 buildEnvironment :: [(String, Maybe String)] -> IO (Maybe [(String, String)])
 buildEnvironment [] = return Nothing -- Inherit the test runner's environment.
@@ -395,6 +415,7 @@ showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (programName : cmd.ar
     programName = case cmd.program of
       WaspCli -> "wasp"
       Executable executable -> executable
+      NodeModulesBin bin -> "node_modules/.bin/" ++ bin
     envPrefix = [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
     quoteIfNeeded word
       | null word || any (`elem` (" \"'\n" :: String)) word = show word

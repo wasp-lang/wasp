@@ -1,31 +1,23 @@
 module Tests.WaspNewTest (waspNewTest) where
 
-import ShellCommands (waspCliNew, waspCliNewWithPipedAnswersFails)
-import Test (Test (..), TestCase (..))
+import qualified Data.Text as T
+import E2e
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 
-waspNewTest :: Test
+waspNewTest :: E2eTest
 waspNewTest =
-  Test
+  testGroup
     "wasp-new"
-    [ TestCase
-        "create-minimal"
-        (sequence [waspCliNew "wasp-app" minimalStarterTemplate]),
-      TestCase
-        "create-minimal-with-piped-answers-fails"
-        (sequence [waspCliNewWithPipedAnswersFails "wasp-app" minimalStarterTemplate]),
-      TestCase
-        "create-basic"
-        (sequence [waspCliNew "wasp-app" basicStarterTemplate]),
-      TestCase
-        "create-basic-with-piped-answers-fails"
-        (sequence [waspCliNewWithPipedAnswersFails "wasp-app" basicStarterTemplate])
-        -- FIXME(Franjo): These will fail because there "dev" opensaas template tag doesn't exist.
-        -- We can't really test the `saas` template in `waspc` e2e tests.
-        --   TestCase
-        --   "create-saas"
-        --   (sequence [waspCliNew "wasp-app" SaaS]),
-        -- TestCase
-        --   "create-saas-interactive"
-        --   (sequence [waspCliNewWithPipedAnswersFails "wasp-app" SaaS])
+    [ test "create-minimal" $ createWaspProject minimalStarterTemplate,
+      test "create-minimal-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails minimalStarterTemplate,
+      test "create-basic" $ createWaspProject basicStarterTemplate,
+      test "create-basic-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails basicStarterTemplate
+      -- NOTE: We can't test the `saas` template here, since its "dev" tag doesn't exist.
     ]
+  where
+    -- Without an interactive terminal, Wasp refuses to prompt for the answers.
+    createWaspProjectWithPipedAnswersFails :: StarterTemplate -> TestM ()
+    createWaspProjectWithPipedAnswersFails template =
+      runExpectingFailure (withStdinText (T.pack $ waspAppDirName ++ "\n" ++ show template ++ "\n") $ waspCli ["new"])
+        >>= assertOutputContains "stdin is not an interactive terminal"

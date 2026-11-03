@@ -1,27 +1,15 @@
 module Tests.WaspDepsTest (waspDepsTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDeps)
-import Test (Test (..), TestCase (..))
+import E2e
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- TODO: Test that deps change with installs/uninstalls.
-waspDepsTest :: Test
+waspDepsTest :: E2eTest
 waspDepsTest =
-  Test
+  testGroup
     "wasp-deps"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliDepsFails]),
-      TestCase
-        "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDeps
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["deps"],
+      test "succeed-inside-project"
+        $ withNewWaspProject minimalStarterTemplate
+        $ wasp ["deps"]
     ]
-  where
-    waspCliDepsFails :: ShellCommand
-    waspCliDepsFails = "! $WASP_CLI_CMD deps"

@@ -1,29 +1,21 @@
 module Tests.WaspCompletionTest (waspCompletionTest) where
 
-import ShellCommands (ShellCommand, (~&&))
-import Test (Test (..), TestCase (..))
+import qualified Data.Text as T
+import E2e
 
-waspCompletionTest :: Test
+waspCompletionTest :: E2eTest
 waspCompletionTest =
-  Test
+  testGroup
     "wasp-completion"
     [ -- Ideally we would test this without calling `wasp cli completion:list`
       -- but I didn't find a nice way to do it so far.
-      TestCase
-        "complete-partial-word"
-        (return [assertWaspCliCompletion "wasp-cli tele" "telemetry"]),
-      TestCase
-        "complete-full-word"
-        (return [assertWaspCliCompletion "wasp-cli telemetry" "telemetry"]),
-      TestCase
-        "complete-multiple-choice"
-        (return [assertWaspCliCompletion "wasp-cli d" "doctor\ndb\ndeploy\ndeps\ndockerfile"]),
-      TestCase
-        "complete-unknown-empty"
-        (return [assertWaspCliCompletion "wasp-cli unknown" ""])
+      test "complete-partial-word" $ assertCompletion "wasp-cli tele" "telemetry",
+      test "complete-full-word" $ assertCompletion "wasp-cli telemetry" "telemetry",
+      test "complete-multiple-choice" $ assertCompletion "wasp-cli d" "doctor\ndb\ndeploy\ndeps\ndockerfile",
+      test "complete-unknown-empty" $ assertCompletion "wasp-cli unknown" ""
     ]
   where
-    assertWaspCliCompletion :: String -> String -> ShellCommand
-    assertWaspCliCompletion query expectedCompletion =
-      ("export COMP_LINE='" ++ query ++ "'")
-        ~&& ("[ \"$($WASP_CLI_CMD completion:list)\" = \"" ++ expectedCompletion ++ "\" ]")
+    assertCompletion :: String -> String -> TestM ()
+    assertCompletion query expectedCompletion = do
+      result <- run $ withEnv [("COMP_LINE", query)] $ waspCli ["completion:list"]
+      assertEqual ("completion of " ++ show query) expectedCompletion (T.unpack . T.dropWhileEnd (== '\n') $ result.stdout)

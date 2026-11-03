@@ -1,27 +1,15 @@
 module Tests.WaspDockerfileTest (waspDockerfileTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDockerfile)
-import Test (Test (..), TestCase (..))
+import E2e
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- TODO: Test `wasp dockerfile` content.
-waspDockerfileTest :: Test
+waspDockerfileTest :: E2eTest
 waspDockerfileTest =
-  Test
+  testGroup
     "wasp-dockerfile"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliDockerfileFails]),
-      TestCase
-        "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDockerfile
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["dockerfile"],
+      test "succeed-inside-project"
+        $ withNewWaspProject minimalStarterTemplate
+        $ wasp ["dockerfile"]
     ]
-  where
-    waspCliDockerfileFails :: ShellCommand
-    waspCliDockerfileFails = "! $WASP_CLI_CMD dockerfile"
