@@ -25,4 +25,4 @@
  *
  * @see [Error handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)
  */
-export { HttpError } from "@wasp.sh/lib-sdk-core";
+export { HttpError } from "@wasp/lib-sdk-core";

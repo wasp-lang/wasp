@@ -5,8 +5,8 @@
  */
 
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { Action, Query } from "@wasp.sh/lib-sdk-core";
-import type { ActionOptions } from "@wasp.sh/lib-sdk-core/browser";
+import type { Action, Query } from "@wasp/lib-sdk-core";
+import type { ActionOptions } from "@wasp/lib-sdk-core/browser";
 
 /**
  * Calls a Query from a React component and keeps its result up to date.
@@ -52,4 +52,4 @@ export declare function useAction<Input = unknown, Output = unknown>(
   actionOptions?: ActionOptions<Input>,
 ): Action<Input, Output>;
 
-export type { Action, Query } from "@wasp.sh/lib-sdk-core";
+export type { Action, Query } from "@wasp/lib-sdk-core";

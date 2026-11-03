@@ -29,7 +29,7 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({
@@ -287,7 +287,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 ## API Reference
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/WebSocket"
+  to="../api/@wasp/spec/interfaces/WebSocket"
   kind="api"
   title="WebSocket"
   description="All the options for the webSocket field of the app spec."

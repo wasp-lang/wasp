@@ -19,7 +19,7 @@ This is an example Wasp app that supports:
 1. Make sure you have the latest version of Wasp installed.
 
    ```bash
-   npm i -g @wasp.sh/wasp-cli@latest
+   npm i -g @wasp/cli@latest
    ```
 
 2. Install the project dependencies:

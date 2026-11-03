@@ -25,18 +25,6 @@ ghcup = "0.2.6.2"
 "mise-cabal:hlint" = "3.8"
 "mise-cabal:stan" = "0.2.1.0"
 
-# This should be equal to Wasp's lowest supported Node version.
-# Keep in sync with:
-# - The compiler (Wasp.Node.Version).
-# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
-# - The docs plugin: /web/src/remark/search-and-replace.ts
-# - The web CI: /web/.node-version
-# - The web package: /web/package.json
-# - The wasp-cli package templates: /scripts/make-npm-packages/templates/*/package.json
-# - The embedded packages: /waspc/data/packages/*/package.json
-# (Also just grep for the version in case we forgot somewhere.)
-"node" = "24.22.1"
-
 jq = "1.8.2"
 railway = "5.64.2"
 
@@ -92,6 +80,10 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 [settings]
 lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
+
+# The Node version is read from /.node-version, and the pnpm version from
+# `devEngines` in /package.json.
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
 
 [settings.node]
 # The Node backend has a knack for compiling from source on Alpine even when

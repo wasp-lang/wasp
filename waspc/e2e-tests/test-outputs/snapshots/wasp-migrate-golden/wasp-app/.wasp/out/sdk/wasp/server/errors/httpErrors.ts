@@ -5,7 +5,7 @@
  * @see https://github.com/jshttp/http-errors#error-properties
  */
 
-import * as Wasp from "@wasp.sh/lib-sdk-core";
+import * as Wasp from "@wasp/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
 import { getErrorDetails, isErrorStatusCode } from "./utils.js";
 

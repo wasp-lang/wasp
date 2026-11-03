@@ -1,4 +1,4 @@
-import { action, query, type Spec } from "@wasp.sh/spec";
+import { action, query, type Spec } from "@wasp/spec";
 
 import { createCard, updateCard } from "./cards" with { type: "ref" };
 import {

@@ -54,7 +54,6 @@ COMMANDS
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
     show build [--json]   Prints information about your app's current build.
-    test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
 
@@ -193,10 +192,11 @@ $ wasp version
 0.14.0
 
 If you wish to install/switch to the latest version of Wasp, do:
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 
 If you want specific x.y.z version of Wasp, do:
-npm i -g @wasp.sh/wasp-cli@x.y.z
+npm i -g @wasp/cli@x.y.z
+Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
@@ -233,7 +233,7 @@ Are you sure you want to continue? [y/N] ▸ y
 ✅ --- Removed Wasp data. ---------------------------------------------------------
 
 To uninstall the Wasp CLI, please run:
-  npm uninstall -g @wasp.sh/wasp-cli
+  npm uninstall -g @wasp/cli
 
 If you have used Wasp to run dev database for you, you might want to make sure you also deleted all the docker volumes it might have created. You can easily list them by doing `docker volume ls | grep wasp-dev-db`.
 ```

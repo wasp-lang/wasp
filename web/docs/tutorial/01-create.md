@@ -11,7 +11,7 @@ import starterScreenshot from './img/wasp-new-screenshot.webp';
 # 1. Creating a new project
 
 :::info
-You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](../quick-start) guide!
+You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [Quick start](../quick-start) guide!
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.

@@ -53,7 +53,7 @@ jobs:
         env:
           - os: linux
             arch: x86_64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
             # We use an old Ubuntu version so we can link to a low `glibc` version.
             # `glibc` is backwards-compatible but not forwards-compatible, so it
             # is a good idea to use the oldest version we reasonably can. Otherwise,
@@ -64,7 +64,7 @@ jobs:
 
           - os: linux
             arch: x86_64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
             # We pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
             # libraries we depend on.
