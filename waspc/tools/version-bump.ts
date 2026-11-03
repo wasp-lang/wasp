@@ -116,8 +116,9 @@ function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   const packageJsonPath = join(projectDir, "package.json");
   const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
 
+  // Matches every tarball in `.dev-packages/`, named `wasp-<package>-<version>.tgz`.
   const devTarballRegex =
-    /(file:.*\/wasp-(?:wasp|cli|spec|deploy|studio)-)\d+\.\d+\.\d+(\.tgz)/g;
+    /(file:[^"]*\/\.dev-packages\/wasp-[a-z-]+-)\d+\.\d+\.\d+(\.tgz)/g;
   const updatedPackageJsonContent = packageJsonContent.replace(
     devTarballRegex,
     `$1${nextVersion}$2`,
