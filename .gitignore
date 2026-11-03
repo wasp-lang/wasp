@@ -16,9 +16,5 @@ node_modules/
 # Build outputs that waspc ships in its data dir (sources live in packages/).
 waspc/data/Generator/libs/
 
-# `./run build:packages` used to write this. Ignored so nobody commits a stale copy.
-waspc/data/packages/
-waspc/data/Generator/libs/
-
 # Packed unreleased Wasp npm packages for development (see waspc/tools/dev-packages).
 waspc/.dev-packages/
