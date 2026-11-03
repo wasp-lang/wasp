@@ -1,6 +1,6 @@
 -- | Periodically reports the tests that are still running, so a long or stuck
 -- run doesn't look the same as a run that hangs before running anything.
-module E2e.Heartbeat
+module E2E.Heartbeat
   ( heartbeatReporter,
   )
 where

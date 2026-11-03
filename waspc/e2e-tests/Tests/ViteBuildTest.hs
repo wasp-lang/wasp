@@ -5,7 +5,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
@@ -14,7 +14,7 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
-viteBuildTest :: E2eTest
+viteBuildTest :: E2ETest
 viteBuildTest =
   testGroup
     "vite-build"
@@ -60,7 +60,7 @@ viteBuildTest =
         runExpectingFailure viteBuildWithApiUrl
     ]
   where
-    viteBuildTestCase :: String -> TestM a -> E2eTest
+    viteBuildTestCase :: String -> TestM a -> E2ETest
     viteBuildTestCase name steps =
       test name $
         withNewWaspProject minimalStarterTemplate $ do

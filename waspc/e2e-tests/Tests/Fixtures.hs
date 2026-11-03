@@ -11,7 +11,7 @@ where
 
 import Control.Monad (forM_)
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 
 taskPrismaModel :: T.Text

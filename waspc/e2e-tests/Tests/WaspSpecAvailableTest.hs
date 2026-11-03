@@ -2,11 +2,11 @@ module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
 
 import Control.Monad (forM_, void)
 import qualified Data.Text as T
-import E2e
+import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Util.Terminal (styleCode)
 
-waspSpecAvailableTest :: E2eTest
+waspSpecAvailableTest :: E2ETest
 waspSpecAvailableTest =
   testGroup
     "wasp-spec-available"

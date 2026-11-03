@@ -5,13 +5,13 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
 
-waspProjectLockTest :: E2eTest
+waspProjectLockTest :: E2ETest
 waspProjectLockTest =
   testGroup
     "wasp-project-lock"

@@ -717,19 +717,19 @@ test-suite waspc-e2e-tests
   if !os(windows)
     build-depends: unix
   other-modules:
-    E2e
-    E2e.Assertions
-    E2e.Files
-    E2e.Heartbeat
-    E2e.Net
-    E2e.Paths
-    E2e.Ports
-    E2e.Process
-    E2e.Signals
-    E2e.Snapshot
-    E2e.Test
-    E2e.TestM
-    E2e.Wasp
+    E2E
+    E2E.Assertions
+    E2E.Files
+    E2E.Heartbeat
+    E2E.Net
+    E2E.Paths
+    E2E.Ports
+    E2E.Process
+    E2E.Signals
+    E2E.Snapshot
+    E2E.Test
+    E2E.TestM
+    E2E.Wasp
     Tests.Fixtures
     Tests.IncrementalTypeCheckingTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest

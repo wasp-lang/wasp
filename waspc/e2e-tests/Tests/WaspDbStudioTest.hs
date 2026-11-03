@@ -1,11 +1,11 @@
 module Tests.WaspDbStudioTest (waspDbStudioTest) where
 
-import E2e
-import qualified E2e.Ports as Ports
+import E2E
+import qualified E2E.Ports as Ports
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | NOTE: We don't test what Prisma Studio shows, since that's Prisma's feature.
-waspDbStudioTest :: E2eTest
+waspDbStudioTest :: E2ETest
 waspDbStudioTest =
   testGroup
     "wasp-db-studio"
