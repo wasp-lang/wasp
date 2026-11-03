@@ -3,6 +3,7 @@ module E2e.Wasp
   ( waspAppDirName,
     wasp,
     waspFails,
+    assertFailsWithoutInteractiveTerminal,
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
@@ -18,6 +19,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
+import E2e.Assertions (assertOutputContains)
 import E2e.Files (replaceInFile)
 import E2e.Process (Command, ProcessResult, run, runExpectingFailure, waspCli, withEnv)
 import E2e.TestM (TestM, failTest, inDirectory, resolvePath)
@@ -43,6 +45,15 @@ wasp = run . waspCli
 -- | Runs a Wasp CLI command and fails the test if it succeeds.
 waspFails :: [String] -> TestM ProcessResult
 waspFails = runExpectingFailure . waspCli
+
+-- | Asserts that a command that needs to prompt fails when stdin is not an
+-- interactive terminal, and prints its usage so the user can pass the answers
+-- as arguments instead.
+assertFailsWithoutInteractiveTerminal :: String -> Command -> TestM ()
+assertFailsWithoutInteractiveTerminal commandName cmd = do
+  result <- runExpectingFailure cmd
+  assertOutputContains "stdin is not an interactive terminal" result
+  assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
 createWaspProject :: StarterTemplate -> TestM ()
 createWaspProject template = void $ wasp ["new", waspAppDirName, "-t", show template]

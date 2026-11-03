@@ -1,7 +1,7 @@
 module Tests.WaspDbResetTest (waspDbResetTest) where
 
 import E2e
-import Tests.Fixtures (assertTasksEmptySeed, assertTasksNotEmptySeed, populateTasksSeed, taskPrismaModel, writeTaskSeedsApp)
+import Tests.Fixtures (TaskSeed (..), taskPrismaModel, taskSeedName, writeTaskSeedsApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | We include seeds in the test, because Wasp skips the seeding during the
@@ -16,10 +16,12 @@ waspDbResetTest =
           wasp ["compile"]
           appendToFile "schema.prisma" taskPrismaModel
           waspDbMigrateDev "foo"
-          writeTaskSeedsApp
-          wasp ["db", "seed", assertTasksEmptySeed]
-          wasp ["db", "seed", populateTasksSeed]
-          wasp ["db", "seed", assertTasksNotEmptySeed]
+          writeTaskSeedsApp [PopulateTasks, AssertTasksEmpty, AssertTasksNotEmpty]
+          seed AssertTasksEmpty
+          seed PopulateTasks
+          seed AssertTasksNotEmpty
           run waspDbResetForce
-          wasp ["db", "seed", assertTasksEmptySeed]
+          seed AssertTasksEmpty
     ]
+  where
+    seed taskSeed = wasp ["db", "seed", taskSeedName taskSeed]
