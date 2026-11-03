@@ -27,15 +27,29 @@ export function CopySectionButton({
   const [state, setState] = useState<CopyState>("idle");
 
   const copy = async () => {
-    try {
+    const text = (async () => {
       const section =
         (await sectionFromMarkdown(headingPrefix, label)) ??
         sectionFromPage(sectionId);
       if (!section) throw new Error(`Section "${sectionId}" not found`);
       const pageUrl = window.location.href.split("#")[0];
-      await navigator.clipboard.writeText(
-        `Source: ${pageUrl}#${sectionId}\n\n${section}`,
-      );
+      return `Source: ${pageUrl}#${sectionId}\n\n${section}`;
+    })();
+    try {
+      // Safari only allows clipboard writes that start synchronously in the
+      // click handler, so we hand it a promise of the text instead of awaiting
+      // the fetch first.
+      if (typeof ClipboardItem !== "undefined") {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/plain": text.then(
+              (t) => new Blob([t], { type: "text/plain" }),
+            ),
+          }),
+        ]);
+      } else {
+        await navigator.clipboard.writeText(await text);
+      }
       setState("copied");
     } catch {
       setState("failed");
