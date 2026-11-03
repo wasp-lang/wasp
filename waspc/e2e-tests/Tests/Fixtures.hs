@@ -3,13 +3,13 @@ module Tests.Fixtures
   ( taskPrismaModel,
     writeTasksQueryApp,
     writeTasksQuery,
+    TaskSeed (..),
+    taskSeedName,
     writeTaskSeedsApp,
-    populateTasksSeed,
-    assertTasksEmptySeed,
-    assertTasksNotEmptySeed,
   )
 where
 
+import Control.Monad (forM_)
 import qualified Data.Text as T
 import E2e
 import NeatInterpolation (trimming)
@@ -69,61 +69,44 @@ writeTasksQuery result =
       }) satisfies GetTasks<void>;
     |]
 
--- | Adds seeds that populate the Task table, and check whether it's empty.
+-- | Seeds that act on the Task table, or check its state.
 --
 -- Seeds are the only database agnostic way we found to act on the database or
 -- check its state through Wasp, without extra dependencies. They can only
 -- report success or failure, but that's enough.
---
+data TaskSeed = PopulateTasks | AssertTasksEmpty | AssertTasksNotEmpty
+
+taskSeedName :: TaskSeed -> String
+taskSeedName = \case
+  PopulateTasks -> "populateTasks"
+  AssertTasksEmpty -> "assertTasksEmpty"
+  AssertTasksNotEmpty -> "assertTasksNotEmpty"
+
+-- | Adds the seeds to the project, and makes them the app's only seeds.
 -- Expects the Task model to be in the Prisma schema.
-writeTaskSeedsApp :: TestM ()
-writeTaskSeedsApp = do
-  writeToFile ("src/db/" ++ populateTasksSeed ++ ".ts") $
-    seedScript
-      populate
-      [trimming|
-        await prisma.task.create({
-          data: { description: 'Test task', isDone: false }
-        })
-      |]
-  writeToFile ("src/db/" ++ assertTasksEmptySeed ++ ".ts") $
-    seedScript
-      assertEmpty
-      [trimming|
-        const taskCount = await prisma.task.count()
-        if (taskCount !== 0) {
-          throw new Error(`Expected tasks table to be empty, but found $${taskCount} tasks`)
-        }
-      |]
-  writeToFile ("src/db/" ++ assertTasksNotEmptySeed ++ ".ts") $
-    seedScript
-      assertNotEmpty
-      [trimming|
-        const taskCount = await prisma.task.count()
-        if (taskCount === 0) {
-          throw new Error('Expected tasks table to have data, but it was empty')
-        }
-      |]
+writeTaskSeedsApp :: [TaskSeed] -> TestM ()
+writeTaskSeedsApp seeds = do
+  forM_ seeds $ \seed ->
+    writeToFile ("src/db/" ++ taskSeedName seed ++ ".ts") $ seedScript (T.pack $ taskSeedName seed) (seedBody seed)
+  let seedImports =
+        T.unlines
+          [ "import { " <> name <> " } from \"./src/db/" <> name <> "\" with { type: \"ref\" };"
+          | name <- seedNames
+          ]
+      seedList = T.intercalate ", " seedNames
   writeToFile
     "main.wasp.ts"
     [trimming|
       import { app, page, route } from "@wasp/spec";
       import { MainPage } from "./src/MainPage" with { type: "ref" };
-      import { $populate } from "./src/db/$populate" with { type: "ref" };
-      import { $assertEmpty } from "./src/db/$assertEmpty" with { type: "ref" };
-      import { $assertNotEmpty } from "./src/db/$assertNotEmpty" with { type: "ref" };
-
+      $seedImports
       export default app({
         name: "waspDbSeedTest",
         title: "waspDbSeedTest",
         wasp: { version: "$textWaspVersion" },
         head: ["<link rel='icon' href='/favicon.ico' />"],
         db: {
-          seeds: [
-            $populate,
-            $assertEmpty,
-            $assertNotEmpty
-          ]
+          seeds: [$seedList]
         },
         spec: [
           route("RootRoute", "/", page(MainPage)),
@@ -131,9 +114,30 @@ writeTaskSeedsApp = do
       })
     |]
   where
-    populate = T.pack populateTasksSeed
-    assertEmpty = T.pack assertTasksEmptySeed
-    assertNotEmpty = T.pack assertTasksNotEmptySeed
+    seedNames = map (T.pack . taskSeedName) seeds
+
+    seedBody :: TaskSeed -> T.Text
+    seedBody = \case
+      PopulateTasks ->
+        [trimming|
+          await prisma.task.create({
+            data: { description: 'Test task', isDone: false }
+          })
+        |]
+      AssertTasksEmpty ->
+        [trimming|
+          const taskCount = await prisma.task.count()
+          if (taskCount !== 0) {
+            throw new Error(`Expected tasks table to be empty, but found $${taskCount} tasks`)
+          }
+        |]
+      AssertTasksNotEmpty ->
+        [trimming|
+          const taskCount = await prisma.task.count()
+          if (taskCount === 0) {
+            throw new Error('Expected tasks table to have data, but it was empty')
+          }
+        |]
 
     seedScript :: T.Text -> T.Text -> T.Text
     seedScript name body =
@@ -144,8 +148,3 @@ writeTaskSeedsApp = do
           $body
         }
       |]
-
-populateTasksSeed, assertTasksEmptySeed, assertTasksNotEmptySeed :: String
-populateTasksSeed = "populateTasks"
-assertTasksEmptySeed = "assertTasksEmpty"
-assertTasksNotEmptySeed = "assertTasksNotEmpty"

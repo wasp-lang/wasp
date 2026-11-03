@@ -6,7 +6,7 @@ import E2e
 import NeatInterpolation (trimming)
 import System.Directory (createDirectoryIfMissing, removePathForcibly, renameDirectory)
 import System.FilePath (takeDirectory)
-import Tests.Fixtures (assertTasksEmptySeed, assertTasksNotEmptySeed, populateTasksSeed, taskPrismaModel, writeTaskSeedsApp)
+import Tests.Fixtures (TaskSeed (..), taskPrismaModel, taskSeedName, writeTaskSeedsApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspDbSeedTest :: E2eTest
@@ -14,15 +14,22 @@ waspDbSeedTest =
   testGroup
     "wasp-db-seed"
     [ test "fail-outside-project" $ waspFails ["db", "seed"],
-      test "succeed-seed-database" $
+      test "succeed-seed-name-given-multiple-seeds" $
         withNewWaspProject minimalStarterTemplate $ do
-          wasp ["compile"]
-          appendToFile "schema.prisma" taskPrismaModel
-          waspDbMigrateDev "foo"
-          writeTaskSeedsApp
-          wasp ["db", "seed", assertTasksEmptySeed]
-          wasp ["db", "seed", populateTasksSeed]
-          wasp ["db", "seed", assertTasksNotEmptySeed],
+          setUpProjectWithSeeds multipleSeeds
+          seed AssertTasksEmpty
+          seed PopulateTasks
+          seed AssertTasksNotEmpty,
+      test "succeed-no-seed-name-single-seed" $
+        withNewWaspProject minimalStarterTemplate $ do
+          setUpProjectWithSeeds [PopulateTasks]
+          wasp ["db", "seed"],
+      -- With more than one seed and no name, `wasp db seed` has to ask which
+      -- one to run. Without an interactive terminal it must fail instead.
+      test "fail-no-seed-name-multiple-seeds-non-interactive" $
+        withNewWaspProject minimalStarterTemplate $ do
+          setUpProjectWithSeeds multipleSeeds
+          assertFailsWithoutInteractiveTerminal "wasp db seed" $ waspCli ["db", "seed"],
       test "succeed-seed-from-project-dir-with-server-env" $
         withNewWaspProject minimalStarterTemplate $ do
           appendToFile "schema.prisma" taskPrismaModel
@@ -35,6 +42,17 @@ waspDbSeedTest =
           wasp ["db", "seed", T.unpack assertServerEnvSeed]
     ]
   where
+    setUpProjectWithSeeds :: [TaskSeed] -> TestM ()
+    setUpProjectWithSeeds seeds = do
+      wasp ["compile"]
+      appendToFile "schema.prisma" taskPrismaModel
+      waspDbMigrateDev "foo"
+      writeTaskSeedsApp seeds
+
+    multipleSeeds = [PopulateTasks, AssertTasksEmpty, AssertTasksNotEmpty]
+
+    seed taskSeed = wasp ["db", "seed", taskSeedName taskSeed]
+
     -- npm usually hoists `dotenv` to the project root's `node_modules`. We move it
     -- into the server's `node_modules` and leave a decoy in its place, so the seed
     -- only passes if the server loads `dotenv` from the server package. The decoy
