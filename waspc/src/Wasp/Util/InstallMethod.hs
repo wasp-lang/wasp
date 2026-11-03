@@ -1,5 +1,5 @@
 module Wasp.Util.InstallMethod
-  ( getInstallationCommand,
+  ( getGlobalInstallationCommand,
     getProjectInstallationCommand,
     legacyVersionsNote,
     uninstallationCommand,
@@ -7,30 +7,25 @@ module Wasp.Util.InstallMethod
 where
 
 import Data.Maybe (fromMaybe)
+import Wasp.Project.WaspNpmPackage (waspCliNpmPackageName, waspNpmPackageName)
 
--- | Installs the Wasp CLI globally, for use outside of projects (e.g. `wasp new`).
-getInstallationCommand :: Maybe String -> String
-getInstallationCommand version =
-  "npm i -g " ++ npmPackageName ++ "@" ++ versionString
+-- | The npm command that installs the Wasp CLI globally. Wasp uses the global
+-- CLI outside of projects, for example for `wasp new`.
+getGlobalInstallationCommand :: Maybe String -> String
+getGlobalInstallationCommand version =
+  "npm i -g " ++ waspCliNpmPackageName ++ "@" ++ versionString
   where
     versionString = fromMaybe "latest" version
 
--- | Sets the Wasp version a project uses, by updating its @wasp/wasp dependency.
-getProjectInstallationCommand :: Maybe String -> String
+-- | The npm command that sets a project's Wasp version by updating its
+-- @wasp/wasp dependency.
+getProjectInstallationCommand :: String -> String
 getProjectInstallationCommand version =
-  "npm install --save-exact " ++ projectNpmPackageName ++ "@" ++ versionString
-  where
-    versionString = fromMaybe "latest" version
+  "npm install --save-exact " ++ waspNpmPackageName ++ "@" ++ version
 
 legacyVersionsNote :: String
 legacyVersionsNote = "Wasp versions before 0.27 are published under \"@wasp.sh/wasp-cli\" instead."
 
 uninstallationCommand :: String
 uninstallationCommand =
-  "npm uninstall -g " ++ npmPackageName
-
-npmPackageName :: String
-npmPackageName = "@wasp/cli"
-
-projectNpmPackageName :: String
-projectNpmPackageName = "@wasp/wasp"
+  "npm uninstall -g " ++ waspCliNpmPackageName

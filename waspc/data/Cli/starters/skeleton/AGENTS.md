@@ -5,7 +5,7 @@ This project uses the Wasp framework.
 ### Docs
 
 - Find docs via the index at https://wasp.sh/llms.txt
-- Pick the docs map matching the Wasp version in `package.json` (the `@wasp/wasp` dependency).
+- Pick the docs map matching the version of the `@wasp/wasp` dependency in `package.json`.
 - Prefer raw Markdown URLs from the docs map over guessing `wasp.sh/docs` URLs.
 - If this file conflicts with versioned Wasp docs, trust the docs and tell the user this file may be stale.
 
