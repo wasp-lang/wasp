@@ -27,29 +27,15 @@ export function CopySectionButton({
   const [state, setState] = useState<CopyState>("idle");
 
   const copy = async () => {
-    const text = (async () => {
-      const section =
-        (await sectionFromMarkdown(headingPrefix, label)) ??
-        sectionFromPage(sectionId);
-      if (!section) throw new Error(`Section "${sectionId}" not found`);
-      const pageUrl = window.location.href.split("#")[0];
-      return `Source: ${pageUrl}#${sectionId}\n\n${section}`;
-    })();
+    // Awaiting in an event handler can make the browser stop treating the rest
+    // of it as user-initiated, which clipboard writes require. So we don't
+    // block on fetching the text, and hand the clipboard a promise instead.
+    const textPromise = sectionWithSource(sectionId, headingPrefix, label);
+
     try {
-      // Safari only allows clipboard writes that start synchronously in the
-      // click handler, so we hand it a promise of the text instead of awaiting
-      // the fetch first.
-      if (typeof ClipboardItem !== "undefined") {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            "text/plain": text.then(
-              (t) => new Blob([t], { type: "text/plain" }),
-            ),
-          }),
-        ]);
-      } else {
-        await navigator.clipboard.writeText(await text);
-      }
+      await navigator.clipboard.write([
+        new ClipboardItem({ "text/plain": textPromise }),
+      ]);
       setState("copied");
     } catch {
       setState("failed");
@@ -73,6 +59,19 @@ export function CopySectionButton({
       </button>
     </p>
   );
+}
+
+async function sectionWithSource(
+  sectionId: string,
+  headingPrefix: string,
+  label: string,
+): Promise<string> {
+  const section =
+    (await sectionFromMarkdown(headingPrefix, label)) ??
+    sectionFromPage(sectionId);
+  if (!section) throw new Error(`Section "${sectionId}" not found`);
+  const pageUrl = window.location.href.split("#")[0];
+  return `Source: ${pageUrl}#${sectionId}\n\n${section}`;
 }
 
 async function sectionFromMarkdown(
