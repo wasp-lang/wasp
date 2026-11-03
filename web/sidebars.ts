@@ -4,7 +4,6 @@ import type {
   SidebarItemLink,
 } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
 import typedocSidebar from "./docs/api/typedoc-sidebar";
-import { API_DOCS_REFERENCED_TYPES_GROUP } from "./src/lib/constants";
 
 const sidebars: SidebarsConfig = {
   docs: [
@@ -252,9 +251,7 @@ const sidebars: SidebarsConfig = {
       label: "packages",
       collapsed: false,
       collapsible: false,
-      items: withoutApiDocsReferencedTypes(
-        typedocSidebar.items as SidebarItemConfig[],
-      ),
+      items: typedocSidebar.items,
     },
   ],
 };
@@ -277,23 +274,4 @@ function generateMigrationGuideLinks(
       };
     })
     .reverse();
-}
-
-function withoutApiDocsReferencedTypes(
-  items: SidebarItemConfig[],
-): SidebarItemConfig[] {
-  return items.flatMap((item): SidebarItemConfig[] => {
-    if (typeof item !== "object" || item.type !== "category") {
-      return [item];
-    }
-    if (item.label === API_DOCS_REFERENCED_TYPES_GROUP) {
-      return [];
-    }
-    return [
-      {
-        ...item,
-        items: withoutApiDocsReferencedTypes(item.items as SidebarItemConfig[]),
-      },
-    ];
-  });
 }
