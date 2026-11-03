@@ -5,9 +5,9 @@ set -euxo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
-# `wasp` depends on the other packages with `workspace:*`, which `pnpm pack`
-# replaces with the versions in their package.json files, so we set the version
-# on `cli` too even though this script does not pack it (make-npm-packages does).
+# `wasp` depends on the other packages through `workspace:*`, and `pnpm pack`
+# replaces that with the versions in their package.json files. So we also set
+# the version of `cli`, which make-npm-packages packs instead of this script.
 versioned_packages=(
   cli
   deploy

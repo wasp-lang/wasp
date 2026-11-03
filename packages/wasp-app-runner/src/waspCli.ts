@@ -297,27 +297,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-// Wasp is a dependency of the project (`@wasp/wasp`), so the project's
-// dependencies, Wasp included, are installed with npm, not with Wasp.
-export async function npmInstall({
-  pathToApp,
-}: {
-  pathToApp: PathToApp;
-}): Promise<void> {
-  const logger = createLogger("npm-install");
-  const { stderrData, exitCode } = await spawnAndCollectOutput({
-    name: "npm-install",
-    cmd: "npm",
-    args: ["install"],
-    cwd: pathToApp,
-  });
-
-  if (exitCode !== 0) {
-    logger.error(`Failed to install Wasp project dependencies: ${stderrData}`);
-    process.exit(1);
-  }
-}
-
 function ensureRegexMatch(
   match: RegExpMatchArray | null,
   name: string,

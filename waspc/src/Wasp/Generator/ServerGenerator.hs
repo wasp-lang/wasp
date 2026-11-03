@@ -70,6 +70,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
+      genFileCopy [relfile|loadDotEnv.cjs|],
       genFileCopy [relfile|src/createRollupBundle.js|],
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
@@ -151,9 +152,9 @@ npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
-      { -- The server's core dependencies (express, superjson, ...) come with
-        -- @wasp/wasp, see "Wasp.Generator.WaspNpmPackageDeps". Only the ones
-        -- that depend on the app stay here.
+      { -- @wasp/wasp brings the server's core dependencies as peer
+        -- dependencies (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The server
+        -- lists only the ones that depend on the app.
         N.dependencies =
           depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,

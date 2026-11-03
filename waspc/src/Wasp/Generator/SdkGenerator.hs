@@ -27,10 +27,6 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions
-  ( viteVersionRange,
-    vitestVersionRange,
-  )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -96,9 +92,9 @@ genSdk spec =
       C.genFileCopy [relfile|server/errors/httpErrors.ts|],
       C.genFileCopy [relfile|server/errors/unknownErrors.ts|],
       C.genFileCopy [relfile|server/errors/utils.ts|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/index.ts|],
+      C.genFileCopy [relfile|client/test/index.ts|],
+      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
@@ -169,19 +165,16 @@ genPackageJson spec = do
       ( object
           [ "sdkPackageName" .= C.sdkPackageName,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
           ]
       )
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { -- The SDK's core dependencies (@prisma/client, ky, superjson, the
-      -- testing libraries, ...) come with @wasp/wasp, see
-      -- "Wasp.Generator.WaspNpmPackageDeps", and the ones the project must
-      -- own (react, react-router, prisma) come from the user's package.json.
-      -- Only the ones that depend on the app stay here.
+    { -- @wasp/wasp brings the SDK's core dependencies, vite included, as peer
+      -- dependencies (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The SDK
+      -- lists only the ones that depend on the app.
       N.dependencies =
         depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
@@ -195,13 +188,7 @@ npmDepsForSdk spec =
           [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
           ++ devDepsRequiredByEmail spec,
-      -- The SDK imports these at runtime, but they must be the same instances
-      -- the user's project uses, so the user's package.json provides them.
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("vite", show viteVersionRange),
-            ("vitest", show vitestVersionRange)
-          ]
+      N.peerDependencies = []
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs

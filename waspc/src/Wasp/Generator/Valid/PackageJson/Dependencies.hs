@@ -13,7 +13,7 @@ import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   )
 import Wasp.Generator.Valid.PackageJson.Common
   ( forbiddenUserDeps,
-    getAllWaspDependencies,
+    getGeneratedServerDeps,
   )
 import qualified Wasp.Validator as V
 
@@ -24,16 +24,15 @@ dependenciesValidator spec =
       forbiddenDepsValidator
     ]
   where
-    -- The peer dependencies of @wasp/wasp (react, vite, express, ...) aren't
-    -- checked here, npm enforces their versions.
+    -- npm checks the versions of @wasp/wasp's peer dependencies (react,
+    -- vite, express, ...), so this only checks the generated server's.
     optionalDepsValidator :: V.Validator P.PackageJson
     optionalDepsValidator =
       V.all $
         [ makeOptionalDepValidator depType dep
         | depType <- [Runtime, Development],
-          -- We check all the Wasp dependencies everywhere in case they are used
-          -- in the user's package.json, to avoid conflicts.
-          dep <- M.toList $ getAllWaspDependencies spec
+          -- The user may list a server dependency in either field.
+          dep <- M.toList $ getGeneratedServerDeps spec
         ]
 
     forbiddenDepsValidator :: V.Validator P.PackageJson

@@ -17,7 +17,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
-import qualified Wasp.Generator.WaspNpmPackageDeps as WaspNpmPackageDeps
+import qualified Wasp.Generator.WaspNpmPackagePeerDeps as WaspNpmPackagePeerDeps
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
@@ -39,12 +39,12 @@ depsMessage :: AppSpec -> String
 depsMessage appSpec =
   unlines $
     [ "",
-      title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
+      title "Below are the dependencies Wasp uses in your project. You can import them in your code as if you listed them yourself. To use another version, see https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced.",
       ""
     ]
       ++ printDeps
-        "Peer dependencies of @wasp/wasp (npm installs them into every Wasp project and refuses conflicting versions):"
-        WaspNpmPackageDeps.waspNpmPackageDeps
+        "Peer dependencies of @wasp/wasp:"
+        WaspNpmPackagePeerDeps.waspNpmPackagePeerDeps
       ++ [""]
       ++ printDeps
         "Server dependencies:"
