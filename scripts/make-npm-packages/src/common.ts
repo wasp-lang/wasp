@@ -10,7 +10,12 @@ export const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
   import.meta.dirname,
   "../../../packages/cli",
 );
-export const MAIN_PACKAGE_STATIC_FILES = ["bin.js", "CLIError.js", "readme.md"];
+export const MAIN_PACKAGE_STATIC_FILES = [
+  "bin.js",
+  "CLIError.js",
+  "projectWaspCli.js",
+  "readme.md",
+];
 
 export function copyStaticFiles(
   fileNames: string[],
