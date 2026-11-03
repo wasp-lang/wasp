@@ -1,11 +1,11 @@
 module Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest) where
 
 import qualified Data.Text as T
-import E2e
+import E2E
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspSpecEntityTypesTest :: E2eTest
+waspSpecEntityTypesTest :: E2ETest
 waspSpecEntityTypesTest =
   testGroup
     "wasp-spec-entity-types"

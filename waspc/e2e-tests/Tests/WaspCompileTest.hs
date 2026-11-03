@@ -1,11 +1,11 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
 import Control.Monad (void)
-import E2e
+import E2E
 import Tests.Fixtures (writeTasksQuery, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspCompileTest :: E2eTest
+waspCompileTest :: E2ETest
 waspCompileTest =
   testGroup
     "wasp-compile"

@@ -9,12 +9,12 @@ import qualified Data.ByteString as BS
 import Data.List (isInfixOf, isSuffixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import E2e
+import E2E
 import System.Directory (doesDirectoryExist, doesFileExist)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
 
-kitchenSinkSnapshotTest :: E2eTest
+kitchenSinkSnapshotTest :: E2ETest
 kitchenSinkSnapshotTest =
   snapshotTest "kitchen-sink" $ do
     copyGitTrackedDir "examples/kitchen-sink" waspAppDirName

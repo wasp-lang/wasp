@@ -3,7 +3,7 @@ module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isInfixOf)
-import E2e
+import E2E
 import qualified StrongPath as SP
 import System.Directory (listDirectory)
 import Tests.Fixtures (taskPrismaModel)
@@ -13,7 +13,7 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWasp
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
-waspDbMigrateDevTest :: E2eTest
+waspDbMigrateDevTest :: E2ETest
 waspDbMigrateDevTest =
   testGroup
     "wasp-db-migrate-dev"

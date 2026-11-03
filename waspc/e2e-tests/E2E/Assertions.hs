@@ -1,4 +1,4 @@
-module E2e.Assertions
+module E2E.Assertions
   ( assertTrue,
     assertEqual,
     assertOutputContains,
@@ -15,8 +15,8 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2e.Process (ProcessResult (..))
-import E2e.TestM (TestM, failTest, resolvePath)
+import E2E.Process (ProcessResult (..))
+import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import UnliftIO.Exception (catchAny)
 

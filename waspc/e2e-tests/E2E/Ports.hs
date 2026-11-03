@@ -1,6 +1,6 @@
 -- | Ports of the tests that run Wasp apps. Each test gets its own ports so the
 -- tests can run in parallel. Keeping them all in one place avoids collisions.
-module E2e.Ports
+module E2E.Ports
   ( AppPorts (..),
     appPortList,
     appPortArgs,

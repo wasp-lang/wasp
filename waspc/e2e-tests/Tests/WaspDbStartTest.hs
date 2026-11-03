@@ -3,12 +3,12 @@ module Tests.WaspDbStartTest (waspDbStartTest) where
 import Control.Monad (void)
 import Data.Char (isSpace)
 import qualified Data.Text as T
-import E2e
+import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Db.Postgres (defaultPostgresPort)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 
-waspDbStartTest :: E2eTest
+waspDbStartTest :: E2ETest
 waspDbStartTest =
   testGroup
     "wasp-db-start"

@@ -1,6 +1,6 @@
 import Control.Monad (mfilter, when)
-import E2e.Heartbeat (heartbeatReporter)
-import E2e.Test (toTestTree)
+import E2E.Heartbeat (heartbeatReporter)
+import E2E.Test (toTestTree)
 import System.Directory (findExecutable)
 import System.Environment (lookupEnv, setEnv)
 import System.Exit (ExitCode (..))
@@ -81,7 +81,7 @@ warmUpWaspCli = do
   when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliCmd ++ " version` failed:\n" ++ err
 
 -- TODO: Investigate automatically discovering the tests.
--- TODO: Port the remaining tests from the shell commands DSL to the 'E2e' one.
+-- TODO: Port the remaining tests from the shell commands DSL to the 'E2E' one.
 --       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: IO TestTree
 e2eTests = do
