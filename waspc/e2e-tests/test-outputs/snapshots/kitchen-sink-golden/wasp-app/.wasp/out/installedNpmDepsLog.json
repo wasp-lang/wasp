@@ -3,6 +3,10 @@
         "fromUser": {
             "dependencies": [
                 {
+                    "name": "@prisma/client",
+                    "version": "6.19.3"
+                },
+                {
                     "name": "@tanstack/react-query",
                     "version": "~4.42.0"
                 },
@@ -13,6 +17,18 @@
                 {
                     "name": "clsx",
                     "version": "^2.1.1"
+                },
+                {
+                    "name": "cors",
+                    "version": "^2.8.5"
+                },
+                {
+                    "name": "express",
+                    "version": "~5.1.0"
+                },
+                {
+                    "name": "ky",
+                    "version": "^2.0.0"
                 },
                 {
                     "name": "linebyline",
@@ -27,6 +43,10 @@
                     "version": "^19.2.1"
                 },
                 {
+                    "name": "react-hook-form",
+                    "version": "^7.45.4"
+                },
+                {
                     "name": "react-router",
                     "version": "^8.0.1"
                 },
@@ -39,8 +59,16 @@
                     "version": "^4.1.18"
                 },
                 {
+                    "name": "uuid",
+                    "version": "^9.0.1"
+                },
+                {
                     "name": "wait-port",
                     "version": "^1.1.0"
+                },
+                {
+                    "name": "zod",
+                    "version": "^4.3.6"
                 }
             ],
             "devDependencies": [
@@ -61,8 +89,20 @@
                     "version": "^4.3.1"
                 },
                 {
+                    "name": "@testing-library/jest-dom",
+                    "version": "^7.0.1"
+                },
+                {
+                    "name": "@testing-library/react",
+                    "version": "^16.3.3"
+                },
+                {
                     "name": "@types/chai",
                     "version": "^5.2.2"
+                },
+                {
+                    "name": "@types/cors",
+                    "version": "^2.8.5"
                 },
                 {
                     "name": "@types/express",
@@ -93,6 +133,14 @@
                     "version": "^0.0.19"
                 },
                 {
+                    "name": "jsdom",
+                    "version": "^30.1.3"
+                },
+                {
+                    "name": "msw",
+                    "version": "^3.0.3"
+                },
+                {
                     "name": "prisma",
                     "version": "6.19.3"
                 },
@@ -106,7 +154,7 @@
                 },
                 {
                     "name": "vitest",
-                    "version": "^4.1.9"
+                    "version": "^5.0.4"
                 }
             ],
             "peerDependencies": []
@@ -183,26 +231,6 @@
                 "version": "^4.0.0"
             },
             {
-                "name": "@vitest/ui",
-                "version": "^4.1.9"
-            },
-            {
-                "name": "jsdom",
-                "version": "^27.4.0"
-            },
-            {
-                "name": "@testing-library/react",
-                "version": "^16.3.1"
-            },
-            {
-                "name": "@testing-library/jest-dom",
-                "version": "^6.9.1"
-            },
-            {
-                "name": "msw",
-                "version": "^2.12.7"
-            },
-            {
                 "name": "pg-boss",
                 "version": "^8.4.2"
             },
@@ -261,10 +289,6 @@
             {
                 "name": "vite",
                 "version": "^8.1.0"
-            },
-            {
-                "name": "vitest",
-                "version": "^4.1.9"
             }
         ]
     },

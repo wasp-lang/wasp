@@ -3,7 +3,6 @@ module Wasp.Cli.Command.Require.WaspNpmPackageAvailable
   )
 where
 
-import Control.Applicative ((<|>))
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
@@ -21,27 +20,29 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
--- | Require that the project's @wasp/wasp npm package is installed in
+-- | Require that the project's \@wasp/wasp npm package is installed in
 -- node_modules and that it and this CLI satisfy the version the project asks for.
 data WaspNpmPackageAvailable = WaspNpmPackageAvailable deriving (Typeable)
 
 instance Requirable WaspNpmPackageAvailable where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
-    -- Reading the wasp spec runs Node.js (via the FFI), so it requires Node.js
-    -- and npm to be present.
+    -- Commands that require this read the Wasp Spec, which runs Node.js, so
+    -- they also need Node.js and npm.
     ValidNodeAndNpm <- require
     declaredSpecifier <-
       liftIO (getDeclaredWaspNpmPackageSpecifier waspProjectDir)
         >>= either (throwError . CommandError "Couldn't read package.json") return
+        >>= maybe (throwError notADependencyError) return
+    let declaredRange = eitherToMaybe $ SV.parseRange declaredSpecifier
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
-        | isInstalledWaspNpmPackageCompatibleWithCli declaredSpecifier installedVersion -> return WaspNpmPackageAvailable
-        | otherwise -> throwError $ versionMismatchError declaredSpecifier installedVersion
-      Left reason ->
-        throwError $ case declaredSpecifier of
-          Just _ -> missingDepsError reason
-          Nothing -> notADependencyError
+        | not (isVersionInDeclaredRange declaredRange installedVersion) ->
+            throwError $ missingDepsError $ staleInstallReason declaredSpecifier installedVersion
+        | not (isCliCompatibleWithInstalledWaspNpmPackage declaredRange installedVersion) ->
+            throwError $ versionMismatchError declaredSpecifier installedVersion
+        | otherwise -> return WaspNpmPackageAvailable
+      Left reason -> throwError $ missingDepsError reason
     where
       missingDepsError reason =
         CommandError
@@ -51,6 +52,18 @@ instance Requirable WaspNpmPackageAvailable where
             ++ " to fix this.\n"
             ++ "Details: "
             ++ reason
+
+      staleInstallReason :: String -> SV.Version -> String
+      staleInstallReason declaredSpecifier installedVersion =
+        "The package.json asks for "
+          ++ waspNpmPackageName
+          ++ " "
+          ++ declaredSpecifier
+          ++ ", but node_modules has "
+          ++ waspNpmPackageName
+          ++ " "
+          ++ show installedVersion
+          ++ "."
 
       notADependencyError =
         CommandError
@@ -63,27 +76,25 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "dependencies"
             ++ " in your "
             ++ styleCode "package.json"
-            ++ ", remove the "
+            ++ ", remove any "
             ++ styleCode "@wasp/spec"
-            ++ " (or "
+            ++ " or "
             ++ styleCode "@wasp.sh/spec"
-            ++ ") dependency, and run "
+            ++ " dependency, and run "
             ++ styleCode "npm install"
             ++ "."
 
-      versionMismatchError :: Maybe String -> SV.Version -> CommandError
+      versionMismatchError :: String -> SV.Version -> CommandError
       versionMismatchError declaredSpecifier installedVersion =
         CommandError
           "Wasp version mismatch"
           $ "This project has "
             ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
-            ++ " installed"
-            ++ maybe "" (\specifier -> " and asks for " ++ styleCode (waspNpmPackageName ++ " " ++ specifier)) declaredSpecifier
+            ++ " installed and asks for "
+            ++ styleCode (waspNpmPackageName ++ " " ++ declaredSpecifier)
             ++ ", but you are running Wasp CLI "
             ++ show WV.waspVersion
-            ++ ". Run Wasp through the project (e.g. "
-            ++ styleCode "npm run wasp start"
-            ++ "), or set "
+            ++ ". Run a Wasp CLI version that the project asks for, or set "
             ++ styleCode waspNpmPackageName
             ++ " in your "
             ++ styleCode "package.json"
@@ -93,17 +104,24 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "npm install"
             ++ "."
 
--- | The installed @wasp/wasp works with this CLI when both versions satisfy
--- the range the project's package.json declares. Specifiers that aren't
--- version ranges (e.g. `file:` tarballs) don't constrain the version, so then
--- the installed version must match the CLI's exactly.
-isInstalledWaspNpmPackageCompatibleWithCli :: Maybe String -> SV.Version -> Bool
-isInstalledWaspNpmPackageCompatibleWithCli declaredSpecifier installedVersion =
-  case declaredSpecifier >>= eitherToMaybe . SV.parseRange of
-    Just declaredRange -> all (`SV.isVersionInRange` declaredRange) [installedVersion, WV.waspVersion]
+-- | Whether the version satisfies the range the project's package.json
+-- declares for \@wasp/wasp. Specifiers that aren't version ranges, e.g. `file:`
+-- tarballs, don't constrain the version.
+isVersionInDeclaredRange :: Maybe SV.Range -> SV.Version -> Bool
+isVersionInDeclaredRange declaredRange version =
+  maybe True (SV.isVersionInRange version) declaredRange
+
+-- | This CLI works with the installed \@wasp/wasp when the CLI's version
+-- satisfies the range the project's package.json declares. Without a declared
+-- range, the CLI's version must match the installed version exactly.
+isCliCompatibleWithInstalledWaspNpmPackage :: Maybe SV.Range -> SV.Version -> Bool
+isCliCompatibleWithInstalledWaspNpmPackage declaredRange installedVersion =
+  case declaredRange of
+    Just range -> SV.isVersionInRange WV.waspVersion range
     Nothing -> installedVersion == WV.waspVersion
 
--- | What the user's package.json asks for @wasp/wasp, if it depends on it at all.
+-- | What the user's package.json asks for \@wasp/wasp in its `dependencies`,
+-- if anything.
 getDeclaredWaspNpmPackageSpecifier :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Maybe String))
 getDeclaredWaspNpmPackageSpecifier waspProjectDir =
   findUserPackageJsonFile waspProjectDir >>= \case
@@ -113,4 +131,3 @@ getDeclaredWaspNpmPackageSpecifier waspProjectDir =
   where
     declaredSpecifier packageJson =
       M.lookup waspNpmPackageName (P.dependencies packageJson)
-        <|> M.lookup waspNpmPackageName (P.devDependencies packageJson)

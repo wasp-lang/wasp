@@ -81,8 +81,8 @@ jobs:
         # TODO: Remove once the examples join the pnpm workspace.
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
-          npm pkg delete overrides "//"
-          $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
+          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "//"
+          $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}
@@ -145,8 +145,8 @@ jobs:
         # TODO: Remove once the examples join the pnpm workspace.
         run: |
           npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
-          npm pkg delete overrides "//"
-          $GITHUB_WORKSPACE/waspc/run install-dev-wasp-package
+          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "//"
+          $GITHUB_WORKSPACE/waspc/run reinstall-dev-wasp-app-deps
 
       - name: Deploy to Railway
         working-directory: examples/ask-the-documents

@@ -6,8 +6,8 @@ import qualified Data.Set as Set
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getAllWaspDependencies)
-import Wasp.Generator.WaspNpmPackageDeps (waspNpmPackageDeps)
+import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getGeneratedServerDeps)
+import Wasp.Generator.WaspNpmPackagePeerDeps (waspNpmPackagePeerDeps)
 import qualified Wasp.Validator as V
 
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
@@ -25,7 +25,7 @@ overriddenDepsValidator spec =
     $ forEachDep getValidationForDep
   where
     overridableDeps :: M.Map P.PackageName P.PackageVersion
-    overridableDeps = getAllWaspDependencies spec
+    overridableDeps = getGeneratedServerDeps spec
 
     getValidationForDep (depName, actualVersion)
       | depName `Set.member` waspNpmPackagePeerNames = peerDepOverrideError
@@ -34,7 +34,7 @@ overriddenDepsValidator spec =
             (depName `M.lookup` overridableDeps)
             actualVersion
 
-    waspNpmPackagePeerNames = Set.fromList $ map Npm.Dependency.name waspNpmPackageDeps
+    waspNpmPackagePeerNames = Set.fromList $ map Npm.Dependency.name waspNpmPackagePeerDeps
 
     overridenVersionValidator Nothing _ = unrecognizedDepError
     overridenVersionValidator (Just expectedVersion) actualVersion
@@ -51,7 +51,7 @@ overriddenDepsValidator spec =
 
     peerDepOverrideError =
       V.failure
-        "@wasp/wasp declares this as a peer dependency, so npm enforces its version and overriding it here has no effect. Use npm's `overrides` field in package.json instead."
+        "@wasp/wasp lists this package as a peer dependency, so npm checks its version and `wasp.overriddenDeps` can't change it. Use npm's `overrides` field in package.json instead."
 
     unrecognizedDepError =
       V.failure

@@ -9,8 +9,9 @@
     "build": "wasp build",
     "dev": "wasp start",
     "preview": "wasp build start",
-    "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
-    "test:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}",
+    "test": "npm run test:e2e",
+    "test:e2e": "npm run test:e2e:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
+    "test:e2e:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}",
     "wasp": "wasp"
   },
   "dependencies": {
@@ -27,8 +28,7 @@
     "@wasp/wasp-app-runner": "^0.0.19",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
-    "vite": "^8.1.0",
-    "vitest": "^4.1.9"
+    "vite": "^8.1.0"
   },
   "overrides": {
     "@wasp/cli": "file:../../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
@@ -36,5 +36,5 @@
     "@wasp/spec": "file:../../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
     "@wasp/studio": "file:../../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
   },
-  "//": "TODO: Wasp is a file: tarball here so this example runs against the unreleased Wasp in this repo (run `./run build:dev-packages` in waspc/ first, see waspc/tools/dev-packages). Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and this becomes a plain version (see #4824). Releases rewrite it to the released version."
+  "//": "TODO: This example depends on Wasp through `file:` tarballs, so it runs against the unreleased Wasp in this repo. Run `./run build:dev-packages` in waspc/ before installing, see waspc/tools/dev-packages. The release-examples-deploy workflow switches to the released version. Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and depend on a plain version, see #4824."
 }

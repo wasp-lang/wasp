@@ -41,11 +41,9 @@ autoInstallPeers: false
 
 # Install scripts we do not need: messages, or binaries that are optional
 # dependencies anyway. @heroui/shared-utils only swaps in a Next.js build when
-# Next.js is installed. @prisma/client generates a client, which only Wasp apps
-# need, here it is only packed into @wasp/wasp.
+# Next.js is installed.
 allowBuilds:
   "@heroui/shared-utils": false
-  "@prisma/client": false
   "@swc/core": false
   core-js: false
   esbuild: false

@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How an MCP Client Logs In</title>
+<!--
+  Step-through walkthrough of an MCP client logging in with CIMD OAuth.
+
+  Standalone: open the file as is.
+  Embedded:   ?embed=1 hides the intro and the notes, drops the page
+              background, and stops rewriting the URL hash.
+  Options:    ?theme=light|dark  forces a theme (default: follows the OS)
+              ?step=N            opens on step N
+  Messages:   posts {type: "cimd-oauth-flow:height", height} to the parent
+              whenever its height changes, and accepts
+              {type: "cimd-oauth-flow:theme", theme: "light"|"dark"}.
+-->
+<script>
+  (() => {
+    const p = new URLSearchParams(location.search);
+    if (p.has("embed")) document.documentElement.classList.add("embed");
+    const t = p.get("theme");
+    if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #edf0f3;
+    --surface: #ffffff;
+    --note-bg: #f5f7f9;
+    --ink: #15202b;
+    --muted: #5a6774;
+    --line: #cbd3db;
+    --lane: #a3aeb9;
+    --req: #2f5bd8;
+    --res: #0f8577;
+    --secret: #b06a00;
+    --ticket: #8b3fcf;
+    --token: #23863a;
+    --focus: #2f5bd8;
+    --shadow: 0 1px 2px rgb(21 32 43 / 6%), 0 4px 16px rgb(21 32 43 / 6%);
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --cond: "IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0e141a;
+      --surface: #151d25;
+      --note-bg: #1b2530;
+      --ink: #e4ebf1;
+      --muted: #95a3b0;
+      --line: #27323d;
+      --lane: #4d5967;
+      --req: #7d9dff;
+      --res: #3fc1ae;
+      --secret: #f0a63a;
+      --ticket: #c18bf2;
+      --token: #5ccb74;
+      --focus: #7d9dff;
+      --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 4px 16px rgb(0 0 0 / 25%);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0e141a;
+    --surface: #151d25;
+    --note-bg: #1b2530;
+    --ink: #e4ebf1;
+    --muted: #95a3b0;
+    --line: #27323d;
+    --lane: #4d5967;
+    --req: #7d9dff;
+    --res: #3fc1ae;
+    --secret: #f0a63a;
+    --ticket: #c18bf2;
+    --token: #5ccb74;
+    --focus: #7d9dff;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 4px 16px rgb(0 0 0 / 25%);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 var(--sans);
+    padding: 28px 16px 56px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+
+  header.intro { display: grid; gap: 6px; max-width: 70ch; }
+  .eyebrow { font: 500 12px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 { font: 600 clamp(28px, 4vw, 40px)/1.1 var(--cond); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+  .intro p { margin: 0; color: var(--muted); }
+
+  /* Controls */
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+    background: var(--surface); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow);
+  }
+  .btns { display: flex; gap: 6px; }
+  button {
+    font: 500 14px/1 var(--sans); color: var(--ink); background: var(--note-bg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; cursor: pointer;
+  }
+  button:hover { border-color: var(--lane); }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); min-width: 84px; }
+  button:disabled { opacity: .4; cursor: default; }
+  .dots { display: flex; flex-wrap: wrap; gap: 4px; }
+  .dots button { width: 32px; height: 32px; padding: 0; font: 500 13px/1 var(--mono); border-radius: 50%; position: relative; }
+  .dots button[aria-current="step"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .dots button.done { color: var(--muted); }
+  /* CIMD steps get a small mark under their number. */
+  .dots button.cimd::after {
+    content: ""; position: absolute; left: 50%; bottom: -5px; width: 12px; height: 3px; margin-left: -6px;
+    border-radius: 2px; background: var(--ink);
+  }
+  .counter { font: 500 13px/1 var(--mono); color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 22px; height: 0; border-top: 2.5px solid currentColor; display: inline-block; }
+  .legend .k-req i { color: var(--req); }
+  .legend .k-res i { color: var(--res); }
+  .legend .k-secret i { color: var(--secret); border-top-style: dashed; }
+  .legend .k-ticket i { color: var(--ticket); }
+  .legend .k-token i { color: var(--token); }
+  .legend .k-cimd i { width: 12px; border-top-width: 3px; border-radius: 2px; color: var(--ink); }
+
+  /* Step chips: which part of the standard each step is. */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font: 500 11px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase;
+    padding: 5px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--note-bg);
+  }
+  .chip.cimd { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+  /* Stage */
+  .stage { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .stage { grid-template-columns: 1fr; } }
+
+  .diagram { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .diagram-scroll { overflow-x: auto; }
+  .diagram-inner { min-width: 640px; }
+  .body-scroll { max-height: min(460px, 52vh); overflow-y: auto; border-top: 1px solid var(--line); scroll-behavior: smooth; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: var(--sans); fill: var(--ink); }
+  .mono { font-family: var(--mono); }
+
+  .actor-box { fill: var(--note-bg); stroke: var(--line); }
+  .actor-name { font: 600 15px var(--cond); }
+  .actor-sub { font-size: 11.5px; fill: var(--muted); }
+  .pocket-title { font: 500 10px var(--mono); letter-spacing: .08em; fill: var(--muted); text-transform: uppercase; }
+  .pill rect { fill: var(--surface); stroke-width: 1.5; }
+  .pill text { font: 500 11px var(--mono); }
+  .pill.k-info rect { stroke: var(--lane); } .pill.k-info text { fill: var(--muted); }
+  .pill.k-secret rect { stroke: var(--secret); stroke-dasharray: 3 2; } .pill.k-secret text { fill: var(--secret); }
+  .pill.k-ticket rect { stroke: var(--ticket); } .pill.k-ticket text { fill: var(--ticket); }
+  .pill.k-token rect { stroke: var(--token); } .pill.k-token text { fill: var(--token); }
+  .pill.k-cimd rect { stroke: var(--ink); } .pill.k-cimd text { fill: var(--ink); }
+  .pill.empty text { fill: var(--lane); font-style: italic; }
+
+  .lifeline { stroke: var(--lane); stroke-dasharray: 4 5; }
+  .row { transition: opacity .35s ease; }
+  .row.past { opacity: .32; }
+  .row.future { display: none; }
+  .msg-line { stroke-width: 2.5; fill: none; }
+  .k-req .msg-line { stroke: var(--req); }
+  .k-res .msg-line { stroke: var(--res); }
+  .k-secret .msg-line { stroke: var(--secret); stroke-dasharray: 7 4; }
+  .k-ticket .msg-line { stroke: var(--ticket); }
+  .k-token .msg-line { stroke: var(--token); }
+  .msg-label { font: 500 12px var(--mono); paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+  .k-req .msg-label { fill: var(--req); } .k-res .msg-label { fill: var(--res); } .k-secret .msg-label { fill: var(--secret); }
+  .k-ticket .msg-label { fill: var(--ticket); } .k-token .msg-label { fill: var(--token); }
+  .packet circle { stroke: var(--surface); stroke-width: 2; }
+  .k-req .packet circle { fill: var(--req); } .k-res .packet circle { fill: var(--res); } .k-secret .packet circle { fill: var(--secret); }
+  .k-ticket .packet circle { fill: var(--ticket); } .k-token .packet circle { fill: var(--token); }
+  .note rect { fill: var(--note-bg); stroke: var(--line); }
+  .note text { font: 11.5px var(--mono); fill: var(--ink); }
+  .badge circle { fill: var(--ink); } .badge text { fill: var(--surface); font: 600 12px var(--mono); }
+
+  /* Explanation panel */
+  .panel { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 22px; display: grid; gap: 14px; position: sticky; top: 16px; }
+  @media (max-width: 900px) { .panel { position: static; } }
+  .panel .step-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .panel .step-no { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+  .panel h2 { font: 600 24px/1.15 var(--cond); margin: 0; text-wrap: balance; }
+  .panel p { margin: 0; max-width: 62ch; }
+  .why { border-left: 3px solid var(--line); padding-left: 12px; color: var(--muted); }
+  .why strong { color: var(--ink); font-weight: 600; }
+  pre {
+    margin: 0; background: var(--note-bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; overflow-x: auto; font: 12.5px/1.6 var(--mono); color: var(--ink); white-space: pre;
+  }
+  .panel .label { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+  /* Notes */
+  .all { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 22px; }
+  .fine { color: var(--muted); font-size: 13.5px; margin: 0; max-width: 80ch; }
+
+  /* Embedded in a blog post: the post gives the context, so drop the intro,
+     the notes, and the page background, and always stack the panel
+     under the diagram (blog columns are narrower than the side-by-side layout). */
+  .embed body { background: transparent; padding: 2px 0 6px; }
+  .embed header.intro, .embed section.all { display: none; }
+  .embed .wrap { gap: 12px; }
+  .embed .stage { grid-template-columns: 1fr; gap: 12px; }
+  .embed .panel { position: static; padding: 18px; }
+  .embed .controls, .embed .diagram, .embed .panel { box-shadow: none; border: 1px solid var(--line); }
+  .embed .body-scroll { max-height: 320px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .row, .body-scroll { transition: none; scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="intro">
+    <div class="eyebrow">OAuth 2.1 + PKCE, with a Client ID Metadata Document (CIMD)</div>
+    <h1>How an MCP client logs in to Linkly</h1>
+    <p>You ran <code class="mono">claude mcp add --transport http linkly https://myapp.com/mcp</code> and clicked Allow. Here's everything that happened, one message at a time. Most of it is standard OAuth. The steps marked CIMD are the part that lets any client connect without registering first. Watch the "What each one knows" row: it shows where the secrets, the one-time code, and the tokens are after every step.</p>
+  </header>
+
+  <div class="controls" role="group" aria-label="Playback">
+    <div class="btns">
+      <button type="button" id="prev" aria-label="Previous step">← Back</button>
+      <button type="button" id="play" class="primary">Play</button>
+      <button type="button" id="next" aria-label="Next step">Next →</button>
+    </div>
+    <div class="dots" id="dots" aria-label="Jump to step"></div>
+    <div class="counter" id="counter" aria-live="polite"></div>
+    <div class="legend" aria-label="Legend">
+      <span class="k-req"><i></i>request</span>
+      <span class="k-res"><i></i>response</span>
+      <span class="k-secret"><i></i>secret (verifier)</span>
+      <span class="k-ticket"><i></i>one-time code</span>
+      <span class="k-token"><i></i>tokens</span>
+      <span class="k-cimd"><i></i>CIMD step</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="diagram">
+      <div class="diagram-scroll">
+        <div class="diagram-inner">
+          <svg id="head" role="img" aria-label="The four parties and what each one holds right now"></svg>
+          <div class="body-scroll" id="bodyScroll">
+            <svg id="body" role="img" aria-label="Messages exchanged so far"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel" aria-live="polite">
+      <div class="step-head">
+        <div class="step-no" id="pStep"></div>
+        <div class="chips" id="pChips"></div>
+      </div>
+      <h2 id="pTitle"></h2>
+      <p id="pCaption"></p>
+      <p class="why" id="pWhy"></p>
+      <div class="label" id="pPayloadLabel">What's actually sent</div>
+      <pre id="pPayload"></pre>
+    </aside>
+  </div>
+
+  <section class="all" aria-label="Notes">
+    <p class="fine">Claude on the web works the same way, with one difference: its callback in step 7 is <code class="mono">claude.ai/api/mcp/auth_callback</code> on Anthropic's servers instead of a temporary server on your laptop, so Anthropic's servers make the step-8 call. The REST API uses the same login, with <code class="mono">resource=https://myapp.com/api/v1</code> in step 4. Step 5 shows a simplified metadata document; Claude Code's real one may list more fields. Random values like <code class="mono">a81f3c…</code> are examples.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const EMBED = params.has("embed");
+
+  const ACTORS = [
+    { id: "cc", name: "Claude Code", sub: "on your laptop" },
+    { id: "br", name: "Your browser", sub: "logged in to Linkly" },
+    { id: "lk", name: "Linkly", sub: "auth + MCP server" },
+    { id: "ca", name: "claude.ai", sub: "hosts the CIMD document" },
+  ];
+  const ITEMS = {
+    state: { label: "state", kind: "info" },
+    challenge: { label: "challenge", kind: "info" },
+    verifier: { label: "verifier", kind: "secret" },
+    code: { label: "code", kind: "ticket" },
+    access: { label: "access token", kind: "token" },
+    refresh: { label: "refresh token", kind: "token" },
+    grant: { label: "your grant", kind: "info" },
+    doc: { label: "CIMD document", kind: "cimd" },
+  };
+  // Which part of the standard each step is. "CIMD" is the part that removes registration.
+  const TAGS = {
+    discovery: { label: "MCP discovery" },
+    oauth: { label: "OAuth" },
+    pkce: { label: "PKCE" },
+    cimd: { label: "CIMD", cimd: true },
+  };
+
+  const STEPS = [
+    {
+      title: "Knock without a key",
+      tags: ["discovery"],
+      caption: "Claude Code calls Linkly's MCP address with no token. Linkly refuses, but the refusal carries a header that says where to find Linkly's login directions.",
+      why: "This is how any MCP client finds the login page on its own. The only thing you gave Claude Code was the /mcp URL.",
+      payload: `POST https://myapp.com/mcp        (no Authorization header)
+
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer resource_metadata=
+  "https://myapp.com/.well-known/oauth-protected-resource/mcp"`,
+      items: [
+        { t: "msg", from: "cc", to: "lk", label: "POST /mcp", kind: "req" },
+        { t: "msg", from: "lk", to: "cc", label: "401 · log in over here", kind: "res" },
+      ],
+      hold: { ca: ["doc"] },
+    },
+    {
+      title: "Read the directions",
+      tags: ["oauth", "cimd"],
+      caption: "Claude Code follows the header and reads Linkly's metadata. It learns where the login page is, where to trade a code for tokens, and that Linkly accepts a URL as the app's ID.",
+      why: "Most of this is standard OAuth metadata. The CIMD part is the last line: client_id_metadata_document_supported: true means \"no registration needed. Just give me the URL of your Client ID Metadata Document.\"",
+      payload: `GET /.well-known/oauth-authorization-server
+{
+  "authorization_endpoint": "https://myapp.com/oauth/authorize",
+  "token_endpoint":         "https://myapp.com/oauth/token",
+  "code_challenge_methods_supported": ["S256"],
+  "client_id_metadata_document_supported": true
+}`,
+      items: [
+        { t: "msg", from: "cc", to: "lk", label: "GET /.well-known/…", kind: "req" },
+        { t: "msg", from: "lk", to: "cc", label: "login + token URLs", kind: "res" },
+      ],
+      hold: { ca: ["doc"] },
+    },
+    {
+      title: "Make two secrets",
+      tags: ["pkce"],
+      caption: "Before involving you, Claude Code makes two random values on your laptop and starts a tiny temporary web server to catch the answer later.",
+      why: "The state lets Claude Code recognize its own login when the answer comes back. The verifier stays on your laptop until step 8. Only its hash, the challenge, goes out. That's PKCE, and every OAuth 2.1 login uses it.",
+      payload: `state          = "a81f3c…"   random; sent out and echoed back
+code_verifier  = "Zq9xT…"    random; stays on your laptop
+code_challenge = base64url(SHA-256(code_verifier)) = "K9xH…"
+callback       = http://localhost:52731/callback  (temporary)`,
+      items: [
+        { t: "note", on: "cc", lines: ["state = a81f…", "verifier = Zq9x… (secret)", "challenge = hash(verifier)", "listening on :52731"] },
+      ],
+      hold: { cc: ["state", "verifier", "challenge"], ca: ["doc"] },
+    },
+    {
+      title: "Open Linkly's login page",
+      tags: ["oauth", "cimd"],
+      caption: "Claude Code opens your browser at Linkly's consent page. Everything Linkly needs is in the URL: who's asking, where to send the answer, the state, and the challenge.",
+      why: "The client_id is a URL, not an ID someone registered ahead of time. That's CIMD. Nothing in this URL is secret: the verifier isn't in it.",
+      payload: `https://myapp.com/oauth/authorize
+  ?client_id=https://claude.ai/…/client-metadata   ← a URL (CIMD), not a registered ID
+  &redirect_uri=http://localhost:52731/callback
+  &state=a81f3c…
+  &code_challenge=K9xH…&code_challenge_method=S256
+  &response_type=code
+  &resource=https://myapp.com/mcp`,
+      items: [
+        { t: "msg", from: "cc", to: "br", label: "open login URL", kind: "req" },
+        { t: "msg", from: "br", to: "lk", label: "GET /oauth/authorize?…", kind: "req" },
+      ],
+      hold: { cc: ["state", "verifier", "challenge"], br: ["state", "challenge"], lk: ["state", "challenge"], ca: ["doc"] },
+    },
+    {
+      title: "Look up who's asking",
+      tags: ["cimd"],
+      caption: "Linkly fetches the client_id URL. The JSON there is Claude Code's Client ID Metadata Document: its name, and the only addresses it's allowed to receive a code at.",
+      why: "This is the step CIMD adds. Without it, someone would have had to register Claude Code with Linkly ahead of time, or Claude Code would have registered itself with Dynamic Client Registration. Only claude.ai can put a file on claude.ai, so the domain is what you're really trusting. That's the \"App address\" on the consent screen.",
+      payload: `GET https://claude.ai/…/client-metadata        (simplified)
+{
+  "client_id":     "https://claude.ai/…/client-metadata",
+  "client_name":   "Claude Code",
+  "redirect_uris": ["http://localhost/callback"]
+}
+
+✓ client_id equals the URL it was fetched from
+✓ redirect_uri from step 4 is on the list
+  (localhost callbacks may use any port)`,
+      items: [
+        { t: "msg", from: "lk", to: "ca", label: "GET client_id URL", kind: "req" },
+        { t: "msg", from: "ca", to: "lk", label: "CIMD document (JSON)", kind: "res" },
+        { t: "note", on: "lk", lines: ["✓ client_id = its URL", "✓ redirect_uri is listed"] },
+      ],
+      hold: { cc: ["state", "verifier", "challenge"], br: ["state", "challenge"], lk: ["state", "challenge", "doc"], ca: ["doc"] },
+    },
+    {
+      title: "You approve",
+      tags: ["oauth"],
+      caption: "Linkly shows the consent screen. You're logged in to Linkly, so it knows whose account this is. You pick what the app may do and click Allow.",
+      why: "You are the security check. Linkly keeps no list of approved apps; it asks you, and shows the domain that vouches for the app.",
+      payload: `Allow Claude Code to access your Linkly account?
+App address: claude.ai
+Linkly hasn't verified this app. Only continue if you trust claude.ai.
+
+Links      [x] View your links
+           [x] Create, edit, and delete your links
+Analytics  [x] View click analytics
+[on] Require confirmation for destructive actions
+
+                                    [Deny]  [Allow]`,
+      items: [
+        { t: "note", on: "br", lines: ["Allow Claude Code?", "App address: claude.ai", "you click Allow"] },
+        { t: "msg", from: "br", to: "lk", label: "Allow ✓", kind: "req" },
+      ],
+      hold: { cc: ["state", "verifier", "challenge"], br: ["state", "challenge"], lk: ["state", "challenge", "doc"], ca: ["doc"] },
+    },
+    {
+      title: "Get a one-time code",
+      tags: ["oauth"],
+      caption: "Linkly sends your browser to the callback address with a one-time code. Your browser lands on Claude Code's temporary server, which checks that the state matches.",
+      why: "The code alone is useless to a thief: it expires in 60 seconds, works once, and only counts together with the verifier that only Claude Code has.",
+      payload: `302 Found
+Location: http://localhost:52731/callback
+  ?code=lk_code_7Hq…     one-time code, valid 60 s
+  &state=a81f3c…         same value as step 3
+  &iss=https://myapp.com`,
+      items: [
+        { t: "msg", from: "lk", to: "br", label: "redirect ?code=…", kind: "ticket" },
+        { t: "msg", from: "br", to: "cc", label: "/callback?code…", kind: "ticket" },
+        { t: "note", on: "cc", lines: ["✓ state matches", "this login is mine"] },
+      ],
+      hold: { cc: ["state", "verifier", "challenge", "code"], br: ["state", "challenge", "code"], lk: ["state", "challenge", "code"], ca: ["doc"] },
+    },
+    {
+      title: "Trade the code for tokens",
+      tags: ["oauth", "pkce"],
+      caption: "Claude Code sends the code and the original verifier straight to Linkly, without the browser. Linkly hashes the verifier; if it matches the challenge from step 4, the code is genuine.",
+      why: "Someone who grabbed the code from the browser can't do this step: they never saw the verifier. The real credentials only travel in this direct reply.",
+      payload: `POST https://myapp.com/oauth/token
+grant_type=authorization_code
+code=lk_code_7Hq…
+code_verifier=Zq9xT…
+redirect_uri=http://localhost:52731/callback
+client_id=https://claude.ai/…/client-metadata
+
+→ { "access_token":  "lk_at_…",
+    "refresh_token": "lk_rt_…",
+    "expires_in":    3600,
+    "scope": "links:read links:write analytics:read" }`,
+      items: [
+        { t: "msg", from: "cc", to: "lk", label: "code + verifier", kind: "secret" },
+        { t: "note", on: "lk", lines: ["hash(verifier)", "= challenge ✓"] },
+        { t: "msg", from: "lk", to: "cc", label: "access + refresh tokens", kind: "token" },
+      ],
+      hold: { cc: ["access", "refresh"], br: [], lk: ["grant"], ca: ["doc"] },
+    },
+    {
+      title: "Use the tokens",
+      tags: ["oauth"],
+      caption: "Every MCP call now carries the access token. Linkly looks up your grant on each request, so changes on the Connected apps page apply right away.",
+      why: "The access token lasts an hour. When it expires, Claude Code quietly trades the refresh token for a new pair. Revoking the connection in Linkly ends all of it.",
+      payload: `POST https://myapp.com/mcp
+Authorization: Bearer lk_at_…
+{"jsonrpc":"2.0","method":"tools/list","id":1}
+
+→ whoami, search_docs, read_doc, get_dashboard_url,
+  list_links, get_link, create_link, update_link,
+  delete_link, get_link_stats, get_top_links`,
+      items: [
+        { t: "msg", from: "cc", to: "lk", label: "POST /mcp + Bearer lk_at_…", kind: "req" },
+        { t: "msg", from: "lk", to: "cc", label: "your tools", kind: "res" },
+      ],
+      hold: { cc: ["access", "refresh"], br: [], lk: ["grant"], ca: ["doc"] },
+    },
+  ];
+
+  const isCimd = (s) => s.tags.some((t) => TAGS[t].cimd);
+  function chips(tags) {
+    const wrap = document.createElement("span");
+    wrap.className = "chips";
+    for (const t of tags) {
+      const c = document.createElement("span");
+      c.className = `chip${TAGS[t].cimd ? " cimd" : ""}`;
+      c.textContent = TAGS[t].label;
+      wrap.appendChild(c);
+    }
+    return wrap;
+  }
+
+  // ── Geometry ─────────────────────────────────────────────────────────
+  const W = 780;
+  const LANE_X = { cc: 140, br: 318, lk: 496, ca: 674 };
+  const NS = "http://www.w3.org/2000/svg";
+  const MSG_H = 50, NOTE_LINE = 17, NOTE_PAD = 14, TOP = 18;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+
+  const el = (name, attrs = {}, parent) => {
+    const node = document.createElementNS(NS, name);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    if (parent) parent.appendChild(node);
+    return node;
+  };
+
+  // Header: actors + "what each one knows"
+  const head = document.getElementById("head");
+  const HEAD_H = 176;
+  head.setAttribute("viewBox", `0 0 ${W} ${HEAD_H}`);
+  for (const a of ACTORS) {
+    const x = LANE_X[a.id];
+    el("rect", { x: x - 80, y: 12, width: 160, height: 52, rx: 10, class: "actor-box" }, head);
+    el("text", { x, y: 35, "text-anchor": "middle", class: "actor-name" }, head).textContent = a.name;
+    el("text", { x, y: 53, "text-anchor": "middle", class: "actor-sub" }, head).textContent = a.sub;
+    el("line", { x1: x, x2: x, y1: 64, y2: HEAD_H, class: "lifeline" }, head);
+  }
+  el("text", { x: 14, y: 90, class: "pocket-title" }, head).textContent = "What each one knows";
+  const pocketLayer = el("g", {}, head);
+
+  let lastHold = {};
+  function renderPockets(hold, animate) {
+    pocketLayer.replaceChildren();
+    for (const a of ACTORS) {
+      const x = LANE_X[a.id];
+      const keys = hold[a.id] ?? [];
+      const list = keys.length ? keys : [null];
+      list.forEach((key, i) => {
+        const y = 102 + i * 25;
+        const item = key ? ITEMS[key] : { label: "nothing", kind: "info" };
+        const g = el("g", { class: `pill k-${item.kind}${key ? "" : " empty"}` }, pocketLayer);
+        el("rect", { x: x - 62, y, width: 124, height: 20, rx: 10 }, g);
+        el("text", { x, y: y + 14, "text-anchor": "middle" }, g).textContent = item.label;
+        const isNew = key && !(lastHold[a.id] ?? []).includes(key);
+        if (animate && isNew && !reduced.matches) {
+          g.style.transformOrigin = `${x}px ${y + 10}px`;
+          g.animate([{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }], {
+            duration: 420, delay: appearDelay(a.id, key), easing: "cubic-bezier(.2,.8,.2,1.2)", fill: "both",
+          });
+        }
+      });
+    }
+    lastHold = hold;
+  }
+
+  // Body: lifelines + one row per message/note, grouped by step
+  const body = document.getElementById("body");
+  const bodyScroll = document.getElementById("bodyScroll");
+  const defs = el("defs", {}, body);
+  for (const k of ["req", "res", "secret", "ticket", "token"]) {
+    const m = el("marker", { id: `arrow-${k}`, viewBox: "0 0 10 10", refX: 8.5, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", style: `fill: var(--${k})` }, m);
+  }
+  const lifelines = el("g", {}, body);
+  const rowsLayer = el("g", {}, body);
+
+  const rows = [];
+  const stepEnd = [];
+  let y = TOP;
+  STEPS.forEach((step, si) => {
+    const stepTop = y;
+    step.items.forEach((item) => {
+      if (item.t === "msg") {
+        const g = el("g", { class: `row k-${item.kind}` }, rowsLayer);
+        const x1 = LANE_X[item.from], x2 = LANE_X[item.to];
+        const dir = Math.sign(x2 - x1);
+        const cy = y + 30;
+        const line = el("line", { x1: x1 + dir * 4, y1: cy, x2: x2 - dir * 6, y2: cy, class: "msg-line", "marker-end": `url(#arrow-${item.kind})` }, g);
+        const label = el("text", { x: (x1 + x2) / 2, y: cy - 9, "text-anchor": "middle", class: "msg-label" }, g);
+        label.textContent = item.label;
+        const packet = el("g", { class: "packet", opacity: 0 }, g);
+        el("circle", { cx: 0, cy: 0, r: 6.5 }, packet);
+        rows.push({ step: si, g, type: "msg", line, label, packet, x1, x2, cy, len: Math.abs(x2 - x1) - 10 });
+        y += MSG_H;
+      } else {
+        const g = el("g", { class: "row note" }, rowsLayer);
+        const x = LANE_X[item.on];
+        const h = NOTE_PAD * 2 + item.lines.length * NOTE_LINE - 4;
+        el("rect", { x: x - 96, y: y + 8, width: 192, height: h, rx: 8 }, g);
+        item.lines.forEach((line, i) => {
+          el("text", { x, y: y + 8 + NOTE_PAD + 9 + i * NOTE_LINE, "text-anchor": "middle" }, g).textContent = line;
+        });
+        rows.push({ step: si, g, type: "note", cx: x, cy: y + 8 + h / 2 });
+        y += h + 16;
+      }
+    });
+    // Step badge in the left gutter.
+    const badge = el("g", { class: "row badge" }, rowsLayer);
+    el("circle", { cx: 22, cy: stepTop + 30, r: 12 }, badge);
+    el("text", { x: 22, y: stepTop + 34.5, "text-anchor": "middle" }, badge).textContent = String(si + 1);
+    rows.push({ step: si, g: badge, type: "badge" });
+    y += 10;
+    stepEnd[si] = y;
+  });
+  for (const a of ACTORS) el("line", { x1: LANE_X[a.id], x2: LANE_X[a.id], y1: 0, y2: y + 20, class: "lifeline" }, lifelines);
+
+  // Pill entrance delays: roughly when the message carrying that item arrives.
+  let appearTable = {};
+  function appearDelay(actor, key) {
+    return appearTable[`${actor}:${key}`] ?? 250;
+  }
+
+  // ── Panel, dots ────────────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const dots = $("dots");
+  STEPS.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = String(i + 1);
+    b.setAttribute("aria-label", `Step ${i + 1}: ${s.title}${isCimd(s) ? " (CIMD)" : ""}`);
+    if (isCimd(s)) b.classList.add("cimd");
+    b.addEventListener("click", () => { stopPlay(); go(i); });
+    dots.appendChild(b);
+  });
+
+  // ── Playback ─────────────────────────────────────────────────────────
+  let current = -1;
+  let playing = false;
+  let playTimer = null;
+  let running = [];
+
+  function cancelRunning() {
+    running.forEach((a) => a.cancel());
+    running = [];
+  }
+
+  function go(index, { animate = true } = {}) {
+    index = Math.max(0, Math.min(STEPS.length - 1, index));
+    const forward = index === current + 1;
+    current = index;
+    cancelRunning();
+    clearTimeout(playTimer);
+
+    // Rows: past dimmed, current full, future hidden.
+    for (const r of rows) {
+      r.g.classList.toggle("past", r.step < index);
+      r.g.classList.toggle("future", r.step > index);
+      if (r.type === "msg") r.packet.setAttribute("opacity", 0);
+    }
+    const h = stepEnd[index] + 8;
+    body.setAttribute("viewBox", `0 0 ${W} ${h}`);
+
+    // Animate the current step's rows in order.
+    const doAnimate = animate && !reduced.matches;
+    let t = 150;
+    appearTable = {};
+    const stepRows = rows.filter((r) => r.step === index && r.type !== "badge");
+    for (const r of stepRows) {
+      if (!doAnimate) continue;
+      if (r.type === "msg") {
+        const dur = 900;
+        running.push(r.line.animate([{ strokeDashoffset: r.len, strokeDasharray: `${r.len} ${r.len}` }, { strokeDashoffset: 0, strokeDasharray: `${r.len} ${r.len}` }], { duration: dur, delay: t, easing: "cubic-bezier(.5,0,.3,1)", fill: "backwards" }));
+        running.push(r.label.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: t + dur * 0.35, fill: "backwards" }));
+        running.push(r.packet.animate(
+          [
+            { transform: `translate(${r.x1}px, ${r.cy}px)`, opacity: 1 },
+            { transform: `translate(${r.x2 - Math.sign(r.x2 - r.x1) * 10}px, ${r.cy}px)`, opacity: 1, offset: 0.92 },
+            { transform: `translate(${r.x2 - Math.sign(r.x2 - r.x1) * 10}px, ${r.cy}px)`, opacity: 0 },
+          ],
+          { duration: dur, delay: t, easing: "cubic-bezier(.5,0,.3,1)", fill: "none" },
+        ));
+        // Items land in the receiving pocket when the message arrives.
+        const toActor = Object.entries(LANE_X).find(([, x]) => x === r.x2)?.[0];
+        for (const key of STEPS[index].hold[toActor] ?? []) appearTable[`${toActor}:${key}`] ??= t + dur - 100;
+        t += dur + 280;
+      } else {
+        running.push(r.g.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 450, delay: t, easing: "ease-out", fill: "backwards" }));
+        for (const a of ACTORS) for (const key of STEPS[index].hold[a.id] ?? []) appearTable[`${a.id}:${key}`] ??= t + 150;
+        t += 650;
+      }
+    }
+
+    renderPockets(STEPS[index].hold, doAnimate && forward);
+
+    // Panel
+    const s = STEPS[index];
+    $("pStep").textContent = `Step ${index + 1} of ${STEPS.length}`;
+    $("pChips").replaceChildren(...chips(s.tags).childNodes);
+    $("pTitle").textContent = s.title;
+    $("pCaption").textContent = s.caption;
+    $("pWhy").innerHTML = "<strong>Why: </strong>";
+    $("pWhy").append(document.createTextNode(s.why));
+    $("pPayload").textContent = s.payload;
+    $("counter").textContent = `${index + 1} / ${STEPS.length}`;
+    $("prev").disabled = index === 0;
+    $("next").disabled = index === STEPS.length - 1 && !playing;
+    [...dots.children].forEach((b, i) => {
+      if (i === index) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+      b.classList.toggle("done", i < index);
+    });
+
+    // Keep the newest messages in view.
+    requestAnimationFrame(() => {
+      bodyScroll.scrollTo({ top: bodyScroll.scrollHeight, behavior: doAnimate ? "smooth" : "auto" });
+    });
+
+    // Standalone only: embedded, the hash belongs to the page around the iframe.
+    if (!EMBED) {
+      try { history.replaceState(null, "", `${location.search}#step-${index + 1}`); } catch { /* sandboxed: ignore */ }
+    }
+
+    if (playing) {
+      const readTime = 4200 + s.caption.length * 18;
+      playTimer = setTimeout(() => {
+        if (current < STEPS.length - 1) go(current + 1);
+        else stopPlay();
+      }, (doAnimate ? t : 0) + readTime);
+    }
+  }
+
+  function startPlay() {
+    playing = true;
+    $("play").textContent = "Pause";
+    if (current >= STEPS.length - 1) go(0); else go(current + 1);
+  }
+  function stopPlay() {
+    playing = false;
+    clearTimeout(playTimer);
+    $("play").textContent = current >= STEPS.length - 1 ? "Replay" : "Play";
+    $("next").disabled = current === STEPS.length - 1;
+  }
+
+  $("play").addEventListener("click", () => (playing ? stopPlay() : startPlay()));
+  $("next").addEventListener("click", () => { stopPlay(); go(current + 1); });
+  $("prev").addEventListener("click", () => { stopPlay(); go(current - 1, { animate: false }); });
+  // Inside an iframe this only fires while the reader is interacting with the walkthrough.
+  document.addEventListener("keydown", (e) => {
+    if (e.target instanceof HTMLElement && e.target.closest("input, textarea")) return;
+    if (e.key === "ArrowRight") { stopPlay(); go(current + 1); }
+    else if (e.key === "ArrowLeft") { stopPlay(); go(current - 1, { animate: false }); }
+    else if (e.key === " " && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); playing ? stopPlay() : startPlay(); }
+  });
+
+  // ── Embedding: theme from the parent page, height back to it ──────────
+  window.addEventListener("message", (e) => {
+    const d = e.data;
+    if (d && d.type === "cimd-oauth-flow:theme" && (d.theme === "light" || d.theme === "dark")) {
+      document.documentElement.dataset.theme = d.theme;
+    }
+  });
+  if (window.parent !== window) {
+    let lastHeight = 0;
+    const report = () => {
+      const height = Math.ceil(document.documentElement.getBoundingClientRect().height);
+      if (height === lastHeight) return;
+      lastHeight = height;
+      window.parent.postMessage({ type: "cimd-oauth-flow:height", height }, "*");
+    };
+    new ResizeObserver(report).observe(document.documentElement);
+    report();
+  }
+
+  const fromParam = Number(params.get("step"));
+  const fromHash = /^#step-(\d+)$/.exec(location.hash);
+  const start = fromParam ? fromParam - 1 : !EMBED && fromHash ? Number(fromHash[1]) - 1 : 0;
+  go(start);
+})();
+</script>
+</body>
+</html>

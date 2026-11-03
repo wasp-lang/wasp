@@ -6,7 +6,7 @@ import { join } from "node:path";
 import semver from "semver";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getLibsDirPath } from "./libs/utils.ts";
-import { getPackageDirPath, WASP_PACKAGE_NAMES } from "./packages/utils.ts";
+import { getPackageDirPath, WASP_PACKAGE_DIRS } from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -63,7 +63,7 @@ function bumpLibsVersion(nextVersion: string): void {
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const packageDirPath of WASP_PACKAGE_NAMES.map(getPackageDirPath)) {
+  for (const packageDirPath of WASP_PACKAGE_DIRS.map(getPackageDirPath)) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
@@ -124,7 +124,7 @@ function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   );
   if (packageJsonContent === updatedPackageJsonContent) {
     throw new Error(
-      `Failed to update the dev Wasp npm package tarballs in ${packageJsonPath}`,
+      `Failed to update the dev Wasp npm package tarball paths in ${packageJsonPath}`,
     );
   }
 
@@ -139,8 +139,8 @@ function rebuildLibs(): void {
 }
 
 // The Wasp projects in this repo depend on the dev tarballs by version (see
-// `bumpWaspProjectVersion`), so they must exist at the new version before the
-// projects are reinstalled below.
+// `bumpWaspProjectVersion`), so the tarballs must exist at the new version
+// before `bustWaspProjectsLibsCache` reinstalls the projects.
 function rebuildDevPackages(): void {
   runCmd("node", [join("tools", "dev-packages", "build.ts")], {
     cwd: waspcDirPath,

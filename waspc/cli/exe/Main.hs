@@ -34,13 +34,12 @@ import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
-import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand, getProjectInstallationCommand, legacyVersionsNote)
+import Wasp.Util.InstallMethod (getGlobalInstallationCommand, getProjectInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -79,7 +78,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
         _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -107,7 +105,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
-    Command.Call.Test testArgs -> runCommand $ test testArgs
     Command.Call.Help -> printUsage
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -182,7 +179,6 @@ printUsage =
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
         cmd   "    show build [--json]   Prints information about your app's current build.",
-        cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
         cmd   "    news                  Read the latest Wasp-related news.",
               "",
@@ -203,11 +199,11 @@ printVersion = do
   hPutStrLn stderr $
     unlines
       [ "",
-        "A project uses the Wasp version of its `@wasp/wasp` dependency. To switch a project to version x.y.z, run in it:",
-        indent 2 $ getProjectInstallationCommand $ Just "x.y.z",
+        "Each project runs the Wasp version of its `@wasp/wasp` dependency. To switch a project to Wasp x.y.z, run this in the project directory:",
+        indent 2 $ getProjectInstallationCommand "x.y.z",
         "",
-        "To install/switch the Wasp CLI you use outside of projects (e.g. for `wasp new`), do:",
-        indent 2 $ getInstallationCommand Nothing,
+        "To install the latest global Wasp CLI, which runs commands outside of projects like `wasp new`, run:",
+        indent 2 $ getGlobalInstallationCommand Nothing,
         legacyVersionsNote,
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."

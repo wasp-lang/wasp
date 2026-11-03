@@ -24,7 +24,7 @@ You will notice that `package.json` already lists some packages, like `@wasp/was
 
 Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `wasp deps` to see them.
 
-A few other dependencies, like `socket.io` when you use WebSockets, come with Wasp's generated code instead. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
+The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
 
 #### Overriding Wasp's Dependencies (Advanced)
 
@@ -51,7 +51,7 @@ If you find the need to override any dependency, we'd appreciate for you to [pos
 
 :::
 
-To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, the override must use the same version:
+To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 <Tabs>
   <TabItem value="before" label="Before">
@@ -81,7 +81,7 @@ To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](h
   </TabItem>
 </Tabs>
 
-To override a dependency that comes with Wasp's generated code, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
+To override a dependency that the generated server lists, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
 
 ```json title="package.json"
 {
