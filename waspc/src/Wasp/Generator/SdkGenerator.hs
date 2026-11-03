@@ -27,9 +27,6 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions
-  ( viteVersionRange,
-  )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -168,17 +165,16 @@ genPackageJson spec = do
       ( object
           [ "sdkPackageName" .= C.sdkPackageName,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
           ]
       )
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { -- @wasp/wasp brings the SDK's core dependencies as peer dependencies
-      -- (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The SDK lists only the
-      -- ones that depend on the app.
+    { -- @wasp/wasp brings the SDK's core dependencies, vite included, as peer
+      -- dependencies (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The SDK
+      -- lists only the ones that depend on the app.
       N.dependencies =
         depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
@@ -192,12 +188,7 @@ npmDepsForSdk spec =
           [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
           ++ devDepsRequiredByEmail spec,
-      -- The SDK imports `vite` at runtime, but it must be the same instance
-      -- the user's project uses, so the user's package.json provides it.
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("vite", show viteVersionRange)
-          ]
+      N.peerDependencies = []
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
