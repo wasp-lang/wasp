@@ -70,6 +70,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
+      genFileCopy [relfile|loadDotEnv.cjs|],
       genFileCopy [relfile|src/createRollupBundle.js|],
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,

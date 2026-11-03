@@ -25,13 +25,13 @@ import ShellCommands
     waspCliStartDb,
     waspCliStudio,
     waspCliTelemetry,
-    waspCliTestClient,
     waspCliVersion,
   )
 import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Util.Terminal (styleCode)
+import Wasp.Version (waspVersion)
 
 waspNpmPackageAvailableTest :: Test
 waspNpmPackageAvailableTest =
@@ -54,9 +54,19 @@ waspNpmPackageAvailableTest =
                       waspCliDbReset,
                       waspCliDeploy ["fly", "setup"],
                       waspCliStartDb,
-                      waspCliStart,
-                      waspCliTestClient []
+                      waspCliStart
                     ]
+            ]
+        ),
+      TestCase
+        "compile-fails-with-install-hint-when-installed-wasp-npm-package-is-stale"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setDeclaredWaspNpmPackageVersion (show waspVersion),
+                  setInstalledWaspNpmPackageVersion "9.9.9",
+                  assertCommandFailsWithInstallHint waspCliCompile
+                ]
             ]
         ),
       TestCase
@@ -64,7 +74,8 @@ waspNpmPackageAvailableTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ corruptWaspNpmPackageVersion,
+                [ setDeclaredWaspNpmPackageVersion "9.9.9",
+                  setInstalledWaspNpmPackageVersion "9.9.9",
                   assertCommandFailsWithVersionMismatchHint waspCliCompile
                 ]
             ]
@@ -123,11 +134,14 @@ waspNpmPackageAvailableTest =
     removeWaspNpmPackageDependency :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeWaspNpmPackageDependency = return "npm pkg delete dependencies.@wasp/wasp && rm -rf node_modules/@wasp/wasp"
 
-    corruptWaspNpmPackageVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
-    corruptWaspNpmPackageVersion = do
+    setDeclaredWaspNpmPackageVersion :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+    setDeclaredWaspNpmPackageVersion version = return $ "npm pkg set dependencies.@wasp/wasp=" ++ version
+
+    setInstalledWaspNpmPackageVersion :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+    setInstalledWaspNpmPackageVersion version = do
       context <- ask
       let waspNpmPackageDir = context.waspProjectDir </> [reldir|node_modules/@wasp/wasp|]
-      return $ "(cd " ++ fromAbsDir waspNpmPackageDir ++ " && npm pkg set version=9.9.9)"
+      return $ "(cd " ++ fromAbsDir waspNpmPackageDir ++ " && npm pkg set version=" ++ version ++ ")"
 
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->

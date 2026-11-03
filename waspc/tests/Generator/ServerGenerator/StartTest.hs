@@ -32,6 +32,7 @@ import Wasp.Generator.ServerGenerator.Start
     waitUntilCompilesHandled,
   )
 import qualified Wasp.Job as Job
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_startServer :: Spec
@@ -44,7 +45,7 @@ spec_startServer =
         initialPid <- waitForServerStart fixture
         serverPort <- readServerPort fixture
         readBundleCount fixture `shouldReturn` 1
-        readFile' (serverDirPath fixture </> "runtime-env.txt")
+        readFile' (_waspProjectDirPath fixture </> "runtime-env.txt")
           `shouldReturn` "0\nhttp://localhost:0\nhttp://localhost:3000"
         isPortAvailable serverPort `shouldReturn` False
 
@@ -171,7 +172,7 @@ spec_startServer =
         -- The bundle kills the server, and gives Wasp a moment to notice.
         appendFile (bundleScriptPath fixture) $
           unlines
-            [ "process.kill(Number(require('node:fs').readFileSync('server.pid', 'utf8')), 'SIGKILL');",
+            [ "process.kill(Number(require('node:fs').readFileSync(" <> show (serverPidFilePath fixture) <> ", 'utf8')), 'SIGKILL');",
               "setTimeout(() => {}, 500);"
             ]
         notifySuccessfulCompile fixture RebundleAndRestartServer
@@ -181,28 +182,30 @@ serverRunConfig :: ServerRunConfig
 serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"
 
 data ServerFixture = ServerFixture
-  { _generatedAppDirPath :: FilePath,
+  { _waspProjectDirPath :: FilePath,
     _inbox :: ServerInbox,
     _output :: IORef Text
   }
 
--- | Runs a controller against a fake generated app for the duration of a test.
+-- | Runs a controller against a fake Wasp project for the duration of a test.
 -- Checks that cancellation stops the server and releases its port afterwards.
+--
+-- The server runs from the Wasp project dir, so the server scripts read and
+-- write their files there.
 withServerFixture :: String -> (ServerFixture -> IO ()) -> IO ()
 withServerFixture serverScript test = do
-  generatedAppDirPath <- makeTempPath "wasp-server-controller-test"
+  waspProjectDirPath <- makeTempPath "wasp-server-controller-test"
   inbox <- newServerInbox
   output <- newIORef ""
-  let fixture = ServerFixture generatedAppDirPath inbox output
+  let fixture = ServerFixture waspProjectDirPath inbox output
   createDirectoryIfMissing True $ serverBundleDirPath fixture
-  createDirectoryIfMissing True $ dotenvModuleDirPath fixture
   createNodeBin fixture "tsc" "exit 0"
   createNodeBin fixture "rollup" "exec node bundle.js"
   writeFile (bundleScriptPath fixture) bundleScript
-  writeFile (dotenvModuleDirPath fixture </> "config.js") ""
-  writeFile (serverDirPath fixture </> serverPortFileName) "0"
+  writeFile (serverDirPath fixture </> "loadDotEnv.cjs") ""
+  writeFile (serverPortFilePath fixture) "0"
   writeServerStartScript fixture serverScript
-  generatedAppDir <- SP.parseAbsDir generatedAppDirPath
+  generatedAppDir <- SP.parseAbsDir $ generatedAppDirPath fixture
   let runController =
         Job.run
           $ Job.captureOutput
@@ -229,7 +232,7 @@ createNodeBin fixture binName command = do
 cleanUpFixture :: ServerFixture -> IO ()
 cleanUpFixture fixture = do
   killPidFromFile $ serverPidFilePath fixture
-  void (try (removeDirectoryRecursive $ _generatedAppDirPath fixture) :: IO (Either SomeException ()))
+  void (try (removeDirectoryRecursive $ _waspProjectDirPath fixture) :: IO (Either SomeException ()))
   where
     killPidFromFile pidFilePath = do
       exists <- doesFileExist pidFilePath
@@ -275,18 +278,19 @@ crashingServerScript =
 writeServerStartScript :: ServerFixture -> String -> IO ()
 writeServerStartScript fixture = writeFile (serverBundleDirPath fixture </> "server.js")
 
+generatedAppDirPath :: ServerFixture -> FilePath
+generatedAppDirPath fixture =
+  _waspProjectDirPath fixture </> SP.fromRelDir generatedAppDirInWaspProjectDir
+
 serverDirPath :: ServerFixture -> FilePath
 serverDirPath fixture =
-  _generatedAppDirPath fixture </> SP.fromRelDir ServerGenerator.Common.serverRootDirInGeneratedAppDir
+  generatedAppDirPath fixture </> SP.fromRelDir ServerGenerator.Common.serverRootDirInGeneratedAppDir
 
 serverBundleDirPath :: ServerFixture -> FilePath
 serverBundleDirPath fixture = serverDirPath fixture </> "bundle"
 
-dotenvModuleDirPath :: ServerFixture -> FilePath
-dotenvModuleDirPath fixture = serverDirPath fixture </> "node_modules" </> "dotenv"
-
 serverPidFilePath :: ServerFixture -> FilePath
-serverPidFilePath fixture = serverDirPath fixture </> "server.pid"
+serverPidFilePath fixture = _waspProjectDirPath fixture </> "server.pid"
 
 bundlesLogFilePath :: ServerFixture -> FilePath
 bundlesLogFilePath fixture = serverDirPath fixture </> "bundles.log"
@@ -296,6 +300,9 @@ bundleScriptPath fixture = serverDirPath fixture </> "bundle.js"
 
 serverPortFileName :: FilePath
 serverPortFileName = "server-port.txt"
+
+serverPortFilePath :: ServerFixture -> FilePath
+serverPortFilePath fixture = _waspProjectDirPath fixture </> serverPortFileName
 
 waitForServerStart :: ServerFixture -> IO ProcessId
 waitForServerStart fixture = do
@@ -338,7 +345,7 @@ readServerPid :: ServerFixture -> IO ProcessId
 readServerPid fixture = readProcessId (serverPidFilePath fixture)
 
 readServerPort :: ServerFixture -> IO String
-readServerPort fixture = trim <$> readFile' (serverDirPath fixture </> serverPortFileName)
+readServerPort fixture = trim <$> readFile' (serverPortFilePath fixture)
 
 clearServerPid :: ServerFixture -> IO ()
 clearServerPid fixture = removeFileIfExists $ serverPidFilePath fixture

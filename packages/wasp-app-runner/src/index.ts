@@ -12,7 +12,8 @@ import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
-import { npmInstall, waspInfo } from "./waspCli.js";
+import { npmInstall } from "./npm.js";
+import { waspInfo } from "./waspCli.js";
 
 const logger = createLogger("main");
 

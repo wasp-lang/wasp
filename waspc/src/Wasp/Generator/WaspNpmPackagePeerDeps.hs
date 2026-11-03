@@ -19,7 +19,6 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
     viteVersionRange,
-    vitestVersionRange,
   )
 
 {-
@@ -80,21 +79,10 @@ sdkCoreDeps =
   Npm.Dependency.fromList
     [ ("@prisma/client", show prismaVersionRange),
       ("@tanstack/react-query", show reactQueryVersionRange),
-      ("@testing-library/jest-dom", "^6.9.1"),
-      ("@testing-library/react", "^16.3.1"),
       ("@types/react", show reactTypesVersionRange),
       ("@types/react-dom", show reactDomTypesVersionRange),
       ("@vitejs/plugin-react", "^6.0.3"),
-      -- TODO: Installing @wasp/wasp in a project without vitest fails with
-      -- ERESOLVE. npm follows vite's optional peers down to
-      -- @vitejs/devtools-vitest and resolves its optional `vitest@*` peer to
-      -- vitest 5, which conflicts with @vitest/ui's exact vitest 4 peer. This
-      -- goes away when Vitest moves to user-land (#5060) and the testing
-      -- packages leave @wasp/wasp.
-      ("@vitest/ui", "^4.1.9"),
-      ("jsdom", "^27.4.0"),
       ("ky", show kyVersionRange),
-      ("msw", "^2.12.7"),
       ("react-hook-form", "^7.45.4")
     ]
 
@@ -107,6 +95,5 @@ projectDeps =
       ("react", show reactVersionRange),
       ("react-dom", show reactDomVersionRange),
       ("react-router", show reactRouterVersionRange),
-      ("vite", show viteVersionRange),
-      ("vitest", show vitestVersionRange)
+      ("vite", show viteVersionRange)
     ]

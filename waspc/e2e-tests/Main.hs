@@ -1,5 +1,5 @@
 import Control.Concurrent (getNumCapabilities)
-import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
+import FileSystem (devWaspNpmPackagesDirInWaspcDir, getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
 import StrongPath ((</>))
 import qualified StrongPath as SP
@@ -17,6 +17,7 @@ import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.ViteBuildTest (viteBuildTest)
 import Tests.ViteConfigTest (viteConfigTest)
+import Tests.VitestTest (vitestTest)
 import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
@@ -38,6 +39,7 @@ import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
 import Text.Read (readMaybe)
 import UnliftIO.Async (pooledMapConcurrentlyN)
+import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackagesDirEnvVarName)
 
 main :: IO ()
 main = do
@@ -50,14 +52,15 @@ main = do
 
 ensureE2eTestsEnvironment :: IO ()
 ensureE2eTestsEnvironment = do
-  existing <- lookupEnv "WASP_CLI_CMD"
-  case existing of
-    Just _ -> return ()
-    Nothing -> do
-      -- Runs the tests using the current state of the `waspc` project.
-      waspcDir <- getWaspcDirPath
-      let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
-      setEnv "WASP_CLI_CMD" devWaspCliCmd
+  waspcDir <- getWaspcDirPath
+  -- Runs the tests using the current state of the `waspc` project.
+  setEnvIfUnset "WASP_CLI_CMD" $ SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
+  -- The test projects depend on the dev Wasp npm packages of this repo, no
+  -- matter which Wasp CLI runs the tests.
+  setEnvIfUnset devWaspNpmPackagesDirEnvVarName $ SP.fromAbsDir (waspcDir </> devWaspNpmPackagesDirInWaspcDir)
+  where
+    setEnvIfUnset :: String -> String -> IO ()
+    setEnvIfUnset name value = lookupEnv name >>= maybe (setEnv name value) (const $ return ())
 
 -- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
 -- invoking it concurrently (via 'pooledMapConcurrentlyN' in 'e2eTests').
@@ -106,6 +109,7 @@ e2eTests = do
         waspTsSpecNodeEnvTest,
         viteBuildTest,
         viteConfigTest,
+        vitestTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspProjectLockTest,

@@ -38,6 +38,7 @@ data-files:
   Cli/starters/skeleton/npmrc
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
+  Generator/templates/**/*.cjs
   Generator/templates/**/*.css
   Generator/templates/**/*.js
   Generator/templates/**/*.json
@@ -273,7 +274,6 @@ library
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
-    Wasp.Generator.Test
     Wasp.Generator.TypeAugmentationGenerator
     Wasp.Generator.TypeAugmentationGenerator.App
     Wasp.Generator.TypeAugmentationGenerator.App.Common
@@ -298,7 +298,6 @@ library
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
-    Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
@@ -497,11 +496,11 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
-    Wasp.Cli.Command.Test
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.Compile
+    Wasp.Cli.DevWaspNpmPackages
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -716,6 +715,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.WaspNewSnapshotTest
     Tests.ViteBuildTest
     Tests.ViteConfigTest
+    Tests.VitestTest
     Tests.WaspBuildStartTest
     Tests.WaspBuildTest
     Tests.WaspCleanTest

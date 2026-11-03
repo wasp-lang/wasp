@@ -6,13 +6,16 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp is now a dependency of your project. `package.json` depends on `@wasp/wasp`, which brings the Wasp CLI and the Wasp Spec, so `@wasp/spec` is no longer listed separately. `wasp install` is gone, use `npm install`. ([#5210](https://github.com/wasp-lang/wasp/pull/5210), [#5211](https://github.com/wasp-lang/wasp/pull/5211), [#5212](https://github.com/wasp-lang/wasp/pull/5212))
+- Wasp projects now depend on the `@wasp/wasp` npm package instead of `@wasp/spec`, and `npm install` replaces `wasp install`. ([#5210](https://github.com/wasp-lang/wasp/pull/5210), [#5211](https://github.com/wasp-lang/wasp/pull/5211), [#5212](https://github.com/wasp-lang/wasp/pull/5212))
 - `wasp.overriddenDeps` no longer works for packages that come with `@wasp/wasp`, like React, Vite or Express. Use npm's `overrides` instead. ([#5212](https://github.com/wasp-lang/wasp/pull/5212))
+- The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
 - Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
+- Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
+- The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
 
 ### 🎉 New Features
 

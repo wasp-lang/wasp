@@ -29,7 +29,6 @@ import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
   ( viteVersionRange,
-    vitestVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -96,9 +95,9 @@ genSdk spec =
       C.genFileCopy [relfile|server/errors/httpErrors.ts|],
       C.genFileCopy [relfile|server/errors/unknownErrors.ts|],
       C.genFileCopy [relfile|server/errors/utils.ts|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/index.ts|],
+      C.genFileCopy [relfile|client/test/index.ts|],
+      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
@@ -193,12 +192,11 @@ npmDepsForSdk spec =
           [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
           ++ devDepsRequiredByEmail spec,
-      -- The SDK imports these at runtime, but they must be the same instances
-      -- the user's project uses, so the user's package.json provides them.
+      -- The SDK imports `vite` at runtime, but it must be the same instance
+      -- the user's project uses, so the user's package.json provides it.
       N.peerDependencies =
         Npm.Dependency.fromList
-          [ ("vite", show viteVersionRange),
-            ("vitest", show vitestVersionRange)
+          [ ("vite", show viteVersionRange)
           ]
     }
   where
