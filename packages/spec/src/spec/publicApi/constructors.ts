@@ -93,8 +93,6 @@ export function page(component: Page["component"], config?: PageConfig): Page {
  * The optional configuration object accepted as the last argument of the
  * {@link page} constructor.
  *
- * @category Constructors
- *
  * @inline
  * @expandType Page
  */
@@ -144,8 +142,6 @@ export function route(
 /**
  * The optional configuration object accepted as the last argument of the
  * {@link route} constructor.
- *
- * @category Constructors
  *
  * @inline
  * @expandType Route
@@ -198,8 +194,6 @@ export function query(fn: Query["fn"], config?: QueryConfig): Query {
  * The optional configuration object accepted as the last argument of the
  * {@link query} constructor.
  *
- * @category Constructors
- *
  * @inline
  * @expandType Query
  */
@@ -243,8 +237,6 @@ export function action(fn: Action["fn"], config?: ActionConfig): Action {
 /**
  * The optional configuration object accepted as the last argument of the
  * {@link action} constructor.
- *
- * @category Constructors
  *
  * @inline
  * @expandType Action
@@ -290,8 +282,6 @@ export function api(
  * The optional configuration object accepted as the last argument of the
  * {@link api} constructor.
  *
- * @category Constructors
- *
  * @inline
  * @expandType Api
  */
@@ -332,8 +322,6 @@ export function apiNamespace(
 /**
  * The configuration object accepted as the last argument of the
  * {@link apiNamespace} constructor.
- *
- * @category Constructors
  *
  * @inline
  * @expandType ApiNamespace
@@ -378,8 +366,6 @@ export function job(fn: Job["fn"], config: JobConfig): Job {
 /**
  * The configuration object accepted as the last argument of the
  * {@link job} constructor.
- *
- * @category Constructors
  *
  * @inline
  * @expandType Job

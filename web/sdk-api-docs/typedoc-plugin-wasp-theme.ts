@@ -58,7 +58,7 @@ class WaspMarkdownTheme extends MarkdownTheme {
 class WaspMarkdownThemeContext extends MarkdownThemeContext {
   constructor(...args: ConstructorParameters<typeof MarkdownThemeContext>) {
     super(...args);
-    const { comment, memberTitle, pageTitle } = this.partials;
+    const { comment, memberTitle, pageTitle, parametersList } = this.partials;
 
     this.partials = {
       ...this.partials,
@@ -77,6 +77,21 @@ class WaspMarkdownThemeContext extends MarkdownThemeContext {
             // ID keeps the anchor that TypeDoc links to.
             `\\<${model.name}\\> {#${this.router.getAnchor(model)}}`
           : memberTitle(model),
+
+      // Wraps the properties of an inlined object parameter, so we can style
+      // them as nested under the parameter.
+      parametersList: (model, options) =>
+        model
+          .map((parameter) => {
+            const md = parametersList([parameter], options);
+            const start = md.indexOf(
+              `\n${"#".repeat(options.headingLevel + 2)} `,
+            );
+            return start === -1
+              ? md
+              : `${md.slice(0, start)}\n\n<div className="api-nested">\n${md.slice(start)}\n\n</div>`;
+          })
+          .join("\n\n"),
 
       pageTitle: () =>
         this.page.model.kindOf(ReflectionKind.Module)
