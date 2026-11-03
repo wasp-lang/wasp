@@ -43,8 +43,7 @@ WASP_CLI_INSTALL_CMD="${WASP_CLI_CMD} install"
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests --test-options='--hide-successes'"
 WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests --test-options='--hide-successes'"
-WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/snapshots/*-golden"
-WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
+WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_CMD --test-options='--accept'"
 WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
@@ -210,7 +209,7 @@ print_usage() {
   print_usage_cmd "test:waspc:e2e [pattern]" \
     "Executes only cli e2e tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
   print_usage_cmd "test:waspc:e2e:accept-all" \
-    "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+    "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests and replacing the golden snapshots that differ with the current ones."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:libs" \

@@ -327,6 +327,7 @@ To run tests:
 - To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
 - To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
+- To run individual e2e tests, you can do `./run test:waspc:e2e "/wasp-start/"`.
 - To run Wasp CLI tests only, you can do `./run test:cli`.
 - To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
 - To run examples e2e tests, you can do `./run test:examples`.

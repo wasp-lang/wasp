@@ -694,7 +694,6 @@ test-suite waspc-e2e-tests
     aeson-pretty,
     async,
     base,
-    base64-bytestring,
     bytestring,
     cli-lib,
     containers,
@@ -702,7 +701,6 @@ test-suite waspc-e2e-tests
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
-    hspec,
     mtl,
     neat-interpolation,
     network,
@@ -711,7 +709,6 @@ test-suite waspc-e2e-tests
     strong-path,
     tasty ^>=1.5.4,
     tasty-golden,
-    tasty-hspec,
     text,
     time,
     unliftio ^>=0.2.25,
@@ -733,10 +730,6 @@ test-suite waspc-e2e-tests
     E2e.Test
     E2e.TestM
     E2e.Wasp
-    FileSystem
-    ShellCommands
-    Test
-    TestLogging
     Tests.Fixtures
     Tests.IncrementalTypeCheckingTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
