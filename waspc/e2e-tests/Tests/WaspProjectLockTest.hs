@@ -35,10 +35,10 @@ waspProjectLockTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ return addBlockingNpmPreinstallHook,
-                  startNpmInstallInBackground,
+                  startWaspCompileInBackground,
                   return waitForLockToBeHeld,
                   assertWaspCleanFailsMentioningLockHolder,
-                  return releaseLockAndAwaitNpmInstall,
+                  return releaseLockAndAwaitWaspCompile,
                   -- The lock died with its holder, so the next command just works.
                   waspCliClean
                 ]
@@ -73,7 +73,7 @@ waspProjectLockTest =
                   -- is held, so the generated app must already be there.
                   waspCliCompile,
                   return addBlockingNpmPreinstallHook,
-                  startNpmInstallInBackground,
+                  startWaspCompileInBackground,
                   return waitForLockToBeHeld,
                   -- `wasp compile` is not a watcher, so the db command waits for
                   -- it to finish, and gives up after a while.
@@ -89,7 +89,7 @@ waspProjectLockTest =
                   return $ setLockFileWatcherStatus UpToDate,
                   return "wait \"$WASP_E2E_DB_PID\"",
                   return "grep -qF 'is already watching this project, skipping compilation.' .wasp-e2e-db.log",
-                  return releaseLockAndAwaitNpmInstall
+                  return releaseLockAndAwaitWaspCompile
                 ]
             ]
         )
@@ -97,10 +97,10 @@ waspProjectLockTest =
   where
     -- The lock holder is a real `wasp compile` process. It acquires the
     -- project lock, generates the app and then runs `npm install` in the
-    -- project dir (we make sure it does by forgetting the installed deps
-    -- log), which this hook stalls until 'releaseLockAndAwaitNpmInstall'
-    -- signals it (or ~120s pass). The hook also tells us, via the marker
-    -- file, when `wasp compile` is far enough along to be holding the lock.
+    -- project dir. 'startWaspCompileInBackground' deletes the installed deps
+    -- log first, so the install always runs. This hook stalls the install
+    -- until 'releaseLockAndAwaitWaspCompile' signals it, or ~120s pass. The
+    -- hook also creates the marker file, which tells us `wasp compile` holds the lock.
     addBlockingNpmPreinstallHook :: ShellCommand
     addBlockingNpmPreinstallHook =
       "npm pkg set 'scripts.preinstall=" ++ preinstallHookScript ++ "'"
@@ -113,13 +113,13 @@ waspProjectLockTest =
         ++ releaseLockSignalFile
         ++ " ]; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done"
 
-    startNpmInstallInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
-    startNpmInstallInBackground = do
+    startWaspCompileInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
+    startWaspCompileInBackground = do
       compileCommand <- waspCliCompile
       return $
         -- Forgetting the installed deps log makes `wasp compile` run `npm install` again.
         "rm -f .wasp/out/installedNpmDepsLog.json"
-          ~&& ("{ " ++ compileCommand ++ " > .wasp-e2e-install.log 2>&1 & }")
+          ~&& ("{ " ++ compileCommand ++ " > .wasp-e2e-compile.log 2>&1 & }")
           ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
 
     waitForLockToBeHeld :: ShellCommand
@@ -180,14 +180,14 @@ waspProjectLockTest =
     waitingForCompilationMessage :: String
     waitingForCompilationMessage = "'Waiting for compilation to finish'"
 
-    releaseLockAndAwaitNpmInstall :: ShellCommand
-    releaseLockAndAwaitNpmInstall =
+    releaseLockAndAwaitWaspCompile :: ShellCommand
+    releaseLockAndAwaitWaspCompile =
       "touch " ++ releaseLockSignalFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
 
     lockAcquiredMarkerFile :: FilePath
     lockAcquiredMarkerFile = ".wasp-e2e-lock-acquired"
 
     -- Created by the test to tell the preinstall hook to stop waiting, which
-    -- lets the `npm install` (and with it the lock) finish.
+    -- lets `wasp compile` finish and release the lock.
     releaseLockSignalFile :: FilePath
     releaseLockSignalFile = ".wasp-e2e-release-lock"

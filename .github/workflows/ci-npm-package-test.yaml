@@ -75,7 +75,7 @@ jobs:
           # the way projects will. It pulls in `@wasp/cli`, `@wasp/spec`,
           # `@wasp/deploy` and `@wasp/studio` of the same version.
           cd .. && mkdir install-test-wasp && cd install-test-wasp
-          npm init -y
+          echo '{}' > package.json
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/wasp@$COMMIT_SHA"
 
       - name: Run Wasp CLI
@@ -86,9 +86,8 @@ jobs:
           # Test that the Wasp CLI can find and run the binary.
           NODE_DEBUG=wasp-bin-wrapper npx wasp version
 
-          # Same through the `@wasp/wasp` project dependency, running its own
-          # bin by path (npm links `.bin/wasp` to `@wasp/cli`'s, so `npx wasp`
-          # would not exercise it).
+          # Run Wasp through the bin of `@wasp/wasp`. npm links `.bin/wasp` to
+          # the bin of `@wasp/cli`, so `npx wasp` would skip it.
           cd ../install-test-wasp
           NODE_DEBUG=wasp-bin-wrapper node node_modules/@wasp/wasp/bin.js version
           # `@wasp/wasp` also brings `@wasp/deploy` and `@wasp/studio`, which the

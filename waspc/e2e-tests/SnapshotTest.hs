@@ -188,9 +188,9 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                    ]
             )
 
-    -- Normalizes the JSON files that differ between machines. @package.json@
-    -- files get reformatted (ref: https://github.com/wasp-lang/wasp/issues/482),
-    -- and both they and the installed npm deps log get the dev tarball paths hidden.
+    -- Normalizes the JSON files that differ between machines. It reformats
+    -- @package.json@ files (ref: https://github.com/wasp-lang/wasp/issues/482),
+    -- and hides the dev tarball paths in them and in the installed npm deps log.
     normalizeJsonFiles :: [Path' Abs (File file)] -> IO ()
     normalizeJsonFiles snapshotFiles = do
       mapM_ (normalizeJsonFile formatPackageJson) $ filter isPackageJsonFile snapshotFiles
@@ -203,9 +203,9 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
 
         -- In development, projects depend on the Wasp npm packages through
         -- `file:` tarballs whose absolute paths depend on where the repo is
-        -- checked out (see "Wasp.Project.WaspNpmPackage"), so we replace those
-        -- paths with a placeholder. The lib tarballs are referenced relatively
-        -- from inside the project, so they stay as they are.
+        -- checked out (see "Wasp.Cli.DevWaspNpmPackages"), so we replace those
+        -- paths with a placeholder. Projects reference the lib tarballs with
+        -- relative paths, so those stay as they are.
         hideDevWaspNpmPackageTarballs :: Aeson.Value -> Aeson.Value
         hideDevWaspNpmPackageTarballs (Aeson.Object object) = Aeson.Object $ fmap hideDevWaspNpmPackageTarballs object
         hideDevWaspNpmPackageTarballs (Aeson.Array array) = Aeson.Array $ fmap hideDevWaspNpmPackageTarballs array

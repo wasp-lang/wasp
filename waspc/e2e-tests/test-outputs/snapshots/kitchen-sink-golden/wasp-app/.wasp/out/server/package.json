@@ -36,7 +36,7 @@
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
+    "start": "cd ../../../ && node --enable-source-maps -r ./.wasp/out/server/loadDotEnv.cjs .wasp/out/server/bundle/server.js",
     "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start"
   },
   "type": "module",

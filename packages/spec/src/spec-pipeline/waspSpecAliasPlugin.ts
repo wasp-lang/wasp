@@ -1,29 +1,25 @@
 import type { Plugin } from "rolldown";
-import {
-  INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE,
-  PUBLIC_REF_HELPER_IMPORT_SOURCE,
-} from "./transformWaspTsSpecFilesPlugin/util.js";
 
 /**
- * Resolves imports of this package (`@wasp/spec`) in the user's spec files to
- * the copy of the package that is running the analysis.
+ * Resolves `@wasp/spec` imports in the user's spec files to the copy of
+ * `@wasp/spec` that runs the analysis.
  *
- * Users depend on `@wasp/wasp`, which depends on `@wasp/spec`. Package
- * managers that don't hoist (pnpm) then don't expose `@wasp/spec` at the
- * project root, so the bundler couldn't resolve it from `main.wasp.ts`. Using
- * our own copy also keeps a single copy at runtime, which `instanceof` checks
- * on the errors it throws rely on.
+ * The analyzer checks the errors the spec throws with `instanceof`, which only
+ * works when the spec and the analyzer share one copy of the package. npm
+ * hoists `@wasp/spec` next to `@wasp/wasp`, but this plugin doesn't rely on
+ * that. It also keeps the bundler from looking for `@wasp/spec` at the project
+ * root, where package managers that don't hoist (pnpm) don't put it.
  *
- * The modules are marked external, so the user's spec file imports them at
+ * The plugin marks the modules external, so the user's spec imports them at
  * runtime instead of bundling a second copy. The IDs are `file:` URLs, not
- * paths. The bundler writes them verbatim into the output's import statement,
- * and Node accepts a `file:` URL on every platform, while it rejects a
- * Windows path such as `C:\...` as an unsupported URL scheme.
+ * paths. The bundler writes them verbatim into the output's import statement.
+ * Node accepts a `file:` URL on every platform, but rejects a Windows path
+ * such as `C:\...` as an unsupported URL scheme.
  */
 export function waspSpecAliasPlugin(): Plugin {
   const specEntryPoints: Record<string, string> = {
-    [PUBLIC_REF_HELPER_IMPORT_SOURCE]: getSpecDistFileUrl("index.js"),
-    [INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE]: getSpecDistFileUrl("internal.js"),
+    "@wasp/spec": getSpecDistFileUrl("index.js"),
+    "@wasp/spec/internal": getSpecDistFileUrl("internal.js"),
   };
 
   return {

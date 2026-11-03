@@ -76,7 +76,7 @@ data SpecResultFile
 -- is deleted afterwards.
 withSpecResultFile :: CompileOptions -> (Path' Abs (File SpecResultFile) -> IO a) -> IO a
 withSpecResultFile compileOptions action = do
-  -- Nothing else guarantees the .wasp dir exists yet, e.g. right after `wasp new`.
+  -- `withTempFile` needs the .wasp dir to exist. A fresh project doesn't have it yet, e.g. right after `wasp new`.
   createDirectoryIfMissing True (fromAbsDir dotWaspDir)
   withTempFile
     (fromAbsDir dotWaspDir)

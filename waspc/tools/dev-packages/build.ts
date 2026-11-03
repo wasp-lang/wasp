@@ -4,12 +4,12 @@
 // under `waspc/.dev-packages/`, so Wasp projects can depend on the Wasp in
 // this repo before it is published. `tools/wasp-cli-dev` points the
 // CLI at that directory, and `wasp new` then writes the tarball paths into the
-// new project's package.json (see `Wasp.Project.WaspNpmPackage`).
+// new project's package.json (see `Wasp.Cli.DevWaspNpmPackages`).
 //
 // The dev `@wasp/cli` has no platform packages. Its `data.json` points at a
-// "dev sub-package" inside it that runs the binary built in this repo (or the
-// one given through `WASP_DEV_CLI_BIN` / `WASP_DEV_DATA_DIR`), see
-// `writeDevCliConfig` for how it finds them.
+// dev sub-package inside it, which runs the `wasp-cli` binary built in this
+// repo. See `DEV_SUB_PACKAGE_SOURCE` for how it finds the binary, and
+// `writeDevCliConfig` for the `WASP_DEV_CLI_BIN` and `WASP_DEV_DATA_DIR` overrides.
 
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -20,6 +20,10 @@ import {
   MAIN_PACKAGE_STATIC_FILES,
   copyStaticFiles,
 } from "../../../scripts/make-npm-packages/src/common.ts";
+import {
+  type MainPackageData,
+  UNDEFINED_LIBC_NAME,
+} from "../../../scripts/make-npm-packages/src/schema/output-data.ts";
 import { getPackageDirPath } from "../packages/utils.ts";
 import {
   getPackageJson,
@@ -44,6 +48,8 @@ const WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES: string[] = [
 // project it is installed in (the one whose package.json points at the dev
 // `@wasp/wasp` tarball), and reads the binary and data dir paths from the
 // config file next to that tarball. The env vars win when set.
+// Its default export must match `SubPackageAPI` in
+// `scripts/make-npm-packages/src/schema/output-data.ts`, which `bin.js` reads.
 const DEV_SUB_PACKAGE_SOURCE = `\
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -99,9 +105,19 @@ function buildDevPackages(): void {
 
   for (const packageDirName of WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES) {
     console.log(`Building @wasp/${packageDirName}`);
-    runCmd("pnpm", ["--filter", `@wasp/${packageDirName}`, "run", "build"], {
-      cwd: getRepoRootPath(),
-    });
+    runCmd(
+      "pnpm",
+      [
+        "--filter",
+        `@wasp/${packageDirName}`,
+        "--fail-if-no-match",
+        "run",
+        "build",
+      ],
+      {
+        cwd: getRepoRootPath(),
+      },
+    );
     packPackage(getPackageDirPath(packageDirName), devPackagesDir);
   }
 
@@ -164,16 +180,14 @@ function packDevCliPackage(devPackagesDir: string): void {
   // for this machine's platform. `bin.js` passes `packageName` to `import()`,
   // which resolves the relative path against `bin.js`.
   const { os, cpu, libc } = getCurrentTarget();
-  writeFileSync(
-    join(tmpDir, "data.json"),
-    JSON.stringify({
-      subPackages: {
-        [os]: {
-          [cpu]: { [libc]: { packageName: `./${DEV_SUB_PACKAGE_FILE_NAME}` } },
-        },
+  const data = {
+    subPackages: {
+      [os]: {
+        [cpu]: { [libc]: { packageName: `./${DEV_SUB_PACKAGE_FILE_NAME}` } },
       },
-    }),
-  );
+    },
+  } satisfies MainPackageData;
+  writeFileSync(join(tmpDir, "data.json"), JSON.stringify(data));
 
   packPackage(tmpDir, devPackagesDir);
   rmSync(tmpDir, { recursive: true, force: true });
@@ -190,7 +204,8 @@ function packPackage(packageDir: string, destinationDir: string): void {
 // Keep in sync with the platform detection in `packages/cli/bin.js`.
 function getCurrentTarget(): { os: string; cpu: string; libc: string } {
   const { platform: os, arch: cpu } = process;
-  const libc = os === "linux" ? (isGlibc() ? "glibc" : "musl") : "unknown";
+  const libc =
+    os === "linux" ? (isGlibc() ? "glibc" : "musl") : UNDEFINED_LIBC_NAME;
   return { os, cpu, libc };
 }
 
