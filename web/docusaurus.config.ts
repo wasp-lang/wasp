@@ -316,16 +316,13 @@ const config: Config = {
 
         // typedoc-plugin-markdown options
         readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
-        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
+
+        router: "module",
 
         // Documents types that our packages reference but don't export, e.g.
         // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures,
         // and groups them so we can keep them out of the sidebar.
-        plugin: [
-          "typedoc-plugin-missing-exports",
-          // Loaded by path, so that it shares TypeDoc's instance.
-          "./src/plugins/typedoc-api-groups.ts",
-        ],
+        plugin: ["typedoc-plugin-missing-exports"],
 
         // input packages
         entryPointStrategy: "packages",
