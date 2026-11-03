@@ -1,52 +1,45 @@
 module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
-import Control.Monad.Reader (asks)
-import qualified Data.Text as T
+import Control.Monad (void)
+import E2e
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext (),
-    buildAndRemoveWaspProjectDockerImage,
-    createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
-    setWaspDbToPSQL,
-    waspCliBuild,
-    writeToFile,
-  )
-import qualified ShellCommands as WaspProjectContext
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
-import qualified StrongPath.FilePath as FP
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
-waspBuildSnapshotTest :: SnapshotTest
+waspBuildSnapshotTest :: E2eTest
 waspBuildSnapshotTest =
-  makeSnapshotTest
-    "wasp-build"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [ setWaspDbToPSQL,
-          waspCliBuild,
-          buildAndRemoveWaspProjectDockerImage,
-          wrapViteConfigForDeterministicBuild,
-          viteBuild
-        ]
-    ]
+  snapshotTest "wasp-build" $
+    withNewWaspProject minimalStarterTemplate $ do
+      setDbToPostgres
+      wasp ["build"]
+      buildAndRemoveDockerImage
+      writeDeterministicViteConfig
+      run
+        $ withEnv [("REACT_APP_API_URL", "http://localhost:3001")]
+        $ nodeModulesBin "vite" ["build", "--config", wrapperViteConfigFile]
 
--- | Renames the generated vite.config.ts and wraps it with a config that adds
+-- | Builds the Docker image of the generated app, to check that its
+-- Dockerfile works.
+buildAndRemoveDockerImage :: TestM ()
+buildAndRemoveDockerImage =
+  whenDockerEnabled $
+    inDirectory (SP.fromRelDir $ dotWaspDirInWaspProjectDir SP.</> generatedAppDirInDotWaspDir) $ do
+      run $ command "docker" ["build", "--build-arg", "BUILDKIT_DOCKERFILE_CHECK=error=true", "-t", imageTag, "."]
+      void . run $ command "docker" ["image", "rm", imageTag]
+  where
+    imageTag = "waspc-e2e-tests-" ++ waspAppDirName
+
+-- | Wraps the generated vite.config.ts with a config that adds
 -- deterministic build options (no minification, no hashes, externalized deps),
 -- so the snapshot output is stable and easy to diff.
-wrapViteConfigForDeterministicBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
-wrapViteConfigForDeterministicBuild = do
-  waspProjectDir <- asks (.waspProjectDir)
-
+writeDeterministicViteConfig :: TestM ()
+writeDeterministicViteConfig =
   writeToFile
-    (waspProjectDir </> wrapperViteFile)
+    wrapperViteConfigFile
     [trimming|
       import { mergeConfig, type Plugin } from "vite";
-      import originalConfig from "${importOriginalFromMain}";
+      import originalConfig from "./vite.config.ts";
 
       export default mergeConfig(originalConfig, {
         plugins: [externalizeNodeModules()],
@@ -89,26 +82,6 @@ wrapViteConfigForDeterministicBuild = do
         };
       }
     |]
-  where
-    importOriginalFromMain :: T.Text
-    importOriginalFromMain = T.pack $ "./" ++ FP.fromRelFile originalViteFile
 
-{- HLINT ignore viteBuild "Avoid npm and npx" -}
-
-viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
-viteBuild =
-  return $
-    unwords
-      [ "REACT_APP_API_URL=http://localhost:3001",
-        "npx",
-        "vite",
-        "build",
-        "--config",
-        FP.fromRelFile wrapperViteFile
-      ]
-
-originalViteFile :: SP.Path' (SP.Rel WaspProjectDir) SP.File'
-originalViteFile = [relfile|vite.config.ts|]
-
-wrapperViteFile :: SP.Path' (SP.Rel WaspProjectDir) SP.File'
-wrapperViteFile = [relfile|vite.config.wrapper.ts|]
+wrapperViteConfigFile :: FilePath
+wrapperViteConfigFile = "vite.config.wrapper.ts"

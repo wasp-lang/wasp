@@ -1,17 +1,10 @@
 module Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest) where
 
-import ShellCommands
-  ( createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
-    waspCliCompile,
-  )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import E2e
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspCompileSnapshotTest :: SnapshotTest
+waspCompileSnapshotTest :: E2eTest
 waspCompileSnapshotTest =
-  makeSnapshotTest
-    "wasp-compile"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [waspCliCompile]
-    ]
+  snapshotTest "wasp-compile"
+    $ withNewWaspProject minimalStarterTemplate
+    $ wasp ["compile"]

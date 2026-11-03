@@ -346,7 +346,7 @@ waitForExit backgroundProcess seconds = do
       liftIO $ waitForOutputToClose backgroundProcess
       endTime <- liftIO getCurrentTime
       logLine $
-        "<== "
+        "\n<== "
           ++ showExitCode exitCode
           ++ printf " after %.1fs" (realToFrac (diffUTCTime endTime backgroundProcess.startTime) :: Double)
       return exitCode
@@ -381,7 +381,7 @@ stopProcess backgroundProcess = do
       liftIO . atomically $
         (Just <$> (readTVar backgroundProcess.processExitCode >>= maybe retry return))
           `orElse` (readTVar gracePeriodPassed >>= check >> return Nothing)
-    logLine $ maybe "<== didn't stop within 10s, killing it" (("<== " ++) . showExitCode) maybeExitCode
+    logLine $ maybe "\n<== didn't stop within 10s, killing it" (("\n<== " ++) . showExitCode) maybeExitCode
   signalGroup SIGKILL
   liftIO $ closeKeptStdin backgroundProcess
   where

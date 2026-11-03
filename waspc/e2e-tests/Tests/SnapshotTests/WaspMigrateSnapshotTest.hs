@@ -1,34 +1,13 @@
 module Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
 
-import qualified Data.Text as T
-import NeatInterpolation (trimming)
-import ShellCommands
-  ( appendToPrismaFile,
-    createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
-    waspCliCompile,
-    waspCliDbMigrateDev,
-  )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import E2e
+import Tests.Fixtures (taskPrismaModel)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspMigrateSnapshotTest :: SnapshotTest
+waspMigrateSnapshotTest :: E2eTest
 waspMigrateSnapshotTest =
-  makeSnapshotTest
-    "wasp-migrate"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [ waspCliCompile,
-          appendToPrismaFile taskPrismaModel,
-          waspCliDbMigrateDev "foo"
-        ]
-    ]
-  where
-    taskPrismaModel :: T.Text
-    taskPrismaModel =
-      [trimming|
-        model Task {
-          id          Int     @id @default(autoincrement())
-          description String
-          isDone      Boolean @default(false)
-        }
-      |]
+  snapshotTest "wasp-migrate" $
+    withNewWaspProject minimalStarterTemplate $ do
+      wasp ["compile"]
+      appendToFile "schema.prisma" taskPrismaModel
+      waspDbMigrateDev "foo"
