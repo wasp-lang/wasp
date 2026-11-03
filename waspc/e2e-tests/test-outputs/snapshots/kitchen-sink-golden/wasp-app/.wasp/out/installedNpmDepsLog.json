@@ -3,6 +3,10 @@
         "fromUser": {
             "dependencies": [
                 {
+                    "name": "@prisma/client",
+                    "version": "6.19.3"
+                },
+                {
                     "name": "@tanstack/react-query",
                     "version": "~4.42.0"
                 },
@@ -13,6 +17,18 @@
                 {
                     "name": "clsx",
                     "version": "^2.1.1"
+                },
+                {
+                    "name": "cors",
+                    "version": "^2.8.5"
+                },
+                {
+                    "name": "express",
+                    "version": "~5.1.0"
+                },
+                {
+                    "name": "ky",
+                    "version": "^2.0.0"
                 },
                 {
                     "name": "linebyline",
@@ -27,6 +43,10 @@
                     "version": "^19.2.1"
                 },
                 {
+                    "name": "react-hook-form",
+                    "version": "^7.45.4"
+                },
+                {
                     "name": "react-router",
                     "version": "^8.0.1"
                 },
@@ -39,8 +59,16 @@
                     "version": "^4.1.18"
                 },
                 {
+                    "name": "uuid",
+                    "version": "^9.0.1"
+                },
+                {
                     "name": "wait-port",
                     "version": "^1.1.0"
+                },
+                {
+                    "name": "zod",
+                    "version": "^4.3.6"
                 }
             ],
             "devDependencies": [
@@ -71,6 +99,10 @@
                 {
                     "name": "@types/chai",
                     "version": "^5.2.2"
+                },
+                {
+                    "name": "@types/cors",
+                    "version": "^2.8.5"
                 },
                 {
                     "name": "@types/express",
