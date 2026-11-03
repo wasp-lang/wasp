@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@heroui/react": "^2.8.7",
-    "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
     "@tanstack/react-query": "~4.42.0",
+    "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
     "cheerio": "1.0.0-rc.12",
     "framer-motion": "^12.23.26",
     "ky": "^2.0.0-0",

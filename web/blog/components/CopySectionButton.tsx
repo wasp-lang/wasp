@@ -27,15 +27,15 @@ export function CopySectionButton({
   const [state, setState] = useState<CopyState>("idle");
 
   const copy = async () => {
+    // Awaiting in an event handler can make the browser stop treating the rest
+    // of it as user-initiated, which clipboard writes require. So we don't
+    // block on fetching the text, and hand the clipboard a promise instead.
+    const textPromise = sectionWithSource(sectionId, headingPrefix, label);
+
     try {
-      const section =
-        (await sectionFromMarkdown(headingPrefix, label)) ??
-        sectionFromPage(sectionId);
-      if (!section) throw new Error(`Section "${sectionId}" not found`);
-      const pageUrl = window.location.href.split("#")[0];
-      await navigator.clipboard.writeText(
-        `Source: ${pageUrl}#${sectionId}\n\n${section}`,
-      );
+      await navigator.clipboard.write([
+        new ClipboardItem({ "text/plain": textPromise }),
+      ]);
       setState("copied");
     } catch {
       setState("failed");
@@ -59,6 +59,19 @@ export function CopySectionButton({
       </button>
     </p>
   );
+}
+
+async function sectionWithSource(
+  sectionId: string,
+  headingPrefix: string,
+  label: string,
+): Promise<string> {
+  const section =
+    (await sectionFromMarkdown(headingPrefix, label)) ??
+    sectionFromPage(sectionId);
+  if (!section) throw new Error(`Section "${sectionId}" not found`);
+  const pageUrl = window.location.href.split("#")[0];
+  return `Source: ${pageUrl}#${sectionId}\n\n${section}`;
 }
 
 async function sectionFromMarkdown(
