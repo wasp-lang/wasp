@@ -103,14 +103,15 @@
 - [From 0.11 to 0.12](https://wasp.sh/docs/0.12/migration-guide.md)
 
 ## Guides
+### Guides
 - [About these guides](https://wasp.sh/docs/guides.md)
-### Configuration
+#### Configuration
 - [Multiple Domains CORS](https://wasp.sh/docs/guides/configuration/cors-multiple-domains.md)
-### Debugging
+#### Debugging
 - [Database Studio with Fly.io](https://wasp.sh/docs/guides/debugging/db-studio-fly-io.md)
 - [Local Network Testing](https://wasp.sh/docs/guides/debugging/local-network-testing.md)
-### Deployment
-#### Cloud Providers
+#### Deployment
+##### Cloud Providers
 - [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare.md)
 - [Fly.io](https://wasp.sh/docs/guides/deployment/cloud-providers/flyio.md)
 - [Heroku](https://wasp.sh/docs/guides/deployment/cloud-providers/heroku.md)
@@ -118,25 +119,25 @@
 - [Railway](https://wasp.sh/docs/guides/deployment/cloud-providers/railway.md)
 - [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render.md)
 - [Vercel](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel.md)
-#### Self-Hosted
+##### Self-Hosted
 - [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
 - [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
 - [Simple VPS](https://wasp.sh/docs/guides/deployment/self-hosted/vps.md)
-### Integrations
+#### Integrations
 - [Custom OAuth Provider](https://wasp.sh/docs/guides/integrations/custom-oauth.md)
 - [File Uploads](https://wasp.sh/docs/guides/integrations/file-upload.md)
 - [Sentry](https://wasp.sh/docs/guides/integrations/sentry.md)
 - [Swagger UI](https://wasp.sh/docs/guides/integrations/swagger-ui.md)
 - [WebSocket Namespaces](https://wasp.sh/docs/guides/integrations/websocket-namespaces.md)
-### Legacy
+#### Legacy
 - [Wasp Installer](https://wasp.sh/docs/guides/legacy/installer.md)
 - [Wasp DSL](https://wasp.sh/docs/guides/legacy/wasp-dsl.md)
 - [Wasp TS Config](https://wasp.sh/docs/guides/legacy/wasp-ts-config.md)
-### Libraries
+#### Libraries
 - [Radix Themes](https://wasp.sh/docs/guides/libraries/radix-themes.md)
 - [Shadcn](https://wasp.sh/docs/guides/libraries/shadcn.md)
 - [Tailwind CSS](https://wasp.sh/docs/guides/libraries/tailwind.md)
-### Optimization
+#### Optimization
 - [Meta tags](https://wasp.sh/docs/guides/optimization/meta-tags.md)
 - [SEO & GEO](https://wasp.sh/docs/guides/optimization/seo.md)
 
