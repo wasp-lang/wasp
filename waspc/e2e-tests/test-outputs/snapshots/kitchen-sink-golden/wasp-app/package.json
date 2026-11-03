@@ -1,15 +1,22 @@
 {
   "dependencies": {
+    "@prisma/client": "6.19.3",
     "@tanstack/react-query": "~4.42.0",
     "chai": "^5.2.0",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "express": "~5.1.0",
+    "ky": "^2.0.0",
     "linebyline": "^1.3.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
+    "react-hook-form": "^7.45.4",
     "react-router": "^8.0.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "wait-port": "^1.1.0"
+    "uuid": "^9.0.1",
+    "wait-port": "^1.1.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
@@ -19,6 +26,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/chai": "^5.2.2",
+    "@types/cors": "^2.8.5",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.7",

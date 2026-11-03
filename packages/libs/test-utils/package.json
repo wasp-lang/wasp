@@ -24,7 +24,7 @@
   "peerDependencies": {
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/react": "^16.3.1",
-    "@wasp/lib-sdk-core": "^0.27.0",
+    "@wasp/lib-sdk-core": "workspace:^",
     "jsdom": "*",
     "msw": "^3.0.0",
     "react": "^19.2.1",
