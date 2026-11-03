@@ -18,17 +18,16 @@ import Data.Maybe (isNothing)
 import qualified Data.Text as T
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Void (Void)
-import StrongPath (Abs, Dir, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel)
 import System.Exit (ExitCode (..))
 import qualified UnliftIO.Async as UnliftIO
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
-import qualified Wasp.Generator.ServerGenerator.Common as Common
+import qualified Wasp.Generator.NodeTools as NodeTools
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import qualified Wasp.Job as J
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
+import Wasp.Project.Common (WaspProjectDir)
 
 -- We disable this lint because we use it for clarity here, because it is
 -- complex code:
@@ -113,7 +112,7 @@ startServer serverRunConfig generatedAppDir inbox = do
 
     runServerProcess :: J.Job ()
     runServerProcess =
-      J.fromProc serverProcess
+      NodeTools.runDevServer serverRunConfig generatedAppDir
         >>= reportServerExit
         >> printWaitingForChanges
 
@@ -126,18 +125,7 @@ startServer serverRunConfig generatedAppDir inbox = do
       J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
 
     bundle :: J.Job ExitCode
-    bundle =
-      (J.fromProc =<< uncurry (J.npmBinProc serverDir) Common.serverTscProcess)
-        `J.andThen` (J.fromProc =<< uncurry (J.npmBinProc serverDir) Common.serverRollupProcess)
-
-    serverProcess :: J.CreateJobProcess
-    serverProcess =
-      addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-        $ J.setCwd waspProjectDir
-        $ uncurry J.proc Common.devServerStartProcess
-
-    serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-    waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
+    bundle = NodeTools.bundleServer generatedAppDir
 
 -- | What the compiles that `startServer` hasn't handled yet, newest first,
 -- require of the server.

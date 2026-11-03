@@ -229,6 +229,7 @@ library
     Wasp.Generator.FileDraft.WriteableMonad
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
+    Wasp.Generator.NodeTools
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
@@ -308,7 +309,6 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.RunConfig
-    Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable

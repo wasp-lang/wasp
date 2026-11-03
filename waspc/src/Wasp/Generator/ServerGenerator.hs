@@ -50,6 +50,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.NodeTools as NodeTools
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
@@ -143,8 +144,8 @@ genPackageJson spec waspDependencies =
             [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
-              "serverBundleCommand" .= C.serverBundleCommand,
-              "devServerStartCommand" .= C.devServerStartCommand,
+              "serverBundleCommand" .= NodeTools.serverBundleCommand,
+              "devServerStartCommand" .= NodeTools.devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")

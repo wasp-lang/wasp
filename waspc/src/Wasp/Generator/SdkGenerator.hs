@@ -10,7 +10,7 @@ where
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
-import StrongPath (Abs, Dir, Path', relfile, (</>))
+import StrongPath (Abs, Dir, Path', relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -44,6 +44,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.NodeTools as NodeTools
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
@@ -83,13 +84,9 @@ import Wasp.Util (checkExitSuccess, (<++>))
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
-    Job.run . Job.prefixWith Job.Wasp $
-      (Job.fromProc =<< Job.npmBinProc sdkRootDir "tsc" [])
-        `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
+    Job.run . Job.prefixWith Job.Wasp $ NodeTools.buildSdk generatedAppDir
 
   return $ checkExitSuccess "SDK build" exitCode
-  where
-    sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
