@@ -1,196 +1,152 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext,
-    assertCommandOutputContains,
-    createTestWaspProject,
-    inTestWaspProjectDir,
-    setWaspDbToPSQL,
-    skipIfDockerDisabled,
-    waitUntil,
-    waspCliDbMigrateDev,
-    waspCliDbStart,
-    (~&&),
-  )
-import Test (Test (..), TestCase (..))
+import Control.Monad (void)
+import Data.Char (isSpace)
+import qualified Data.Text as T
+import E2e
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Db.Postgres (defaultPostgresPort)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 
-waspDbStartTest :: Test
+waspDbStartTest :: E2eTest
 waspDbStartTest =
-  Test
+  testGroup
     "wasp-db-start"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliDbStartFails]),
-      TestCase
-        "succeed-sqlite-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDbStart
-                ]
-            ]
-        ),
-      TestCase
-        "fail-postgresql-project-when-dev-db-not-running"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  assertCommandOutputContains
-                    (return waspCliDbMigrateDevFails)
-                    "The database needs to be running"
-                ]
-            ]
-        ),
-      -- NOTE: Tasty runs test cases in parallel, so the PostgreSQL scenarios (which
-      -- compete for the same host ports) are all in a single sequential test case.
-      TestCase
-        "succeed-postgresql-project"
-        ( skipIfDockerDisabled . sequence $
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  -- Test 1: Does `wasp db start` work?
-                  waspCliDbStartInBackground,
-                  -- Test 2: Does a Wasp command find the database and connect to it
-                  -- after `wasp db start` says it's ready?
-                  waitUntilDevDbReportsItIsReady,
-                  waspCliDbMigrateDev "first_migration",
-                  -- Test 3: Does the second `wasp db start` detect and report
-                  -- an already running dev database?
-                  assertCommandOutputContains
-                    (return waspCliDbStartFails)
-                    "already running on port",
-                  -- Test 4: Does SIGINT stop the database and delete the container,
-                  -- even while a client is still connected to it?
-                  holdDevDbSessionOpen,
-                  stopWaspCliDbStartWithSignal "INT",
-                  -- Test 5:
-                  --   - Does `wasp db start` work when an earlier one left its container
-                  --     behind, e.g. when it was stopped while creating it?
-                  --   - Does `wasp db start` find a new port when the default one is taken?
-                  leaveStoppedDevDbContainerBehind,
-                  occupyDefaultDevDbPort,
-                  waspCliDbStartInBackground,
-                  waitUntilDevDbReportsItIsReady,
-                  -- Test 6: Does a Wasp command find and connect to the database
-                  -- even when it's running on a non-default port?
-                  waspCliDbMigrateDev "no_new_migration",
-                  removeDefaultDevDbPortHolder,
-                  -- Test 7: Does SIGTERM (e.g. from a process manager) also stop the
-                  -- database and delete the container?
-                  stopWaspCliDbStartWithSignal "TERM",
-                  -- Test 8: Can the user remove the volume reported by `wasp db start`?
-                  removeReportedDevDbVolume
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["db", "start"],
+      test "succeed-sqlite-project"
+        $ withNewWaspProject minimalStarterTemplate
+        $ wasp ["db", "start"],
+      -- These tests expect the default PostgreSQL port to be free or take it.
+      sequentialTestGroup
+        "postgresql"
+        [ test "fail-postgresql-project-when-dev-db-not-running" $
+            withNewWaspProject minimalStarterTemplate $ do
+              setDbToPostgres
+              waspFails ["db", "migrate-dev"] >>= assertOutputContains "The database needs to be running",
+          test "succeed-postgresql-project" $ do
+            skipIfDockerDisabled
+            withNewWaspProject minimalStarterTemplate $ do
+              setDbToPostgres
+
+              -- Does `wasp db start` work?
+              devDb <- startDevDb
+              -- Does a Wasp command find the database and connect to it after
+              -- `wasp db start` says it's ready?
+              waspDbMigrateDev "first_migration"
+              -- Does the second `wasp db start` detect and report an already
+              -- running dev database?
+              waspFails ["db", "start"] >>= assertOutputContains "already running on port"
+
+              -- Does SIGINT stop the database and delete the container, even
+              -- while a client is still connected to it?
+              volumeName <- getReportedVolumeName devDb
+              containerName <- getDevDbContainerName volumeName
+              holdDevDbSessionOpen volumeName
+              stopDevDbWithSignal SIGINT devDb containerName volumeName
+
+              -- Does `wasp db start` work when an earlier one left its
+              -- container behind, e.g. when it was stopped while creating it?
+              -- Does `wasp db start` find a new port when the default one is taken?
+              leaveStoppedContainerBehind containerName
+              occupyDefaultPostgresPort
+              devDbOnOtherPort <- startDevDb
+              -- Does a Wasp command find and connect to the database even when
+              -- it's running on a non-default port?
+              waspDbMigrateDev "no_new_migration"
+              freeDefaultPostgresPort
+
+              -- Does SIGTERM (e.g. from a process manager) also stop the
+              -- database and delete the container?
+              stopDevDbWithSignal SIGTERM devDbOnOtherPort containerName volumeName
+
+              -- Can the user remove the volume reported by `wasp db start`?
+              docker ["volume", "rm", volumeName]
+        ]
     ]
-  where
-    waspCliDbStartFails :: ShellCommand
-    waspCliDbStartFails = "! $WASP_CLI_CMD db start"
 
-    waspCliDbMigrateDevFails :: ShellCommand
-    waspCliDbMigrateDevFails = "! $WASP_CLI_CMD db migrate-dev"
+-- | `wasp db start` runs the database in the foreground until it's stopped.
+startDevDb :: TestM BackgroundProcess
+startDevDb = do
+  devDb <- startInBackground $ waspCli ["db", "start"]
+  waitForOutput devDb "listening on IPv4 address" 180
+  return devDb
 
--- | `wasp db start` runs the database in the foreground, so we background it.
--- We capture its output to test whether it correctly reports its readiness and volume name.
-waspCliDbStartInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbStartInBackground =
-  return $
-    "rm -f " ++ devDbOutputFile ++ " && { $WASP_CLI_CMD db start > " ++ devDbOutputFile ++ " 2>&1 & echo $! > db-start.pid ; }"
-
--- | Stops `wasp db start` with the given signal (e.g. @INT@), and checks that
--- Wasp exits and that the database container is gone.
+-- | Stops `wasp db start` with the signal, and checks that Wasp exits and that
+-- the database container is gone.
 --
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the database.
---
--- `db-start.pid` might not be Wasp's own PID (e.g. when `$WASP_CLI_CMD` is a
--- wrapper script), so we signal the parent of the `docker run` client instead,
--- which is Wasp.
-stopWaspCliDbStartWithSignal :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-stopWaspCliDbStartWithSignal signal =
-  return $
-    ("docker ps --format '{{.Names}}' --filter volume=" ++ reportedDevDbVolumeName ++ " > " ++ devDbContainerNameFile)
-      ~&& ("kill -" ++ signal ++ " $(ps -o ppid= -p \"$(pgrep -f \"docker run --name $(cat " ++ devDbContainerNameFile ++ ") \")\")")
-      ~&& waitUntil
-        60
-        "! kill -0 \"$(cat db-start.pid)\" 2>/dev/null"
-        ("Wasp didn't stop after SIG" ++ signal ++ ".")
-      ~&& waitUntil
-        30
-        ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\" ]")
-        ("The dev database container was left behind after SIG" ++ signal ++ ".")
+stopDevDbWithSignal :: Signal -> BackgroundProcess -> String -> String -> TestM ()
+stopDevDbWithSignal sig devDb containerName volumeName = do
+  getWaspPid >>= signal sig
+  waitForExit devDb 60
+  waitUntil ("the dev database container is gone after " ++ show sig) 30 $
+    null . dockerOutputLines <$> docker ["ps", "-a", "-q", "--filter", "volume=" ++ volumeName]
+  where
+    -- The process we started might not be Wasp itself (e.g. when the Wasp CLI
+    -- runs through a wrapper script), so we look for the parent of the
+    -- `docker run` client instead, which is Wasp.
+    getWaspPid = do
+      dockerRunPid <- firstLine <$> run (command "pgrep" ["-f", "docker run --name " ++ containerName ++ " "])
+      read . firstLine <$> run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
+
+    firstLine = takeWhile (/= '\n') . dropWhile isSpace . T.unpack . (.stdout)
 
 -- | Opens a database session that stays open, like the app's server's.
-holdDevDbSessionOpen :: ShellCommandBuilder WaspProjectContext ShellCommand
-holdDevDbSessionOpen =
-  return $
-    ("docker exec -d " ++ devDbContainerId ++ " " ++ psqlInDevDbContainer "select pg_sleep(600)")
-      ~&& waitUntil
-        30
-        ( "[ \"$(docker exec "
-            ++ devDbContainerId
-            ++ " "
-            ++ psqlInDevDbContainer "select count(*) from pg_stat_activity where pid <> pg_backend_pid() and datname = current_database()"
-            ++ ")\" != 0 ]"
-        )
-        "The database session didn't open."
+holdDevDbSessionOpen :: String -> TestM ()
+holdDevDbSessionOpen volumeName = do
+  containerId <- firstOutputLine <$> docker ["ps", "-q", "--filter", "volume=" ++ volumeName]
+  docker ["exec", "-d", containerId, "sh", "-c", psqlCommand "select pg_sleep(600)"]
+  waitUntil "the database session opens" 30 $
+    (/= "0") . firstOutputLine
+      <$> docker
+        [ "exec",
+          containerId,
+          "sh",
+          "-c",
+          psqlCommand "select count(*) from pg_stat_activity where pid <> pg_backend_pid() and datname = current_database()"
+        ]
   where
-    devDbContainerId = "\"$(docker ps -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\""
-    psqlInDevDbContainer sql = "sh -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"" ++ sql ++ "\"'"
+    -- Runs in the container's shell, which knows the database's credentials.
+    psqlCommand sql = "psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"" ++ sql ++ "\""
 
--- | Creates a stopped container with the name of the dev db container that
--- 'stopWaspCliDbStartWithSignal' stopped, like the one that `docker run` leaves
--- behind when it's stopped while creating the container.
-leaveStoppedDevDbContainerBehind :: ShellCommandBuilder WaspProjectContext ShellCommand
-leaveStoppedDevDbContainerBehind =
-  return $ "docker create --name \"$(cat " ++ devDbContainerNameFile ++ ")\" alpine > /dev/null"
+-- | The volume name `wasp db start` reported, since that's where users learn it from.
+getReportedVolumeName :: BackgroundProcess -> TestM String
+getReportedVolumeName devDb = do
+  output <- getBackgroundOutput devDb
+  let prefix = T.pack Dev.Postgres.waspDevDbDockerVolumePrefix
+  case T.breakOn prefix output of
+    (_, rest) | not (T.null rest) -> return . T.unpack $ T.takeWhile (not . isSpace) rest
+    _ -> failTest "`wasp db start` didn't report its volume name."
 
-devDbContainerNameFile :: FilePath
-devDbContainerNameFile = "db-container-name.txt"
+getDevDbContainerName :: String -> TestM String
+getDevDbContainerName volumeName =
+  firstOutputLine <$> docker ["ps", "--format", "{{.Names}}", "--filter", "volume=" ++ volumeName]
 
-waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
-waitUntilDevDbReportsItIsReady =
-  return $
-    "{ retries=180; until grep -q 'listening on IPv4 address' "
-      ++ devDbOutputFile
-      ++ "; do retries=$((retries - 1)); [ \"$retries\" -gt 0 ] || exit 1; sleep 1; done ; }"
+-- | Creates a stopped container with the name of the dev db container, like
+-- the one that `docker run` leaves behind when it's stopped while creating it.
+leaveStoppedContainerBehind :: String -> TestM ()
+leaveStoppedContainerBehind containerName = void $ docker ["create", "--name", containerName, "alpine"]
 
-devDbOutputFile :: FilePath
-devDbOutputFile = "db-start-output.log"
+occupyDefaultPostgresPort :: TestM ()
+occupyDefaultPostgresPort = do
+  let port = show defaultPostgresPort
+  registerCleanupStep freeDefaultPostgresPort
+  void $ docker ["run", "-d", "--rm", "--name", portHolderContainerName, "-p", port ++ ":" ++ port, "alpine", "sleep", "300"]
 
-occupyDefaultDevDbPort :: ShellCommandBuilder WaspProjectContext ShellCommand
-occupyDefaultDevDbPort =
-  return $
-    "docker run -d --rm --name "
-      ++ devDbPortHolderContainerName
-      ++ " -p "
-      ++ defaultPort
-      ++ ":"
-      ++ defaultPort
-      ++ " alpine sleep 300"
-  where
-    defaultPort = show defaultPostgresPort
+freeDefaultPostgresPort :: TestM ()
+freeDefaultPostgresPort = void . runAllowingFailure $ command "docker" ["rm", "-f", portHolderContainerName]
 
-removeDefaultDevDbPortHolder :: ShellCommandBuilder WaspProjectContext ShellCommand
-removeDefaultDevDbPortHolder = return $ "docker rm -f " ++ devDbPortHolderContainerName
+portHolderContainerName :: String
+portHolderContainerName = "wasp-e2e-tests-db-port-holder"
 
-removeReportedDevDbVolume :: ShellCommandBuilder WaspProjectContext ShellCommand
-removeReportedDevDbVolume =
-  return $ "docker volume rm \"" ++ reportedDevDbVolumeName ++ "\""
+docker :: [String] -> TestM ProcessResult
+docker = run . command "docker"
 
--- | Shell substitution that extracts the volume name `wasp db start` reported
--- because it's the same place users learn it from.
-reportedDevDbVolumeName :: String
-reportedDevDbVolumeName =
-  "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ devDbOutputFile ++ ")"
+dockerOutputLines :: ProcessResult -> [String]
+dockerOutputLines = filter (not . null) . lines . T.unpack . (.stdout)
 
-devDbPortHolderContainerName :: String
-devDbPortHolderContainerName = "wasp-e2e-tests-db-port-holder"
+firstOutputLine :: ProcessResult -> String
+firstOutputLine result = case dockerOutputLines result of
+  firstLine : _ -> firstLine
+  [] -> ""

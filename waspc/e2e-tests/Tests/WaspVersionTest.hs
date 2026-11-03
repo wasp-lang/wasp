@@ -1,17 +1,14 @@
 module Tests.WaspVersionTest (waspVersionTest) where
 
-import ShellCommands (ShellCommand, (~|))
-import Test (Test (..), TestCase (..))
+import qualified Data.Text as T
+import E2e
 import Wasp.Version (waspVersion)
 
-waspVersionTest :: Test
+waspVersionTest :: E2eTest
 waspVersionTest =
-  Test
+  testGroup
     "wasp-version"
-    [ TestCase
-        "match-waspc-version"
-        (return . (: []) $ (~| ("{ read ver; [ \"$ver\" = '" ++ show waspVersion ++ "' ]; }")) waspCliVersion)
+    [ test "match-waspc-version" $ do
+        result <- wasp ["version"]
+        assertEqual "first line of `wasp version`" (show waspVersion) (T.unpack . T.strip . T.takeWhile (/= '\n') $ result.stdout)
     ]
-
-waspCliVersion :: ShellCommand
-waspCliVersion = "$WASP_CLI_CMD version"
