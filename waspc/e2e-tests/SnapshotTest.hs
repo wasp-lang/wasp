@@ -206,6 +206,8 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
         -- checked out (see "Wasp.Cli.DevWaspNpmPackages"), so we replace those
         -- paths with a placeholder. Projects reference the lib tarballs with
         -- relative paths, so those stay as they are.
+        -- TODO: Also match Windows absolute paths (`file:C:/...`) once we run
+        -- the e2e snapshot tests on Windows (`main` skips them there).
         hideDevWaspNpmPackageTarballs :: Aeson.Value -> Aeson.Value
         hideDevWaspNpmPackageTarballs (Aeson.Object object) = Aeson.Object $ fmap hideDevWaspNpmPackageTarballs object
         hideDevWaspNpmPackageTarballs (Aeson.Array array) = Aeson.Array $ fmap hideDevWaspNpmPackageTarballs array
