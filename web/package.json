@@ -9,7 +9,7 @@
     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
     "build": "pnpm run build:api-packages && docusaurus build",
     "build-dev": "DOCS_INCLUDE_CURRENT_VERSION=true pnpm run build",
-    "build:api-packages": "pnpm --filter wasp^... run build",
+    "build:api-packages": "pnpm --filter 'wasp-sdk-api-docs^...' run build",
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
