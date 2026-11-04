@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { fileURLToPath } from "url";
 
 import { Command } from "commander";
 import cors from "cors";
@@ -37,7 +38,9 @@ app.use(
   }),
 );
 
-const publicDirPath = new URL("./public", import.meta.url).pathname;
+// `fileURLToPath` decodes the URL, so the path works when the project's path
+// has spaces or non-ASCII characters.
+const publicDirPath = fileURLToPath(new URL("./public", import.meta.url));
 app.use(express.static(publicDirPath));
 
 const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);
