@@ -3,6 +3,7 @@
     "@prisma/client": true,
     "@prisma/engines": true,
     "esbuild": true,
+    "fsevents": true,
     "prisma": true
   },
   "dependencies": {
