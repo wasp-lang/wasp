@@ -227,6 +227,10 @@ Update the Prisma packages in your `package.json`:
 
 Now delete the old build output and `node_modules`, and install the dependencies. Don't run `npm install` before this step. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5:
 
+:::caution Back up your SQLite development database
+If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
+:::
+
 ```sh
 rm -rf .wasp node_modules
 npm install
