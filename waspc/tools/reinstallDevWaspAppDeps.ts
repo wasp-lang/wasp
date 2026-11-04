@@ -1,5 +1,5 @@
 import { execa } from "execa";
-import { removeStaleGeneratedWaspLockEntries } from "./waspAppPackageLock.ts";
+import { removeStaleWaspLockEntries } from "./waspAppPackageLock.ts";
 
 /**
  * Reinstalls the npm dependencies of the Wasp app in the current dir against
@@ -11,6 +11,6 @@ import { removeStaleGeneratedWaspLockEntries } from "./waspAppPackageLock.ts";
  * entries first.
  */
 export async function reinstallDevWaspAppDeps(): Promise<void> {
-  await removeStaleGeneratedWaspLockEntries();
+  await removeStaleWaspLockEntries();
   await execa({ stdio: "inherit", verbose: "short" })`npm install`;
 }

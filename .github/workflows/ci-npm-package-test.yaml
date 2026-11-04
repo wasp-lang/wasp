@@ -61,9 +61,11 @@ jobs:
           |
           set -eux
 
-          # Create a test project to install into
+          # Create a test project to install into. The `.wasproot` file makes
+          # it a Wasp project, so the Wasp CLI looks for the project's own CLI.
           mkdir install-test && cd install-test
           echo '{}' > package.json
+          touch .wasproot
 
           # Install `@wasp/wasp`, the way a Wasp project depends on Wasp.
           # pkg.pr.new points its dependencies at the other packages of this
@@ -80,7 +82,12 @@ jobs:
           cd install-test
 
           # Test that the Wasp CLI can find and run the binary.
-          NODE_DEBUG=wasp-bin-wrapper npx wasp version
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version 2> wrapper-debug.log
+          cat wrapper-debug.log
+
+          # Test that the Wasp CLI finds the project's `@wasp/cli` in the npm
+          # layout, and recognizes it is that CLI.
+          grep -q "Running as the project's own Wasp CLI" wrapper-debug.log
 
       - name: List the data files of the platform sub-package
         run: |

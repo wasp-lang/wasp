@@ -32,12 +32,10 @@ Create a directory in this folder with a `build` script in `package.json` that c
 `dist/`. Then add the package to:
 
 - `pnpm-workspace.yaml`
-- `WASP_PACKAGE_DIRS` in `waspc/tools/packages/utils.ts`
-- both lists in `scripts/pack-published-packages.sh`
-- the `dependencies` of `wasp/package.json`
-- the packages `tasks/build/dev-packages.ts` builds and packs
-- the dev tarball lists in `Wasp.Cli.DevWaspNpmPackages`, `waspc/e2e-tests/ShellCommands.hs`
-  and `waspc/tools/waspAppPackageLock.ts`
+- the `dependencies` of `wasp/package.json`. The repo's TS tooling reads the package list from
+  there (see `waspc/tools/packages/utils.ts`).
+- `publish_packages` in `scripts/pack-published-packages.sh`
+- the dev tarball lists in `Wasp.Cli.DevWaspNpmPackages` and `waspc/e2e-tests/ShellCommands.hs`
 - the `overrides` of the example apps
 
 Give `@wasp/wasp` a run script for the package (see `wasp/run-deploy.js`), add the script to

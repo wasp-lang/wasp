@@ -14,7 +14,7 @@ import {
 import { getLibsDirPath } from "../waspc/tools/libs/utils.ts";
 import {
   getPackageDirPath,
-  WASP_PACKAGE_DIRS,
+  WASP_PACKAGE_DIR_NAMES,
 } from "../waspc/tools/packages/utils.ts";
 import {
   discoverSubDirs,
@@ -72,7 +72,7 @@ function bumpLibsVersion(nextVersion: string): void {
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const packageDirPath of WASP_PACKAGE_DIRS.map(getPackageDirPath)) {
+  for (const packageDirPath of WASP_PACKAGE_DIR_NAMES.map(getPackageDirPath)) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }

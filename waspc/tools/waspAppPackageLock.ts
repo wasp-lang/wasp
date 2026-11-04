@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { getPackageName, WASP_PACKAGE_DIR_NAMES } from "./packages/utils.ts";
 
 /** What Wasp generates into a Wasp app, relative to the app's dir. */
 export const GENERATED_WASP_PATHS = [
@@ -11,13 +12,7 @@ export const GENERATED_WASP_PATHS = [
 // The dev Wasp npm packages, which the repo's Wasp apps install from `file:`
 // tarballs (see `tasks/build/dev-packages.ts`).
 // TODO: Drop these once the repo's Wasp apps join the pnpm workspace.
-const DEV_WASP_NPM_PACKAGE_NAMES = [
-  "@wasp/wasp",
-  "@wasp/cli",
-  "@wasp/spec",
-  "@wasp/deploy",
-  "@wasp/studio",
-];
+const DEV_WASP_NPM_PACKAGE_NAMES = WASP_PACKAGE_DIR_NAMES.map(getPackageName);
 
 type PackageLockEntry = { dependencies?: Record<string, string> };
 
@@ -31,12 +26,12 @@ type PackageLockEntry = { dependencies?: Record<string, string> };
  * before Wasp 0.27 used the `@wasp.sh` npm scope instead of `@wasp`, so we
  * match both.
  */
-export async function removeStaleGeneratedWaspLockEntries(): Promise<void> {
+export async function removeStaleWaspLockEntries(): Promise<void> {
   const packageLockPath = "package-lock.json";
   const packageLock: { packages: Record<string, PackageLockEntry> } =
     JSON.parse(await readFile(packageLockPath, "utf-8"));
   const freshLockEntries = Object.entries(packageLock.packages)
-    .filter(([packagePath]) => !isStaleGeneratedWaspPackage(packagePath))
+    .filter(([packagePath]) => !isStaleWaspLockEntry(packagePath))
     .map(([packagePath, lockEntry]) => [
       packagePath,
       withoutWaspLibDependencies(lockEntry),
@@ -46,7 +41,7 @@ export async function removeStaleGeneratedWaspLockEntries(): Promise<void> {
   await writeFile(packageLockPath, `${JSON.stringify(packageLock, null, 2)}\n`);
 }
 
-function isStaleGeneratedWaspPackage(packagePath: string): boolean {
+function isStaleWaspLockEntry(packagePath: string): boolean {
   const isWaspLib =
     packagePath.startsWith("node_modules/") &&
     isWaspLibName(packagePath.slice("node_modules/".length));
