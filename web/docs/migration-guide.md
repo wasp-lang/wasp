@@ -77,7 +77,44 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
   </TabItem>
 </Tabs>
 
-If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, move that entry to npm's `overrides` field. Wasp reports such `overriddenDeps` entries as errors. See [Overriding Wasp's dependencies](./advanced/dependencies.md#overriding-wasps-dependencies-advanced).
+If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, override it with npm's `overrides` field instead. Wasp reports such `overriddenDeps` entries as errors.
+
+The two fields take different versions. `wasp.overriddenDeps` lists the version Wasp requires, while `overrides` lists the version you want. So don't copy the value over. Set the override to the version from your `dependencies`, since npm fails with `EOVERRIDE` when the two don't match exactly:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        "react": "18.2.0"
+      },
+      // highlight-start
+      "wasp": {
+        "overriddenDeps": {
+          "react": "19.2.1"
+        }
+      }
+      // highlight-end
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        "react": "18.2.0"
+      },
+      // highlight-start
+      "overrides": {
+        "react": "18.2.0"
+      }
+      // highlight-end
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Read more in [Overriding Wasp's dependencies](./advanced/dependencies.md#overriding-wasps-dependencies-advanced).
 
 If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
 
