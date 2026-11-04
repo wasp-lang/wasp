@@ -15,13 +15,13 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspNpmPackage
-  ( NpmPackageVersion,
-    doesVersionMatchDeclaredSpecifier,
+  ( doesVersionMatchDeclaredSpecifier,
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
     tryGettingInstalledWaspNpmPackageVersion,
     waspNpmPackageName,
   )
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.Terminal (styleCode)
 
 -- | Require that the project's \@wasp/wasp npm package is installed in
@@ -62,7 +62,7 @@ instance Requirable WaspNpmPackageAvailable where
             ++ "Details: "
             ++ reason
 
-      staleInstallReason :: String -> NpmPackageVersion -> String
+      staleInstallReason :: String -> SV.Version -> String
       staleInstallReason declaredSpecifier installedVersion =
         "The package.json asks for "
           ++ waspNpmPackageName
@@ -74,7 +74,7 @@ instance Requirable WaspNpmPackageAvailable where
           ++ show installedVersion
           ++ "."
 
-      notADependencyError :: NpmPackageVersion -> CommandError
+      notADependencyError :: SV.Version -> CommandError
       notADependencyError cliVersion =
         CommandError
           "Wasp is not a dependency of this project"
@@ -112,7 +112,7 @@ instance Requirable WaspNpmPackageAvailable where
       -- someone ran the binary directly, without anything to hand over to the
       -- project's Wasp, or that the project's \@wasp/cli and \@wasp/wasp
       -- don't match, e.g. after a partial install.
-      versionMismatchError :: Bool -> NpmPackageVersion -> NpmPackageVersion -> CommandError
+      versionMismatchError :: Bool -> SV.Version -> SV.Version -> CommandError
       versionMismatchError isRunByNpmPackage cliVersion installedVersion =
         CommandError "Wasp version mismatch" $
           if isRunByNpmPackage

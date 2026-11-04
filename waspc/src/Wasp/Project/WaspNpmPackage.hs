@@ -16,8 +16,6 @@ module Wasp.Project.WaspNpmPackage
     findWaspNpmPackageScript,
     runWaspNpmPackageScript,
     tryGettingInstalledWaspNpmPackageVersion,
-    NpmPackageVersion (..),
-    parseNpmPackageVersion,
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
     doesVersionMatchDeclaredSpecifier,
@@ -34,7 +32,6 @@ import qualified StrongPath as SP
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode)
 import qualified System.Process as P
-import qualified Text.Parsec as Parsec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
@@ -123,7 +120,7 @@ runWaspNpmPackageScript waspProjectDir script args =
           P.delegate_ctlc = True
         }
 
-tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String NpmPackageVersion)
+tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String SV.Version)
 tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
   waspNpmPackageDir <-
     ExceptT $ maybe (Left $ waspNpmPackageNotInstalledMessage waspProjectDir) Right <$> findWaspNpmPackageDir waspProjectDir
@@ -131,7 +128,7 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
       packageJsonPath = castFile $ waspNpmPackageDir </> [relfile|package.json|]
   packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
   ExceptT $ return $ case PJ.version packageJson of
-    Just versionString -> parseNpmPackageVersion versionString
+    Just versionString -> first show $ SV.parseVersion versionString
     Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
 
 waspNpmPackageNotInstalledMessage :: Path' Abs (Dir WaspProjectDir) -> String
@@ -146,49 +143,13 @@ data InstalledPackageJsonFile
 
 instance PJ.PackageJsonFile InstalledPackageJsonFile
 
--- | The version of an npm package, e.g. `0.27.0`, or `0.27.0-rc.1` for a
--- release candidate. 'SV.Version' has no prerelease part, so we keep its core
--- next to the full version.
-data NpmPackageVersion = NpmPackageVersion
-  { versionCore :: SV.Version,
-    -- | Whether the version has a prerelease part, like `-rc.1`.
-    isPrerelease :: Bool,
-    fullVersion :: String
-  }
-  deriving (Eq)
-
-instance Show NpmPackageVersion where
-  show = fullVersion
-
--- | Parses a SemVer version with an optional prerelease and build part.
--- See: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
-parseNpmPackageVersion :: String -> Either String NpmPackageVersion
-parseNpmPackageVersion versionString =
-  first show $ Parsec.parse (npmPackageVersionParser <* Parsec.eof) "" versionString
-  where
-    npmPackageVersionParser = do
-      core <- SV.versionParser
-      prerelease <- Parsec.optionMaybe (Parsec.char '-' *> dotSeparatedIdentifiersParser)
-      _build <- Parsec.optionMaybe (Parsec.char '+' *> dotSeparatedIdentifiersParser)
-      return $ NpmPackageVersion core (isJust prerelease) versionString
-
-    dotSeparatedIdentifiersParser =
-      Parsec.many1 (Parsec.alphaNum Parsec.<|> Parsec.char '-') `Parsec.sepBy1` Parsec.char '.'
-
 -- | Whether the version satisfies what the project's package.json declares for
--- \@wasp/wasp, the way npm decides it:
---
--- - A version range (e.g. `^0.27.0`) never matches a prerelease, because Wasp's
---   ranges have no prerelease part.
--- - An exact prerelease version (e.g. `0.27.0-rc.1`) matches only itself.
--- - Other specifiers, e.g. `file:` tarballs, don't constrain the version.
-doesVersionMatchDeclaredSpecifier :: String -> NpmPackageVersion -> Bool
+-- \@wasp/wasp, the way npm decides it. E.g. a range like `^0.27.0` never
+-- matches a release candidate, and `0.27.0-rc.1` matches only itself. Other
+-- specifiers, e.g. `file:` tarballs, don't constrain the version.
+doesVersionMatchDeclaredSpecifier :: String -> SV.Version -> Bool
 doesVersionMatchDeclaredSpecifier declaredSpecifier version =
-  case SV.parseRange declaredSpecifier of
-    Right range -> not (isPrerelease version) && SV.isVersionInRange (versionCore version) range
-    Left _ -> case parseNpmPackageVersion declaredSpecifier of
-      Right declaredVersion -> fullVersion declaredVersion == fullVersion version
-      Left _ -> True
+  either (const True) (SV.isVersionInRange version) (SV.parseRange declaredSpecifier)
 
 -- | The env var that \@wasp/cli sets to its package version when it runs this
 -- binary.
@@ -201,10 +162,8 @@ waspCliNpmPackageVersionEnvVarName = "WASP_CLI_NPM_PACKAGE_VERSION"
 -- from Cabal, whose version format is incompatible with npm's SemVer. Falls back
 -- to the binary's version when the binary runs without \@wasp/cli, e.g. when
 -- built from source.
-getWaspCliNpmPackageVersion :: IO NpmPackageVersion
-getWaspCliNpmPackageVersion = fromMaybe binaryVersion <$> lookupWaspCliNpmPackageVersion
-  where
-    binaryVersion = NpmPackageVersion WV.waspVersion False (show WV.waspVersion)
+getWaspCliNpmPackageVersion :: IO SV.Version
+getWaspCliNpmPackageVersion = fromMaybe WV.waspVersion <$> lookupWaspCliNpmPackageVersion
 
 -- | Whether the \@wasp/cli npm package runs this binary. It doesn't when
 -- someone runs the binary directly, e.g. one installed with the old installer
@@ -214,10 +173,10 @@ isRunByWaspCliNpmPackage :: IO Bool
 isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
 
 -- | Fails on a version that doesn't parse, because then \@wasp/cli is broken.
-lookupWaspCliNpmPackageVersion :: IO (Maybe NpmPackageVersion)
+lookupWaspCliNpmPackageVersion :: IO (Maybe SV.Version)
 lookupWaspCliNpmPackageVersion =
   lookupEnv waspCliNpmPackageVersionEnvVarName
-    >>= traverse (either (fail . invalidVersionMessage) return . parseNpmPackageVersion)
+    >>= traverse (either (fail . invalidVersionMessage . show) return . SV.parseVersion)
   where
     invalidVersionMessage parseError =
       waspCliNpmPackageVersionEnvVarName ++ " is not a valid version: " ++ parseError
