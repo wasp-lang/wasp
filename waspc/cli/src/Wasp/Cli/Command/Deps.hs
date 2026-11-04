@@ -19,6 +19,7 @@ import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WaspNpmPackagePeerDeps as WaspNpmPackagePeerDeps
 import Wasp.Project (analyzeWaspProject)
+import Wasp.Project.WaspNpmPackage (waspNpmPackageName)
 import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
@@ -43,7 +44,7 @@ depsMessage appSpec =
       ""
     ]
       ++ printDeps
-        "Peer dependencies of @wasp/wasp:"
+        ("Peer dependencies of " ++ waspNpmPackageName ++ ":")
         WaspNpmPackagePeerDeps.waspNpmPackagePeerDeps
       ++ [""]
       ++ printDeps

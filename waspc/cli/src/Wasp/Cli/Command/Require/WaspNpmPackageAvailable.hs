@@ -18,7 +18,6 @@ import Wasp.Project.WaspNpmPackage
   ( NpmPackageVersion,
     doesVersionMatchDeclaredSpecifier,
     getWaspCliNpmPackageVersion,
-    isCliCompatibleWithInstalledVersion,
     isRunByWaspCliNpmPackage,
     tryGettingInstalledWaspNpmPackageVersion,
     waspNpmPackageName,
@@ -26,7 +25,8 @@ import Wasp.Project.WaspNpmPackage
 import Wasp.Util.Terminal (styleCode)
 
 -- | Require that the project's \@wasp/wasp npm package is installed in
--- node_modules and that it and this CLI satisfy the version the project asks for.
+-- node_modules, that it satisfies the version the project asks for, and that
+-- this CLI has the same version.
 data WaspNpmPackageAvailable = WaspNpmPackageAvailable deriving (Typeable)
 
 instance Requirable WaspNpmPackageAvailable where
@@ -47,7 +47,7 @@ instance Requirable WaspNpmPackageAvailable where
       Right installedVersion
         | not (doesVersionMatchDeclaredSpecifier declaredSpecifier installedVersion) ->
             throwError $ missingDepsError $ staleInstallReason declaredSpecifier installedVersion
-        | not (isCliCompatibleWithInstalledVersion cliVersion declaredSpecifier installedVersion) -> do
+        | cliVersion /= installedVersion -> do
             isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
             throwError $ versionMismatchError isRunByNpmPackage cliVersion installedVersion
         | otherwise -> return WaspNpmPackageAvailable
@@ -86,9 +86,9 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "dependencies"
             ++ " in your "
             ++ styleCode "package.json"
-            ++ ", remove the "
+            ++ ", remove "
             ++ styleCode "@wasp.sh/spec"
-            ++ " dependency, and run "
+            ++ " if it's there, and run "
             ++ styleCode "npm install"
             ++ "."
 

@@ -41,7 +41,7 @@ minimalStarterTemplate =
               unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
-                  styleCode $ "    wasp start"
+                  styleCode $ "    npm run dev"
                 ]
           }
     }
@@ -60,8 +60,8 @@ basicStarterTemplate =
               unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
-                  styleCode $ "    wasp db migrate-dev",
-                  styleCode $ "    wasp start",
+                  styleCode $ "    npm run wasp -- db migrate-dev",
+                  styleCode $ "    npm run dev",
                   styleText $ "",
                   styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
                 ]

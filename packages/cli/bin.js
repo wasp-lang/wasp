@@ -19,6 +19,10 @@ import {
 // `NODE_DEBUG=wasp-bin-wrapper`
 const debug = debuglog("wasp-bin-wrapper");
 
+// Other Wasp CLI versions run this file by importing it (see
+// `runProjectWaspCli` in `projectWaspCli.js`). So it must keep running `main`
+// on import, with top-level await, and report its result through
+// `process.exitCode`.
 try {
   const childProcessExitCode = await main();
   debug("Wasp process exited with code: %d", childProcessExitCode);

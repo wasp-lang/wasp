@@ -44,7 +44,7 @@ in the package.json files of the generated server and SDK for now.
 packages/wasp/package.json.
 -}
 
--- | The peer dependencies of @wasp/wasp.
+-- | The peer dependencies of \@wasp/wasp.
 waspNpmPackagePeerDeps :: [Npm.Dependency.Dependency]
 waspNpmPackagePeerDeps = serverCoreDeps ++ sdkCoreDeps ++ userProjectDeps
 

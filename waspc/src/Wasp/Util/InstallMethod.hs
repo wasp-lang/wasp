@@ -18,7 +18,7 @@ getGlobalInstallationCommand version =
     versionString = fromMaybe "latest" version
 
 -- | The npm command that sets a project's Wasp version by updating its
--- @wasp/wasp dependency.
+-- \@wasp/wasp dependency.
 getProjectInstallationCommand :: String -> String
 getProjectInstallationCommand version =
   "npm install --save-exact " ++ waspNpmPackageName ++ "@" ++ version

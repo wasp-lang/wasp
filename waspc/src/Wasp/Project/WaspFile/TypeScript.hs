@@ -42,7 +42,7 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     tsConfigPaths,
   )
-import Wasp.Project.WaspNpmPackage (waspSpecAnalyzerScriptInWaspProjectDir)
+import Wasp.Project.WaspNpmPackage (findWaspNpmPackageScript, waspSpecAnalyzerScriptInWaspNpmPackageDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
@@ -101,42 +101,43 @@ runWaspSpecAnalyzer ::
   Path' Abs (File WaspTsFile) ->
   Path' Abs (File SpecResultFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
-runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath absSpecResultFile = do
-  -- We invoke the script directly via `node` instead of `npx` because
-  -- `npx` requires the bin file to be executable, and `cabal install`
-  -- strips executable permissions from data files.
-  runExitCode <-
-    Job.run
-      $ Job.prefixWith Job.Wasp
-      $ Job.fromProc
-      $ addEnvVarsOverride
-        [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
-          -- Not related to `node` itself, so we have to set it manually.
-          -- It enables users to write environment specific code in the TS config.
-          -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
-          --       also provide the `NODE_ENV` values for the "configuration runtime".
-          --       Maybe consider using a different key, e.g. `WASP_MODE`?
-          ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
-        ]
-      $ Job.setCwd compileOptions.waspProjectDir
-      $ Job.proc
-        "node"
-        [ fromRelFile waspSpecAnalyzerScriptInWaspProjectDir,
-          "analyze",
-          fromAbsFile waspFilePath,
-          fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-          fromAbsDir compileOptions.waspProjectDir,
-          fromAbsFile absSpecResultFile,
-          -- When the user is coding main.wasp.ts, TypeScript must know about
-          -- all the available entities to warn the user if they use an
-          -- entity that doesn't exist.
-          encodeToString allowedEntityNames
-        ]
-
-  case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
-    ExitSuccess -> readSpecResultFile
+runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath absSpecResultFile =
+  findWaspNpmPackageScript compileOptions.waspProjectDir waspSpecAnalyzerScriptInWaspNpmPackageDir
+    >>= either (return . Left . (: [])) runAnalyzerScript
   where
+    runAnalyzerScript analyzerScript = do
+      runExitCode <-
+        Job.run
+          $ Job.prefixWith Job.Wasp
+          $ Job.fromProc
+          $ addEnvVarsOverride
+            [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+              -- Not related to `node` itself, so we have to set it manually.
+              -- It enables users to write environment specific code in the TS config.
+              -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+              --       also provide the `NODE_ENV` values for the "configuration runtime".
+              --       Maybe consider using a different key, e.g. `WASP_MODE`?
+              ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+            ]
+          $ Job.setCwd compileOptions.waspProjectDir
+          $ Job.proc
+            "node"
+            [ fromAbsFile analyzerScript,
+              "analyze",
+              fromAbsFile waspFilePath,
+              fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+              fromAbsDir compileOptions.waspProjectDir,
+              fromAbsFile absSpecResultFile,
+              -- When the user is coding main.wasp.ts, TypeScript must know about
+              -- all the available entities to warn the user if they use an
+              -- entity that doesn't exist.
+              encodeToString allowedEntityNames
+            ]
+
+      case runExitCode of
+        ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
+        ExitSuccess -> readSpecResultFile
+
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String

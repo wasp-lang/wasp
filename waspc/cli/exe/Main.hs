@@ -38,7 +38,7 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
-import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
+import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion, waspNpmPackageName)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getGlobalInstallationCommand, getProjectInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
@@ -199,7 +199,7 @@ printVersion = do
   hPutStrLn stderr $
     unlines
       [ "",
-        "Each project runs the Wasp version of its `@wasp/wasp` dependency. To switch a project to Wasp x.y.z, run this in the project directory:",
+        "Each project runs the Wasp version of its `" ++ waspNpmPackageName ++ "` dependency. To switch a project to Wasp x.y.z, run this in the project directory:",
         indent 2 $ getProjectInstallationCommand "x.y.z",
         "",
         "To instead install the latest Wasp CLI globally, run:",

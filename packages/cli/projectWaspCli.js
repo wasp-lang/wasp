@@ -7,7 +7,6 @@
 // This file ships next to `bin.js` in `@wasp/cli`.
 
 import * as fs from "node:fs";
-import { createRequire } from "node:module";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
@@ -41,7 +40,9 @@ export function findProjectWaspCliToHandOverTo(thisWaspCli) {
 
 /**
  * Runs the project's Wasp CLI in this process, so there is no second process
- * to keep signals and exit codes in sync with.
+ * to keep signals and exit codes in sync with. Importing its `bin.js` runs it,
+ * and it reports its result through `process.exitCode`. Every `bin.js` keeps
+ * that contract, see the comment at its top.
  *
  * @param {InstalledWaspCli} projectWaspCli
  * @param {InstalledWaspCli} thisWaspCli
@@ -73,7 +74,7 @@ function findProjectWaspCli() {
 
   const waspPackageJsonPath = findInstalledPackageJsonPath(
     "@wasp/wasp",
-    path.join(waspProjectDir, "package.json"),
+    waspProjectDir,
   );
   if (waspPackageJsonPath === undefined) {
     // This Wasp CLI keeps running and tells the user to run `npm install`.
@@ -86,7 +87,7 @@ function findProjectWaspCli() {
   // search from the real location of `@wasp/wasp`.
   const waspCliPackageJsonPath = findInstalledPackageJsonPath(
     "@wasp/cli",
-    fs.realpathSync(waspPackageJsonPath),
+    path.dirname(fs.realpathSync(waspPackageJsonPath)),
   );
   if (waspCliPackageJsonPath === undefined) {
     throw new CLIError(
@@ -118,9 +119,13 @@ function findWaspProjectDir() {
 }
 
 /**
- * Finds the package.json of the package that a file at `fromFilePath` would
- * import as `packageName`. It searches every `node_modules` dir Node would
- * search, so a monorepo that hoists the package to a parent dir works too.
+ * Finds the package.json of the package that code in `fromDir` would import
+ * as `packageName`. Like Node.js, it searches the `node_modules` dir of
+ * `fromDir` and of each parent dir, closest first. That covers every package
+ * manager's node_modules layout, including monorepos where the package
+ * manager hoists dependencies to a parent dir. The Wasp CLI binary finds the
+ * project's `@wasp/wasp` with the same rule (`findWaspNpmPackageDir` in
+ * `waspc/src/Wasp/Project/WaspNpmPackage.hs`), so the two never disagree.
  *
  * A global Wasp CLI must work with the packages of every later Wasp version.
  * So we don't use `require.resolve`, which goes through a package's
@@ -129,17 +134,31 @@ function findWaspProjectDir() {
  * manager relies on them.
  *
  * @param {string} packageName
- * @param {string} fromFilePath
+ * @param {string} fromDir
  * @returns {string | undefined}
  */
-function findInstalledPackageJsonPath(packageName, fromFilePath) {
-  const nodeModulesDirs =
-    createRequire(fromFilePath).resolve.paths(packageName) ?? [];
-  return nodeModulesDirs
+function findInstalledPackageJsonPath(packageName, fromDir) {
+  return getNodeModulesDirs(fromDir)
     .map((nodeModulesDir) =>
       path.join(nodeModulesDir, packageName, "package.json"),
     )
     .find((packageJsonPath) => fs.existsSync(packageJsonPath));
+}
+
+/**
+ * The `node_modules` dirs Node.js searches from `fromDir`, without its global
+ * folders. Like Node, it skips dirs that are themselves named `node_modules`.
+ *
+ * @param {string} fromDir
+ * @returns {string[]}
+ */
+function getNodeModulesDirs(fromDir) {
+  const parentDir = path.dirname(fromDir);
+  const nodeModulesDirsAbove =
+    parentDir === fromDir ? [] : getNodeModulesDirs(parentDir);
+  return path.basename(fromDir) === "node_modules"
+    ? nodeModulesDirsAbove
+    : [path.join(fromDir, "node_modules"), ...nodeModulesDirsAbove];
 }
 
 /**
