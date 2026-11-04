@@ -5,7 +5,6 @@
     // tsconfig `baseUrl` overrides ours, leading to wrong paths.
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
-    // Lets TypeDoc plugins, which Node.js runs directly, import TS files.
     "allowImportingTsExtensions": true
   },
   "exclude": ["build"]
