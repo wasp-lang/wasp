@@ -146,6 +146,8 @@ toXRangeLowerBound (FullVersion version) = Inclusive version
 -- the same major, minor and patch as some pre-release version written in the range expression.
 -- E.g. >1.2.3-alpha.3 includes 1.2.3-alpha.7, but not 3.4.5-alpha.9.
 -- See: https://github.com/npm/node-semver#prerelease-tags
+-- TODO: Unlike `node-semver`, we don't drop `>=0.0.0` comparators (also desugared ones, e.g. from ^0),
+-- so `>=0.0.0 >=0.0.0-alpha` doesn't include 0.0.0-alpha. Fix it if we ever need 100% parity.
 isVersionInRangeExpression :: Version -> RangeExpression -> Bool
 isVersionInRangeExpression version rangeExpression =
   isVersionInInterval (versionBounds rangeExpression) version

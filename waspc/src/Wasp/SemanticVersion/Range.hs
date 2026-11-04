@@ -54,6 +54,8 @@ instance Semigroup Range where
 instance HasVersionBounds Range where
   versionBounds (Range rangeExpressions) = foldr1 intervalUnion $ versionBounds <$> rangeExpressions
 
+-- TODO: Unlike `node-semver`, we don't collapse a range with a `*` alternative into `*`,
+-- so `* || >=1.0.0-alpha` includes 1.0.0-alpha. Fix it if we ever need 100% parity.
 isVersionInRange :: Version -> Range -> Bool
 isVersionInRange version (Range rangeExpressions) = any (isVersionInRangeExpression version) rangeExpressions
 
