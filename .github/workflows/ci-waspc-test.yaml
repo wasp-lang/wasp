@@ -77,8 +77,8 @@ jobs:
 
       - name: Compile TS packages and libs
         run: |
-          ./run build:packages
-          ./run build:libs
+          mise run build:packages
+          mise run build:libs
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
@@ -94,4 +94,4 @@ jobs:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
-          mise x ${EXTRA_TOOLS:+"$EXTRA_TOOLS"} -- bash ./run test:waspc:e2e
+          mise run ${EXTRA_TOOLS:+--tool "$EXTRA_TOOLS"} test:waspc:e2e

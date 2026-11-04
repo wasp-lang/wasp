@@ -102,8 +102,8 @@ Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we 
 
 ## Running tests
 
-- `./run test:waspc:e2e` runs all of the tests.
-- `./run test:waspc:e2e "<pattern>"` runs only the tests that match the [tasty pattern](https://github.com/UnkindPartition/tasty#patterns), e.g. `"/wasp-start/"`.
-- `./run test:waspc:e2e:accept-all` regenerates all golden snapshots.
+- `mise run test:waspc:e2e` runs all of the tests.
+- `mise run test:waspc:e2e "<pattern>"` runs only the tests that match the [tasty pattern](https://github.com/UnkindPartition/tasty#patterns), e.g. `"/wasp-start/"`.
+- `mise run test:waspc:e2e:accept-all` regenerates all golden snapshots.
 - `WASP_E2E_TEST_MAX_JOBS` limits how many tests run at once.
 - `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker.
