@@ -19,36 +19,44 @@ To switch away from the installer script, run our migration tool:
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 ```
 
-Since Wasp 0.27, each project installs Wasp as an npm dependency, and that's the default way to use Wasp. The `@wasp/wasp` version in the project's `package.json` sets its Wasp version, `npm install` installs it, and you run it through the project's npm scripts, like `npm run dev`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
+After that, you can run Wasp through each project, through a global Wasp CLI, or both.
 
-To create a new project without installing anything globally, run:
+### Run Wasp through your project
+
+Since Wasp 0.27, each project installs Wasp as an npm dependency, so you don't need to install anything globally. The `@wasp/wasp` version in the project's `package.json` sets its Wasp version, `npm install` installs it, and you run it through the project's npm scripts, like `npm run dev`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
+
+To create a new project, run:
 
 ```shell
 npx @wasp/cli@latest new
 ```
 
-If your project runs Wasp 0.26 or older, follow the [migration guide](https://wasp.sh/docs/migration-guide) to make it depend on `@wasp/wasp`.
+### Install the Wasp CLI globally
 
-### Keep using a global Wasp CLI
-
-If you'd like to keep typing `wasp` commands like you did with the installer script, install the Wasp CLI globally through npm:
+If you prefer the shorter commands you used with the installer script, and want Wasp available outside of projects too, install the Wasp CLI globally:
 
 ```shell
 npm i -g @wasp/cli@latest
 ```
 
-Inside a project, the global CLI runs the project's own Wasp, so you don't need to match its version to your projects. [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli) explains how it picks the version.
+Inside a project, the global CLI hands each command over to the project's own Wasp, so you don't need to match its version to your projects. Read more in [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli).
 
-Projects on Wasp 0.26 or older don't depend on `@wasp/wasp`, so you need a global CLI of the same version to work on them. npm has Wasp 0.20.2 and newer:
+### Upgrade a project on an older Wasp version
 
-```shell
-# Set x.y.z to the version you want to install.
-# Wasp 0.27 and newer:
-npm i -g @wasp/cli@x.y.z
+Projects on Wasp 0.26 or older don't depend on `@wasp/wasp`, so they run on the version of your global Wasp CLI. To bring such a project to the latest Wasp:
 
-# Wasp 0.20.2 to 0.26.x:
-npm i -g @wasp.sh/wasp-cli@x.y.z
-```
+1. Install the global Wasp CLI of your project's version. npm has Wasp 0.20.2 and newer:
+
+   ```shell
+   # Set x.y.z to your project's Wasp version.
+   npm i -g @wasp.sh/wasp-cli@x.y.z
+   ```
+
+2. Follow the migration guides one version at a time, starting with the one from your project's version, for example [Migration from 0.20 to 0.21](https://wasp.sh/docs/0.21/migration-guide).
+
+3. The last one, [Migration from 0.26 to 0.27](https://wasp.sh/docs/migration-guide), makes your project depend on `@wasp/wasp`. From then on, the project brings its own Wasp.
+
+For a project older than Wasp 0.20.2, see [I need to use versions older than Wasp 0.20.2](#older-versions).
 
 ## Keep using the legacy installer {#keep-using}
 
@@ -71,7 +79,7 @@ In any of these cases, the installer will print an error message and exit withou
 
 ## Troubleshooting
 
-### I need to use versions older than Wasp 0.20.2
+### I need to use versions older than Wasp 0.20.2 {#older-versions}
 
 These versions are very out of date and we don't recommend using them. We urge you to upgrade your Wasp project to a newer version as soon as possible to keep your app secure and stable.
 
