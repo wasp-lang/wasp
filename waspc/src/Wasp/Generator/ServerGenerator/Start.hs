@@ -127,8 +127,8 @@ startServer serverRunConfig generatedAppDir inbox = do
 
     bundle :: J.Job ExitCode
     bundle =
-      (J.fromProc =<< uncurry (J.npmBinProc serverDir) Common.serverTscProcess)
-        `J.andThen` (J.fromProc =<< uncurry (J.npmBinProc serverDir) Common.serverRollupProcess)
+      J.fromProc (J.setCwd serverDir $ uncurry J.proc Common.serverTscProcess)
+        `J.andThen` J.fromProc (J.setCwd serverDir $ uncurry J.proc Common.serverRollupProcess)
 
     serverProcess :: J.CreateJobProcess
     serverProcess =

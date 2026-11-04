@@ -13,7 +13,8 @@ buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
   Job.fromProc
     . addEnvVarsOverride envVars
-    =<< Job.npmBinProc config.projectDir "vite" ["build"]
+    . Job.setCwd config.projectDir
+    $ Job.proc "vite" ["build"]
   where
     envVars = getEnvVars config.clientRunConfig
 
@@ -21,8 +22,8 @@ startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
   Job.fromProc
     . addEnvVarsOverride envVars
-    =<< Job.npmBinProc
-      config.projectDir
+    . Job.setCwd config.projectDir
+    $ Job.proc
       "vite"
       [ "preview", -- `preview` launches a static file server for the built client.
         "--strictPort" -- This will make it fail if the port is already in use.
