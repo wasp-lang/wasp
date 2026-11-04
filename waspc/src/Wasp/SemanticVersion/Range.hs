@@ -28,14 +28,13 @@ import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion (versionToPartialVersion)
-import Wasp.SemanticVersion.RangeExpression (PrimitiveOperator (..), RangeExpression (..), SimpleRangeExpression (..), rangeExpressionParser)
+import Wasp.SemanticVersion.RangeExpression (PrimitiveOperator (..), RangeExpression (..), SimpleRangeExpression (..), isVersionInRangeExpression, rangeExpressionParser)
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (..),
     intervalUnion,
     isSubintervalOf,
-    isVersionInInterval,
     versionFromBound,
   )
 import Wasp.Util.TH (quasiQuoterFromParser)
@@ -56,11 +55,7 @@ instance HasVersionBounds Range where
   versionBounds (Range rangeExpressions) = foldr1 intervalUnion $ versionBounds <$> rangeExpressions
 
 isVersionInRange :: Version -> Range -> Bool
-isVersionInRange version (Range rangeExpressions) = any isVersionInRangeExpression rangeExpressions
-  where
-    isVersionInRangeExpression :: RangeExpression -> Bool
-    isVersionInRangeExpression rangeExpression =
-      isVersionInInterval (versionBounds rangeExpression) version
+isVersionInRange version (Range rangeExpressions) = any (isVersionInRangeExpression version) rangeExpressions
 
 doesVersionRangeAllowMajorChanges :: Range -> Bool
 doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges

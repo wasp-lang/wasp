@@ -6,6 +6,7 @@ module Wasp.SemanticVersion.RangeExpression
   ( PrimitiveOperator (..),
     RangeExpression (..),
     SimpleRangeExpression (..),
+    isVersionInRangeExpression,
     rangeExpressionParser,
     simpleRangeExpressionParser,
     hyphenRangeExpressionParser,
@@ -16,11 +17,19 @@ import qualified Data.List.NonEmpty as NE
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), partialVersionParser)
-import Wasp.SemanticVersion.Version (Version (..))
+import Wasp.SemanticVersion.Version
+  ( Version (..),
+    hasSameCoreAs,
+    isPreRelease,
+    lowestPreReleaseOf,
+    lowestVersion,
+    releaseVersion,
+  )
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (..),
     intervalIntersection,
+    isVersionInInterval,
     noVersionInterval,
   )
 
@@ -88,15 +97,15 @@ instance HasVersionBounds SimpleRangeExpression where
     Equal -> (toXRangeLowerBound pv, toXRangeUpperBound pv)
     LessThan -> case pv of
       Any -> noVersionInterval
-      (Major mjr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr 0 0)
-      (MajorMinor mjr mnr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr 0)
-      (MajorMinorPatch mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
-    LessThanOrEqual -> (Inclusive $ Version 0 0 0, toXRangeUpperBound pv)
+      (Major mjr) -> (Inclusive lowestVersion, Exclusive $ lowestPreReleaseOf mjr 0 0)
+      (MajorMinor mjr mnr) -> (Inclusive lowestVersion, Exclusive $ lowestPreReleaseOf mjr mnr 0)
+      (FullVersion version) -> (Inclusive lowestVersion, Exclusive version)
+    LessThanOrEqual -> (Inclusive lowestVersion, toXRangeUpperBound pv)
     GreaterThan -> case pv of
       Any -> noVersionInterval
-      (Major mjr) -> (Inclusive $ Version (mjr + 1) 0 0, Inf)
-      (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
-      (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
+      (Major mjr) -> (Inclusive $ releaseVersion (mjr + 1) 0 0, Inf)
+      (MajorMinor mjr mnr) -> (Inclusive $ releaseVersion mjr (mnr + 1) 0, Inf)
+      (FullVersion version) -> (Exclusive version, Inf)
     GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
   versionBounds (TildeRangeExpression pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
   versionBounds (CaretRangeExpression pv) = (toXRangeLowerBound pv, toCaretRangeUpperBound pv)
@@ -104,33 +113,56 @@ instance HasVersionBounds SimpleRangeExpression where
 -- | Tilde range allows patch-level changes if minor is specified.
 toTildeRangeUpperBound :: PartialVersion -> VersionBound
 toTildeRangeUpperBound Any = Inf
-toTildeRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toTildeRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-toTildeRangeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
+toTildeRangeUpperBound (Major mjr) = Exclusive $ lowestPreReleaseOf (mjr + 1) 0 0
+toTildeRangeUpperBound (MajorMinor mjr mnr) = Exclusive $ lowestPreReleaseOf mjr (mnr + 1) 0
+toTildeRangeUpperBound (FullVersion version) = Exclusive $ lowestPreReleaseOf version.major (version.minor + 1) 0
 
 -- | Caret range allows changes that don't modify the leftmost non-zero digit.
 toCaretRangeUpperBound :: PartialVersion -> VersionBound
 toCaretRangeUpperBound Any = Inf
-toCaretRangeUpperBound (Major 0) = Exclusive (Version 1 0 0)
-toCaretRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toCaretRangeUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
-toCaretRangeUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
-toCaretRangeUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
-toCaretRangeUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
-toCaretRangeUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
-toCaretRangeUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangeUpperBound (Major 0) = Exclusive $ lowestPreReleaseOf 1 0 0
+toCaretRangeUpperBound (Major mjr) = Exclusive $ lowestPreReleaseOf (mjr + 1) 0 0
+toCaretRangeUpperBound (MajorMinor 0 0) = Exclusive $ lowestPreReleaseOf 0 1 0
+toCaretRangeUpperBound (MajorMinor 0 mnr) = Exclusive $ lowestPreReleaseOf 0 (mnr + 1) 0
+toCaretRangeUpperBound (MajorMinor mjr _) = Exclusive $ lowestPreReleaseOf (mjr + 1) 0 0
+toCaretRangeUpperBound (FullVersion (Version 0 0 ptc _ _)) = Exclusive $ lowestPreReleaseOf 0 0 (ptc + 1)
+toCaretRangeUpperBound (FullVersion (Version 0 mnr _ _ _)) = Exclusive $ lowestPreReleaseOf 0 (mnr + 1) 0
+toCaretRangeUpperBound (FullVersion version) = Exclusive $ lowestPreReleaseOf (version.major + 1) 0 0
 
 toXRangeUpperBound :: PartialVersion -> VersionBound
 toXRangeUpperBound Any = Inf
-toXRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toXRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-toXRangeUpperBound (MajorMinorPatch mjr mnr ptc) = Inclusive (Version mjr mnr ptc)
+toXRangeUpperBound (Major mjr) = Exclusive $ lowestPreReleaseOf (mjr + 1) 0 0
+toXRangeUpperBound (MajorMinor mjr mnr) = Exclusive $ lowestPreReleaseOf mjr (mnr + 1) 0
+toXRangeUpperBound (FullVersion version) = Inclusive version
 
 toXRangeLowerBound :: PartialVersion -> VersionBound
-toXRangeLowerBound Any = Inclusive $ Version 0 0 0
-toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
-toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
-toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
+toXRangeLowerBound Any = Inclusive lowestVersion
+toXRangeLowerBound (Major mjr) = Inclusive $ releaseVersion mjr 0 0
+toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ releaseVersion mjr mnr 0
+toXRangeLowerBound (FullVersion version) = Inclusive version
+
+-- | Follows `node-semver`'s `satisfies` for a single range expression (comparator set).
+-- Besides being in the range expression's bounds, a pre-release version must have
+-- the same major, minor and patch as some pre-release version written in the range expression.
+-- E.g. >1.2.3-alpha.3 includes 1.2.3-alpha.7, but not 3.4.5-alpha.9.
+-- See: https://github.com/npm/node-semver#prerelease-tags
+isVersionInRangeExpression :: Version -> RangeExpression -> Bool
+isVersionInRangeExpression version rangeExpression =
+  isVersionInInterval (versionBounds rangeExpression) version
+    && (not (isPreRelease version) || any (hasSameCoreAs version) preReleaseVersions)
+  where
+    preReleaseVersions :: [Version]
+    preReleaseVersions = [fullVersion | FullVersion fullVersion <- partialVersions rangeExpression, isPreRelease fullVersion]
+
+-- | Returns all partial versions written in the range expression.
+partialVersions :: RangeExpression -> [PartialVersion]
+partialVersions (SimpleRangeExpressionSet simpleRangeExpressions) = partialVersionOf <$> NE.toList simpleRangeExpressions
+  where
+    partialVersionOf :: SimpleRangeExpression -> PartialVersion
+    partialVersionOf (PrimitiveRangeExpression _ pv) = pv
+    partialVersionOf (TildeRangeExpression pv) = pv
+    partialVersionOf (CaretRangeExpression pv) = pv
+partialVersions (HyphenRangeExpression lower upper) = [lower, upper]
 
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 rangeExpressionParser :: P.Parsec String () RangeExpression
