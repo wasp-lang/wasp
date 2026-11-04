@@ -39,7 +39,7 @@ depsMessage :: AppSpec -> String
 depsMessage appSpec =
   unlines $
     [ "",
-      title "Below are the dependencies Wasp uses in your project. You can import them in your code as if you listed them yourself. To use another version, see https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced.",
+      title "Below are the dependencies Wasp uses in your project. You can import them in your code as if you specified them yourself. To use another version, see https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced.",
       ""
     ]
       ++ printDeps

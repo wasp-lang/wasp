@@ -36,8 +36,10 @@ import Wasp.Version (waspVersion)
 
 {-
 NOTE: This module is a temporary black box, so it doesn't need a detailed
-review. Only the repo's own Wasp apps go through it, and it goes away with the
-TODO at the end of this comment.
+review. Only the repo's own Wasp apps go through it.
+
+TODO: Remove this module once the repo's Wasp apps join the pnpm workspace and
+no longer depend on dev tarballs.
 
 This module lets the Wasp apps in the Wasp repo run against the Wasp in the
 repo, before its npm packages are published.
@@ -68,9 +70,6 @@ are through the 'devWaspNpmPackagesDirEnvVarName' env var. When it's set,
 `wasp new` writes the tarballs into the new project's package.json, and
 `wasp build` copies them into Docker's build context. A released Wasp CLI
 doesn't set it, so this module does nothing for Wasp users.
-
-TODO: Remove this module once the repo's Wasp apps join the pnpm workspace and
-no longer depend on dev tarballs.
 -}
 
 data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs

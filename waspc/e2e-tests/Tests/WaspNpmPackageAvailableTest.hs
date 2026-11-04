@@ -64,7 +64,7 @@ waspNpmPackageAvailableTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ setDeclaredWaspNpmPackageVersion (show waspVersion),
-                  setInstalledWaspNpmPackageVersion "9.9.9",
+                  setInstalledWaspNpmPackageVersion nonexistentWaspVersion,
                   assertCommandFailsWithInstallHint waspCliCompile
                 ]
             ]
@@ -74,8 +74,8 @@ waspNpmPackageAvailableTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ setDeclaredWaspNpmPackageVersion "9.9.9",
-                  setInstalledWaspNpmPackageVersion "9.9.9",
+                [ setDeclaredWaspNpmPackageVersion nonexistentWaspVersion,
+                  setInstalledWaspNpmPackageVersion nonexistentWaspVersion,
                   assertCommandFailsWithVersionMismatchHint waspCliCompile
                 ]
             ]
@@ -148,6 +148,10 @@ waspNpmPackageAvailableTest =
     moveWaspNpmPackageToDevDependencies =
       return
         "npm pkg set \"devDependencies.@wasp/wasp=$(npm pkg get dependencies.@wasp/wasp | jq -r .)\" && npm pkg delete dependencies.@wasp/wasp"
+
+    -- No Wasp release will ever have this version, so the CLI never matches it.
+    nonexistentWaspVersion :: String
+    nonexistentWaspVersion = "0.0.0-e2e-nonexistent"
 
     setDeclaredWaspNpmPackageVersion :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     setDeclaredWaspNpmPackageVersion version = return $ "npm pkg set dependencies.@wasp/wasp=" ++ version
