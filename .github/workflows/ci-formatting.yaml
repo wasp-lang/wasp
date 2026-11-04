@@ -38,7 +38,7 @@ jobs:
 
       - name: Run ormolu
         working-directory: waspc
-        run: ./run check:ormolu
+        run: mise run check:ormolu
 
   cabal-gild:
     runs-on: ubuntu-24.04
@@ -51,4 +51,4 @@ jobs:
 
       - name: Run cabal-gild
         working-directory: waspc
-        run: ./run check:cabal
+        run: mise run check:cabal
