@@ -17,7 +17,7 @@ Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version 
 | --- | --- |
 | `npm run dev` | `wasp start` |
 | `npm run build` | `wasp build` |
-| `npm run preview` | `wasp build start` |
+| `npm run preview` | `wasp build start`, after `npm run build` |
 | `npm run wasp -- <command>` | any other Wasp command |
 
 npm reads the flags after `npm run <script>` as its own, so pass Wasp's arguments after `--`, e.g. `npm run wasp -- db migrate-dev --name init`.
@@ -127,8 +127,8 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
-    wasp db migrate-dev
-    wasp start
+    npm run wasp -- db migrate-dev
+    npm run dev
 ```
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
@@ -141,11 +141,12 @@ $ wasp new MyFirstProject
 Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
-cd MyFirstProject
-wasp db start
+    cd MyFirstProject
+    npm run wasp -- db migrate-dev
+    npm run dev
 ```
 
-- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, Wasp commands like `wasp start` stop and tell you to run it.
+- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the npm scripts fail with `wasp: command not found`.
 
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.

@@ -10,7 +10,7 @@ import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock"
 
 # CapRover
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Caprover: "1.14.1" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: "1.14.1" }} />
 
 ## Deploy Wasp with Caprover
 
@@ -160,7 +160,7 @@ jobs:
         run: npm ci
 
       - name: Build Wasp app
-        run: npm run wasp -- build
+        run: npm run build
 
       - name: (client) Build
         run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build

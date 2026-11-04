@@ -122,9 +122,7 @@ If you are deploying an app that requires any other environment variables (like 
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
-```
+<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app"} />
 
 <CustomServerUrlOption provider="railway" command="launch" example="my-wasp-app" />
 
@@ -161,9 +159,7 @@ If you are deploying your Railway app in the CI, you can pass the `--existing-pr
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>
-```
+<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>"} />
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
@@ -219,15 +215,11 @@ If your app requires any other server-side environment variables (like social au
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
-```
+<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app"} />
 
 or
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy
-```
+<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy"} />
 
 Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
 

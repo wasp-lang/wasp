@@ -10,7 +10,7 @@ import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock"
 
 # Coolify
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Coolify: "4.0.0-beta.462" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Coolify: "4.0.0-beta.462" }} />
 
 ## Deploy Wasp with Coolify
 
@@ -149,7 +149,7 @@ jobs:
         run: npm ci
 
       - name: Build Wasp app
-        run: npm run wasp -- build
+        run: npm run build
 
       - name: (client) Build
         run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build

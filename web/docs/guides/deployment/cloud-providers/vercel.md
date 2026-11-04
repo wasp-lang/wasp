@@ -13,7 +13,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Vercel
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Vercel: new Date("2026-09-07") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Vercel: new Date("2026-09-07") }} />
 
 ## Deploy Wasp to Vercel <Server /> <Client /> <Database />
 

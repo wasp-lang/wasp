@@ -9,7 +9,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Zerops
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Zerops: new Date("2026-10-23") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Zerops: new Date("2026-10-23") }} />
 
 ## Deploy Wasp on Zerops <Server /> <Client /> <Database />
 
@@ -39,7 +39,7 @@ zerops:
       base: nodejs@24
       buildCommands:
         - npm install
-        - npm run wasp -- build
+        - npm run build
         - npx vite build
       envVariables:
         # Vite embeds this at build time - must be the public API URL
@@ -59,7 +59,7 @@ zerops:
       os: ubuntu
       buildCommands:
         - npm install
-        - npm run wasp -- build
+        - npm run build
         - cd .wasp/out/server && npm install
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
         - cd .wasp/out/server && npm run bundle
@@ -92,7 +92,7 @@ zerops:
       start: sh -c 'cd .wasp/out/server && npm run start'
 ```
 
-The `prod-client` setup runs `npm install` and `npm run wasp -- build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
+The `prod-client` setup runs `npm install` and `npm run build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
 The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
 
@@ -215,10 +215,7 @@ The recipe's [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environm
 1. In the Zerops dashboard, open the `db` service and copy the PostgreSQL user, password, port, and database name from **Environment variables**.
 1. Connect to the project network, then start Wasp with an explicit URL (do not put production credentials in `.env.server`):
 
-```bash
-zcli vpn up
-DATABASE_URL="postgresql://<user>:<password>@db:<port>/<database>" wasp start
-```
+<WaspCommand command={"zcli vpn up\nDATABASE_URL=\"postgresql://<user>:<password>@db:<port>/<database>\" wasp start"} />
 
 Use the hostname `db` (the service hostname), not a public host - that only works while the VPN is up. If hostname resolution fails, try `db.zerops` as described in the [Zerops VPN docs](https://docs.zerops.io/references/networking/vpn).
 

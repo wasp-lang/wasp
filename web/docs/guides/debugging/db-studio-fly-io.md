@@ -8,7 +8,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Database Studio with Fly.io
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", "Fly CLI": "0.4.11" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Fly CLI": "0.4.11" }} />
 
 This guide shows you how to connect to your production database on Fly.io and run `wasp db studio` to inspect or modify your data.
 

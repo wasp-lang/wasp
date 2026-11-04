@@ -11,7 +11,7 @@ import { Client } from '../DeploymentTag'
 
 # Cloudflare
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", "Cloudflare Workers": new Date("2026-04-06") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Cloudflare Workers": new Date("2026-04-06") }} />
 
 ## Deploy Wasp to Cloudflare Workers <Client />
 
@@ -102,7 +102,7 @@ Here's an example configuration file to help you get started. This example workf
           run: cd ./app && npm ci
 
         - name: Wasp Build
-          run: cd ./app && npm run wasp -- build
+          run: cd ./app && npm run build
 
         - name: Build the client
           run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build

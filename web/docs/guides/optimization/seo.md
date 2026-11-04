@@ -57,7 +57,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line:
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's env vars, see [Testing locally](../../deployment/local-testing.md):
 
 <WaspCommand command={`# First, build and start the production build of your app:
 wasp build
@@ -177,7 +177,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), {
       // highlight-next-line
       prerender: true

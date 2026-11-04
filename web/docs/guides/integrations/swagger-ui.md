@@ -26,7 +26,7 @@ npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 
 ### 2. Configure the API namespace in main.wasp.ts
 
-Add an API namespace for the Swagger UI endpoint:
+Add an API namespace for the Swagger UI endpoint. Swagger UI serves its assets from the `swagger-ui-dist` package's folder, so also list that package in [`server.traceDeps`](../../deployment/methods/overview.md#missing-files-in-the-docker-image). Otherwise the production Docker image leaves the assets out, and the UI stays blank:
 
 ```ts title="main.wasp.ts"
 import { api, apiNamespace, app } from "@wasp/spec"
@@ -37,7 +37,13 @@ export default app({
   name: "MyApp",
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  // highlight-start
+  server: {
+    traceDeps: ["swagger-ui-dist*"],
+  },
+  // highlight-end
   spec: [
+    // ...
     // highlight-next-line
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),
     api("GET", "/status", getStatus, { auth: false }),
@@ -144,7 +150,6 @@ export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
         customCss: ".swagger-ui .topbar { display: none }",
         swaggerOptions: {
           persistAuthorization: true,
-          url: "/api-docs/swagger.json",
         },
       })(req, res, next);
     },

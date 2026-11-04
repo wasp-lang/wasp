@@ -149,9 +149,7 @@ DATABASE_URL=<my-db-url> wasp ...
 This trick is useful for running a certain `wasp` command on a specific database.
 For example, you could do:
 
-```bash
-DATABASE_URL=<production-db-url> wasp db seed myProductionSeed
-```
+<WaspCommand command={"DATABASE_URL=<production-db-url> wasp db seed myProductionSeed"} />
 
 This command seeds the data for a fresh staging or production database. Read more about [seeding the database](#seeding-the-database).
 
@@ -171,9 +169,9 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    // ...
    ```
 
-2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../../advanced/cli#project-commands):
+2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../../advanced/cli#project-commands). `wasp clean` also deletes `node_modules`, so install the dependencies again:
 
-   <WaspCommand command={"rm -r migrations/\nwasp clean"} />
+   <WaspCommand command={"rm -r migrations/\nwasp clean\nnpm install"} />
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 

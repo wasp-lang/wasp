@@ -65,9 +65,7 @@ You can't use the `wasp db studio` command to view the `_prisma_migrations` tabl
 
 You can use the same tool to inspect the **production database**, but you'll need to set the `DATABASE_URL` env variable to point to the production database. Set the `DATABASE_URL` env variable in your terminal before running the `wasp db studio` command:
 
-```bash
-DATABASE_URL="postgresql://user:password@host:port/dbname" wasp db studio
-```
+<WaspCommand command={"DATABASE_URL=\"postgresql://user:password@host:port/dbname\" wasp db studio"} />
 
 :::caution Be careful with the `DATABASE_URL` env variable
 

@@ -11,7 +11,7 @@ import { Client } from '../DeploymentTag'
 
 # Netlify
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Netlify: new Date("2026-05-28") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Netlify: new Date("2026-05-28") }} />
 
 ## Deploy Wasp to Netlify <Client />
 This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
@@ -97,7 +97,7 @@ Here's an example configuration file to help you get started. This example workf
           run: npm ci
 
         - name: Wasp Build
-          run: npm run wasp -- build
+          run: npm run build
 
         - name: Build the client
           run: REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build

@@ -10,7 +10,7 @@ import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock"
 
 # Simple VPS
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Caddy: "2.10.2", "Ubuntu LTS": "24.04" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caddy: "2.10.2", "Ubuntu LTS": "24.04" }} />
 
 ## Deploy Wasp to a VPS
 
@@ -123,7 +123,7 @@ In your project directory, install dependencies and build the app:
 
 ```bash
 npm ci
-npm run wasp -- build
+npm run build
 ```
 
 ### Step 9: Start the Database
@@ -163,7 +163,7 @@ Set up DNS A records pointing to your server IP:
 
 ### Step 11: Start the Server
 
-After you built the app with `npm run wasp -- build`, build the server app Docker image:
+After you built the app with `npm run build`, build the server app Docker image:
 
 ```bash
 # Navigate to the out directory
@@ -267,7 +267,7 @@ echo "Installing dependencies..."
 npm ci
 
 echo "Building Wasp project..."
-npm run wasp -- build
+npm run build
 
 echo "Building Docker image..."
 cd .wasp/out/

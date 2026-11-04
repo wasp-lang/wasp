@@ -10,7 +10,7 @@ import Trackable from "@site/src/components/Trackable";
 
 # Legacy Wasp installer
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.21" }} />
 
 Since Wasp 0.21, you install Wasp [through npm](../../getting-started/quick-start.md#detailed-installation). The installer script is legacy, and we don't support it anymore. We'll keep it around for the foreseeable future to give you time to switch, but it can't install Wasp 0.21 or newer.
 

@@ -34,8 +34,8 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
-    wasp db migrate-dev
-    wasp start
+    npm run wasp -- db migrate-dev
+    npm run dev
 ```
 
 ## Available Templates

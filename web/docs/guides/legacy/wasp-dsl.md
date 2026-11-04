@@ -12,7 +12,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Wasp 0.24 retired the Wasp DSL in favor of the [Wasp Spec](../../features/spec.md), a `main.wasp.ts` file written in TypeScript.
 
-If your project still has a `main.wasp` file, it runs Wasp 0.23 or older. This guide converts it straight to the Wasp Spec setup of Wasp 0.27. [How to migrate](#how-to-migrate) also lists the migration guides for the other changes between your version and 0.27.
+If your project still has a `main.wasp` file, it runs Wasp 0.23 or older. This guide shows how each part of the Wasp DSL looks in the Wasp Spec, and [How to migrate](#how-to-migrate) shows how to upgrade your project.
 
 ## New features
 
@@ -72,6 +72,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
     export default app({
       name: "todoApp",
       title: "ToDo App",
+      // ...
       spec: [
         route("MainRoute", "/", page(MainPage, { authRequired: true })),
       ],
@@ -283,147 +284,10 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 ## How to migrate
 
-These steps convert a Wasp DSL project to the Wasp Spec setup of Wasp 0.27. The Wasp versions between yours and 0.27 changed other parts of a project too, so step 9 sends you through their migration guides.
+Upgrade your project one Wasp version at a time with the migration guides, starting with the one from your project's version, for example [Migration from 0.22 to 0.23](/docs/0.23/migration-guide).
 
-Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
+When you reach [Migration from 0.23 to 0.24](/docs/0.24/migration-guide), convert your config with [the Wasp 0.24 version of this guide](/docs/0.24/guides/legacy/wasp-dsl#how-to-migrate), which has the steps for Wasp 0.24. Then continue with the migration guides up to the [latest one](../../migration-guide.md).
 
-1. Rename `tsconfig.json` to `tsconfig.src.json`. Keep its compiler options and add the entries Wasp needs:
-
-   ```json title="tsconfig.src.json"
-   {
-     "compilerOptions": {
-       // ...
-       // highlight-next-line
-       "types": ["react", "node"]
-     },
-     // highlight-start
-     "include": ["src", ".wasp/out/types/app"],
-     "exclude": ["**/*.wasp.ts"]
-     // highlight-end
-   }
-   ```
-
-2. Create a new `tsconfig.json` that references the other two configs:
-
-   ```json title="tsconfig.json"
-   {
-     "files": [],
-     "references": [
-       { "path": "./tsconfig.src.json" },
-       { "path": "./tsconfig.wasp.json" }
-     ]
-   }
-   ```
-
-3. Create a `tsconfig.wasp.json` for the Wasp Spec files:
-
-   ```json title="tsconfig.wasp.json"
-   {
-     "compilerOptions": {
-       "skipLibCheck": true,
-       "target": "ES2025",
-       "isolatedModules": true,
-       "moduleDetection": "force",
-       "strict": true,
-       "noUnusedLocals": true,
-       "noUnusedParameters": true,
-       "module": "esnext",
-       "moduleResolution": "bundler",
-       "jsx": "preserve",
-       "allowJs": true,
-       "noEmit": true,
-       "lib": ["ES2025"],
-       "types": ["node"]
-     },
-     "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
-   }
-   ```
-
-4. Add Wasp to your `package.json`:
-
-   ```json title="package.json"
-   {
-     // ...
-     // highlight-start
-     "scripts": {
-       "wasp": "wasp"
-     },
-     // highlight-end
-     "dependencies": {
-       // ...
-       // highlight-next-line
-       "@wasp/wasp": "0.27.0"
-     },
-     "devDependencies": {
-       // ...
-       // highlight-next-line
-       "@types/node": "^24.0.0"
-     }
-   }
-   ```
-
-   Keep your existing dependencies and add these entries. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp -- db migrate-dev`. Read more in [Running Wasp commands](../../advanced/cli.md#running-wasp-commands).
-
-5. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Otherwise npm won't install a new Wasp release during its first 7 days:
-
-   ```ini title=".npmrc"
-   min-release-age=7
-   # highlight-next-line
-   min-release-age-exclude[]=@wasp/*
-   ```
-
-6. Rename `main.wasp` to `main.wasp.old`.
-
-7. Create a `main.wasp.ts` file with the following content:
-
-   ```ts title="main.wasp.ts"
-   import { app } from "@wasp/spec";
-
-   export default app({
-     name: "myApp",
-     title: "My app",
-     head: ["<link rel='icon' href='/favicon.ico' />"],
-     spec: [
-       // ...
-     ],
-   });
-   ```
-
-   :::note
-   While previously we accepted any `*.wasp` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
-   :::
-
-8. Rewrite your config:
-
-   You can use the mapping above. Top-level concerns like `auth`, `server`, `client`, `db`, `emailSender`, and `webSocket` become keys of the `app({ ... })` object. Pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` property. Leave out the `wasp: { version }` field, since step 4 set the Wasp version in `package.json`.
-
-9. Make the other changes from the migration guides between your Wasp version and 0.27. For a project on Wasp 0.23, follow these in order:
-
-   - [Migration from 0.23 to 0.24](/docs/0.24/migration-guide)
-   - [Migration from 0.24 to 0.25](/docs/0.25/migration-guide)
-   - [Migration from 0.25 to 0.26](/docs/0.26/migration-guide)
-   - [Migration from 0.26 to 0.27](../../migration-guide.md)
-
-   If your project runs an older Wasp version, start with the migration guide from your version, for example [Migration from 0.22 to 0.23](/docs/0.23/migration-guide).
-
-   The steps above already cover parts of these guides. Skip the migration guide steps that:
-
-   - bump or remove the Wasp version, or run `wasp install`
-   - convert the config to the Wasp Spec, or rename the Wasp Spec package
-   - change `tsconfig.json`, `tsconfig.src.json`, or `tsconfig.wasp.json`
-   - add `@wasp/wasp` to `package.json`, or exclude it in `.npmrc`
-
-10. Install the dependencies, run the database migrations, and start your app:
-
-    ```sh
-    wasp clean
-    npm install
-    wasp db migrate-dev
-    wasp start
-    ```
-
-    `@wasp/wasp` needs the dependency versions from the migration guides, like Prisma 6 and TypeScript 6. Until your `package.json` lists them, `npm install` fails with a dependency conflict. If everything is correct, your app behaves exactly as before.
-
-11. Delete `main.wasp.old` once you're sure the new config works.
+The [changes above](#changes) show the Wasp Spec of the latest Wasp version, so they show how your config looks once you finish.
 
 See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

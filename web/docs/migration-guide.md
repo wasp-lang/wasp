@@ -34,9 +34,11 @@ The build steps are also ordered so that a code change reuses the installed depe
 
 ## How to migrate?
 
-### 1. Switch to the new Wasp CLI package
+### 1. Switch to the new global Wasp CLI package
 
-The Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
+**If you don't want a global Wasp CLI, you can skip this step.** Your project's `@wasp/wasp` dependency brings the Wasp CLI, and you run it through npm (see [Running Wasp commands](./advanced/cli.md#running-wasp-commands)).
+
+The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
 
 ```sh
 npm uninstall -g @wasp.sh/wasp-cli
@@ -223,13 +225,16 @@ Update the Prisma packages in your `package.json`:
   </TabItem>
 </Tabs>
 
-Now delete the old build output and `node_modules`, install the dependencies, and run the migrations. Don't run `npm install` before this step. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5:
+Now delete the old build output and `node_modules`, and install the dependencies. Don't run `npm install` before this step. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5:
 
 ```sh
-wasp clean
+rm -rf .wasp node_modules
 npm install
-wasp db migrate-dev
 ```
+
+Then run the migrations:
+
+<WaspCommand command="wasp db migrate-dev" />
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
@@ -475,10 +480,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
 
-   ```bash
-   wasp compile
-   npm test
-   ```
+   <WaspCommand command={"wasp compile\nnpm test"} />
 
 Read more in the [testing docs](./advanced/testing.md).
 

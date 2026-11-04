@@ -11,7 +11,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Render
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Render: new Date("2026-04-15") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Render: new Date("2026-04-15") }} />
 
 ## Deploy Wasp on Render <Server /> <Client /> <Database />
 
@@ -42,7 +42,7 @@ services:
     branch: main
     buildCommand: >-
       npm install &&
-      npm run wasp -- build &&
+      npm run build &&
       cd .wasp/out/server &&
       npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
@@ -69,7 +69,7 @@ services:
     branch: main
     buildCommand: >-
       npm install &&
-      npm run wasp -- build &&
+      npm run build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
     envVars:
