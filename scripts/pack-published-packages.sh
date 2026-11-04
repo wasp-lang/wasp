@@ -5,9 +5,10 @@ set -euxo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
-# `wasp` depends on the other packages through `workspace:*`, and `pnpm pack`
-# replaces that with the versions in their package.json files. So we also set
-# the version of `cli`, which make-cli-npm-packages packs instead of this script.
+# The packages that get the publish version. `wasp` depends on the others
+# through `workspace:*`, and `pnpm pack` replaces that with the version in each
+# package's package.json. So `cli` needs the publish version too, even though
+# this script doesn't pack it.
 versioned_packages=(
   cli
   deploy
@@ -15,6 +16,10 @@ versioned_packages=(
   studio
   wasp
 )
+
+# The packages this script packs. It leaves out `cli`, because
+# `scripts/make-cli-npm-packages` packs it together with its platform-specific
+# sub-packages.
 publish_packages=(
   deploy
   spec
