@@ -163,7 +163,7 @@ typeCheckUserCode spec sendMessage = do
   where
     typeCheck :: J.Job ExitCode
     typeCheck =
-      J.fromProc
-        =<< NodeTools.proc
+      J.fromProc $
+        NodeTools.proc
           (AS.waspProjectDir spec)
           (NodeTools.typeCheckUserCode $ AS.srcTsConfigPath spec)

@@ -1,4 +1,4 @@
-module Node.NpmBinTest where
+module Job.CreateProcess.SearchPathTest where
 
 import Data.List (isSuffixOf)
 import Data.Maybe (fromJust)
@@ -9,38 +9,38 @@ import System.FilePath (splitSearchPath, (<.>), (</>))
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Process as P
 import Test.Hspec
-import Wasp.Node.NpmBin (findNpmBin, getNpmBinEnvVars)
+import Wasp.Job.CreateProcess.SearchPath (findExecutableFrom, getSearchPathEnvVars)
 
-{- HLINT ignore spec_NodeNpmBin "Avoid npm and npx" -}
+{- HLINT ignore spec_JobCreateProcessSearchPath "Avoid npm and npx" -}
 
-spec_NodeNpmBin :: Spec
-spec_NodeNpmBin = do
-  describe "findNpmBin" $ do
+spec_JobCreateProcessSearchPath :: Spec
+spec_JobCreateProcessSearchPath = do
+  describe "findExecutableFrom" $ do
     it "finds the executable in the closest node_modules/.bin directory" $
       withProjectDirs $ \projectDir packageDir -> do
         _ <- createNpmBin projectDir "tool"
         packageTool <- createNpmBin packageDir "tool"
-        findNpmBin (toAbsDir packageDir) "tool" `shouldReturn` Just packageTool
+        findExecutableFrom (toAbsDir packageDir) "tool" `shouldReturn` packageTool
 
     it "looks for the executable in the ancestors' node_modules/.bin directories" $
       withProjectDirs $ \projectDir packageDir -> do
         projectTool <- createNpmBin projectDir "tool"
-        findNpmBin (toAbsDir packageDir) "tool" `shouldReturn` Just projectTool
+        findExecutableFrom (toAbsDir packageDir) "tool" `shouldReturn` projectTool
 
     it "looks for the executable in the PATH after the node_modules/.bin directories" $
       withProjectDirs $ \_ packageDir -> do
-        nodeInPath <- findExecutable "node"
-        findNpmBin (toAbsDir packageDir) "node" `shouldReturn` nodeInPath
+        nodeInPath <- fromJust <$> findExecutable "node"
+        findExecutableFrom (toAbsDir packageDir) "node" `shouldReturn` nodeInPath
 
-    it "returns Nothing if the executable isn't in any node_modules/.bin directory or the PATH" $
+    it "fails if the executable isn't in any node_modules/.bin directory or the PATH" $
       withProjectDirs $ \_ packageDir ->
-        findNpmBin (toAbsDir packageDir) "missing-tool" `shouldReturn` Nothing
+        findExecutableFrom (toAbsDir packageDir) "missing-tool" `shouldThrow` anyIOException
 
-  describe "getNpmBinEnvVars" $ do
+  describe "getSearchPathEnvVars" $ do
     it "puts the node_modules/.bin directories, closest first, before the current PATH" $
       withProjectDirs $ \projectDir packageDir -> do
         currentPath <- maybe [] splitSearchPath <$> lookupEnv "PATH"
-        [(name, value)] <- getNpmBinEnvVars (toAbsDir packageDir)
+        [(name, value)] <- getSearchPathEnvVars (toAbsDir packageDir)
         name `shouldBe` "PATH"
         let pathDirs = splitSearchPath value
         take 2 pathDirs `shouldBe` [packageDir </> "node_modules" </> ".bin", projectDir </> "node_modules" </> ".bin"]
@@ -53,7 +53,7 @@ spec_NodeNpmBin = do
         writeFile (packageDir </> "package.json") "{\"scripts\": {\"print-path\": \"node -p process.env.PATH\"}}"
         npmPathDirs <- splitSearchPath . concat . lines <$> P.readCreateProcess ((P.proc "npm" ["run", "--silent", "print-path"]) {P.cwd = Just packageDir}) ""
         currentPath <- maybe [] splitSearchPath <$> lookupEnv "PATH"
-        [(_, value)] <- getNpmBinEnvVars (toAbsDir packageDir)
+        [(_, value)] <- getSearchPathEnvVars (toAbsDir packageDir)
         let pathDirs = splitSearchPath value
         take (length pathDirs - length currentPath) pathDirs
           `shouldBe` takeWhile (("node_modules" </> ".bin") `isSuffixOf`) npmPathDirs

@@ -85,8 +85,8 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Job.run . Job.prefixWith Job.Wasp $
-      (Job.fromProc =<< NodeTools.proc sdkRootDir NodeTools.compileSdk)
-        `Job.andThen` (Job.fromProc =<< NodeTools.proc sdkRootDir NodeTools.copySdkAssets)
+      Job.fromProc (NodeTools.proc sdkRootDir NodeTools.compileSdk)
+        `Job.andThen` Job.fromProc (NodeTools.proc sdkRootDir NodeTools.copySdkAssets)
 
   return $ checkExitSuccess "SDK build" exitCode
   where

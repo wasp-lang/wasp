@@ -14,7 +14,7 @@ buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
   Job.fromProc
     . addEnvVarsOverride envVars
-    =<< NodeTools.proc config.projectDir NodeTools.buildWebApp
+    $ NodeTools.proc config.projectDir NodeTools.buildWebApp
   where
     envVars = getEnvVars config.clientRunConfig
 
@@ -22,6 +22,6 @@ startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
   Job.fromProc
     . addEnvVarsOverride envVars
-    =<< NodeTools.proc config.projectDir NodeTools.previewWebApp
+    $ NodeTools.proc config.projectDir NodeTools.previewWebApp
   where
     envVars = getEnvVars config.clientRunConfig

@@ -114,7 +114,7 @@ startServer serverRunConfig generatedAppDir inbox = do
 
     runServerProcess :: J.Job ()
     runServerProcess =
-      (J.fromProc =<< serverProcess)
+      J.fromProc serverProcess
         >>= reportServerExit
         >> printWaitingForChanges
 
@@ -128,13 +128,13 @@ startServer serverRunConfig generatedAppDir inbox = do
 
     bundle :: J.Job ExitCode
     bundle =
-      (J.fromProc =<< NodeTools.proc serverDir NodeTools.typeCheckServer)
-        `J.andThen` (J.fromProc =<< NodeTools.proc serverDir NodeTools.bundleServer)
+      J.fromProc (NodeTools.proc serverDir NodeTools.typeCheckServer)
+        `J.andThen` J.fromProc (NodeTools.proc serverDir NodeTools.bundleServer)
 
-    serverProcess :: J.Job J.CreateJobProcess
+    serverProcess :: J.CreateJobProcess
     serverProcess =
-      addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-        <$> NodeTools.proc waspProjectDir NodeTools.runServer
+      addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig) $
+        NodeTools.proc waspProjectDir NodeTools.runServer
 
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir

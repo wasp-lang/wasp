@@ -17,4 +17,4 @@ startWebApp webAppRunConfig waspProjectDir =
     . addEnvVarsOverride (getEnvVars webAppRunConfig)
     -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
     . J.markInteractive
-    =<< NodeTools.proc waspProjectDir NodeTools.runWebAppDevServer
+    $ NodeTools.proc waspProjectDir NodeTools.runWebAppDevServer
