@@ -23,7 +23,7 @@ To make deploying as smooth as possible, Wasp also offers a single-command deplo
   description="One-command deployment & redeployment"
 />
 
-But even when not using Wasp Deploy, you can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
+But even when not using Wasp Deploy, you can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/) or [Prisma Postgres](https://www.prisma.io/postgres).
 
 You can read our guides on how to deploy your Wasp app to different platforms, both from cloud providers and on your own infrastructure:
 
