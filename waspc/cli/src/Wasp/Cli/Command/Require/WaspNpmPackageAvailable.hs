@@ -23,7 +23,6 @@ import Wasp.Project.WaspNpmPackage
     tryGettingInstalledWaspNpmPackageVersion,
     waspNpmPackageName,
   )
-import Wasp.Util.InstallMethod (getGlobalInstallationCommand)
 import Wasp.Util.Terminal (styleCode)
 
 -- | Require that the project's \@wasp/wasp npm package is installed in
@@ -132,9 +131,7 @@ instance Requirable WaspNpmPackageAvailable where
                 ++ show cliVersion
                 ++ " directly, which can't switch to the project's version. Run the project's Wasp with "
                 ++ styleCode "npm run wasp -- <command>"
-                ++ ", or install the Wasp CLI from npm with "
-                ++ styleCode (getGlobalInstallationCommand Nothing)
-                ++ ". That CLI runs each project's Wasp version for you."
+                ++ ", or upgrade your global Wasp CLI to the latest version. Read how at https://wasp.sh/docs/quick-start#global-cli."
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration
