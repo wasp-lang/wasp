@@ -37,6 +37,7 @@ import Wasp.Generator.AuthProviders
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import qualified Wasp.Generator.AuthProviders.UsernameAndPassword as UsernameAndPasswordProvider
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
@@ -137,7 +138,7 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
     maybeAuth = AS.App.auth $ getApp spec
     authDeps =
       Npm.Dependency.fromList
-        [ ("lucia", "^3.0.1")
+        [ ("lucia", show $$(catalogVersionRange "lucia"))
         ]
 
 jwtSecretEnvVarName :: String

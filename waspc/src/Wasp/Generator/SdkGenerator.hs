@@ -42,6 +42,7 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
     viteVersionRange,
   )
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -198,9 +199,9 @@ npmDepsForSdk spec =
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),
             ("react-router", show reactRouterVersionRange),
-            ("react-hook-form", "^7.45.4"),
+            ("react-hook-form", show $$(catalogVersionRange "react-hook-form")),
             ("superjson", show superjsonVersionRange),
-            ("@vitejs/plugin-react", "^6.0.3")
+            ("@vitejs/plugin-react", show $$(catalogVersionRange "@vitejs/plugin-react"))
           ]
           ++ depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec

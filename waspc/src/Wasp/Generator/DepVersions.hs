@@ -16,52 +16,47 @@ module Wasp.Generator.DepVersions
   )
 where
 
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import qualified Wasp.SemanticVersion as SV
 
--- Also ensure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
 prismaVersionRange :: SV.Range
-prismaVersionRange = [SV.r|6.19.3|]
+prismaVersionRange = $$(catalogVersionRange "prisma")
 
 superjsonVersionRange :: SV.Range
-superjsonVersionRange = [SV.r|^2.2.1|]
+superjsonVersionRange = $$(catalogVersionRange "superjson")
 
 typescriptVersionRange :: SV.Range
-typescriptVersionRange = [SV.r|6.0.3|]
+typescriptVersionRange = $$(catalogVersionRange "typescript")
 
--- When updating the React version,
--- also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
 reactVersionRange :: SV.Range
-reactVersionRange = [SV.r|^19.2.1|]
+reactVersionRange = $$(catalogVersionRange "react")
 
--- React and ReactDOM versions should always match.
 reactDomVersionRange :: SV.Range
 reactDomVersionRange = reactVersionRange
 
--- Follows React major version.
--- When updating the value, also update it in `devDependencies` in `waspc/libs/auth/package.json`.
 reactTypesVersionRange :: SV.Range
-reactTypesVersionRange = [SV.r|^19.2.7|]
+reactTypesVersionRange = $$(catalogVersionRange "@types/react")
 
 reactDomTypesVersionRange :: SV.Range
-reactDomTypesVersionRange = [SV.r|^19.2.3|]
+reactDomTypesVersionRange = $$(catalogVersionRange "@types/react-dom")
 
 reactRouterVersionRange :: SV.Range
-reactRouterVersionRange = [SV.r|^8.0.1|]
+reactRouterVersionRange = $$(catalogVersionRange "react-router")
 
 reactQueryVersionRange :: SV.Range
-reactQueryVersionRange = [SV.r|~4.42.0|]
+reactQueryVersionRange = $$(catalogVersionRange "@tanstack/react-query")
 
 expressVersionRange :: SV.Range
-expressVersionRange = [SV.r|~5.1.0|]
+expressVersionRange = $$(catalogVersionRange "express")
 
 expressTypesVersionRange :: SV.Range
-expressTypesVersionRange = [SV.r|^5.0.0|]
+expressTypesVersionRange = $$(catalogVersionRange "@types/express")
 
 viteVersionRange :: SV.Range
-viteVersionRange = [SV.r|^8.1.0|]
+viteVersionRange = $$(catalogVersionRange "vite")
 
 dotenvVersionRange :: SV.Range
-dotenvVersionRange = [SV.r|^16.6.1|]
+dotenvVersionRange = $$(catalogVersionRange "dotenv")
 
 kyVersionRange :: SV.Range
-kyVersionRange = [SV.r|^2.0.0|]
+kyVersionRange = $$(catalogVersionRange "ky")

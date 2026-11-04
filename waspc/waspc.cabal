@@ -15,6 +15,7 @@ license: MIT
 build-type: Simple
 extra-source-files:
   ChangeLog.md
+  pnpm-workspace.link.yaml
   README.md
 
 data-files:
@@ -155,6 +156,7 @@ library
     unordered-containers ^>=0.2.20,
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
+    yaml ^>=0.11.11,
 
   other-modules: Paths_waspc
   exposed-modules:
@@ -216,6 +218,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DepVersions
+    Wasp.Generator.DepVersions.Catalog
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.FileDraft

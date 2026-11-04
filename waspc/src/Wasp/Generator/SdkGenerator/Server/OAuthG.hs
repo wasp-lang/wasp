@@ -22,6 +22,7 @@ import Wasp.Generator.AuthProviders.OAuth
     serverOAuthLoginHandlerPath,
   )
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -101,7 +102,7 @@ genOAuthConfig provider =
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
-  [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+  [Npm.Dependency.make ("arctic", show $$(catalogVersionRange "arctic")) | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
     maybeAuth = AS.App.auth $ AS.Valid.getApp spec
 

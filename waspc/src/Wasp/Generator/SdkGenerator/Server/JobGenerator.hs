@@ -20,6 +20,7 @@ import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
@@ -130,10 +131,8 @@ genJobExecutors spec = case getJobs spec of
           genFileCopyInServerJob [relfile|core/pgBoss/index.ts|]
         ]
 
--- NOTE: Our pg-boss related documentation references this version in URLs.
--- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
 pgBossVersionRange :: SV.Range
-pgBossVersionRange = [SV.r|^8.4.2|]
+pgBossVersionRange = $$(catalogVersionRange "pg-boss")
 
 pgBossDependency :: Npm.Dependency.Dependency
 pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)

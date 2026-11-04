@@ -193,7 +193,7 @@ catalogs:
       specifier: ^4.20.6
       version: 4.23.15
     typescript:
-      specifier: ~6.0.3
+      specifier: 6.0.3
       version: 6.0.3
     vitest:
       specifier: ^5.0.5
