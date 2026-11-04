@@ -13963,7 +13963,7 @@ $ wasp version
 Each project runs the Wasp version of its `@wasp/wasp` dependency. To switch a project to Wasp x.y.z, run this in the project directory:
   npm install --save-exact @wasp/wasp@x.y.z
 
-To install the latest global Wasp CLI, which runs commands outside of projects like `wasp new`, run:
+To instead install the latest Wasp CLI globally, run:
   npm i -g @wasp/cli@latest
 Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 
