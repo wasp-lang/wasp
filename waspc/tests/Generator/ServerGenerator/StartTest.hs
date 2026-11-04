@@ -313,8 +313,11 @@ waitForServerStart fixture = do
         serverPid <- readServerPid fixture
         serverPort <- readServerPort fixture
         processAlive <- isProcessAlive serverPid
-        portAvailable <- isPortAvailable serverPort
-        return $ processAlive && not portAvailable
+        -- Checking the port binds it, so we don't do it for a PID file left
+        -- by a previous server: the next one might be binding the port.
+        if processAlive
+          then not <$> isPortAvailable serverPort
+          else return False
       else return False
   readServerPid fixture
 
