@@ -8,7 +8,7 @@ sidebar_label: From 0.26 to 0.27
 
 ### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it runs the project's Wasp version.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it hands each command over to the project's own Wasp.
 
 ### New npm organization
 
@@ -79,7 +79,7 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
 
 If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, move that entry to npm's `overrides` field. Wasp reports such `overriddenDeps` entries as errors. See [Overriding Wasp's dependencies](./advanced/dependencies.md#overriding-wasps-dependencies-advanced).
 
-If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days. Wasp publishes its packages on release day, so exclude them. Otherwise `npm install` fails for the first week after a release:
+If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
 
 ```ini title=".npmrc"
 min-release-age=7

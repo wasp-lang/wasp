@@ -28,7 +28,7 @@ npm reads the flags after `npm run <script>` as its own, so pass Wasp's argument
 npm i -g @wasp/cli@latest
 ```
 
-Inside a project, the global CLI runs the project's Wasp version, so it always matches your `package.json`. Outside of projects, it runs its own version, e.g. for `wasp new`.
+Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the version from your `package.json`. Outside of a project, it runs commands with its own version, so `wasp new` creates projects on the global CLI's version. Read more in [Installing Wasp globally](../getting-started/quick-start.md#global-cli).
 
 To create a project without a global install, run `npx @wasp/cli@latest new`.
 

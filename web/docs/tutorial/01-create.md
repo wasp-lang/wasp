@@ -11,7 +11,7 @@ import starterScreenshot from './img/wasp-new-screenshot.webp';
 # 1. Creating a new project
 
 :::info
-You'll need Node.js and npm to follow this tutorial. Check the [Quick start](../quick-start) guide for the requirements. You don't need to install Wasp first: creating the project installs it.
+You'll need Node.js and npm to follow this tutorial. Check the [Quick start](../quick-start) guide for the requirements. You don't need to install Wasp first, since creating the project installs it.
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.

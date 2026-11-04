@@ -102,7 +102,7 @@ By declaring this, you acknowledge you're deviating from Wasp's tested version. 
 
 New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
 
-The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`. Wasp publishes them on release day, so keep this line when you edit the file.
+The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`, so you can upgrade Wasp on the day a release comes out. Keep this line when you edit the file.
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 

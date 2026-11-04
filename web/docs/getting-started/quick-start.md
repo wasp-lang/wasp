@@ -36,8 +36,8 @@ Let's create and run our first Wasp app in 2 short steps:
 
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually [http://localhost:3000](http://localhost:3000), unless it's taken) to see it.
 
-:::tip Prefer typing `wasp start`?
-Your project already has Wasp installed, so you don't need a global install. If you'd like to run Wasp commands directly, install the [global Wasp CLI](#global-cli).
+:::tip Prefer typing `wasp` commands?
+Your project already has Wasp installed, so you don't need a global install. If you install the [global Wasp CLI](#global-cli), you can type `wasp start` instead of `npm run dev`, and create new projects with `wasp new` instead of `npx @wasp/cli@latest new`.
 :::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
@@ -148,9 +148,9 @@ Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp`
 
 The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](../advanced/cli.md#running-wasp-commands) for how to run it.
 
-#### Global CLI
+#### Installing Wasp globally {#global-cli}
 
-You don't need a global install to use Wasp. If you'd like to type `wasp <command>` instead of going through npm, install the Wasp CLI globally:
+You don't need a global install to use Wasp. Install the Wasp CLI globally if you'd like to type `wasp start` instead of `npm run dev`, and `wasp new` instead of `npx @wasp/cli@latest new`:
 
 <Trackable event="Install Command: Copy">
 
@@ -160,7 +160,9 @@ npm i -g @wasp/cli@latest
 
 </Trackable>
 
-Inside a project, the global CLI runs the project's Wasp version, so it never conflicts with the version the project asks for. Outside of projects, it runs its own version, e.g. for `wasp new`.
+Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`. So the version of the global CLI never conflicts with the project's Wasp version, and each of your projects can use a different one.
+
+Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. To create projects on the latest Wasp, run the install command above again.
 
 :::note Looking for the old installer script?
 

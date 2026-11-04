@@ -324,9 +324,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
       </TabItem>
     </Tabs>
 
-    Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp`, and add `@types/node`. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp start`. Read more in [Running Wasp commands](../../advanced/cli.md#running-wasp-commands).
+    Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp`, and add `@types/node`. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp -- db migrate-dev`. Read more in [Running Wasp commands](../../advanced/cli.md#running-wasp-commands).
 
-2.  If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Wasp publishes its packages on release day, so otherwise `npm install` fails for the first week after a release:
+2.  If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Otherwise npm won't install a new Wasp release during its first 7 days:
 
     ```ini title=".npmrc"
     min-release-age=7

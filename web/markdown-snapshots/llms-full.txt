@@ -276,8 +276,8 @@ Let's create and run our first Wasp app in 2 short steps:
 
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>, unless it's taken) to see it.
 
-:::tip[Prefer typing wasp start?]
-Your project already has Wasp installed, so you don't need a global install. If you'd like to run Wasp commands directly, install the [global Wasp CLI](#global-cli).
+:::tip[Prefer typing wasp commands?]
+Your project already has Wasp installed, so you don't need a global install. If you install the [global Wasp CLI](#global-cli), you can type `wasp start` instead of `npm run dev`, and create new projects with `wasp new` instead of `npx @wasp/cli@latest new`.
 :::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
@@ -365,15 +365,17 @@ Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp`
 
 The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands) for how to run it.
 
-##### Global CLI
+##### Installing Wasp globally {#global-cli}
 
-You don't need a global install to use Wasp. If you'd like to type `wasp <command>` instead of going through npm, install the Wasp CLI globally:
+You don't need a global install to use Wasp. Install the Wasp CLI globally if you'd like to type `wasp start` instead of `npm run dev`, and `wasp new` instead of `npx @wasp/cli@latest new`:
 
 ```shell
 npm i -g @wasp/cli@latest
 ```
 
-Inside a project, the global CLI runs the project's Wasp version, so it never conflicts with the version the project asks for. Outside of projects, it runs its own version, e.g. for `wasp new`.
+Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`. So the version of the global CLI never conflicts with the project's Wasp version, and each of your projects can use a different one.
+
+Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. To create projects on the latest Wasp, run the install command above again.
 
 :::note[Looking for the old installer script?]
 Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/installer)** for instructions on how to migrate to npm-based installation.
@@ -588,7 +590,7 @@ Check out the [Wasp Agent Plugins repository](https://github.com/wasp-lang/wasp-
 ## Tutorial / 1. Creating a new project
 
 :::info
-You'll need Node.js and npm to follow this tutorial. Check the [Quick start](https://wasp.sh/docs/quick-start) guide for the requirements. You don't need to install Wasp first: creating the project installs it.
+You'll need Node.js and npm to follow this tutorial. Check the [Quick start](https://wasp.sh/docs/quick-start) guide for the requirements. You don't need to install Wasp first, since creating the project installs it.
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
@@ -11829,7 +11831,7 @@ By declaring this, you acknowledge you're deviating from Wasp's tested version. 
 
 New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
 
-The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`. Wasp publishes them on release day, so keep this line when you edit the file.
+The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`, so you can upgrade Wasp on the day a release comes out. Keep this line when you edit the file.
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 
@@ -13755,7 +13757,7 @@ npm reads the flags after `npm run <script>` as its own, so pass Wasp's argument
 npm i -g @wasp/cli@latest
 ```
 
-Inside a project, the global CLI runs the project's Wasp version, so it always matches your `package.json`. Outside of projects, it runs its own version, e.g. for `wasp new`.
+Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the version from your `package.json`. Outside of a project, it runs commands with its own version, so `wasp new` creates projects on the global CLI's version. Read more in [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli).
 
 To create a project without a global install, run `npx @wasp/cli@latest new`.
 
@@ -16012,7 +16014,7 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 #### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it runs the project's Wasp version.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it hands each command over to the project's own Wasp.
 
 #### New npm organization
 
@@ -16079,7 +16081,7 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
 
 If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, move that entry to npm's `overrides` field. Wasp reports such `overriddenDeps` entries as errors. See [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced).
 
-If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days. Wasp publishes its packages on release day, so exclude them. Otherwise `npm install` fails for the first week after a release:
+If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
 
 ```ini title=".npmrc"
 min-release-age=7
@@ -24318,23 +24320,37 @@ Last checked with Wasp 0.27.
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
 
-Starting from Wasp 0.21, installation is done [through npm](https://wasp.sh/docs/quick-start#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
+Since Wasp 0.21, you install Wasp [through npm](https://wasp.sh/docs/quick-start#detailed-installation). The installer script is legacy, and we don't support it anymore. We'll keep it around for the foreseeable future to give you time to switch, but it can't install Wasp 0.21 or newer.
 
 ### How to migrate off the legacy installer {#migrate}
 
-To switch to the new installation method, you can run our migration tool:
+To switch away from the installer script, run our migration tool:
 
 ```shell
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 ```
 
-Afterwards, you can use [the regular installation instructions](https://wasp.sh/docs/quick-start#detailed-installation) to install Wasp through npm:
+Since Wasp 0.27, each project installs Wasp as an npm dependency, and that's the default way to use Wasp. The `@wasp/wasp` version in the project's `package.json` sets its Wasp version, `npm install` installs it, and you run it through the project's npm scripts, like `npm run dev`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
+
+To create a new project without installing anything globally, run:
+
+```shell
+npx @wasp/cli@latest new
+```
+
+If your project runs Wasp 0.26 or older, follow the [migration guide](https://wasp.sh/docs/migration-guide) to make it depend on `@wasp/wasp`.
+
+#### Keep using a global Wasp CLI
+
+If you'd like to keep typing `wasp` commands like you did with the installer script, install the Wasp CLI globally through npm:
 
 ```shell
 npm i -g @wasp/cli@latest
 ```
 
-You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
+Inside a project, the global CLI runs the project's own Wasp, so you don't need to match its version to your projects. [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli) explains how it picks the version.
+
+Projects on Wasp 0.26 or older don't depend on `@wasp/wasp`, so you need a global CLI of the same version to work on them. npm has Wasp 0.20.2 and newer:
 
 ```shell
 # Set x.y.z to the version you want to install.
@@ -24790,9 +24806,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-   Keep your existing dependencies and add these entries. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp start`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
+   Keep your existing dependencies and add these entries. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp -- db migrate-dev`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
-5. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Wasp publishes its packages on release day, so otherwise `npm install` fails for the first week after a release:
+5. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Otherwise npm won't install a new Wasp release during its first 7 days:
 
    ```ini title=".npmrc"
    min-release-age=7
@@ -25178,9 +25194,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-   Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp`, and add `@types/node`. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp start`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
+   Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp`, and add `@types/node`. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp -- db migrate-dev`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
-2. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Wasp publishes its packages on release day, so otherwise `npm install` fails for the first week after a release:
+2. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Otherwise npm won't install a new Wasp release during its first 7 days:
 
    ```ini title=".npmrc"
    min-release-age=7
