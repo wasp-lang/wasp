@@ -59,17 +59,15 @@ There are four main categories of issues (Performance, Accessibility, Best Pract
 
 A straightforward way to run Lighthouse is through the command line:
 
-```sh
-# First, build and start the production build of your app:
-$ wasp build
-$ wasp build start
+<WaspCommand command={`# First, build and start the production build of your app:
+wasp build
+wasp build start
 
 # While the server is running, open another terminal and run Lighthouse:
-$ npx lighthouse http://localhost:3000 --preset=desktop --view
+npx lighthouse http://localhost:3000 --preset=desktop --view
 
 # You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
-# Remove the --preset=desktop argument to test the mobile experience instead.
-```
+# Remove the --preset=desktop argument to test the mobile experience instead.`} />
 
 It will take a minute to run (you'll see an automated browser window while it runs), and then it will save your report as an HTML file and open it.
 

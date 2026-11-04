@@ -26,9 +26,7 @@ The benefit of migrations is that you can apply the same change to multiple data
 
 After you made a change in the Prisma schema, you can create a migration by running the following command:
 
-```bash
-wasp db migrate-dev
-```
+<WaspCommand command="wasp db migrate-dev" />
 
 This command will create a new migration in the `migrations` directory. The migration is a set of SQL commands that describe the change you made in the schema.
 

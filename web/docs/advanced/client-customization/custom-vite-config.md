@@ -116,9 +116,7 @@ export default defineConfig({
 
 `wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
-```bash
-wasp start --client-port 4000
-```
+<WaspCommand command="wasp start --client-port 4000" />
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 

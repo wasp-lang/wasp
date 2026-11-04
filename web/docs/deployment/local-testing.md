@@ -20,14 +20,12 @@ While it's not identical to a real production environment, it's the closest you 
 
 ## Usage
 
-```bash
-# Start a local database, copy the connection URL
+<WaspCommand command={`# Start a local database, copy the connection URL
 wasp start db
 
 # Start the local production build server
 # (this is an example, you'll probably need to add more environment variables)
-wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
-```
+wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>`} />
 
 :::tip
 For `JWT_SECRET`, you can generate a random secret here: <SecretGeneratorBlock />.
@@ -85,29 +83,21 @@ The only exception is the environment variables that configure your app's ports 
 
 Example:
 
-```bash
-wasp build start --server-env-file .env.staging --client-env-file .env.client.staging
-```
+<WaspCommand command="wasp build start --server-env-file .env.staging --client-env-file .env.client.staging" />
 
 ### Server environment variables
 
 Use `--server-env` to specify environment variables for the server:
 
-```bash
-wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp
-```
+<WaspCommand command="wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp" />
 
 You can specify multiple server environment variables:
 
-```bash
-wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key
-```
+<WaspCommand command="wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key" />
 
 You can also point to an `.env` file to load environment variables:
 
-```bash
-wasp build start --server-env-file .env.production
-```
+<WaspCommand command="wasp build start --server-env-file .env.production" />
 
 :::warning
 Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.
@@ -117,21 +107,15 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 Use `--client-env` to specify environment variables for the client:
 
-```bash
-wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
-```
+<WaspCommand command="wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456" />
 
 Multiple client environment variables:
 
-```bash
-wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456
-```
+<WaspCommand command="wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456" />
 
 You can also point to an `.env` file for client variables:
 
-```bash
-wasp build start --client-env-file .env.client.production
-```
+<WaspCommand command="wasp build start --client-env-file .env.client.production" />
 
 :::warning
 Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.

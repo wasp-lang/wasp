@@ -240,38 +240,49 @@ This spec-driven approach lets Wasp focus on one purpose: **building modern web 
 
 Welcome, new Waspeteer 🐝!
 
-Let's create and run our first Wasp app in 3 short steps:
+Let's create and run our first Wasp app in 2 short steps:
 
-1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
+1. **To create a new app on Linux / macOS / WSL (Windows), open your terminal and run:**
+
+   **npm**
 
    ```shell
-   npm i -g @wasp/cli@latest
+   npx @wasp/cli@latest new
    ```
 
-   ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
-
-2. **Then, create a new app by running:**
+   **Global CLI**
 
    ```shell
    wasp new
    ```
 
-3. **Finally, run the app:**
+   ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
+
+2. **Then, run the app:**
+
+   **npm**
+
+   ```shell
+   cd <my-project-name>
+   npm run dev
+   ```
+
+   **Global CLI**
 
    ```shell
    cd <my-project-name>
    wasp start
    ```
 
-   :::note
-   Your new project depends on Wasp through the `@wasp/wasp` npm package, so it always runs the Wasp version it declares. The `wasp` command you installed in step 1 runs that version inside the project, and `npm run wasp start` works without it.
-   :::
-
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>, unless it's taken) to see it.
+
+:::tip[Prefer typing wasp start?]
+Your project already has Wasp installed, so you don't need a global install. If you'd like to run Wasp commands directly, install the [global Wasp CLI](#global-cli).
+:::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
 
-4. **Install Agent Plugin / Skills:**
+3. **Install Agent Plugin / Skills:**
 
    **Claude Code:**
 
@@ -350,17 +361,35 @@ Check NVM repo for more details: <https://github.com/nvm-sh/nvm>.
 
 #### Installation {#detailed-installation}
 
-**Linux / macOS (npm)**
+Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and runs `npm install`, which installs Wasp along with the rest of the project's dependencies. After you clone a project, run `npm install` yourself.
 
-Open your terminal and run:
+The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands) for how to run it.
+
+##### Global CLI
+
+You don't need a global install to use Wasp. If you'd like to type `wasp <command>` instead of going through npm, install the Wasp CLI globally:
 
 ```shell
 npm i -g @wasp/cli@latest
 ```
 
+Inside a project, the global CLI runs the project's Wasp version, so it never conflicts with the version the project asks for. Outside of projects, it runs its own version, e.g. for `wasp new`.
+
 :::note[Looking for the old installer script?]
-Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/installer)** for instructions on how to keep using it or how to migrate to npm-based installation.
+Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/installer)** for instructions on how to migrate to npm-based installation.
 :::
+
+##### Upgrading Wasp
+
+To switch a project to another Wasp version, change its `@wasp/wasp` dependency:
+
+```shell
+npm install --save-exact @wasp/wasp@x.y.z
+```
+
+Check the [migration guide](https://wasp.sh/docs/migration-guide) before upgrading to a new minor version.
+
+##### Windows and other platforms
 
 **Windows**
 
@@ -431,7 +460,15 @@ Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments
 
 Use this template:
 
+**npm**
+
+```shell
+npx @wasp/cli@latest new <project-name> -t saas
 ```
+
+**Global CLI**
+
+```shell
 wasp new <project-name> -t saas
 ```
 
@@ -445,7 +482,15 @@ When you run it for the first time, it opens on a welcome page that walks you th
 
 Use this template:
 
+**npm**
+
+```shell
+npx @wasp/cli@latest new <project-name> -t basic
 ```
+
+**Global CLI**
+
+```shell
 wasp new <project-name> -t basic
 ```
 
@@ -457,7 +502,15 @@ A minimal starter template that features just a single page. Perfect for startin
 
 Use this template:
 
+**npm**
+
+```shell
+npx @wasp/cli@latest new <project-name> -t minimal
 ```
+
+**Global CLI**
+
+```shell
 wasp new <project-name> -t minimal
 ```
 
@@ -535,7 +588,7 @@ Check out the [Wasp Agent Plugins repository](https://github.com/wasp-lang/wasp-
 ## Tutorial / 1. Creating a new project
 
 :::info
-You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [Quick start](https://wasp.sh/docs/quick-start) guide!
+You'll need Node.js and npm to follow this tutorial. Check the [Quick start](https://wasp.sh/docs/quick-start) guide for the requirements. You don't need to install Wasp first: creating the project installs it.
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
@@ -550,7 +603,15 @@ You can find the complete code of the app we're about to build [here](https://gi
 
 To setup a new Wasp project, run the following command in your terminal:
 
-```sh
+**npm**
+
+```shell
+npx @wasp/cli@latest new TodoApp -t minimal
+```
+
+**Global CLI**
+
+```shell
 wasp new TodoApp -t minimal
 ```
 
@@ -558,7 +619,16 @@ We are using the `minimal` template because we're going to implement the app fro
 
 Enter the newly created directory and start the development server:
 
-```sh
+**npm**
+
+```shell
+cd TodoApp
+npm run dev
+```
+
+**Global CLI**
+
+```shell
 cd TodoApp
 wasp start
 ```
@@ -917,7 +987,15 @@ Read more about how Wasp Entities work in the [Entities](https://wasp.sh/docs/fe
 
 To update the database schema to include this entity, run:
 
-```sh
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev
+```
+
+**Global CLI**
+
+```shell
 wasp db migrate-dev
 ```
 
@@ -925,7 +1003,15 @@ You'll need to do this any time you change an entity's definition. It instructs 
 
 To take a look at the database and the new `Task` entity, run:
 
-```sh
+**npm**
+
+```shell
+npm run wasp -- db studio
+```
+
+**Global CLI**
+
+```shell
 wasp db studio
 ```
 
@@ -1409,7 +1495,15 @@ export default app({
 
 Don't forget to update the database schema by running:
 
-```sh
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev
+```
+
+**Global CLI**
+
+```shell
 wasp db migrate-dev
 ```
 
@@ -1535,6 +1629,14 @@ Since we just added users, you don't have an account yet. Go to the signup page 
 
 Let's check out what the database looks like. Start the Prisma Studio:
 
+**npm**
+
+```shell
+npm run wasp -- db studio
+```
+
+**Global CLI**
+
 ```shell
 wasp db studio
 ```
@@ -1570,7 +1672,15 @@ model Task {
 
 As always, you must migrate the database after changing the Entities:
 
-```sh
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev
+```
+
+**Global CLI**
+
+```shell
 wasp db migrate-dev
 ```
 
@@ -1646,7 +1756,15 @@ With these changes, each user should have a list of tasks that only they can see
 
 Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
-```sh
+**npm**
+
+```shell
+npm run wasp -- db studio
+```
+
+**Global CLI**
+
+```shell
 wasp db studio
 ```
 
@@ -1737,10 +1855,6 @@ You build your app by:
 4. Exporting the result as the **default export** of the file.
 
 `spec` is short for specification: the pages, routes, queries, actions, APIs, jobs and CRUDs that make up your app.
-
-### Installing the Spec
-
-The `@wasp/spec` package comes with `@wasp/wasp`, the npm package your project depends on, at the same version as the Wasp CLI that runs your project. A regular `npm install` is all it takes. `wasp new` runs it for you, and you run it yourself in a fresh clone, after `wasp clean`, or after removing the `node_modules` folder. If it's missing or out of date, Wasp tells you to run `npm install` before starting the app.
 
 ### Referencing your app's code
 
@@ -3959,7 +4073,15 @@ Your Wasp app will automatically connect to it, just keep `wasp start db` runnin
 
 By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
 
-```bash
+**npm**
+
+```shell
+npm run wasp -- start db --db-port 8080
+```
+
+**Global CLI**
+
+```shell
 wasp start db --db-port 8080
 ```
 
@@ -3985,14 +4107,34 @@ If you need to customise the development database, you can use the following opt
 
 Here are some examples of customising the development database:
 
-```bash
+**npm**
+
+```shell
+# Use default PostgreSQL image:
+npm run wasp -- start db
+# Same as:
+npm run wasp -- start db --db-image postgres:18
+
+# Use PostgreSQL with PostGIS extension for geographic data:
+npm run wasp -- start db --db-image postgis/postgis:18-3.6
+
+# Use PostgreSQL with pgvector extension for AI embeddings:
+npm run wasp -- start db --db-image pgvector/pgvector:pg18
+
+# Use PostgreSQL version 15 (requires different volume path):
+npm run wasp -- start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
+```
+
+**Global CLI**
+
+```shell
 # Use default PostgreSQL image:
 wasp start db
 # Same as:
 wasp start db --db-image postgres:18
 
 # Use PostgreSQL with PostGIS extension for geographic data:
-wasp start db --db-image postgis/postgis:18-3.6 
+wasp start db --db-image postgis/postgis:18-3.6
 
 # Use PostgreSQL with pgvector extension for AI embeddings:
 wasp start db --db-image pgvector/pgvector:pg18
@@ -4046,7 +4188,16 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](https://wasp.sh/docs/advanced/cli#project-commands):
 
-   ```bash
+   **npm**
+
+   ```shell
+   rm -r migrations/
+   npm run wasp -- clean
+   ```
+
+   **Global CLI**
+
+   ```shell
    rm -r migrations/
    wasp clean
    ```
@@ -4151,7 +4302,15 @@ Run the command `wasp db seed` and Wasp will ask you which seed function you'd l
 
 Alternatively, run the command `wasp db seed <seed-name>` to choose a specific seed function right away, for example:
 
+**npm**
+
+```shell
+npm run wasp -- db seed devSeedSimple
 ```
+
+**Global CLI**
+
+```shell
 wasp db seed devSeedSimple
 ```
 
@@ -4240,7 +4399,15 @@ Use one of the following commands to run the seed functions:
 
   Use the following command:
 
+  **npm**
+
+  ```shell
+  npm run wasp -- db seed devSeedSimple
   ```
+
+  **Global CLI**
+
+  ```shell
   wasp db seed devSeedSimple
   ```
 
@@ -8092,7 +8259,15 @@ After starting the tunnel, you will see your tunnel URL in the terminal. Go to t
 
 Now that the tunnel exposes your server to the public, tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
 
-```bash
+**npm**
+
+```shell
+npm run dev -- --server-port 3001 --server-url https://<subdomain>.loca.lt
+```
+
+**Global CLI**
+
+```shell
 wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
 ```
 
@@ -11577,13 +11752,13 @@ npm install date-fns
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
-You will notice that there are some other packages in the `dependencies` section, like `react` and `@wasp/wasp`. These are the packages that Wasp uses internally, and you should not modify or remove them.
+You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't modify or remove them.
 
 #### Using Packages that are Already Used by Wasp Internally
 
 Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `wasp deps` to see them.
 
-A few other dependencies, like `socket.io` when you use WebSockets, come with Wasp's generated code instead. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
+The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
 
 ##### Overriding Wasp's Dependencies (Advanced)
 
@@ -11605,7 +11780,7 @@ When you override dependencies, it's up to you to test your app thoroughly and v
 If you find the need to override any dependency, we'd appreciate for you to [post an issue on GitHub](https://github.com/wasp-lang/wasp/issues/new/choose), or a [message on our Discord](https://discord.gg/rzdnErX), explaining your usecase. This will make us aware of your needs, and helps us prioritize giving you a supported solution faster.
 :::
 
-To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, the override must use the same version:
+To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 **Before**
 
@@ -11633,7 +11808,7 @@ To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](h
 }
 ```
 
-To override a dependency that comes with Wasp's generated code, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
+To override a dependency that the generated server lists, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
 
 ```json title="package.json"
 {
@@ -11653,6 +11828,8 @@ By declaring this, you acknowledge you're deviating from Wasp's tested version. 
 #### Supply Chain Protection
 
 New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
+
+The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`. Wasp publishes them on release day, so keep this line when you edit the file.
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 
@@ -11691,7 +11868,7 @@ After you create a new worktree for your Wasp app, you must first run:
 npm install
 ```
 
-It installs the app's dependencies, Wasp itself included (your project depends on it through the `@wasp/wasp` package). When creating a new project, `wasp new` installs them for you, but in a fresh clone or worktree you need to run it yourself.
+It installs the app's dependencies, including Wasp itself through the `@wasp/wasp` package. `wasp new` installs them for you when it creates a project, but in a fresh clone or worktree you need to run it yourself.
 
 #### Setting up environment variables
 
@@ -11720,7 +11897,15 @@ See [Environment variables](https://wasp.sh/docs/advanced/env-vars) for Wasp's e
 
 If you are using SQLite, it doesn't need a separate database process. It's enough to apply the migrations:
 
-```bash
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev
+```
+
+**Global CLI**
+
+```shell
 wasp db migrate-dev
 ```
 
@@ -11728,13 +11913,29 @@ wasp db migrate-dev
 
 If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
 
-```bash
+**npm**
+
+```shell
+npm run wasp -- start db
+```
+
+**Global CLI**
+
+```shell
 wasp start db
 ```
 
 Then apply the migrations from another terminal:
 
-```bash
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev
+```
+
+**Global CLI**
+
+```shell
 wasp db migrate-dev
 ```
 
@@ -11748,7 +11949,15 @@ If your app needs to seed scaffold data, you can apply it with the `wasp db seed
 
 After the setup, the app should start successfully:
 
-```bash
+**npm**
+
+```shell
+npm run dev
+```
+
+**Global CLI**
+
+```shell
 wasp start
 ```
 
@@ -12253,7 +12462,16 @@ npm test
 
 Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `wasp compile` before running the tests:
 
-```sh
+**npm**
+
+```shell
+npm run wasp -- compile
+npm test
+```
+
+**Global CLI**
+
+```shell
 wasp compile
 npm test
 ```
@@ -13142,7 +13360,15 @@ export default defineConfig({
 
 `wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
-```bash
+**npm**
+
+```shell
+npm run dev -- --client-port 4000
+```
+
+**Global CLI**
+
+```shell
 wasp start --client-port 4000
 ```
 
@@ -13508,9 +13734,50 @@ router.use("/foo/bar", fooBarNamespaceMiddleware)
 
 This guide provides an overview of the Wasp CLI commands, arguments, and options.
 
-### Overview
+### Running Wasp commands
 
-Once [installed](https://wasp.sh/docs/quick-start), you can use the wasp command from your command line.
+Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through npm, or through the global Wasp CLI.
+
+**npm.** Wasp projects come with npm scripts that run the project's Wasp:
+
+| Script                      | Runs                   |
+| --------------------------- | ---------------------- |
+| `npm run dev`               | `wasp start`           |
+| `npm run build`             | `wasp build`           |
+| `npm run preview`           | `wasp build start`     |
+| `npm run wasp -- <command>` | any other Wasp command |
+
+npm reads the flags after `npm run <script>` as its own, so pass Wasp's arguments after `--`, e.g. `npm run wasp -- db migrate-dev --name init`.
+
+**Global CLI.** If you'd rather type `wasp <command>` directly, install the Wasp CLI globally:
+
+```shell
+npm i -g @wasp/cli@latest
+```
+
+Inside a project, the global CLI runs the project's Wasp version, so it always matches your `package.json`. Outside of projects, it runs its own version, e.g. for `wasp new`.
+
+To create a project without a global install, run `npx @wasp/cli@latest new`.
+
+The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
+
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev --name init
+```
+
+**Global CLI**
+
+```shell
+wasp db migrate-dev --name init
+```
+
+:::caution[Don't run npx wasp]
+The `wasp` package on npm is not Wasp. In a project with installed dependencies, `npx wasp` happens to run the project's Wasp, but in a fresh clone npx downloads that unrelated package instead. Use `npm run wasp --` instead.
+:::
+
+### Overview
 
 If you run `wasp help` (or `wasp` without any arguments), it will show you a list of available commands and their descriptions:
 
@@ -13601,8 +13868,6 @@ To run your new app, do:
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
 
-- The new project depends on Wasp through the `@wasp/wasp` npm package, and `wasp new` runs `npm install` for you. If the dependencies are missing later (for example in a fresh clone), the commands that read the project fail with a message saying to run `npm install`.
-
 ```
 $ wasp new MyFirstProject
 
@@ -13614,6 +13879,8 @@ To run your new app, do:
 cd MyFirstProject
 wasp db start
 ```
+
+- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, Wasp commands like `wasp start` stop and tell you to run it.
 
 #### Project Commands
 
@@ -13685,7 +13952,7 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
 
 #### Miscellaneous commands
 
-- `wasp version` displays the current version of the CLI.
+- `wasp version` displays the Wasp version. Inside a project, that's the project's version.
 
 ```
 
@@ -13693,17 +13960,15 @@ $ wasp version
 
 0.27.0
 
-A project uses the Wasp version of its `@wasp/wasp` dependency. To switch a project to version x.y.z, run in it:
+Each project runs the Wasp version of its `@wasp/wasp` dependency. To switch a project to Wasp x.y.z, run this in the project directory:
   npm install --save-exact @wasp/wasp@x.y.z
 
-To install/switch the Wasp CLI you use outside of projects (e.g. for `wasp new`), do:
+To install the latest global Wasp CLI, which runs commands outside of projects like `wasp new`, run:
   npm i -g @wasp/cli@latest
 Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 ```
-
-A Wasp project pins its own Wasp version through the `@wasp/wasp` dependency in `package.json`. The globally installed `wasp` command is a launcher. Inside a project, it runs that project's version, so `wasp version` there prints the project's version. Without a global install, `npm run wasp <command>` runs the project's Wasp as well. npm passes positional arguments through but swallows flags, so put `--` before them: `npm run wasp -- db migrate-dev --name init`.
 
 - `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, and whether Docker is installed and running. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 
@@ -13894,7 +14159,15 @@ The benefit of migrations is that you can apply the same change to multiple data
 
 After you made a change in the Prisma schema, you can create a migration by running the following command:
 
-```bash
+**npm**
+
+```shell
+npm run wasp -- db migrate-dev
+```
+
+**Global CLI**
+
+```shell
 wasp db migrate-dev
 ```
 
@@ -13965,7 +14238,20 @@ While it's not identical to a real production environment, it's the closest you 
 
 ### Usage
 
-```bash
+**npm**
+
+```shell
+# Start a local database, copy the connection URL
+npm run wasp -- start db
+
+# Start the local production build server
+# (this is an example, you'll probably need to add more environment variables)
+npm run preview -- --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
+```
+
+**Global CLI**
+
+```shell
 # Start a local database, copy the connection URL
 wasp start db
 
@@ -14030,7 +14316,15 @@ The only exception is the environment variables that configure your app's ports 
 
 Example:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --server-env-file .env.staging --client-env-file .env.client.staging
+```
+
+**Global CLI**
+
+```shell
 wasp build start --server-env-file .env.staging --client-env-file .env.client.staging
 ```
 
@@ -14038,19 +14332,43 @@ wasp build start --server-env-file .env.staging --client-env-file .env.client.st
 
 Use `--server-env` to specify environment variables for the server:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --server-env DATABASE_URL=postgresql://localhost:5432/myapp
+```
+
+**Global CLI**
+
+```shell
 wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp
 ```
 
 You can specify multiple server environment variables:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key
+```
+
+**Global CLI**
+
+```shell
 wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key
 ```
 
 You can also point to an `.env` file to load environment variables:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --server-env-file .env.production
+```
+
+**Global CLI**
+
+```shell
 wasp build start --server-env-file .env.production
 ```
 
@@ -14062,19 +14380,43 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 Use `--client-env` to specify environment variables for the client:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
+```
+
+**Global CLI**
+
+```shell
 wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
 ```
 
 Multiple client environment variables:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456
+```
+
+**Global CLI**
+
+```shell
 wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456
 ```
 
 You can also point to an `.env` file for client variables:
 
-```bash
+**npm**
+
+```shell
+npm run preview -- --client-env-file .env.client.production
+```
+
+**Global CLI**
+
+```shell
 wasp build start --client-env-file .env.client.production
 ```
 
@@ -14164,6 +14506,14 @@ Read more in the official Docker docs on [multi-stage builds](https://docs.docke
 
 To see what your project's (potentially combined) Dockerfile will look like, run:
 
+**npm**
+
+```shell
+npm run wasp -- dockerfile
+```
+
+**Global CLI**
+
 ```shell
 wasp dockerfile
 ```
@@ -14176,6 +14526,14 @@ Join our [Discord](https://discord.gg/rzdnErX) if you have any questions, or if 
 Wasp CLI can deploy your full-stack application with a single command. The command automates the manual deployment process and is the recommended way of deploying Wasp apps.
 
 It looks like this:
+
+**npm**
+
+```shell
+npm run wasp -- deploy <provider> launch my-wasp-app
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy <provider> launch my-wasp-app
@@ -14211,6 +14569,14 @@ To deploy to Fly.io using Wasp CLI:
 ### Deploying
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly launch my-wasp-app dfw
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly launch my-wasp-app dfw
@@ -14255,6 +14621,14 @@ Setting up a custom domain is a three-step process:
 
 1. You need to add your domain to your Fly client app. You can do this by running:
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly cmd --context client certs create mycoolapp.com
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy fly cmd --context client certs create mycoolapp.com
 ```
@@ -14285,6 +14659,14 @@ You can validate your ownership of mycoolapp.com by:
 
 3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
@@ -14296,6 +14678,14 @@ That's it, your app should be available at `https://mycoolapp.com`!
 #### Adding a `www` Subdomain
 
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly cmd --context client certs create www.mycoolapp.com
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly cmd --context client certs create www.mycoolapp.com
@@ -14325,7 +14715,15 @@ If your app requires any other server-side environment variables (like social au
 
 2. After the app has already been deployed by using the `secrets set` command:
 
+   **npm**
+
+   ```shell
+   npm run wasp -- deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
    ```
+
+   **Global CLI**
+
+   ```shell
    wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
    ```
 
@@ -14371,6 +14769,14 @@ fly platform regions
 
 If you have multiple organizations, you can specify a `--org` option. For example:
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly launch my-wasp-app dfw --org hive
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy fly launch my-wasp-app dfw --org hive
 ```
@@ -14392,6 +14798,15 @@ We have crafted a small guide on [how to create a custom Docker image with PostG
 :::tip
 You only need to specify the Docker image once, when creating the database:
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly create-db <region> --db-image <custom-postgres-image>
+npm run wasp -- deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
 wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
@@ -14403,6 +14818,14 @@ wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 #### `launch`
 
 `launch` is a convenience command that runs `setup`, `create-db`, and `deploy` in sequence.
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly launch <app-name> <region>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly launch <app-name> <region>
@@ -14419,6 +14842,16 @@ It accepts the following arguments:
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
 Running `wasp deploy fly launch` is the same as running the following commands:
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly setup <app-name> <region>
+npm run wasp -- deploy fly create-db <region>
+npm run wasp -- deploy fly deploy
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -14454,7 +14887,15 @@ Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
+
+**Global CLI**
+
+```shell
 wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
@@ -14477,6 +14918,14 @@ wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
 #### `setup`
 
 The `setup` command registers your client and server apps on Fly, and sets up needed environment variables. It only needs to be run once, when initially creating the app. It does *not* trigger a deploy for the client or server apps.
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly setup <app-name> <region>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -14505,6 +14954,14 @@ You should only run `setup` once per app. If you run it multiple times, it creat
 #### `create-db`
 
 The `create-db` command creates a new database for your app.
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly create-db <region>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly create-db <region>
@@ -14544,6 +15001,14 @@ You should only run `create-db` once per app. If you run it multiple times, it c
 
 #### `deploy`
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly deploy
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy fly deploy
 ```
@@ -14551,6 +15016,14 @@ wasp deploy fly deploy
 The `deploy` command pushes your built client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
+
+**npm**
+
+```shell
+npm run wasp -- deploy fly deploy
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy fly deploy
@@ -14576,6 +15049,14 @@ wasp deploy fly deploy --custom-server-url https://api.myapp.com
 
 If you want to run arbitrary Fly commands (for example `fly secrets list` for your server app), here's how to do it:
 
+**npm**
+
+```shell
+npm run wasp -- deploy fly cmd secrets list --context server
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
@@ -14596,6 +15077,14 @@ To deploy to Railway using Wasp CLI:
 ### Deploying
 
 Using the Wasp CLI, you can easily deploy a new app to Railway with a single command:
+
+**npm**
+
+```shell
+npm run wasp -- deploy railway launch my-wasp-app
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy railway launch my-wasp-app
@@ -14658,6 +15147,14 @@ That's it, your app should be available at `https://mycoolapp.com`!
 
 `launch` is a convenience command that runs `setup` and `deploy` in sequence.
 
+**npm**
+
+```shell
+npm run wasp -- deploy railway launch <project-name>
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy railway launch <project-name>
 ```
@@ -14669,6 +15166,15 @@ It accepts the following arguments:
   The name of your project.
 
 Running `wasp deploy railway launch` is the same as running the following commands:
+
+**npm**
+
+```shell
+npm run wasp -- deploy railway setup <project-name>
+npm run wasp -- deploy railway deploy <project-name>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy railway setup <project-name>
@@ -14696,6 +15202,14 @@ Railway's [Database View](https://docs.railway.com/databases/database-view) isn'
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
+**npm**
+
+```shell
+npm run wasp -- deploy railway launch <project-name> --existing-project-id <railway-project-id>
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>
 ```
@@ -14703,6 +15217,14 @@ wasp deploy railway launch <project-name> --existing-project-id <railway-project
 ##### Explicitly providing the Railway Workspace
 
 By default, Wasp CLI will prompt you to select a Railway workspace for your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
+
+**npm**
+
+```shell
+npm run wasp -- deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
@@ -14714,7 +15236,15 @@ wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-n
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
+**npm**
+
+```shell
+npm run wasp -- deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
+
+**Global CLI**
+
+```shell
 wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
@@ -14740,6 +15270,14 @@ The `deploy` command deploys your client and server apps to Railway.
 
 It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
 
+**npm**
+
+```shell
+npm run wasp -- deploy railway deploy <project-name>
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy railway deploy <project-name>
 ```
@@ -14752,6 +15290,14 @@ It accepts the following arguments:
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
+**npm**
+
+```shell
+npm run wasp -- deploy railway deploy <project-name>
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy railway deploy <project-name>
 ```
@@ -14761,6 +15307,14 @@ wasp deploy railway deploy <project-name>
 When you run the `deploy` command, Wasp CLI will use the Railway project that's linked to the Wasp project directory. If no Railway project is linked, the command will fail asking you to run the `setup` command first.
 
 If you are deploying your Railway app in the CI, you can pass the `--existing-project-id` option to tell Wasp CLI the Railway project ID to use for the deployment:
+
+**npm**
+
+```shell
+npm run wasp -- deploy railway deploy <project-name> --existing-project-id <railway-project-id>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>
@@ -14790,6 +15344,14 @@ wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
 #### The `setup` command
 
 The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does *not* deploy the client or server services.
+
+**npm**
+
+```shell
+npm run wasp -- deploy railway setup <project-name>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy railway setup <project-name>
@@ -14829,6 +15391,14 @@ Railway's [Database View](https://docs.railway.com/databases/database-view) isn'
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
+**npm**
+
+```shell
+npm run wasp -- deploy railway setup <project-name> --existing-project-id <railway-project-id>
+```
+
+**Global CLI**
+
 ```shell
 wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>
 ```
@@ -14836,6 +15406,14 @@ wasp deploy railway setup <project-name> --existing-project-id <railway-project-
 ##### Explicitly providing the Railway Workspace
 
 By default, Wasp CLI will prompt you to select in which Railway workspace you want to create your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
+
+**npm**
+
+```shell
+npm run wasp -- deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
+```
+
+**Global CLI**
 
 ```shell
 wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
@@ -14904,9 +15482,9 @@ To automate deployment, you need to create a workflow file in your repository th
 The workflow needs to include the following steps:
 
 1. Checkout the code from the repository
-2. Install Node.js and the Wasp CLI
+2. Install Node.js and your project's dependencies, which include Wasp
 3. Install any provider-specific dependencies
-4. Deploy the application using `wasp deploy <provider> deploy`
+4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
 
 To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
 
@@ -14929,8 +15507,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      WASP_VERSION: "0.26"
 
     steps:
       - uses: actions/checkout@v6
@@ -14940,15 +15516,14 @@ jobs:
         with:
           node-version: "24.22.1"
 
-      - name: Install Wasp
-        # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp/cli@$WASP_VERSION
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy
-        run: wasp deploy fly deploy
+        run: npm run wasp -- deploy fly deploy
         env:
           # You must add FLY_API_TOKEN to your Repository Secrets
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -14972,7 +15547,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: "0.26"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
@@ -14984,15 +15558,14 @@ jobs:
         with:
           node-version: "24.22.1"
 
-      - name: Install Wasp
-        # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp/cli@$WASP_VERSION
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
       - name: Deploy
-        run: wasp deploy railway deploy $RAILWAY_PROJECT_NAME --existing-project-id $RAILWAY_PROJECT_ID
+        run: npm run wasp -- deploy railway deploy $RAILWAY_PROJECT_NAME --existing-project-id $RAILWAY_PROJECT_ID
         env:
           # You must add RAILWAY_API_TOKEN to your Repository Secrets
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
@@ -15072,7 +15645,15 @@ Let's go through each of these steps.
 
 Running the command `wasp build` generates deployable code for the whole app in the `.wasp/out/` directory.
 
+**npm**
+
+```shell
+npm run build
 ```
+
+**Global CLI**
+
+```shell
 wasp build
 ```
 
@@ -15172,12 +15753,12 @@ One possible self-hosting setup
 
 #### Steps
 
-1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](https://wasp.sh/docs/quick-start#installation).
+1. Install [Docker](https://docs.docker.com/engine/install/) and [Node.js](https://github.com/nvm-sh/nvm).
 
 2. Get your **app's source code**.
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
 
-3. Install dependencies with **`npm install`** and build your app with **`wasp build`**.
+3. Install dependencies with **`npm ci`** and build your app with **`npm run wasp -- build`**.
 
 4. Build and run the **server app**.
 
@@ -15229,7 +15810,7 @@ End to end (e2e) tests simulate real user using your app and you can test differ
 
 **To run e2e tests with Wasp in the CI**, you'll need to:
 
-1. Install Wasp in the CI environment.
+1. Install your project's dependencies, which include Wasp, with `npm ci`.
 2. Run your app (with the database) in the CI environment.
 3. Run the e2e tests against the running app.
 
@@ -15275,8 +15856,8 @@ Wasp provides helpers for testing your client code with Vitest. The [testing doc
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 
-1. Install Wasp in the CI environment.
-2. Run `wasp compile` to generate the Wasp SDK your code imports.
+1. Install your project's dependencies, which include Wasp, with `npm ci`.
+2. Run `npm run wasp -- compile` to generate the Wasp SDK your code imports.
 3. Run the tests with your testing framework.
 
 ### Continuous deployment
@@ -15294,7 +15875,7 @@ The most common way to package your app for deployment is using Docker images. T
 
 1. Install Docker in the CD environment.
 
-2. Install dependencies with `npm install` and build the app with `wasp build`.
+2. Install dependencies with `npm ci` and build the app with `npm run wasp -- build`.
 
 3. Build the Docker image and push it to a Docker registry:
 
@@ -15321,7 +15902,7 @@ Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade739649
 
    We are using the `docker/metadata-action` action to prepare some extra info that we'll use later in the deployment process.
 
-3. Next, we **install dependencies** with `npm install` and **build the Wasp app** with `wasp build`.
+3. Next, we **install dependencies** with `npm ci` and **build the Wasp app** with `npm run wasp -- build`.
 
    This creates our server and the client app in the `.wasp/out` folder.
 
@@ -15343,7 +15924,7 @@ Wasp's client app is a single page application (SPA) which you build into static
 
 **To deploy the client app as static files**, you'll need to:
 
-1. Install dependencies with `npm install` and build the app with `wasp build` in the CD environment.
+1. Install dependencies with `npm ci` and build the app with `npm run wasp -- build` in the CD environment.
 2. Build the client app with `npx vite build`.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 
@@ -15431,7 +16012,7 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 #### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec at the version your `package.json` declares. The `wasp install` command and the `wasp: { version }` field in `main.wasp.ts` are gone. `npm install` installs everything, and `package.json` is the one place that says which Wasp version the project uses. The `wasp` command you install globally keeps working: inside a project, it runs that project's version.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it runs the project's Wasp version.
 
 #### New npm organization
 
@@ -15468,7 +16049,7 @@ npm i -g @wasp/cli@0.27
 
 #### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec`
 
-Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinned to the exact Wasp version. The `wasp` script is optional, but it lets you run Wasp through the project (`npm run wasp start`, with `--` before any flags) without a global install:
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
 
 **Before**
 
@@ -15485,7 +16066,10 @@ Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinn
 ```json title="package.json"
 {
   "scripts": {
-    "wasp": "wasp"
+    "wasp": "wasp",
+    "dev": "wasp start",
+    "build": "wasp build",
+    "preview": "wasp build start"
   },
   "dependencies": {
     "@wasp/wasp": "0.27.0"
@@ -15493,14 +16077,18 @@ Replace the `@wasp.sh/spec` devDependency with the `@wasp/wasp` dependency, pinn
 }
 ```
 
-Your project's `.npmrc` keeps npm from installing packages published less than 7 days ago. Wasp's own packages are published with each release, so exempt them, otherwise the install below fails until the release is a week old:
+If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, move that entry to npm's `overrides` field. Wasp reports such `overriddenDeps` entries as errors. See [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced).
+
+If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days. Wasp publishes its packages on release day, so exclude them. Otherwise `npm install` fails for the first week after a release:
 
 ```ini title=".npmrc"
 min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-The Wasp Spec package is now `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
+#### 3. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+
+Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
 **Before**
 
@@ -15514,7 +16102,7 @@ import { app, page, route } from "@wasp.sh/spec";
 import { app, page, route } from "@wasp/spec";
 ```
 
-If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update the lines that mention the old package, the Wasp version in `main.wasp.ts`, or `wasp install`, so coding agents don't follow outdated instructions:
+If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or remove the lines that mention the old package, the Wasp version in `main.wasp.ts`, or `wasp install`, so coding agents don't follow outdated instructions:
 
 **Before**
 
@@ -15528,17 +16116,14 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update th
 **After**
 
 ```md title="AGENTS.md"
-- Pick the docs map matching the Wasp version in `package.json` (the `@wasp/wasp` dependency).
+- Pick the docs map matching the version of the `@wasp/wasp` dependency in `package.json`.
 - `main.wasp.ts` contains the Wasp app specification.
-- `@wasp/spec` comes with the `@wasp/wasp` dependency, don't add it to `package.json`.
 - Run `npm install` before other Wasp commands in a fresh clone or worktree.
 ```
 
-If your `package.json` has a `wasp.overriddenDeps` entry for a package that now comes with `@wasp/wasp` (like React, Vite or Express), move it to npm's `overrides` field. Wasp reports the old entry as an error. See [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced).
+#### 4. Remove the Wasp version from `main.wasp.ts`
 
-#### 3. Remove the Wasp version from `main.wasp.ts`
-
-The version in `package.json` is now the one that counts, so the `wasp` field goes away:
+`package.json` now sets the Wasp version, so remove the `wasp` field:
 
 **Before**
 
@@ -15559,7 +16144,47 @@ export default app({
 });
 ```
 
-#### 4. Update your Vitest setup
+#### 5. Upgrade to Prisma 6
+
+Update the Prisma packages in your `package.json`:
+
+**Before**
+
+```json title="package.json"
+{
+  "dependencies": {
+    "@prisma/client": "5.19.1" // if already present
+  },
+  "devDependencies": {
+    "prisma": "5.19.1"
+  }
+}
+```
+
+**After**
+
+```json title="package.json"
+{
+  "dependencies": {
+    "@prisma/client": "6.19.3" // if already present
+  },
+  "devDependencies": {
+    "prisma": "6.19.3"
+  }
+}
+```
+
+Now delete the old build output and `node_modules`, install the dependencies, and run the migrations. Don't run `npm install` before this step. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5:
+
+```sh
+wasp clean
+npm install
+wasp db migrate-dev
+```
+
+Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+#### 6. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -15782,53 +16407,13 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
-#### 5. Upgrade to Prisma 6
-
-Update the Prisma packages in your `package.json`:
-
-**Before**
-
-```json title="package.json"
-{
-  "dependencies": {
-    "@prisma/client": "5.19.1" // if already present
-  },
-  "devDependencies": {
-    "prisma": "5.19.1"
-  }
-}
-```
-
-**After**
-
-```json title="package.json"
-{
-  "dependencies": {
-    "@prisma/client": "6.19.3" // if already present
-  },
-  "devDependencies": {
-    "prisma": "6.19.3"
-  }
-}
-```
-
-Then start from a clean state, install the dependencies, which now include Wasp, and migrate. This is the first install after the changes above on purpose. `@wasp/wasp` requires Prisma 6, and installing before this step fails with a dependency conflict.
-
-```sh
-wasp clean
-npm install
-wasp db migrate-dev
-```
-
-Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
-
-#### 6. Check relative paths in your server code
+#### 7. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-#### 7. Check the packages your server loads at runtime
+#### 8. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -15847,7 +16432,7 @@ export default app({
 })
 ```
 
-#### 8. Install the system dependencies your app needs
+#### 9. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -15857,7 +16442,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 9. Update your custom Dockerfile
+#### 10. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -15869,7 +16454,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 10. Enjoy your updated Wasp app
+#### 11. Enjoy your updated Wasp app
 
 That's it!
 
@@ -20027,7 +20612,7 @@ Looking for a guide we don't have yet? [Open an issue](https://github.com/wasp-l
 ## Configuration / Multiple Domains CORS
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20209,7 +20794,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
 ## Debugging / Database Studio with Fly.io
 
 :::note
-Last checked with Wasp 0.24 and Fly CLI 0.4.11.
+Last checked with Wasp 0.27 and Fly CLI 0.4.11.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20308,7 +20893,15 @@ DATABASE_URL=postgres://postgres:myDatabasePassword@localhost:5432/some_test_ser
 
 Now you can run Prisma Studio to browse and edit your production data:
 
-```bash
+**npm**
+
+```shell
+npm run wasp -- db studio
+```
+
+**Global CLI**
+
+```shell
 wasp db studio
 ```
 
@@ -20327,7 +20920,7 @@ This will open a web interface where you can view and modify your database recor
 ## Debugging / Local Network Testing
 
 :::note
-Last checked with Wasp 0.26.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20343,7 +20936,15 @@ This guide shows you how to test your Wasp application on other devices (phones,
 
 Run your application normally:
 
-```bash
+**npm**
+
+```shell
+npm run dev
+```
+
+**Global CLI**
+
+```shell
 wasp start
 ```
 
@@ -20367,7 +20968,17 @@ If you have multiple network interfaces, you'll see multiple Network URLs. Note 
 
 By default, Wasp tells the client and the server that they live on `localhost`, which other devices can't reach. Stop the app and start it again with the URLs the other devices will use:
 
-```bash
+**npm**
+
+```shell
+npm run dev -- \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+```
+
+**Global CLI**
+
+```shell
 wasp start \
   --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
   --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
@@ -20450,7 +21061,7 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 ## Deployment / Cloud Providers / Cloudflare
 
 :::note
-Last checked with Wasp 0.24 and Cloudflare Workers (as of Apr 6, 2026).
+Last checked with Wasp 0.27 and Cloudflare Workers (as of Apr 6, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20552,14 +21163,11 @@ jobs:
         with:
           node-version: "24.22.1"
 
-      - name: Install Wasp
-        run: npm i -g @wasp/cli@^0.26 # Change to your Wasp version
-
       - name: Install Wasp app dependencies
-        run: cd ./app && npm install
+        run: cd ./app && npm ci
 
       - name: Wasp Build
-        run: cd ./app && wasp build
+        run: cd ./app && npm run wasp -- build
 
       - name: Build the client
         run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
@@ -20585,7 +21193,7 @@ After getting the environment variables, you need to set these in GitHub Reposit
 ## Deployment / Cloud Providers / Fly.io
 
 :::note
-Last checked with Wasp 0.24 and Fly.io (as of Apr 6, 2026).
+Last checked with Wasp 0.27 and Fly.io (as of Apr 6, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20715,7 +21323,7 @@ When the `fly.toml` file exists in .wasp/out/ dir, you do not need to specify th
 ## Deployment / Cloud Providers / Heroku
 
 :::note
-Last checked with Wasp 0.24 and Heroku (as of Apr 6, 2026).
+Last checked with Wasp 0.27 and Heroku (as of Apr 6, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20828,7 +21436,7 @@ Read more: <https://devcenter.heroku.com/articles/connecting-heroku-postgres#con
 ## Deployment / Cloud Providers / Netlify
 
 :::note
-Last checked with Wasp 0.24 and Netlify (as of May 28, 2026).
+Last checked with Wasp 0.27 and Netlify (as of May 28, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -20923,14 +21531,11 @@ jobs:
         with:
           node-version: "24.22.1"
 
-      - name: Install Wasp
-        run: npm i -g @wasp/cli@^0.26 # Change to your Wasp version
-
       - name: Install app dependencies
-        run: npm install
+        run: npm ci
 
       - name: Wasp Build
-        run: wasp build
+        run: npm run wasp -- build
 
       - name: Build the client
         run: REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
@@ -20958,7 +21563,7 @@ After getting the environment variables, you need to set these in GitHub Reposit
 ## Deployment / Cloud Providers / Railway
 
 :::note
-Last checked with Wasp 0.24 and Railway (as of Apr 6, 2026).
+Last checked with Wasp 0.27 and Railway (as of Apr 6, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21179,7 +21784,7 @@ When you make updates and need to redeploy:
 ## Deployment / Cloud Providers / Render
 
 :::note
-Last checked with Wasp 0.24 and Render (as of Apr 15, 2026).
+Last checked with Wasp 0.27 and Render (as of Apr 15, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21212,10 +21817,8 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
       npm install &&
-      wasp build &&
+      npm run wasp -- build &&
       cd .wasp/out/server &&
       npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
@@ -21241,10 +21844,8 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
       npm install &&
-      wasp build &&
+      npm run wasp -- build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
     envVars:
@@ -21266,12 +21867,11 @@ databases:
 
 You should replace the following values for your app:
 
-| Variable         | Value                                   | Example       |
-| ---------------- | --------------------------------------- | ------------- |
-| `<app-name>`     | A unique name for your app              | `my-wasp-app` |
-| `<wasp-version>` | The Wasp CLI version you're using       | `0.24`        |
-| `<plan>`         | The Render plan for your services       | `free`        |
-| `<region>`       | The Render region closest to your users | `oregon`      |
+| Variable     | Value                                   | Example       |
+| ------------ | --------------------------------------- | ------------- |
+| `<app-name>` | A unique name for your app              | `my-wasp-app` |
+| `<plan>`     | The Render plan for your services       | `free`        |
+| `<region>`   | The Render region closest to your users | `oregon`      |
 
 :::caution
 The Render free-tier PostgreSQL database [expires after 30 days](https://render.com/docs/free#30-day-limit). Use the Starter plan or an external provider for production.
@@ -21340,7 +21940,7 @@ Both services install Wasp and compile the app from source on each deploy. On th
 ## Deployment / Cloud Providers / Vercel
 
 :::note
-Last checked with Wasp 0.26 and Vercel (as of Sep 7, 2026).
+Last checked with Wasp 0.27 and Vercel (as of Sep 7, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21543,7 +22143,7 @@ When you make updates and need to redeploy:
 ## Deployment / Cloud Providers / Zerops
 
 :::note
-Last checked with Wasp 0.26 and Zerops (as of Oct 23, 2026).
+Last checked with Wasp 0.27 and Zerops (as of Oct 23, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21575,10 +22175,8 @@ zerops:
     build:
       base: nodejs@24
       buildCommands:
-        - npm install -g @wasp/cli@<wasp-version>
-        - export PATH="$(npm prefix -g)/bin:$PATH"
         - npm install
-        - wasp build
+        - npm run wasp -- build
         - npx vite build
       envVariables:
         # Vite embeds this at build time - must be the public API URL
@@ -21597,10 +22195,8 @@ zerops:
       base: nodejs@24
       os: ubuntu
       buildCommands:
-        - npm install -g @wasp/cli@<wasp-version>
-        - export PATH="$(npm prefix -g)/bin:$PATH"
         - npm install
-        - wasp build
+        - npm run wasp -- build
         - cd .wasp/out/server && npm install
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
         - cd .wasp/out/server && npm run bundle
@@ -21633,9 +22229,7 @@ zerops:
       start: sh -c 'cd .wasp/out/server && npm run start'
 ```
 
-Replace `<wasp-version>` with the Wasp CLI version your app uses (for example `0.27`).
-
-The `prod-client` setup runs `npm install && wasp build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
+The `prod-client` setup runs `npm install` and `npm run wasp -- build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
 The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
 
@@ -21782,7 +22376,7 @@ Use the hostname `db` (the service hostname), not a public host - that only work
 ## Deployment / Self-Hosted / CapRover
 
 :::note
-Last checked with Wasp 0.24 and Caprover 1.14.1.
+Last checked with Wasp 0.27 and Caprover 1.14.1.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21894,7 +22488,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.26"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -21940,15 +22533,11 @@ jobs:
         with:
           node-version: "24.22.1"
 
-      - name: Install Wasp
-        shell: bash
-        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
-
       - name: Install Wasp app dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Wasp app
-        run: wasp build
+        run: npm run wasp -- build
 
       - name: (client) Build
         run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build
@@ -22032,7 +22621,7 @@ Push to the `main` branch and the GitHub Action will:
 ## Deployment / Self-Hosted / Coolify
 
 :::note
-Last checked with Wasp 0.24 and Coolify 4.0.0-beta.462.
+Last checked with Wasp 0.27 and Coolify 4.0.0-beta.462.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -22135,7 +22724,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.26"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -22181,15 +22769,11 @@ jobs:
         with:
           node-version: "24.22.1"
 
-      - name: Install Wasp
-        shell: bash
-        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
-
       - name: Install Wasp app dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Wasp app
-        run: wasp build
+        run: npm run wasp -- build
 
       - name: (client) Build
         run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build
@@ -22267,7 +22851,7 @@ Push to the `main` branch and the GitHub Action will:
 ## Deployment / Self-Hosted / Simple VPS
 
 :::note
-Last checked with Wasp 0.24, Caddy 2.10.2, and Ubuntu LTS 24.04.
+Last checked with Wasp 0.27, Caddy 2.10.2, and Ubuntu LTS 24.04.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -22377,42 +22961,16 @@ source ~/.bashrc
 nvm install 24.22.1
 ```
 
-#### Step 8: Install Wasp CLI
-
-Install the Wasp CLI:
-
-```bash
-npm i -g @wasp/cli
-```
-
-Add Wasp to your PATH by adding this line to `~/.bashrc`:
-
-```bash
-export PATH=$PATH:~/.local/bin
-```
-
-Reload your shell:
-
-```bash
-source ~/.bashrc
-```
-
-Confirm the Wasp CLI works by running:
-
-```bash
-wasp version
-```
-
-#### Step 9: Build the Application
+#### Step 8: Build the Application
 
 In your project directory, install dependencies and build the app:
 
 ```bash
-npm install
-wasp build
+npm ci
+npm run wasp -- build
 ```
 
-#### Step 10: Start the Database
+#### Step 9: Start the Database
 
 Create a Docker network:
 
@@ -22440,16 +22998,16 @@ docker exec -it myapp-db psql -U postgres -d myapp
 
 Verify you are connected to the `myapp` database by typing `\conninfo`. You can exit `psql` by typing in `\q`.
 
-#### Step 11: Configure Your Domain
+#### Step 10: Configure Your Domain
 
 Set up DNS A records pointing to your server IP:
 
 - `@` (root) → your server IP (for `myapp.com`)
 - `api` → your server IP (for `api.myapp.com`)
 
-#### Step 12: Start the Server
+#### Step 11: Start the Server
 
-After you built the app with `wasp build`, build the server app Docker image:
+After you built the app with `npm run wasp -- build`, build the server app Docker image:
 
 ```bash
 # Navigate to the out directory
@@ -22494,7 +23052,7 @@ curl -I http://localhost:3001
 
 You should see a `200 OK` HTTP status code.
 
-#### Step 13: Build the Client
+#### Step 12: Build the Client
 
 In the project directory run:
 
@@ -22510,7 +23068,7 @@ sudo cp -R .wasp/out/web-app/build/* /var/www/
 sudo chown -R caddy:caddy /var/www
 ```
 
-#### Step 14: Configure Caddy
+#### Step 13: Configure Caddy
 
 Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 
@@ -22552,8 +23110,11 @@ echo "Pulling latest changes..."
 cd ~/"$APP_DIR"
 git pull
 
+echo "Installing dependencies..."
+npm ci
+
 echo "Building Wasp project..."
-wasp build
+npm run wasp -- build
 
 echo "Building Docker image..."
 cd .wasp/out/
@@ -22601,7 +23162,7 @@ This makes Caddy wait up to 15 seconds for the server to become available again.
 ## Integrations / Custom OAuth Provider
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -22664,7 +23225,17 @@ GOOGLE_CLIENT_SECRET=x
 
 Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
 
-```bash
+**npm**
+
+```shell
+npm run dev -- \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
+```
+
+**Global CLI**
+
+```shell
 wasp start \
   --client-port 3000 --client-url http://127.0.0.1:3000 \
   --server-port 3001 --server-url http://127.0.0.1:3001
@@ -22860,7 +23431,7 @@ Each provider follows the same pattern. For example, to use Twitch instead of Sp
 ## Integrations / File Uploads
 
 :::note
-Last checked with Wasp 0.24 and multer 2.1.1.
+Last checked with Wasp 0.27 and multer 2.1.1.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -23019,7 +23590,7 @@ For more options, see the [Multer documentation](https://github.com/expressjs/mu
 ## Integrations / Sentry
 
 :::note
-Last checked with Wasp 0.24, @sentry/node 8, and @sentry/react 8.
+Last checked with Wasp 0.27, @sentry/node 8, and @sentry/react 8.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -23220,7 +23791,7 @@ For more configuration options, see the [Sentry documentation](https://docs.sent
 ## Integrations / Swagger UI
 
 :::note
-Last checked with Wasp 0.24, swagger-jsdoc 6, and swagger-ui-express 5.
+Last checked with Wasp 0.27, swagger-jsdoc 6, and swagger-ui-express 5.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -23539,7 +24110,7 @@ For more options, see the [swagger-jsdoc documentation](https://github.com/Surne
 ## Integrations / WebSocket Namespaces
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -23742,7 +24313,7 @@ For more information about Socket.IO namespaces, see the [Socket.IO documentatio
 ## Legacy / Wasp Installer
 
 :::note
-Last checked with Wasp 0.21.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -23861,16 +24432,14 @@ You have two options to run Wasp on your Mac with Mx chip:
 ## Legacy / Wasp DSL
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
 
-Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](https://wasp.sh/docs/features/spec): a `main.wasp.ts` file written in TypeScript.
+Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Wasp 0.24 retired the Wasp DSL in favor of the [Wasp Spec](https://wasp.sh/docs/features/spec), a `main.wasp.ts` file written in TypeScript.
 
-:::tip[Upgrading from Wasp 0.23 to 0.24?]
-The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](https://wasp.sh/docs/0.24/migration-guide#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](https://wasp.sh/docs/0.24/migration-guide) for the remaining shared steps.
-:::
+If your project still has a `main.wasp` file, it runs Wasp 0.23 or older. This guide converts it straight to the Wasp Spec setup of Wasp 0.27. [How to migrate](#how-to-migrate) also lists the migration guides for the other changes between your version and 0.27.
 
 ### New features
 
@@ -23923,6 +24492,7 @@ app({
 ```    |
 | Referencing code          | `import { x } from "@src/..."` inside a declaration      | `import { ... } from "./src/..." with { type: "ref" };` at the top level |
 | Entity references         | `Task` (identifier)                                      | `"Task"` (string)                                                        |
+| Wasp version              | `wasp: { version: "^0.23.0" }` in `app`                  | `"@wasp/wasp": "0.27.0"` in `package.json`                               |
 
 ### App, routes, and pages
 
@@ -23933,7 +24503,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
 ```wasp title="main.wasp"
 app todoApp {
   title: "ToDo App",
-  wasp: { version: "^0.24.0" }
+  wasp: { version: "^0.23.0" }
 }
 
 route MainRoute { path: "/", to: MainPage }
@@ -23959,6 +24529,8 @@ export default app({
 ```
 
 Note that `route` no longer references a page by name (`to: MainPage`); it takes the `page(...)` object directly.
+
+The Wasp Spec has no `wasp` field. The `@wasp/wasp` version in `package.json` sets your project's Wasp version.
 
 #### Queries and actions
 
@@ -24146,16 +24718,19 @@ export default app({
 
 ### How to migrate
 
-These steps convert a Wasp DSL config to the Wasp Spec on a project that already runs Wasp 0.27 or newer (see the [migration guide](https://wasp.sh/docs/migration-guide)). If your project is on an older Wasp, follow this guide in the docs of that version instead, starting with the [0.24 migration guide](https://wasp.sh/docs/0.24/migration-guide), and upgrade from there.
+These steps convert a Wasp DSL project to the Wasp Spec setup of Wasp 0.27. The Wasp versions between yours and 0.27 changed other parts of a project too, so step 9 sends you through their migration guides.
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
-1. Rename `tsconfig.json` to `tsconfig.src.json` and make it exclude Wasp Spec files:
+1. Rename `tsconfig.json` to `tsconfig.src.json`. Keep its compiler options and add the entries Wasp needs:
 
    ```json title="tsconfig.src.json"
    {
-     // ...
-     "include": ["src"],
+     "compilerOptions": {
+       // ...
+       "types": ["react", "node"]
+     },
+     "include": ["src", ".wasp/out/types/app"],
      "exclude": ["**/*.wasp.ts"]
    }
    ```
@@ -24172,32 +24747,38 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-3. Create a `tsconfig.wasp.json` with the required compiler options and the Wasp Spec includes:
+3. Create a `tsconfig.wasp.json` for the Wasp Spec files:
 
    ```json title="tsconfig.wasp.json"
    {
      "compilerOptions": {
-       "target": "ES2022",
+       "skipLibCheck": true,
+       "target": "ES2025",
+       "isolatedModules": true,
+       "moduleDetection": "force",
+       "strict": true,
+       "noUnusedLocals": true,
+       "noUnusedParameters": true,
        "module": "esnext",
        "moduleResolution": "bundler",
        "jsx": "preserve",
-       "strict": true,
-       "isolatedModules": true,
-       "moduleDetection": "force",
-       "skipLibCheck": true,
        "allowJs": true,
        "noEmit": true,
-       "lib": ["ES2023"]
+       "lib": ["ES2025"],
+       "types": ["node"]
      },
      "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
    }
    ```
 
-4. Add the required dependencies to your `package.json`:
+4. Add Wasp to your `package.json`:
 
    ```json title="package.json"
    {
      // ...
+     "scripts": {
+       "wasp": "wasp"
+     },
      "dependencies": {
        // ...
        "@wasp/wasp": "0.27.0"
@@ -24209,9 +24790,14 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-   Keep your existing dependencies, and add these entries. `@wasp/wasp` brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use, and `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+   Keep your existing dependencies and add these entries. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp start`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
-5. Run `npm install`.
+5. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Wasp publishes its packages on release day, so otherwise `npm install` fails for the first week after a release:
+
+   ```ini title=".npmrc"
+   min-release-age=7
+   min-release-age-exclude[]=@wasp/*
+   ```
 
 6. Rename `main.wasp` to `main.wasp.old`.
 
@@ -24236,15 +24822,36 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 8. Rewrite your config:
 
-   You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` property.
+   You can use the mapping above. Top-level concerns like `auth`, `server`, `client`, `db`, `emailSender`, and `webSocket` become keys of the `app({ ... })` object. Pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` property. Leave out the `wasp: { version }` field, since step 4 set the Wasp version in `package.json`.
 
-9. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
+9. Make the other changes from the migration guides between your Wasp version and 0.27. For a project on Wasp 0.23, follow these in order:
 
-:::note
-If the Wasp Spec package is missing or out of date (for example after `wasp clean` or in a fresh clone), Wasp tells you to run `npm install` before starting the app.
-:::
+   - [Migration from 0.23 to 0.24](https://wasp.sh/docs/0.24/migration-guide)
+   - [Migration from 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide)
+   - [Migration from 0.25 to 0.26](https://wasp.sh/docs/0.26/migration-guide)
+   - [Migration from 0.26 to 0.27](https://wasp.sh/docs/migration-guide)
 
-10. Delete `main.wasp.old` once you're sure the new config works.
+   If your project runs an older Wasp version, start with the migration guide from your version, for example [Migration from 0.22 to 0.23](https://wasp.sh/docs/0.23/migration-guide).
+
+   The steps above already cover parts of these guides. Skip the migration guide steps that:
+
+   - bump or remove the Wasp version, or run `wasp install`
+   - convert the config to the Wasp Spec, or rename the Wasp Spec package
+   - change `tsconfig.json`, `tsconfig.src.json`, or `tsconfig.wasp.json`
+   - add `@wasp/wasp` to `package.json`, or exclude it in `.npmrc`
+
+10. Install the dependencies, run the database migrations, and start your app:
+
+    ```sh
+    wasp clean
+    npm install
+    wasp db migrate-dev
+    wasp start
+    ```
+
+    `@wasp/wasp` needs the dependency versions from the migration guides, like Prisma 6 and TypeScript 6. Until your `package.json` lists them, `npm install` fails with a dependency conflict. If everything is correct, your app behaves exactly as before.
+
+11. Delete `main.wasp.old` once you're sure the new config works.
 
 See the full [Wasp Spec reference](https://wasp.sh/docs/features/spec#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
 
@@ -24252,18 +24859,16 @@ See the full [Wasp Spec reference](https://wasp.sh/docs/features/spec#reference)
 ## Legacy / Wasp TS Config
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](https://wasp.sh/docs/features/spec): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
+Wasp 0.24 retired the TS Config in favor of the [Wasp Spec](https://wasp.sh/docs/features/spec), a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
 
-:::tip[Upgrading from Wasp 0.23 to 0.24?]
-The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](https://wasp.sh/docs/0.24/migration-guide#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](https://wasp.sh/docs/0.24/migration-guide) for the remaining shared steps.
-:::
+If your project's `main.wasp.ts` still calls `new App(...)`, it runs Wasp 0.23 or older. This guide converts it straight to the Wasp Spec setup of Wasp 0.27. [How to migrate](#how-to-migrate) also lists the migration guides for the other changes between your version and 0.27.
 
 ### New features
 
@@ -24335,6 +24940,7 @@ app({
 ```                                   |
 | Imports                   | `{ import, from }`                                                                                                  | `import { ... } from "./src/..." with { type: "ref" };`                                                 |
 | Package name              | `wasp-config`                                                                                                       | `@wasp/spec`                                                                                            |
+| Wasp version              | `wasp: { version: "^0.23.0" }` in `new App(...)`                                                                    | `"@wasp/wasp": "0.27.0"` in `package.json`                                                              |
 
 ### App and specifications
 
@@ -24345,6 +24951,7 @@ import { App } from "wasp-config";
 
 const app = new App("todoApp", {
   title: "ToDo App",
+  wasp: { version: "^0.23.0" },
 });
 
 const mainPage = app.page("MainPage", {
@@ -24376,6 +24983,8 @@ export default app({
   ],
 });
 ```
+
+The Wasp Spec has no `wasp` field. The `@wasp/wasp` version in `package.json` sets your project's Wasp version.
 
 #### API: `httpRoute` becomes positional arguments
 
@@ -24532,11 +25141,11 @@ export default app({
 
 ### How to migrate
 
-These steps convert an old class-based Wasp TS Config to the new Wasp Spec on a project that already runs Wasp 0.27 or newer (see the [migration guide](https://wasp.sh/docs/migration-guide)). If your project is on an older Wasp, follow this guide in the docs of that version instead, starting with the [0.24 migration guide](https://wasp.sh/docs/0.24/migration-guide), and upgrade from there.
+These steps convert a class-based Wasp TS Config project to the Wasp Spec setup of Wasp 0.27. The Wasp versions between yours and 0.27 changed other parts of a project too, so step 6 sends you through their migration guides.
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
-1. Update your `package.json` with the new dependencies:
+1. Replace `wasp-config` with Wasp in your `package.json`:
 
    **Before**
 
@@ -24555,6 +25164,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    ```json title="package.json"
    {
      // ...
+     "scripts": {
+       "wasp": "wasp"
+     },
      "dependencies": {
        // ...
        "@wasp/wasp": "0.27.0"
@@ -24566,44 +25178,55 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    }
    ```
 
-   Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp` (which brings the Wasp CLI and the Wasp Spec API at the exact Wasp version you use), and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+   Keep your existing dependencies, replace `wasp-config` with `@wasp/wasp`, and add `@types/node`. `@wasp/wasp` sets your project's Wasp version and brings the Wasp CLI and the Wasp Spec. The Wasp Spec runs in Node.js, so it needs `@types/node`. The `wasp` script is optional. It runs your project's Wasp through npm, for example `npm run wasp start`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
-2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
+2. If your `.npmrc` sets `min-release-age`, exclude Wasp's packages from it. Wasp publishes its packages on release day, so otherwise `npm install` fails for the first week after a release:
+
+   ```ini title=".npmrc"
+   min-release-age=7
+   min-release-age-exclude[]=@wasp/*
+   ```
+
+3. Replace the content of your `tsconfig.wasp.json` with the following:
 
    ```json title="tsconfig.wasp.json"
    {
      "compilerOptions": {
-       "target": "ES2022",
+       "skipLibCheck": true,
+       "target": "ES2025",
+       "isolatedModules": true,
+       "moduleDetection": "force",
+       "strict": true,
+       "noUnusedLocals": true,
+       "noUnusedParameters": true,
        "module": "esnext",
        "moduleResolution": "bundler",
        "jsx": "preserve",
-       "strict": true,
-       "isolatedModules": true,
-       "moduleDetection": "force",
-       "skipLibCheck": true,
        "allowJs": true,
        "noEmit": true,
-       "lib": ["ES2023"]
+       "lib": ["ES2025"],
+       "types": ["node"]
      },
      "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
    }
    ```
 
-3. Make sure your `tsconfig.src.json` excludes Wasp Spec files:
+4. Keep the compiler options in your `tsconfig.src.json` and add the entries Wasp needs:
 
    ```json title="tsconfig.src.json"
    {
-     // ...
-     "include": ["src"],
+     "compilerOptions": {
+       // ...
+       "types": ["react", "node"]
+     },
+     "include": ["src", ".wasp/out/types/app"],
      "exclude": ["**/*.wasp.ts"]
    }
    ```
 
-4. Run `npm install`.
-
 5. Rewrite `main.wasp.ts`:
 
-   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` property holds the specifications (see the [mapping above](#changes)), and update the import:
+   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` property holds the specifications. The [mapping above](#changes) shows how each call converts. Update the import, and leave out the `wasp: { version }` field, since step 1 set the Wasp version in `package.json`:
 
    **Before**
 
@@ -24612,6 +25235,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
    const app = new App("myApp", {
      title: "My app",
+     wasp: { version: "^0.23.0" },
    });
    ```
 
@@ -24634,11 +25258,32 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
    :::
 
-6. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
+6. Make the other changes from the migration guides between your Wasp version and 0.27. For a project on Wasp 0.23, follow these in order:
 
-:::note
-If the Wasp Spec package is missing or out of date (for example after `wasp clean` or in a fresh clone), Wasp tells you to run `npm install` before starting the app.
-:::
+   - [Migration from 0.23 to 0.24](https://wasp.sh/docs/0.24/migration-guide)
+   - [Migration from 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide)
+   - [Migration from 0.25 to 0.26](https://wasp.sh/docs/0.26/migration-guide)
+   - [Migration from 0.26 to 0.27](https://wasp.sh/docs/migration-guide)
+
+   If your project runs an older Wasp version, start with the migration guide from your version, for example [Migration from 0.22 to 0.23](https://wasp.sh/docs/0.23/migration-guide).
+
+   The steps above already cover parts of these guides. Skip the migration guide steps that:
+
+   - bump or remove the Wasp version, or run `wasp install`
+   - convert the config to the Wasp Spec, or rename the Wasp Spec package
+   - change `tsconfig.json`, `tsconfig.src.json`, or `tsconfig.wasp.json`
+   - add `@wasp/wasp` to `package.json`, or exclude it in `.npmrc`
+
+7. Install the dependencies, run the database migrations, and start your app:
+
+   ```sh
+   wasp clean
+   npm install
+   wasp db migrate-dev
+   wasp start
+   ```
+
+   `@wasp/wasp` needs the dependency versions from the migration guides, like Prisma 6 and TypeScript 6. Until your `package.json` lists them, `npm install` fails with a dependency conflict. If everything is correct, your app behaves exactly as before.
 
 See the full [Wasp Spec reference](https://wasp.sh/docs/features/spec#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
 
@@ -24646,7 +25291,7 @@ See the full [Wasp Spec reference](https://wasp.sh/docs/features/spec#reference)
 ## Libraries / Radix Themes
 
 :::note
-Last checked with Wasp 0.24 and Radix Themes 3.
+Last checked with Wasp 0.27 and Radix Themes 3.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -24749,7 +25394,7 @@ See the [Radix Themes documentation](https://www.radix-ui.com/themes/docs/overvi
 ## Libraries / Shadcn
 
 :::note
-Last checked with Wasp 0.24 and Shadcn (as of May 28, 2026).
+Last checked with Wasp 0.27 and Shadcn (as of May 28, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -24894,7 +25539,7 @@ export const MainPage = () => {
 ## Libraries / Tailwind CSS
 
 :::note
-Last checked with Wasp 0.24 and Tailwind 4.
+Last checked with Wasp 0.27 and Tailwind 4.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -24967,7 +25612,7 @@ npm install -D @tailwindcss/typography
 ## Optimization / Meta tags
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -25102,7 +25747,7 @@ After deploying, you can verify your meta tags using these tools:
 ## Optimization / SEO & GEO
 
 :::note
-Last checked with Wasp 0.24, Lighthouse 13, and industry standards (as of Jun 8, 2026).
+Last checked with Wasp 0.27, Lighthouse 13, and industry standards (as of Jun 8, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -25141,13 +25786,29 @@ There are four main categories of issues (Performance, Accessibility, Best Pract
 
 A straightforward way to run Lighthouse is through the command line:
 
-```sh
+**npm**
+
+```shell
 # First, build and start the production build of your app:
-$ wasp build
-$ wasp build start
+npm run build
+npm run preview
 
 # While the server is running, open another terminal and run Lighthouse:
-$ npx lighthouse http://localhost:3000 --preset=desktop --view
+npx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.
+```
+
+**Global CLI**
+
+```shell
+# First, build and start the production build of your app:
+wasp build
+wasp build start
+
+# While the server is running, open another terminal and run Lighthouse:
+npx lighthouse http://localhost:3000 --preset=desktop --view
 
 # You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
 # Remove the --preset=desktop argument to test the mobile experience instead.

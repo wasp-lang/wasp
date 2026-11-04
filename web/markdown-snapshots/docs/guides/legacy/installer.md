@@ -4,7 +4,7 @@
 # Legacy Wasp installer
 
 :::note
-Last checked with Wasp 0.21.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::

@@ -61,23 +61,17 @@ See [Environment variables](./env-vars.md) for Wasp's environment file rules.
 
 If you are using SQLite, it doesn't need a separate database process. It's enough to apply the migrations:
 
-```bash
-wasp db migrate-dev
-```
+<WaspCommand command="wasp db migrate-dev" />
 
 #### PostgreSQL
 
 If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
 
-```bash
-wasp start db
-```
+<WaspCommand command="wasp start db" />
 
 Then apply the migrations from another terminal:
 
-```bash
-wasp db migrate-dev
-```
+<WaspCommand command="wasp db migrate-dev" />
 
 Wasp gives each worktree a unique [development database](../features/data/databases.md#using-the-dev-database-provided-by-wasp) name and Docker volume.
 
@@ -89,9 +83,7 @@ If your app needs to seed scaffold data, you can apply it with the `wasp db seed
 
 After the setup, the app should start successfully:
 
-```bash
-wasp start
-```
+<WaspCommand command="wasp start" />
 
 ## Running worktrees at the same time
 

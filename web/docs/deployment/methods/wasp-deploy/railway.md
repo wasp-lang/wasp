@@ -26,9 +26,7 @@ To deploy to Railway using Wasp CLI:
 
 Using the Wasp CLI, you can easily deploy a new app to Railway with a single command:
 
-```shell
-wasp deploy railway launch my-wasp-app
-```
+<WaspCommand command="wasp deploy railway launch my-wasp-app" />
 
 <small>
   Please do not CTRL-C or exit your terminal while the commands are running.
@@ -85,9 +83,7 @@ That's it, your app should be available at `https://mycoolapp.com`!
 
 `launch` is a convenience command that runs `setup` and `deploy` in sequence.
 
-```shell
-wasp deploy railway launch <project-name>
-```
+<WaspCommand command="wasp deploy railway launch <project-name>" />
 
 It accepts the following arguments:
 
@@ -97,10 +93,8 @@ It accepts the following arguments:
 
 Running `wasp deploy railway launch` is the same as running the following commands:
 
-```shell
-wasp deploy railway setup <project-name>
-wasp deploy railway deploy <project-name>
-```
+<WaspCommand command={`wasp deploy railway setup <project-name>
+wasp deploy railway deploy <project-name>`} />
 
 <CustomPostgresOption command="launch" />
 
@@ -108,17 +102,13 @@ wasp deploy railway deploy <project-name>
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
-```shell
-wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>
-```
+<WaspCommand command="wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>" />
 
 #### Explicitly providing the Railway Workspace
 
 By default, Wasp CLI will prompt you to select a Railway workspace for your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
-```shell
-wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
-```
+<WaspCommand command="wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>" />
 
 #### Environment Variables {#railway-launch-environment-variables}
 
@@ -126,9 +116,7 @@ wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-n
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
-```
-wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
-```
+<WaspCommand command="wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>" />
 
 ##### Client
 
@@ -146,9 +134,7 @@ The `deploy` command deploys your client and server apps to Railway.
 
 It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
 
-```shell
-wasp deploy railway deploy <project-name>
-```
+<WaspCommand command="wasp deploy railway deploy <project-name>" />
 
 It accepts the following arguments:
 
@@ -158,9 +144,7 @@ It accepts the following arguments:
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
-```shell
-wasp deploy railway deploy <project-name>
-```
+<WaspCommand command="wasp deploy railway deploy <project-name>" />
 
 #### Explicitly providing the Railway project ID
 
@@ -168,9 +152,7 @@ When you run the `deploy` command, Wasp CLI will use the Railway project that's 
 
 If you are deploying your Railway app in the CI, you can pass the `--existing-project-id` option to tell Wasp CLI the Railway project ID to use for the deployment:
 
-```shell
-wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>
-```
+<WaspCommand command="wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>" />
 
 #### Other Available Options
 
@@ -191,9 +173,7 @@ You must specify your client-side environment variables every time you redeploy 
 
 The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does _not_ deploy the client or server services.
 
-```shell
-wasp deploy railway setup <project-name>
-```
+<WaspCommand command="wasp deploy railway setup <project-name>" />
 
 It accepts the following arguments:
 
@@ -214,17 +194,13 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
-```shell
-wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>
-```
+<WaspCommand command="wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>" />
 
 #### Explicitly providing the Railway Workspace
 
 By default, Wasp CLI will prompt you to select in which Railway workspace you want to create your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
-```shell
-wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
-```
+<WaspCommand command="wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>" />
 
 :::caution Execute Only Once
 You should only run `setup` once per app. Wasp CLI skips creating the services if they already exist.

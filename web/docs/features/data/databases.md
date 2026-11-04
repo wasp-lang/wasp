@@ -86,9 +86,7 @@ Also, make sure that you have [Docker installed](https://www.docker.com/get-star
 
 By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
 
-```bash
-wasp start db --db-port 8080
-```
+<WaspCommand command="wasp start db --db-port 8080" />
 
 :::tip
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
@@ -112,8 +110,7 @@ If you need to customise the development database, you can use the following opt
 
 Here are some examples of customising the development database:
 
-```bash
-# Use default PostgreSQL image:
+<WaspCommand command={`# Use default PostgreSQL image:
 wasp start db
 # Same as:
 wasp start db --db-image postgres:18
@@ -125,8 +122,7 @@ wasp start db --db-image postgis/postgis:18-3.6
 wasp start db --db-image pgvector/pgvector:pg18
 
 # Use PostgreSQL version 15 (requires different volume path):
-wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
-```
+wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data`} />
 
 :::note
 
@@ -177,10 +173,7 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../../advanced/cli#project-commands):
 
-   ```bash
-   rm -r migrations/
-   wasp clean
-   ```
+   <WaspCommand command={"rm -r migrations/\nwasp clean"} />
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 
@@ -332,9 +325,7 @@ Run the command `wasp db seed` and Wasp will ask you which seed function you'd l
 
 Alternatively, run the command `wasp db seed <seed-name>` to choose a specific seed function right away, for example:
 
-```
-wasp db seed devSeedSimple
-```
+<WaspCommand command="wasp db seed devSeedSimple" />
 
 Check the [API Reference](#cli-commands-for-seeding-the-database) for more details on these commands.
 
@@ -457,6 +448,4 @@ Use one of the following commands to run the seed functions:
 
   Use the following command:
 
-  ```
-  wasp db seed devSeedSimple
-  ```
+  <WaspCommand command="wasp db seed devSeedSimple" />

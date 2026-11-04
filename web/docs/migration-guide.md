@@ -45,7 +45,7 @@ npm i -g @wasp/cli@0.27
 
 ### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec`
 
-Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. The `wasp` script is optional. It lets you run Wasp without a global install, for example `npm run wasp start`. Put `--` before Wasp commands that have flags, for example `npm run wasp -- db migrate-dev --name init`:
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](./advanced/cli.md#running-wasp-commands):
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -63,7 +63,10 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
     {
       // highlight-start
       "scripts": {
-        "wasp": "wasp"
+        "wasp": "wasp",
+        "dev": "wasp start",
+        "build": "wasp build",
+        "preview": "wasp build start"
       },
       "dependencies": {
         "@wasp/wasp": "0.27.0"

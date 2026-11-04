@@ -93,10 +93,8 @@ npm test
 
 Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `wasp compile` before running the tests:
 
-```sh
-wasp compile
-npm test
-```
+<WaspCommand command={`wasp compile
+npm test`} />
 
 ### Running tests visually
 
