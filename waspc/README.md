@@ -33,24 +33,17 @@ Clone this repo (or its fork) to your machine.
 
 Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
 
-### `run` script
+### Tasks
 
-[`./run`](run) script captures the most common commands/workflows for the development of `waspc` (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, ... .
+Common commands/workflows for the development of `waspc` are [mise tasks](https://mise.jdx.dev/tasks/) defined in [`tasks/`](../tasks/) (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `mise run build`, `mise run test`, ... .
 
-It serves both as a convenient way to easily run common development tasks and also as a sort of documentation on how we develop `waspc`. You will see us mentioning it often in the rest of this README.
+They serve both as a convenient way to easily run common development tasks and also as a sort of documentation on how we develop `waspc`. You will see us mentioning them often in the rest of this README.
 
-Running `./run` without any arguments will print help/usage, which is a good way to discover the typical `waspc` development workflows.
-
-> [!TIP]
-> To make it easy to run the `./run` script from any place in your waspc codebase, you can create a bash alias that points to it, e.g.:
->
-> ```sh
-> alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
-> ```
+Running `mise tasks` lists them, which is a good way to discover the typical `waspc` development workflows. `mise run <task>` works from any directory in the repo.
 
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt in Windows.
+> Tasks need Bash. On Windows, install Git Bash and make sure `bash` is on `PATH`.
 
 ### Dev tooling
 
@@ -59,7 +52,7 @@ Follow repo-wide [Dev tooling](../CONTRIBUTING.md#dev-tooling) instructions.
 ### Build
 
 ```sh
-./run build
+mise run build
 ```
 
 to build the whole `waspc` project.
@@ -70,22 +63,22 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ### Run tests
 
 ```sh
-./run test
+mise run test
 ```
 
 to ensure all the tests are passing.
 
 #### Playwright on unsupported Linux distros (e.g. Arch)
 
-If `./run test` fails for you when installing Playwright browsers and their system deps, check [Playwright tests on unsupported Linux distributions (e.g. Arch)](#playwright-tests-on-unsupported-linux-distributions-eg-arch) below.
+If `mise run test` fails for you when installing Playwright browsers and their system deps, check [Playwright tests on unsupported Linux distributions (e.g. Arch)](#playwright-tests-on-unsupported-linux-distributions-eg-arch) below.
 
 ### Run the `wasp` CLI
 
 ```sh
-./run wasp-cli
+mise run wasp-cli
 ```
 
-to run the `wasp-cli` executable (that you previously built with `./run build`)!
+to run the `wasp-cli` executable (that you previously built with `mise run build`)!
 
 Since you provided no arguments, you should see help/usage.
 
@@ -99,13 +92,13 @@ First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-s
 Then, run the dev database:
 
 ```sh
-./run wasp-cli db start
+mise run wasp-cli db start
 ```
 
 Leave it running, open a new terminal (tab), and run
 
 ```sh
-./run wasp-cli db migrate-dev
+mise run wasp-cli db migrate-dev
 ```
 
 to update the database schema.
@@ -121,7 +114,7 @@ to set up some mock env vars for the server, just to get the things running.
 Finally, run
 
 ```sh
-./run wasp-cli start
+mise run wasp-cli start
 ```
 
 to run the example app in the development mode.
@@ -136,14 +129,14 @@ When done, new tab in your browser should open and you will see the Kitchen Sink
 ## Typical development workflow
 
 1. Create a new feature branch from `main`.
-2. If you don't have a good/reliable working HLS (Haskell Language Server) connected to your IDE (which we strongly recommend), you will want to instead run `./run ghcid` from the root of the `waspc` project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.
+2. If you don't have a good/reliable working HLS (Haskell Language Server) connected to your IDE (which we strongly recommend), you will want to instead run `mise run ghcid` from the root of the `waspc` project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.
    - NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
-4. Use `./run build:hs` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
+4. Use `mise run build:hs` to build the Haskell/cabal project, and `mise run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `mise run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `mise run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
-6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
+6. Run `mise run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `mise run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
@@ -284,11 +277,11 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 `waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `<repo>/packages/` and are normal npm projects. See [`packages/README.md`](../packages/README.md) for how the projects are expected to be set up.
 
 In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), their build artifacts need to be copied into the `waspc_datadir` dir (`data/packages/`).
-To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
+To do so in development, run `mise run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
 
 ### WaspLibs
 
-WaspLibs are internal npm packages located under [`packages/libs/`](../packages/libs/) and are packed into `data/Generator/libs/` by `./run build:libs`, bundled with Wasp and installed into generated apps. A more detailed description of WaspLibs can be found in the [`packages/libs/README.md`](../packages/libs/README.md).
+WaspLibs are internal npm packages located under [`packages/libs/`](../packages/libs/) and are packed into `data/Generator/libs/` by `mise run build:libs`, bundled with Wasp and installed into generated apps. A more detailed description of WaspLibs can be found in the [`packages/libs/README.md`](../packages/libs/README.md).
 
 ## Tests
 
@@ -322,16 +315,16 @@ Haskell build tools don't have a good support for mixing them with source files.
 
 To run tests:
 
-- To run all tests, you can do `./run test`
-- To run `waspc` tests only, you can do `./run test:waspc`.
-- To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
-- To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
-- To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
-- To run individual e2e tests, you can do `./run test:waspc:e2e "/wasp-start/"`.
-- To run Wasp CLI tests only, you can do `./run test:cli`.
-- To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
-- To run examples e2e tests, you can do `./run test:examples`.
-- To run starter templates e2e tests, you can do `./run test:starters`.
+- To run all tests, you can do `mise run test`
+- To run `waspc` tests only, you can do `mise run test:waspc`.
+- To run `waspc` unit tests only, you can do `mise run test:waspc:unit`.
+- To run individual unit test, you can do `mise run test:waspc:unit "Some test description to match"`.
+- To run `waspc` e2e tests only, you can do `mise run test:waspc:e2e`.
+- To run individual e2e tests, you can do `mise run test:waspc:e2e "/wasp-start/"`.
+- To run Wasp CLI tests only, you can do `mise run test:cli`.
+- To run `kitchen-sink` e2e tests, you can do `mise run test:kitchen-sink`.
+- To run examples e2e tests, you can do `mise run test:examples`.
+- To run starter templates e2e tests, you can do `mise run test:starters`.
 
 ### Waspc e2e tests
 
@@ -344,10 +337,10 @@ Do not blindly accept changes, ensure they align with your intended modification
 If you notice something unexpected or weird, you have an opportunity to fix it.
 Once you are indeed happy with the changes in the generated app, you will want to update the golden output to the new (current) output, so that tests pass.
 Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
-Easiest way to do this is to use the convenient command from the `./run` script:
+Easiest way to do this is to use the convenient command from the `mise run` script:
 
 ```sh
-./run test:waspc:e2e:accept-all
+mise run test:waspc:e2e:accept-all
 ```
 
 ### Playwright tests on unsupported Linux distributions (e.g. Arch)
@@ -379,7 +372,7 @@ export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
 To run the Haskell code analysis, run:
 
 ```sh
-./run code-check
+mise run code-check
 ```
 
 This will check if code is correctly formatted, if it satisfies linter, and if it passes static analysis.
@@ -398,13 +391,13 @@ Normally we set it up in our editors to run on file save.
 You can also run it manually with
 
 ```sh
-./run check:ormolu
+mise run check:ormolu
 ```
 
 to see if there is any formatting that needs to be fixed, or with
 
 ```sh
-./run format:ormolu
+mise run format:ormolu
 ```
 
 to have Ormolu actually format (in-place) all files that need formatting.
@@ -419,7 +412,7 @@ We use [hlint](https://github.com/ndmitchell/hlint) for linting our Haskell code
 You can use
 
 ```sh
-./run hlint
+mise run hlint
 ```
 
 to run the hlint on Wasp codebase.
@@ -434,7 +427,7 @@ We use [stan](https://github.com/kowainik/stan) to statically analyze our codeba
 The easiest way to run it is to use
 
 ```sh
-./run stan
+mise run stan
 ```
 
 This will build the codebase, run stan on it (while installing it first, if needed, with the correct version of GHC) and then write results to the CLI and also generate report in the `stan.html`.
