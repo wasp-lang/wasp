@@ -6,8 +6,10 @@
  * - Titles React components as `<Name>`, instead of `Name()`, and puts them in
  *   the "Components" group unless they set a `@group`. Mark a component with
  *   the `@component` modifier tag in its doc comment.
+ * - Gives every heading a page-unique ID (see `addUniqueHeadingIds`).
  */
 
+import GithubSlugger from "github-slugger";
 import {
   CommentTag,
   Converter,
@@ -17,9 +19,9 @@ import {
   type Reflection,
 } from "typedoc";
 import {
+  MarkdownPageEvent,
   MarkdownTheme,
   MarkdownThemeContext,
-  type MarkdownPageEvent,
 } from "typedoc-plugin-markdown";
 
 const COMPONENT_TAG = "@component";
@@ -47,6 +49,65 @@ export function load(app: Application) {
   });
 
   app.renderer.defineTheme("wasp-markdown", WaspMarkdownTheme);
+
+  app.renderer.on(MarkdownPageEvent.END, (page) => {
+    if (page.contents) {
+      page.contents = addUniqueHeadingIds(page.contents);
+    }
+  });
+}
+
+const CODE_FENCE_PATTERN = /^\s*(```|~~~)/;
+const HEADING_PATTERN = /^(#{1,6}) (.*?)(?: \{#([^}]+)\})?$/;
+
+/**
+ * With `useCustomAnchors`, TypeDoc gives explicit IDs (`{#auth-1}`) to the
+ * headings of its reflections, but not to the others (e.g. "Parameters", or
+ * the properties of an inlined object parameter). Docusaurus slugs those
+ * without accounting for the explicit IDs, so they can end up with the same
+ * ID as a reflection, and links to the reflection land on them instead.
+ *
+ * So we give those headings an explicit ID too, slugged like Docusaurus does
+ * but skipping the IDs already in use on the page.
+ */
+function addUniqueHeadingIds(markdown: string) {
+  const lines = markdown.split("\n");
+
+  const headings: { index: number; match: RegExpMatchArray }[] = [];
+  let inCodeBlock = false;
+  lines.forEach((line, index) => {
+    if (CODE_FENCE_PATTERN.test(line)) {
+      inCodeBlock = !inCodeBlock;
+    } else if (!inCodeBlock) {
+      const match = line.match(HEADING_PATTERN);
+      if (match) headings.push({ index, match });
+    }
+  });
+
+  const slugger = new GithubSlugger();
+  // Slugging the explicit IDs reserves them, as they are already slugs.
+  for (const { match } of headings) {
+    const [, , , explicitId] = match;
+    if (explicitId) slugger.slug(explicitId, true);
+  }
+
+  for (const { index, match } of headings) {
+    const [, hashes, text, explicitId] = match;
+    if (explicitId) continue;
+    const id = slugger.slug(getHeadingText(text));
+    // Docusaurus uses the page's H1 as its title, so we leave it alone.
+    if (hashes !== "#") lines[index] = `${lines[index]} {#${id}}`;
+  }
+
+  return lines.join("\n");
+}
+
+/** Approximates the text that Docusaurus slugs from a heading's Markdown. */
+function getHeadingText(markdown: string) {
+  return markdown
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\\(.)/g, "$1")
+    .replaceAll("`", "");
 }
 
 class WaspMarkdownTheme extends MarkdownTheme {
