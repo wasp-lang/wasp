@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp projects now depend on the `@wasp/wasp` npm package instead of `@wasp/spec`, and `npm install` replaces `wasp install`. ([#5210](https://github.com/wasp-lang/wasp/pull/5210), [#5211](https://github.com/wasp-lang/wasp/pull/5211), [#5212](https://github.com/wasp-lang/wasp/pull/5212))
+- Wasp projects now depend on the `@wasp/wasp` npm package instead of `@wasp.sh/spec`, and `npm install` replaces `wasp install`. ([#5210](https://github.com/wasp-lang/wasp/pull/5210), [#5211](https://github.com/wasp-lang/wasp/pull/5211), [#5212](https://github.com/wasp-lang/wasp/pull/5212))
 - `app()` in `main.wasp.ts` no longer takes a `wasp: { version }` field. The `@wasp/wasp` version in `package.json` decides which Wasp a project runs. ([#5213](https://github.com/wasp-lang/wasp/pull/5213))
 - `wasp.overriddenDeps` no longer works for packages that come with `@wasp/wasp`, like React, Vite or Express. Use npm's `overrides` instead. ([#5212](https://github.com/wasp-lang/wasp/pull/5212))
 - The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))

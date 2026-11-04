@@ -19,9 +19,11 @@ import Wasp.Project.WaspNpmPackage
     doesVersionMatchDeclaredSpecifier,
     getWaspCliNpmPackageVersion,
     isCliCompatibleWithInstalledVersion,
+    isRunByWaspCliNpmPackage,
     tryGettingInstalledWaspNpmPackageVersion,
     waspNpmPackageName,
   )
+import Wasp.Util.InstallMethod (getGlobalInstallationCommand)
 import Wasp.Util.Terminal (styleCode)
 
 -- | Require that the project's \@wasp/wasp npm package is installed in
@@ -46,8 +48,9 @@ instance Requirable WaspNpmPackageAvailable where
       Right installedVersion
         | not (doesVersionMatchDeclaredSpecifier declaredSpecifier installedVersion) ->
             throwError $ missingDepsError $ staleInstallReason declaredSpecifier installedVersion
-        | not (isCliCompatibleWithInstalledVersion cliVersion declaredSpecifier installedVersion) ->
-            throwError $ versionMismatchError cliVersion declaredSpecifier installedVersion
+        | not (isCliCompatibleWithInstalledVersion cliVersion declaredSpecifier installedVersion) -> do
+            isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
+            throwError $ versionMismatchError isRunByNpmPackage cliVersion installedVersion
         | otherwise -> return WaspNpmPackageAvailable
       Left reason -> throwError $ missingDepsError reason
     where
@@ -84,9 +87,7 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "dependencies"
             ++ " in your "
             ++ styleCode "package.json"
-            ++ ", remove any "
-            ++ styleCode "@wasp/spec"
-            ++ " or "
+            ++ ", remove the "
             ++ styleCode "@wasp.sh/spec"
             ++ " dependency, and run "
             ++ styleCode "npm install"
@@ -107,25 +108,33 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "npm install"
             ++ "."
 
-      versionMismatchError :: NpmPackageVersion -> String -> NpmPackageVersion -> CommandError
-      versionMismatchError cliVersion declaredSpecifier installedVersion =
-        CommandError
-          "Wasp version mismatch"
-          $ "This project has "
-            ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
-            ++ " installed and asks for "
-            ++ styleCode (waspNpmPackageName ++ " " ++ declaredSpecifier)
-            ++ ", but you are running Wasp CLI "
-            ++ show cliVersion
-            ++ ". Run a Wasp CLI version that the project asks for, or set "
-            ++ styleCode waspNpmPackageName
-            ++ " in your "
-            ++ styleCode "package.json"
-            ++ " to "
-            ++ show cliVersion
-            ++ " and run "
-            ++ styleCode "npm install"
-            ++ "."
+      -- The npm Wasp CLI hands over to the project's Wasp CLI, which
+      -- \@wasp/wasp pins to its own version. So a mismatch means either that
+      -- someone ran the binary directly, without anything to hand over to the
+      -- project's Wasp, or that the project's \@wasp/cli and \@wasp/wasp
+      -- don't match, e.g. after a partial install.
+      versionMismatchError :: Bool -> NpmPackageVersion -> NpmPackageVersion -> CommandError
+      versionMismatchError isRunByNpmPackage cliVersion installedVersion =
+        CommandError "Wasp version mismatch" $
+          if isRunByNpmPackage
+            then
+              "This project's "
+                ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
+                ++ " doesn't match its Wasp CLI "
+                ++ show cliVersion
+                ++ ". Run "
+                ++ styleCode "npm install"
+                ++ " to install them together."
+            else
+              "This project uses Wasp "
+                ++ show installedVersion
+                ++ ", but you ran Wasp CLI "
+                ++ show cliVersion
+                ++ " directly, which can't switch to the project's version. Run the project's Wasp with "
+                ++ styleCode "npm run wasp -- <command>"
+                ++ ", or install the Wasp CLI from npm with "
+                ++ styleCode (getGlobalInstallationCommand Nothing)
+                ++ ". That CLI runs each project's Wasp version for you."
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration

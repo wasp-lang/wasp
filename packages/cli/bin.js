@@ -186,7 +186,7 @@ async function getSubPackage(/** @type {PackageJson} */ packageJson) {
     })
     .catch(
       CLIError.rethrowWith(
-        "Can't locate the correct executable for your platform.",
+        "Can't locate the correct executable for your platform. Try running `npm install` again, and if that doesn't help, let us know on Discord: https://discord.gg/rzdnErX",
       ),
     );
 

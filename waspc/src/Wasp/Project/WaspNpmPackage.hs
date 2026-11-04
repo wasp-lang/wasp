@@ -18,6 +18,7 @@ module Wasp.Project.WaspNpmPackage
     parseNpmPackageVersion,
     waspCliNpmPackageVersionEnvVarName,
     getWaspCliNpmPackageVersion,
+    isRunByWaspCliNpmPackage,
     doesVersionMatchDeclaredSpecifier,
     isCliCompatibleWithInstalledVersion,
   )
@@ -167,6 +168,13 @@ getWaspCliNpmPackageVersion =
     <$> lookupEnv waspCliNpmPackageVersionEnvVarName
   where
     binaryVersion = NpmPackageVersion WV.waspVersion False (show WV.waspVersion)
+
+-- | Whether the \@wasp/cli npm package runs this binary. It doesn't when
+-- someone runs the binary directly, e.g. one installed with the old installer
+-- script or built from source. Then nothing hands over to the project's
+-- Wasp CLI.
+isRunByWaspCliNpmPackage :: IO Bool
+isRunByWaspCliNpmPackage = isJust <$> lookupEnv waspCliNpmPackageVersionEnvVarName
 
 -- | Whether the CLI with the given version works with the project's installed
 -- \@wasp/wasp. When the project declares a version or a range, the CLI's
