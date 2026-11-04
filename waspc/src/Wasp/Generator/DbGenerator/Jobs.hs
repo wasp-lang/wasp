@@ -15,10 +15,12 @@ where
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
+import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import qualified Wasp.Generator.NodeTools as NodeTools
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
+import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
@@ -122,8 +124,23 @@ reset generatedAppDir resetArgs =
 -- | Bundles the server's db seed script and runs the seed with the given name.
 seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
 seed serverRunConfig generatedAppDir seedName =
-  NodeTools.bundleDbSeed generatedAppDir
-    `J.andThen` NodeTools.runDbSeed serverRunConfig generatedAppDir seedName
+  runInServerDir NodeTools.typeCheckServer
+    `J.andThen` runInServerDir NodeTools.bundleDbSeed
+    `J.andThen` runSeed
+  where
+    runInServerDir nodeCommand =
+      J.fromProc
+        . addEnvVarsOverride envVars
+        =<< NodeTools.proc serverDir nodeCommand
+    runSeed =
+      J.fromProc
+        . addEnvVarsOverride envVars
+        -- The user's seed function can ask for input.
+        . J.markInteractive
+        =<< NodeTools.proc waspProjectDir NodeTools.runDbSeed
+    envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
+    serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
+    waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
 -- | Checks if the DB is running and connectable by running
 -- `prisma db execute --stdin --schema <path to db schema>`.

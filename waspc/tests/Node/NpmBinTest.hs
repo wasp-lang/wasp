@@ -3,7 +3,7 @@ module Node.NpmBinTest where
 import Data.List (isSuffixOf)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
-import System.Directory (canonicalizePath, createDirectoryIfMissing, exeExtension, getPermissions, setOwnerExecutable, setPermissions)
+import System.Directory (canonicalizePath, createDirectoryIfMissing, exeExtension, findExecutable, getPermissions, setOwnerExecutable, setPermissions)
 import System.Environment (lookupEnv)
 import System.FilePath (splitSearchPath, (<.>), (</>))
 import System.IO.Temp (withSystemTempDirectory)
@@ -27,7 +27,12 @@ spec_NodeNpmBin = do
         projectTool <- createNpmBin projectDir "tool"
         findNpmBin (toAbsDir packageDir) "tool" `shouldReturn` Just projectTool
 
-    it "returns Nothing if the executable isn't in any node_modules/.bin directory" $
+    it "looks for the executable in the PATH after the node_modules/.bin directories" $
+      withProjectDirs $ \_ packageDir -> do
+        nodeInPath <- findExecutable "node"
+        findNpmBin (toAbsDir packageDir) "node" `shouldReturn` nodeInPath
+
+    it "returns Nothing if the executable isn't in any node_modules/.bin directory or the PATH" $
       withProjectDirs $ \_ packageDir ->
         findNpmBin (toAbsDir packageDir) "missing-tool" `shouldReturn` Nothing
 

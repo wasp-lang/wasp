@@ -208,7 +208,7 @@ spec_Job = do
           isProcessAlive pid `shouldReturn` True
 
   describe "npmBinProc" $
-    it "fails if the executable isn't in any node_modules/.bin directory" $
+    it "fails if the executable isn't in any node_modules/.bin directory or the PATH" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
         let dir = fromJust $ SP.parseAbsDir tempDir
         Job.run (Job.npmBinProc dir "missing-tool" [])

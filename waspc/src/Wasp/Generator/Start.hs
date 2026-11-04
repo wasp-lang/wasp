@@ -10,10 +10,10 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (GeneratedAppDir)
-import qualified Wasp.Generator.NodeTools as NodeTools
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start (ServerInbox, startServer)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
+import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
@@ -33,7 +33,7 @@ start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverInbox onJob
       $ withJobsQuietDownListener onJobsQuietDown
       $ J.race
         (J.prefixWith J.Server $ startServer serverRunConfig outDir serverInbox)
-        (J.prefixWith J.WebApp $ NodeTools.runWebAppDevServer webAppRunConfig waspProjectDir)
+        (J.prefixWith J.WebApp $ startWebApp webAppRunConfig waspProjectDir)
 
   return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 

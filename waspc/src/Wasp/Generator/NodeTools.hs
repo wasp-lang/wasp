@@ -1,15 +1,18 @@
--- | The Node tools Wasp runs on the generated app, each named after the step it
--- performs. This is the place to look for what Wasp runs, and from where.
+-- | The Node tool commands Wasp runs on the generated app, each named after the
+-- step it performs, and typed by the dir it must run from.
 --
 -- The Prisma CLI commands are in "Wasp.Generator.DbGenerator.Jobs".
 module Wasp.Generator.NodeTools
-  ( -- * Server
+  ( NodeCommand,
+    proc,
+    toShellCommand,
+
+    -- * Server
+    typeCheckServer,
     bundleServer,
-    runDevServer,
     bundleDbSeed,
+    runServer,
     runDbSeed,
-    serverBundleCommand,
-    devServerStartCommand,
 
     -- * Web app
     runWebAppDevServer,
@@ -17,163 +20,88 @@ module Wasp.Generator.NodeTools
     previewWebApp,
 
     -- * SDK
-    buildSdk,
+    compileSdk,
+    copySdkAssets,
 
     -- * User code
     typeCheckUserCode,
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
-import System.Exit (ExitCode)
-import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
-import Wasp.Generator.Common (GeneratedAppDir, ServerRootDir)
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
+import Wasp.Generator.Common (ServerRootDir)
+import Wasp.Generator.SdkGenerator.Common (SdkRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Job as J
-import Wasp.Project.Common
-  ( WaspProjectDir,
-    generatedAppDirInWaspProjectDir,
-    waspProjectDirFromGeneratedAppComponentDir,
-    waspProjectDirFromGeneratedAppDir,
-  )
+import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, generatedAppDirInWaspProjectDir)
 
--- | Type-checks the server and bundles it into `bundle/server.js`.
-bundleServer :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
-bundleServer generatedAppDir =
-  runServerTool generatedAppDir serverTscProcess
-    `J.andThen` runServerTool generatedAppDir serverRollupProcess
+-- | An executable and its arguments, to run from a @dir@.
+data NodeCommand dir = NodeCommand String [String]
 
--- | Runs the server bundle made by 'bundleServer'.
-runDevServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
-runDevServer serverRunConfig generatedAppDir =
-  J.fromProc
-    $ addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-    $ J.setCwd (generatedAppDir </> waspProjectDirFromGeneratedAppDir)
-    $ uncurry J.proc devServerStartProcess
+-- | Runs the command from the dir, like an npm script would.
+proc :: Path' Abs (Dir dir) -> NodeCommand dir -> J.Job J.CreateJobProcess
+proc dir (NodeCommand executable args) = J.npmBinProc dir executable args
 
--- | Type-checks the server and bundles the db seed script into
--- `bundle/dbSeed.js`.
-bundleDbSeed :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
-bundleDbSeed generatedAppDir =
-  runServerTool generatedAppDir serverTscProcess
-    `J.andThen` runServerTool generatedAppDir ("rollup", ["--config", "rollup.dbSeed.config.js", "--silent"])
-
--- | Runs the db seed with the given name from the bundle made by 'bundleDbSeed'.
-runDbSeed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
-runDbSeed serverRunConfig generatedAppDir seedName =
-  J.fromProc
-    $ addEnvVarsOverride ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
-    $ J.setCwd (generatedAppDir </> waspProjectDirFromGeneratedAppDir)
-    -- The user's seed function can ask for input.
-    $ J.markInteractive
-    $ uncurry J.proc dbSeedProcess
-
--- | The command for the server's `bundle` npm script, which the Dockerfile
--- runs. Runs from the server dir, like all npm scripts.
-serverBundleCommand :: String
-serverBundleCommand = processToCommand serverTscProcess <> " && " <> processToCommand serverRollupProcess
-
--- | The command for the server's `start` npm script, which `npm run
--- start-production` runs. Runs from the server dir, like all npm scripts.
-devServerStartCommand :: String
-devServerStartCommand =
-  "cd " <> SP.fromRelDir waspProjectDirFromServerDir <> " && " <> processToCommand devServerStartProcess
-  where
-    waspProjectDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromGeneratedAppComponentDir
+-- | The command as a shell command line, e.g. for an npm script.
+toShellCommand :: NodeCommand dir -> String
+toShellCommand (NodeCommand executable args) = unwords $ executable : args
 
 -- | Through its project reference, `tsc --build` type-checks all of the user's
 -- source files, client ones included, so their type errors also fail the
 -- bundle.
-serverTscProcess :: (String, [String])
-serverTscProcess = ("tsc", ["--build"])
+typeCheckServer :: NodeCommand ServerRootDir
+typeCheckServer = NodeCommand "tsc" ["--build"]
 
-serverRollupProcess :: (String, [String])
-serverRollupProcess = ("rollup", ["--config", "--silent"])
+bundleServer :: NodeCommand ServerRootDir
+bundleServer = NodeCommand "rollup" ["--config", "--silent"]
 
--- | Runs from the Wasp project dir.
-devServerStartProcess :: (String, [String])
-devServerStartProcess = nodeProcessFromWaspProjectDir [relfile|bundle/server.js|]
+bundleDbSeed :: NodeCommand ServerRootDir
+bundleDbSeed = NodeCommand "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
 
--- | Runs from the Wasp project dir.
-dbSeedProcess :: (String, [String])
-dbSeedProcess = nodeProcessFromWaspProjectDir [relfile|bundle/dbSeed.js|]
+runServer :: NodeCommand WaspProjectDir
+runServer = nodeScriptFromWaspProjectDir [relfile|bundle/server.js|]
+
+runDbSeed :: NodeCommand WaspProjectDir
+runDbSeed = nodeScriptFromWaspProjectDir [relfile|bundle/dbSeed.js|]
 
 -- | The server runs with the Wasp project dir as its working directory, so that
 -- relative paths in the user's code resolve from where the user expects them to.
 --
 -- `loadDotEnv.cjs` loads the server's `.env` file.
-nodeProcessFromWaspProjectDir :: Path' (Rel ServerRootDir) File' -> (String, [String])
-nodeProcessFromWaspProjectDir scriptInServerDir =
-  ( "node",
+nodeScriptFromWaspProjectDir :: Path' (Rel ServerRootDir) File' -> NodeCommand WaspProjectDir
+nodeScriptFromWaspProjectDir scriptInServerDir =
+  NodeCommand
+    "node"
     [ "--enable-source-maps",
       "-r",
       "./" <> SP.fromRelFile (serverDirInWaspProjectDir </> [relfile|loadDotEnv.cjs|]),
       SP.fromRelFile (serverDirInWaspProjectDir </> scriptInServerDir)
     ]
-  )
   where
     serverDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir ServerRootDir) =
       generatedAppDirInWaspProjectDir </> serverRootDirInGeneratedAppDir
 
-runServerTool :: Path' Abs (Dir GeneratedAppDir) -> (String, [String]) -> J.Job ExitCode
-runServerTool generatedAppDir (binName, args) =
-  J.fromProc =<< J.npmBinProc (generatedAppDir </> serverRootDirInGeneratedAppDir) binName args
+runWebAppDevServer :: NodeCommand WaspProjectDir
+runWebAppDevServer = NodeCommand "vite" []
 
-processToCommand :: (String, [String]) -> String
-processToCommand (executable, args) = unwords $ executable : args
+buildWebApp :: NodeCommand WaspProjectDir
+buildWebApp = NodeCommand "vite" ["build"]
 
--- | Runs the Vite dev server for the web app.
-runWebAppDevServer :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
-runWebAppDevServer webAppRunConfig waspProjectDir =
-  J.fromProc
-    . addEnvVarsOverride (getEnvVars webAppRunConfig)
-    -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
-    . J.markInteractive
-    =<< J.npmBinProc waspProjectDir "vite" []
+previewWebApp :: NodeCommand WaspProjectDir
+previewWebApp =
+  NodeCommand
+    "vite"
+    [ "preview", -- `preview` launches a static file server for the built client.
+      "--strictPort" -- This will make it fail if the port is already in use.
+    ]
 
--- | Builds the web app for production.
-buildWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
-buildWebApp webAppRunConfig waspProjectDir =
-  J.fromProc
-    . addEnvVarsOverride (getEnvVars webAppRunConfig)
-    =<< J.npmBinProc waspProjectDir "vite" ["build"]
+compileSdk :: NodeCommand SdkRootDir
+compileSdk = NodeCommand "tsc" []
 
--- | Serves the web app built by 'buildWebApp'.
-previewWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job ExitCode
-previewWebApp webAppRunConfig waspProjectDir =
-  J.fromProc
-    . addEnvVarsOverride (getEnvVars webAppRunConfig)
-    =<< J.npmBinProc
-      waspProjectDir
-      "vite"
-      [ "preview", -- `preview` launches a static file server for the built client.
-        "--strictPort" -- This will make it fail if the port is already in use.
-      ]
+copySdkAssets :: NodeCommand SdkRootDir
+copySdkAssets = NodeCommand "node" ["./scripts/copy-assets.js"]
 
--- | Compiles the SDK and copies its non-TypeScript assets next to the output.
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
-buildSdk generatedAppDir =
-  (J.fromProc =<< J.npmBinProc sdkRootDir "tsc" [])
-    `J.andThen` J.fromProc (J.setCwd sdkRootDir $ J.proc "node" ["./scripts/copy-assets.js"])
-  where
-    sdkRootDir = generatedAppDir </> sdkRootDirInGeneratedAppDir
-
--- | Type-checks the user's source files, without emitting anything.
-typeCheckUserCode :: AppSpec -> J.Job ExitCode
-typeCheckUserCode spec =
-  J.fromProc
-    =<< J.npmBinProc
-      (AS.waspProjectDir spec)
-      "tsc"
-      [ "--project",
-        SP.fromRelFile $ AS.srcTsConfigPath spec,
-        "--noEmit"
-      ]
+typeCheckUserCode :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile) -> NodeCommand WaspProjectDir
+typeCheckUserCode srcTsConfigPath =
+  NodeCommand "tsc" ["--project", SP.fromRelFile srcTsConfigPath, "--noEmit"]

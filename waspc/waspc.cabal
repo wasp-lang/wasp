@@ -309,6 +309,7 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.RunConfig
+    Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable

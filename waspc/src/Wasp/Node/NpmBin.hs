@@ -14,14 +14,15 @@ import qualified System.FilePath as FP
 import Wasp.Env (EnvVar)
 
 -- | Finds the executable an npm script in the given directory would run for the
--- given name, by looking in the @node_modules/.bin@ directory of the given
--- directory and of each of its ancestors, closest first. Returns 'Nothing' if
--- none of them has it.
+-- given name, by looking in the @PATH@ from 'getNpmBinEnvVars'. Returns
+-- 'Nothing' if none of its directories has it.
 -- We run these executables directly instead of through npm scripts or @npx@,
 -- because those run the command through a shell, which doesn't always forward
 -- signals to it, so stopping the job could leave the command running.
 findNpmBin :: Path' Abs (Dir d) -> String -> IO (Maybe FilePath)
-findNpmBin fromDir binName = listToMaybe <$> findExecutablesInDirectories (npmBinDirs fromDir) binName
+findNpmBin fromDir binName = do
+  searchPath <- getNpmBinSearchPath fromDir
+  listToMaybe <$> findExecutablesInDirectories searchPath binName
 
 -- | Constructs the env that npm runs scripts with. Mainly we need the @PATH@,
 -- which includes the `node_modules/.bin` of this directory and ancestors. Used
@@ -29,12 +30,15 @@ findNpmBin fromDir binName = listToMaybe <$> findExecutablesInDirectories (npmBi
 -- @prisma@).
 getNpmBinEnvVars :: Path' Abs (Dir d) -> IO [EnvVar]
 getNpmBinEnvVars fromDir = do
+  searchPath <- getNpmBinSearchPath fromDir
+  return [("PATH", intercalate [FP.searchPathSeparator] searchPath)]
+
+-- | The @node_modules/.bin@ directory of the given directory and of each of its
+-- ancestors, closest first, and then the current @PATH@.
+getNpmBinSearchPath :: Path' Abs (Dir d) -> IO [FilePath]
+getNpmBinSearchPath fromDir = do
   currentPath <- maybe [] FP.splitSearchPath <$> lookupEnv "PATH"
-  return
-    [ ( "PATH",
-        intercalate [FP.searchPathSeparator] $ npmBinDirs fromDir ++ currentPath
-      )
-    ]
+  return $ npmBinDirs fromDir ++ currentPath
 
 npmBinDirs :: Path' Abs (Dir d) -> [FilePath]
 npmBinDirs dir =

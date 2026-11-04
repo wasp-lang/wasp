@@ -68,7 +68,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -144,8 +144,8 @@ genPackageJson spec waspDependencies =
             [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
-              "serverBundleCommand" .= NodeTools.serverBundleCommand,
-              "devServerStartCommand" .= NodeTools.devServerStartCommand,
+              "serverBundleCommand" .= serverBundleCommand,
+              "devServerStartCommand" .= devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
@@ -155,6 +155,14 @@ genPackageJson spec waspDependencies =
       )
   where
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+
+    -- npm scripts run from the server dir.
+    serverBundleCommand =
+      NodeTools.toShellCommand NodeTools.typeCheckServer <> " && " <> NodeTools.toShellCommand NodeTools.bundleServer
+    devServerStartCommand =
+      "cd " <> SP.fromRelDir waspProjectDirFromServerDir <> " && " <> NodeTools.toShellCommand NodeTools.runServer
+    waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
+      waspProjectDirFromGeneratedAppComponentDir
 
 npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =

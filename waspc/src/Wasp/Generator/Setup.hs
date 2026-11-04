@@ -155,8 +155,15 @@ typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage = do
   exitCode <- liftIO $ do
     sendMessage $ Msg.Start "Type-checking user code..."
-    J.run $ J.prefixWith J.Wasp $ NodeTools.typeCheckUserCode spec
+    J.run $ J.prefixWith J.Wasp typeCheck
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
+  where
+    typeCheck :: J.Job ExitCode
+    typeCheck =
+      J.fromProc
+        =<< NodeTools.proc
+          (AS.waspProjectDir spec)
+          (NodeTools.typeCheckUserCode $ AS.srcTsConfigPath spec)
