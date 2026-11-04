@@ -27,29 +27,26 @@ The generated server and SDK import packages like express, react and
 (packages/wasp/package.json) lists them as peer dependencies instead, so
 every Wasp project gets them by depending on @wasp/wasp.
 
-Regular dependencies of @wasp/wasp wouldn't work. If something else in the
-project wants another version of a package, npm installs @wasp/wasp's copy in
-node_modules/@wasp/wasp/node_modules, and the generated code in .wasp/out
-can't import it from there.
+They can't be regular dependencies of @wasp/wasp. When the project wants
+another version of a regular dependency, npm nests @wasp/wasp's copy in
+node_modules/@wasp/wasp/node_modules, where the generated code can't import it.
 
-npm installs a peer dependency at the project root and refuses to install a
-conflicting version. So the generated code finds the package, and npm checks
-its version, which is why the package.json validator skips these packages.
-A project that needs another version uses npm's `overrides` field.
+npm installs peer dependencies at the project root, where the generated code
+finds them. Peer dependencies also ensure that the project can't install a
+conflicting version, so the package.json validator doesn't need to check these
+packages. A project that needs another version uses npm's `overrides` field.
 
-E.g., a project with `"react": "18.2.0"` in its dependencies fails
-`npm install` with ERESOLVE, because @wasp/wasp asks for `react@^19.2.1`.
+Only the packages every app needs are peer dependencies. The packages that
+only some apps need, like socket.io for WebSockets or pg-boss for jobs, stay
+in the package.json files of the generated server and SDK for now.
 
-The generated packages list the dependencies that depend on the app
-themselves, like socket.io for WebSockets or pg-boss for jobs.
-
-"Generator.WaspNpmPackagePeerDepsTest" checks that this list matches
+"Generator.WaspNpmPackagePeerDepsTest" ensures that this list matches
 packages/wasp/package.json.
 -}
 
 -- | The peer dependencies of @wasp/wasp.
 waspNpmPackagePeerDeps :: [Npm.Dependency.Dependency]
-waspNpmPackagePeerDeps = serverCoreDeps ++ sdkCoreDeps ++ projectDeps
+waspNpmPackagePeerDeps = serverCoreDeps ++ sdkCoreDeps ++ userProjectDeps
 
 -- | Packages the generated server needs to build and run in every app.
 serverCoreDeps :: [Npm.Dependency.Dependency]
@@ -86,10 +83,10 @@ sdkCoreDeps =
       ("react-hook-form", "^7.45.4")
     ]
 
--- | Packages the user's code imports directly. The starters list them in
--- package.json too.
-projectDeps :: [Npm.Dependency.Dependency]
-projectDeps =
+-- | Packages the user's project uses directly, like react in its code or vite
+-- in its vite.config.ts. The starters list them in package.json too.
+userProjectDeps :: [Npm.Dependency.Dependency]
+userProjectDeps =
   Npm.Dependency.fromList
     [ ("prisma", show prismaVersionRange),
       ("react", show reactVersionRange),
