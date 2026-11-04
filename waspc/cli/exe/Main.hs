@@ -202,7 +202,7 @@ printVersion = do
         "Each project runs the Wasp version of its `@wasp/wasp` dependency. To switch a project to Wasp x.y.z, run this in the project directory:",
         indent 2 $ getProjectInstallationCommand "x.y.z",
         "",
-        "To install the latest global Wasp CLI, which runs commands outside of projects like `wasp new`, run:",
+        "To instead install the latest Wasp CLI globally, run:",
         indent 2 $ getGlobalInstallationCommand Nothing,
         legacyVersionsNote,
         "",
