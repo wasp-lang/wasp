@@ -83,8 +83,6 @@ sdkCoreDeps =
       ("react-hook-form", "^7.45.4")
     ]
 
--- | Packages the user's project uses directly, like react in its code or vite
--- in its vite.config.ts. The starters list them in package.json too.
 userProjectDeps :: [Npm.Dependency.Dependency]
 userProjectDeps =
   Npm.Dependency.fromList

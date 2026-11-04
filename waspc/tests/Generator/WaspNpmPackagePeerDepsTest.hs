@@ -9,15 +9,11 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.WaspNpmPackagePeerDeps (waspNpmPackagePeerDeps)
 
--- packages/wasp/package.json lists the peer dependencies npm installs, and
--- `waspNpmPackagePeerDeps` lists the ones `wasp deps` prints and the
--- `wasp.overriddenDeps` validator rejects. This test keeps the two in sync.
+-- Ensures that the peer dependencies in packages/wasp/package.json and
+-- `waspNpmPackagePeerDeps` are the same.
 spec_waspNpmPackagePeerDeps :: Spec
 spec_waspNpmPackagePeerDeps = do
   describe "waspNpmPackagePeerDeps" $ do
-    -- Everything a project gets through @wasp/wasp is a peer dependency. npm
-    -- installs peers at the project root and refuses conflicting versions,
-    -- which is what makes bare imports in the generated code resolve to them.
     it "are the peer dependencies in packages/wasp/package.json" $ do
       packageJson <- readWaspNpmPackageJson
       let peerDepsInPackageJson =

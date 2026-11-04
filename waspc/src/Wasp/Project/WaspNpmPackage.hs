@@ -1,9 +1,9 @@
 module Wasp.Project.WaspNpmPackage
   ( -- * The Wasp npm package
 
-    -- Wasp projects depend on Wasp through the @wasp/wasp npm package. It pins
-    -- the Wasp CLI (@wasp/cli), the Wasp Spec (@wasp/spec), @wasp/deploy and
-    -- @wasp/studio to one version, and ships the scripts the CLI runs them with.
+    -- Wasp projects depend on Wasp through the @wasp/wasp npm package. It brings
+    -- all the other core Wasp packages at its own version, and ships the
+    -- scripts the CLI runs them with.
     waspNpmPackageName,
     waspCliNpmPackageName,
     waspSpecNpmPackageName,
