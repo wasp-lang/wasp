@@ -137,37 +137,37 @@ See the [Wasp Spec docs](https://wasp.sh/docs/features/spec) for the full shape 
 
 The app configuration.
 
-###### auth? {#auth}
+###### auth? {#auth-5}
 
 [`Auth`](#auth-3)
 
 Configuration for authentication. Enables auth when set.
 
-###### client? {#client}
+###### client? {#client-2}
 
 [`Client`](#client-1)
 
 Configuration for the client part of the resulting Wasp app.
 
-###### db? {#db}
+###### db? {#db-2}
 
 [`Db`](#db-1)
 
 Configuration for the app's database.
 
-###### deployment? {#deployment}
+###### deployment? {#deployment-2}
 
 [`Deployment`](#deployment-1)
 
 Configuration for how the app will be deployed.
 
-###### emailSender? {#emailsender}
+###### emailSender? {#emailsender-2}
 
 [`EmailSender`](#emailsender-1)
 
 Configuration for the app's email sender.
 
-###### head? {#head}
+###### head?
 
 `string`\[]
 
@@ -177,7 +177,7 @@ Each entry is rendered inside a React component, so the strings must be valid JS
 
 Due to a [React bug](https://github.com/facebook/react/issues/36169), avoid `defer` on `<script>` tags because it can cause hydration warnings. Use `async` instead.
 
-###### name {#name}
+###### name {#name-4}
 
 `string`
 
@@ -185,13 +185,13 @@ Internal app name.
 
 Must not contain spaces.
 
-###### server? {#server}
+###### server? {#server-2}
 
 [`Server`](#server-1)
 
 Configuration for the server part of the resulting Wasp app.
 
-###### spec {#spec}
+###### spec {#spec-2}
 
 [`Spec`](#spec-1)
 
@@ -199,7 +199,7 @@ The specification ([Spec](#spec-1)) of the app.
 
 Build entries with the dedicated constructors ([page](#page-2), [route](#route-1), [query](#query-1), [action](#action-1), [api](#api-1), [apiNamespace](#apinamespace-1), [job](#job-1), [crud](#crud-1)).
 
-###### title {#title}
+###### title
 
 `string`
 
@@ -207,7 +207,7 @@ App title.
 
 Used as the browser tab title.
 
-###### wasp {#wasp}
+###### wasp {#wasp-2}
 
 [`Wasp`](#wasp-1)
 
@@ -215,7 +215,7 @@ Wasp metadata.
 
 This will get checked against the Wasp CLI.
 
-###### webSocket? {#websocket}
+###### webSocket? {#websocket-2}
 
 [`WebSocket`](#websocket-1)
 
@@ -256,7 +256,7 @@ See [Actions](https://wasp.sh/docs/features/data/operations/actions).
 
 #### Parameters
 
-##### fn
+##### fn {#fn-5}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -268,7 +268,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 ##### config?
 
-###### auth? {#auth-1}
+###### auth? {#auth-6}
 
 `boolean`
 
@@ -276,7 +276,7 @@ Whether this Action requires auth. If your app has auth enabled, this defaults t
 
 Only available if your app has auth enabled.
 
-###### entities?
+###### entities? {#entities-5}
 
 `string`\[]
 
@@ -315,19 +315,19 @@ See [Custom HTTP API Endpoints](https://wasp.sh/docs/features/apis).
 
 #### Parameters
 
-##### method
+##### method {#method-1}
 
 [`HttpMethod`](#httpmethod)
 
 HTTP method to listen on (or `"ALL"` for any).
 
-##### path
+##### path {#path-3}
 
 `string`
 
 Express path the endpoint is mounted at.
 
-##### fn
+##### fn {#fn-6}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -339,13 +339,13 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 Optional settings: `middlewareConfigFn`, `entities`, `auth`.
 
-###### auth? {#auth-2}
+###### auth? {#auth-7}
 
 `boolean`
 
 If `true`, the handler requires the request to come from an authenticated user and receives `context.user`. Defaults to `true` when the app has auth enabled, and `false` otherwise. Set to `false` to skip parsing the JWT from the Authorization header.
 
-###### entities?
+###### entities? {#entities-6}
 
 `string`\[]
 
@@ -353,7 +353,7 @@ Entities the handler operates on. Wasp injects a Prisma delegate for each one in
 
 See [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis).
 
-###### middlewareConfigFn?
+###### middlewareConfigFn? {#middlewareconfigfn-3}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -388,7 +388,7 @@ See the [per-path middleware section](https://wasp.sh/docs/advanced/server-custo
 
 #### Parameters
 
-##### path
+##### path {#path-4}
 
 `string`
 
@@ -400,7 +400,7 @@ Required `middlewareConfigFn`.
 
 Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) when passing values from your app into the Wasp spec. If a direct import is not practical, use [ref](#ref) as a fallback.
 
-###### middlewareConfigFn
+###### middlewareConfigFn {#middlewareconfigfn-4}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -433,19 +433,19 @@ See [Automatic CRUD](https://wasp.sh/docs/features/data/crud).
 
 #### Parameters
 
-##### name {#name-1}
+##### name {#name-5}
 
 `string`
 
 Unique name for the generated CRUD.
 
-##### entity
+##### entity {#entity-1}
 
 `string`
 
 Name of the Prisma entity to generate operations for.
 
-##### operations
+##### operations {#operations-1}
 
 [`CrudOperations`](#crudoperations-1)
 
@@ -485,7 +485,7 @@ See [Recurring Jobs](https://wasp.sh/docs/features/jobs).
 
 #### Parameters
 
-##### fn
+##### fn {#fn-7}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -497,7 +497,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 Required `executor` and optional `schedule`, `entities`, and `performExecutorOptions`.
 
-###### entities?
+###### entities? {#entities-7}
 
 `string`\[]
 
@@ -505,7 +505,7 @@ Entities the worker operates on. Wasp injects a Prisma delegate for each one int
 
 This works like entity access in queries and actions. See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
 
-###### executor
+###### executor {#executor-1}
 
 `"PgBoss"`
 
@@ -513,7 +513,7 @@ Executor backing this job.
 
 Currently only `"PgBoss"` is available.
 
-###### performExecutorOptions?
+###### performExecutorOptions? {#performexecutoroptions-1}
 
 [`ExecutorOptions`](#executoroptions)
 
@@ -527,7 +527,7 @@ These options are passed through to the executor and can be overridden when subm
 {}
 ```
 
-###### schedule?
+###### schedule? {#schedule-2}
 
 [`Schedule`](#schedule-1)
 
@@ -564,7 +564,7 @@ See [Pages & Routes](https://wasp.sh/docs/features/pages-and-routes) and the [Au
 
 #### Parameters
 
-##### component
+##### component {#component-1}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -576,7 +576,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 Optional page settings such as `authRequired`.
 
-###### authRequired?
+###### authRequired? {#authrequired-1}
 
 `boolean`
 
@@ -617,7 +617,7 @@ See [Queries](https://wasp.sh/docs/features/data/operations/queries).
 
 #### Parameters
 
-##### fn
+##### fn {#fn-8}
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -629,7 +629,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 ##### config?
 
-###### auth? {#auth-3}
+###### auth? {#auth-8}
 
 `boolean`
 
@@ -637,7 +637,7 @@ Whether this Query requires auth. If your app has auth enabled, this defaults to
 
 Only available if your app has auth enabled.
 
-###### entities?
+###### entities? {#entities-8}
 
 `string`\[]
 
@@ -677,19 +677,19 @@ Use `config.prerender` to render the route to static HTML at build time: `true` 
 
 #### Parameters
 
-##### name {#name-2}
+##### name {#name-6}
 
 `string`
 
 Unique name for the route.
 
-##### path
+##### path {#path-5}
 
 `string`
 
 URL path the route matches.
 
-##### page {#page}
+##### page {#page-3}
 
 [`Page`](#page)
 
@@ -699,7 +699,7 @@ The result of `page()`.
 
 Optional route settings (`lazy`, `prerender`).
 
-###### lazy?
+###### lazy? {#lazy-1}
 
 `boolean`
 
@@ -713,7 +713,7 @@ Set to `false` to include the page in the initial client bundle, which avoids th
 true
 ```
 
-###### prerender?
+###### prerender? {#prerender-1}
 
 `boolean` | readonly `string`\[]
 
@@ -2662,7 +2662,7 @@ The optional configuration object accepted as the last argument of the [action](
 
 #### Parameters
 
-##### args {#args}
+##### args
 
 ...`never`\[]
 
