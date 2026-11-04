@@ -30,7 +30,7 @@ migrateDev generatedAppDir migrateArgs =
   -- Prisma packages (cli and client) are currently installed.
   J.fromProc
     . J.markInteractive
-    =<< prismaProc generatedAppDir prismaArgs
+    $ prismaProc generatedAppDir prismaArgs
   where
     schemaFile = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
@@ -60,8 +60,8 @@ asPrismaCliArgs migrateArgs = do
 -- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
 migrateDiff :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 migrateDiff generatedAppDir =
-  J.fromProc
-    =<< prismaProc
+  J.fromProc $
+    prismaProc
       generatedAppDir
       [ "migrate",
         "diff",
@@ -81,8 +81,8 @@ migrateDiff generatedAppDir =
 -- Therefore, this should be checked **after** a command that ensures connectivity.
 migrateStatus :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 migrateStatus generatedAppDir =
-  J.fromProc
-    =<< prismaProc
+  J.fromProc $
+    prismaProc
       generatedAppDir
       ["migrate", "status", "--schema", SP.fromAbsFile schema]
   where
@@ -91,8 +91,8 @@ migrateStatus generatedAppDir =
 -- | Runs `prisma format`, which formats schema.prisma in place.
 formatSchema :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 formatSchema generatedAppDir =
-  J.fromProc
-    =<< prismaProc
+  J.fromProc $
+    prismaProc
       generatedAppDir
       ["format", "--schema", SP.fromAbsFile schema]
   where
@@ -104,7 +104,7 @@ reset :: Path' Abs (Dir GeneratedAppDir) -> ResetArgs -> J.Job ExitCode
 reset generatedAppDir resetArgs =
   J.fromProc
     . J.markInteractive
-    =<< prismaProc
+    $ prismaProc
       generatedAppDir
       ( [ "migrate",
           "reset",
@@ -130,7 +130,8 @@ seed serverRunConfig generatedAppDir seedName =
     runInServerDir binName args =
       J.fromProc
         . addEnvVarsOverride envVars
-        =<< J.npmBinProc serverDir binName args
+        . J.setCwd serverDir
+        $ J.proc binName args
     runSeed =
       J.fromProc
         $ addEnvVarsOverride envVars
@@ -150,8 +151,8 @@ seed serverRunConfig generatedAppDir seedName =
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 dbExecuteTest generatedAppDir =
-  J.fromProc
-    =<< prismaProc
+  J.fromProc $
+    prismaProc
       generatedAppDir
       ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
@@ -160,8 +161,8 @@ dbExecuteTest generatedAppDir =
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 runStudio generatedAppDir =
-  J.fromProc
-    =<< prismaProc
+  J.fromProc $
+    prismaProc
       generatedAppDir
       ["studio", "--schema", SP.fromAbsFile schema]
   where
@@ -169,8 +170,8 @@ runStudio generatedAppDir =
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
 generatePrismaClient generatedAppDir =
-  J.fromProc
-    =<< prismaProc
+  J.fromProc $
+    prismaProc
       generatedAppDir
       [ "generate",
         "--schema",
@@ -185,11 +186,10 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag :: String
     disablePrismaPromotionsFlag = "--no-hints"
 
-prismaProc :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.Job J.CreateJobProcess
+prismaProc :: Path' Abs (Dir GeneratedAppDir) -> [String] -> J.CreateJobProcess
 prismaProc generatedAppDir cmdArgs =
-  J.setCwd serverDir <$> J.npmBinProc waspProjectDir "prisma" cmdArgs
+  J.setCwd serverDir $ J.proc "prisma" cmdArgs
   where
-    waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
     -- We must run our Prisma commands from the server dir for Prisma
     -- to pick up our .env file there like before.  In the future, we might want
     -- to reconsider how Prisma and the server env vars interact and change
