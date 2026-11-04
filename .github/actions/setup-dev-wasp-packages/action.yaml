@@ -1,14 +1,16 @@
-name: Build dev Wasp npm packages
+name: Set up dev Wasp npm packages
 description: |
-  Packs the unreleased @wasp/wasp, @wasp/cli and @wasp/spec from this repo into
-  waspc/.dev-packages (see tasks/build/dev-packages.ts), and sets
-  WASP_DEV_PACKAGES_DIR so `wasp new` uses them. Run it after setup-tools and
-  install-wasp-cli-artifact. The dev @wasp/cli runs that installed wasp-cli.
+  Sets up the job to use the unreleased Wasp npm packages from this repo. Packs
+  @wasp/wasp and the packages it depends on into waspc/.dev-packages (see
+  tasks/build/dev-packages.ts), points the dev @wasp/cli at the wasp-cli that
+  install-wasp-cli-artifact installed, and sets WASP_DEV_PACKAGES_DIR so
+  `wasp new` uses the packages. Run it after setup-tools and
+  install-wasp-cli-artifact.
 
 runs:
   using: composite
   steps:
-    - name: Build dev Wasp npm packages
+    - name: Pack the dev Wasp npm packages and point `wasp new` at them
       shell: bash
       working-directory: waspc
       env:

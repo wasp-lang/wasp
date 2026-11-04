@@ -20,7 +20,7 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
-      - uses: $/.github/actions/build-dev-wasp-packages
+      - uses: $/.github/actions/setup-dev-wasp-packages
 
       # `...` also installs the app runner the tests depend on.
       - name: Install node dependencies

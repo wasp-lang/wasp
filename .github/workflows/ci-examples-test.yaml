@@ -32,7 +32,7 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
-      - uses: $/.github/actions/build-dev-wasp-packages
+      - uses: $/.github/actions/setup-dev-wasp-packages
 
       - name: Install app dependencies
         working-directory: examples/${{ matrix.example }}
