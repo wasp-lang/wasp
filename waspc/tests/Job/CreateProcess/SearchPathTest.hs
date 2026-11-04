@@ -9,7 +9,7 @@ import System.FilePath (splitSearchPath, (<.>), (</>))
 import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Process as P
 import Test.Hspec
-import Wasp.Job.CreateProcess.SearchPath (findExecutableFrom, getSearchPathEnvVars)
+import Wasp.Job.CreateProcess.SearchPath (findExecutableFrom, findExecutableInSearchPath, getSearchPathEnvVars)
 
 {- HLINT ignore spec_JobCreateProcessSearchPath "Avoid npm and npx" -}
 
@@ -35,6 +35,19 @@ spec_JobCreateProcessSearchPath = do
     it "fails if the executable isn't in any node_modules/.bin directory or the PATH" $
       withProjectDirs $ \_ packageDir ->
         findExecutableFrom (toAbsDir packageDir) "missing-tool" `shouldThrow` anyIOException
+
+  -- Wasp's working directory while testing is never the temp package directory,
+  -- so these check that relative entries aren't resolved against it.
+  describe "findExecutableInSearchPath" $ do
+    it "resolves relative search path entries against the given directory" $
+      withProjectDirs $ \_ packageDir -> do
+        tool <- createExecutable (packageDir </> "bin") "tool"
+        findExecutableInSearchPath (toAbsDir packageDir) "tool" ["bin"] `shouldReturn` tool
+
+    it "resolves the current directory entry, which is what an empty PATH entry is on POSIX, to the given directory" $
+      withProjectDirs $ \_ packageDir -> do
+        tool <- createExecutable packageDir "tool"
+        findExecutableInSearchPath (toAbsDir packageDir) "tool" ["."] `shouldReturn` tool
 
   describe "getSearchPathEnvVars" $ do
     it "puts the node_modules/.bin directories, closest first, before the current PATH" $
@@ -72,13 +85,17 @@ withProjectDirs test =
 -- | Creates an executable in the directory's node_modules/.bin, like npm does
 -- when installing a package with a bin, and returns its path.
 createNpmBin :: FilePath -> String -> IO FilePath
-createNpmBin dir binName = do
-  let binDir = dir </> "node_modules" </> ".bin"
-      binPath = binDir </> binName <.> exeExtension
-  createDirectoryIfMissing True binDir
-  writeFile binPath "#!/bin/sh\n"
-  getPermissions binPath >>= setPermissions binPath . setOwnerExecutable True
-  return binPath
+createNpmBin dir = createExecutable (dir </> "node_modules" </> ".bin")
+
+-- | Creates an executable with the given name in the directory and returns its
+-- path.
+createExecutable :: FilePath -> String -> IO FilePath
+createExecutable dir executableName = do
+  let executablePath = dir </> executableName <.> exeExtension
+  createDirectoryIfMissing True dir
+  writeFile executablePath "#!/bin/sh\n"
+  getPermissions executablePath >>= setPermissions executablePath . setOwnerExecutable True
+  return executablePath
 
 toAbsDir :: FilePath -> SP.Path' SP.Abs (SP.Dir ())
 toAbsDir = fromJust . SP.parseAbsDir

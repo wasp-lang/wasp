@@ -1,5 +1,6 @@
 module Wasp.Job.CreateProcess.SearchPath
   ( findExecutableFrom,
+    findExecutableInSearchPath,
     getSearchPathEnvVars,
   )
 where
@@ -20,8 +21,15 @@ import Wasp.Env (EnvVar)
 -- signals to it, so stopping the job could leave the command running.
 findExecutableFrom :: Path' Abs (Dir d) -> String -> IO FilePath
 findExecutableFrom fromDir executableName =
-  getSearchPath fromDir
-    >>= (`findExecutablesInDirectories` executableName)
+  getSearchPath fromDir >>= findExecutableInSearchPath fromDir executableName
+
+-- | Like 'findExecutableFrom', but looks in the given search path. Relative
+-- entries in it (on POSIX, an empty @PATH@ entry becomes @.@) are resolved
+-- against the given directory, like the npm script's shell would, not against
+-- Wasp's working directory.
+findExecutableInSearchPath :: Path' Abs (Dir d) -> String -> [FilePath] -> IO FilePath
+findExecutableInSearchPath fromDir executableName searchPath =
+  findExecutablesInDirectories (FP.normalise . (SP.fromAbsDir fromDir FP.</>) <$> searchPath) executableName
     >>= \case
       executable : _ -> return executable
       [] ->
