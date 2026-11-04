@@ -3,6 +3,7 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@socket.io/component-emitter": "^3.1.2",
     "@tanstack/react-query": "~4.42.0",
     "@types/express": "^5.0.6",
     "@types/express-serve-static-core": "^5.1.3",
