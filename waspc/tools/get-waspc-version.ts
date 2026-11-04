@@ -32,8 +32,3 @@ export function getWaspcVersion() {
   waspcVersion = match[1].trim();
   return waspcVersion;
 }
-
-const isMain = import.meta.filename === process.argv[1];
-if (isMain) {
-  process.stdout.write(getWaspcVersion());
-}
