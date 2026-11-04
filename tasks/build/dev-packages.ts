@@ -83,6 +83,7 @@ function buildDevPackages(): void {
 
   writeDevCliConfig(devPackagesDir);
   packDevCliPackage(devPackagesDir);
+
   packPackage(getPackageDirPath("wasp"), devPackagesDir);
 
   console.log(`Dev packages are in ${devPackagesDir}`);
