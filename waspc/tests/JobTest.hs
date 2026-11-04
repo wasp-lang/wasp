@@ -207,11 +207,11 @@ spec_Job = do
           timeout (secondsToMicroSeconds 10) (Async.cancel running) `shouldReturn` Just ()
           isProcessAlive pid `shouldReturn` True
 
-  describe "npmBinProc" $
+  describe "proc" $
     it "fails if the executable isn't in any node_modules/.bin directory or the PATH" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
         let dir = fromJust $ SP.parseAbsDir tempDir
-        Job.run (Job.npmBinProc dir "missing-tool" [])
+        Job.run (Job.fromProc $ Job.setCwd dir $ Job.proc "missing-tool" [])
           `shouldThrow` anyIOException
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
