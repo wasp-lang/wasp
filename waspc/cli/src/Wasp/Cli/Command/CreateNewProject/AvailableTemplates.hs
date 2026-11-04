@@ -125,6 +125,4 @@ openSaasStarterTemplate =
 -- Example: `wasp-v0.19-template`.
 waspVersionTemplateGitTag :: String
 waspVersionTemplateGitTag =
-  "wasp-v" ++ show major ++ "." ++ show minor ++ "-template"
-  where
-    (SV.Version major minor _) = waspVersion
+  "wasp-v" ++ show waspVersion.major ++ "." ++ show waspVersion.minor ++ "-template"

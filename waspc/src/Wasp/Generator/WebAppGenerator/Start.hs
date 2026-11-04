@@ -16,4 +16,5 @@ startWebApp webAppRunConfig waspProjectDir =
     . addEnvVarsOverride (getEnvVars webAppRunConfig)
     -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
     . J.markInteractive
-    =<< J.npmBinProc waspProjectDir "vite" []
+    . J.setCwd waspProjectDir
+    $ J.proc "vite" []

@@ -69,7 +69,7 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Job.run . Job.prefixWith Job.Wasp $
-      (Job.fromProc =<< Job.npmBinProc sdkRootDir "tsc" [])
+      Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "tsc" [])
         `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
 
   return $ checkExitSuccess "SDK build" exitCode

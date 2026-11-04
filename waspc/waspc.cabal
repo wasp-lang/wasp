@@ -303,12 +303,12 @@ library
     Wasp.Job
     Wasp.Job.Common
     Wasp.Job.CreateProcess
+    Wasp.Job.CreateProcess.SearchPath
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
-    Wasp.Node.NpmBin
     Wasp.Node.Version
     Wasp.Project
     Wasp.Project.Analyze
@@ -594,11 +594,12 @@ test-suite waspc-tests
     Generator.VirtualUserModulesTest
     Generator.WaspNpmPackagePeerDepsTest
     Generator.WriteFileDraftsTest
+    Job.CreateProcess.SearchPathTest
     Job.IO.PrefixedWriterTest
     JobTest
     JsImportTest
     Node.InternalTest
-    Node.NpmBinTest
+    Node.VersionTest
     Paths_waspc
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
