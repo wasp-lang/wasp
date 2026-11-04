@@ -38,10 +38,10 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getGlobalInstallationCommand, getProjectInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
-import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
@@ -195,7 +195,7 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = do
-  print waspVersion
+  getWaspCliNpmPackageVersion >>= print
   hPutStrLn stderr $
     unlines
       [ "",

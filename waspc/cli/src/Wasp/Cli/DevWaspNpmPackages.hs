@@ -28,7 +28,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
-import Wasp.Project.WaspNpmPackage (waspCliNpmPackageName, waspDeployNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName, waspStudioNpmPackageName)
+import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion, waspCliNpmPackageName, waspDeployNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName, waspStudioNpmPackageName)
 import Wasp.Util.IO (copyFile)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, updateJsonFile)
@@ -118,11 +118,11 @@ findDevWaspNpmPackageTarballs =
     tarballFile name = fromJust $ parseRelFile $ name ++ "-" ++ show waspVersion ++ ".tgz"
 
 -- | What a new project's package.json says for \@wasp/wasp: the dev tarball if
--- there is one, otherwise this CLI's version.
-getNewProjectWaspNpmPackageSpecifier :: Maybe DevWaspNpmPackageTarballs -> String
+-- there is one, otherwise the version of the \@wasp/cli that runs this binary.
+getNewProjectWaspNpmPackageSpecifier :: Maybe DevWaspNpmPackageTarballs -> IO String
 getNewProjectWaspNpmPackageSpecifier = \case
-  Nothing -> show waspVersion
-  Just tarballs -> absTarballFileSpecifier $ waspTarball tarballs
+  Nothing -> show <$> getWaspCliNpmPackageVersion
+  Just tarballs -> return $ absTarballFileSpecifier $ waspTarball tarballs
 
 -- | Adds the `overrides` that point npm at the dev tarballs of the packages
 -- \@wasp/wasp depends on. Keeps the `overrides` the package.json already has.

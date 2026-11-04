@@ -9,7 +9,7 @@
 import * as fs from "node:fs";
 import { createRequire } from "node:module";
 import * as path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
 
@@ -22,14 +22,50 @@ const debug = debuglog("wasp-bin-wrapper");
  */
 
 /**
+ * Returns the project's Wasp CLI that `thisWaspCli` should hand over to, or
+ * `undefined` if `thisWaspCli` should run itself. That's when the cwd isn't in
+ * a Wasp project, the project has no `@wasp/wasp` installed, or `thisWaspCli`
+ * is the project's Wasp CLI.
+ *
+ * @param {InstalledWaspCli} thisWaspCli
+ * @returns {InstalledWaspCli | undefined}
+ */
+export function findProjectWaspCliToHandOverTo(thisWaspCli) {
+  const projectWaspCli = findProjectWaspCli();
+  if (projectWaspCli?.binPath === thisWaspCli.binPath) {
+    debug("Running as the project's own Wasp CLI.");
+    return undefined;
+  }
+  return projectWaspCli;
+}
+
+/**
+ * Runs the project's Wasp CLI in this process, so there is no second process
+ * to keep signals and exit codes in sync with.
+ *
+ * @param {InstalledWaspCli} projectWaspCli
+ * @param {InstalledWaspCli} thisWaspCli
+ */
+export async function runProjectWaspCli(projectWaspCli, thisWaspCli) {
+  if (projectWaspCli.version !== thisWaspCli.version) {
+    console.error(
+      `Running Wasp ${projectWaspCli.version} from this project. The Wasp CLI you called is ${thisWaspCli.version}.`,
+    );
+  }
+
+  debug("Handing over to the project's Wasp CLI: %s", projectWaspCli.binPath);
+  await import(pathToFileURL(projectWaspCli.binPath).href);
+  return process.exitCode ?? 0;
+}
+
+/**
  * Returns the Wasp CLI that the project's `@wasp/wasp` pins, or `undefined` if
  * the cwd isn't in a Wasp project or the project has no `@wasp/wasp`
- * installed. A Wasp CLI installed elsewhere, usually globally, hands over to
- * this one, so a project always runs the Wasp version it has installed.
+ * installed.
  *
  * @returns {InstalledWaspCli | undefined}
  */
-export function findProjectWaspCli() {
+function findProjectWaspCli() {
   const waspProjectDir = findWaspProjectDir();
   if (waspProjectDir === undefined) {
     return undefined;
@@ -129,43 +165,4 @@ function readInstalledWaspCli(waspCliPackageJsonPath) {
     ),
     version: packageJson.version,
   };
-}
-
-export function isThisWaspCli(/** @type {InstalledWaspCli} */ waspCli) {
-  const thisWaspCliBinPath = fs.realpathSync(
-    fileURLToPath(new URL("./bin.js", import.meta.url)),
-  );
-  const isThis = waspCli.binPath === thisWaspCliBinPath;
-  if (isThis) {
-    debug("Running as the project's own Wasp CLI.");
-  }
-  return isThis;
-}
-
-/**
- * Runs the project's Wasp CLI in this process, so there is no second process
- * to keep signals and exit codes in sync with.
- */
-export async function runProjectWaspCli(
-  /** @type {InstalledWaspCli} */ waspCli,
-) {
-  const thisWaspVersion = await getPackageVersion(
-    new URL("./package.json", import.meta.url),
-  );
-  if (waspCli.version !== thisWaspVersion) {
-    console.error(
-      `Running Wasp ${waspCli.version} from this project. The Wasp CLI you called is ${thisWaspVersion}.`,
-    );
-  }
-
-  debug("Handing over to the project's Wasp CLI: %s", waspCli.binPath);
-  await import(pathToFileURL(waspCli.binPath).href);
-  return process.exitCode ?? 0;
-}
-
-async function getPackageVersion(/** @type {URL} */ packageJsonUrl) {
-  const { default: pkg } = await import(packageJsonUrl.href, {
-    with: { type: "json" },
-  });
-  return /** @type {string} */ (pkg.version);
 }

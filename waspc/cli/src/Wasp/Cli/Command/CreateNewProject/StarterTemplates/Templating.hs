@@ -24,7 +24,7 @@ import qualified Wasp.Util.IO as IOUtil
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
   devTarballs <- findDevWaspNpmPackageTarballs
-  let waspPackageSpecifier = getNewProjectWaspNpmPackageSpecifier devTarballs
+  waspPackageSpecifier <- getNewProjectWaspNpmPackageSpecifier devTarballs
   replaceTemplatePlaceholdersInWaspFile waspPackageSpecifier appName projectName projectDir
   replaceTemplatePlaceholdersInPackageJsonFile waspPackageSpecifier appName projectName projectDir
   forM_ devTarballs $ addDevWaspNpmPackageOverridesToProject projectDir
