@@ -610,6 +610,7 @@ test-suite waspc-tests
     JobTest
     JsImportTest
     Node.InternalTest
+    Node.VersionTest
     Paths_waspc
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
