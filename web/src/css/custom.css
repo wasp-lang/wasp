@@ -513,6 +513,11 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   /* transform: none !important; */
   display: flex;
   align-items: center;
+  justify-content: center;
+  line-height: 1;
+  /* The glyphs sit slightly below the line box's center. Lift them onto the
+     rotation origin, or each rotation state shifts them a different way. */
+  padding-bottom: 0.05em;
 }
 
 .menu__list-item--collapsed .menu__link--sublist-caret::after,

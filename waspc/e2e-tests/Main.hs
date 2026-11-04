@@ -55,7 +55,7 @@ main = do
         (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) tests)
 
 -- | The tests run the Wasp CLI from @WASP_CLI_CMD@ (e.g. @tools/wasp-cli-dev@
--- from @./run@). When it's not set, we use the @wasp-cli@ that Cabal builds
+-- from the mise tasks). When it's not set, we use the @wasp-cli@ that Cabal builds
 -- and puts on the PATH for this test suite.
 setWaspCliCmd :: IO ()
 setWaspCliCmd =
