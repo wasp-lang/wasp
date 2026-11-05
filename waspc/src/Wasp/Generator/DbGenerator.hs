@@ -162,8 +162,6 @@ formatPrismaSchema generatedAppDir =
 --
 --     NOTE: As one final optimization, if they do not have a schema.prisma.wasp-last-db-concurrence-checksum but the schema is
 --     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
---
--- @envVars@ are passed to Prisma and tell it which database to connect to.
 warnIfDbNeedsMigration :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
 warnIfDbNeedsMigration envVars spec generatedAppDir = do
   dbSchemaChecksumFileExists <- IOUtil.doesFileExist dbSchemaChecksumFp
