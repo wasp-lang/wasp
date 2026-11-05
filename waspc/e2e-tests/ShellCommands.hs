@@ -43,6 +43,16 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
+    assertCommandOutputDoesNotContain,
+    CommandOutputLog,
+    commandOutputLog,
+    commandOutputLogFile,
+    logCommandOutput,
+    logCommandOutputInBackground,
+    assertLogContains,
+    assertLogDoesNotContain,
+    waitUntilLogContains,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -385,13 +395,71 @@ assertCommandOutputContainsAll ::
   ShellCommandBuilder context ShellCommand
 assertCommandOutputContainsAll commandBuilder markers = do
   command <- commandBuilder
-  let logFile = ".wasp-e2e-output.log"
-      logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
-      searchMarkerInLogFile marker = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
-  return $ foldl (~&&) logCommandOutputToFile (searchMarkerInLogFile <$> markers)
-  where
-    shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
+  return $
+    foldl
+      (~&&)
+      (logCommandOutput defaultCommandOutputLog command)
+      (assertLogContains defaultCommandOutputLog <$> markers)
 
+assertCommandOutputDoesNotContain ::
+  ShellCommandBuilder context ShellCommand ->
+  String ->
+  ShellCommandBuilder context ShellCommand
+assertCommandOutputDoesNotContain commandBuilder marker = do
+  command <- commandBuilder
+  return $
+    logCommandOutput defaultCommandOutputLog command
+      ~&& assertLogDoesNotContain defaultCommandOutputLog marker
+
+-- | A file in the directory the command runs in, holding its stdout and
+-- stderr, so a test can check what the command printed, or wait for it to
+-- print something while it keeps running.
+newtype CommandOutputLog = CommandOutputLog FilePath
+
+-- | Named after what it logs, e.g. @commandOutputLog "db-start"@. Use a
+-- separate log for each command that runs in the background, since several
+-- may be running at once.
+commandOutputLog :: String -> CommandOutputLog
+commandOutputLog name = CommandOutputLog $ ".wasp-e2e-" ++ name ++ ".log"
+
+-- | For the common case of checking one command's output right after it ran.
+defaultCommandOutputLog :: CommandOutputLog
+defaultCommandOutputLog = commandOutputLog "output"
+
+commandOutputLogFile :: CommandOutputLog -> FilePath
+commandOutputLogFile (CommandOutputLog file) = file
+
+-- | Runs the command with its output going to the log instead of the terminal.
+logCommandOutput :: CommandOutputLog -> ShellCommand -> ShellCommand
+logCommandOutput commandLog command = command ++ " > " ++ commandOutputLogFile commandLog ++ " 2>&1"
+
+-- | Starts the command in the background, logging its output, and stores its
+-- PID in the given shell variable, so the test can wait for it or signal it.
+-- The log is removed first, so that checks on it can't see a previous run.
+logCommandOutputInBackground :: CommandOutputLog -> String -> ShellCommand -> ShellCommand
+logCommandOutputInBackground commandLog pidVariable command =
+  ("rm -f " ++ commandOutputLogFile commandLog)
+    ~&& ("{ " ++ logCommandOutput commandLog command ++ " & }")
+    ~&& (pidVariable ++ "=$!")
+
+-- | Checks the log for the marker as a fixed string, so it needs no escaping.
+assertLogContains :: CommandOutputLog -> String -> ShellCommand
+assertLogContains commandLog marker =
+  "grep -qF " ++ shellSingleQuote marker ++ " " ++ commandOutputLogFile commandLog
+
+assertLogDoesNotContain :: CommandOutputLog -> String -> ShellCommand
+assertLogDoesNotContain commandLog marker = "! " ++ assertLogContains commandLog marker
+
+-- | For a command still running in the background: polls its log until the
+-- marker shows up.
+waitUntilLogContains :: Int -> CommandOutputLog -> String -> ShellCommand
+waitUntilLogContains timeoutSeconds commandLog marker =
+  waitUntil timeoutSeconds (assertLogContains commandLog marker) $
+    "Timed out waiting for " ++ show marker ++ " in " ++ commandOutputLogFile commandLog
+
+shellSingleQuote :: String -> String
+shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
+  where
     escapeSingleQuote '\'' = "'\\''"
     escapeSingleQuote c = [c]
 
