@@ -32,11 +32,11 @@ import {
   CLI_PACKAGE_SOURCE_DIR,
   CLI_PACKAGE_STATIC_FILES,
   copyStaticFiles,
-} from "../../scripts/make-cli-npm-packages/src/common.ts";
+} from "../../packages/cli/scripts/make-cli-npm-packages/src/common.ts";
 import {
   type CliPackageData,
   UNDEFINED_LIBC_NAME,
-} from "../../scripts/make-cli-npm-packages/src/schema/output-data.ts";
+} from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import {
   getPackageDirPath,
   WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES,
@@ -139,7 +139,7 @@ function getCabalWaspCliBinPath(): string {
 function packDevCliPackage(devPackagesDir: string): void {
   const tmpDir = mkdtempSync(join(tmpdir(), "wasp-dev-cli-"));
   try {
-    // Same files as the published package (see `scripts/make-cli-npm-packages`),
+    // Same files as the published package (see `packages/cli/scripts/make-cli-npm-packages`),
     // plus the dev sub-package next to the compiled CLI, and a package.json
     // that lists them.
     copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
@@ -160,7 +160,7 @@ function packDevCliPackage(devPackagesDir: string): void {
       JSON.stringify(packageJson, null, 2) + "\n",
     );
 
-    // Same shape `scripts/make-cli-npm-packages` writes, with the dev
+    // Same shape `make-cli-npm-packages` writes, with the dev
     // sub-package for this machine's platform. `dist/run.js` passes
     // `packageName` to `import()`, which resolves the relative path against
     // `dist/run.js`.

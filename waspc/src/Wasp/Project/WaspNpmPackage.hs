@@ -149,8 +149,8 @@ runWaspNpmPackageScript waspProjectDir script args =
 -- package: in the node_modules dir of the project, or of the closest parent
 -- dir that has it. That covers every package manager's node_modules layout,
 -- including monorepos where the package manager hoists dependencies to a
--- parent dir. The npm \@wasp/cli finds \@wasp/wasp with the same rule (see
--- `packages/cli/node-resolution.js`), so the two never disagree.
+-- parent dir. The npm \@wasp/cli finds \@wasp/wasp with Node's own resolver
+-- (see `packages/cli/src/project-wasp-cli.ts`), so the two agree.
 findWaspNpmPackageDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir WaspNpmPackageDir)))
 findWaspNpmPackageDir waspProjectDir =
   findM (IOUtil.doesFileExist . (</> [relfile|package.json|])) $

@@ -211,7 +211,10 @@ async function makeWaspCliPackage(
 ): Promise<string> {
   const packageDir = await makePackage(nodeModulesDir, "@wasp/cli", version, {
     type: "module",
-    exports: { "./run": "./dist/run.js" },
+    exports: {
+      "./run": "./dist/run.js",
+      "./package.json": "./package.json",
+    },
   });
   const runModulePath = path.join(packageDir, "dist", "run.js");
   await fs.mkdir(path.dirname(runModulePath));

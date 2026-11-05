@@ -24,6 +24,9 @@
   "bin": {
     "wasp": "bin.js"
   },
+  "exports": {
+    "./package.json": "./package.json"
+  },
   "files": [
     "bin.js",
     "scripts"

@@ -25,10 +25,12 @@
   },
   "exports": {
     "./bin": "./dist/bin.js",
-    "./run": "./dist/run.js"
+    "./run": "./dist/run.js",
+    "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "pnpm run remove:dist && tsc",
+    "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\"",
     "test": "vitest run"
   },
   "devDependencies": {

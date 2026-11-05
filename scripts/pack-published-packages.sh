@@ -6,7 +6,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
 # The packages this script packs. `cli` isn't here, because
-# `scripts/make-cli-npm-packages` packs it with its platform sub-packages.
+# `packages/cli/scripts/make-cli-npm-packages` packs it with its platform sub-packages.
 publish_packages=(
   deploy
   spec

@@ -9,7 +9,6 @@ import { pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 import { doesPathExist } from "./fs-utils.js";
-import { findInstalledPackageJsonPath } from "./node-resolution.js";
 
 const debug = debuglog("wasp-bin-wrapper");
 
@@ -66,7 +65,9 @@ export async function runProjectWaspCli(
 /**
  * Returns the Wasp CLI that the project's `@wasp/wasp` pins, or `undefined` if
  * the cwd isn't in a Wasp project or the project has no `@wasp/wasp`
- * installed.
+ * installed. It resolves the packages the way Node does from the project dir,
+ * through the `exports` of `@wasp/wasp` and `@wasp/cli`. Later Wasp versions
+ * must keep those exports, because older global CLIs rely on them.
  */
 async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
   const waspProjectDir = await findWaspProjectDir();
@@ -74,9 +75,12 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     return undefined;
   }
 
-  const waspPackageJsonPath = await findInstalledPackageJsonPath(
-    "@wasp/wasp",
-    waspProjectDir,
+  const requireFromProject = createRequire(
+    path.join(waspProjectDir, "package.json"),
+  );
+  const waspPackageJsonPath = tryResolving(
+    requireFromProject,
+    "@wasp/wasp/package.json",
   );
   if (waspPackageJsonPath === undefined) {
     // This Wasp CLI keeps running and tells the user to run `npm install`.
@@ -86,10 +90,11 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
 
   // With pnpm, `node_modules/@wasp/wasp` is a symlink into pnpm's virtual
   // store, and pnpm links `@wasp/cli` only next to the real package. So we
-  // search from the real location of `@wasp/wasp`.
-  const waspCliPackageJsonPath = await findInstalledPackageJsonPath(
-    "@wasp/cli",
-    path.dirname(await fs.realpath(waspPackageJsonPath)),
+  // resolve from the real location of `@wasp/wasp`.
+  const requireFromWasp = createRequire(await fs.realpath(waspPackageJsonPath));
+  const waspCliPackageJsonPath = tryResolving(
+    requireFromWasp,
+    "@wasp/cli/package.json",
   );
   if (waspCliPackageJsonPath === undefined) {
     throw new CLIError(
@@ -97,7 +102,13 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     );
   }
 
-  const waspCli = await readInstalledWaspCli(waspCliPackageJsonPath);
+  const packageJson: { version: string } = JSON.parse(
+    await fs.readFile(waspCliPackageJsonPath, "utf8"),
+  );
+  const waspCli: InstalledWaspCli = {
+    runModulePath: await fs.realpath(requireFromWasp.resolve("@wasp/cli/run")),
+    version: packageJson.version,
+  };
   debug("Found the project's Wasp CLI at %s", waspCli.runModulePath);
   return waspCli;
 }
@@ -120,21 +131,17 @@ async function findWaspProjectDir(): Promise<string | undefined> {
   }
 }
 
-/**
- * Reads the version of the `@wasp/cli` package at `waspCliPackageJsonPath`,
- * and resolves its `./run` export from inside the package.
- */
-async function readInstalledWaspCli(
-  waspCliPackageJsonPath: string,
-): Promise<InstalledWaspCli> {
-  const packageJson: { version: string } = JSON.parse(
-    await fs.readFile(waspCliPackageJsonPath, "utf8"),
-  );
-  const runModulePath = createRequire(waspCliPackageJsonPath).resolve(
-    "@wasp/cli/run",
-  );
-  return {
-    runModulePath: await fs.realpath(runModulePath),
-    version: packageJson.version,
-  };
+/** Resolves `request`, or returns `undefined` if no installed package has it. */
+function tryResolving(
+  require: NodeJS.Require,
+  request: string,
+): string | undefined {
+  try {
+    return require.resolve(request);
+  } catch (error: unknown) {
+    if ((error as { code?: string }).code === "MODULE_NOT_FOUND") {
+      return undefined;
+    }
+    throw error;
+  }
 }
