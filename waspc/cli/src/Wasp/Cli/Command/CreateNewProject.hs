@@ -25,6 +25,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Generator.NpmInstall (InstallOutputMode (HideInstallOutput))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
@@ -53,7 +54,7 @@ createProjectOnDisk
 
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
 installDepsForNewProject absWaspProjectDir =
-  installIO absWaspProjectDir >>= \case
+  installIO HideInstallOutput absWaspProjectDir >>= \case
     Right () -> return ()
     Left _err ->
       putStrLn

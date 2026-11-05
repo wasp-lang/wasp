@@ -43,6 +43,9 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
+    assertCommandOutputDoesNotContain,
+    withUnreachableNpmRegistry,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -385,10 +388,32 @@ assertCommandOutputContainsAll ::
   ShellCommandBuilder context ShellCommand
 assertCommandOutputContainsAll commandBuilder markers = do
   command <- commandBuilder
-  let logFile = ".wasp-e2e-output.log"
-      logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
-      searchMarkerInLogFile marker = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
-  return $ foldl (~&&) logCommandOutputToFile (searchMarkerInLogFile <$> markers)
+  return $ foldl (~&&) (logCommandOutputToFile command) (searchMarkerInLogFile <$> markers)
+
+assertCommandOutputDoesNotContain ::
+  ShellCommandBuilder context ShellCommand ->
+  String ->
+  ShellCommandBuilder context ShellCommand
+assertCommandOutputDoesNotContain commandBuilder marker = do
+  command <- commandBuilder
+  return $ logCommandOutputToFile command ~&& ("! " ++ searchMarkerInLogFile marker)
+
+-- | Points npm at a port nothing listens on, so any `npm install` the command
+-- runs fails right away.
+withUnreachableNpmRegistry ::
+  ShellCommandBuilder context ShellCommand ->
+  ShellCommandBuilder context ShellCommand
+withUnreachableNpmRegistry =
+  fmap ("npm_config_registry=http://127.0.0.1:9/ npm_config_fetch_retries=0 " ++)
+
+commandOutputLogFile :: FilePath
+commandOutputLogFile = ".wasp-e2e-output.log"
+
+logCommandOutputToFile :: ShellCommand -> ShellCommand
+logCommandOutputToFile command = command ++ " > " ++ commandOutputLogFile ++ " 2>&1"
+
+searchMarkerInLogFile :: String -> ShellCommand
+searchMarkerInLogFile marker = "grep -qF " ++ shellSingleQuote marker ++ " " ++ commandOutputLogFile
   where
     shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
 

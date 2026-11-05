@@ -103,7 +103,7 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
 
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
-  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
+  InstallNpmDeps -> installDependencies spec generatedAppDir
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
@@ -114,12 +114,12 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   BuildSdk -> buildSdk generatedAppDir sendMessage
   TypeCheckUserCode -> typeCheckUserCode spec sendMessage
 
-installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-installDependencies spec generatedAppDir sendMessage = do
+installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
+installDependencies spec generatedAppDir = do
   result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir
   case result of
     Left npmInstallError -> throwError [npmInstallError]
-    Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
+    Right () -> return ()
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do
