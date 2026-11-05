@@ -24,7 +24,6 @@ import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectPorts (findProjectPorts)
 import Wasp.Cli.ProjectRunConfig (makeProjectRunConfig, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Env (EnvVar)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
@@ -33,6 +32,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -59,9 +59,7 @@ start = withArguments startArgsParser $ \args ->
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
     let projectRunConfig = makeProjectRunConfig appSpec ports (args.clientUrl, args.serverUrl)
-    assertImplicitEnvVarsDontOverrideWaspEnvVars
-      waspProjectDir
-      (WebAppGenerator.makeEnvVars projectRunConfig, ServerGenerator.makeEnvVars projectRunConfig)
+    assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
 
     DbConnectionEstablished <- require
 
@@ -115,8 +113,8 @@ start = withArguments startArgsParser $ \args ->
 -- (https://github.com/wasp-lang/wasp/issues/4739). However, we should still
 -- check that they do not conflict with the environment variables that Wasp
 -- itself uses to tell these apps where to run.
-assertImplicitEnvVarsDontOverrideWaspEnvVars :: Path' Abs (Dir WaspProjectDir) -> ([EnvVar], [EnvVar]) -> Command ()
-assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (waspClientEnvVars, waspServerEnvVars) = do
+assertImplicitEnvVarsDontOverrideWaspEnvVars :: Path' Abs (Dir WaspProjectDir) -> ProjectRunConfig -> Command ()
+assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig = do
   implicitClientEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvClient
   implicitServerEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvServer
 
@@ -128,6 +126,9 @@ assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (waspClientEnvVars, 
 
   return ()
   where
+    waspClientEnvVars = WebAppGenerator.makeEnvVars projectRunConfig
+    waspServerEnvVars = ServerGenerator.makeEnvVars projectRunConfig
+
     readImplicitEnvVars dotEnvFile =
       mconcat
         [ readProjectFileIfExists dotEnvFile,
