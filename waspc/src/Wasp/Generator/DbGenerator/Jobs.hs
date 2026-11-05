@@ -191,9 +191,6 @@ generatePrismaClient generatedAppDir =
     disablePrismaPromotionsFlag :: String
     disablePrismaPromotionsFlag = "--no-hints"
 
--- | @envVars@ are the server's env vars provided by Wasp (see 'makeEnvVars').
--- Prisma commands that connect to the database need them, since the dev
--- database URL is among them.
 prismaProc :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> [String] -> J.CreateJobProcess
 prismaProc envVars generatedAppDir cmdArgs =
   J.addEnvVarsOverride envVars . J.setCwd serverDir $ J.proc "prisma" cmdArgs
