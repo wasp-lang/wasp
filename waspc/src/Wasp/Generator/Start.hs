@@ -10,12 +10,11 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Void (Void, absurd)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start (ServerInbox, startServer)
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 import Wasp.Util (secondsToMicroSeconds)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
@@ -23,8 +22,8 @@ import Wasp.Util (secondsToMicroSeconds)
 --   It alo receives 'onJobsQuietDown' IO action, which it executes every time all the processes
 --   go quiet (don't produce any stdout/err) for some time (5s), after they have previously
 --   produced some output.
-start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> IO () -> IO (Either String ())
-start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverInbox onJobsQuietDown = do
+start :: ProjectRunConfig -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> IO () -> IO (Either String ())
+start projectRunConfig waspProjectDir outDir serverInbox onJobsQuietDown = do
   -- `Left` (the server) is `Void`, because it always gets restarted and never
   -- exits. Only web app can exit normally.
   webAppExitCode <-
@@ -32,8 +31,8 @@ start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverInbox onJob
       $ J.run
       $ withJobsQuietDownListener onJobsQuietDown
       $ J.race
-        (J.prefixWith J.Server $ startServer serverRunConfig outDir serverInbox)
-        (J.prefixWith J.WebApp $ startWebApp webAppRunConfig waspProjectDir)
+        (J.prefixWith J.Server $ startServer projectRunConfig outDir serverInbox)
+        (J.prefixWith J.WebApp $ startWebApp projectRunConfig waspProjectDir)
 
   return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 

@@ -15,14 +15,14 @@ where
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (dbSeedProcess, serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
 migrateDev generatedAppDir migrateArgs =
@@ -121,25 +121,25 @@ reset generatedAppDir resetArgs =
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Bundles the server's db seed script and runs the seed with the given name.
-seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
-seed serverRunConfig generatedAppDir seedName =
+seed :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
+seed projectRunConfig generatedAppDir seedName =
   runInServerDir "tsc" ["--build"]
     `J.andThen` runInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
     `J.andThen` runSeed
   where
     runInServerDir binName args =
       J.fromProc
-        . addEnvVarsOverride envVars
+        . J.addEnvVarsOverride envVars
         . J.setCwd serverDir
         $ J.proc binName args
     runSeed =
       J.fromProc
-        $ addEnvVarsOverride envVars
+        $ J.addEnvVarsOverride envVars
         $ J.setCwd waspProjectDir
         -- The user's seed function can ask for input.
         $ J.markInteractive
         $ uncurry J.proc dbSeedProcess
-    envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
+    envVars = (dbSeedNameEnvVarName, seedName) : makeEnvVars projectRunConfig
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

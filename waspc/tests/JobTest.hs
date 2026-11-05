@@ -17,7 +17,6 @@ import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
-import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -144,7 +143,7 @@ spec_Job = do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"
           overriddenVar = "WASP_JOB_TEST_OVERRIDDEN"
           process =
-            setEnvVars [(overriddenVar, "set")]
+            Job.addEnvVarsOverride [(overriddenVar, "set")]
               $ node
               $ "process.stdout.write(process.env." <> inheritedVar <> " + ' ' + process.env." <> overriddenVar <> ")"
       ( do

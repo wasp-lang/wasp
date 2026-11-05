@@ -4,6 +4,7 @@ module Wasp.Job.CreateProcess
     setCwd,
     asCreateProcess,
     markInteractive,
+    addEnvVarsOverride,
   )
 where
 
@@ -12,7 +13,8 @@ import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.Environment (getEnvironment)
 import qualified System.Process as P
-import Wasp.Env (EnvVar, HasEnvVars (..), addEnvVarsOverride)
+import Wasp.Env (EnvVar)
+import qualified Wasp.Env as Env
 import Wasp.Job.CreateProcess.SearchPath (findExecutableFrom, getSearchPathEnvVars)
 
 data CreateJobProcess
@@ -23,10 +25,6 @@ data CreateJobProcess
     envVars :: [EnvVar],
     interactive :: Bool
   }
-
-instance HasEnvVars CreateJobProcess where
-  getEnvVars = envVars
-  setEnvVars newEnv cjp = cjp {envVars = newEnv}
 
 -- | A process that runs the given executable, an npm package's one or one in
 -- the @PATH@ (see 'asCreateProcess'), with the given arguments.
@@ -46,6 +44,11 @@ setCwd newCwd cjp = cjp {cwd = Just $ SP.castDir newCwd}
 markInteractive :: CreateJobProcess -> CreateJobProcess
 markInteractive cjp = cjp {interactive = True}
 
+-- | Adds env vars to the process. If there are duplicates, the incoming env
+-- vars override the existing ones.
+addEnvVarsOverride :: [EnvVar] -> CreateJobProcess -> CreateJobProcess
+addEnvVarsOverride incoming cjp = cjp {envVars = Env.addEnvVarsOverride incoming cjp.envVars}
+
 -- | The process runs like an npm script would in its working directory. Fails if there is no such executable.
 asCreateProcess :: CreateJobProcess -> IO P.CreateProcess
 asCreateProcess cjp = do
@@ -53,7 +56,7 @@ asCreateProcess cjp = do
   bin <- findExecutableFrom processCwd cjp.bin
   searchPathEnvVars <- getSearchPathEnvVars processCwd
   inheritedEnv <- getEnvironment
-  let fullEnv = cjp.envVars `addEnvVarsOverride` (searchPathEnvVars `addEnvVarsOverride` inheritedEnv)
+  let fullEnv = cjp.envVars `Env.addEnvVarsOverride` (searchPathEnvVars `Env.addEnvVarsOverride` inheritedEnv)
   pure $
     (P.proc bin cjp.args)
       { P.cwd = SP.fromAbsDir <$> cwd cjp,

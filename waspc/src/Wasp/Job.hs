@@ -4,6 +4,7 @@ module Wasp.Job
     CreateJobProcess,
     setCwd,
     markInteractive,
+    addEnvVarsOverride,
     run,
     race,
     andThen,
@@ -25,7 +26,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
 import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
-import Wasp.Job.CreateProcess (CreateJobProcess, markInteractive, proc, setCwd)
+import Wasp.Job.CreateProcess (CreateJobProcess, addEnvVarsOverride, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
 
