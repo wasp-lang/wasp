@@ -1,12 +1,12 @@
 // Hands a Wasp CLI over to the Wasp CLI of the project it runs in.
 
+import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
-import { doesPathExist } from "./fs-utils.js";
 
 const debug = debuglog("wasp-bin-wrapper");
 
@@ -77,7 +77,7 @@ export async function runProjectWaspCli(
  * hand-over from older Wasp CLIs.
  */
 async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
-  const waspProjectDir = await findWaspProjectDir();
+  const waspProjectDir = findWaspProjectDir();
   if (waspProjectDir === undefined) {
     return undefined;
   }
@@ -90,9 +90,6 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     "@wasp/wasp/package.json",
   );
   if (waspPackageJsonPath === undefined) {
-    // Not an error: commands like `wasp clean` don't need `@wasp/wasp`. This
-    // Wasp CLI runs itself, and the commands that need `@wasp/wasp` explain
-    // how to install it.
     debug("No @wasp/wasp installed for the project in %s", waspProjectDir);
     return undefined;
   }
@@ -137,10 +134,10 @@ async function readInstalledWaspCli(
  * `findWaspProjectRoot` in
  * https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/Command/Require/InWaspProject.hs
  */
-async function findWaspProjectDir(): Promise<string | undefined> {
+function findWaspProjectDir(): string | undefined {
   let dir = process.cwd();
   while (true) {
-    if (await doesPathExist(path.join(dir, ".wasproot"))) {
+    if (existsSync(path.join(dir, ".wasproot"))) {
       return dir;
     }
     const parentDir = path.dirname(dir);

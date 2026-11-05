@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
+import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
-import { doesPathExist } from "./fs-utils.js";
 import {
   findProjectWaspCliToHandOverTo,
   getThisWaspCli,
@@ -67,7 +67,7 @@ async function assertNoLegacyInstallerConflict(): Promise<void> {
   // The installer script checks for this marker to warn about the same
   // conflict from its side.
   const npmMarkerFile = path.join(waspLangDir, ".uses-npm");
-  if (await doesPathExist(npmMarkerFile)) {
+  if (existsSync(npmMarkerFile)) {
     return;
   }
 
