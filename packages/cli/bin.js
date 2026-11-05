@@ -7,7 +7,6 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { report as processReport } from "node:process";
-import { fileURLToPath } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
 import { doesPathExist } from "./fs-utils.js";
@@ -46,7 +45,7 @@ async function main() {
   const packageJson = await getPackageJson();
   /** @type {import("./project-wasp-cli.js").InstalledWaspCli} */
   const thisWaspCli = {
-    binPath: await fs.realpath(fileURLToPath(import.meta.url)),
+    binPath: await fs.realpath(import.meta.filename),
     version: packageJson.version,
   };
 

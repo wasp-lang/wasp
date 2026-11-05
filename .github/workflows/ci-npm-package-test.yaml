@@ -67,13 +67,10 @@ jobs:
           echo '{}' > package.json
           touch .wasproot
 
-          # Install `@wasp/wasp`, the way a Wasp project depends on Wasp.
-          # pkg.pr.new points its dependencies at the other packages of this
-          # commit, so it brings all of them: `@wasp/cli` with the platform
-          # sub-package for this runner, `@wasp/spec`, `@wasp/deploy` and
-          # `@wasp/studio`. npm also installs its peer dependencies.
-          # The URL is repository-qualified because pkg.pr.new's short form
-          # only works for packages that are already published to npm.
+          # Install `@wasp/wasp` like a Wasp project does. pkg.pr.new points its
+          # dependencies at this commit's other packages, so it brings them all,
+          # and npm installs its peer dependencies.
+          # pkg.pr.new's short URL form only works for packages already on npm.
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/wasp@$COMMIT_SHA"
 
       - name: Run Wasp CLI
