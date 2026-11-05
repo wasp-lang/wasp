@@ -17,7 +17,8 @@ import Control.Monad.Reader (asks)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Process (ProcessResult (..), command, run)
+import E2E.Command (command)
+import E2E.Process (ProcessResult (..), run)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, resolvePath)
 import System.Directory (createDirectoryIfMissing, createFileLink, getSymbolicLinkTarget, pathIsSymbolicLink, removeFile, removePathForcibly)
 import qualified System.Directory as Directory

@@ -19,8 +19,6 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
-import Wasp.Cli.Interactive (InteractiveTerminal)
-import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
@@ -33,6 +31,8 @@ import Wasp.Util.IO
     doesFileExist,
   )
 import Wasp.Util.InstallMethod (uninstallationCommand)
+import Wasp.Util.Interactive (InteractiveTerminal)
+import qualified Wasp.Util.Interactive as Interactive
 
 -- | Removes Wasp from the system.
 uninstall :: Arguments -> Command ()
