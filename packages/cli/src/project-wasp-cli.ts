@@ -118,8 +118,7 @@ async function readInstalledWaspCli(
 
 /**
  * Searches up from the cwd for a `.wasproot` file. Keep in sync with
- * `findWaspProjectRoot` in
- * https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/Command/Require/InWaspProject.hs
+ * `findWaspProjectRoot` in `waspc/cli/src/Wasp/Cli/Command/Require/InWaspProject.hs`.
  */
 function findWaspProjectDir(): string | undefined {
   let dir = process.cwd();

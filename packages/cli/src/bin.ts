@@ -89,7 +89,7 @@ and follow the instructions.`);
 }
 
 // The path is also defined in:
-// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
+// - `waspc/cli/src/Wasp/Cli/FileSystem.hs`
 // - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
 // TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
 function tryGetWaspLangDir(): string | undefined {
