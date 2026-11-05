@@ -6,9 +6,11 @@ where
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
+import Wasp.Cli.Command.Install (installArgsParser)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
+import Wasp.Cli.Util.Parser (ArgsParser (commandName))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
@@ -27,4 +29,4 @@ clean = ProjectLock.acquireExclusive $ do
 
   cliSendMessageC
     $ Msg.Info
-    $ "\nRun " ++ styleCode "wasp install" ++ " to reinstall dependencies."
+    $ "\nRun " ++ styleCode (commandName installArgsParser) ++ " to reinstall dependencies."

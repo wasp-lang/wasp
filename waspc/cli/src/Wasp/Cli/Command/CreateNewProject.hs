@@ -20,11 +20,11 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
-import Wasp.Cli.Command.Install (installIO)
+import Wasp.Cli.Command.Install (installArgsParser, installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (commandName), withArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
@@ -60,7 +60,7 @@ installDepsForNewProject absWaspProjectDir =
         $ Term.applyStyles [Term.Yellow]
         $ "Warning: The project was created, but dependency installation failed.\n"
           ++ "Run "
-          ++ styleCode "wasp install"
+          ++ styleCode (commandName installArgsParser)
           ++ " in the project directory to install the dependencies."
 
 -- | This function assumes that the project dir was created inside the current working directory.
