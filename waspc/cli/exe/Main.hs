@@ -28,6 +28,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
+import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
@@ -38,7 +39,8 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
-import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion, waspNpmPackageName)
+import Wasp.NpmPackageNames (waspNpmPackageName)
+import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getGlobalInstallationCommand, getProjectInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
@@ -62,6 +64,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
+        ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ("uninstall" : uninstallArgs) -> Command.Call.Uninstall uninstallArgs
@@ -89,6 +92,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Start startArgs -> runCommand $ start startArgs
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
+    Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compileCommand
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion

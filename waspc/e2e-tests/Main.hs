@@ -28,6 +28,7 @@ import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDbStartTest (waspDbStartTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
+import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspNpmPackageAvailableTest (waspNpmPackageAvailableTest)
 import Tests.WaspProjectLockTest (waspProjectLockTest)
@@ -115,6 +116,7 @@ e2eTests = do
         waspProjectLockTest,
         waspNpmPackageAvailableTest,
         waspShowTest,
+        waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,
         -- FIXME: waspStudioTest,

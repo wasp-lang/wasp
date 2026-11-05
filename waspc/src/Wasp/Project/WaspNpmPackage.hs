@@ -4,11 +4,6 @@ module Wasp.Project.WaspNpmPackage
     -- Wasp projects depend on Wasp through the @wasp/wasp npm package. It brings
     -- all the other core Wasp packages at its own version, and ships the
     -- scripts the CLI runs them with.
-    waspNpmPackageName,
-    waspCliNpmPackageName,
-    waspSpecNpmPackageName,
-    waspDeployNpmPackageName,
-    waspStudioNpmPackageName,
     WaspNpmPackageDir,
 
     -- * Versions
@@ -37,25 +32,11 @@ import System.Environment (lookupEnv)
 import System.Exit (ExitCode)
 import qualified System.Process as P
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Version as WV
-
-waspNpmPackageName :: PJ.PackageName
-waspNpmPackageName = "@wasp/wasp"
-
-waspCliNpmPackageName :: PJ.PackageName
-waspCliNpmPackageName = "@wasp/cli"
-
-waspSpecNpmPackageName :: PJ.PackageName
-waspSpecNpmPackageName = "@wasp/spec"
-
-waspDeployNpmPackageName :: PJ.PackageName
-waspDeployNpmPackageName = "@wasp/deploy"
-
-waspStudioNpmPackageName :: PJ.PackageName
-waspStudioNpmPackageName = "@wasp/studio"
 
 data WaspNpmPackageDir
 

@@ -27,8 +27,9 @@ import System.FilePath (isAbsolute)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedAppDir)
+import Wasp.NpmPackageNames (waspCliNpmPackageName, waspDeployNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName, waspStudioNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
-import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion, waspCliNpmPackageName, waspDeployNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName, waspStudioNpmPackageName)
+import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import Wasp.Util.IO (copyFile)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, updateJsonFile)

@@ -7,7 +7,7 @@ module Wasp.Util.InstallMethod
 where
 
 import Data.Maybe (fromMaybe)
-import Wasp.Project.WaspNpmPackage (waspCliNpmPackageName, waspNpmPackageName)
+import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName)
 
 -- | The npm command that installs the Wasp CLI globally.
 getGlobalInstallationCommand :: Maybe String -> String

@@ -310,6 +310,7 @@ library
     Wasp.Message
     Wasp.Node.Internal
     Wasp.Node.Version
+    Wasp.NpmPackageNames
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType
@@ -470,6 +471,7 @@ library cli-lib
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
+    Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
@@ -728,6 +730,7 @@ test-suite waspc-e2e-tests
     Tests.WaspDbStudioTest
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
+    Tests.WaspInstallTest
     Tests.WaspNewTest
     Tests.WaspNpmPackageAvailableTest
     Tests.WaspProjectLockTest

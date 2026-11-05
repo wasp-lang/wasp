@@ -18,8 +18,8 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WaspNpmPackagePeerDeps as WaspNpmPackagePeerDeps
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (analyzeWaspProject)
-import Wasp.Project.WaspNpmPackage (waspNpmPackageName)
 import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()

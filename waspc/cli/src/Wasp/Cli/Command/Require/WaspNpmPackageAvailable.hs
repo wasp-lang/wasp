@@ -12,6 +12,7 @@ import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequireme
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspNpmPackage
@@ -19,7 +20,6 @@ import Wasp.Project.WaspNpmPackage
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
     tryGettingInstalledWaspNpmPackageVersion,
-    waspNpmPackageName,
   )
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.Terminal (styleCode)
@@ -78,19 +78,16 @@ instance Requirable WaspNpmPackageAvailable where
       notADependencyError cliVersion =
         CommandError
           "Wasp is not a dependency of this project"
-          $ "Since Wasp 0.27, a project depends on Wasp through the "
-            ++ styleCode waspNpmPackageName
-            ++ " npm package. Add "
+          $ "Add "
             ++ styleCode ("\"" ++ waspNpmPackageName ++ "\": \"" ++ show cliVersion ++ "\"")
             ++ " to the "
             ++ styleCode "dependencies"
             ++ " in your "
             ++ styleCode "package.json"
-            ++ ", remove "
-            ++ styleCode "@wasp.sh/spec"
-            ++ " if it's there, and run "
+            ++ " and run "
             ++ styleCode "npm install"
-            ++ "."
+            ++ ". If you're upgrading from Wasp 0.26, follow the migration guide: "
+            ++ "https://wasp.sh/docs/0.27/migration-guide#2-depend-on-waspwasp-instead-of-waspshspec"
 
       inDevDependenciesError =
         CommandError
@@ -126,7 +123,9 @@ instance Requirable WaspNpmPackageAvailable where
                 ++ show cliVersion
                 ++ " directly, which can't switch to the project's version. Run the project's Wasp with "
                 ++ styleCode "npm run wasp -- <command>"
-                ++ ", or upgrade your global Wasp CLI to the latest version. Read how at https://wasp.sh/docs/quick-start#global-cli."
+                ++ ". If you installed Wasp with the installer script, migrate to npm with "
+                ++ styleCode "curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm"
+                ++ "."
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration
