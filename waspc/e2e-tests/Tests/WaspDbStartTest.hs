@@ -1,15 +1,20 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
 import ShellCommands
-  ( ShellCommand,
+  ( CommandOutputLog,
+    ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext,
     assertCommandOutputContains,
+    commandOutputLog,
+    commandOutputLogFile,
     createTestWaspProject,
     inTestWaspProjectDir,
+    logCommandOutputInBackground,
     setWaspDbToPSQL,
     skipIfDockerDisabled,
     waitUntil,
+    waitUntilLogContains,
     waspCliDbMigrateDev,
     waspCliDbStart,
     (~&&),
@@ -102,8 +107,7 @@ waspDbStartTest =
 -- We capture its output to test whether it correctly reports its readiness and volume name.
 waspCliDbStartInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStartInBackground =
-  return $
-    "rm -f " ++ devDbOutputFile ++ " && { $WASP_CLI_CMD db start > " ++ devDbOutputFile ++ " 2>&1 & echo $! > db-start.pid ; }"
+  return $ logCommandOutputInBackground devDbCommandLog "WASP_E2E_DB_START_PID" "$WASP_CLI_CMD db start"
 
 -- | Stops `wasp db start` with the given signal (e.g. @INT@), and checks that
 -- Wasp exits and that the database container is gone.
@@ -111,9 +115,9 @@ waspCliDbStartInBackground =
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the database.
 --
--- `db-start.pid` might not be Wasp's own PID (e.g. when `$WASP_CLI_CMD` is a
--- wrapper script), so we signal the parent of the `docker run` client instead,
--- which is Wasp.
+-- The PID we got when starting Wasp might not be Wasp's own (e.g. when
+-- `$WASP_CLI_CMD` is a wrapper script), so we signal the parent of the
+-- `docker run` client instead, which is Wasp.
 stopWaspCliDbStartWithSignal :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 stopWaspCliDbStartWithSignal signal =
   return $
@@ -121,7 +125,7 @@ stopWaspCliDbStartWithSignal signal =
       ~&& ("kill -" ++ signal ++ " $(ps -o ppid= -p \"$(pgrep -f \"docker run --name $(cat " ++ devDbContainerNameFile ++ ") \")\")")
       ~&& waitUntil
         60
-        "! kill -0 \"$(cat db-start.pid)\" 2>/dev/null"
+        "! kill -0 \"$WASP_E2E_DB_START_PID\" 2>/dev/null"
         ("Wasp didn't stop after SIG" ++ signal ++ ".")
       ~&& waitUntil
         30
@@ -158,13 +162,10 @@ devDbContainerNameFile = "db-container-name.txt"
 
 waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
 waitUntilDevDbReportsItIsReady =
-  return $
-    "{ retries=180; until grep -q 'listening on IPv4 address' "
-      ++ devDbOutputFile
-      ++ "; do retries=$((retries - 1)); [ \"$retries\" -gt 0 ] || exit 1; sleep 1; done ; }"
+  return $ waitUntilLogContains 180 devDbCommandLog "listening on IPv4 address"
 
-devDbOutputFile :: FilePath
-devDbOutputFile = "db-start-output.log"
+devDbCommandLog :: CommandOutputLog
+devDbCommandLog = commandOutputLog "db-start"
 
 occupyDefaultDevDbPort :: ShellCommandBuilder WaspProjectContext ShellCommand
 occupyDefaultDevDbPort =
@@ -190,7 +191,7 @@ removeReportedDevDbVolume =
 -- because it's the same place users learn it from.
 reportedDevDbVolumeName :: String
 reportedDevDbVolumeName =
-  "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ devDbOutputFile ++ ")"
+  "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ commandOutputLogFile devDbCommandLog ++ ")"
 
 devDbPortHolderContainerName :: String
 devDbPortHolderContainerName = "wasp-e2e-tests-db-port-holder"
