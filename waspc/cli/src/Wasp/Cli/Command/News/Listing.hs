@@ -32,7 +32,7 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
-import qualified Wasp.Cli.Interactive as Interactive
+import qualified Wasp.Util.Interactive as Interactive
 import Wasp.Util.Terminal (styleCode)
 
 shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
