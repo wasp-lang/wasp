@@ -42,7 +42,6 @@ import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRec
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import qualified Wasp.Job as Job
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
-import Wasp.Project.RunConfig (ProjectRunConfig)
 import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
@@ -132,12 +131,12 @@ dbReset envVars generatedAppDir resetArgs = do
   checkExitSuccess "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset envVars generatedAppDir resetArgs)
 
 dbSeed ::
-  ProjectRunConfig ->
+  [EnvVar] ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed projectRunConfig generatedAppDir seedName =
-  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed projectRunConfig generatedAppDir seedName)
+dbSeed envVars generatedAppDir seedName =
+  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed envVars generatedAppDir seedName)
 
 testDbConnection ::
   [EnvVar] ->

@@ -22,10 +22,8 @@ import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
-import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
-import Wasp.Project.RunConfig (ProjectRunConfig)
 
 migrateDev :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
 migrateDev envVars generatedAppDir migrateArgs =
@@ -128,23 +126,23 @@ reset envVars generatedAppDir resetArgs =
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Bundles the server's db seed script and runs the seed with the given name.
-seed :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
-seed projectRunConfig generatedAppDir seedName =
+seed :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
+seed envVars generatedAppDir seedName =
   runInServerDir ServerNodeCommands.typeCheckServer
     `J.andThen` runInServerDir ServerNodeCommands.bundleDbSeed
     `J.andThen` runSeed
   where
     runInServerDir nodeCommand =
       J.fromProc
-        . J.addEnvVarsOverride envVars
+        . J.addEnvVarsOverride seedEnvVars
         $ NodeCommand.proc serverDir nodeCommand
     runSeed =
       J.fromProc
-        . J.addEnvVarsOverride envVars
+        . J.addEnvVarsOverride seedEnvVars
         -- The user's seed function can ask for input.
         . J.markInteractive
         $ NodeCommand.proc waspProjectDir ServerNodeCommands.runDbSeed
-    envVars = (dbSeedNameEnvVarName, seedName) : makeEnvVars projectRunConfig
+    seedEnvVars = (dbSeedNameEnvVarName, seedName) : envVars
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
