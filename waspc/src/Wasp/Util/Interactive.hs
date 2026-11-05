@@ -4,6 +4,7 @@ module Wasp.Util.Interactive
   ( InteractiveTerminal,
     getInteractiveTerminal,
     isPromptInputEOF,
+    withLongRunningTask,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -17,6 +18,10 @@ module Wasp.Util.Interactive
 where
 
 import Control.Applicative ((<|>))
+import Control.Concurrent (threadDelay)
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (finally)
+import Control.Monad (forM_, forever)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
@@ -194,6 +199,25 @@ repeatUntil terminal predicate errorMessage action = do
       hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] errorMessage
       repeatUntil terminal predicate errorMessage action
     else return result
+
+-- | Runs the action while showing the message as a status line with a
+-- spinning glyph. The line is redrawn in place and erased once the action
+-- finishes, so nothing of it stays in the terminal.
+withLongRunningTask :: InteractiveTerminal -> String -> IO a -> IO a
+withLongRunningTask terminal message action =
+  Async.withAsync spinStatusLine (const action)
+    `finally` putStrFlush terminal clearLine
+  where
+    spinStatusLine = forever $
+      forM_ spinnerFrames $ \frame -> do
+        putStrFlush terminal $ clearLine ++ frame ++ " " ++ message
+        threadDelay $ 80 * 1000
+
+    spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+
+-- | Moves the cursor to the start of the line and erases the line.
+clearLine :: String
+clearLine = "\r" ++ Term.ansiEscapeCode ++ "[2K"
 
 -- | Prompts for the user's answer and reads it.. Reaching the end of input
 -- while waiting for an answer (Ctrl+D) throws an error 'isPromptInputEOF'
