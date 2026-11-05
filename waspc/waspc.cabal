@@ -379,6 +379,7 @@ library
     Wasp.Util.GitRev
     Wasp.Util.Glob
     Wasp.Util.InstallMethod
+    Wasp.Util.Interactive
     Wasp.Util.IO
     Wasp.Util.IO.Retry
     Wasp.Util.Js
@@ -502,7 +503,6 @@ library cli-lib
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
-    Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock

@@ -24,5 +24,12 @@
     "prisma": "6.19.3",
     "typescript": "6.0.3",
     "vite": "^8.1.0"
+  },
+  "allowScripts": {
+    "prisma": true,
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true,
+    "fsevents": true
   }
 }

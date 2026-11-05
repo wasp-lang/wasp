@@ -1,4 +1,11 @@
 {
+  "allowScripts": {
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true,
+    "fsevents": true,
+    "prisma": true
+  },
   "dependencies": {
     "@wasp/wasp": "file:.wasp/out/libs/wasp/wasp-wasp-0.27.0.tgz",
     "react": "^19.2.1",

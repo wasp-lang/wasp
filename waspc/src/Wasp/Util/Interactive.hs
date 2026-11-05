@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Wasp.Cli.Interactive
+module Wasp.Util.Interactive
   ( InteractiveTerminal,
     getInteractiveTerminal,
     isPromptInputEOF,

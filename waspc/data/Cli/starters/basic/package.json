@@ -36,5 +36,12 @@
     "typescript": "6.0.3",
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0"
+  },
+  "allowScripts": {
+    "prisma": true,
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true,
+    "fsevents": true
   }
 }
