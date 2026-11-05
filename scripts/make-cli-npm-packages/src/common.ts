@@ -13,7 +13,9 @@ export const CLI_PACKAGE_SOURCE_DIR = path.resolve(
 export const CLI_PACKAGE_STATIC_FILES = [
   "bin.js",
   "CLIError.js",
-  "projectWaspCli.js",
+  "fs-utils.js",
+  "node-resolution.js",
+  "project-wasp-cli.js",
   "readme.md",
 ];
 

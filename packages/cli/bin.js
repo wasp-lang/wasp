@@ -3,24 +3,25 @@
 // @ts-check
 
 import { execFileSync } from "node:child_process";
-import * as fs from "node:fs";
+import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { report as processReport } from "node:process";
 import { fileURLToPath } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./CLIError.js";
+import { doesPathExist } from "./fs-utils.js";
 import {
   findProjectWaspCliToHandOverTo,
   runProjectWaspCli,
-} from "./projectWaspCli.js";
+} from "./project-wasp-cli.js";
 
 // If you want to turn on debug logging, set the following environment variable:
 // `NODE_DEBUG=wasp-bin-wrapper`
 const debug = debuglog("wasp-bin-wrapper");
 
 // Other Wasp CLI versions run this file by importing it (see
-// `runProjectWaspCli` in `projectWaspCli.js`). So it must keep running `main`
+// `runProjectWaspCli` in `project-wasp-cli.js`). So it must keep running `main`
 // on import, with top-level await, and report its result through
 // `process.exitCode`.
 try {
@@ -40,16 +41,16 @@ try {
 }
 
 async function main() {
-  assertNoLegacyInstallerConflict();
+  await assertNoLegacyInstallerConflict();
 
   const packageJson = await getPackageJson();
-  /** @type {import("./projectWaspCli.js").InstalledWaspCli} */
+  /** @type {import("./project-wasp-cli.js").InstalledWaspCli} */
   const thisWaspCli = {
-    binPath: fs.realpathSync(fileURLToPath(import.meta.url)),
+    binPath: await fs.realpath(fileURLToPath(import.meta.url)),
     version: packageJson.version,
   };
 
-  const projectWaspCli = findProjectWaspCliToHandOverTo(thisWaspCli);
+  const projectWaspCli = await findProjectWaspCliToHandOverTo(thisWaspCli);
   if (projectWaspCli !== undefined) {
     return runProjectWaspCli(projectWaspCli, thisWaspCli).catch(
       CLIError.rethrowWith("Failed to run the project's Wasp CLI."),
@@ -76,7 +77,7 @@ async function main() {
 //
 // TODO: Consider removing this check once we no longer expect any users to
 // have a shell-installer based Wasp installation.
-function assertNoLegacyInstallerConflict() {
+async function assertNoLegacyInstallerConflict() {
   const waspLangDir = tryGetWaspLangDir();
   // No home dir (some containers), so no installer-based Wasp to conflict with.
   if (waspLangDir === undefined) {
@@ -86,11 +87,11 @@ function assertNoLegacyInstallerConflict() {
   // The installer script checks for this marker to warn about the same
   // conflict from its side.
   const npmMarkerFile = path.join(waspLangDir, ".uses-npm");
-  if (fs.existsSync(npmMarkerFile)) {
+  if (await doesPathExist(npmMarkerFile)) {
     return;
   }
 
-  if (hasInstallerWasp(waspLangDir)) {
+  if (await hasInstallerWasp(waspLangDir)) {
     throw new CLIError(`\
 Detected an existing legacy Wasp installation.
 
@@ -104,7 +105,7 @@ To migrate, run:
 and follow the instructions.`);
   }
 
-  ensureNpmMarker(waspLangDir, npmMarkerFile);
+  await ensureNpmMarker(waspLangDir, npmMarkerFile);
 }
 
 // The path is also defined in:
@@ -119,27 +120,27 @@ function tryGetWaspLangDir() {
   }
 }
 
-function hasInstallerWasp(/** @type {string} */ waspLangDir) {
+async function hasInstallerWasp(/** @type {string} */ waspLangDir) {
   try {
     // If the folder exists and has any subdirectories (for the installed version(s)),
     // we assume it's an installer-based Wasp installation.
-    const entries = fs.readdirSync(waspLangDir, { withFileTypes: true });
+    const entries = await fs.readdir(waspLangDir, { withFileTypes: true });
     return entries.some((entry) => entry.isDirectory());
   } catch {
     return false;
   }
 }
 
-function ensureNpmMarker(
+async function ensureNpmMarker(
   /** @type {string} */ waspLangDir,
   /** @type {string} */ npmMarkerFile,
 ) {
   try {
-    fs.mkdirSync(waspLangDir, { recursive: true });
+    await fs.mkdir(waspLangDir, { recursive: true });
 
     // Same as `touch` - By appending nothing, we create the file if it doesn't
     // exist, or leave the contents unchanged if it does.
-    fs.appendFileSync(npmMarkerFile, "");
+    await fs.appendFile(npmMarkerFile, "");
   } catch {
     // Ignore errors - marker file is best-effort
   }

@@ -60,7 +60,7 @@ data WaspNpmPackageDir
 -- dir that has it. That covers every package manager's node_modules layout,
 -- including monorepos where the package manager hoists dependencies to a
 -- parent dir. The npm \@wasp/cli finds \@wasp/wasp with the same rule (see
--- `packages/cli/projectWaspCli.js`), so the two never disagree.
+-- `packages/cli/node-resolution.js`), so the two never disagree.
 findWaspNpmPackageDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir WaspNpmPackageDir)))
 findWaspNpmPackageDir waspProjectDir =
   findM (IOUtil.doesFileExist . (</> [relfile|package.json|])) $
