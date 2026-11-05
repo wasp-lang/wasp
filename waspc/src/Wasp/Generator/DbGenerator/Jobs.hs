@@ -17,8 +17,10 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Common (dbSeedProcess, serverRootDirInGeneratedAppDir)
+import qualified Wasp.Generator.NodeCommand as NodeCommand
+import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
+import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
@@ -123,22 +125,20 @@ reset generatedAppDir resetArgs =
 -- | Bundles the server's db seed script and runs the seed with the given name.
 seed :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
 seed projectRunConfig generatedAppDir seedName =
-  runInServerDir "tsc" ["--build"]
-    `J.andThen` runInServerDir "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
+  runInServerDir ServerNodeCommands.typeCheckServer
+    `J.andThen` runInServerDir ServerNodeCommands.bundleDbSeed
     `J.andThen` runSeed
   where
-    runInServerDir binName args =
+    runInServerDir nodeCommand =
       J.fromProc
         . J.addEnvVarsOverride envVars
-        . J.setCwd serverDir
-        $ J.proc binName args
+        $ NodeCommand.proc serverDir nodeCommand
     runSeed =
       J.fromProc
-        $ J.addEnvVarsOverride envVars
-        $ J.setCwd waspProjectDir
+        . J.addEnvVarsOverride envVars
         -- The user's seed function can ask for input.
-        $ J.markInteractive
-        $ uncurry J.proc dbSeedProcess
+        . J.markInteractive
+        $ NodeCommand.proc waspProjectDir ServerNodeCommands.runDbSeed
     envVars = (dbSeedNameEnvVarName, seedName) : makeEnvVars projectRunConfig
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir

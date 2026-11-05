@@ -18,13 +18,14 @@ import Data.Either (fromLeft)
 import Data.List (nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
-import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
+import qualified Wasp.Generator.NodeCommand as NodeCommand
+import qualified Wasp.Generator.NodeCommands as NodeCommands
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
@@ -163,11 +164,7 @@ typeCheckUserCode spec sendMessage = do
   where
     typeCheck :: J.Job ExitCode
     typeCheck =
-      J.fromProc
-        $ J.setCwd (AS.waspProjectDir spec)
-        $ J.proc
-          "tsc"
-          [ "--project",
-            SP.fromRelFile $ AS.srcTsConfigPath spec,
-            "--noEmit"
-          ]
+      J.fromProc $
+        NodeCommand.proc
+          (AS.waspProjectDir spec)
+          (NodeCommands.typeCheckUserCode $ AS.srcTsConfigPath spec)
