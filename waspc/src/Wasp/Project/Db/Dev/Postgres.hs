@@ -3,6 +3,7 @@ module Wasp.Project.Db.Dev.Postgres
   ( makeDevPostgresDbSpec,
     runDevPostgresDb,
     waitUntilDevDbAcceptsConnections,
+    ConnectionCheck (..),
     DevDbSpec (..),
     getDevConnectionUrl,
     discoverProjectsRunningDevDb,
@@ -11,7 +12,6 @@ module Wasp.Project.Db.Dev.Postgres
 where
 
 import Control.Concurrent (threadDelay)
-import Control.Monad (unless)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
@@ -22,6 +22,7 @@ import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNa
 import Wasp.Job (Job)
 import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
+import Wasp.Util (secondsToMicroSeconds)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 
 data DevDbSpec = DevDbSpec
@@ -91,33 +92,35 @@ runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath = do
 
     postgresImageInternalPort = defaultPostgresPort
 
+data ConnectionCheck = AcceptsConnections | UnableToCheckConnection
+
 -- | Waits until the dev database container accepts connections. Keeps waiting
 -- while the container is still being created or initialized.
-waitUntilDevDbAcceptsConnections :: DevDbSpec -> IO ()
-waitUntilDevDbAcceptsConnections devDbSpec = do
-  isAccepting <- isDevDbAcceptingConnections devDbSpec
-  unless isAccepting $ do
-    threadDelay pauseBetweenChecksMicroseconds
-    waitUntilDevDbAcceptsConnections devDbSpec
+waitUntilDevDbAcceptsConnections :: DevDbSpec -> IO ConnectionCheck
+waitUntilDevDbAcceptsConnections devDbSpec =
+  runPgIsReady devDbSpec >>= \case
+    ExitSuccess -> return AcceptsConnections
+    ExitFailure exitCode | exitCode == commandNotFoundExitCode -> return UnableToCheckConnection
+    ExitFailure _ -> do
+      threadDelay (secondsToMicroSeconds 1)
+      waitUntilDevDbAcceptsConnections devDbSpec
   where
-    pauseBetweenChecksMicroseconds = 1000000
+    -- `docker exec` exits with this code when the container doesn't have the command.
+    commandNotFoundExitCode = 127
 
-isDevDbAcceptingConnections :: DevDbSpec -> IO Bool
-isDevDbAcceptingConnections devDbSpec = do
+runPgIsReady :: DevDbSpec -> IO ExitCode
+runPgIsReady devDbSpec = do
   (exitCode, _, _) <- readProcessWithExitCode "docker" pgIsReadyArgs ""
-  return $ exitCode == ExitSuccess
+  return exitCode
   where
-    -- While initializing, the image runs a temporary server that only listens
-    -- on its Unix socket, so we check over TCP to wait for the real one. We
-    -- check the `postgres` database, which always exists, so that Prisma can
-    -- still create the app's database if it's missing.
     pgIsReadyArgs =
       concat
-        [ ["exec", devDbSpec.dockerContainerName, "pg_isready"],
+        [ ["exec", devDbSpec.dockerContainerName, "pg_isready", "--quiet"],
+          -- We use 127.0.0.1 to avoid getting a success until the database is really up.
           ["--host", "127.0.0.1"],
           ["--username", devDbSpec.user],
-          ["--dbname", "postgres"],
-          ["--quiet"]
+          -- We use the `postgres` database because it always exists, so the check doesn't log a failed connection.
+          ["--dbname", "postgres"]
         ]
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its

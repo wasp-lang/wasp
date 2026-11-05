@@ -5,7 +5,7 @@ module Wasp.Cli.DevDb
   )
 where
 
-import Control.Concurrent.Async (Async, async, cancel, race, wait)
+import Control.Concurrent.Async (async, cancel, race, wait)
 import Control.Monad (when)
 import Control.Monad.Catch (bracket)
 import qualified Control.Monad.Except as E
@@ -36,13 +36,12 @@ startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumb
 startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath =
   withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath $ \waitForDbExit -> do
     cliSendMessageC $ Msg.Info "PostgreSQL dev database is ready. Press Ctrl+C to stop it."
-    exitCode <- liftIO waitForDbExit
-    throwIfDbFailed exitCode
+    waitForDbExit
 
 -- | Starts the project's PostgreSQL dev database, and runs the action once the
 -- database accepts connections. The action gets a way to wait for the database
 -- to exit. The database is stopped and removed when the action finishes.
-withPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> (IO ExitCode -> Command a) -> Command a
+withPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> (Command () -> Command a) -> Command a
 withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath action = do
   throwIfExeIsNotAvailable
     "docker"
@@ -93,13 +92,26 @@ withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerV
       cliSendMessageC $ Msg.Info "..."
       -- Cancelling the database job stops the container, which `docker run --rm`
       -- then removes.
-      bracket (startDbJob devDbSpec) (liftIO . cancel) $ \dbJob -> do
-        exitedBeforeAcceptingConnections <- liftIO $ race (wait dbJob) (Dev.Postgres.waitUntilDevDbAcceptsConnections devDbSpec)
-        either throwIfDbFailed return exitedBeforeAcceptingConnections
-        action $ wait dbJob
+      bracket (liftIO $ async $ runDbJob devDbSpec) (liftIO . cancel) $ \dbJob -> do
+        let waitForDbExit = do
+              exitCode <- liftIO $ wait dbJob
+              throwIfDbFailed exitCode
+        liftIO (race (wait dbJob) (Dev.Postgres.waitUntilDevDbAcceptsConnections devDbSpec)) >>= \case
+          Right Dev.Postgres.AcceptsConnections -> action waitForDbExit
+          Right Dev.Postgres.UnableToCheckConnection ->
+            throwDbError "Unable to check the database connection. Check that the database Docker image is a valid PostgreSQL image."
+          Left _exitCode -> throwDbError "The database stopped before accepting connections."
 
-    startDbJob :: Dev.Postgres.DevDbSpec -> Command (Async ExitCode)
-    startDbJob devDbSpec = liftIO $ async $ Job.run $ Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath
+    runDbJob :: Dev.Postgres.DevDbSpec -> IO ExitCode
+    runDbJob devDbSpec = Job.run $ Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath
+
+    throwIfDbFailed :: ExitCode -> Command ()
+    throwIfDbFailed exitCode =
+      either throwDbError return $
+        checkExitSuccess "Running the PostgreSQL dev database" exitCode
+
+    throwDbError :: String -> Command b
+    throwDbError = E.throwError . CommandError "Dev database failed"
 
     additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
     additionalInfoLines devDbSpec =
@@ -155,8 +167,3 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError :: String -> Command ()
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
-
-throwIfDbFailed :: ExitCode -> Command ()
-throwIfDbFailed exitCode =
-  either (E.throwError . CommandError "Dev database failed") return $
-    checkExitSuccess "Running the PostgreSQL dev database" exitCode

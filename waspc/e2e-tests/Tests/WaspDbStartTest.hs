@@ -85,7 +85,17 @@ waspDbStartTest =
                   -- Test 7: Does SIGTERM (e.g. from a process manager) also stop the
                   -- database and delete the container?
                   stopWaspCliDbStartWithSignal "TERM",
-                  -- Test 8: Can the user remove the volume reported by `wasp db start`?
+                  -- Test 8: Does `wasp db start` fail when the database stops before
+                  -- accepting connections?
+                  assertCommandOutputContains
+                    (return "! $WASP_CLI_CMD db start --db-image alpine")
+                    "The database stopped before accepting connections",
+                  -- Test 9: Does `wasp db start` fail when it can't check the
+                  -- connection, e.g. when the image isn't a PostgreSQL image?
+                  assertCommandOutputContains
+                    (return "! $WASP_CLI_CMD db start --db-image nginx:alpine")
+                    "Unable to check the database connection",
+                  -- Test 10: Can the user remove the volume reported by `wasp db start`?
                   removeReportedDevDbVolume
                 ]
             ]
