@@ -707,6 +707,7 @@ test-suite waspc-e2e-tests
     neat-interpolation,
     network,
     process,
+    resourcet ^>=1.3.0,
     stm,
     strong-path,
     tasty ^>=1.5.4,
@@ -714,6 +715,7 @@ test-suite waspc-e2e-tests
     tasty-hspec,
     text,
     time,
+    typed-process ^>=0.2.13,
     unliftio ^>=0.2.25,
     waspc,
 

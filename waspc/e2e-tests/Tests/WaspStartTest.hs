@@ -37,10 +37,11 @@ waspStartTest =
           let ports = Ports.waspStartTerminalHangup
           -- Like a terminal, 'startInBackground' starts Wasp in its own process group.
           app <- startWaspInBackground ports
+          processGroupId <- getProcessGroupId app
           signalProcessGroupOf SIGHUP app
           waitForExit app 60
           waitUntil "all processes Wasp started stop" 30 $
-            not <$> liftIO (processGroupExists app.processGroupId),
+            not <$> liftIO (processGroupExists processGroupId),
       test "fail-when-web-app-crashes" $
         withNewWaspProject minimalStarterTemplate $ do
           let ports = Ports.waspStartWebAppCrash
