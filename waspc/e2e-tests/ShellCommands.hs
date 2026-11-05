@@ -53,6 +53,7 @@ module ShellCommands
     assertLogContains,
     assertLogDoesNotContain,
     waitUntilLogContains,
+    withUnreachableNpmRegistry,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -462,6 +463,14 @@ shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
   where
     escapeSingleQuote '\'' = "'\\''"
     escapeSingleQuote c = [c]
+
+-- | Points npm at a port nothing listens on, so any `npm install` the command
+-- runs fails right away.
+withUnreachableNpmRegistry ::
+  ShellCommandBuilder context ShellCommand ->
+  ShellCommandBuilder context ShellCommand
+withUnreachableNpmRegistry =
+  fmap ("npm_config_registry=http://127.0.0.1:9/ npm_config_fetch_retries=0 " ++)
 
 -- | Asserts that a command that needs to prompt fails when stdin is not an
 -- interactive terminal, and prints its usage so the user can pass the answers
