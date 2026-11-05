@@ -3,11 +3,19 @@ module Tests.WaspProjectLockTest (waspProjectLockTest) where
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import ShellCommands
-  ( ShellCommand,
+  ( CommandOutputLog,
+    ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext,
+    assertLogContains,
+    commandOutputLog,
+    commandOutputLogFile,
     createTestWaspProject,
     inTestWaspProjectDir,
+    logCommandOutput,
+    logCommandOutputInBackground,
+    waitUntil,
+    waitUntilLogContains,
     waspCliClean,
     waspCliCompile,
     waspCliInstall,
@@ -79,17 +87,17 @@ waspProjectLockTest =
                   -- `wasp install` is not a watcher, so the db command waits for
                   -- it to finish, and gives up after a while.
                   return $ assertWaspDbMigrateDevFailsWith "is working on this project right now.",
-                  return $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
+                  return $ assertLogContains dbCommandLog waitingForCompilationMessage,
                   return $ setLockFileWatcherStatus CompilationFailed,
                   return $ assertWaspDbMigrateDevFailsWith "is running for this project, but it failed to compile it.",
                   -- While the watcher compiles, the db command waits for it, and
                   -- goes on without compiling once the watcher is done.
                   return $ setLockFileWatcherStatus Compiling,
                   return startWaspDbMigrateDevInBackground,
-                  return $ waitUntil $ "grep -qF " ++ waitingForCompilationMessage ++ " .wasp-e2e-db.log",
+                  return $ waitUntilLogContains 120 dbCommandLog waitingForCompilationMessage,
                   return $ setLockFileWatcherStatus UpToDate,
                   return "wait \"$WASP_E2E_DB_PID\"",
-                  return "grep -qF 'is already watching this project, skipping compilation.' .wasp-e2e-db.log",
+                  return $ assertLogContains dbCommandLog "is already watching this project, skipping compilation.",
                   return releaseLockAndAwaitWaspInstall
                 ]
             ]
@@ -116,17 +124,11 @@ waspProjectLockTest =
     startWaspInstallInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
     startWaspInstallInBackground = do
       installCommand <- waspCliInstall
-      return $
-        ("{ " ++ installCommand ++ " > .wasp-e2e-install.log 2>&1 & }")
-          ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
+      return $ logCommandOutputInBackground installCommandLog "WASP_E2E_LOCK_HOLDER_PID" installCommand
 
     waitForLockToBeHeld :: ShellCommand
-    waitForLockToBeHeld = waitUntil $ "[ -f " ++ lockAcquiredMarkerFile ++ " ]"
-
-    -- Polls the given condition for up to ~120s.
-    waitUntil :: ShellCommand -> ShellCommand
-    waitUntil condition =
-      "( i=0; until " ++ condition ++ "; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done )"
+    waitForLockToBeHeld =
+      waitUntil 120 ("[ -f " ++ lockAcquiredMarkerFile ++ " ]") "Timed out waiting for `wasp install` to acquire the lock."
 
     -- The reported PID must be exactly the one the holding process wrote into
     -- the lock file.
@@ -134,17 +136,19 @@ waspProjectLockTest =
     assertWaspCleanFailsMentioningLockHolder = do
       cleanCommand <- waspCliClean
       return $
-        ("! " ++ cleanCommand ++ " > .wasp-e2e-clean.log 2>&1")
-          ~&& assertLogMentionsLockHolder ".wasp-e2e-clean.log" "is already running for this project."
+        logCommandOutput cleanCommandLog ("! " ++ cleanCommand)
+          ~&& assertLogMentionsLockHolder cleanCommandLog "is already running for this project."
 
     assertWaspDbMigrateDevFailsWith :: String -> ShellCommand
     assertWaspDbMigrateDevFailsWith messageAfterLockHolder =
-      ("! " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1")
-        ~&& assertLogMentionsLockHolder ".wasp-e2e-db.log" messageAfterLockHolder
+      logCommandOutput dbCommandLog ("! " ++ waspCliDbMigrateDev)
+        ~&& assertLogMentionsLockHolder dbCommandLog messageAfterLockHolder
 
-    assertLogMentionsLockHolder :: FilePath -> String -> ShellCommand
-    assertLogMentionsLockHolder logFile messageAfterLockHolder =
-      "grep -qF \"A Wasp command (PID " ++ lockOwnerPid ++ ") " ++ messageAfterLockHolder ++ "\" " ++ logFile
+    -- The marker holds a shell substitution for the PID, so it can't go
+    -- through 'assertLogContains', which matches a fixed string.
+    assertLogMentionsLockHolder :: CommandOutputLog -> String -> ShellCommand
+    assertLogMentionsLockHolder commandLog messageAfterLockHolder =
+      "grep -qF \"A Wasp command (PID " ++ lockOwnerPid ++ ") " ++ messageAfterLockHolder ++ "\" " ++ commandOutputLogFile commandLog
 
     -- Shell expression for the PID that the lock holder wrote into the lock file.
     lockOwnerPid :: String
@@ -169,14 +173,18 @@ waspProjectLockTest =
 
     startWaspDbMigrateDevInBackground :: ShellCommand
     startWaspDbMigrateDevInBackground =
-      ("{ " ++ waspCliDbMigrateDev ++ " > .wasp-e2e-db.log 2>&1 & }")
-        ~&& "WASP_E2E_DB_PID=$!"
+      logCommandOutputInBackground dbCommandLog "WASP_E2E_DB_PID" waspCliDbMigrateDev
 
     waspCliDbMigrateDev :: ShellCommand
     waspCliDbMigrateDev = "$WASP_CLI_CMD db migrate-dev --name foo"
 
     waitingForCompilationMessage :: String
-    waitingForCompilationMessage = "'Waiting for compilation to finish'"
+    waitingForCompilationMessage = "Waiting for compilation to finish"
+
+    installCommandLog, cleanCommandLog, dbCommandLog :: CommandOutputLog
+    installCommandLog = commandOutputLog "install"
+    cleanCommandLog = commandOutputLog "clean"
+    dbCommandLog = commandOutputLog "db"
 
     releaseLockAndAwaitWaspInstall :: ShellCommand
     releaseLockAndAwaitWaspInstall =
