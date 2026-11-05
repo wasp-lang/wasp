@@ -15,13 +15,12 @@ import qualified Wasp.Util.Terminal as Term
 -- stay readable.
 runTaskWithStatusReport :: String -> String -> String -> IO (Either e a) -> IO (Either e a)
 runTaskWithStatusReport loadingMessage successMessage failureMessage task = do
-  result <-
-    Interactive.getInteractiveTerminal >>= \case
-      Just terminal -> Interactive.withLongRunningTask terminal loadingMessage task
-      Nothing -> do
-        putStrLn $ "▶ " ++ loadingMessage
-        task
-  putStrLn $ case result of
+  interactiveTerminal <- Interactive.getInteractiveTerminal
+  taskResult <- case interactiveTerminal of
+    Just terminal -> Interactive.withLongRunningTask terminal loadingMessage task
+    Nothing -> putStrLn ("▶ " ++ loadingMessage) >> task
+
+  putStrLn $ case taskResult of
     Right _ -> Term.applyStyles [Term.Green] "✔" ++ " " ++ successMessage
     Left _ -> Term.applyStyles [Term.Red] "▲ error" ++ " " ++ failureMessage
-  return result
+  return taskResult

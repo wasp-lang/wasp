@@ -6,6 +6,7 @@ module Wasp.Util.Terminal
     getAnsiCodeFor,
     ansiEscapeCode,
     ansiResetAllCode,
+    ansiClearLineCode,
     styleText,
   )
 where
@@ -90,3 +91,6 @@ ansiResetAllCode = "[0m"
 
 ansiResetForegroundCode :: String
 ansiResetForegroundCode = "[39m"
+
+ansiClearLineCode :: String
+ansiClearLineCode = "[2K"
