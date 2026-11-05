@@ -40,6 +40,7 @@ module Wasp.Util
     naiveTrimJSON,
     textToLazyBS,
     secondsToMicroSeconds,
+    millisecondsToMicroSeconds,
     findDuplicateElems,
     checkExitSuccess,
     isOlderThanNHours,
@@ -309,6 +310,9 @@ textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
 
 secondsToMicroSeconds :: Int -> Int
 secondsToMicroSeconds = (* 1000000)
+
+millisecondsToMicroSeconds :: Int -> Int
+millisecondsToMicroSeconds = (* 1000)
 
 findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map NE.head . filter ((> 1) . length) . NE.group . sort
