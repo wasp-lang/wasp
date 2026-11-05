@@ -15,7 +15,8 @@ function getUrlFromRelativePathToCwd(path: string) {
 const program = new Command();
 program
   .requiredOption("-d, --data-file <path>", "Path to data file")
-  .parse(process.argv);
+  // Without arguments, so commander also finds them under `node --eval`.
+  .parse();
 
 const options = program.opts<{
   dataFile: string;

@@ -1,8 +1,5 @@
 module Wasp.Project.WaspNpmPackage
-  ( -- * The Wasp npm package
-    WaspNpmPackageDir,
-
-    -- * Versions
+  ( -- * Versions
     InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
     doesVersionMatchDeclaredVersion,
@@ -10,52 +7,46 @@ module Wasp.Project.WaspNpmPackage
     isRunByWaspCliNpmPackage,
 
     -- * Scripts
-    waspSpecAnalyzerScriptInWaspNpmPackageDir,
-    waspDeployScriptInWaspNpmPackageDir,
-    waspStudioScriptInWaspNpmPackageDir,
-    findWaspNpmPackageScript,
+    WaspNpmPackageScript (..),
+    waspNpmPackageScriptNodeArgs,
     runWaspNpmPackageScript,
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
-import Control.Monad.Extra (findM)
-import Control.Monad.IO.Class (liftIO)
 import Data.Bifunctor (first)
+import Data.List (find, isInfixOf)
 import Data.Maybe (fromMaybe, isJust)
-import StrongPath (Abs, Dir, Dir', File, File', Path', Rel, castDir, castFile, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path', fromAbsDir)
 import System.Environment (lookupEnv)
-import System.Exit (ExitCode)
+import System.Exit (ExitCode (..))
 import qualified System.Process as P
-import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util (trim)
 import qualified Wasp.Version as WV
-
-data WaspNpmPackageDir
-
-data InstalledPackageJsonFile
-
-instance PJ.PackageJsonFile InstalledPackageJsonFile
 
 data InstalledWaspNpmPackageError
   = WaspNpmPackageNotInstalled
   | -- | Its package.json is unreadable or has no valid version, with this reason.
     BrokenWaspNpmPackage String
 
+-- | Asks Node, so the CLI finds the same \@wasp/wasp that Node and \@wasp/cli do.
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
-tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
-  waspNpmPackageDir <-
-    ExceptT $ maybe (Left WaspNpmPackageNotInstalled) Right <$> findWaspNpmPackageDir waspProjectDir
-  let packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
-      packageJsonPath = castFile $ waspNpmPackageDir </> [relfile|package.json|]
-  packageJson <- ExceptT $ liftIO $ first BrokenWaspNpmPackage <$> PJ.parsePackageJsonFile packageJsonPath
-  ExceptT $ return $ first BrokenWaspNpmPackage $ case PJ.version packageJson of
-    Just versionString -> first show $ SV.parseVersion versionString
-    Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
+tryGettingInstalledWaspNpmPackageVersion waspProjectDir = do
+  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode nodeProcess ""
+  return $ case exitCode of
+    ExitSuccess -> case trim stdout of
+      "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
+      version -> first (BrokenWaspNpmPackage . show) $ SV.parseVersion version
+    ExitFailure _
+      | "MODULE_NOT_FOUND" `isInfixOf` stderr -> Left WaspNpmPackageNotInstalled
+      | otherwise -> Left $ BrokenWaspNpmPackage $ fromMaybe (trim stderr) $ find ("Error" `isInfixOf`) $ lines stderr
+  where
+    nodeProcess =
+      (P.proc "node" ["--print", "require(" ++ show (waspNpmPackageName ++ "/package.json") ++ ").version"])
+        { P.cwd = Just $ fromAbsDir waspProjectDir
+        }
 
 -- | Matches like npm: a range never matches a prerelease, and a declared version
 -- that isn't a range, e.g. a `file:` tarball, matches anything.
@@ -88,60 +79,39 @@ lookupWaspCliNpmPackageVersion =
     invalidVersionMessage parseError =
       waspCliNpmPackageVersionEnvVarName ++ " is not a valid version: " ++ parseError
 
--- | We run the scripts with `node` by path, so Node resolves the packages they
--- import from inside \@wasp/wasp, under any package manager.
-waspSpecAnalyzerScriptInWaspNpmPackageDir :: Path' (Rel WaspNpmPackageDir) File'
-waspSpecAnalyzerScriptInWaspNpmPackageDir = [relfile|scripts/run-spec.js|]
+-- | The scripts \@wasp/wasp exports for the CLI to run.
+data WaspNpmPackageScript
+  = WaspSpecAnalyzerScript
+  | WaspDeployScript
+  | WaspStudioScript
 
-waspDeployScriptInWaspNpmPackageDir :: Path' (Rel WaspNpmPackageDir) File'
-waspDeployScriptInWaspNpmPackageDir = [relfile|scripts/run-deploy.js|]
+waspNpmPackageScriptExportName :: WaspNpmPackageScript -> String
+waspNpmPackageScriptExportName = \case
+  WaspSpecAnalyzerScript -> "run-spec"
+  WaspDeployScript -> "run-deploy"
+  WaspStudioScript -> "run-studio"
 
-waspStudioScriptInWaspNpmPackageDir :: Path' (Rel WaspNpmPackageDir) File'
-waspStudioScriptInWaspNpmPackageDir = [relfile|scripts/run-studio.js|]
-
--- | Fails when \@wasp/wasp isn't installed, which @WaspNpmPackageAvailable@
--- already checks.
-findWaspNpmPackageScript :: Path' Abs (Dir WaspProjectDir) -> Path' (Rel WaspNpmPackageDir) File' -> IO (Either String (Path' Abs File'))
-findWaspNpmPackageScript waspProjectDir script =
-  maybe (Left $ waspNpmPackageNotInstalledMessage waspProjectDir) (Right . (</> script))
-    <$> findWaspNpmPackageDir waspProjectDir
+-- | Run `node` with these in the project dir. Node resolves the script through
+-- \@wasp/wasp's `exports`, and the scripts parse their arguments with
+-- commander, which handles `--eval`.
+waspNpmPackageScriptNodeArgs :: WaspNpmPackageScript -> [String] -> [String]
+waspNpmPackageScriptNodeArgs script args =
+  ["--input-type=module", "--eval", "import " ++ show scriptImport ++ ";", "--"] ++ args
+  where
+    scriptImport = waspNpmPackageName ++ "/" ++ waspNpmPackageScriptExportName script
 
 -- | Runs the script attached to this terminal, so Ctrl+C reaches it and it
 -- shuts down properly. Needs @ValidNodeAndNpm@ and @WaspNpmPackageAvailable@.
-runWaspNpmPackageScript :: Path' Abs (Dir WaspProjectDir) -> Path' (Rel WaspNpmPackageDir) File' -> [String] -> IO (Either String ExitCode)
+runWaspNpmPackageScript :: Path' Abs (Dir WaspProjectDir) -> WaspNpmPackageScript -> [String] -> IO ExitCode
 runWaspNpmPackageScript waspProjectDir script args =
-  findWaspNpmPackageScript waspProjectDir script >>= traverse runScript
+  P.withCreateProcess scriptProcess $ \_ _ _ processHandle -> P.waitForProcess processHandle
   where
-    runScript scriptPath =
-      P.withCreateProcess (scriptProcess scriptPath) $ \_ _ _ processHandle -> P.waitForProcess processHandle
-
     -- See https://hackage.haskell.org/package/process-1.6.17.0/docs/System-Process.html#g:4.
-    scriptProcess scriptPath =
-      (P.proc "node" (fromAbsFile scriptPath : args))
+    scriptProcess =
+      (P.proc "node" (waspNpmPackageScriptNodeArgs script args))
         { P.cwd = Just $ fromAbsDir waspProjectDir,
           P.std_in = P.Inherit,
           P.std_out = P.Inherit,
           P.std_err = P.Inherit,
           P.delegate_ctlc = True
         }
-
--- | Finds the project's \@wasp/wasp with Node's resolution algorithm.
-findWaspNpmPackageDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir WaspNpmPackageDir)))
-findWaspNpmPackageDir waspProjectDir =
-  findM (IOUtil.doesFileExist . (</> [relfile|package.json|])) $
-    waspNpmPackageDirCandidates (castDir waspProjectDir)
-  where
-    waspNpmPackageDirCandidates :: Path' Abs Dir' -> [Path' Abs (Dir WaspNpmPackageDir)]
-    waspNpmPackageDirCandidates dir =
-      (dir </> [reldir|node_modules/@wasp/wasp|])
-        : (if parentDir == dir then [] else waspNpmPackageDirCandidates parentDir)
-      where
-        parentDir = SP.parent dir
-
-waspNpmPackageNotInstalledMessage :: Path' Abs (Dir WaspProjectDir) -> String
-waspNpmPackageNotInstalledMessage waspProjectDir =
-  "Couldn't find "
-    ++ waspNpmPackageName
-    ++ " in the node_modules of "
-    ++ fromAbsDir waspProjectDir
-    ++ " or its parent dirs."

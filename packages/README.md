@@ -38,8 +38,8 @@ Create a directory in this folder with a `build` script in `package.json` that c
 - the dev tarball lists in `Wasp.Cli.DevWaspNpmPackages` and `waspc/e2e-tests/ShellCommands.hs`
 - the `overrides` of the example apps
 
-Give `@wasp/wasp` a run script for the package in `wasp/scripts/` (see `run-deploy.js`), and
-point `Wasp.Project.WaspNpmPackage` at it.
+Give `@wasp/wasp` a run script for the package in `wasp/scripts/` (see `run-deploy.js`), export
+it from `wasp/package.json`, and add it to `WaspNpmPackageScript` in `Wasp.Project.WaspNpmPackage`.
 
 ## CI builds and release
 

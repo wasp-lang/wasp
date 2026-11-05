@@ -492,6 +492,9 @@ importers:
 
   packages/spec:
     dependencies:
+      commander:
+        specifier: 'catalog:'
+        version: 14.0.3
       es-toolkit:
         specifier: ^1.49.0
         version: 1.52.0

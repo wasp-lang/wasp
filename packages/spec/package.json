@@ -51,6 +51,7 @@
     "test:watch": "pnpm run build && vitest --reporter=verbose"
   },
   "dependencies": {
+    "commander": "catalog:",
     "es-toolkit": "^1.49.0",
     "estree-util-scope": "^1.0.0",
     "estree-walker": "^3.0.3",

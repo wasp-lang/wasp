@@ -10,7 +10,7 @@ import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Project.WaspNpmPackage (runWaspNpmPackageScript, waspDeployScriptInWaspNpmPackageDir)
+import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspDeployScript), runWaspNpmPackageScript)
 import Wasp.Util (checkExitSuccess)
 
 loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
@@ -26,7 +26,7 @@ deploy ::
   [String] ->
   IO (Either String ())
 deploy waspExe waspDir cmdArgs =
-  (>>= checkExitSuccess "Deploy command")
-    <$> runWaspNpmPackageScript waspDir waspDeployScriptInWaspNpmPackageDir deployScriptArgs
+  checkExitSuccess "Deploy command"
+    <$> runWaspNpmPackageScript waspDir WaspDeployScript deployScriptArgs
   where
     deployScriptArgs = concat [cmdArgs, ["--wasp-exe", waspExe, "--wasp-project-dir", toFilePath waspDir]]
