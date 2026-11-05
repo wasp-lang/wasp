@@ -1,15 +1,19 @@
+{-# LANGUAGE TupleSections #-}
+
 -- | This module captures how Wasp finds the dev database it manages for an app.
 module Wasp.Project.Db.Dev
   ( findDevDatabaseUrl,
+    devDatabaseEnvVars,
   )
 where
 
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, maybeToList)
 import System.Environment (lookupEnv)
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Env (EnvVar)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
 import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
@@ -31,3 +35,6 @@ findDevDatabaseUrl spec = do
       AS.Db.PostgreSQL ->
         fmap DevPostgres.getDevConnectionUrl
           <$> DevPostgres.discoverProjectsRunningDevDb spec.waspProjectDir (ASV.getApp spec).name
+
+devDatabaseEnvVars :: Maybe String -> [EnvVar]
+devDatabaseEnvVars devDatabaseUrl = maybeToList ((databaseUrlEnvVarName,) <$> devDatabaseUrl)

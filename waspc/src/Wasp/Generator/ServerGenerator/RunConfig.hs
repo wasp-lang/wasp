@@ -1,14 +1,11 @@
-{-# LANGUAGE TupleSections #-}
-
 module Wasp.Generator.ServerGenerator.RunConfig
   ( makeEnvVars,
   )
 where
 
-import Data.Maybe (maybeToList)
 import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
-import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.Db.Dev (devDatabaseEnvVars)
 import Wasp.Project.RunConfig (ProjectRunConfig (..))
 import Wasp.Util.Network.URI (showUri)
 
@@ -21,4 +18,4 @@ makeEnvVars config =
     (Common.serverUrlEnvVarName, showUri config.serverUrl),
     (Common.serverPortEnvVarName, show config.serverPort)
   ]
-    ++ maybeToList ((databaseUrlEnvVarName,) <$> config.databaseUrl)
+    ++ devDatabaseEnvVars config.databaseUrl
