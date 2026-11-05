@@ -51,8 +51,14 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  -- A production build must bring its own database through the env vars it is given.
-  let projectRunConfig = makeProjectRunConfig appSpec (args.clientPort, args.serverPort) (args.clientUrl, args.serverUrl) Nothing
+  let projectRunConfig =
+        makeProjectRunConfig
+          appSpec
+          (args.clientPort, args.serverPort)
+          (args.clientUrl, args.serverUrl)
+          -- `wasp build start` doesn't use the dev database, the user passes
+          -- `DATABASE_URL` through the server env vars.
+          Nothing
       waspClientEnvVars = WebAppGenerator.makeEnvVars projectRunConfig
       waspServerEnvVars = ServerGenerator.makeEnvVars projectRunConfig
 
