@@ -34,7 +34,7 @@ data InstalledWaspNpmPackageError
 -- | Asks Node, so the CLI finds the same \@wasp/wasp that Node and \@wasp/cli do.
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
 tryGettingInstalledWaspNpmPackageVersion waspProjectDir = do
-  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode nodeProcess ""
+  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode printWaspNpmPackageVersionProcess ""
   return $ case exitCode of
     ExitSuccess -> case trim stdout of
       "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
@@ -43,7 +43,7 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir = do
       | "MODULE_NOT_FOUND" `isInfixOf` stderr -> Left WaspNpmPackageNotInstalled
       | otherwise -> Left $ BrokenWaspNpmPackage $ fromMaybe (trim stderr) $ find ("Error" `isInfixOf`) $ lines stderr
   where
-    nodeProcess =
+    printWaspNpmPackageVersionProcess =
       (P.proc "node" ["--print", "require(" ++ show (waspNpmPackageName ++ "/package.json") ++ ").version"])
         { P.cwd = Just $ fromAbsDir waspProjectDir
         }
