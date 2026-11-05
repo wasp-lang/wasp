@@ -2,6 +2,7 @@
 module Wasp.Project.Db.Dev.Postgres
   ( makeDevPostgresDbSpec,
     runDevPostgresDb,
+    waitUntilDevDbAcceptsConnections,
     DevDbSpec (..),
     getDevConnectionUrl,
     discoverProjectsRunningDevDb,
@@ -9,9 +10,12 @@ module Wasp.Project.Db.Dev.Postgres
   )
 where
 
+import Control.Concurrent (threadDelay)
+import Control.Monad (unless)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode)
+import System.Exit (ExitCode (..))
+import System.Process (readProcessWithExitCode)
 import Text.Printf (printf)
 import UnliftIO.Exception (onException)
 import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
@@ -86,6 +90,35 @@ runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath = do
     stopDbContainer = Job.fromProc $ Job.proc "docker" ["stop", devDbSpec.dockerContainerName]
 
     postgresImageInternalPort = defaultPostgresPort
+
+-- | Waits until the dev database container accepts connections. Keeps waiting
+-- while the container is still being created or initialized.
+waitUntilDevDbAcceptsConnections :: DevDbSpec -> IO ()
+waitUntilDevDbAcceptsConnections devDbSpec = do
+  isAccepting <- isDevDbAcceptingConnections devDbSpec
+  unless isAccepting $ do
+    threadDelay pauseBetweenChecksMicroseconds
+    waitUntilDevDbAcceptsConnections devDbSpec
+  where
+    pauseBetweenChecksMicroseconds = 1000000
+
+isDevDbAcceptingConnections :: DevDbSpec -> IO Bool
+isDevDbAcceptingConnections devDbSpec = do
+  (exitCode, _, _) <- readProcessWithExitCode "docker" pgIsReadyArgs ""
+  return $ exitCode == ExitSuccess
+  where
+    -- While initializing, the image runs a temporary server that only listens
+    -- on its Unix socket, so we check over TCP to wait for the real one. We
+    -- check the `postgres` database, which always exists, so that Prisma can
+    -- still create the app's database if it's missing.
+    pgIsReadyArgs =
+      concat
+        [ ["exec", devDbSpec.dockerContainerName, "pg_isready"],
+          ["--host", "127.0.0.1"],
+          ["--username", devDbSpec.user],
+          ["--dbname", "postgres"],
+          ["--quiet"]
+        ]
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its
 -- container is running, 'Nothing' otherwise.
