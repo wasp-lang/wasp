@@ -22,14 +22,15 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask, asks)
 import Control.Monad.Trans.Resource (ReleaseKey, release)
 import qualified Data.ByteString.Lazy as BSL
-import Data.Maybe (isJust, isNothing)
+import Data.List (intercalate)
+import Data.Maybe (isJust, isNothing, maybeToList)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (Command (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
 import E2E.Signals (Signal (..), signalProcessGroup)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
-import System.Environment (getEnvironment)
+import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import System.Process (getPid)
@@ -93,7 +94,13 @@ startInBackgroundWithStopKey :: Command -> TestM (ReleaseKey, RunningProcess)
 startInBackgroundWithStopKey cmd = do
   executable <- resolveExecutable cmd.executable
   workingDir <- getWorkingDir
-  environment <- liftIO $ buildEnvironment cmd.environmentOverrides
+  pathOverride <- case cmd.extraPath of
+    [] -> return []
+    dirs -> do
+      absoluteDirs <- mapM resolvePath dirs
+      inheritedPath <- liftIO $ lookupEnv "PATH"
+      return [("PATH", Just . intercalate [FP.searchPathSeparator] $ absoluteDirs ++ maybeToList inheritedPath)]
+  environment <- liftIO $ buildEnvironment (pathOverride ++ cmd.environmentOverrides)
   testEnv <- ask
   output <- liftIO $ newOutput testEnv.testLog
   logLine $ "\n==> " ++ showCommand cmd ++ "\n    in " ++ workingDir
