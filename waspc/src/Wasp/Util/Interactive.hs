@@ -4,7 +4,7 @@ module Wasp.Util.Interactive
   ( InteractiveTerminal,
     getInteractiveTerminal,
     isPromptInputEOF,
-    withLongRunningTask,
+    runTaskWithSpinner,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -35,6 +35,7 @@ import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrL
 import System.IO.Error (ioeGetHandle, isEOFError)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
+import Wasp.Util (millisecondsToMicroSeconds)
 import qualified Wasp.Util.Terminal as Term
 
 -- This is the only way to get an interactive terminal.
@@ -203,15 +204,15 @@ repeatUntil terminal predicate errorMessage action = do
 -- | Runs the action while showing the message as a status line with a
 -- spinning glyph. The line is redrawn in place and erased once the action
 -- finishes, so nothing of it stays in the terminal.
-withLongRunningTask :: InteractiveTerminal -> String -> IO a -> IO a
-withLongRunningTask terminal message action =
+runTaskWithSpinner :: InteractiveTerminal -> String -> IO a -> IO a
+runTaskWithSpinner terminal spinnerMessage action =
   Async.withAsync spinStatusLine (const action)
     `finally` putStrFlush terminal clearLine
   where
     spinStatusLine = forever $
       forM_ spinnerFrames $ \frame -> do
-        putStrFlush terminal $ clearLine ++ frame ++ " " ++ message
-        threadDelay $ 80 * 1000
+        putStrFlush terminal $ clearLine ++ frame ++ " " ++ spinnerMessage
+        threadDelay $ millisecondsToMicroSeconds 80
 
     spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
