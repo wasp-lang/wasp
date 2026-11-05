@@ -161,7 +161,7 @@ genPackageJson spec waspDependencies =
     serverBundleCommand =
       NodeCommand.toShellCommand ServerNodeCommands.typeCheckServer <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.bundleServer
     devServerStartCommand =
-      "cd " <> SP.fromRelDir waspProjectDirFromServerDir <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.runServer
+      NodeCommand.toShellCommandFrom waspProjectDirFromServerDir ServerNodeCommands.runServer
     waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromGeneratedAppComponentDir
 
