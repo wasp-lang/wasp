@@ -406,6 +406,7 @@ library
     Wasp.Util.Network.Socket
     Wasp.Util.Network.URI
     Wasp.Util.StrongPath
+    Wasp.Util.TaskStatus
     Wasp.Util.Terminal
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
