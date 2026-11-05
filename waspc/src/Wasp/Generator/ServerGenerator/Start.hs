@@ -23,7 +23,9 @@ import System.Exit (ExitCode (..))
 import qualified UnliftIO.Async as UnliftIO
 import Wasp.Env (addEnvVarsOverride)
 import Wasp.Generator.Common (GeneratedAppDir)
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import qualified Wasp.Generator.ServerGenerator.Common as Common
+import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
@@ -128,14 +130,13 @@ startServer projectRunConfig generatedAppDir inbox = do
 
     bundle :: J.Job ExitCode
     bundle =
-      J.fromProc (J.setCwd serverDir $ uncurry J.proc Common.serverTscProcess)
-        `J.andThen` J.fromProc (J.setCwd serverDir $ uncurry J.proc Common.serverRollupProcess)
+      J.fromProc (NodeCommand.proc serverDir ServerNodeCommands.typeCheckServer)
+        `J.andThen` J.fromProc (NodeCommand.proc serverDir ServerNodeCommands.bundleServer)
 
     serverProcess :: J.CreateJobProcess
     serverProcess =
-      addEnvVarsOverride (("NODE_ENV", "development") : makeEnvVars projectRunConfig)
-        $ J.setCwd waspProjectDir
-        $ uncurry J.proc Common.devServerStartProcess
+      addEnvVarsOverride (("NODE_ENV", "development") : makeEnvVars projectRunConfig) $
+        NodeCommand.proc waspProjectDir ServerNodeCommands.runServer
 
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
