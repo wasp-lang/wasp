@@ -2,6 +2,7 @@
 
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
@@ -212,6 +213,6 @@ async function runWasp({
 
 // Reads a JSON file from the package root. The compiled code lives in `dist/`.
 async function readPackageRootJson<T>(fileName: string): Promise<T> {
-  const fileUrl = new URL(`../${fileName}`, import.meta.url);
-  return JSON.parse(await fs.readFile(fileUrl, "utf8")) as T;
+  const filePath = path.join(import.meta.dirname, "..", fileName);
+  return JSON.parse(await fs.readFile(filePath, "utf8")) as T;
 }

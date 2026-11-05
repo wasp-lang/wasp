@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 
@@ -19,8 +19,8 @@ export interface InstalledWaspCli {
 /** Returns this Wasp CLI, the one whose code is running. */
 export async function getThisWaspCli(): Promise<InstalledWaspCli> {
   return readInstalledWaspCli(
-    fileURLToPath(new URL("../package.json", import.meta.url)),
-    fileURLToPath(import.meta.resolve("./run.js")),
+    path.join(import.meta.dirname, "../package.json"),
+    path.join(import.meta.dirname, "run.js"),
   );
 }
 
