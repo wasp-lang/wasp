@@ -399,6 +399,7 @@ library
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.StrongPath
+    Wasp.Util.TaskStatus
     Wasp.Util.Terminal
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
