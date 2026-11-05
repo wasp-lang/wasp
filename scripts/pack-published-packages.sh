@@ -14,8 +14,7 @@ publish_packages=(
   wasp
 )
 
-# The packages that get the publish version. It includes `cli`, because
-# `pnpm pack` turns `wasp`'s `workspace:*` dependencies into their versions.
+# The packages that get the publish version, which also includes `cli`.
 versioned_packages=(cli "${publish_packages[@]}")
 
 publish_version="$1"
