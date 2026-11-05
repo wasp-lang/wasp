@@ -79,7 +79,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
-      genFileCopy $ C.asTmplFile $ SP.castFile C.loadDotEnvFileInServerRootDir,
+      genFileCopy $ C.asTmplFile $ SP.castFile ServerNodeCommands.loadDotEnvFileInServerRootDir,
       genFileCopy [relfile|src/createRollupBundle.js|],
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,

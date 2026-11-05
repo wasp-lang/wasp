@@ -2,7 +2,6 @@ module Wasp.Generator.ServerGenerator.Common
   ( serverRootDirInGeneratedAppDir,
     serverSrcDirInServerRootDir,
     serverSrcDirInGeneratedAppDir,
-    loadDotEnvFileInServerRootDir,
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
@@ -16,7 +15,6 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    LoadDotEnvFile,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     serverPortEnvVarName,
@@ -25,7 +23,7 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Generator.Common
@@ -43,10 +41,6 @@ data ServerSrcDir
 data ServerTemplatesDir
 
 data ServerTemplatesSrcDir
-
--- | Loads the server's @.env@ file, preloaded with @node -r@ when running the
--- server.
-data LoadDotEnvFile
 
 instance GeneratedAppComponentSrcDir ServerSrcDir
 
@@ -69,9 +63,6 @@ serverSrcDirInServerRootDir = [reldir|src|]
 
 serverSrcDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir ServerSrcDir)
 serverSrcDirInGeneratedAppDir = serverRootDirInGeneratedAppDir </> serverSrcDirInServerRootDir
-
-loadDotEnvFileInServerRootDir :: Path' (Rel ServerRootDir) (File LoadDotEnvFile)
-loadDotEnvFileInServerRootDir = [relfile|loadDotEnv.cjs|]
 
 mkTmplFd :: Path' (Rel ServerTemplatesDir) File' -> FileDraft
 mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing

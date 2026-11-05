@@ -230,6 +230,7 @@ library
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NodeCommand
+    Wasp.Generator.NodeCommands
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common

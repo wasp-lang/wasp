@@ -4,14 +4,16 @@ module Wasp.Generator.ServerGenerator.NodeCommands
     bundleDbSeed,
     runServer,
     runDbSeed,
+    loadDotEnvFileInServerRootDir,
+    LoadDotEnvFile,
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, relfile, (</>))
+import StrongPath (Dir, File, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.NodeCommand (NodeCommand (..))
-import Wasp.Generator.ServerGenerator.Common (loadDotEnvFileInServerRootDir, serverRootDirInGeneratedAppDir)
+import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 
 -- | Through its project reference, `tsc --build` type-checks all of the user's
@@ -48,3 +50,10 @@ nodeServerScript scriptInServerDir =
   where
     serverDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir ServerRootDir) =
       generatedAppDirInWaspProjectDir </> serverRootDirInGeneratedAppDir
+
+-- | A script that loads the server's @.env@ file into @process.env@.
+-- 'nodeServerScript' preloads it with @node -r@.
+data LoadDotEnvFile
+
+loadDotEnvFileInServerRootDir :: Path' (Rel ServerRootDir) (File LoadDotEnvFile)
+loadDotEnvFileInServerRootDir = [relfile|loadDotEnv.cjs|]

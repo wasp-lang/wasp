@@ -25,6 +25,7 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import qualified Wasp.Generator.NodeCommand as NodeCommand
+import qualified Wasp.Generator.NodeCommands as NodeCommands
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
@@ -166,4 +167,4 @@ typeCheckUserCode spec sendMessage = do
       J.fromProc $
         NodeCommand.proc
           (AS.waspProjectDir spec)
-          (NodeCommand.typeCheckUserCode $ AS.srcTsConfigPath spec)
+          (NodeCommands.typeCheckUserCode $ AS.srcTsConfigPath spec)
