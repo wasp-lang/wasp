@@ -9,8 +9,7 @@ where
 import Data.Maybe (fromMaybe)
 import Wasp.Project.WaspNpmPackage (waspCliNpmPackageName, waspNpmPackageName)
 
--- | The npm command that installs the Wasp CLI globally. Wasp uses the global
--- CLI outside of projects, for example for `wasp new`.
+-- | The npm command that installs the Wasp CLI globally.
 getGlobalInstallationCommand :: Maybe String -> String
 getGlobalInstallationCommand version =
   "npm i -g " ++ waspCliNpmPackageName ++ "@" ++ versionString

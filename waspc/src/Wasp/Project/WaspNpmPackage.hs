@@ -10,15 +10,19 @@ module Wasp.Project.WaspNpmPackage
     waspDeployNpmPackageName,
     waspStudioNpmPackageName,
     WaspNpmPackageDir,
+
+    -- * Versions
+    tryGettingInstalledWaspNpmPackageVersion,
+    doesVersionMatchDeclaredSpecifier,
+    getWaspCliNpmPackageVersion,
+    isRunByWaspCliNpmPackage,
+
+    -- * Scripts
     waspSpecAnalyzerScriptInWaspNpmPackageDir,
     waspDeployScriptInWaspNpmPackageDir,
     waspStudioScriptInWaspNpmPackageDir,
     findWaspNpmPackageScript,
     runWaspNpmPackageScript,
-    tryGettingInstalledWaspNpmPackageVersion,
-    getWaspCliNpmPackageVersion,
-    isRunByWaspCliNpmPackage,
-    doesVersionMatchDeclaredSpecifier,
   )
 where
 
@@ -55,23 +59,44 @@ waspStudioNpmPackageName = "@wasp/studio"
 
 data WaspNpmPackageDir
 
--- | Finds the project's installed \@wasp/wasp the way Node.js resolves a
--- package: in the node_modules dir of the project, or of the closest parent
--- dir that has it. That covers every package manager's node_modules layout,
--- including monorepos where the package manager hoists dependencies to a
--- parent dir. The npm \@wasp/cli finds \@wasp/wasp with the same rule (see
--- `packages/cli/node-resolution.js`), so the two never disagree.
-findWaspNpmPackageDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir WaspNpmPackageDir)))
-findWaspNpmPackageDir waspProjectDir =
-  findM (IOUtil.doesFileExist . (</> [relfile|package.json|])) $
-    waspNpmPackageDirCandidates (castDir waspProjectDir)
-  where
-    waspNpmPackageDirCandidates :: Path' Abs Dir' -> [Path' Abs (Dir WaspNpmPackageDir)]
-    waspNpmPackageDirCandidates dir =
-      (dir </> [reldir|node_modules/@wasp/wasp|])
-        : (if parentDir == dir then [] else waspNpmPackageDirCandidates parentDir)
-      where
-        parentDir = SP.parent dir
+data InstalledPackageJsonFile
+
+instance PJ.PackageJsonFile InstalledPackageJsonFile
+
+tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String SV.Version)
+tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
+  waspNpmPackageDir <-
+    ExceptT $ maybe (Left $ waspNpmPackageNotInstalledMessage waspProjectDir) Right <$> findWaspNpmPackageDir waspProjectDir
+  let packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
+      packageJsonPath = castFile $ waspNpmPackageDir </> [relfile|package.json|]
+  packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
+  ExceptT $ return $ case PJ.version packageJson of
+    Just versionString -> first show $ SV.parseVersion versionString
+    Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
+
+-- | Whether the version satisfies what the project's package.json declares for
+-- \@wasp/wasp, the way npm decides it. E.g. a range like `^0.27.0` never
+-- matches a release candidate, and `0.27.0-rc.1` matches only itself. Other
+-- specifiers, e.g. `file:` tarballs, don't constrain the version.
+doesVersionMatchDeclaredSpecifier :: String -> SV.Version -> Bool
+doesVersionMatchDeclaredSpecifier declaredSpecifier version =
+  either (const True) (SV.isVersionInRange version) (SV.parseRange declaredSpecifier)
+
+-- | The version of the \@wasp/cli npm package that runs this binary, e.g.
+-- `0.27.0-rc.1`. It's the source of truth for the Wasp versions we write into
+-- package.json files, because the binary's own version ('WV.waspVersion') comes
+-- from Cabal, whose version format is incompatible with npm's SemVer. Falls back
+-- to the binary's version when the binary runs without \@wasp/cli, e.g. when
+-- built from source.
+getWaspCliNpmPackageVersion :: IO SV.Version
+getWaspCliNpmPackageVersion = fromMaybe WV.waspVersion <$> lookupWaspCliNpmPackageVersion
+
+-- | Whether the \@wasp/cli npm package runs this binary. It doesn't when
+-- someone runs the binary directly, e.g. one installed with the old installer
+-- script or built from source. Then nothing hands over to the project's
+-- Wasp CLI.
+isRunByWaspCliNpmPackage :: IO Bool
+isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
 
 -- | The script that runs the Wasp Spec analyzer of the project's \@wasp/spec.
 -- We run it with `node` by path. From inside \@wasp/wasp, Node resolves
@@ -120,16 +145,23 @@ runWaspNpmPackageScript waspProjectDir script args =
           P.delegate_ctlc = True
         }
 
-tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String SV.Version)
-tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
-  waspNpmPackageDir <-
-    ExceptT $ maybe (Left $ waspNpmPackageNotInstalledMessage waspProjectDir) Right <$> findWaspNpmPackageDir waspProjectDir
-  let packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
-      packageJsonPath = castFile $ waspNpmPackageDir </> [relfile|package.json|]
-  packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
-  ExceptT $ return $ case PJ.version packageJson of
-    Just versionString -> first show $ SV.parseVersion versionString
-    Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
+-- | Finds the project's installed \@wasp/wasp the way Node.js resolves a
+-- package: in the node_modules dir of the project, or of the closest parent
+-- dir that has it. That covers every package manager's node_modules layout,
+-- including monorepos where the package manager hoists dependencies to a
+-- parent dir. The npm \@wasp/cli finds \@wasp/wasp with the same rule (see
+-- `packages/cli/node-resolution.js`), so the two never disagree.
+findWaspNpmPackageDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir WaspNpmPackageDir)))
+findWaspNpmPackageDir waspProjectDir =
+  findM (IOUtil.doesFileExist . (</> [relfile|package.json|])) $
+    waspNpmPackageDirCandidates (castDir waspProjectDir)
+  where
+    waspNpmPackageDirCandidates :: Path' Abs Dir' -> [Path' Abs (Dir WaspNpmPackageDir)]
+    waspNpmPackageDirCandidates dir =
+      (dir </> [reldir|node_modules/@wasp/wasp|])
+        : (if parentDir == dir then [] else waspNpmPackageDirCandidates parentDir)
+      where
+        parentDir = SP.parent dir
 
 waspNpmPackageNotInstalledMessage :: Path' Abs (Dir WaspProjectDir) -> String
 waspNpmPackageNotInstalledMessage waspProjectDir =
@@ -139,38 +171,10 @@ waspNpmPackageNotInstalledMessage waspProjectDir =
     ++ fromAbsDir waspProjectDir
     ++ " or its parent dirs."
 
-data InstalledPackageJsonFile
-
-instance PJ.PackageJsonFile InstalledPackageJsonFile
-
--- | Whether the version satisfies what the project's package.json declares for
--- \@wasp/wasp, the way npm decides it. E.g. a range like `^0.27.0` never
--- matches a release candidate, and `0.27.0-rc.1` matches only itself. Other
--- specifiers, e.g. `file:` tarballs, don't constrain the version.
-doesVersionMatchDeclaredSpecifier :: String -> SV.Version -> Bool
-doesVersionMatchDeclaredSpecifier declaredSpecifier version =
-  either (const True) (SV.isVersionInRange version) (SV.parseRange declaredSpecifier)
-
 -- | The env var that \@wasp/cli sets to its package version when it runs this
 -- binary.
 waspCliNpmPackageVersionEnvVarName :: String
 waspCliNpmPackageVersionEnvVarName = "WASP_CLI_NPM_PACKAGE_VERSION"
-
--- | The version of the \@wasp/cli npm package that runs this binary, e.g.
--- `0.27.0-rc.1`. It's the source of truth for the Wasp versions we write into
--- package.json files, because the binary's own version ('WV.waspVersion') comes
--- from Cabal, whose version format is incompatible with npm's SemVer. Falls back
--- to the binary's version when the binary runs without \@wasp/cli, e.g. when
--- built from source.
-getWaspCliNpmPackageVersion :: IO SV.Version
-getWaspCliNpmPackageVersion = fromMaybe WV.waspVersion <$> lookupWaspCliNpmPackageVersion
-
--- | Whether the \@wasp/cli npm package runs this binary. It doesn't when
--- someone runs the binary directly, e.g. one installed with the old installer
--- script or built from source. Then nothing hands over to the project's
--- Wasp CLI.
-isRunByWaspCliNpmPackage :: IO Bool
-isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
 
 -- | Fails on a version that doesn't parse, because then \@wasp/cli is broken.
 lookupWaspCliNpmPackageVersion :: IO (Maybe SV.Version)
