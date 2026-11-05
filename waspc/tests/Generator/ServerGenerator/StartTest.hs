@@ -17,9 +17,7 @@ import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldNotBe, shouldReturn)
 import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
-import Wasp.AppComponentUrl (makeAppComponentUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..))
 import Wasp.Generator.ServerGenerator.Start
   ( CompileChanges (..),
@@ -33,6 +31,7 @@ import Wasp.Generator.ServerGenerator.Start
   )
 import qualified Wasp.Job as Job
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.RunConfig (ProjectRunConfig (..), makeLocalUrl)
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_startServer :: Spec
@@ -178,8 +177,14 @@ spec_startServer =
         notifySuccessfulCompile fixture RebundleAndRestartServer
         waitUntil "server crash report" $ ("Server process exited" `T.isInfixOf`) <$> readIORef (_output fixture)
 
-serverRunConfig :: ServerRunConfig
-serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"
+projectRunConfig :: ProjectRunConfig
+projectRunConfig =
+  ProjectRunConfig
+    { clientUrl = makeLocalUrl 3000 Nothing,
+      serverUrl = makeLocalUrl 0 Nothing,
+      clientPort = 3000,
+      serverPort = 0
+    }
 
 data ServerFixture = ServerFixture
   { _waspProjectDirPath :: FilePath,
@@ -210,7 +215,7 @@ withServerFixture serverScript test = do
         Job.run
           $ Job.captureOutput
           $ Job.observeOutput (\_ chunk -> modifyIORef' output (<> chunk))
-          $ startServer serverRunConfig generatedAppDir inbox
+          $ startServer projectRunConfig generatedAppDir inbox
   withAsync
     runController
     (\controllerJob -> test fixture >> stopController fixture controllerJob)
@@ -313,8 +318,11 @@ waitForServerStart fixture = do
         serverPid <- readServerPid fixture
         serverPort <- readServerPort fixture
         processAlive <- isProcessAlive serverPid
-        portAvailable <- isPortAvailable serverPort
-        return $ processAlive && not portAvailable
+        -- Checking the port binds it, so we don't do it for a PID file left
+        -- by a previous server: the next one might be binding the port.
+        if processAlive
+          then not <$> isPortAvailable serverPort
+          else return False
       else return False
   readServerPid fixture
 

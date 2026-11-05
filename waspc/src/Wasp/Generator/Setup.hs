@@ -164,8 +164,8 @@ typeCheckUserCode spec sendMessage = do
     typeCheck :: J.Job ExitCode
     typeCheck =
       J.fromProc
-        =<< J.npmBinProc
-          (AS.waspProjectDir spec)
+        $ J.setCwd (AS.waspProjectDir spec)
+        $ J.proc
           "tsc"
           [ "--project",
             SP.fromRelFile $ AS.srcTsConfigPath spec,
