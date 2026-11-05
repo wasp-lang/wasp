@@ -1,6 +1,6 @@
 module Wasp.Cli.DevDb
-  ( throwIfCustomDbAlreadyInUse,
-    startPostgresDevDb,
+  ( startPostgresDevDb,
+    throwIfCustomDbAlreadyInUse,
   )
 where
 
@@ -28,40 +28,6 @@ import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (checkExitSuccess)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Docker as Docker
-
-throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
-throwIfCustomDbAlreadyInUse spec = do
-  throwIfDbUrlInEnv
-  throwIfDbUrlInServerDotEnv spec
-  where
-    throwIfDbUrlInEnv :: Command ()
-    throwIfDbUrlInEnv = do
-      dbUrl <- liftIO $ lookupEnv databaseUrlEnvVarName
-      when (isJust dbUrl) $
-        throwCustomDbAlreadyInUseError
-          ( "Wasp has detected existing "
-              <> databaseUrlEnvVarName
-              <> " var in your environment.\n"
-              <> "To have Wasp run the dev database for you, make sure you remove that env var first."
-          )
-
-    throwIfDbUrlInServerDotEnv :: AS.AppSpec -> Command ()
-    throwIfDbUrlInServerDotEnv appSpec =
-      when (isThereDbUrlInServerDotEnv appSpec) $
-        throwCustomDbAlreadyInUseError
-          ( printf
-              ( "Wasp has detected that you have defined %s env var in your %s file.\n"
-                  <> "To have Wasp run the dev database for you, make sure you remove that env var first."
-              )
-              databaseUrlEnvVarName
-              (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
-          )
-      where
-        isThereDbUrlInServerDotEnv = any ((== databaseUrlEnvVarName) . fst) . AS.devEnvVarsServer
-
-    throwCustomDbAlreadyInUseError :: String -> Command ()
-    throwCustomDbAlreadyInUseError msg =
-      E.throwError $ CommandError "You are using custom database already" msg
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> Command ()
 startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath = do
@@ -136,3 +102,37 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
       [ " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath
       ]
+
+throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
+throwIfCustomDbAlreadyInUse spec = do
+  throwIfDbUrlInEnv
+  throwIfDbUrlInServerDotEnv spec
+  where
+    throwIfDbUrlInEnv :: Command ()
+    throwIfDbUrlInEnv = do
+      dbUrl <- liftIO $ lookupEnv databaseUrlEnvVarName
+      when (isJust dbUrl) $
+        throwCustomDbAlreadyInUseError
+          ( "Wasp has detected existing "
+              <> databaseUrlEnvVarName
+              <> " var in your environment.\n"
+              <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+          )
+
+    throwIfDbUrlInServerDotEnv :: AS.AppSpec -> Command ()
+    throwIfDbUrlInServerDotEnv appSpec =
+      when (isThereDbUrlInServerDotEnv appSpec) $
+        throwCustomDbAlreadyInUseError
+          ( printf
+              ( "Wasp has detected that you have defined %s env var in your %s file.\n"
+                  <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+              )
+              databaseUrlEnvVarName
+              (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
+          )
+      where
+        isThereDbUrlInServerDotEnv = any ((== databaseUrlEnvVarName) . fst) . AS.devEnvVarsServer
+
+    throwCustomDbAlreadyInUseError :: String -> Command ()
+    throwCustomDbAlreadyInUseError msg =
+      E.throwError $ CommandError "You are using custom database already" msg
