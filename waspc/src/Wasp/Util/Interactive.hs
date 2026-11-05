@@ -217,7 +217,7 @@ withLongRunningTask terminal message action =
 
 -- | Moves the cursor to the start of the line and erases the line.
 clearLine :: String
-clearLine = "\r" ++ Term.ansiEscapeCode ++ "[2K"
+clearLine = "\r" ++ Term.ansiEscapeCode ++ Term.ansiClearLineCode
 
 -- | Prompts for the user's answer and reads it.. Reaching the end of input
 -- while waiting for an answer (Ctrl+D) throws an error 'isPromptInputEOF'
