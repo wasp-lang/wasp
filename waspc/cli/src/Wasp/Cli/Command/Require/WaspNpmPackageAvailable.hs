@@ -7,7 +7,7 @@ import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
 import qualified Data.Map as M
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', fromAbsDir)
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -16,7 +16,8 @@ import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspNpmPackage
-  ( doesVersionMatchDeclaredSpecifier,
+  ( InstalledWaspNpmPackageError (..),
+    doesVersionMatchDeclaredSpecifier,
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
     tryGettingInstalledWaspNpmPackageVersion,
@@ -46,33 +47,43 @@ instance Requirable WaspNpmPackageAvailable where
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
         | not (doesVersionMatchDeclaredSpecifier declaredSpecifier installedVersion) ->
-            throwError $ missingDepsError $ staleInstallReason declaredSpecifier installedVersion
+            throwError $ staleInstallError declaredSpecifier installedVersion
         | cliVersion /= installedVersion -> do
             isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
             throwError $ versionMismatchError isRunByNpmPackage cliVersion installedVersion
         | otherwise -> return WaspNpmPackageAvailable
-      Left reason -> throwError $ missingDepsError reason
+      Left WaspNpmPackageNotInstalled -> throwError $ notInstalledError waspProjectDir
+      Left (BrokenWaspNpmPackage reason) -> throwError $ brokenInstallError reason
     where
-      missingDepsError reason =
-        CommandError
-          "Missing or stale dependencies in project"
-          $ "Your project's dependencies are missing or out of date. Run "
+      notInstalledError :: Path' Abs (Dir WaspProjectDir) -> CommandError
+      notInstalledError waspProjectDir =
+        CommandError "Wasp is not installed" $
+          "Couldn't find "
+            ++ styleCode waspNpmPackageName
+            ++ " in the node_modules of "
+            ++ fromAbsDir waspProjectDir
+            ++ " or its parent dirs. Run "
             ++ styleCode "npm install"
-            ++ " to fix this.\n"
-            ++ "Details: "
-            ++ reason
+            ++ " to install it."
 
-      staleInstallReason :: String -> SV.Version -> String
-      staleInstallReason declaredSpecifier installedVersion =
-        "The package.json asks for "
-          ++ waspNpmPackageName
-          ++ " "
-          ++ declaredSpecifier
-          ++ ", but node_modules has "
-          ++ waspNpmPackageName
-          ++ " "
-          ++ show installedVersion
-          ++ "."
+      staleInstallError :: String -> SV.Version -> CommandError
+      staleInstallError declaredSpecifier installedVersion =
+        CommandError "The installed Wasp is out of date" $
+          "The package.json asks for "
+            ++ styleCode (waspNpmPackageName ++ " " ++ declaredSpecifier)
+            ++ ", but node_modules has "
+            ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
+            ++ ". Run "
+            ++ styleCode "npm install"
+            ++ " to update it."
+
+      brokenInstallError :: String -> CommandError
+      brokenInstallError reason =
+        CommandError "The installed Wasp is broken" $
+          "Run "
+            ++ styleCode "npm install"
+            ++ " to reinstall it.\nDetails: "
+            ++ reason
 
       notADependencyError :: SV.Version -> CommandError
       notADependencyError cliVersion =
@@ -123,9 +134,8 @@ instance Requirable WaspNpmPackageAvailable where
                 ++ show cliVersion
                 ++ " directly, which can't switch to the project's version. Run the project's Wasp with "
                 ++ styleCode "npm run wasp -- <command>"
-                ++ ". If you installed Wasp with the installer script, migrate to npm with "
-                ++ styleCode "curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm"
-                ++ "."
+                ++ ". If you installed Wasp with the installer script, migrate to npm: "
+                ++ "https://wasp.sh/docs/guides/legacy/installer#migrate"
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration

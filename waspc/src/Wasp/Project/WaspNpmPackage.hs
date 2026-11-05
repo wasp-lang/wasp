@@ -7,6 +7,7 @@ module Wasp.Project.WaspNpmPackage
     WaspNpmPackageDir,
 
     -- * Versions
+    InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
     doesVersionMatchDeclaredSpecifier,
     getWaspCliNpmPackageVersion,
@@ -44,14 +45,19 @@ data InstalledPackageJsonFile
 
 instance PJ.PackageJsonFile InstalledPackageJsonFile
 
-tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either String SV.Version)
+data InstalledWaspNpmPackageError
+  = WaspNpmPackageNotInstalled
+  | -- | Its package.json is unreadable or has no valid version, with this reason.
+    BrokenWaspNpmPackage String
+
+tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
 tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
   waspNpmPackageDir <-
-    ExceptT $ maybe (Left $ waspNpmPackageNotInstalledMessage waspProjectDir) Right <$> findWaspNpmPackageDir waspProjectDir
+    ExceptT $ maybe (Left WaspNpmPackageNotInstalled) Right <$> findWaspNpmPackageDir waspProjectDir
   let packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
       packageJsonPath = castFile $ waspNpmPackageDir </> [relfile|package.json|]
-  packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
-  ExceptT $ return $ case PJ.version packageJson of
+  packageJson <- ExceptT $ liftIO $ first BrokenWaspNpmPackage <$> PJ.parsePackageJsonFile packageJsonPath
+  ExceptT $ return $ first BrokenWaspNpmPackage $ case PJ.version packageJson of
     Just versionString -> first show $ SV.parseVersion versionString
     Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
 

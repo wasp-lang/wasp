@@ -14,6 +14,4 @@ install :: Command ()
 install =
   throwError
     $ CommandError "The `wasp install` command was removed"
-    $ "Run "
-      ++ styleCode "npm install"
-      ++ " instead. It installs Wasp along with the rest of your dependencies."
+    $ "Run " ++ styleCode "npm install" ++ " instead."
