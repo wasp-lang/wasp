@@ -177,6 +177,21 @@ spec_startServer =
         notifySuccessfulCompile fixture RebundleAndRestartServer
         waitUntil "server crash report" $ ("Server process exited" `T.isInfixOf`) <$> readIORef (_output fixture)
 
+    it "restarts the server with the run config of the latest compile" $
+      withServerFixture loopingServerScript $ \fixture -> do
+        void $ waitForServerStart fixture
+        let managedDatabaseUrl = "file:./dev.db"
+
+        -- E.g. the user removed their DATABASE_URL from .env.server, so Wasp
+        -- passes the managed database's URL.
+        void $ compileWithRunConfigAndWaitForServer fixture projectRunConfig {databaseUrl = Just managedDatabaseUrl} RestartServer
+        readServerDatabaseUrl fixture `shouldReturn` managedDatabaseUrl
+
+        -- E.g. the user added their DATABASE_URL to .env.server, so Wasp stops
+        -- passing the managed database's URL.
+        void $ compileWithRunConfigAndWaitForServer fixture projectRunConfig {databaseUrl = Nothing} RestartServer
+        readServerDatabaseUrl fixture >>= (`shouldNotBe` managedDatabaseUrl)
+
 projectRunConfig :: ProjectRunConfig
 projectRunConfig =
   ProjectRunConfig
@@ -250,6 +265,7 @@ loopingServerScript =
     [ "const fs = require('node:fs');",
       "const net = require('node:net');",
       "fs.writeFileSync('runtime-env.txt', [process.env.PORT, process.env.WASP_SERVER_URL, process.env.WASP_WEB_CLIENT_URL].join('\\n'));",
+      "fs.writeFileSync('" <> serverDatabaseUrlFileName <> "', process.env.DATABASE_URL ?? '');",
       "const port = Number(fs.readFileSync('" <> serverPortFileName <> "', 'utf8'));",
       "const server = net.createServer();",
       "server.listen(port, '127.0.0.1', () => {",
@@ -307,6 +323,12 @@ bundleScriptPath fixture = serverDirPath fixture </> "bundle.js"
 serverPortFileName :: FilePath
 serverPortFileName = "server-port.txt"
 
+serverDatabaseUrlFileName :: FilePath
+serverDatabaseUrlFileName = "server-database-url.txt"
+
+readServerDatabaseUrl :: ServerFixture -> IO String
+readServerDatabaseUrl fixture = readFile' (_waspProjectDirPath fixture </> serverDatabaseUrlFileName)
+
 serverPortFilePath :: ServerFixture -> FilePath
 serverPortFilePath fixture = _waspProjectDirPath fixture </> serverPortFileName
 
@@ -327,11 +349,14 @@ waitForServerStart fixture = do
       else return False
   readServerPid fixture
 
--- | Clears the previous PID so waiting cannot mistake the old server for the new one.
 compileAndWaitForServer :: ServerFixture -> ServerEffect -> IO ProcessId
-compileAndWaitForServer fixture serverEffect = do
+compileAndWaitForServer fixture = compileWithRunConfigAndWaitForServer fixture projectRunConfig
+
+-- | Clears the previous PID so waiting cannot mistake the old server for the new one.
+compileWithRunConfigAndWaitForServer :: ServerFixture -> ProjectRunConfig -> ServerEffect -> IO ProcessId
+compileWithRunConfigAndWaitForServer fixture compiledProjectRunConfig serverEffect = do
   clearServerPid fixture
-  notifySuccessfulCompile fixture serverEffect
+  notifySuccessfulCompileWithRunConfig fixture compiledProjectRunConfig serverEffect
   waitForServerStart fixture
 
 waitForServerExit :: ProcessId -> IO ()
@@ -372,21 +397,25 @@ readBundleCount fixture = do
     else return 0
 
 notifySuccessfulCompile :: ServerFixture -> ServerEffect -> IO ()
-notifySuccessfulCompile fixture serverEffect = do
+notifySuccessfulCompile fixture = notifySuccessfulCompileWithRunConfig fixture projectRunConfig
+
+notifySuccessfulCompileWithRunConfig :: ServerFixture -> ProjectRunConfig -> ServerEffect -> IO ()
+notifySuccessfulCompileWithRunConfig fixture compiledProjectRunConfig serverEffect = do
   compileStartTime <- getCurrentTime
-  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime serverEffect
+  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime compiledProjectRunConfig serverEffect
 
 -- | The changes of a compile that started at the given time, that have the
 -- given effect on the server.
-compileChangesWithEffect :: UTCTime -> ServerEffect -> CompileChanges
-compileChangesWithEffect compileStartTime serverEffect =
+compileChangesWithEffect :: UTCTime -> ProjectRunConfig -> ServerEffect -> CompileChanges
+compileChangesWithEffect compileStartTime compiledProjectRunConfig serverEffect =
   CompileChanges
     { _compileStartTime = compileStartTime,
       _changedProjectFiles = [],
       _changedGeneratedAppPaths = case serverEffect of
         NoChange -> []
         RestartServer -> [Left [SP.relfile|server/.env|]]
-        RebundleAndRestartServer -> [Left [SP.relfile|server/src/server.ts|]]
+        RebundleAndRestartServer -> [Left [SP.relfile|server/src/server.ts|]],
+      _projectRunConfig = compiledProjectRunConfig
     }
 
 notifyFailedCompile :: ServerFixture -> IO ()

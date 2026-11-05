@@ -38,10 +38,13 @@ import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- | Bundles and runs the development server, and then keeps it up to date with
 -- the compiles sent to the inbox. Never finishes by itself.
+--
+-- The server starts with @initialProjectRunConfig@, and each later server
+-- starts with the run config of the latest compile.
 startServer :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> J.Job Void
-startServer projectRunConfig generatedAppDir inbox = do
+startServer initialProjectRunConfig generatedAppDir inbox = do
   startTime <- liftIO getCurrentTime
-  join $ bundleAndRunServer startTime $ return $ runUntilReplaced noServer False
+  join $ bundleAndRunServer startTime initialProjectRunConfig $ return $ runUntilReplaced noServer False
   where
     -- Runs the server job, and handles compiles until it has to be replaced.
     -- `withAsync` waits for the server job to stop, and the server process to
@@ -64,10 +67,10 @@ startServer projectRunConfig generatedAppDir inbox = do
 
       case (hasUpToDateServer, serverUpdate) of
         (_, StopServer) -> waitForChanges
-        (False, ApplyServerEffect compileStartTime _) -> bundleAndRunServer compileStartTime rebundleOnNextCompile
-        (True, ApplyServerEffect compileStartTime RebundleAndRestartServer) -> bundleAndRunServer compileStartTime rebundleOnNextCompile
-        (True, ApplyServerEffect _ RestartServer) -> restartServer
-        (True, ApplyServerEffect _ NoChange) -> produceNextServerJob server isBundleUpToDate
+        (False, ApplyServerEffect compileStartTime projectRunConfig _) -> bundleAndRunServer compileStartTime projectRunConfig rebundleOnNextCompile
+        (True, ApplyServerEffect compileStartTime projectRunConfig RebundleAndRestartServer) -> bundleAndRunServer compileStartTime projectRunConfig rebundleOnNextCompile
+        (True, ApplyServerEffect _ projectRunConfig RestartServer) -> restartServer projectRunConfig
+        (True, ApplyServerEffect _ _ NoChange) -> produceNextServerJob server isBundleUpToDate
       where
         rebundleOnNextCompile =
           -- The current server keeps running meanwhile.
@@ -78,21 +81,21 @@ startServer projectRunConfig generatedAppDir inbox = do
     waitForChanges :: J.Job (J.Job Void)
     waitForChanges = return $ printWaitingForChanges >> runUntilReplaced noServer False
 
-    restartServer :: J.Job (J.Job Void)
-    restartServer = printUpdatingServer >> runServer
+    restartServer :: ProjectRunConfig -> J.Job (J.Job Void)
+    restartServer projectRunConfig = printUpdatingServer >> runServer projectRunConfig
 
     -- If files change while bundling, the bundle is out of date, so it's
     -- interrupted.
-    bundleAndRunServer compileStartTime onFileChangeInterruption =
+    bundleAndRunServer compileStartTime projectRunConfig onFileChangeInterruption =
       printUpdatingServer
         >> J.race (liftIO $ waitForFileChangeSince compileStartTime) bundle
         >>= \case
-          Right ExitSuccess -> runServer
+          Right ExitSuccess -> runServer projectRunConfig
           Right (ExitFailure _) -> waitForChanges
           Left () -> onFileChangeInterruption
 
-    runServer :: J.Job (J.Job Void)
-    runServer = return $ runUntilReplaced runServerProcess True
+    runServer :: ProjectRunConfig -> J.Job (J.Job Void)
+    runServer projectRunConfig = return $ runUntilReplaced (runServerProcess projectRunConfig) True
 
     noServer :: J.Job ()
     noServer = return ()
@@ -113,9 +116,9 @@ startServer projectRunConfig generatedAppDir inbox = do
     waitForFileChangeSince time =
       atomically $ readTVar (_lastFileChange inbox) >>= check . (>= Just time)
 
-    runServerProcess :: J.Job ()
-    runServerProcess =
-      J.fromProc serverProcess
+    runServerProcess :: ProjectRunConfig -> J.Job ()
+    runServerProcess projectRunConfig =
+      J.fromProc (serverProcess projectRunConfig)
         >>= reportServerExit
         >> printWaitingForChanges
 
@@ -132,8 +135,8 @@ startServer projectRunConfig generatedAppDir inbox = do
       J.fromProc (NodeCommand.proc serverDir ServerNodeCommands.typeCheckServer)
         `J.andThen` J.fromProc (NodeCommand.proc serverDir ServerNodeCommands.bundleServer)
 
-    serverProcess :: J.CreateJobProcess
-    serverProcess =
+    serverProcess :: ProjectRunConfig -> J.CreateJobProcess
+    serverProcess projectRunConfig =
       J.addEnvVarsOverride (("NODE_ENV", "development") : makeEnvVars projectRunConfig) $
         NodeCommand.proc waspProjectDir ServerNodeCommands.runServer
 
@@ -145,7 +148,7 @@ startServer projectRunConfig generatedAppDir inbox = do
 serverUpdateFor :: NonEmpty CompileOutcome -> ServerUpdate
 serverUpdateFor compiles@(latestCompile :| _) = case latestCompile of
   FailedCompile -> StopServer
-  SuccessfulCompile changes -> ApplyServerEffect (_compileStartTime changes) $ maximum $ compileServerEffect <$> compiles
+  SuccessfulCompile changes -> ApplyServerEffect (_compileStartTime changes) (_projectRunConfig changes) $ maximum $ compileServerEffect <$> compiles
   where
     compileServerEffect :: CompileOutcome -> ServerEffect
     compileServerEffect = \case
@@ -193,14 +196,16 @@ data CompileChanges = CompileChanges
   { -- | Changes from this time on aren't part of the compile.
     _compileStartTime :: UTCTime,
     _changedProjectFiles :: [Path' (Rel WaspProjectDir) File'],
-    _changedGeneratedAppPaths :: [ChangedGeneratedAppPath]
+    _changedGeneratedAppPaths :: [ChangedGeneratedAppPath],
+    -- | The run config for the app this compile produced.
+    _projectRunConfig :: ProjectRunConfig
   }
 
 data ServerUpdate
   = StopServer
-  | -- | With the start time of the latest compile, and the strongest effect
-    -- among the compiles.
-    ApplyServerEffect UTCTime ServerEffect
+  | -- | With the start time and run config of the latest compile, and the
+    -- strongest effect among the compiles.
+    ApplyServerEffect UTCTime ProjectRunConfig ServerEffect
 
 data ServerInbox = ServerInbox
   { -- | The compiles that `startServer` hasn't handled yet, newest first.

@@ -15,6 +15,7 @@ import qualified StrongPath as SP
 import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
+import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
@@ -24,6 +25,7 @@ import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -38,7 +40,8 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
 -- It reports file changes as they happen, and compiles once they finish, to
--- 'onServerEvent'.
+-- 'onServerEvent'. Each successful compile comes with the run config that
+-- @makeProjectRunConfig@ makes for the compiled 'AppSpec'.
 --
 -- It assumes the project was successfully compiled just before calling it, so
 -- it starts as 'UpToDate', and from then on it uses the given @projectLock@ to
@@ -48,9 +51,10 @@ watch ::
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   ProjectLock ->
   MVar ([CompileWarning], [CompileError]) ->
+  (AppSpec -> IO ProjectRunConfig) ->
   (ServerEvent -> IO ()) ->
   IO ()
-watch waspProjectDir outDir projectLock ongoingCompilationResultMVar onServerEvent = do
+watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -150,14 +154,16 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar onServerEve
 
       printCompilationResult (warnings, errors)
       compileOutcome <- case _compileOutcome compileResult of
-        Right _ -> do
+        Right appSpec -> do
           cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
+          projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
               CompileChanges
                 { _compileStartTime = compileStartTime,
                   _changedProjectFiles = changedProjectFiles,
-                  _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
+                  _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult,
+                  _projectRunConfig = projectRunConfig
                 }
         Left _ -> do
           cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")

@@ -58,7 +58,10 @@ start = withArguments startArgsParser $ \args ->
     (warnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
-    projectRunConfig <- liftIO $ makeDevProjectRunConfig appSpec ports (args.clientUrl, args.serverUrl)
+    -- The ports and custom URLs stay the same for the whole session, while the
+    -- rest of the run config follows the latest compile.
+    let makeProjectRunConfig spec = makeDevProjectRunConfig spec ports (args.clientUrl, args.serverUrl)
+    projectRunConfig <- liftIO $ makeProjectRunConfig appSpec
     assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
 
     throwIfDbConnectionNotEstablished projectRunConfig
@@ -75,7 +78,7 @@ start = withArguments startArgsParser $ \args ->
       -- 'watch') once jobs from 'start' quiet down a bit.
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
-      let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar $ ServerGenerator.Start.notifyServer serverInbox
+      let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
       let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
