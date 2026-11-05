@@ -2,18 +2,8 @@
 
 -- | Running commands as processes, without a shell.
 module E2E.Process
-  ( Command (..),
-    Program (..),
-    StdinMode (..),
-    ProcessResult (..),
+  ( ProcessResult (..),
     BackgroundProcess,
-    command,
-    waspCli,
-    withEnv,
-    withoutEnv,
-    withStdinText,
-    withOpenEmptyStdin,
-    withTimeout,
     run,
     runExpectingFailure,
     runAllowingFailure,
@@ -21,108 +11,48 @@ module E2E.Process
     waitForOutput,
     getBackgroundOutput,
     waitForExit,
-    interrupt,
-    signal,
     signalProcessGroupOf,
     getProcessGroupId,
   )
 where
 
-import Control.Concurrent.Async (Async)
-import qualified Control.Concurrent.Async as Async
-import Control.Concurrent.STM
-  ( STM,
-    TVar,
-    atomically,
-    check,
-    modifyTVar',
-    newTVarIO,
-    orElse,
-    readTVar,
-    registerDelay,
-  )
-import Control.Monad (forM_, unless, when)
+import Control.Concurrent.STM (STM, atomically, check, orElse, readTVar, registerDelay)
+import Control.Monad (forM_, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask, asks)
 import Control.Monad.Trans.Resource (ReleaseKey, release)
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.Maybe (isJust, isNothing)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import qualified Data.Text.Encoding.Error as TE
-import Data.Time.Clock (UTCTime, diffUTCTime, getCurrentTime)
-import E2E.Signals (Signal (..), signalProcess, signalProcessGroup)
-import E2E.TestM (RunConfig (..), TestEnv (..), TestLog, TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, runTestM, writeToLog)
+import E2E.Command (Command (..), StdinMode (..), showCommand)
+import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
+import E2E.Signals (Signal (..), signalProcessGroup)
+import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, runTestM)
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
-import System.IO (BufferMode (NoBuffering), Handle, hClose, hSetBuffering)
 import System.Process (getPid)
 import qualified System.Process.Typed as TP
-import Text.Printf (printf)
 import UnliftIO.Exception (catchAny)
-
-data Command = Command
-  { program :: Program,
-    arguments :: [String],
-    -- | @Just value@ sets the variable, @Nothing@ removes it.
-    environmentOverrides :: [(String, Maybe String)],
-    stdinMode :: StdinMode,
-    -- | How long 'run' and its variants wait for the command to exit.
-    timeoutSeconds :: Int
-  }
-
-data Program
-  = -- | The Wasp CLI under test.
-    WaspCli
-  | Executable String
-
-data StdinMode
-  = -- | The process reads EOF from stdin right away.
-    ClosedStdin
-  | -- | The process reads the text and then EOF.
-    StdinText T.Text
-  | -- | Stdin stays open, without any data, until the process exits.
-    OpenEmptyStdin
 
 data ProcessResult = ProcessResult
   { exitCode :: ExitCode,
     stdout :: T.Text,
-    stderr :: T.Text,
     -- | Stdout and stderr interleaved in the order they arrived, like @2>&1@.
     combinedOutput :: T.Text
   }
 
-command :: String -> [String] -> Command
-command executable = makeCommand (Executable executable)
-
-waspCli :: [String] -> Command
-waspCli = makeCommand WaspCli
-
-makeCommand :: Program -> [String] -> Command
-makeCommand commandProgram commandArguments =
-  Command
-    { program = commandProgram,
-      arguments = commandArguments,
-      environmentOverrides = [],
-      stdinMode = ClosedStdin,
-      timeoutSeconds = 15 * 60
-    }
-
-withEnv :: [(String, String)] -> Command -> Command
-withEnv variables cmd = cmd {environmentOverrides = cmd.environmentOverrides ++ [(key, Just value) | (key, value) <- variables]}
-
-withoutEnv :: [String] -> Command -> Command
-withoutEnv keys cmd = cmd {environmentOverrides = cmd.environmentOverrides ++ [(key, Nothing) | key <- keys]}
-
-withStdinText :: T.Text -> Command -> Command
-withStdinText text cmd = cmd {stdinMode = StdinText text}
-
-withOpenEmptyStdin :: Command -> Command
-withOpenEmptyStdin cmd = cmd {stdinMode = OpenEmptyStdin}
-
-withTimeout :: Int -> Command -> Command
-withTimeout seconds cmd = cmd {timeoutSeconds = seconds}
+-- | A process that runs while the test continues with other steps.
+--
+-- If it's still running when the test ends, it's stopped (see 'stopProcess').
+data BackgroundProcess = BackgroundProcess
+  { processCommand :: Command,
+    process :: TP.Process () () (),
+    -- | The process was started in its own group, so its PID is also its
+    -- process group ID. 'Nothing' if it exited before we could read its PID.
+    processGroupId :: Maybe Int,
+    output :: Output
+  }
 
 -- | Runs the command and fails the test if it doesn't succeed.
 run :: Command -> TestM ProcessResult
@@ -142,52 +72,29 @@ runExpectingFailure cmd = do
 
 runAllowingFailure :: Command -> TestM ProcessResult
 runAllowingFailure cmd = do
-  backgroundProcess <- startInBackground cmd
+  (stopKey, backgroundProcess) <- startInBackgroundWithStopKey cmd
   exitCode <- waitForExit backgroundProcess cmd.timeoutSeconds
   -- Stops what the command left running right away, instead of when the test
   -- ends. By then, its process group ID could belong to another group.
-  release backgroundProcess.stopKey
+  release stopKey
   liftIO . atomically $ do
-    chunks <- reverse <$> readTVar backgroundProcess.outputChunks
-    return
-      ProcessResult
-        { exitCode,
-          stdout = decodeChunks [chunk | (Stdout, chunk) <- chunks],
-          stderr = decodeChunks [chunk | (Stderr, chunk) <- chunks],
-          combinedOutput = decodeChunks $ map snd chunks
-        }
-
--- | A process that runs while the test continues with other steps.
---
--- If it's still running when the test ends, it's stopped (see 'stopProcess').
-data BackgroundProcess = BackgroundProcess
-  { processCommand :: Command,
-    process :: RunningProcess,
-    -- | The process was started in its own group, so its PID is also its
-    -- process group ID. 'Nothing' if it exited before we could read its PID.
-    processGroupId :: Maybe Int,
-    startTime :: UTCTime,
-    -- | Output of both streams in the order it arrived, newest first.
-    outputChunks :: TVar [(OutputStream, BS.ByteString)],
-    -- | Releasing it stops the process. Otherwise, that happens when the test ends.
-    stopKey :: ReleaseKey
-  }
-
--- | Stdin is kept only with 'OpenEmptyStdin'. Stdout and stderr come with
--- the threads that read them.
-type RunningProcess = TP.Process (Maybe Handle) (Async ()) (Async ())
-
-data OutputStream = Stdout | Stderr
+    stdout <- readStdout backgroundProcess.output
+    combinedOutput <- readCombinedOutput backgroundProcess.output
+    return ProcessResult {exitCode, stdout, combinedOutput}
 
 -- | Starts the process in its own process group, so we can stop it together
 -- with its children.
 startInBackground :: Command -> TestM BackgroundProcess
-startInBackground cmd = do
-  executable <- resolveExecutable cmd.program
+startInBackground cmd = snd <$> startInBackgroundWithStopKey cmd
+
+-- | Releasing the key stops the process. Otherwise, that happens when the test ends.
+startInBackgroundWithStopKey :: Command -> TestM (ReleaseKey, BackgroundProcess)
+startInBackgroundWithStopKey cmd = do
+  executable <- if cmd.executable == "wasp" then asks (.runConfig.waspCliPath) else return cmd.executable
   workingDir <- getWorkingDir
   environment <- liftIO $ buildEnvironment cmd.environmentOverrides
   testEnv <- ask
-  outputChunks <- liftIO $ newTVarIO []
+  output <- liftIO $ newOutput testEnv.testLog
   logLine $ "\n==> " ++ showCommand cmd ++ "\n    in " ++ workingDir
 
   let processConfig =
@@ -195,39 +102,22 @@ startInBackground cmd = do
           . TP.setWorkingDir workingDir
           . maybe id TP.setEnv environment
           . TP.setStdin (stdinSpec cmd.stdinMode)
-          . TP.setStdout (outputSpec testEnv.testLog outputChunks Stdout)
-          . TP.setStderr (outputSpec testEnv.testLog outputChunks Stderr)
+          . TP.setStdout (captureStream output Stdout)
+          . TP.setStderr (captureStream output Stderr)
           $ TP.proc executable cmd.arguments
       start = do
         process <- TP.startProcess processConfig
         processGroupId <- fmap fromIntegral <$> getPid (TP.unsafeProcessHandle process)
-        return (process, processGroupId)
+        return BackgroundProcess {processCommand = cmd, process, processGroupId, output}
 
-  startTime <- liftIO getCurrentTime
-  (stopKey, (process, processGroupId)) <-
-    allocateWithCleanup start $ \(process, processGroupId) ->
-      runTestM testEnv $ stopProcess cmd process processGroupId
-  return BackgroundProcess {processCommand = cmd, process, processGroupId, startTime, outputChunks, stopKey}
+  allocateWithCleanup start (runTestM testEnv . stopProcess)
 
-stdinSpec :: StdinMode -> TP.StreamSpec 'TP.STInput (Maybe Handle)
+stdinSpec :: StdinMode -> TP.StreamSpec 'TP.STInput ()
 stdinSpec = \case
-  ClosedStdin -> Nothing <$ TP.byteStringInput BSL.empty
   -- Written from another thread, since a process that is blocked writing to
   -- a full output pipe doesn't read its stdin.
-  StdinText text -> Nothing <$ TP.byteStringInput (BSL.fromStrict $ TE.encodeUtf8 text)
-  OpenEmptyStdin -> Just <$> TP.createPipe
-
--- | Reads the output in a thread, which closes the pipe once it's done.
--- Closing it from elsewhere would wait for a read in progress, which lasts as
--- long as any children that outlive the process keep the pipe open.
-outputSpec :: TestLog -> TVar [(OutputStream, BS.ByteString)] -> OutputStream -> TP.StreamSpec streamType (Async ())
-outputSpec testLog chunks stream = TP.mkPipeStreamSpec $ \_ handle -> do
-  reader <- Async.asyncWithUnmask $ \unmask -> unmask $ collectOutput testLog stream handle chunks
-  return (reader, return ())
-
-resolveExecutable :: Program -> TestM FilePath
-resolveExecutable WaspCli = asks (.runConfig.waspCliPath)
-resolveExecutable (Executable executable) = return executable
+  StdinText text -> TP.byteStringInput (BSL.fromStrict $ TE.encodeUtf8 text)
+  OpenEmptyStdin -> void TP.createPipe
 
 buildEnvironment :: [(String, Maybe String)] -> IO (Maybe [(String, String)])
 buildEnvironment [] = return Nothing -- Inherit the test runner's environment.
@@ -237,88 +127,51 @@ buildEnvironment overrides = Just . applyOverrides <$> getEnvironment
     applyOverride environment (key, maybeValue) =
       filter ((/= key) . fst) environment ++ maybe [] (\value -> [(key, value)]) maybeValue
 
-collectOutput :: TestLog -> OutputStream -> Handle -> TVar [(OutputStream, BS.ByteString)] -> IO ()
-collectOutput testLog stream handle chunks = do
-  hSetBuffering handle NoBuffering
-  readChunks `catchAny` const (return ())
-  hClose handle `catchAny` const (return ())
-  where
-    readChunks = do
-      chunk <- BS.hGetSome handle 32768
-      unless (BS.null chunk) $ do
-        atomically $ modifyTVar' chunks ((stream, chunk) :)
-        writeToLog testLog chunk
-        readChunks
-
 -- | Waits until the process prints the text (to stdout or stderr).
 -- Fails the test if that doesn't happen in time or if the process exits first.
 waitForOutput :: BackgroundProcess -> T.Text -> Int -> TestM ()
 waitForOutput backgroundProcess expectedText seconds = do
-  timedOut <- liftIO $ registerDelay (seconds * 1000000)
-  outcome <-
-    liftIO . atomically $
+  maybeOutcome <-
+    liftIO . waitAtMost seconds $
       (outputContainsText >>= check >> return OutputFound)
         `orElse` (processExitedWithAllOutputRead >>= check >> return ProcessExited)
-        `orElse` (readTVar timedOut >>= check >> return TimedOut)
   output <- getBackgroundOutput backgroundProcess
-  case outcome of
-    OutputFound -> logLine $ "\n==> Found expected output: " ++ show expectedText
-    ProcessExited -> failTest $ describeFailure backgroundProcess.processCommand ("exited before printing " ++ show expectedText) output
-    TimedOut -> failTest $ describeFailure backgroundProcess.processCommand ("didn't print " ++ show expectedText ++ " within " ++ show seconds ++ "s") output
+  case maybeOutcome of
+    Just OutputFound -> logLine $ "\n==> Found expected output: " ++ show expectedText
+    Just ProcessExited -> failTest $ describeFailure backgroundProcess.processCommand ("exited before printing " ++ show expectedText) output
+    Nothing -> failTest $ describeFailure backgroundProcess.processCommand ("didn't print " ++ show expectedText ++ " within " ++ show seconds ++ "s") output
   where
     outputContainsText :: STM Bool
-    outputContainsText = T.isInfixOf expectedText <$> readCombinedOutputSTM backgroundProcess
+    outputContainsText = T.isInfixOf expectedText <$> readCombinedOutput backgroundProcess.output
 
     processExitedWithAllOutputRead :: STM Bool
-    processExitedWithAllOutputRead = (&&) . isJust <$> TP.getExitCodeSTM backgroundProcess.process <*> isOutputClosedSTM backgroundProcess.process
+    processExitedWithAllOutputRead = (&&) . isJust <$> TP.getExitCodeSTM backgroundProcess.process <*> isFullyRead backgroundProcess.output
 
-data WaitForOutputOutcome = OutputFound | ProcessExited | TimedOut
+data WaitForOutputOutcome = OutputFound | ProcessExited
 
 -- | Stdout and stderr the process printed so far, interleaved.
 getBackgroundOutput :: BackgroundProcess -> TestM T.Text
-getBackgroundOutput = liftIO . atomically . readCombinedOutputSTM
-
--- | Both output streams have been read to the end.
-isOutputClosedSTM :: RunningProcess -> STM Bool
-isOutputClosedSTM process = (&&) <$> isDone (TP.getStdout process) <*> isDone (TP.getStderr process)
-  where
-    isDone = fmap isJust . Async.pollSTM
-
-readCombinedOutputSTM :: BackgroundProcess -> STM T.Text
-readCombinedOutputSTM backgroundProcess = decodeChunks . map snd . reverse <$> readTVar backgroundProcess.outputChunks
-
-decodeChunks :: [BS.ByteString] -> T.Text
-decodeChunks = TE.decodeUtf8With TE.lenientDecode . BS.concat
+getBackgroundOutput backgroundProcess = liftIO . atomically $ readCombinedOutput backgroundProcess.output
 
 -- | Waits for the process to exit, but at most for the given number of seconds.
--- If it doesn't exit in time, the process is stopped and the test fails.
+-- If it doesn't exit in time, the test fails (and the process is stopped).
 waitForExit :: BackgroundProcess -> Int -> TestM ExitCode
 waitForExit backgroundProcess seconds = do
-  timedOut <- liftIO $ registerDelay (seconds * 1000000)
-  maybeExitCode <-
-    liftIO . atomically $
-      (Just <$> TP.waitExitCodeSTM backgroundProcess.process)
-        `orElse` (readTVar timedOut >>= check >> return Nothing)
+  maybeExitCode <- liftIO . waitAtMost seconds $ TP.waitExitCodeSTM backgroundProcess.process
   case maybeExitCode of
     Nothing -> do
-      release backgroundProcess.stopKey
       output <- getBackgroundOutput backgroundProcess
       failTest $ describeFailure backgroundProcess.processCommand ("didn't exit within " ++ show seconds ++ "s") output
     Just exitCode -> do
-      liftIO $ closeKeptStdin backgroundProcess.process
-      liftIO $ waitForOutputToClose backgroundProcess.process
-      endTime <- liftIO getCurrentTime
-      logLine $
-        "<== "
-          ++ showExitCode exitCode
-          ++ printf " after %.1fs" (realToFrac (diffUTCTime endTime backgroundProcess.startTime) :: Double)
+      -- A process can exit before we've read all of its output. We give the
+      -- readers a moment to finish. We don't wait longer since children that
+      -- outlive the process (e.g. daemons) can keep the pipes open.
+      liftIO . void . waitAtMost 5 $ isFullyRead backgroundProcess.output >>= check
+      logLine $ "<== " ++ showExitCode exitCode
       return exitCode
 
--- | Sends SIGINT to the process and all of its children, like Ctrl+C in a terminal would.
-interrupt :: BackgroundProcess -> TestM ()
-interrupt = signalProcessGroupOf SIGINT
-
--- | Sends the signal to the process group the background process runs in.
+-- | Sends the signal to the process group the background process runs in, like
+-- a terminal does for Ctrl+C (SIGINT) or when it's closed (SIGHUP).
 signalProcessGroupOf :: Signal -> BackgroundProcess -> TestM ()
 signalProcessGroupOf sig backgroundProcess = do
   processGroupId <- getProcessGroupId backgroundProcess
@@ -333,48 +186,31 @@ getProcessGroupId backgroundProcess =
     return
     backgroundProcess.processGroupId
 
--- | Sends the signal to the process with the PID.
-signal :: Signal -> Int -> TestM ()
-signal sig pid = do
-  logLine $ "\n==> Sending " ++ show sig ++ " to PID " ++ show pid
-  liftIO $ signalProcess sig pid
-
 -- | Interrupts the process group if the process is still running, and kills
 -- the group if the process doesn't exit soon after. Finally kills whatever is
 -- left of the group, since children can outlive the process.
-stopProcess :: Command -> RunningProcess -> Maybe Int -> TestM ()
-stopProcess cmd process maybeProcessGroupId = do
-  isRunning <- liftIO $ isNothing <$> TP.getExitCode process
+stopProcess :: BackgroundProcess -> TestM ()
+stopProcess backgroundProcess = do
+  isRunning <- liftIO $ isNothing <$> TP.getExitCode backgroundProcess.process
   when isRunning $ do
-    logLine $ "\n==> Stopping: " ++ showCommand cmd
+    logLine $ "\n==> Stopping: " ++ showCommand backgroundProcess.processCommand
     signalGroup SIGINT
-    gracePeriodPassed <- liftIO $ registerDelay (10 * 1000000)
-    maybeExitCode <-
-      liftIO . atomically $
-        (Just <$> TP.waitExitCodeSTM process)
-          `orElse` (readTVar gracePeriodPassed >>= check >> return Nothing)
+    maybeExitCode <- liftIO . waitAtMost 10 $ TP.waitExitCodeSTM backgroundProcess.process
     logLine $ maybe "<== didn't stop within 10s, killing it" (("<== " ++) . showExitCode) maybeExitCode
   signalGroup SIGKILL
   -- Only once the process is killed: this sends it SIGTERM, which it can
   -- ignore, and then waits for it to exit without a time limit.
-  liftIO $ TP.stopProcess process
+  liftIO $ TP.stopProcess backgroundProcess.process
   where
-    signalGroup sig = liftIO . forM_ maybeProcessGroupId $ \processGroupId ->
+    signalGroup sig = liftIO . forM_ backgroundProcess.processGroupId $ \processGroupId ->
       signalProcessGroup sig processGroupId `catchAny` const (return ())
 
-closeKeptStdin :: RunningProcess -> IO ()
-closeKeptStdin process =
-  forM_ (TP.getStdin process) $ \handle -> hClose handle `catchAny` const (return ())
-
--- | A process can exit before we've read all of its output. We give the readers
--- a moment to finish. We don't wait longer since children that outlive the
--- process (e.g. daemons) can keep the pipes open.
-waitForOutputToClose :: RunningProcess -> IO ()
-waitForOutputToClose process = do
-  gracePeriodPassed <- registerDelay (5 * 1000000)
-  atomically $
-    (isOutputClosedSTM process >>= check)
-      `orElse` (readTVar gracePeriodPassed >>= check)
+-- | Runs the transaction once it succeeds, or returns 'Nothing' if that doesn't
+-- happen within the given number of seconds.
+waitAtMost :: Int -> STM a -> IO (Maybe a)
+waitAtMost seconds transaction = do
+  timedOut <- registerDelay (seconds * 1000000)
+  atomically $ (Just <$> transaction) `orElse` (readTVar timedOut >>= check >> return Nothing)
 
 describeFailure :: Command -> String -> T.Text -> String
 describeFailure cmd problem output =
@@ -383,17 +219,6 @@ describeFailure cmd problem output =
       ++ map (("  " ++) . T.unpack) (lastLines 30 output)
   where
     lastLines count = reverse . take count . reverse . T.lines
-
-showCommand :: Command -> String
-showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (programName : cmd.arguments)
-  where
-    programName = case cmd.program of
-      WaspCli -> "wasp"
-      Executable executable -> executable
-    envPrefix = [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
-    quoteIfNeeded word
-      | null word || any (`elem` (" \"'\n" :: String)) word = show word
-      | otherwise = word
 
 showExitCode :: ExitCode -> String
 showExitCode ExitSuccess = "exit code 0"

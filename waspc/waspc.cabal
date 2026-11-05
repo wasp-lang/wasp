@@ -724,12 +724,14 @@ test-suite waspc-e2e-tests
   other-modules:
     E2E
     E2E.Assertions
+    E2E.Command
     E2E.Files
     E2E.Heartbeat
     E2E.Net
     E2E.Paths
     E2E.Ports
     E2E.Process
+    E2E.Process.Output
     E2E.Signals
     E2E.Snapshot
     E2E.Test

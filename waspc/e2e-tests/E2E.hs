@@ -1,6 +1,7 @@
 -- | Everything needed to write e2e tests.
 module E2E
   ( module E2E.Assertions,
+    module E2E.Command,
     module E2E.Files,
     module E2E.Net,
     module E2E.Process,
@@ -13,10 +14,11 @@ module E2E
 where
 
 import E2E.Assertions
+import E2E.Command (Command (stdinMode, timeoutSeconds), StdinMode (..), command, waspCli, withEnv, withoutEnv)
 import E2E.Files
 import E2E.Net
 import E2E.Process
-import E2E.Signals (Signal (..))
+import E2E.Signals (Signal (..), signal)
 import E2E.Snapshot
 import E2E.Test (E2ETest, sequentialTestGroup, test, testGroup)
 import E2E.TestM (TestM, failTest, inDirectory, logLine, registerCleanupStep, resolvePath, skipIfDockerDisabled, waitUntil, whenDockerEnabled)
