@@ -21,14 +21,16 @@ import Data.Void (Void)
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import System.Exit (ExitCode (..))
 import qualified UnliftIO.Async as UnliftIO
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import qualified Wasp.Generator.ServerGenerator.Common as Common
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
+import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..), classifyServerEffect)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- We disable this lint because we use it for clarity here, because it is
 -- complex code:
@@ -36,8 +38,8 @@ import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 
 -- | Bundles and runs the development server, and then keeps it up to date with
 -- the compiles sent to the inbox. Never finishes by itself.
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> J.Job Void
-startServer serverRunConfig generatedAppDir inbox = do
+startServer :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> J.Job Void
+startServer projectRunConfig generatedAppDir inbox = do
   startTime <- liftIO getCurrentTime
   join $ bundleAndRunServer startTime $ return $ runUntilReplaced noServer False
   where
@@ -127,14 +129,13 @@ startServer serverRunConfig generatedAppDir inbox = do
 
     bundle :: J.Job ExitCode
     bundle =
-      J.fromProc (J.setCwd serverDir $ uncurry J.proc Common.serverTscProcess)
-        `J.andThen` J.fromProc (J.setCwd serverDir $ uncurry J.proc Common.serverRollupProcess)
+      J.fromProc (NodeCommand.proc serverDir ServerNodeCommands.typeCheckServer)
+        `J.andThen` J.fromProc (NodeCommand.proc serverDir ServerNodeCommands.bundleServer)
 
     serverProcess :: J.CreateJobProcess
     serverProcess =
-      addEnvVarsOverride (("NODE_ENV", "development") : getEnvVars serverRunConfig)
-        $ J.setCwd waspProjectDir
-        $ uncurry J.proc Common.devServerStartProcess
+      J.addEnvVarsOverride (("NODE_ENV", "development") : makeEnvVars projectRunConfig) $
+        NodeCommand.proc waspProjectDir ServerNodeCommands.runServer
 
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir

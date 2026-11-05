@@ -38,10 +38,10 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import qualified Wasp.Job as Job
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
@@ -130,12 +130,12 @@ dbReset generatedAppDir resetArgs = do
   checkExitSuccess "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset generatedAppDir resetArgs)
 
 dbSeed ::
-  ServerRunConfig ->
+  ProjectRunConfig ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed serverRunConfig generatedAppDir seedName =
-  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed serverRunConfig generatedAppDir seedName)
+dbSeed projectRunConfig generatedAppDir seedName =
+  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed projectRunConfig generatedAppDir seedName)
 
 testDbConnection ::
   Path' Abs (Dir GeneratedAppDir) ->

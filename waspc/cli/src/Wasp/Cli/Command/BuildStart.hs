@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import System.Exit (ExitCode)
+import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
@@ -17,7 +18,7 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
-import Wasp.Cli.RunConfigs (showRunConfigUrls)
+import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
@@ -41,10 +42,10 @@ buildStart = withArguments buildStartArgsParser $ \args -> do
 
   config <- makeBuildStartConfig appSpec args waspProjectDir
 
-  buildAndStartServerAndClient config
+  buildAndStartServerAndClient appSpec config
 
-buildAndStartServerAndClient :: BuildStartConfig -> Command ()
-buildAndStartServerAndClient config = do
+buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
+buildAndStartServerAndClient appSpec config = do
   cliSendMessageC $ Msg.Start "Building client..."
   Job.run (Job.prefixWith Job.WebApp $ buildClient config)
     >>= throwOnExitFailure "Building client failed." "Building the client"
@@ -58,7 +59,7 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Starting client and server..."
   cliSendMessageC
     $ Msg.Info
-    $ showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
+    $ showRunConfigUrls appSpec config.projectRunConfig
 
   clientOrServerExitCode <-
     Job.run $
