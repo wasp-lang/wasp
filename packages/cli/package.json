@@ -28,10 +28,12 @@
     "./run": "./dist/run.js"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "catalog:"
   }
 }
