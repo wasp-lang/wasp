@@ -2,7 +2,7 @@ module Wasp.Cli.DevWaspNpmPackages
   ( DevWaspNpmPackageTarballs,
     devWaspNpmPackagesDirEnvVarName,
     findDevWaspNpmPackageTarballs,
-    getNewProjectWaspNpmPackageSpecifier,
+    getNewProjectWaspNpmPackageVersion,
     addDevWaspNpmPackageOverridesToPackageJsonFile,
     prepareDevWaspNpmPackagesForDockerBuild,
   )
@@ -117,8 +117,8 @@ findDevWaspNpmPackageTarballs =
     tarballFile name = fromJust $ parseRelFile $ name ++ "-" ++ show waspVersion ++ ".tgz"
 
 -- | The dev tarball if there is one, otherwise the \@wasp/cli version.
-getNewProjectWaspNpmPackageSpecifier :: Maybe DevWaspNpmPackageTarballs -> IO String
-getNewProjectWaspNpmPackageSpecifier = \case
+getNewProjectWaspNpmPackageVersion :: Maybe DevWaspNpmPackageTarballs -> IO String
+getNewProjectWaspNpmPackageVersion = \case
   Nothing -> show <$> getWaspCliNpmPackageVersion
   Just tarballs -> return $ absTarballFileSpecifier $ waspTarball tarballs
 

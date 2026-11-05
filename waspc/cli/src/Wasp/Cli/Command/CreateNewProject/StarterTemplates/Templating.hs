@@ -13,7 +13,7 @@ import Wasp.Cli.DevWaspNpmPackages
   ( DevWaspNpmPackageTarballs,
     addDevWaspNpmPackageOverridesToPackageJsonFile,
     findDevWaspNpmPackageTarballs,
-    getNewProjectWaspNpmPackageSpecifier,
+    getNewProjectWaspNpmPackageVersion,
   )
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
@@ -24,9 +24,9 @@ import qualified Wasp.Util.IO as IOUtil
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
   devTarballs <- findDevWaspNpmPackageTarballs
-  waspPackageSpecifier <- getNewProjectWaspNpmPackageSpecifier devTarballs
-  replaceTemplatePlaceholdersInWaspFile waspPackageSpecifier appName projectName projectDir
-  replaceTemplatePlaceholdersInPackageJsonFile waspPackageSpecifier appName projectName projectDir
+  waspNpmPackageVersion <- getNewProjectWaspNpmPackageVersion devTarballs
+  replaceTemplatePlaceholdersInWaspFile waspNpmPackageVersion appName projectName projectDir
+  replaceTemplatePlaceholdersInPackageJsonFile waspNpmPackageVersion appName projectName projectDir
   forM_ devTarballs $ addDevWaspNpmPackageOverridesToProject projectDir
 
 -- | Template file for wasp file has placeholders in it that we want to replace
@@ -34,24 +34,24 @@ replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
 -- If no .wasp file was found in the project, do nothing.
 replaceTemplatePlaceholdersInWaspFile ::
   String -> NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
-replaceTemplatePlaceholdersInWaspFile waspPackageSpecifier appName projectName projectDir =
+replaceTemplatePlaceholdersInWaspFile waspNpmPackageVersion appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Left _error -> return ()
     Right absMainTsFile -> replaceTemplatePlaceholders absMainTsFile
   where
-    replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk waspPackageSpecifier appName projectName
+    replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk waspNpmPackageVersion appName projectName
 
 -- | Template file for package.json file has placeholders in it that we want to replace
 -- in the package.json file we have written to the disk.
 -- If no package.json file was found in the project, do nothing.
 replaceTemplatePlaceholdersInPackageJsonFile ::
   String -> NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
-replaceTemplatePlaceholdersInPackageJsonFile waspPackageSpecifier appName projectName projectDir =
+replaceTemplatePlaceholdersInPackageJsonFile waspNpmPackageVersion appName projectName projectDir =
   findUserPackageJsonFile projectDir >>= \case
     Nothing -> return ()
     Just absPackageJsonFile -> do
       let kebabCaseAppName = NewProjectAppName . camelToKebabCase . show $ appName
-      replaceTemplatePlaceholdersInFileOnDisk waspPackageSpecifier kebabCaseAppName projectName absPackageJsonFile
+      replaceTemplatePlaceholdersInFileOnDisk waspNpmPackageVersion kebabCaseAppName projectName absPackageJsonFile
 
 -- | If no package.json file was found in the project, do nothing.
 addDevWaspNpmPackageOverridesToProject :: Path' Abs (Dir WaspProjectDir) -> DevWaspNpmPackageTarballs -> IO ()
@@ -60,9 +60,9 @@ addDevWaspNpmPackageOverridesToProject projectDir devTarballs =
     >>= mapM_ (addDevWaspNpmPackageOverridesToPackageJsonFile devTarballs)
 
 replaceTemplatePlaceholdersInFileOnDisk :: String -> NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
-replaceTemplatePlaceholdersInFileOnDisk waspPackageSpecifier appName projectName file = do
+replaceTemplatePlaceholdersInFileOnDisk waspNpmPackageVersion appName projectName file = do
   let waspTemplateReplacements =
-        [ ("__waspPackageSpecifier__", waspPackageSpecifier),
+        [ ("__waspNpmPackageVersion__", waspNpmPackageVersion),
           ("__waspAppName__", show appName),
           ("__waspProjectName__", show projectName)
         ]

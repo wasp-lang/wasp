@@ -17,7 +17,7 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspNpmPackage
   ( InstalledWaspNpmPackageError (..),
-    doesVersionMatchDeclaredSpecifier,
+    doesVersionMatchDeclaredVersion,
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
     tryGettingInstalledWaspNpmPackageVersion,
@@ -37,17 +37,17 @@ instance Requirable WaspNpmPackageAvailable where
     -- they also need Node.js and npm.
     ValidNodeAndNpm <- require
     cliVersion <- liftIO getWaspCliNpmPackageVersion
-    declaredSpecifier <-
+    declaredVersion <-
       liftIO (getWaspNpmPackageDeclaration waspProjectDir)
         >>= either (throwError . CommandError "Couldn't read package.json") return
         >>= \case
-          DeclaredInDependencies specifier -> return specifier
+          DeclaredInDependencies version -> return version
           DeclaredInDevDependencies -> throwError inDevDependenciesError
           NotDeclared -> throwError $ notADependencyError cliVersion
     liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
       Right installedVersion
-        | not (doesVersionMatchDeclaredSpecifier declaredSpecifier installedVersion) ->
-            throwError $ staleInstallError declaredSpecifier installedVersion
+        | not (doesVersionMatchDeclaredVersion declaredVersion installedVersion) ->
+            throwError $ staleInstallError declaredVersion installedVersion
         | cliVersion /= installedVersion -> do
             isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
             throwError $ versionMismatchError isRunByNpmPackage cliVersion installedVersion
@@ -67,10 +67,10 @@ instance Requirable WaspNpmPackageAvailable where
             ++ " to install it."
 
       staleInstallError :: String -> SV.Version -> CommandError
-      staleInstallError declaredSpecifier installedVersion =
+      staleInstallError declaredVersion installedVersion =
         CommandError "The installed Wasp is out of date" $
           "The package.json asks for "
-            ++ styleCode (waspNpmPackageName ++ " " ++ declaredSpecifier)
+            ++ styleCode (waspNpmPackageName ++ " " ++ declaredVersion)
             ++ ", but node_modules has "
             ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
             ++ ". Run "
@@ -139,7 +139,7 @@ instance Requirable WaspNpmPackageAvailable where
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration
-  = -- | Listed in `dependencies`, with this specifier.
+  = -- | Listed in `dependencies`, with this version.
     DeclaredInDependencies String
   | DeclaredInDevDependencies
   | NotDeclared
@@ -153,7 +153,7 @@ getWaspNpmPackageDeclaration waspProjectDir =
   where
     getDeclaration packageJson =
       case M.lookup waspNpmPackageName (P.dependencies packageJson) of
-        Just specifier -> DeclaredInDependencies specifier
+        Just version -> DeclaredInDependencies version
         Nothing
           | M.member waspNpmPackageName (P.devDependencies packageJson) -> DeclaredInDevDependencies
           | otherwise -> NotDeclared

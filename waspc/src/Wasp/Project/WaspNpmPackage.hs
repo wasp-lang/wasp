@@ -5,7 +5,7 @@ module Wasp.Project.WaspNpmPackage
     -- * Versions
     InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
-    doesVersionMatchDeclaredSpecifier,
+    doesVersionMatchDeclaredVersion,
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
 
@@ -57,11 +57,11 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir = runExceptT $ do
     Just versionString -> first show $ SV.parseVersion versionString
     Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
 
--- | Matches like npm: a range never matches a prerelease, and a specifier that
--- isn't a version, e.g. a `file:` tarball, matches anything.
-doesVersionMatchDeclaredSpecifier :: String -> SV.Version -> Bool
-doesVersionMatchDeclaredSpecifier declaredSpecifier version =
-  either (const True) (SV.isVersionInRange version) (SV.parseRange declaredSpecifier)
+-- | Matches like npm: a range never matches a prerelease, and a declared version
+-- that isn't a range, e.g. a `file:` tarball, matches anything.
+doesVersionMatchDeclaredVersion :: String -> SV.Version -> Bool
+doesVersionMatchDeclaredVersion declaredVersion version =
+  either (const True) (SV.isVersionInRange version) (SV.parseRange declaredVersion)
 
 -- \@wasp/cli tells this binary its version through an env var, because Cabal
 -- versions can't express npm prereleases like `0.27.0-rc.1`.
