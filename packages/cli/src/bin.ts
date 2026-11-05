@@ -3,16 +3,15 @@
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 import { doesPathExist } from "./fs-utils.js";
 import {
   findProjectWaspCliToHandOverTo,
-  type InstalledWaspCli,
+  getThisWaspCli,
   runProjectWaspCli,
 } from "./project-wasp-cli.js";
-import { getWaspCliVersion, runWaspCli } from "./run.js";
+import { runWaspCli } from "./run.js";
 
 // If you want to turn on debug logging, set the following environment variable:
 // `NODE_DEBUG=wasp-bin-wrapper`
@@ -37,12 +36,7 @@ try {
 async function main(): Promise<number> {
   await assertNoLegacyInstallerConflict();
 
-  const thisWaspCli: InstalledWaspCli = {
-    runModulePath: await fs.realpath(
-      fileURLToPath(import.meta.resolve("./run.js")),
-    ),
-    version: await getWaspCliVersion(),
-  };
+  const thisWaspCli = await getThisWaspCli();
 
   const projectWaspCli = await findProjectWaspCliToHandOverTo(thisWaspCli);
   if (projectWaspCli !== undefined) {

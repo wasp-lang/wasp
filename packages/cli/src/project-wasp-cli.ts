@@ -1,11 +1,9 @@
-// Hands a Wasp CLI over to the Wasp CLI of the project it runs in. A Wasp CLI
-// installed elsewhere, usually globally, runs the project's own `@wasp/cli`
-// instead of itself, so a project always runs the Wasp version it installed.
+// Hands a Wasp CLI over to the Wasp CLI of the project it runs in.
 
 import * as fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 import { doesPathExist } from "./fs-utils.js";
@@ -16,6 +14,14 @@ export interface InstalledWaspCli {
   /** The real path of the CLI's `run.js`, which its package.json exports as `./run`. */
   runModulePath: string;
   version: string;
+}
+
+/** Returns this Wasp CLI, the one whose code is running. */
+export async function getThisWaspCli(): Promise<InstalledWaspCli> {
+  return readInstalledWaspCli(
+    fileURLToPath(new URL("../package.json", import.meta.url)),
+    fileURLToPath(import.meta.resolve("./run.js")),
+  );
 }
 
 /**
@@ -65,9 +71,10 @@ export async function runProjectWaspCli(
 /**
  * Returns the Wasp CLI that the project's `@wasp/wasp` pins, or `undefined` if
  * the cwd isn't in a Wasp project or the project has no `@wasp/wasp`
- * installed. It resolves the packages the way Node does from the project dir,
- * through the `exports` of `@wasp/wasp` and `@wasp/cli`. Later Wasp versions
- * must keep those exports, because older global CLIs rely on them.
+ * installed. It finds them through Node's module resolution.
+ *
+ * Warning: changing the `exports` of `@wasp/wasp` or `@wasp/cli` breaks the
+ * hand-over from older Wasp CLIs.
  */
 async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
   const waspProjectDir = await findWaspProjectDir();
@@ -83,14 +90,16 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     "@wasp/wasp/package.json",
   );
   if (waspPackageJsonPath === undefined) {
-    // This Wasp CLI keeps running and tells the user to run `npm install`.
+    // Not an error: commands like `wasp clean` don't need `@wasp/wasp`. This
+    // Wasp CLI runs itself, and the commands that need `@wasp/wasp` explain
+    // how to install it.
     debug("No @wasp/wasp installed for the project in %s", waspProjectDir);
     return undefined;
   }
 
-  // With pnpm, `node_modules/@wasp/wasp` is a symlink into pnpm's virtual
-  // store, and pnpm links `@wasp/cli` only next to the real package. So we
-  // resolve from the real location of `@wasp/wasp`.
+  // Resolve `@wasp/cli` from where `@wasp/wasp` really is. With pnpm,
+  // `node_modules/@wasp/wasp` is a symlink, and `@wasp/cli` is only next to
+  // the symlink's target.
   const requireFromWasp = createRequire(await fs.realpath(waspPackageJsonPath));
   const waspCliPackageJsonPath = tryResolving(
     requireFromWasp,
@@ -102,20 +111,31 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     );
   }
 
-  const packageJson: { version: string } = JSON.parse(
-    await fs.readFile(waspCliPackageJsonPath, "utf8"),
+  const waspCli = await readInstalledWaspCli(
+    waspCliPackageJsonPath,
+    requireFromWasp.resolve("@wasp/cli/run"),
   );
-  const waspCli: InstalledWaspCli = {
-    runModulePath: await fs.realpath(requireFromWasp.resolve("@wasp/cli/run")),
-    version: packageJson.version,
-  };
   debug("Found the project's Wasp CLI at %s", waspCli.runModulePath);
   return waspCli;
 }
 
+async function readInstalledWaspCli(
+  waspCliPackageJsonPath: string,
+  runModulePath: string,
+): Promise<InstalledWaspCli> {
+  const waspCliPackageJson: { version: string } = JSON.parse(
+    await fs.readFile(waspCliPackageJsonPath, "utf8"),
+  );
+  return {
+    runModulePath: await fs.realpath(runModulePath),
+    version: waspCliPackageJson.version,
+  };
+}
+
 /**
- * Finds the Wasp project dir the way the Wasp CLI does, by searching up from
- * the cwd for a `.wasproot` file.
+ * Searches up from the cwd for a `.wasproot` file. Keep in sync with
+ * `findWaspProjectRoot` in
+ * https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/Command/Require/InWaspProject.hs
  */
 async function findWaspProjectDir(): Promise<string | undefined> {
   let dir = process.cwd();

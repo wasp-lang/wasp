@@ -1,6 +1,4 @@
-// Runs the Wasp binary of this `@wasp/cli`. Other Wasp CLI versions call
-// `runWaspCli` when they hand over to this one (see `project-wasp-cli.ts`), so
-// keep its name, its signature and the `./run` export in package.json.
+// Runs the Wasp binary of this `@wasp/cli`.
 
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs/promises";
@@ -35,10 +33,6 @@ export async function runWaspCli(): Promise<number> {
     dataDirPath,
     waspVersion: packageJson.version,
   }).catch(CLIError.rethrowWith("Failed to run Wasp."));
-}
-
-export async function getWaspCliVersion(): Promise<string> {
-  return (await readPackageRootJson<PackageJson>("package.json")).version;
 }
 
 async function getSubPackage(packageJson: PackageJson): Promise<SubPackageAPI> {
