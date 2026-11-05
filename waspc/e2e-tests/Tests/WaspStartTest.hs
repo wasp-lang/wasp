@@ -46,7 +46,7 @@ waspStartTest =
           crashWebApp
           exitCode <- waitForExit app 60
           assertTrue "Wasp exits with an error" (exitCode /= ExitSuccess)
-          output <- getBackgroundOutput app
+          output <- getOutput app
           assertTrue "Wasp reports that the web app failed" ("Web app failed" `T.isInfixOf` output)
           waitUntilNotListening (appPortList ports) 30
     ]
@@ -72,7 +72,7 @@ runWaspStartAndStopIt sig = do
   waitUntilNotListening (appPortList ports) 30
 
 -- | Returns once the app listens on its ports.
-startWaspInBackground :: TestM (BackgroundProcess, AppPorts)
+startWaspInBackground :: TestM (RunningProcess, AppPorts)
 startWaspInBackground = do
   ports <- allocateAppPorts
   app <- startInBackground $ waspCli ("start" : appPortArgs ports)
