@@ -26,9 +26,7 @@
   },
   "files": [
     "bin.js",
-    "run-deploy.js",
-    "run-spec.js",
-    "run-studio.js"
+    "scripts"
   ],
   "peerDependencies": {
     "@prisma/client": "6.19.3",

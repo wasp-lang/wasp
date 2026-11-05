@@ -102,17 +102,17 @@ isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
 -- We run it with `node` by path. From inside \@wasp/wasp, Node resolves
 -- \@wasp/spec next to it under any package manager.
 waspSpecAnalyzerScriptInWaspNpmPackageDir :: Path' (Rel WaspNpmPackageDir) File'
-waspSpecAnalyzerScriptInWaspNpmPackageDir = [relfile|run-spec.js|]
+waspSpecAnalyzerScriptInWaspNpmPackageDir = [relfile|scripts/run-spec.js|]
 
 -- | The script that runs the project's \@wasp/deploy, by path like
 -- 'waspSpecAnalyzerScriptInWaspNpmPackageDir'.
 waspDeployScriptInWaspNpmPackageDir :: Path' (Rel WaspNpmPackageDir) File'
-waspDeployScriptInWaspNpmPackageDir = [relfile|run-deploy.js|]
+waspDeployScriptInWaspNpmPackageDir = [relfile|scripts/run-deploy.js|]
 
 -- | The script that runs the project's \@wasp/studio, by path like
 -- 'waspSpecAnalyzerScriptInWaspNpmPackageDir'.
 waspStudioScriptInWaspNpmPackageDir :: Path' (Rel WaspNpmPackageDir) File'
-waspStudioScriptInWaspNpmPackageDir = [relfile|run-studio.js|]
+waspStudioScriptInWaspNpmPackageDir = [relfile|scripts/run-studio.js|]
 
 -- | The absolute path of one of the scripts the project's installed
 -- \@wasp/wasp ships, like 'waspDeployScriptInWaspNpmPackageDir'. Fails when
