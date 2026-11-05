@@ -76,10 +76,7 @@ function buildDevPackages(): void {
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
 
-  const builtPackageDirNames = WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES.filter(
-    (packageDirName) => packageDirName !== CLI_PACKAGE_DIR_NAME,
-  );
-  for (const packageDirName of builtPackageDirNames) {
+  for (const packageDirName of WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES) {
     console.log(`Building @wasp/${packageDirName}`);
     runCmd(
       "pnpm",
@@ -94,7 +91,9 @@ function buildDevPackages(): void {
         cwd: getRepoRootPath(),
       },
     );
-    packPackage(getPackageDirPath(packageDirName), devPackagesDir);
+    if (packageDirName !== CLI_PACKAGE_DIR_NAME) {
+      packPackage(getPackageDirPath(packageDirName), devPackagesDir);
+    }
   }
 
   writeDevCliConfig(devPackagesDir);
@@ -141,20 +140,20 @@ function packDevCliPackage(devPackagesDir: string): void {
   const tmpDir = mkdtempSync(join(tmpdir(), "wasp-dev-cli-"));
   try {
     // Same files as the published package (see `scripts/make-cli-npm-packages`),
-    // plus the dev sub-package and a package.json that lists it.
+    // plus the dev sub-package next to the compiled CLI, and a package.json
+    // that lists them.
     copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
     copyFileSync(
       DEV_SUB_PACKAGE_SOURCE_PATH,
-      join(tmpDir, DEV_SUB_PACKAGE_FILE_NAME),
+      join(tmpDir, "dist", DEV_SUB_PACKAGE_FILE_NAME),
     );
 
+    const { scripts, devDependencies, ...cliPackageJson } = getPackageJson(
+      CLI_PACKAGE_SOURCE_DIR,
+    );
     const packageJson = {
-      ...getPackageJson(CLI_PACKAGE_SOURCE_DIR),
-      files: [
-        ...CLI_PACKAGE_STATIC_FILES,
-        "data.json",
-        DEV_SUB_PACKAGE_FILE_NAME,
-      ],
+      ...cliPackageJson,
+      files: [...CLI_PACKAGE_STATIC_FILES, "data.json"],
     };
     writeFileSync(
       join(tmpDir, "package.json"),
@@ -162,8 +161,9 @@ function packDevCliPackage(devPackagesDir: string): void {
     );
 
     // Same shape `scripts/make-cli-npm-packages` writes, with the dev
-    // sub-package for this machine's platform. `bin.js` passes `packageName`
-    // to `import()`, which resolves the relative path against `bin.js`.
+    // sub-package for this machine's platform. `dist/run.js` passes
+    // `packageName` to `import()`, which resolves the relative path against
+    // `dist/run.js`.
     const { os, cpu, libc } = getCurrentTarget();
     const data = {
       subPackages: {
@@ -182,7 +182,7 @@ function packDevCliPackage(devPackagesDir: string): void {
   }
 }
 
-// Keep in sync with the platform detection in `packages/cli/bin.js`.
+// Keep in sync with the platform detection in `packages/cli/src/run.ts`.
 function getCurrentTarget(): { os: string; cpu: string; libc: string } {
   const { platform: os, arch: cpu } = process;
   const libc =

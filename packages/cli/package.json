@@ -21,10 +21,17 @@
     "node": ">=24.22.1"
   },
   "bin": {
-    "wasp": "bin.js"
+    "wasp": "dist/bin.js"
   },
   "exports": {
-    "./bin": "./bin.js",
-    "./run": "./run.js"
+    "./bin": "./dist/bin.js",
+    "./run": "./dist/run.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "^6.0.3"
   }
 }

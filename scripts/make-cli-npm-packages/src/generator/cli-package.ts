@@ -59,6 +59,9 @@ function generatePackageJson(
 
   pkg.name = packageName;
   pkg.version = packageVersion;
+  // Only needed to build the package from source.
+  delete pkg.scripts;
+  delete pkg.devDependencies;
 
   pkg.optionalDependencies = {};
   for (const subPkgName of subPackages) {

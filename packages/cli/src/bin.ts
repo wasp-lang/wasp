@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 
-// @ts-check
-
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { debuglog } from "node:util";
-import { CLIError } from "./CLIError.js";
+import { CLIError } from "./cli-error.js";
 import { doesPathExist } from "./fs-utils.js";
 import {
   findProjectWaspCliToHandOverTo,
+  type InstalledWaspCli,
   runProjectWaspCli,
 } from "./project-wasp-cli.js";
 import { getWaspCliVersion, runWaspCli } from "./run.js";
@@ -35,11 +34,10 @@ try {
   debug("Exiting Wasp wrapper process with code: %d", process.exitCode);
 }
 
-async function main() {
+async function main(): Promise<number> {
   await assertNoLegacyInstallerConflict();
 
-  /** @type {import("./project-wasp-cli.js").InstalledWaspCli} */
-  const thisWaspCli = {
+  const thisWaspCli: InstalledWaspCli = {
     runModulePath: await fs.realpath(
       fileURLToPath(import.meta.resolve("./run.js")),
     ),
@@ -65,7 +63,7 @@ async function main() {
 //
 // TODO: Consider removing this check once we no longer expect any users to
 // have a shell-installer based Wasp installation.
-async function assertNoLegacyInstallerConflict() {
+async function assertNoLegacyInstallerConflict(): Promise<void> {
   const waspLangDir = tryGetWaspLangDir();
   // No home dir (some containers), so no installer-based Wasp to conflict with.
   if (waspLangDir === undefined) {
@@ -100,7 +98,7 @@ and follow the instructions.`);
 // - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
 // - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
 // TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
-function tryGetWaspLangDir() {
+function tryGetWaspLangDir(): string | undefined {
   try {
     return path.join(os.homedir(), ".local", "share", "wasp-lang");
   } catch {
@@ -108,7 +106,7 @@ function tryGetWaspLangDir() {
   }
 }
 
-async function hasInstallerWasp(/** @type {string} */ waspLangDir) {
+async function hasInstallerWasp(waspLangDir: string): Promise<boolean> {
   try {
     // If the folder exists and has any subdirectories (for the installed version(s)),
     // we assume it's an installer-based Wasp installation.
@@ -120,9 +118,9 @@ async function hasInstallerWasp(/** @type {string} */ waspLangDir) {
 }
 
 async function ensureNpmMarker(
-  /** @type {string} */ waspLangDir,
-  /** @type {string} */ npmMarkerFile,
-) {
+  waspLangDir: string,
+  npmMarkerFile: string,
+): Promise<void> {
   try {
     await fs.mkdir(waspLangDir, { recursive: true });
 

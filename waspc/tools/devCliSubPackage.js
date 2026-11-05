@@ -6,7 +6,7 @@
 // `@wasp/wasp` tarball), and reads the binary and data dir paths from the
 // config file next to that tarball.
 // Its default export must match `SubPackageAPI` in
-// `scripts/make-cli-npm-packages/src/schema/output-data.ts`, which `bin.js` reads.
+// `packages/cli/src/package-data.ts`, which `@wasp/cli` reads.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

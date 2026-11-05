@@ -15,7 +15,7 @@ The CLI package uses npm's `optionalDependencies` to install the correct platfor
 
 ### CLI package
 
-- Contains a CLI wrapper (`bin.js`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
+- Contains a CLI wrapper (`packages/cli`, built into `dist/`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
 - Executes the native binary with proper environment variables for the data directory
 - Declares all sub-packages as optional dependencies (so all the other non-matching platforms doesn't cause installation failure)
 
@@ -77,8 +77,7 @@ The tool creates:
    - Extracted tarball contents
 2. One directory for the CLI package, containing:
    - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies
-   - `bin.js` CLI wrapper
-   - `CLIError.js` error handling utility
+   - `dist/`, the built CLI wrapper (run `pnpm --filter @wasp/cli run build` first)
    - `data.json` with sub-package metadata
 
 You can then run `npm publish` in each package directory to publish them to npm.
@@ -87,4 +86,4 @@ You can then run `npm publish` in each package directory to publish them to npm.
 
 The generator script is written in TypeScript. It is run through the native Node.js TypeScript support in v22.18+, so no compilation step is needed.
 
-The sub-package template is in the `templates/` directory and the CLI package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. They are written in regular JavaScript, but have JSDoc comments for type hinting during development.
+The sub-package template is in the `templates/` directory and the CLI package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. The sub-package template is regular JavaScript with JSDoc comments for type hinting, and the CLI package is TypeScript.

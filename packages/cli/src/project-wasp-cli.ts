@@ -1,5 +1,3 @@
-// @ts-check
-
 // Hands a Wasp CLI over to the Wasp CLI of the project it runs in. A Wasp CLI
 // installed elsewhere, usually globally, runs the project's own `@wasp/cli`
 // instead of itself, so a project always runs the Wasp version it installed.
@@ -9,18 +7,17 @@ import { createRequire } from "node:module";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
-import { CLIError } from "./CLIError.js";
+import { CLIError } from "./cli-error.js";
 import { doesPathExist } from "./fs-utils.js";
 import { findInstalledPackageJsonPath } from "./node-resolution.js";
 
 const debug = debuglog("wasp-bin-wrapper");
 
-/**
- * @typedef {object} InstalledWaspCli
- * @property {string} runModulePath The real path of the CLI's `run.js`, which
- *   its package.json exports as `./run`.
- * @property {string} version
- */
+export interface InstalledWaspCli {
+  /** The real path of the CLI's `run.js`, which its package.json exports as `./run`. */
+  runModulePath: string;
+  version: string;
+}
 
 /**
  * Returns the project's Wasp CLI that `thisWaspCli` should hand over to, or
@@ -29,11 +26,10 @@ const debug = debuglog("wasp-bin-wrapper");
  * - the cwd isn't in a Wasp project,
  * - the project has no `@wasp/wasp` installed, or
  * - `thisWaspCli` is the project's Wasp CLI.
- *
- * @param {InstalledWaspCli} thisWaspCli
- * @returns {Promise<InstalledWaspCli | undefined>}
  */
-export async function findProjectWaspCliToHandOverTo(thisWaspCli) {
+export async function findProjectWaspCliToHandOverTo(
+  thisWaspCli: InstalledWaspCli,
+): Promise<InstalledWaspCli | undefined> {
   const projectWaspCli = await findProjectWaspCli();
   if (projectWaspCli?.runModulePath === thisWaspCli.runModulePath) {
     debug("Running as the project's own Wasp CLI.");
@@ -44,14 +40,13 @@ export async function findProjectWaspCliToHandOverTo(thisWaspCli) {
 
 /**
  * Runs the project's Wasp CLI in this process, through the `runWaspCli` it
- * exports (see `run.js`), so there is no second process to keep signals and
+ * exports (see `run.ts`), so there is no second process to keep signals and
  * exit codes in sync with.
- *
- * @param {InstalledWaspCli} projectWaspCli
- * @param {InstalledWaspCli} thisWaspCli
- * @returns {Promise<number>}
  */
-export async function runProjectWaspCli(projectWaspCli, thisWaspCli) {
+export async function runProjectWaspCli(
+  projectWaspCli: InstalledWaspCli,
+  thisWaspCli: InstalledWaspCli,
+): Promise<number> {
   if (projectWaspCli.version !== thisWaspCli.version) {
     console.error(
       `Running Wasp ${projectWaspCli.version} from this project. The Wasp CLI you called is ${thisWaspCli.version}.`,
@@ -62,8 +57,7 @@ export async function runProjectWaspCli(projectWaspCli, thisWaspCli) {
     "Handing over to the project's Wasp CLI: %s",
     projectWaspCli.runModulePath,
   );
-  /** @type {typeof import("./run.js")} */
-  const { runWaspCli } = await import(
+  const { runWaspCli }: typeof import("./run.js") = await import(
     pathToFileURL(projectWaspCli.runModulePath).href
   );
   return runWaspCli();
@@ -73,10 +67,8 @@ export async function runProjectWaspCli(projectWaspCli, thisWaspCli) {
  * Returns the Wasp CLI that the project's `@wasp/wasp` pins, or `undefined` if
  * the cwd isn't in a Wasp project or the project has no `@wasp/wasp`
  * installed.
- *
- * @returns {Promise<InstalledWaspCli | undefined>}
  */
-async function findProjectWaspCli() {
+async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
   const waspProjectDir = await findWaspProjectDir();
   if (waspProjectDir === undefined) {
     return undefined;
@@ -113,10 +105,8 @@ async function findProjectWaspCli() {
 /**
  * Finds the Wasp project dir the way the Wasp CLI does, by searching up from
  * the cwd for a `.wasproot` file.
- *
- * @returns {Promise<string | undefined>}
  */
-async function findWaspProjectDir() {
+async function findWaspProjectDir(): Promise<string | undefined> {
   let dir = process.cwd();
   while (true) {
     if (await doesPathExist(path.join(dir, ".wasproot"))) {
@@ -133,13 +123,11 @@ async function findWaspProjectDir() {
 /**
  * Reads the version of the `@wasp/cli` package at `waspCliPackageJsonPath`,
  * and resolves its `./run` export from inside the package.
- *
- * @param {string} waspCliPackageJsonPath
- * @returns {Promise<InstalledWaspCli>}
  */
-async function readInstalledWaspCli(waspCliPackageJsonPath) {
-  /** @type {{ version: string }} */
-  const packageJson = JSON.parse(
+async function readInstalledWaspCli(
+  waspCliPackageJsonPath: string,
+): Promise<InstalledWaspCli> {
+  const packageJson: { version: string } = JSON.parse(
     await fs.readFile(waspCliPackageJsonPath, "utf8"),
   );
   const runModulePath = createRequire(waspCliPackageJsonPath).resolve(

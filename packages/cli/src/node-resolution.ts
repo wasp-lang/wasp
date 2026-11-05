@@ -1,5 +1,3 @@
-// @ts-check
-
 import * as path from "node:path";
 import { doesPathExist } from "./fs-utils.js";
 
@@ -17,12 +15,11 @@ import { doesPathExist } from "./fs-utils.js";
  * `exports`, and a later version may change its `exports`. Only the location
  * of package.json and its `bin` field stay the same, because every package
  * manager relies on them.
- *
- * @param {string} packageName
- * @param {string} fromDir
- * @returns {Promise<string | undefined>}
  */
-export async function findInstalledPackageJsonPath(packageName, fromDir) {
+export async function findInstalledPackageJsonPath(
+  packageName: string,
+  fromDir: string,
+): Promise<string | undefined> {
   for (const nodeModulesDir of getNodeModulesDirs(fromDir)) {
     const packageJsonPath = path.join(
       nodeModulesDir,
@@ -39,11 +36,8 @@ export async function findInstalledPackageJsonPath(packageName, fromDir) {
 /**
  * The `node_modules` dirs Node.js searches from `fromDir`, without its global
  * folders. Like Node, it skips dirs that are themselves named `node_modules`.
- *
- * @param {string} fromDir
- * @returns {string[]}
  */
-function getNodeModulesDirs(fromDir) {
+function getNodeModulesDirs(fromDir: string): string[] {
   const parentDir = path.dirname(fromDir);
   const nodeModulesDirsAbove =
     parentDir === fromDir ? [] : getNodeModulesDirs(parentDir);

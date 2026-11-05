@@ -1,24 +1,31 @@
-// @ts-check
-
 // Runs the Wasp binary of this `@wasp/cli`. Other Wasp CLI versions call
-// `runWaspCli` when they hand over to this one (see `project-wasp-cli.js`), so
+// `runWaspCli` when they hand over to this one (see `project-wasp-cli.ts`), so
 // keep its name, its signature and the `./run` export in package.json.
 
 import { execFileSync } from "node:child_process";
+import * as fs from "node:fs/promises";
 import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
-import { CLIError } from "./CLIError.js";
+import { CLIError } from "./cli-error.js";
+import {
+  type CliPackageData,
+  type SubPackageAPI,
+  UNDEFINED_LIBC_NAME,
+} from "./package-data.js";
 
 const debug = debuglog("wasp-bin-wrapper");
+
+interface PackageJson {
+  version: string;
+  engines: { node: string };
+}
 
 /**
  * Runs this CLI's Wasp binary with the process's arguments, and returns its
  * exit code.
- *
- * @returns {Promise<number>}
  */
-export async function runWaspCli() {
-  const packageJson = await getPackageJson();
+export async function runWaspCli(): Promise<number> {
+  const packageJson = await readPackageRootJson<PackageJson>("package.json");
   const { waspBinPath, dataDirPath } = await getSubPackage(packageJson).catch(
     CLIError.rethrowWith("Can't find the Wasp executable."),
   );
@@ -30,34 +37,21 @@ export async function runWaspCli() {
   }).catch(CLIError.rethrowWith("Failed to run Wasp."));
 }
 
-/**
- * @returns {Promise<string>}
- */
-export async function getWaspCliVersion() {
-  return (await getPackageJson()).version;
+export async function getWaspCliVersion(): Promise<string> {
+  return (await readPackageRootJson<PackageJson>("package.json")).version;
 }
 
-async function getSubPackage(/** @type {PackageJson} */ packageJson) {
+async function getSubPackage(packageJson: PackageJson): Promise<SubPackageAPI> {
   debug("Loading CLI package data...");
 
-  /** @type {{ default: import("../../scripts/make-cli-npm-packages/src/schema/output-data.ts").CliPackageData }} */
-  const { default: data } = await import(
-    // @ts-expect-error This file does not exist at dev time, only in the built package.
-    "./data.json",
-    { with: { type: "json" } }
-  );
+  // `data.json` doesn't exist at dev time, only in the built package.
+  const data = await readPackageRootJson<CliPackageData>("data.json");
 
   debug("Loaded CLI package data: %j", data);
 
   const { platform, arch } = process;
   const libc =
-    platform === "linux"
-      ? isGlibc()
-        ? "glibc"
-        : "musl"
-      : /** @satisfies {typeof import("../../scripts/make-cli-npm-packages/src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
-          "unknown"
-        );
+    platform === "linux" ? (isGlibc() ? "glibc" : "musl") : UNDEFINED_LIBC_NAME;
 
   debug("Selecting sub-package for %s / %s / %s", platform, arch, libc);
 
@@ -68,9 +62,10 @@ async function getSubPackage(/** @type {PackageJson} */ packageJson) {
 
   debug("Selected sub-package: %j", selectedSubPackage);
 
-  /** @type {{ default: import("../../scripts/make-cli-npm-packages/src/schema/output-data.ts").SubPackageAPI }} */
-  const importedPackage = await import(selectedSubPackage.packageName)
-    .catch(async (error) => {
+  const importedPackage: { default: SubPackageAPI } = await import(
+    selectedSubPackage.packageName
+  )
+    .catch(async (error: unknown) => {
       // A common case for failure here is that the Node.js version is not
       // supported. `npm` doesn't like to complain when being specifically asked
       // to install a package, but will then **not** install our subpackages
@@ -93,11 +88,13 @@ async function getSubPackage(/** @type {PackageJson} */ packageJson) {
 
 // Adapted from rollup
 // https://github.com/rollup/rollup/blob/c5f3e1d3162ccb36e18704138c21457a084ef358/native.js#L5-L11
-function isGlibc() {
+function isGlibc(): boolean {
   try {
-    const report = /** @type {any} */ (processReport.getReport()).header;
+    const report = (
+      processReport.getReport() as { header?: { glibcVersionRuntime?: string } }
+    ).header;
     debug("Process report header: %j", report);
-    const hasGlibc = Boolean(report.glibcVersionRuntime);
+    const hasGlibc = Boolean(report?.glibcVersionRuntime);
     debug("Has glibc: %s", hasGlibc);
     return hasGlibc;
   } catch {
@@ -106,7 +103,7 @@ function isGlibc() {
   }
 }
 
-function assertNodeIsSupported(/** @type {PackageJson} */ packageJson) {
+function assertNodeIsSupported(packageJson: PackageJson): void {
   const minVersion = getMinimumNodeVersion(packageJson);
   if (!minVersion) {
     debug(
@@ -135,12 +132,12 @@ function assertNodeIsSupported(/** @type {PackageJson} */ packageJson) {
   }
 }
 
-function getMinimumNodeVersion(/** @type {PackageJson} */ packageJson) {
+function getMinimumNodeVersion(packageJson: PackageJson): number[] | undefined {
   const requirement = packageJson.engines.node;
   const requirementMatch = requirement.match(/(\d+)\.(\d+)\.(\d+)/);
   if (!requirementMatch) return undefined;
 
-  const [_, major, minor, patch] = requirementMatch;
+  const [, major, minor, patch] = requirementMatch;
   return [
     Number.parseInt(major),
     Number.parseInt(minor),
@@ -148,7 +145,7 @@ function getMinimumNodeVersion(/** @type {PackageJson} */ packageJson) {
   ];
 }
 
-function getCurrentNodeVersion() {
+function getCurrentNodeVersion(): number[] {
   const [major, minor, patch] = process.versions.node.split(".");
   return [
     Number.parseInt(major),
@@ -157,10 +154,13 @@ function getCurrentNodeVersion() {
   ];
 }
 
-function checkNodeVersionIsSupported(
-  /** @type {{minVersion: number[], currentVersion: number[]}} */
-  { minVersion, currentVersion },
-) {
+function checkNodeVersionIsSupported({
+  minVersion,
+  currentVersion,
+}: {
+  minVersion: number[];
+  currentVersion: number[];
+}): boolean {
   for (let i = 0; i < minVersion.length; i++) {
     const currentPart = currentVersion[i];
     const requiredPart = minVersion[i];
@@ -174,13 +174,11 @@ function checkNodeVersionIsSupported(
   return true;
 }
 
-async function runWasp(
-  /** @type {import("../../scripts/make-cli-npm-packages/src/schema/output-data.ts").SubPackageAPI & { waspVersion: string }} */ {
-    waspBinPath,
-    dataDirPath,
-    waspVersion,
-  },
-) {
+async function runWasp({
+  waspBinPath,
+  dataDirPath,
+  waspVersion,
+}: SubPackageAPI & { waspVersion: string }): Promise<number> {
   try {
     debug("Running Wasp executable at path: %s", waspBinPath);
     debug("Using data directory at path: %s", dataDirPath);
@@ -201,30 +199,25 @@ async function runWasp(
     debug("Wasp executed successfully.");
 
     return 0;
-  } catch (/** @type {any} */ e) {
-    debug("Wasp execution failed with error: %o", e);
+  } catch (error: unknown) {
+    debug("Wasp execution failed with error: %o", error);
+    const status = (error as { status?: number | null }).status;
     // We do a loose equality check because the documentation points to this property
     // being `number | undefined`, but from testing it seems it can also be `null`.
-    if (e.status != undefined) {
+    if (status != undefined) {
       // The executed process ran correctly, but exited with a non-zero status
       // code. This is not considered an error in the scope of this wrapper,
       // so we just return the exit code.
-      debug("We got an exit code from Wasp: %d", e.status);
-      return /** @type {number} */ (e.status);
+      debug("We got an exit code from Wasp: %d", status);
+      return status;
     } else {
-      throw e;
+      throw error;
     }
   }
 }
 
-/**
- * @typedef {{ version: string, engines: { node: string } }} PackageJson
- */
-
-async function getPackageJson() {
-  /** @type {{ default: PackageJson }} */
-  const { default: packageJson } = await import("./package.json", {
-    with: { type: "json" },
-  });
-  return packageJson;
+// Reads a JSON file from the package root. The compiled code lives in `dist/`.
+async function readPackageRootJson<T>(fileName: string): Promise<T> {
+  const fileUrl = new URL(`../${fileName}`, import.meta.url);
+  return JSON.parse(await fs.readFile(fileUrl, "utf8")) as T;
 }
