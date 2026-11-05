@@ -17,7 +17,7 @@ waspStudioTest =
           -- The port is fixed, so we also check the output to know it's our Studio.
           waitForOutput studio "Server listening on port 4000" (5 * 60)
           waitUntilListening [Ports.waspStudioPort] 30
-          interrupt studio
+          signalProcessGroupOf SIGINT studio
           waitForExit studio 60
           waitUntilNotListening [Ports.waspStudioPort] 30
     ]

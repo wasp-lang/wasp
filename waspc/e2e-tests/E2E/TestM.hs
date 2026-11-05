@@ -14,6 +14,7 @@ module E2E.TestM
     inDirectory,
     getWorkingDir,
     resolvePath,
+    allocateWithCleanup,
     registerCleanup,
     registerCleanupStep,
     writeToLog,
@@ -24,11 +25,11 @@ where
 
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.MVar (MVar, withMVar)
-import Control.Monad (unless, when)
+import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
+import Control.Monad.Trans.Resource (InternalState, MonadResource (..), ReleaseKey, allocate, runInternalState)
 import qualified Data.ByteString as BS
-import Data.IORef (IORef, modifyIORef')
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Data.Time.Clock (addUTCTime, getCurrentTime)
@@ -36,7 +37,7 @@ import System.FilePath ((</>))
 import qualified System.FilePath as FP
 import System.IO (Handle, hFlush)
 import UnliftIO (MonadUnliftIO, throwIO)
-import UnliftIO.Exception (Exception)
+import UnliftIO.Exception (Exception, catchAny, displayException)
 
 -- | Settings shared by all tests in a run.
 data RunConfig = RunConfig
@@ -53,9 +54,9 @@ data TestEnv = TestEnv
     -- commands run in.
     workingDir :: FilePath,
     testLog :: TestLog,
-    -- | Actions to run when the test ends, no matter how it ends. The last
-    -- registered one runs first.
-    cleanups :: IORef [IO ()]
+    -- | Holds the actions to run when the test ends, no matter how it ends.
+    -- The last registered one runs first.
+    resources :: InternalState
   }
 
 data TestLog = TestLog
@@ -68,6 +69,9 @@ data TestLog = TestLog
 -- | A sequence of test steps. Steps fail the test by throwing 'TestFailure'.
 newtype TestM a = TestM (ReaderT TestEnv IO a)
   deriving (Functor, Applicative, Monad, MonadIO, MonadUnliftIO, MonadReader TestEnv)
+
+instance MonadResource TestM where
+  liftResourceT action = asks (.resources) >>= liftIO . runInternalState action
 
 newtype TestFailure = TestFailure String
 
@@ -116,10 +120,18 @@ getWorkingDir = asks (.workingDir)
 resolvePath :: FilePath -> TestM FilePath
 resolvePath path = FP.normalise . (</> path) <$> getWorkingDir
 
+-- | Acquires a resource and registers its cleanup, which runs when the test
+-- ends, or earlier with 'Control.Monad.Trans.Resource.release'. The test can't
+-- be cancelled in between. A cleanup that fails is logged, and the others
+-- still run.
+allocateWithCleanup :: IO a -> (a -> IO ()) -> TestM (ReleaseKey, a)
+allocateWithCleanup acquire cleanup = do
+  testLog <- asks (.testLog)
+  let logFailure err = writeToLog testLog (TE.encodeUtf8 . T.pack $ "Cleanup failed: " ++ displayException err ++ "\n")
+  allocate acquire $ \resource -> cleanup resource `catchAny` logFailure
+
 registerCleanup :: IO () -> TestM ()
-registerCleanup cleanup = do
-  cleanupsRef <- asks (.cleanups)
-  liftIO $ modifyIORef' cleanupsRef (cleanup :)
+registerCleanup cleanup = void $ allocateWithCleanup (return ()) (const cleanup)
 
 -- | Like 'registerCleanup', but for a test step.
 registerCleanupStep :: TestM () -> TestM ()

@@ -65,7 +65,7 @@ waspDbStartTest =
     ]
 
 -- | `wasp db start` runs the database in the foreground until it's stopped.
-startDevDb :: TestM BackgroundProcess
+startDevDb :: TestM RunningProcess
 startDevDb = do
   devDb <- startInBackground $ waspCli ["db", "start"]
   waitForOutput devDb "listening on IPv4 address" 180
@@ -76,7 +76,7 @@ startDevDb = do
 --
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the database.
-stopDevDbWithSignal :: Signal -> BackgroundProcess -> String -> String -> TestM ()
+stopDevDbWithSignal :: Signal -> RunningProcess -> String -> String -> TestM ()
 stopDevDbWithSignal sig devDb containerName volumeName = do
   getWaspPid >>= signal sig
   waitForExit devDb 60
@@ -111,9 +111,9 @@ holdDevDbSessionOpen volumeName = do
     psqlCommand sql = "psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"" ++ sql ++ "\""
 
 -- | The volume name `wasp db start` reported, since that's where users learn it from.
-getReportedVolumeName :: BackgroundProcess -> TestM String
+getReportedVolumeName :: RunningProcess -> TestM String
 getReportedVolumeName devDb = do
-  output <- getBackgroundOutput devDb
+  output <- getOutput devDb
   let prefix = T.pack Dev.Postgres.waspDevDbDockerVolumePrefix
   case T.breakOn prefix output of
     (_, rest) | not (T.null rest) -> return . T.unpack $ T.takeWhile (not . isSpace) rest

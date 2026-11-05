@@ -1,8 +1,7 @@
 module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
 import E2E
-import E2E.Ports (appPortArgs, appPortList)
-import qualified E2E.Ports as Ports
+import E2E.Ports (allocateAppPorts, appPortArgs, appPortList)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspBuildStartTest :: E2ETest
@@ -18,12 +17,12 @@ waspBuildStartTest =
       test "succeed-built-project" $ do
         skipIfDockerDisabled
         withNewWaspProject minimalStarterTemplate $ do
-          let ports = Ports.waspBuildStart
+          ports <- allocateAppPorts
           setDbToPostgres
           wasp ["build"]
           app <- startInBackground $ waspCli (["build", "start", "-s", "DATABASE_URL=none"] ++ appPortArgs ports)
           waitUntilListening (appPortList ports) (15 * 60)
-          interrupt app
+          signalProcessGroupOf SIGINT app
           waitForExit app 60
           waitUntilNotListening (appPortList ports) 30
     ]

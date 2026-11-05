@@ -4,8 +4,7 @@ import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import E2E
-import E2E.Ports (AppPorts, appPortArgs, appPortList)
-import qualified E2E.Ports as Ports
+import E2E.Ports (AppPorts, allocateAppPorts, appPortArgs, appPortList)
 import E2E.Signals (processGroupExists)
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -17,38 +16,37 @@ waspStartTest =
     [ test "fail-outside-project" $ waspFails ["start"],
       test "succeed-uncompiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
-          runWaspStartAndStopIt SIGINT Ports.waspStartUncompiledProject
+          runWaspStartAndStopIt SIGINT
           assertDirectoryExists ".wasp"
           assertDirectoryExists "node_modules",
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
-          runWaspStartAndStopIt SIGINT Ports.waspStartCompiledProject,
+          runWaspStartAndStopIt SIGINT,
       test "stop-on-sigterm"
         $ withNewWaspProject minimalStarterTemplate
-        $ runWaspStartAndStopIt SIGTERM Ports.waspStartSigterm,
+        $ runWaspStartAndStopIt SIGTERM,
       test "stop-on-sighup"
         $ withNewWaspProject minimalStarterTemplate
-        $ runWaspStartAndStopIt SIGHUP Ports.waspStartSighup,
+        $ runWaspStartAndStopIt SIGHUP,
       -- Closing the terminal sends SIGHUP to all the processes in it, not
       -- just to Wasp, so each of them reacts to it on its own.
       test "stop-on-terminal-hangup" $
         withNewWaspProject minimalStarterTemplate $ do
-          let ports = Ports.waspStartTerminalHangup
           -- Like a terminal, 'startInBackground' starts Wasp in its own process group.
-          app <- startWaspInBackground ports
+          (app, _) <- startWaspInBackground
+          processGroupId <- getProcessGroupId app
           signalProcessGroupOf SIGHUP app
           waitForExit app 60
           waitUntil "all processes Wasp started stop" 30 $
-            not <$> liftIO (processGroupExists app.processGroupId),
+            not <$> liftIO (processGroupExists processGroupId),
       test "fail-when-web-app-crashes" $
         withNewWaspProject minimalStarterTemplate $ do
-          let ports = Ports.waspStartWebAppCrash
-          app <- startWaspInBackground ports
+          (app, ports) <- startWaspInBackground
           crashWebApp
           exitCode <- waitForExit app 60
           assertTrue "Wasp exits with an error" (exitCode /= ExitSuccess)
-          output <- getBackgroundOutput app
+          output <- getOutput app
           assertTrue "Wasp reports that the web app failed" ("Web app failed" `T.isInfixOf` output)
           waitUntilNotListening (appPortList ports) 30
     ]
@@ -66,16 +64,17 @@ waspStartTest =
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the processes it
 -- started.
-runWaspStartAndStopIt :: Signal -> AppPorts -> TestM ()
-runWaspStartAndStopIt sig ports = do
-  app <- startWaspInBackground ports
+runWaspStartAndStopIt :: Signal -> TestM ()
+runWaspStartAndStopIt sig = do
+  (app, ports) <- startWaspInBackground
   waspPidFromLockFile >>= signal sig
   waitForExit app 60
   waitUntilNotListening (appPortList ports) 30
 
 -- | Returns once the app listens on its ports.
-startWaspInBackground :: AppPorts -> TestM BackgroundProcess
-startWaspInBackground ports = do
+startWaspInBackground :: TestM (RunningProcess, AppPorts)
+startWaspInBackground = do
+  ports <- allocateAppPorts
   app <- startInBackground $ waspCli ("start" : appPortArgs ports)
   waitUntilListening (appPortList ports) 300
-  return app
+  return (app, ports)

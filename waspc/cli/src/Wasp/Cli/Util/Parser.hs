@@ -14,9 +14,9 @@ import qualified System.Exit as EC
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Interactive (InteractiveTerminal)
-import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Message as Msg
+import Wasp.Util.Interactive (InteractiveTerminal)
+import qualified Wasp.Util.Interactive as Interactive
 
 data ArgsParser a = ArgsParser
   { commandName :: String,

@@ -4,14 +4,18 @@ module Wasp.Job.CreateProcess
     setCwd,
     asCreateProcess,
     markInteractive,
+    addEnvVarsOverride,
   )
 where
 
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
+import System.Directory (getCurrentDirectory)
 import System.Environment (getEnvironment)
 import qualified System.Process as P
-import Wasp.Env (EnvVar, HasEnvVars (..), addEnvVarsOverride)
+import Wasp.Env (EnvVar)
+import qualified Wasp.Env as Env
+import Wasp.Job.CreateProcess.SearchPath (findExecutableFrom, getSearchPathEnvVars)
 
 data CreateJobProcess
   = CreateJobProcess
@@ -22,10 +26,8 @@ data CreateJobProcess
     interactive :: Bool
   }
 
-instance HasEnvVars CreateJobProcess where
-  getEnvVars = envVars
-  setEnvVars newEnv cjp = cjp {envVars = newEnv}
-
+-- | A process that runs the given executable, an npm package's one or one in
+-- the @PATH@ (see 'asCreateProcess'), with the given arguments.
 proc :: String -> [String] -> CreateJobProcess
 proc bin args =
   CreateJobProcess
@@ -42,12 +44,21 @@ setCwd newCwd cjp = cjp {cwd = Just $ SP.castDir newCwd}
 markInteractive :: CreateJobProcess -> CreateJobProcess
 markInteractive cjp = cjp {interactive = True}
 
+-- | Adds env vars to the process. If there are duplicates, the incoming env
+-- vars override the existing ones.
+addEnvVarsOverride :: [EnvVar] -> CreateJobProcess -> CreateJobProcess
+addEnvVarsOverride incoming cjp = cjp {envVars = Env.addEnvVarsOverride incoming cjp.envVars}
+
+-- | The process runs like an npm script would in its working directory. Fails if there is no such executable.
 asCreateProcess :: CreateJobProcess -> IO P.CreateProcess
 asCreateProcess cjp = do
+  processCwd <- maybe (SP.parseAbsDir =<< getCurrentDirectory) return cjp.cwd
+  bin <- findExecutableFrom processCwd cjp.bin
+  searchPathEnvVars <- getSearchPathEnvVars processCwd
   inheritedEnv <- getEnvironment
-  let fullEnv = addEnvVarsOverride cjp.envVars inheritedEnv
+  let fullEnv = cjp.envVars `Env.addEnvVarsOverride` (searchPathEnvVars `Env.addEnvVarsOverride` inheritedEnv)
   pure $
-    (P.proc cjp.bin cjp.args)
+    (P.proc bin cjp.args)
       { P.cwd = SP.fromAbsDir <$> cwd cjp,
         P.env = Just fullEnv,
         P.std_in =
