@@ -1,3 +1,2 @@
-// The Wasp CLI runs this file by path to run `wasp deploy` with this
-// project's `@wasp/deploy`. See `run-spec.js` for why it goes through `@wasp/wasp`.
+// Entry point for `wasp deploy`, like `run-spec.js` is for the Wasp Spec.
 import "@wasp/deploy";

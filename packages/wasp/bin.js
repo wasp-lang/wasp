@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-// `@wasp/cli` owns the `wasp` executable. pnpm only links the executables of
-// a project's direct dependencies, and `@wasp/cli` is a dependency of this
-// package, not of the project. So this package declares its own `wasp` bin,
-// which runs `@wasp/cli`'s.
+// `@wasp/wasp` declares `@wasp/cli`'s `wasp` executable, because a Wasp app
+// depends on `@wasp/wasp` directly, and every package manager links the
+// executables of an app's direct dependencies. pnpm doesn't link them for
+// `@wasp/cli`, which is only a dependency of this package.
 import "@wasp/cli/bin.js";

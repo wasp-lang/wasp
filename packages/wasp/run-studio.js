@@ -1,3 +1,2 @@
-// The Wasp CLI runs this file by path to start the Wasp Studio server of this
-// project's `@wasp/studio`. See `run-spec.js` for why it goes through `@wasp/wasp`.
+// Entry point for `wasp studio`, like `run-spec.js` is for the Wasp Spec.
 import "@wasp/studio";
