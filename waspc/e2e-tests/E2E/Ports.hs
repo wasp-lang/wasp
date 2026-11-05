@@ -1,22 +1,59 @@
--- | Ports of the tests that run Wasp apps. Each test gets its own ports so the
--- tests can run in parallel. Keeping them all in one place avoids collisions.
+-- | Ports of the tests that run Wasp apps.
 module E2E.Ports
   ( AppPorts (..),
+    allocateAppPorts,
     appPortList,
     appPortArgs,
-    waspStartUncompiledProject,
-    waspStartCompiledProject,
-    waspStartWebAppCrash,
-    waspStartSigterm,
-    waspStartSighup,
-    waspStartTerminalHangup,
   )
 where
+
+import Control.Concurrent.MVar (MVar, modifyMVar, newMVar)
+import Control.Exception (bracket)
+import Control.Monad.IO.Class (liftIO)
+import Data.Set (Set)
+import qualified Data.Set as Set
+import E2E.TestM (TestM, logLine)
+import qualified Network.Socket as Socket
+import System.IO.Unsafe (unsafePerformIO)
 
 data AppPorts = AppPorts
   { clientPort :: Int,
     serverPort :: Int
   }
+
+-- | Ports that are free right now, so that tests can run in parallel with each
+-- other, and with the tests of other checkouts on the same machine.
+allocateAppPorts :: TestM AppPorts
+allocateAppPorts = do
+  ports <- liftIO $ AppPorts <$> allocatePort <*> allocatePort
+  logLine $ "\n==> Allocated ports: client " ++ show ports.clientPort ++ ", server " ++ show ports.serverPort
+  return ports
+
+-- | A port that nothing listens on, and that no other test got yet.
+--
+-- Something else can still take it before the test uses it, but only in the
+-- moment in between.
+allocatePort :: IO Int
+allocatePort = do
+  port <- findFreePort
+  isNew <- modifyMVar allocatedPorts $ \ports ->
+    return (Set.insert port ports, port `Set.notMember` ports)
+  if isNew then return port else allocatePort
+
+-- | Lets the OS pick a free port. The socket is dual-stack, so the port is
+-- free on both IPv4 and IPv6: Vite e.g. listens on only one of them.
+findFreePort :: IO Int
+findFreePort =
+  bracket (Socket.socket Socket.AF_INET6 Socket.Stream Socket.defaultProtocol) Socket.close $ \socket -> do
+    Socket.setSocketOption socket Socket.IPv6Only 0
+    Socket.bind socket (Socket.SockAddrInet6 0 0 (0, 0, 0, 0) 0)
+    fromIntegral <$> Socket.socketPort socket
+
+-- | Ports allocated to the tests of this run. Global, since the run's tests
+-- don't share anything else.
+allocatedPorts :: MVar (Set Int)
+allocatedPorts = unsafePerformIO $ newMVar Set.empty
+{-# NOINLINE allocatedPorts #-}
 
 appPortList :: AppPorts -> [Int]
 appPortList ports = [ports.clientPort, ports.serverPort]
@@ -24,11 +61,3 @@ appPortList ports = [ports.clientPort, ports.serverPort]
 -- | For `wasp start` and `wasp build start`.
 appPortArgs :: AppPorts -> [String]
 appPortArgs ports = ["--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
-
-waspStartUncompiledProject, waspStartCompiledProject, waspStartWebAppCrash, waspStartSigterm, waspStartSighup, waspStartTerminalHangup :: AppPorts
-waspStartUncompiledProject = AppPorts 31000 31001
-waspStartCompiledProject = AppPorts 31010 31011
-waspStartWebAppCrash = AppPorts 31020 31021
-waspStartSigterm = AppPorts 31030 31031
-waspStartSighup = AppPorts 31040 31041
-waspStartTerminalHangup = AppPorts 31050 31051
