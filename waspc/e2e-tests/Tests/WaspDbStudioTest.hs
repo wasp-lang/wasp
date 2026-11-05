@@ -16,7 +16,7 @@ waspDbStudioTest =
           -- The port is fixed, so we also check the output to know it's our Prisma Studio.
           waitForOutput dbStudio "localhost:5555" (5 * 60)
           waitUntilListening [Ports.prismaStudioPort] 30
-          interrupt dbStudio
+          signalProcessGroupOf SIGINT dbStudio
           waitForExit dbStudio 60
           waitUntilNotListening [Ports.prismaStudioPort] 30
     ]

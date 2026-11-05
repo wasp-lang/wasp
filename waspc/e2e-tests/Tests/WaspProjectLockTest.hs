@@ -69,7 +69,7 @@ waspProjectLockTest =
           waitForOutput dbCommand waitingForCompilationMessage 120
           setLockFileWatcherStatus UpToDate
           waitForExit dbCommand 120 >>= assertEqual "exit code of the db command" ExitSuccess
-          getBackgroundOutput dbCommand
+          getOutput dbCommand
             >>= assertTrue "the db command skips compilation"
               . T.isInfixOf "is already watching this project, skipping compilation."
 
@@ -92,7 +92,7 @@ waspProjectLockTest =
 -- | Starts a real `wasp install`, which acquires the project lock and then runs
 -- `npm install`, which a preinstall hook stalls until 'releaseLock' (or two
 -- minutes pass). Returns once `wasp install` holds the lock.
-startLockHolder :: TestM BackgroundProcess
+startLockHolder :: TestM RunningProcess
 startLockHolder = do
   writeToFile
     preinstallHookFile
@@ -114,7 +114,7 @@ startLockHolder = do
     lockAcquiredMarkerFileText = T.pack lockAcquiredMarkerFile
     releaseLockSignalFileText = T.pack releaseLockSignalFile
 
-releaseLock :: BackgroundProcess -> TestM ()
+releaseLock :: RunningProcess -> TestM ()
 releaseLock lockHolder = do
   writeToFile releaseLockSignalFile ""
   waitForExit lockHolder 120 >>= assertEqual "exit code of the lock holder" ExitSuccess
