@@ -56,7 +56,7 @@ instance Requirable WaspNpmPackageAvailable where
       missingDepsError reason =
         CommandError
           "Missing or stale dependencies in project"
-          $ "Your project dependencies are out of date. Run "
+          $ "Your project's dependencies are missing or out of date. Run "
             ++ styleCode "npm install"
             ++ " to fix this.\n"
             ++ "Details: "
@@ -107,16 +107,11 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode "npm install"
             ++ "."
 
-      -- The npm Wasp CLI hands over to the project's Wasp CLI, which
-      -- \@wasp/wasp pins to its own version. So a mismatch means either that
-      -- someone ran the binary directly, without anything to hand over to the
-      -- project's Wasp, or that the project's \@wasp/cli and \@wasp/wasp
-      -- don't match, e.g. after a partial install.
       versionMismatchError :: Bool -> SV.Version -> SV.Version -> CommandError
       versionMismatchError isRunByNpmPackage cliVersion installedVersion =
         CommandError "Wasp version mismatch" $
           if isRunByNpmPackage
-            then
+            then -- \@wasp/cli and \@wasp/wasp differ, e.g. after a partial install.
               "This project's "
                 ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
                 ++ " doesn't match its Wasp CLI "
@@ -124,7 +119,7 @@ instance Requirable WaspNpmPackageAvailable where
                 ++ ". Run "
                 ++ styleCode "npm install"
                 ++ " to install them together."
-            else
+            else -- Nothing handed over to the project's Wasp CLI.
               "This project uses Wasp "
                 ++ show installedVersion
                 ++ ", but you ran Wasp CLI "

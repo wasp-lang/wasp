@@ -82,19 +82,15 @@ doesVersionMatchDeclaredSpecifier :: String -> SV.Version -> Bool
 doesVersionMatchDeclaredSpecifier declaredSpecifier version =
   either (const True) (SV.isVersionInRange version) (SV.parseRange declaredSpecifier)
 
--- | The version of the \@wasp/cli npm package that runs this binary, e.g.
--- `0.27.0-rc.1`. It's the source of truth for the Wasp versions we write into
--- package.json files, because the binary's own version ('WV.waspVersion') comes
--- from Cabal, whose version format is incompatible with npm's SemVer. Falls back
--- to the binary's version when the binary runs without \@wasp/cli, e.g. when
--- built from source.
+-- | The version of the \@wasp/cli npm package that runs this binary, or the
+-- binary's own version ('WV.waspVersion') without one. We prefer the npm
+-- version, because Cabal versions can't express prereleases like `0.27.0-rc.1`.
 getWaspCliNpmPackageVersion :: IO SV.Version
 getWaspCliNpmPackageVersion = fromMaybe WV.waspVersion <$> lookupWaspCliNpmPackageVersion
 
 -- | Whether the \@wasp/cli npm package runs this binary. It doesn't when
 -- someone runs the binary directly, e.g. one installed with the old installer
--- script or built from source. Then nothing hands over to the project's
--- Wasp CLI.
+-- script or built from source.
 isRunByWaspCliNpmPackage :: IO Bool
 isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
 
@@ -176,7 +172,8 @@ waspNpmPackageNotInstalledMessage waspProjectDir =
 waspCliNpmPackageVersionEnvVarName :: String
 waspCliNpmPackageVersionEnvVarName = "WASP_CLI_NPM_PACKAGE_VERSION"
 
--- | Fails on a version that doesn't parse, because then \@wasp/cli is broken.
+-- | Fails on a version that doesn't parse. Only a broken \@wasp/cli sets one,
+-- so it's reported as an internal error.
 lookupWaspCliNpmPackageVersion :: IO (Maybe SV.Version)
 lookupWaspCliNpmPackageVersion =
   lookupEnv waspCliNpmPackageVersionEnvVarName

@@ -117,7 +117,8 @@ waspProjectLockTest =
     startWaspCompileInBackground = do
       compileCommand <- waspCliCompile
       return $
-        -- Forgetting the installed deps log makes `wasp compile` run `npm install` again.
+        -- Deleting the installed deps log (`installedNpmDepsLogFileInGeneratedAppDir`)
+        -- makes `wasp compile` run `npm install` again.
         "rm -f .wasp/out/installedNpmDepsLog.json"
           ~&& ("{ " ++ compileCommand ++ " > .wasp-e2e-compile.log 2>&1 & }")
           ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
