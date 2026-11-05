@@ -95,12 +95,9 @@ waspProjectLockTest =
         )
     ]
   where
-    -- The lock holder is a real `wasp compile` process. It acquires the
-    -- project lock, generates the app and then runs `npm install` in the
-    -- project dir. 'startWaspCompileInBackground' deletes the installed deps
-    -- log first, so the install always runs. This hook stalls the install
-    -- until 'releaseLockAndAwaitWaspCompile' signals it, or ~120s pass. The
-    -- hook also creates the marker file, which tells us `wasp compile` holds the lock.
+    -- Stalls the `npm install` of `wasp compile` until
+    -- 'releaseLockAndAwaitWaspCompile' signals it, or ~120s pass. Its marker
+    -- file tells us `wasp compile` holds the lock.
     addBlockingNpmPreinstallHook :: ShellCommand
     addBlockingNpmPreinstallHook =
       "npm pkg set 'scripts.preinstall=" ++ preinstallHookScript ++ "'"

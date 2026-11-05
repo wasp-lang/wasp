@@ -201,11 +201,8 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
           BS.readFile (SP.fromAbsFile jsonFile)
             >>= BSL.writeFile (SP.fromAbsFile jsonFile) . format . hideDevWaspNpmPackageTarballs . unsafeDecodeJson
 
-        -- In development, projects depend on the Wasp npm packages through
-        -- `file:` tarballs whose absolute paths depend on where the repo is
-        -- checked out (see "Wasp.Cli.DevWaspNpmPackages"), so we replace those
-        -- paths with a placeholder. Projects reference the lib tarballs with
-        -- relative paths, so those stay as they are.
+        -- The dev tarball paths are absolute, so they depend on where the repo
+        -- is checked out. The lib tarball paths are relative and stay.
         -- TODO: Also match Windows absolute paths (`file:C:/...`) once we run
         -- the e2e snapshot tests on Windows (`main` skips them there).
         hideDevWaspNpmPackageTarballs :: Aeson.Value -> Aeson.Value

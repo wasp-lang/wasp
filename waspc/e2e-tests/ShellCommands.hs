@@ -295,10 +295,9 @@ waspCliStudio = return "$WASP_CLI_CMD studio"
 npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 npmInstall = return "npm install"
 
--- | Points the project's package.json at the dev Wasp npm package tarballs
--- (see "Wasp.Cli.DevWaspNpmPackages"), the way `wasp new` does for new
--- projects. Needed for projects copied from the repo (e.g. the examples),
--- whose package.json refers to the tarballs relative to their place in the repo.
+-- | Like `wasp new` does (see "Wasp.Cli.DevWaspNpmPackages"). Projects copied
+-- from the repo, e.g. the examples, point at the tarballs relative to their
+-- place in the repo.
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
   return $

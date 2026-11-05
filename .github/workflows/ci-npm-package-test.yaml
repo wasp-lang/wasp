@@ -67,10 +67,9 @@ jobs:
           echo '{}' > package.json
           touch .wasproot
 
-          # Install `@wasp/wasp` like a Wasp project does. pkg.pr.new points its
-          # dependencies at this commit's other packages, so it brings them all,
-          # and npm installs its peer dependencies.
-          # pkg.pr.new's short URL form only works for packages already on npm.
+          # pkg.pr.new points `@wasp/wasp`'s dependencies at this commit's other
+          # packages, so it brings them all, and npm installs its peer dependencies.
+          # Its short URL form only works for packages already on npm.
           npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/wasp@$COMMIT_SHA"
 
       - name: Run Wasp CLI

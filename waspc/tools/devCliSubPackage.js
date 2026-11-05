@@ -1,12 +1,7 @@
 // @ts-check
 
-// The dev stand-in for the platform packages of `@wasp/cli`, which
-// `tasks/build/dev-packages.ts` packs into the dev `@wasp/cli`. It finds the
-// project it is installed in (the one whose package.json points at the dev
-// `@wasp/wasp` tarball), and reads the binary and data dir paths from the
-// config file next to that tarball.
-// Its default export must match `SubPackageAPI` in
-// `packages/cli/src/package-data.ts`, which `@wasp/cli` reads.
+// The dev stand-in for the platform packages of `@wasp/cli`. Its default
+// export must match `SubPackageAPI` in `packages/cli/src/package-data.ts`.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -23,10 +18,8 @@ const devCliConfig = JSON.parse(
 export default devCliConfig;
 
 /**
- * Finds the dir of the dev tarballs, from the `@wasp/cli` override that
- * `wasp new` and the repo's apps write next to the `@wasp/wasp` dependency.
- * The override names the dev `@wasp/cli` tarball itself, so it's there whether
- * `@wasp/wasp` is a regular or a dev dependency.
+ * Reads it from the `@wasp/cli` override, which names the dev `@wasp/cli`
+ * tarball whether `@wasp/wasp` is a regular or a dev dependency.
  *
  * @returns {string}
  */

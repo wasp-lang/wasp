@@ -1,22 +1,12 @@
 #!/usr/bin/env node
 //MISE description="Packs the unreleased @wasp/wasp and the packages it depends on into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
 /// <reference types="node" />
-// Packs the unreleased `@wasp/wasp` and the packages it depends on
-// (`@wasp/cli`, `@wasp/spec`, `@wasp/deploy`, `@wasp/studio`) into tarballs
-// under `waspc/.dev-packages/`, so Wasp projects can depend on the Wasp in
-// this repo before it is published. `waspc/tools/wasp-cli-dev` points the
-// CLI at that directory, and `wasp new` then writes the tarball paths into the
-// new project's package.json (see `Wasp.Cli.DevWaspNpmPackages`).
+// The unreleased Wasp isn't on npm, so the repo's Wasp apps depend on tarballs
+// of it instead (see `Wasp.Cli.DevWaspNpmPackages`). The dev `@wasp/cli` runs
+// the `wasp-cli` binary built in this repo (see `waspc/tools/devCliSubPackage.js`).
 //
-// The dev `@wasp/cli` has no platform packages. Its `data.json` points at a
-// dev sub-package inside it (`waspc/tools/devCliSubPackage.js`), which runs the
-// `wasp-cli` binary built in this repo. See `writeDevCliConfig` for the
-// `WASP_DEV_CLI_BIN` and `WASP_DEV_DATA_DIR` overrides.
-//
-// TODO: Remove this script, or most of it, once Wasp apps can run under pnpm
-// and the repo's examples and other Wasp apps join the pnpm workspace. They
-// then depend on `@wasp/wasp` through `workspace:*` instead of tarballs. Only
-// finding the dev `wasp-cli` binary stays, as a dev fallback in `packages/cli`.
+// TODO: Remove most of this once the repo's Wasp apps join the pnpm workspace
+// and depend on `@wasp/wasp` through `workspace:*`.
 
 import {
   copyFileSync,
@@ -114,9 +104,8 @@ function packPackage(packageDir: string, destinationDir: string): void {
   });
 }
 
-// Where the dev `@wasp/cli` finds the binary and the data dir. It lives next
-// to the tarballs, not inside them, so the tarballs have the same content on
-// every machine and the lockfiles of the repo's Wasp apps stay stable.
+// Next to the tarballs, not inside them, so the tarballs are the same on every
+// machine and the lockfiles of the repo's Wasp apps stay stable.
 function writeDevCliConfig(devPackagesDir: string): void {
   const waspBinPath = process.env.WASP_DEV_CLI_BIN ?? getCabalWaspCliBinPath();
   const dataDirPath =
@@ -160,10 +149,8 @@ function packDevCliPackage(devPackagesDir: string): void {
       JSON.stringify(packageJson, null, 2) + "\n",
     );
 
-    // Same shape `make-cli-npm-packages` writes, with the dev
-    // sub-package for this machine's platform. `dist/run.js` passes
-    // `packageName` to `import()`, which resolves the relative path against
-    // `dist/run.js`.
+    // Same shape `make-cli-npm-packages` writes, with only this machine's
+    // platform. `dist/run.js` imports `packageName`, a path relative to it.
     const { os, cpu, libc } = getCurrentTarget();
     const data = {
       subPackages: {

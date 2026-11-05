@@ -12,10 +12,8 @@ import { GENERATED_WASP_PATHS } from "../waspc/tools/waspAppPackageLock.ts";
 const waspCliDevPath = join(getWaspcDirPath(), "tools", "wasp-cli-dev");
 const $ = execa({ stdio: "inherit", verbose: "short" });
 
-// Install the dependencies before compiling, so the installed @wasp/wasp
-// matches the CLI version. Old generated workspaces point at old lib tarballs,
-// so remove them from disk and lockfile first. Compile then regenerates
-// .wasp/out with fresh tarballs.
+// Old generated workspaces point at old lib tarballs, so we drop them first.
+// Installing before compiling makes the installed @wasp/wasp match the CLI.
 for (const generatedPath of GENERATED_WASP_PATHS) {
   await rm(generatedPath, { recursive: true, force: true });
 }

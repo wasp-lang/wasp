@@ -68,8 +68,8 @@ function generatePackageJson(
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  // No `os` and `cpu` here, or npm would refuse to install any Wasp project on
-  // an unsupported platform. The platform sub-packages set them.
+  // `os` and `cpu` stay on the platform sub-packages, or npm would refuse to
+  // install any Wasp project on other platforms.
 
   console.log("Filled out package.json fields");
   console.groupEnd();

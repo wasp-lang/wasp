@@ -19,10 +19,7 @@ interface PackageJson {
   engines: { node: string };
 }
 
-/**
- * Runs this CLI's Wasp binary with the process's arguments, and returns its
- * exit code.
- */
+/** Returns the Wasp binary's exit code. */
 export async function runWaspCli(): Promise<number> {
   const packageJson = await readPackageRootJson<PackageJson>("package.json");
   const { waspBinPath, dataDirPath } = await getSubPackage(packageJson).catch(
@@ -183,9 +180,8 @@ async function runWasp({
       env: {
         ...process.env,
         waspc_datadir: dataDirPath,
-        // The binary's own version comes from Cabal, which has no prerelease
-        // versions like `0.27.0-rc.1`. The npm package version is the source
-        // of truth for the Wasp versions the binary writes into package.json.
+        // Cabal versions can't express npm prereleases like `0.27.0-rc.1`, so
+        // the binary takes its version from here.
         WASP_CLI_NPM_PACKAGE_VERSION: waspVersion,
       },
       stdio: "inherit",
@@ -211,7 +207,7 @@ async function runWasp({
   }
 }
 
-// Reads a JSON file from the package root. The compiled code lives in `dist/`.
+// The compiled code runs from `dist/`, one level below the package root.
 async function readPackageRootJson<T>(fileName: string): Promise<T> {
   const filePath = path.join(import.meta.dirname, "..", fileName);
   return JSON.parse(await fs.readFile(filePath, "utf8")) as T;

@@ -134,8 +134,7 @@ waspNpmPackageAvailableTest =
                   -- Project-scoped commands that don't require @wasp/wasp to be installed.
                   : [ waspCliClean,
                       waspCliShowBuild,
-                      -- Project-agnostic commands. They don't read the project,
-                      -- so they should be unaffected by @wasp/wasp presence.
+                      -- Project-agnostic commands.
                       waspCliVersion,
                       waspCliCompletion,
                       waspCliTelemetry,
@@ -145,7 +144,6 @@ waspNpmPackageAvailableTest =
         )
     ]
   where
-    -- Putting the project in a "@wasp/wasp missing" state without invoking any wasp command.
     removeNodeModules :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeNodeModules = return "rm -rf node_modules"
 

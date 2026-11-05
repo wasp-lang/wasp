@@ -84,9 +84,8 @@ data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs
 devWaspNpmPackagesDirEnvVarName :: String
 devWaspNpmPackagesDirEnvVarName = "WASP_DEV_PACKAGES_DIR"
 
--- | Finds the dev tarballs in the dir 'devWaspNpmPackagesDirEnvVarName' points
--- at. Returns 'Nothing' when the env var isn't set, and fails when it's set but
--- a tarball is missing.
+-- | 'Nothing' when 'devWaspNpmPackagesDirEnvVarName' isn't set. Fails when it's
+-- set but a tarball is missing.
 findDevWaspNpmPackageTarballs :: IO (Maybe DevWaspNpmPackageTarballs)
 findDevWaspNpmPackageTarballs =
   lookupEnv devWaspNpmPackagesDirEnvVarName >>= \case
@@ -117,15 +116,14 @@ findDevWaspNpmPackageTarballs =
     tarballFile :: String -> Path' (Rel d) File'
     tarballFile name = fromJust $ parseRelFile $ name ++ "-" ++ show waspVersion ++ ".tgz"
 
--- | What a new project's package.json says for \@wasp/wasp: the dev tarball if
--- there is one, otherwise the version of the \@wasp/cli that runs this binary.
+-- | The dev tarball if there is one, otherwise the \@wasp/cli version.
 getNewProjectWaspNpmPackageSpecifier :: Maybe DevWaspNpmPackageTarballs -> IO String
 getNewProjectWaspNpmPackageSpecifier = \case
   Nothing -> show <$> getWaspCliNpmPackageVersion
   Just tarballs -> return $ absTarballFileSpecifier $ waspTarball tarballs
 
--- | Adds the `overrides` that point npm at the dev tarballs of the packages
--- \@wasp/wasp depends on. Keeps the `overrides` the package.json already has.
+-- | Points npm at the dev tarballs of the packages \@wasp/wasp brings, and keeps
+-- the `overrides` the package.json already has.
 addDevWaspNpmPackageOverridesToPackageJsonFile :: DevWaspNpmPackageTarballs -> Path' Abs (File f) -> IO ()
 addDevWaspNpmPackageOverridesToPackageJsonFile tarballs packageJsonFile =
   updateJsonFile addOverrides packageJsonFile >>= either (ioError . userError) return
@@ -163,14 +161,9 @@ devTarballFields =
     DevTarballField "overrides" waspStudioNpmPackageName
   ]
 
--- | Makes the dev tarballs available to the Docker build of `wasp build`.
---
--- Docker's build context is `.wasp/out/`, and the tarballs live outside of it.
--- So we copy them next to the Wasp libs and point the build's package.json and
--- package-lock.json at the copies. The lock entries keep their integrity,
--- because the copies have the same bytes, so `npm ci` still finds the lock in
--- sync. A project that depends on a released Wasp has no tarballs, so this
--- does nothing.
+-- | Docker's build context is `.wasp/out/`, so we copy the tarballs into it and
+-- point the build's package.json and lock at the copies. The copies have the
+-- same bytes, so `npm ci` still finds the lock in sync.
 prepareDevWaspNpmPackagesForDockerBuild ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
@@ -221,9 +214,8 @@ prepareDevWaspNpmPackagesForDockerBuild waspProjectDir buildDir packageJsonInBui
     tarballSpecifierInDocker tarball =
       tarballFileSpecifier $ fromRelDir generatedAppDirInWaspProjectDir ++ fromRelDir libsRootDirInGeneratedAppDir ++ "wasp/" ++ fromRelFile (basename tarball)
 
-    -- Rewrites every `file:` specifier in the lock that points at one of the
-    -- copied tarballs: the root dependency on @wasp/wasp and the `resolved`
-    -- field of the packages' entries.
+    -- The root dependency on @wasp/wasp and the `resolved` field of each
+    -- package entry.
     pointLockAtCopiedTarballs :: [Path' Abs File'] -> Value -> Value
     pointLockAtCopiedTarballs tarballs lock =
       lock

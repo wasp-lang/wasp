@@ -17,14 +17,9 @@ const DEV_WASP_NPM_PACKAGE_NAMES = WASP_PACKAGE_DIR_NAMES.map(getPackageName);
 type PackageLockEntry = { dependencies?: Record<string, string> };
 
 /**
- * Drops the stale entries from the `package-lock.json` in the current dir, so
- * the next `npm install` rebuilds them from the package.json files.
- *
- * The entries of generated workspaces and their tarball deps go stale once
- * `.wasp/out` is gone. The entries of the dev Wasp npm packages go stale
- * whenever `mise run build:dev-packages` repacks their tarballs. Apps generated
- * before Wasp 0.27 used the `@wasp.sh` npm scope instead of `@wasp`, so we
- * match both.
+ * Generated workspaces go stale once `.wasp/out` is gone, and the dev Wasp npm
+ * packages whenever they're repacked. Apps from before Wasp 0.27 use the
+ * `@wasp.sh` scope, so we match it too.
  */
 export async function removeStaleWaspLockEntries(): Promise<void> {
   const packageLockPath = "package-lock.json";

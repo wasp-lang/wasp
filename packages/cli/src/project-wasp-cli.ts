@@ -11,12 +11,11 @@ import { CLIError } from "./cli-error.js";
 const debug = debuglog("wasp-bin-wrapper");
 
 export interface InstalledWaspCli {
-  /** The real path of the CLI's `run.js`, which its package.json exports as `./run`. */
+  /** A real path, so symlinked installs of the same CLI compare equal. */
   runModulePath: string;
   version: string;
 }
 
-/** Returns this Wasp CLI, the one whose code is running. */
 export async function getThisWaspCli(): Promise<InstalledWaspCli> {
   return readInstalledWaspCli(
     path.join(import.meta.dirname, "../package.json"),
@@ -25,12 +24,8 @@ export async function getThisWaspCli(): Promise<InstalledWaspCli> {
 }
 
 /**
- * Returns the project's Wasp CLI that `thisWaspCli` should hand over to, or
- * `undefined` if `thisWaspCli` should run itself. That's when:
- *
- * - the cwd isn't in a Wasp project,
- * - the project has no `@wasp/wasp` installed, or
- * - `thisWaspCli` is the project's Wasp CLI.
+ * `undefined` when there's nothing to hand over to: outside a project, without
+ * an installed `@wasp/wasp`, or when this is the project's CLI.
  */
 export async function findProjectWaspCliToHandOverTo(
   thisWaspCli: InstalledWaspCli,
@@ -44,8 +39,7 @@ export async function findProjectWaspCliToHandOverTo(
 }
 
 /**
- * Runs the project's Wasp CLI in this process, through the `runWaspCli` it
- * exports (see `run.ts`), so there is no second process to keep signals and
+ * Runs it in this process, so there's no second process to keep signals and
  * exit codes in sync with.
  */
 export async function runProjectWaspCli(
@@ -68,11 +62,7 @@ export async function runProjectWaspCli(
   return runWaspCli();
 }
 
-/**
- * Returns the Wasp CLI that the project's `@wasp/wasp` pins, or `undefined` if
- * the cwd isn't in a Wasp project or the project has no `@wasp/wasp`
- * installed. It finds them through Node's module resolution.
- */
+/** Finds the CLI the project's `@wasp/wasp` pins with Node's resolution algorithm. */
 async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
   const waspProjectDir = findWaspProjectDir();
   if (waspProjectDir === undefined) {
@@ -145,7 +135,7 @@ function findWaspProjectDir(): string | undefined {
   }
 }
 
-/** Resolves `request`, or returns `undefined` if no installed package has it. */
+/** `undefined` if no installed package has `request`. */
 function tryResolving(
   require: NodeJS.Require,
   request: string,
