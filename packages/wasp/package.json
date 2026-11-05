@@ -68,5 +68,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "//": "Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/project-wasp-cli.ts), so changing it breaks the hand-over from older Wasp CLIs."
 }

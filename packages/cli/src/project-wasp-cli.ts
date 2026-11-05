@@ -72,9 +72,6 @@ export async function runProjectWaspCli(
  * Returns the Wasp CLI that the project's `@wasp/wasp` pins, or `undefined` if
  * the cwd isn't in a Wasp project or the project has no `@wasp/wasp`
  * installed. It finds them through Node's module resolution.
- *
- * Warning: changing the `exports` of `@wasp/wasp` or `@wasp/cli` breaks the
- * hand-over from older Wasp CLIs.
  */
 async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
   const waspProjectDir = findWaspProjectDir();

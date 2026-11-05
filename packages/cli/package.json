@@ -37,5 +37,6 @@
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "//": "Older Wasp CLIs hand over to this one through the `./run` and `./package.json` exports (see src/project-wasp-cli.ts), so changing them breaks the hand-over."
 }
