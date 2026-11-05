@@ -28,6 +28,7 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
+import Wasp.Env (addEnvVarsOverride)
 import qualified Wasp.Job as Job
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
@@ -105,7 +106,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     Job.run
       $ Job.prefixWith Job.Wasp
       $ Job.fromProc
-      $ Job.addEnvVarsOverride
+      $ addEnvVarsOverride
         [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
           -- Not related to `node` itself, so we have to set it manually.
           -- It enables users to write environment specific code in the TS config.

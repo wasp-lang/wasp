@@ -6,12 +6,13 @@ where
 
 import System.Exit (ExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
+import Wasp.Env (addEnvVarsOverride)
 import qualified Wasp.Job as Job
 
 buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
   Job.fromProc
-    . Job.addEnvVarsOverride envVars
+    . addEnvVarsOverride envVars
     . Job.setCwd config.projectDir
     $ Job.proc "vite" ["build"]
   where
@@ -20,7 +21,7 @@ buildClient config =
 startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
   Job.fromProc
-    . Job.addEnvVarsOverride envVars
+    . addEnvVarsOverride envVars
     . Job.setCwd config.projectDir
     $ Job.proc
       "vite"

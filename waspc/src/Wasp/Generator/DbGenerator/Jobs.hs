@@ -15,6 +15,7 @@ where
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
+import Wasp.Env (addEnvVarsOverride)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (dbSeedProcess, serverRootDirInGeneratedAppDir)
@@ -129,12 +130,12 @@ seed projectRunConfig generatedAppDir seedName =
   where
     runInServerDir binName args =
       J.fromProc
-        . J.addEnvVarsOverride envVars
+        . addEnvVarsOverride envVars
         . J.setCwd serverDir
         $ J.proc binName args
     runSeed =
       J.fromProc
-        $ J.addEnvVarsOverride envVars
+        $ addEnvVarsOverride envVars
         $ J.setCwd waspProjectDir
         -- The user's seed function can ask for input.
         $ J.markInteractive

@@ -21,6 +21,7 @@ import Data.Void (Void)
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import System.Exit (ExitCode (..))
 import qualified UnliftIO.Async as UnliftIO
+import Wasp.Env (addEnvVarsOverride)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
@@ -132,7 +133,7 @@ startServer projectRunConfig generatedAppDir inbox = do
 
     serverProcess :: J.CreateJobProcess
     serverProcess =
-      J.addEnvVarsOverride (("NODE_ENV", "development") : makeEnvVars projectRunConfig)
+      addEnvVarsOverride (("NODE_ENV", "development") : makeEnvVars projectRunConfig)
         $ J.setCwd waspProjectDir
         $ uncurry J.proc Common.devServerStartProcess
 
