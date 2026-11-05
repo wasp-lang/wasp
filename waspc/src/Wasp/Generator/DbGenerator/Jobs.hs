@@ -15,16 +15,16 @@ where
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
-import Wasp.Env (addEnvVarsOverride, getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import Wasp.Generator.ServerGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 migrateDev :: Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
 migrateDev generatedAppDir migrateArgs =
@@ -123,23 +123,23 @@ reset generatedAppDir resetArgs =
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Bundles the server's db seed script and runs the seed with the given name.
-seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
-seed serverRunConfig generatedAppDir seedName =
+seed :: ProjectRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
+seed projectRunConfig generatedAppDir seedName =
   runInServerDir ServerNodeCommands.typeCheckServer
     `J.andThen` runInServerDir ServerNodeCommands.bundleDbSeed
     `J.andThen` runSeed
   where
     runInServerDir nodeCommand =
       J.fromProc
-        . addEnvVarsOverride envVars
+        . J.addEnvVarsOverride envVars
         $ NodeCommand.proc serverDir nodeCommand
     runSeed =
       J.fromProc
-        . addEnvVarsOverride envVars
+        . J.addEnvVarsOverride envVars
         -- The user's seed function can ask for input.
         . J.markInteractive
         $ NodeCommand.proc waspProjectDir ServerNodeCommands.runDbSeed
-    envVars = (dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig
+    envVars = (dbSeedNameEnvVarName, seedName) : makeEnvVars projectRunConfig
     serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
