@@ -50,7 +50,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.NodeTools as NodeTools
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
@@ -61,6 +61,7 @@ import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
@@ -78,7 +79,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
-      genFileCopy [relfile|loadDotEnv.cjs|],
+      genFileCopy $ C.asTmplFile $ SP.castFile C.loadDotEnvFileInServerRootDir,
       genFileCopy [relfile|src/createRollupBundle.js|],
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
@@ -158,9 +159,9 @@ genPackageJson spec waspDependencies =
 
     -- npm scripts run from the server dir.
     serverBundleCommand =
-      NodeTools.toShellCommand NodeTools.typeCheckServer <> " && " <> NodeTools.toShellCommand NodeTools.bundleServer
+      NodeCommand.toShellCommand ServerNodeCommands.typeCheckServer <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.bundleServer
     devServerStartCommand =
-      "cd " <> SP.fromRelDir waspProjectDirFromServerDir <> " && " <> NodeTools.toShellCommand NodeTools.runServer
+      "cd " <> SP.fromRelDir waspProjectDirFromServerDir <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.runServer
     waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromGeneratedAppComponentDir
 

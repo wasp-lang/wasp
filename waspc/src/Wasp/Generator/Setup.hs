@@ -24,7 +24,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
-import qualified Wasp.Generator.NodeTools as NodeTools
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
@@ -164,6 +164,6 @@ typeCheckUserCode spec sendMessage = do
     typeCheck :: J.Job ExitCode
     typeCheck =
       J.fromProc $
-        NodeTools.proc
+        NodeCommand.proc
           (AS.waspProjectDir spec)
-          (NodeTools.typeCheckUserCode $ AS.srcTsConfigPath spec)
+          (NodeCommand.typeCheckUserCode $ AS.srcTsConfigPath spec)
