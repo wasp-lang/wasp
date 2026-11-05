@@ -39,7 +39,7 @@
     rhs: '"<tool>"'
     note: >
       If you're running an npm script, run its commands directly (with
-      `Job.npmBinProc`, and with `Job.andThen` instead of `&&`), so that
+      `Job.proc`, and with `Job.andThen` instead of `&&`), so that
       signals are forwarded correctly when Wasp stops the process.
 
 - error:
@@ -47,5 +47,5 @@
     lhs: '"npx"'
     rhs: '"<tool>"'
     note: >
-      Run the tool's binary directly (with `Job.npmBinProc`), so that signals
+      Run the tool's binary directly (with `Job.proc`), so that signals
       are forwarded correctly when Wasp stops the process.

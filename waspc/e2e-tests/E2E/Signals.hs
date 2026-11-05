@@ -3,12 +3,15 @@
 -- | Sending signals to processes. The only module with platform specific code.
 module E2E.Signals
   ( Signal (..),
+    signal,
     signalProcess,
     signalProcessGroup,
     processGroupExists,
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
+import E2E.TestM (TestM, logLine)
 #if !defined(mingw32_HOST_OS)
 import Control.Exception (IOException, catch)
 import qualified System.Posix.Signals as Posix
@@ -16,6 +19,12 @@ import qualified System.Posix.Signals as Posix
 
 data Signal = SIGINT | SIGTERM | SIGHUP | SIGKILL
   deriving (Show)
+
+-- | Sends the signal to the process with the PID.
+signal :: Signal -> Int -> TestM ()
+signal sig pid = do
+  logLine $ "\n==> Sending " ++ show sig ++ " to PID " ++ show pid
+  liftIO $ signalProcess sig pid
 
 signalProcess :: Signal -> Int -> IO ()
 

@@ -8,7 +8,6 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 
 buildServer :: BuildStartConfig -> Job.Job ExitCode
@@ -32,7 +31,7 @@ startServer config =
           <> [dockerImageName]
       )
   where
-    envVarParams = toEnvVarParams $ getEnvVars config.serverRunConfig
+    envVarParams = toEnvVarParams config.mergedServerEnvVars
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config
 

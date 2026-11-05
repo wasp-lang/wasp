@@ -82,7 +82,7 @@ waspStartTest =
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
-          let ports = Ports.waspStartCompiledProject
+          ports <- allocateAppPorts
           app <- startInBackground $ waspCli ("start" : appPortArgs ports)
           waitUntilListening (appPortList ports) 300
           waspPidFromLockFile >>= signal SIGINT
@@ -95,7 +95,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
-- Tests that run an app get their own ports from `E2E/Ports.hs`, so they can run in parallel. Tests that can't run at the same time go in a `sequentialTestGroup`.
+- Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
 - Use `skipIfDockerDisabled` in tests that need Docker.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).

@@ -18,6 +18,6 @@ waspNewTest =
   where
     createWaspProjectWithPipedAnswersFails :: StarterTemplate -> TestM ()
     createWaspProjectWithPipedAnswersFails template =
-      assertFailsWithoutInteractiveTerminal "wasp new"
-        $ withStdinText (T.pack $ waspAppDirName ++ "\n" ++ show template ++ "\n")
-        $ waspCli ["new"]
+      assertFailsWithoutInteractiveTerminal
+        "wasp new"
+        (waspCli ["new"]) {stdinMode = StdinText (T.pack $ waspAppDirName ++ "\n" ++ show template ++ "\n")}

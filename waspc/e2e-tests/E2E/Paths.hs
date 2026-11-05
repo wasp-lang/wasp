@@ -6,6 +6,7 @@ module E2E.Paths
 where
 
 import Control.Monad (unless)
+import Data.Functor ((<&>))
 import System.Directory (getCurrentDirectory)
 import System.FilePath (takeFileName, (</>))
 
@@ -19,9 +20,9 @@ getWaspcDir = do
 
 -- | Where tests run and leave their outputs, e.g. @<test-group>/<test-name>/@.
 getTestOutputsDir :: IO FilePath
-getTestOutputsDir = (</> "e2e-tests" </> "test-outputs") <$> getWaspcDir
+getTestOutputsDir = getWaspcDir <&> (</> "e2e-tests" </> "test-outputs")
 
 -- | Contains the current and golden snapshot dirs, e.g. @wasp-new-current/@
 -- and @wasp-new-golden/@.
 getSnapshotsDir :: IO FilePath
-getSnapshotsDir = (</> "snapshots") <$> getTestOutputsDir
+getSnapshotsDir = getTestOutputsDir <&> (</> "snapshots")

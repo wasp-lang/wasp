@@ -32,9 +32,10 @@ waspDbMigrateDevTest =
       test "succeed-with-stdin-open-but-empty"
         $ withNewWaspProject minimalStarterTemplate
         $ run
-        $ withTimeout (5 * 60)
-        $ withOpenEmptyStdin
-        $ waspCli ["db", "migrate-dev", "--name", "no_migration"]
+          (waspCli ["db", "migrate-dev", "--name", "no_migration"])
+            { stdinMode = OpenEmptyStdin,
+              timeoutSeconds = 5 * 60
+            }
     ]
   where
     -- In the project and in the generated app.

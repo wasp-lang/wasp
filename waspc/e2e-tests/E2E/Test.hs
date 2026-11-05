@@ -10,9 +10,9 @@ module E2E.Test
 where
 
 import Control.Concurrent.MVar (newMVar)
-import Control.Exception (displayException, finally, fromException, throwIO)
-import Control.Monad (forM_, (>=>))
-import Data.IORef (newIORef, readIORef)
+import Control.Exception (displayException, fromException, throwIO)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Resource (getInternalState, runResourceT)
 import Data.List (intercalate)
 import E2E.Paths (getTestOutputsDir, getWaspcDir)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestFailure (..), TestLog (..), TestM, TestSkipped (..), runTestM)
@@ -75,20 +75,19 @@ runTestSteps testName workingDir logFile steps = do
   withFile logFile WriteMode $ \logHandle -> do
     hPutStrLn logHandle $ "=== " ++ testName ++ " ==="
     logLock <- newMVar ()
-    cleanupsRef <- newIORef []
-    let testEnv =
-          TestEnv
-            { runConfig,
-              workingDir,
-              testLog = TestLog {logFile, logHandle, logLock},
-              cleanups = cleanupsRef
-            }
-        runCleanups = do
-          cleanups <- readIORef cleanupsRef
-          forM_ cleanups $
-            tryAny >=> either (hPutStrLn logHandle . ("Cleanup failed: " ++) . displayException) return
+    let runStepsAndCleanups = runResourceT $ do
+          resources <- getInternalState
+          liftIO $
+            runTestM
+              TestEnv
+                { runConfig,
+                  workingDir,
+                  testLog = TestLog {logFile, logHandle, logLock},
+                  resources
+                }
+              steps
 
-    tryAny (runTestM testEnv steps `finally` runCleanups) >>= \case
+    tryAny runStepsAndCleanups >>= \case
       Right result -> return result
       Left err
         | Just skipped@(TestSkipped _) <- fromException err -> throwIO skipped

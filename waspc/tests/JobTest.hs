@@ -17,7 +17,6 @@ import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
-import Wasp.Env (setEnvVars)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -144,7 +143,7 @@ spec_Job = do
       let inheritedVar = "WASP_JOB_TEST_INHERITED"
           overriddenVar = "WASP_JOB_TEST_OVERRIDDEN"
           process =
-            setEnvVars [(overriddenVar, "set")]
+            Job.addEnvVarsOverride [(overriddenVar, "set")]
               $ node
               $ "process.stdout.write(process.env." <> inheritedVar <> " + ' ' + process.env." <> overriddenVar <> ")"
       ( do
@@ -207,11 +206,11 @@ spec_Job = do
           timeout (secondsToMicroSeconds 10) (Async.cancel running) `shouldReturn` Just ()
           isProcessAlive pid `shouldReturn` True
 
-  describe "npmBinProc" $
-    it "fails if the executable isn't in any node_modules/.bin directory" $
+  describe "proc" $
+    it "fails if the executable isn't in any node_modules/.bin directory or the PATH" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
         let dir = fromJust $ SP.parseAbsDir tempDir
-        Job.run (Job.npmBinProc dir "missing-tool" [])
+        Job.run (Job.fromProc $ Job.setCwd dir $ Job.proc "missing-tool" [])
           `shouldThrow` anyIOException
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
