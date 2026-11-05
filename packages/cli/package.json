@@ -22,5 +22,9 @@
   },
   "bin": {
     "wasp": "bin.js"
+  },
+  "exports": {
+    "./bin": "./bin.js",
+    "./run": "./run.js"
   }
 }

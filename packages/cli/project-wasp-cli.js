@@ -5,6 +5,7 @@
 // instead of itself, so a project always runs the Wasp version it installed.
 
 import * as fs from "node:fs/promises";
+import { createRequire } from "node:module";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import { debuglog } from "node:util";
@@ -16,7 +17,8 @@ const debug = debuglog("wasp-bin-wrapper");
 
 /**
  * @typedef {object} InstalledWaspCli
- * @property {string} binPath The real path of the CLI's `bin.js`.
+ * @property {string} runModulePath The real path of the CLI's `run.js`, which
+ *   its package.json exports as `./run`.
  * @property {string} version
  */
 
@@ -33,7 +35,7 @@ const debug = debuglog("wasp-bin-wrapper");
  */
 export async function findProjectWaspCliToHandOverTo(thisWaspCli) {
   const projectWaspCli = await findProjectWaspCli();
-  if (projectWaspCli?.binPath === thisWaspCli.binPath) {
+  if (projectWaspCli?.runModulePath === thisWaspCli.runModulePath) {
     debug("Running as the project's own Wasp CLI.");
     return undefined;
   }
@@ -41,13 +43,13 @@ export async function findProjectWaspCliToHandOverTo(thisWaspCli) {
 }
 
 /**
- * Runs the project's Wasp CLI in this process, so there is no second process
- * to keep signals and exit codes in sync with. Importing its `bin.js` runs it,
- * and it reports its result through `process.exitCode`. Every `bin.js` keeps
- * that contract, see the comment at its top.
+ * Runs the project's Wasp CLI in this process, through the `runWaspCli` it
+ * exports (see `run.js`), so there is no second process to keep signals and
+ * exit codes in sync with.
  *
  * @param {InstalledWaspCli} projectWaspCli
  * @param {InstalledWaspCli} thisWaspCli
+ * @returns {Promise<number>}
  */
 export async function runProjectWaspCli(projectWaspCli, thisWaspCli) {
   if (projectWaspCli.version !== thisWaspCli.version) {
@@ -56,9 +58,15 @@ export async function runProjectWaspCli(projectWaspCli, thisWaspCli) {
     );
   }
 
-  debug("Handing over to the project's Wasp CLI: %s", projectWaspCli.binPath);
-  await import(pathToFileURL(projectWaspCli.binPath).href);
-  return process.exitCode ?? 0;
+  debug(
+    "Handing over to the project's Wasp CLI: %s",
+    projectWaspCli.runModulePath,
+  );
+  /** @type {typeof import("./run.js")} */
+  const { runWaspCli } = await import(
+    pathToFileURL(projectWaspCli.runModulePath).href
+  );
+  return runWaspCli();
 }
 
 /**
@@ -98,7 +106,7 @@ async function findProjectWaspCli() {
   }
 
   const waspCli = await readInstalledWaspCli(waspCliPackageJsonPath);
-  debug("Found the project's Wasp CLI at %s", waspCli.binPath);
+  debug("Found the project's Wasp CLI at %s", waspCli.runModulePath);
   return waspCli;
 }
 
@@ -123,26 +131,22 @@ async function findWaspProjectDir() {
 }
 
 /**
- * Reads where the `@wasp/cli` package at `waspCliPackageJsonPath` has its
- * `wasp` executable, from the package.json `bin` field package managers use
- * to link it.
+ * Reads the version of the `@wasp/cli` package at `waspCliPackageJsonPath`,
+ * and resolves its `./run` export from inside the package.
  *
  * @param {string} waspCliPackageJsonPath
  * @returns {Promise<InstalledWaspCli>}
  */
 async function readInstalledWaspCli(waspCliPackageJsonPath) {
-  /** @type {{ version: string, bin: string | Record<string, string> }} */
+  /** @type {{ version: string }} */
   const packageJson = JSON.parse(
     await fs.readFile(waspCliPackageJsonPath, "utf8"),
   );
-  const binFileName =
-    typeof packageJson.bin === "string"
-      ? packageJson.bin
-      : packageJson.bin.wasp;
+  const runModulePath = createRequire(waspCliPackageJsonPath).resolve(
+    "@wasp/cli/run",
+  );
   return {
-    binPath: await fs.realpath(
-      path.join(path.dirname(waspCliPackageJsonPath), binFileName),
-    ),
+    runModulePath: await fs.realpath(runModulePath),
     version: packageJson.version,
   };
 }

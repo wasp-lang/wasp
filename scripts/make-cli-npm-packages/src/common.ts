@@ -16,6 +16,7 @@ export const CLI_PACKAGE_STATIC_FILES = [
   "fs-utils.js",
   "node-resolution.js",
   "project-wasp-cli.js",
+  "run.js",
   "readme.md",
 ];
 
