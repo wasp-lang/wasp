@@ -21,9 +21,9 @@ import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.ProjectRunConfig (makeDefaultDevProjectRunConfig)
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
+import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -31,18 +31,16 @@ import qualified Wasp.Util.Interactive as Interactive
 
 -- | Seed functions import the SDK.
 seed :: SeedArgs -> Command ()
-seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec -> do
+seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-
-  let projectRunConfig = makeDefaultDevProjectRunConfig appSpec
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  liftIO (dbSeed projectRunConfig genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
