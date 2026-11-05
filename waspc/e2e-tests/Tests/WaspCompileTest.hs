@@ -9,10 +9,13 @@ import ShellCommands
     WaspProjectContext (..),
     appendToFile,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
+    assertCommandOutputDoesNotContain,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
     waspCliCompile,
+    withUnreachableNpmRegistry,
     writeToFile,
   )
 import StrongPath (relfile, (</>))
@@ -47,6 +50,41 @@ waspCompileTest =
                   waspCliCompile,
                   return $ assertDirectoryExists ".wasp",
                   return $ assertDirectoryExists "node_modules"
+                ]
+            ]
+        ),
+      -- The first compile installs the deps of the generated workspaces.
+      TestCase
+        "reports-npm-install"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [assertCommandOutputContains waspCliCompile "Dependencies installed"]
+            ]
+        ),
+      TestCase
+        "hides-npm-output"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ assertCommandOutputDoesNotContain
+                    waspCliCompile
+                    -- npm's install summary, e.g. "added 357 packages, and audited 359 packages in 7s".
+                    " packages"
+                ]
+            ]
+        ),
+      TestCase
+        "shows-npm-output-when-install-fails"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ assertCommandOutputContainsAll
+                    (("! " ++) <$> withUnreachableNpmRegistry waspCliCompile)
+                    [ "Dependencies failed to install",
+                      "npm output:",
+                      "npm error"
+                    ]
                 ]
             ]
         ),
