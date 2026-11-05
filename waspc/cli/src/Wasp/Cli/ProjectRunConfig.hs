@@ -9,10 +9,11 @@ where
 
 import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
-import Network.URI (URI, uriToString)
+import Network.URI (URI)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Project.RunConfig (ProjectRunConfig (..), makeLocalUrl)
+import Wasp.Util.Network.URI (showUri)
 
 defaultDevClientPort :: PortNumber
 defaultDevClientPort = 3000
@@ -57,7 +58,7 @@ showRunConfigUrls appSpec config =
 
     -- The server and client URLs have different expectations for trailing
     -- slashes, so for display consistency we just ensure they both have it.
-    showUrl url = ensureTrailingSlash $ uriToString id url ""
+    showUrl url = ensureTrailingSlash $ showUri url
     ensureTrailingSlash url = if not (null url) && last url == '/' then url else url ++ "/"
 
 makeLocalUrls :: AppSpec -> (PortNumber, PortNumber) -> (URI, URI)

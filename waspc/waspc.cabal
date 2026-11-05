@@ -398,6 +398,7 @@ library
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
+    Wasp.Util.Network.URI
     Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH
