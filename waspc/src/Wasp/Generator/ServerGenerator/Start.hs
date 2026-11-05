@@ -148,14 +148,14 @@ startServer initialProjectRunConfig generatedAppDir inbox = do
 serverUpdateFor :: NonEmpty CompileOutcome -> ServerUpdate
 serverUpdateFor compiles@(latestCompile :| _) = case latestCompile of
   FailedCompile -> StopServer
-  SuccessfulCompile changes -> ApplyServerEffect (_compileStartTime changes) (_projectRunConfig changes) $ maximum $ compileServerEffect <$> compiles
+  SuccessfulCompile projectRunConfig changes -> ApplyServerEffect (_compileStartTime changes) projectRunConfig $ maximum $ compileServerEffect <$> compiles
   where
     compileServerEffect :: CompileOutcome -> ServerEffect
     compileServerEffect = \case
       -- Handled on its own, a failed compile would have stopped the server, and
       -- the next successful one would have bundled it again.
       FailedCompile -> RebundleAndRestartServer
-      SuccessfulCompile changes -> classifyServerEffect (_changedProjectFiles changes) (_changedGeneratedAppPaths changes)
+      SuccessfulCompile _ changes -> classifyServerEffect (_changedProjectFiles changes) (_changedGeneratedAppPaths changes)
 
 newServerInbox :: IO ServerInbox
 newServerInbox = ServerInbox <$> newTVarIO [] <*> newTVarIO Nothing <*> newTVarIO False
@@ -189,16 +189,14 @@ data ServerEvent
     Compiled CompileOutcome
 
 data CompileOutcome
-  = SuccessfulCompile CompileChanges
+  = SuccessfulCompile ProjectRunConfig CompileChanges
   | FailedCompile
 
 data CompileChanges = CompileChanges
   { -- | Changes from this time on aren't part of the compile.
     _compileStartTime :: UTCTime,
     _changedProjectFiles :: [Path' (Rel WaspProjectDir) File'],
-    _changedGeneratedAppPaths :: [ChangedGeneratedAppPath],
-    -- | The run config for the app this compile produced.
-    _projectRunConfig :: ProjectRunConfig
+    _changedGeneratedAppPaths :: [ChangedGeneratedAppPath]
   }
 
 data ServerUpdate

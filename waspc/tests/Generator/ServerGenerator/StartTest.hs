@@ -402,20 +402,19 @@ notifySuccessfulCompile fixture = notifySuccessfulCompileWithRunConfig fixture p
 notifySuccessfulCompileWithRunConfig :: ServerFixture -> ProjectRunConfig -> ServerEffect -> IO ()
 notifySuccessfulCompileWithRunConfig fixture compiledProjectRunConfig serverEffect = do
   compileStartTime <- getCurrentTime
-  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime compiledProjectRunConfig serverEffect
+  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile compiledProjectRunConfig $ compileChangesWithEffect compileStartTime serverEffect
 
 -- | The changes of a compile that started at the given time, that have the
 -- given effect on the server.
-compileChangesWithEffect :: UTCTime -> ProjectRunConfig -> ServerEffect -> CompileChanges
-compileChangesWithEffect compileStartTime compiledProjectRunConfig serverEffect =
+compileChangesWithEffect :: UTCTime -> ServerEffect -> CompileChanges
+compileChangesWithEffect compileStartTime serverEffect =
   CompileChanges
     { _compileStartTime = compileStartTime,
       _changedProjectFiles = [],
       _changedGeneratedAppPaths = case serverEffect of
         NoChange -> []
         RestartServer -> [Left [SP.relfile|server/.env|]]
-        RebundleAndRestartServer -> [Left [SP.relfile|server/src/server.ts|]],
-      _projectRunConfig = compiledProjectRunConfig
+        RebundleAndRestartServer -> [Left [SP.relfile|server/src/server.ts|]]
     }
 
 notifyFailedCompile :: ServerFixture -> IO ()

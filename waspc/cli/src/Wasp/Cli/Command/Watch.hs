@@ -159,11 +159,11 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
           projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
+              projectRunConfig
               CompileChanges
                 { _compileStartTime = compileStartTime,
                   _changedProjectFiles = changedProjectFiles,
-                  _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult,
-                  _projectRunConfig = projectRunConfig
+                  _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
           cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
