@@ -981,7 +981,7 @@ html[class*="docs-doc-id-api/"] .markdown blockquote {
 }
 
 /* Properties of an inlined object parameter (wrapped by our TypeDoc theme in
-   `sdk-api-docs/typedoc-plugin-wasp-theme.ts`), nested under the parameter. */
+   `src/plugins/typedoc-wasp-theme.ts`), nested under the parameter. */
 html[class*="docs-doc-id-api/"] .markdown .api-nested {
   border-left: 2px solid var(--wasp-g2);
   padding-left: 1rem;

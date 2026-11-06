@@ -330,7 +330,7 @@ const config: Config = {
         // theme plugin puts them in a "Referenced Types" group.
         plugin: [
           "typedoc-plugin-missing-exports",
-          "./sdk-api-docs/typedoc-plugin-wasp-theme.ts",
+          "./src/plugins/typedoc-wasp-theme.ts",
         ],
         theme: "wasp-markdown",
 
