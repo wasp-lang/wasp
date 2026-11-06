@@ -9,6 +9,7 @@ module Wasp.Generator.SdkGenerator.VirtualUserModules
     mkVirtualUserModulePluginData,
     mkVirtualUserModulesDeclarationData,
     nubByModuleId, -- Exported for testing.
+    nubByDeclaredExport, -- Exported for testing.
   )
 where
 
@@ -29,7 +30,7 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
-import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
+import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), defaultExportName, getJsImportPathStringFromPath)
 import Wasp.Util.Js (makeJsStringLiteral)
 
 {-
@@ -154,6 +155,17 @@ getServerVirtualUserModules = nubByModuleId . filter ((== ServerRuntime) . runti
 nubByModuleId :: [VirtualUserModule] -> [VirtualUserModule]
 nubByModuleId = nubBy ((==) `on` getVirtualUserModuleId)
 
+-- | The same export can be registered more than once (e.g. one value for both
+-- runtimes), but TS needs it declared only once.
+-- Keyed by the exported name, not the local import name.
+nubByDeclaredExport :: [VirtualUserModule] -> [VirtualUserModule]
+nubByDeclaredExport = nubBy ((==) `on` declaredExportKey)
+  where
+    declaredExportKey virtualUserModule = (getVirtualUserModuleId virtualUserModule, getExportedName virtualUserModule)
+    getExportedName virtualUserModule = case EI.name $ extImport virtualUserModule of
+      EI.ExtImportModule _ -> defaultExportName
+      EI.ExtImportField name -> name
+
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
 extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
 extImportToVirtualUserModuleJsImportPath extImportPath =
@@ -173,7 +185,7 @@ mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
 -- | Data for virtual user modules ambient module declaration.
 mkVirtualUserModulesDeclarationData :: AppSpec -> Aeson.Value
 mkVirtualUserModulesDeclarationData spec =
-  object ["virtualUserModules" .= map mkDeclarationData (getVirtualUserModules spec)]
+  object ["virtualUserModules" .= map mkDeclarationData (nubByDeclaredExport $ getVirtualUserModules spec)]
   where
     mkDeclarationData virtualUserModule =
       object
