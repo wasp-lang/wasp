@@ -21,9 +21,6 @@
   "engines": {
     "node": ">=24.22.1"
   },
-  "bin": {
-    "__internal_wasp_spec__": "dist/src/run.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",

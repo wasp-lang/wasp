@@ -79,10 +79,7 @@ jobs:
         # The examples depend on the dev Wasp tarballs from this repo (see
         # their package.json). We deploy with the released version instead.
         # TODO: Remove once the examples join the pnpm workspace.
-        run: |
-          npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
-          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "overrides.@wasp/deploy" "overrides.@wasp/studio" "//"
-          mise run reinstall-dev-wasp-app-deps
+        run: mise run switch-dev-to-released-wasp-packages "$WASP_VERSION"
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}
@@ -143,10 +140,7 @@ jobs:
         # The examples depend on the dev Wasp tarballs from this repo (see
         # their package.json). We deploy with the released version instead.
         # TODO: Remove once the examples join the pnpm workspace.
-        run: |
-          npm pkg set "dependencies.@wasp/wasp=${WASP_VERSION}"
-          npm pkg delete "overrides.@wasp/cli" "overrides.@wasp/spec" "overrides.@wasp/deploy" "overrides.@wasp/studio" "//"
-          mise run reinstall-dev-wasp-app-deps
+        run: mise run switch-dev-to-released-wasp-packages "$WASP_VERSION"
 
       - name: Deploy to Railway
         working-directory: examples/ask-the-documents
