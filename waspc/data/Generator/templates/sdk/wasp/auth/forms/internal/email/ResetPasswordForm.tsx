@@ -23,11 +23,6 @@ export const ResetPasswordForm = () => {
       return
     }
 
-    if (!data.password || data.password !== data.passwordConfirmation) {
-      setErrorMessage({ title: `Passwords don't match!` })
-      return
-    }
-
     setIsLoading(true)
     setErrorMessage(null)
     setSuccessMessage(null)
@@ -60,6 +55,8 @@ export const ResetPasswordForm = () => {
           <FormPasswordInput
             {...register('passwordConfirmation', {
               required: 'Password confirmation is required',
+              validate: (passwordConfirmation, { password }) =>
+                passwordConfirmation === password || 'Passwords must match',
             })}
             disabled={isLoading}
           />
