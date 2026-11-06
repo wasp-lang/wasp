@@ -1,6 +1,7 @@
 {
   "name": "wasp-sdk-api-docs",
   "type": "module",
+  "description": "The code you import from your app's source files, generated for your app.",
   "private": true,
   "devDependencies": {
     "@socket.io/component-emitter": "^4.0.0",

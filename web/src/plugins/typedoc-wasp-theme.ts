@@ -40,7 +40,7 @@ const PLACEHOLDER_TYPES_GROUP = "Placeholder Types";
 const REFERENCED_TYPES_GROUP = "Referenced Types";
 
 const PLACEHOLDER_CALLOUT = `:::note[Placeholder]
-You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
+You can't import this name. Wasp generates the real exports from your Wasp Spec, named as the top of this page explains. This entry documents their general type.
 :::`;
 
 // `typedoc-plugin-missing-exports` documents the missing exports in a
