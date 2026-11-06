@@ -2,7 +2,6 @@
 import {
   defaultPasswordValidationSchema,
   ensureValidPassword as ensureValidPasswordForSchema,
-  getFirstErrorMessage,
   type PasswordValidationSchema,
 } from '@wasp/lib-sdk-core'
 import type { FromRegister } from '../types/register'
@@ -25,10 +24,4 @@ export const passwordValidationSchema: PasswordValidationSchema = defaultPasswor
 // PUBLIC API
 export function ensureValidPassword(args: object): void {
   ensureValidPasswordForSchema(args, passwordValidationSchema)
-}
-
-// PRIVATE API
-export function validatePassword(password: unknown): string | undefined {
-  const result = passwordValidationSchema.safeParse(password)
-  return result.error && getFirstErrorMessage(result.error)
 }
