@@ -43,6 +43,14 @@ export function ensureTokenIsPresent(args: object): void {
   validate(token, tokenSchema);
 }
 
+export function getPasswordValidationError(
+  password: unknown,
+  schema: PasswordValidationSchema,
+): string | undefined {
+  const result = schema.safeParse(password);
+  return result.success ? undefined : getFirstIssueMessage(result.error);
+}
+
 export function throwValidationError(message: string): void {
   throw new HttpError(422, "Validation failed", { message });
 }
