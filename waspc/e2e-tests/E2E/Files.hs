@@ -4,6 +4,8 @@ module E2E.Files
     appendToFile,
     replaceInFile,
     readFromFile,
+    deleteFile,
+    deleteDirectory,
   )
 where
 
@@ -13,7 +15,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.TestM (TestM, failTest, resolvePath)
-import System.Directory (createDirectoryIfMissing)
+import System.Directory (createDirectoryIfMissing, removeFile, removePathForcibly)
 import System.FilePath (takeDirectory)
 
 -- | Creates or overwrites the file, along with any missing parent directories.
@@ -43,3 +45,10 @@ readFromFile :: FilePath -> TestM T.Text
 readFromFile path = do
   absPath <- resolvePath path
   liftIO $ TE.decodeUtf8 <$> BS.readFile absPath
+
+deleteFile :: FilePath -> TestM ()
+deleteFile path = resolvePath path >>= liftIO . removeFile
+
+-- | Deletes the directory with all of its contents, if it exists.
+deleteDirectory :: FilePath -> TestM ()
+deleteDirectory path = resolvePath path >>= liftIO . removePathForcibly

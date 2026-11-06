@@ -1,19 +1,13 @@
 module Tests.WaspTelemetryTest (waspTelemetryTest) where
 
-import ShellCommands (ShellCommand, (~|))
-import Test (Test (..), TestCase (..))
+import E2E
 
-waspTelemetryTest :: Test
+waspTelemetryTest :: E2ETest
 waspTelemetryTest =
-  Test
+  testGroup
     "wasp-telemetry"
-    [ TestCase
-        "enabled-by-default"
-        (return . (: []) $ ("env -u WASP_TELEMETRY_DISABLE " ++) . (~| "grep -q 'ENABLED'") $ waspCliTelemetry),
-      TestCase
-        "disabled-with-env-var"
-        (return . (: []) $ ("WASP_TELEMETRY_DISABLE=1 " ++) . (~| "grep -q 'DISABLED'") $ waspCliTelemetry)
+    [ test "enabled-by-default" $
+        run (withoutEnv ["WASP_TELEMETRY_DISABLE"] $ waspCli ["telemetry"]) >>= assertOutputContains "ENABLED",
+      test "disabled-with-env-var" $
+        run (withEnv [("WASP_TELEMETRY_DISABLE", "1")] $ waspCli ["telemetry"]) >>= assertOutputContains "DISABLED"
     ]
-
-waspCliTelemetry :: ShellCommand
-waspCliTelemetry = "$WASP_CLI_CMD telemetry"

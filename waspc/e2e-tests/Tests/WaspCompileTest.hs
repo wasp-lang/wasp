@@ -1,9 +1,8 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
 import Control.Monad (void)
-import qualified Data.Text as T
 import E2E
-import NeatInterpolation (trimming)
+import Tests.Fixtures (writeTasksQuery, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspCompileTest :: E2ETest
@@ -36,55 +35,10 @@ waspCompileTest =
       -- Regression test for https://github.com/wasp-lang/wasp/pull/4942
       test "fail-and-recover-with-updated-operation-types" $
         withNewWaspProject minimalStarterTemplate $ do
-          writeToFile "main.wasp.ts" mainWaspTsWithQuery
-          writeQuery "[{ id: 1 }]"
-          writeMainPageUsingQuery
+          writeTasksQueryApp
           wasp ["compile"]
-          writeQuery "[]"
+          writeTasksQuery "[]"
           waspFails ["compile"] >>= assertOutputContains "Property 'id' does not exist on type 'never'."
-          writeQuery "[{ id: 1 }]"
+          writeTasksQuery "[{ id: 1 }]"
           void $ wasp ["compile"]
     ]
-  where
-    writeQuery :: T.Text -> TestM ()
-    writeQuery result =
-      writeToFile
-        "src/queries.ts"
-        [trimming|
-          import type { GetTasks } from "wasp/server/operations";
-
-          export const getTasks = (async () => {
-            return $result;
-          }) satisfies GetTasks<void>;
-        |]
-
-    writeMainPageUsingQuery :: TestM ()
-    writeMainPageUsingQuery =
-      writeToFile
-        "src/MainPage.tsx"
-        [trimming|
-          import { getTasks, useQuery } from "wasp/client/operations";
-
-          export function MainPage() {
-            const { data: tasks } = useQuery(getTasks);
-            return <div>{tasks?.map((task) => <p key={task.id}>{task.id}</p>)}</div>;
-          }
-        |]
-
-    mainWaspTsWithQuery :: T.Text
-    mainWaspTsWithQuery =
-      [trimming|
-        import { app, page, query, route } from "@wasp/spec";
-        import { MainPage } from "./src/MainPage" with { type: "ref" };
-        import { getTasks } from "./src/queries" with { type: "ref" };
-
-        export default app({
-          name: "operationTypes",
-          title: "Operation types",
-          wasp: { version: "$textWaspVersion" },
-          spec: [
-            route("RootRoute", "/", page(MainPage)),
-            query(getTasks),
-          ],
-        });
-      |]

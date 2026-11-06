@@ -1,60 +1,32 @@
 module Tests.VitestTest (vitestTest) where
 
-import Control.Monad.Reader (ask)
 import qualified Data.Text as T
+import E2E
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext (..),
-    createTestWaspProject,
-    inTestWaspProjectDir,
-    replaceMainWaspTsFile,
-    waspCliCompile,
-    writeToFile,
-  )
-import StrongPath (File', Path', Rel, relfile, (</>))
-import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Version (waspVersion)
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
 -- client tests that use the `wasp/client/test` helpers.
-vitestTest :: Test
+vitestTest :: E2ETest
 vitestTest =
-  Test
+  testGroup
     "vitest"
-    [ TestCase
-        "runs-client-tests"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ replaceMainWaspTsFile mainWaspTs,
-                  writeProjectFile [relfile|src/queries.ts|] queriesTs,
-                  writeProjectFile [relfile|src/TaskList.tsx|] taskListTsx,
-                  writeProjectFile [relfile|vite.config.ts|] viteConfigTs,
-                  -- The SDK must compile without the testing libraries.
-                  waspCliCompile,
-                  installTestingLibraries,
-                  -- Wasp type-checks the tests too, so we add them once their
-                  -- dependencies are installed.
-                  writeProjectFile [relfile|src/TaskList.test.tsx|] taskListTestTsx,
-                  waspCliCompile,
-                  return "npx vitest run"
-                ]
-            ]
-        )
+    [ test "runs-client-tests" $
+        withNewWaspProject minimalStarterTemplate $ do
+          writeToFile "main.wasp.ts" mainWaspTs
+          writeToFile "src/queries.ts" queriesTs
+          writeToFile "src/TaskList.tsx" taskListTsx
+          writeToFile "vite.config.ts" viteConfigTs
+          -- The SDK must compile without the testing libraries.
+          wasp ["compile"]
+          run installTestingLibraries
+          -- Wasp type-checks the tests too, so we add them once their
+          -- dependencies are installed.
+          writeToFile "src/TaskList.test.tsx" taskListTestTsx
+          wasp ["compile"]
+          run $ nodeModulesBin "vitest" ["run"]
     ]
   where
-    installTestingLibraries :: ShellCommandBuilder WaspProjectContext ShellCommand
-    installTestingLibraries = return "npm install -D vitest jsdom @testing-library/react msw"
-
-    writeProjectFile :: Path' (Rel WaspProjectDir) File' -> T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
-    writeProjectFile fileInProject content = do
-      context <- ask
-      writeToFile (context.waspProjectDir </> fileInProject) content
-
     mainWaspTs :: T.Text
     mainWaspTs =
       [trimming|
@@ -144,5 +116,6 @@ vitestTest =
         });
       |]
 
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
+{- HLINT ignore installTestingLibraries "Avoid npm and npx" -}
+installTestingLibraries :: Command
+installTestingLibraries = command "npm" ["install", "-D", "vitest", "jsdom", "@testing-library/react", "msw"]

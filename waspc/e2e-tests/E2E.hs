@@ -14,7 +14,7 @@ module E2E
 where
 
 import E2E.Assertions
-import E2E.Command (Command (stdinMode, timeoutSeconds), StdinMode (..), command, waspCli, withEnv, withoutEnv)
+import E2E.Command (Command (stdinMode, timeoutSeconds), StdinMode (..), command, nodeModulesBin, waspCli, withEnv, withoutEnv)
 import E2E.Files
 import E2E.Net
 import E2E.Process

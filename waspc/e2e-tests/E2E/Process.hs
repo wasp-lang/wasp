@@ -22,15 +22,17 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask, asks)
 import Control.Monad.Trans.Resource (ReleaseKey, release)
 import qualified Data.ByteString.Lazy as BSL
-import Data.Maybe (isJust, isNothing)
+import Data.List (intercalate)
+import Data.Maybe (isJust, isNothing, maybeToList)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (Command (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
 import E2E.Signals (Signal (..), signalProcessGroup)
-import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, runTestM)
-import System.Environment (getEnvironment)
+import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
+import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
+import qualified System.FilePath as FP
 import System.Process (getPid)
 import qualified System.Process.Typed as TP
 import UnliftIO.Exception (catchAny)
@@ -90,9 +92,15 @@ startInBackground cmd = snd <$> startInBackgroundWithStopKey cmd
 -- | Releasing the key stops the process. Otherwise, that happens when the test ends.
 startInBackgroundWithStopKey :: Command -> TestM (ReleaseKey, RunningProcess)
 startInBackgroundWithStopKey cmd = do
-  executable <- if cmd.executable == "wasp" then asks (.runConfig.waspCliPath) else return cmd.executable
+  executable <- resolveExecutable cmd.executable
   workingDir <- getWorkingDir
-  environment <- liftIO $ buildEnvironment cmd.environmentOverrides
+  pathOverride <- case cmd.extraPath of
+    [] -> return []
+    dirs -> do
+      absoluteDirs <- mapM resolvePath dirs
+      inheritedPath <- liftIO $ lookupEnv "PATH"
+      return [("PATH", Just . intercalate [FP.searchPathSeparator] $ absoluteDirs ++ maybeToList inheritedPath)]
+  environment <- liftIO $ buildEnvironment (pathOverride ++ cmd.environmentOverrides)
   testEnv <- ask
   output <- liftIO $ newOutput testEnv.testLog
   logLine $ "\n==> " ++ showCommand cmd ++ "\n    in " ++ workingDir
@@ -111,6 +119,12 @@ startInBackgroundWithStopKey cmd = do
         return RunningProcess {processCommand = cmd, process, processGroupId, output}
 
   allocateWithCleanup start (runTestM testEnv . stopProcess)
+
+resolveExecutable :: String -> TestM FilePath
+resolveExecutable "wasp" = asks (.runConfig.waspCliPath)
+resolveExecutable executable
+  | any FP.isPathSeparator executable = resolvePath executable
+  | otherwise = return executable
 
 stdinSpec :: StdinMode -> TP.StreamSpec 'TP.STInput ()
 stdinSpec = \case
