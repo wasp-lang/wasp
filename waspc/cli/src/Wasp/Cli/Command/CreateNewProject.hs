@@ -123,7 +123,7 @@ migrateDbForNewProject absWaspProjectDir =
       liftIO
         $ putStrLn
         $ Term.applyStyles [Term.Yellow]
-        $ "Warning: The project was created, but migrating its database failed.\n"
+        $ "Warning: The project was created, but its database wasn't migrated.\n"
           ++ _errorTitle commandError
           ++ ": "
           ++ _errorMsg commandError
