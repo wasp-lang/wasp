@@ -15,6 +15,7 @@ import ShellCommands
     waspCliCompile,
     waspCliCompletion,
     waspCliDbReset,
+    waspCliDbStart,
     waspCliDeploy,
     waspCliDeps,
     waspCliDockerfile,
@@ -23,7 +24,6 @@ import ShellCommands
     waspCliShowBuild,
     waspCliShowSpec,
     waspCliStart,
-    waspCliStartDb,
     waspCliStudio,
     waspCliTelemetry,
     waspCliTestClient,
@@ -54,7 +54,7 @@ waspSpecAvailableTest =
                       waspCliStudio,
                       waspCliDbReset,
                       waspCliDeploy ["fly", "setup"],
-                      waspCliStartDb,
+                      waspCliDbStart,
                       waspCliStart,
                       waspCliTestClient []
                     ]
