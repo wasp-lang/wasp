@@ -19,7 +19,7 @@ packages:
 
 # `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:
-  typescript: &typescript 6.0.3
+  typescript: ~6.0.3
   "@types/node": ^24.0.1
   vitest: ^5.0.5
   "@vitest/coverage-v8": ^5.0.5
@@ -41,7 +41,7 @@ catalogs:
     # Also ensure `waspc/data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
     prisma: 6.19.3
     superjson: ^2.2.1
-    typescript: *typescript
+    typescript: 6.0.3
     # Follows the major version of Wasp's lowest supported Node version
     # (see `/.node-version`).
     "@types/node": ^24.0.0
