@@ -5,6 +5,8 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode)
+import qualified Wasp.Generator.NodeCommand as NodeCommand
+import qualified Wasp.Generator.WebAppGenerator.NodeCommands as WebAppNodeCommands
 import Wasp.Generator.WebAppGenerator.RunConfig (makeEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
@@ -16,5 +18,4 @@ startWebApp projectRunConfig waspProjectDir =
     . J.addEnvVarsOverride (makeEnvVars projectRunConfig)
     -- Vite only enables its keyboard shortcuts when its stdin is a TTY.
     . J.markInteractive
-    . J.setCwd waspProjectDir
-    $ J.proc "vite" []
+    $ NodeCommand.proc waspProjectDir WebAppNodeCommands.runWebAppDevServer

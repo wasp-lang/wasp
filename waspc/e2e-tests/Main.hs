@@ -1,6 +1,7 @@
 import Control.Concurrent (getNumCapabilities)
 import Control.Monad (mfilter, when)
 import E2E.Heartbeat (heartbeatReporter)
+import E2E.Signals (stopOnFirstCtrlC)
 import E2E.Test (toTestTree)
 import SnapshotTest (testTreeFromSnapshotTest)
 import System.Directory (findExecutable)
@@ -50,6 +51,7 @@ main = do
   if os == "mingw32"
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
+      stopOnFirstCtrlC
       setWaspCliCmd
       warmUpWaspCli
       maxJobs <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS" :: IO (Maybe Int)

@@ -6,14 +6,15 @@ where
 
 import System.Exit (ExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
+import qualified Wasp.Generator.NodeCommand as NodeCommand
+import qualified Wasp.Generator.WebAppGenerator.NodeCommands as WebAppNodeCommands
 import qualified Wasp.Job as Job
 
 buildClient :: BuildStartConfig -> Job.Job ExitCode
 buildClient config =
   Job.fromProc
     . Job.addEnvVarsOverride envVars
-    . Job.setCwd config.projectDir
-    $ Job.proc "vite" ["build"]
+    $ NodeCommand.proc config.projectDir WebAppNodeCommands.buildWebApp
   where
     envVars = config.mergedClientEnvVars
 
@@ -21,11 +22,6 @@ startClient :: BuildStartConfig -> Job.Job ExitCode
 startClient config =
   Job.fromProc
     . Job.addEnvVarsOverride envVars
-    . Job.setCwd config.projectDir
-    $ Job.proc
-      "vite"
-      [ "preview", -- `preview` launches a static file server for the built client.
-        "--strictPort" -- This will make it fail if the port is already in use.
-      ]
+    $ NodeCommand.proc config.projectDir WebAppNodeCommands.previewWebApp
   where
     envVars = config.mergedClientEnvVars

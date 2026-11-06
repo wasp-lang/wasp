@@ -1,6 +1,5 @@
 module Wasp.Project.Db
-  ( makeDevDatabaseUrl,
-    databaseUrlEnvVarName,
+  ( databaseUrlEnvVarName,
     validDbUrlInPrismaSchema,
     validDbUrlExprForPrismaSchema,
     getDbSystemFromPrismaSchema,
@@ -9,13 +8,7 @@ module Wasp.Project.Db
   )
 where
 
-import StrongPath (Abs, Dir, Path')
-import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import Wasp.Project.Common (WaspProjectDir)
-import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
-import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -23,19 +16,6 @@ import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Psl.Db
 import Wasp.Psl.Generator.Argument (generateExpression)
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
-
-makeDevDatabaseUrl ::
-  Path' Abs (Dir WaspProjectDir) ->
-  AS.Db.DbSystem ->
-  [AS.Decl] ->
-  IO (Maybe String)
-makeDevDatabaseUrl waspProjectDir dbSystem decls =
-  case AS.getApp decls of
-    Nothing -> return Nothing
-    Just app -> case dbSystem of
-      AS.Db.SQLite -> return $ Just DevSqlite.defaultDevDbFile
-      AS.Db.PostgreSQL ->
-        fmap DevPostgres.getDevConnectionUrl <$> DevPostgres.discoverProjectsRunningDevDb waspProjectDir app.name
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
