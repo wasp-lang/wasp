@@ -38,6 +38,7 @@ import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Util (indent)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Util.Terminal as Term
 
@@ -143,4 +144,4 @@ printExtraInstructionsForProject steps = do
   putStrLn
     $ Term.applyStyles [Term.Yellow]
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
-      ++ concatMap (\step -> "    " ++ styleCode step ++ "\n") steps
+      ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps
