@@ -517,6 +517,7 @@ library cli-lib
     Wasp.Cli.Common
     Wasp.Cli.Compile
     Wasp.Cli.DevDb
+    Wasp.Cli.DevDb.ArgumentsParser
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
