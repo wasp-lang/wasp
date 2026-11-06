@@ -181,7 +181,7 @@ waitForExit runningProcess seconds = do
       -- readers a moment to finish. We don't wait longer since children that
       -- outlive the process (e.g. daemons) can keep the pipes open.
       liftIO . void . waitAtMost 5 $ isFullyRead runningProcess.output >>= check
-      logLine $ "<== " ++ showExitCode exitCode
+      logLine $ "\n<== " ++ showExitCode exitCode
       return exitCode
 
 -- | Sends the signal to the process group the process runs in, like
@@ -210,7 +210,7 @@ stopProcess runningProcess = do
     logLine $ "\n==> Stopping: " ++ showCommand runningProcess.processCommand
     signalGroup SIGINT
     maybeExitCode <- liftIO . waitAtMost 10 $ TP.waitExitCodeSTM runningProcess.process
-    logLine $ maybe "<== didn't stop within 10s, killing it" (("<== " ++) . showExitCode) maybeExitCode
+    logLine $ maybe "\n<== didn't stop within 10s, killing it" (("\n<== " ++) . showExitCode) maybeExitCode
   signalGroup SIGKILL
   -- Only once the process is killed: this sends it SIGTERM, which it can
   -- ignore, and then waits for it to exit without a time limit.

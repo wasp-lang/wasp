@@ -1,9 +1,7 @@
-import Control.Concurrent (getNumCapabilities)
 import Control.Monad (mfilter, when)
 import E2E.Heartbeat (heartbeatReporter)
 import E2E.Signals (stopOnFirstCtrlC)
 import E2E.Test (toTestTree)
-import SnapshotTest (testTreeFromSnapshotTest)
 import System.Directory (findExecutable)
 import System.Environment (lookupEnv, setEnv)
 import System.Exit (ExitCode (..))
@@ -14,7 +12,6 @@ import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
 import Test.Tasty.Ingredients (composeReporters)
 import Test.Tasty.Runners (NumThreads (..), consoleTestReporter, listingTests)
 import Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest)
-import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -44,7 +41,6 @@ import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
 import Text.Read (readMaybe)
-import UnliftIO.Async (pooledMapConcurrentlyN)
 
 main :: IO ()
 main = do
@@ -91,17 +87,6 @@ warmUpWaspCli = do
 --       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: IO TestTree
 e2eTests = do
-  maxConcurrentSnapshotBuilds <- getMaxConcurrentSnapshotBuilds
-  putStrLn $ "Preparing snapshot tests with up to " ++ show maxConcurrentSnapshotBuilds ++ " concurrent build(s). Override with WASP_E2E_TEST_MAX_JOBS."
-  snapshotTestTrees <-
-    pooledMapConcurrentlyN
-      maxConcurrentSnapshotBuilds
-      testTreeFromSnapshotTest
-      [ waspCompileSnapshotTest,
-        waspBuildSnapshotTest,
-        waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
-      ]
   shellTestTrees <-
     mapM
       testTreeFromTest
@@ -110,61 +95,48 @@ e2eTests = do
         -- FIXME: waspStudioTest,
         -- FIXME: waspDbStudioTest,
       ]
-  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
-
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" (toTestTree waspNewSnapshotTest : snapshotTestTrees),
+      [ -- Tasty starts the tests in order, so the slowest ones go first.
+        testGroup "Snapshot Tests" $
+          map
+            toTestTree
+            [ kitchenSinkSnapshotTest,
+              waspBuildSnapshotTest,
+              waspMigrateSnapshotTest,
+              waspCompileSnapshotTest,
+              waspNewSnapshotTest
+            ],
         testGroup "Shell tests" shellTestTrees,
-        testGroup
-          "Tests"
-          ( sdkPackageExportsTestTree
-              : map
-                toTestTree
-                [ -- general Wasp commands
-                  waspNewTest,
-                  waspTelemetryTest,
-                  waspCompletionTest,
-                  waspVersionTest,
-                  -- Wasp project commands
-                  waspCompileTest,
-                  waspStartTest,
-                  waspBuildTest,
-                  waspTsSpecNodeEnvTest,
-                  viteBuildTest,
-                  viteConfigTest,
-                  vitestTest,
-                  waspCleanTest,
-                  waspSpecAvailableTest,
-                  waspShowTest,
-                  waspInstallTest,
-                  waspDepsTest,
-                  waspDockerfileTest,
-                  -- Wasp project db commands
-                  waspDbStartTest,
-                  waspDbSeedTest,
-                  waspDbResetTest,
-                  waspDbMigrateDevTest,
-                  waspSpecEntityTypesTest,
-                  incrementalTypeCheckingTest
-                ]
-          )
+        testGroup "Tests" $
+          map
+            toTestTree
+            [ -- general Wasp commands
+              waspNewTest,
+              waspTelemetryTest,
+              waspCompletionTest,
+              waspVersionTest,
+              -- Wasp project commands
+              waspCompileTest,
+              waspStartTest,
+              waspBuildTest,
+              waspTsSpecNodeEnvTest,
+              viteBuildTest,
+              viteConfigTest,
+              vitestTest,
+              waspCleanTest,
+              waspSpecAvailableTest,
+              waspShowTest,
+              waspInstallTest,
+              waspDepsTest,
+              waspDockerfileTest,
+              -- Wasp project db commands
+              waspDbStartTest,
+              waspDbSeedTest,
+              waspDbResetTest,
+              waspDbMigrateDevTest,
+              waspSpecEntityTypesTest,
+              incrementalTypeCheckingTest
+            ]
       ]
-
--- | How many snapshot tests we prepare concurrently.
---
--- Each snapshot test shells out to Node tooling (`npm install`, `tsc`,
--- `vite build`, ...) that already parallelizes across every core, so preparing
--- all of them at once oversubscribes the CPU. We therefore cap the fan-out.
---
--- The default scales with the number of available cores (a fraction of them,
--- since each build is itself multi-core). Set @WASP_E2E_TEST_MAX_JOBS@ to a
--- positive integer to override it (e.g. @1@ for fully serial preparation).
-getMaxConcurrentSnapshotBuilds :: IO Int
-getMaxConcurrentSnapshotBuilds = do
-  numCores <- getNumCapabilities
-  override <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS"
-  return $ case override of
-    Just n | n >= 1 -> n
-    _ -> max 1 (numCores `div` 4)

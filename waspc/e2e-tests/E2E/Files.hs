@@ -4,19 +4,25 @@ module E2E.Files
     appendToFile,
     replaceInFile,
     readFromFile,
+    copyFile,
     deleteFile,
     deleteDirectory,
+    copyGitTrackedDir,
   )
 where
 
-import Control.Monad (unless)
+import Control.Monad (forM_, unless)
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader (asks)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.TestM (TestM, failTest, resolvePath)
-import System.Directory (createDirectoryIfMissing, removeFile, removePathForcibly)
-import System.FilePath (takeDirectory)
+import E2E.Command (command)
+import E2E.Process (ProcessResult (..), run)
+import E2E.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, resolvePath)
+import System.Directory (createDirectoryIfMissing, createFileLink, getSymbolicLinkTarget, pathIsSymbolicLink, removeFile, removePathForcibly)
+import qualified System.Directory as Directory
+import System.FilePath (makeRelative, takeDirectory, (</>))
 
 -- | Creates or overwrites the file, along with any missing parent directories.
 writeToFile :: FilePath -> T.Text -> TestM ()
@@ -46,9 +52,35 @@ readFromFile path = do
   absPath <- resolvePath path
   liftIO $ TE.decodeUtf8 <$> BS.readFile absPath
 
+copyFile :: FilePath -> FilePath -> TestM ()
+copyFile srcPath destPath = do
+  absSrcPath <- resolvePath srcPath
+  absDestPath <- resolvePath destPath
+  liftIO $ Directory.copyFile absSrcPath absDestPath
+
 deleteFile :: FilePath -> TestM ()
 deleteFile path = resolvePath path >>= liftIO . removeFile
 
 -- | Deletes the directory with all of its contents, if it exists.
 deleteDirectory :: FilePath -> TestM ()
 deleteDirectory path = resolvePath path >>= liftIO . removePathForcibly
+
+-- | Copies the git-tracked files of a directory in the Wasp repo into the
+-- destination directory, keeping symlinks as they are. Ignored and untracked
+-- files (e.g. @node_modules@, build outputs) are left out.
+copyGitTrackedDir :: FilePath -> FilePath -> TestM ()
+copyGitTrackedDir srcDirInGitRoot destDir = do
+  gitRootDir <- asks (.runConfig.gitRootDir)
+  absDestDir <- resolvePath destDir
+  trackedFiles <-
+    map T.unpack . filter (not . T.null) . T.splitOn "\0" . (.stdout)
+      <$> inDirectory gitRootDir (run $ command "git" ["ls-files", "-z", "--", srcDirInGitRoot])
+  liftIO $
+    forM_ trackedFiles $ \fileInGitRoot -> do
+      let srcFile = gitRootDir </> fileInGitRoot
+          destFile = absDestDir </> makeRelative srcDirInGitRoot fileInGitRoot
+      createDirectoryIfMissing True (takeDirectory destFile)
+      isSymlink <- pathIsSymbolicLink srcFile
+      if isSymlink
+        then getSymbolicLinkTarget srcFile >>= (`createFileLink` destFile)
+        else Directory.copyFile srcFile destFile
