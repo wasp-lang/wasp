@@ -73,8 +73,8 @@ Two important things then happen:
 - Wasp **generates a server-side NodeJS function** with the Action's name.
 
 - Wasp **generates a client-side JavaScript function** with the Action's name (e.g., `markTaskAsDone`).
-  This function takes a single optional argument - an object containing any serializable data you wish to use inside the Action.
-  Wasp will send this object over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
+  This function takes at most one argument: any serializable data you wish to use inside the Action (usually an object).
+  Wasp will send this data over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Action's NodeJS implementation under the hood.
 
 Generating these two functions ensures a similar calling interface across the entire app (both client and server).
@@ -209,11 +209,11 @@ Here's how you might implement the previously declared Actions `createTask` and 
 
     :::tip Inferring the return type
 
-    If don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+    If you don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
 
     ```typescript
     const createFoo = (async (_args, context) => {
-      const foo = await context.entities.Foo.create()
+      const foo = await context.entities.Foo.create({ data: {} })
       return {
         newFoo: foo,
         message: "Here's your foo!",
@@ -349,7 +349,7 @@ When using Actions on the client, you'll most likely want to use them inside a c
   </TabItem>
 </Tabs>
 
-Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
+Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp comes with the `useAction` hook you can use to enhance Actions. Read all about it in the [API Reference](#the-useaction-hook-and-optimistic-updates).
 
 #### Using Actions on the server
 
@@ -533,7 +533,7 @@ In practice, this means that Wasp keeps the Queries "fresh" without requiring yo
 
 On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
-If you wish to optimistically set cache values after performing an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook-and-optimistic-updates). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
+If you wish to optimistically set cache values after performing an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook-and-optimistic-updates). This is currently the only manual cache invalidation mechanism Wasp supports natively. For everything else, you can always rely on _react-query_.
 
 ## Differences Between Queries and Actions
 
@@ -553,7 +553,7 @@ Here are the key differences between Queries and Actions:
   to="../../../api/@wasp/spec#action-1"
   kind="api"
   title="action"
-  description="All the options for declaring an action in the Wasp spec."
+  description="All the options for declaring an action in the Wasp Spec."
 />
 
 <CardLink
@@ -584,6 +584,13 @@ Here are the key differences between Queries and Actions:
   kind="api"
   title="UnauthenticatedActionDefinition"
   description="The same, for Actions that don't use auth."
+/>
+
+<CardLink
+  to="../../../api/wasp/server#httperror"
+  kind="api"
+  title="HttpError"
+  description="The error you throw to send an HTTP error response to the client."
 />
 
 ### The `useAction` Hook and Optimistic Updates

@@ -14,6 +14,8 @@ import GoogleData from './entities/_google-data.md';
 import GithubData from './entities/_github-data.md';
 import KeycloakData from './entities/_keycloak-data.md';
 import DiscordData from './entities/_discord-data.md';
+import SlackData from './entities/_slack-data.md';
+import MicrosoftData from './entities/_microsoft-data.md';
 
 # Accessing user data
 
@@ -119,6 +121,14 @@ Let's look at the data for each of the available auth methods:
 - [Discord](./social-auth/discord.md) data
 
   <DiscordData />
+
+- [Slack](./social-auth/slack.md) data
+
+  <SlackData />
+
+- [Microsoft](./social-auth/microsoft.md) data
+
+  <MicrosoftData />
 
 If you support multiple auth methods, you'll need to find which identity exists for the user and then access its data:
 
@@ -302,11 +312,11 @@ When you have the `user` object with the `auth` and `identities` fields, it can 
   </TabItem>
 </Tabs>
 
-Wasp offers a few helper methods to access the user's auth data when you retrieve the `user` like this. They are `getUsername`, `getEmail` and `getFirstProviderUserId`. They can be used both on the client and the server.
+Wasp offers a few helper functions to access the user's auth data when you retrieve the `user` like this. You can use them on both the client and the server, and each one needs the `user` object to have the `auth` and the `identities` relations included:
 
-#### `getUsername`
-
-It accepts the `user` object and if the user signed up with the [Username & password](./username-and-pass/overview.md) auth method, it returns the username or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
+- `getUsername` returns the username if the user signed up with the [Username & password](./username-and-pass/overview.md) auth method, and `null` otherwise.
+- `getEmail` returns the email if the user signed up with the [Email](./email/overview.md) auth method, and `null` otherwise.
+- `getFirstProviderUserId` returns the first user ID it finds for the user. For example, if the user signed up with email, it returns the email. If the user signed up with Google, it returns the Google ID.
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -339,94 +349,6 @@ It accepts the `user` object and if the user signed up with the [Username & pass
           {tasks.map((task) => (
             <div key={task.id} className="task">
               {task.title} by {getUsername(task.user)}
-            </div>
-          ))}
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-#### `getEmail`
-
-It accepts the `user` object and if the user signed up with the [Email](./email/overview.md) auth method, it returns the email or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    import { getEmail } from "wasp/auth"
-
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getEmail(task.user)}
-            </div>
-          ))}
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    import { getEmail } from "wasp/auth"
-
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getEmail(task.user)}
-            </div>
-          ))}
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-#### `getFirstProviderUserId`
-
-It returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID. The `user` object needs to have the `auth` and the `identities` relations included.
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    import { getFirstProviderUserId } from "wasp/auth"
-
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getFirstProviderUserId(task.user)}
-            </div>
-          ))}
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    import { getFirstProviderUserId } from "wasp/auth"
-
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getFirstProviderUserId(task.user)}
             </div>
           ))}
         </div>
@@ -646,7 +568,7 @@ export default app({
         //         identities: {
         //             create: {
         //                 providerName: "username",
-        //                 providerUserId: args.username
+        //                 providerUserId: providerId.providerUserId,
         //                 providerData,
         //             },
         //         },
@@ -718,7 +640,7 @@ export default app({
         //         identities: {
         //             create: {
         //                 providerName: "username",
-        //                 providerUserId: args.username
+        //                 providerUserId: providerId.providerUserId,
         //                 providerData,
         //             },
         //         },

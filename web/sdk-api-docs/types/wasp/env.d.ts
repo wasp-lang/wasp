@@ -1,5 +1,6 @@
 /**
- * Helpers for validating your app's environment variables.
+ * Helper for defining the validation schemas of your app's environment
+ * variables.
  *
  * @module
  */
@@ -9,13 +10,13 @@
  *
  * It returns the schema unchanged, and only exists to make sure the schema is
  * type-checked. Export the schema from a file in `src/` and pass it to the
- * `envValidationSchema` field of the `client` or `server` config in your
- * `main.wasp.ts`.
+ * `client.envValidationSchema` or `server.envValidationSchema` field of the app
+ * spec.
  *
  * Wasp merges your schema with the built-in validation schema of the
- * Wasp-defined env vars. It validates `import.meta.env` with the client schema
- * and `process.env` with the server schema, and exposes the result as the
- * `env` object from `wasp/client` and `wasp/server`.
+ * Wasp-defined env vars, and exposes the validated result as the `env` object
+ * from {@linkcode "client"!env | wasp/client} and
+ * {@linkcode "server"!env | wasp/server}.
  *
  * @param schema A Zod object schema describing your env vars.
  *

@@ -367,14 +367,14 @@ See the [Prerendering](../advanced/prerendering.md) page for the full documentat
   to="../api/@wasp/spec#page-2"
   kind="api"
   title="page"
-  description="All the options for declaring a page in the Wasp spec."
+  description="All the options for declaring a page in the Wasp Spec."
 />
 
 <CardLink
   to="../api/@wasp/spec#route-1"
   kind="api"
   title="route"
-  description="All the options for declaring a route in the Wasp spec."
+  description="All the options for declaring a route in the Wasp Spec."
 />
 
 ### `wasp/client/router`

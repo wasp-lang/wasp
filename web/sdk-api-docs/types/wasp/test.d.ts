@@ -1,7 +1,7 @@
 /**
  * The helper for configuring [Vitest](https://vitest.dev/) to test your
  * client code. The helpers you use inside your tests are in
- * `wasp/client/test`.
+ * {@linkcode "client/test"! | wasp/client/test}.
  *
  * @module
  */
@@ -9,18 +9,19 @@
 import type { TestConfig } from "@wasp/lib-test-utils/config";
 
 /**
- * Returns Vitest's `test` options with the defaults a Wasp app needs:
+ * Returns the Vitest options for the `test` section of your `vite.config.ts`,
+ * with the defaults a Wasp app needs:
  *
  * - `environment`: `"jsdom"`, a simulated browser, so your components can
  *   render.
- * - `include`: the test files in your `src` folder (e.g., `TaskList.test.tsx`
+ * - `include`: the test files in your `src` folder (e.g. `TaskList.test.tsx`
  *   or `helpers.spec.js`).
  * - `env`: a placeholder `REACT_APP_API_URL`, since your tests mock the
  *   server instead of running it.
  *
  * @param options [Vitest options](https://vitest.dev/config/). They override
- * the defaults, only the `env` is merged instead.
- * @returns The options for the `test` section of your `vite.config.ts`.
+ * the defaults, except `env`: Wasp merges it with the default `env`, and your
+ * variables take precedence.
  *
  * @example
  * ```ts

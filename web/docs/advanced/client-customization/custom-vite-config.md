@@ -4,7 +4,6 @@ sidebar_label: Custom Vite config
 description: "Customize vite.config.ts in a Wasp app: add the required wasp() plugin first, then your own plugins and dev server or build options."
 ---
 
-import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { CardLink } from '@site/src/components/CardLink'
 
 # Custom Vite config
@@ -52,13 +51,13 @@ The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any oth
 
 ## Enforced Options {#enforced-options}
 
-The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
+The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these to a different value in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
 | Option | Internal value | Why you can't customize it |
 |---|---|---|
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
-| `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
+| `build.outDir` | `".wasp/out/web-app/build/"` | Build artifacts must go to the location Wasp expects for deployment. |
 | `server.port` | dynamically assigned | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it. |
 | `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
 | `preview.port` | dynamically assigned | Same as `server.port`, but for the preview server that [`wasp build start`](../../deployment/local-testing.md) runs. Use [`wasp build start --client-port`](../cli.md#project-commands) to control it. |

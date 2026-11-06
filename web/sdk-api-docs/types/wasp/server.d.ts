@@ -16,8 +16,9 @@
  * code. The status code is `500`, unless the error has a valid `status` or
  * `statusCode` field, in which case Wasp keeps it, along with the error's
  * `headers`. In development, Wasp also adds the original message and stack
- * trace to `data`. Throw an `HttpError` when you want to pass error information
- * to the client.
+ * trace to `data`. The only other errors that keep their message are the ones
+ * from the `http-errors` package (which Express uses) with `expose` set to
+ * `true`.
  *
  * The constructor takes:
  *
@@ -28,15 +29,15 @@
  * - `options` (optional): The standard `Error` options (e.g. `cause`), and
  *   `headers` to set on the response.
  *
- * Wasp sends the status code, `message`, and `data` to the client. When an
- * Operation fails, the client rethrows the error as a `WaspHttpError` with
- * `statusCode`, `message`, and `data`. On the client, `data` holds the whole
- * response body (`{ message, data }`), so the `data` you passed here is at
- * `error.data.data`. For your custom APIs, pass the error that the `api` client
- * throws through `handleApiError` from `wasp/client/api` to get the same error.
+ * Wasp sends `message` and `data` to the client for every status code, so only
+ * put information in them that is safe to show to the user.
  *
- * This happens for every status code, so only put information in them that is
- * safe to show to the user.
+ * When an Operation fails, the client rethrows the error as a
+ * {@linkcode "client/api"!WaspHttpError | WaspHttpError}, whose `data` holds the
+ * whole response body, so the `data` you passed here is at `error.data.data`.
+ * For your custom APIs, pass the error that the `api`
+ * client throws through `handleApiError` from `wasp/client/api` to get the same
+ * error.
  *
  * @example
  * ```ts
@@ -55,9 +56,10 @@
  * import { HttpError } from "wasp/server";
  *
  * throw new HttpError(
- *   403, // status code
- *   "You can't do this!", // message
- *   { foo: "bar" }, // data
+ *   429, // status code
+ *   "Too many requests", // message
+ *   { limitPerMinute: 60 }, // data
+ *   { headers: { "Retry-After": "60" } }, // options
  * );
  * ```
  *
@@ -71,20 +73,12 @@ export { HttpError } from "@wasp/lib-sdk-core";
  *
  * @example
  * ```ts
- * import cors from "cors";
- * import { config, type MiddlewareConfigFn } from "wasp/server";
+ * import { config } from "wasp/server";
  *
- * export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
- *   // Example of adding extra domains to CORS.
- *   middlewareConfig.set(
- *     "cors",
- *     cors({
- *       origin: [...config.allowedCORSOrigins, "https://example1.com"],
- *     }),
- *   );
- *   return middlewareConfig;
- * };
+ * console.log(config.frontendUrl);
  * ```
+ *
+ * @see [Accessing the configuration](https://wasp.sh/docs/advanced/accessing-app-config)
  */
 export declare const config: ServerConfig;
 
@@ -138,7 +132,8 @@ type ServerConfig = {
  *
  * `env` contains both **Wasp-defined** env vars (described in
  * {@link ServerEnv}) and **user-defined** env vars (the fields of your
- * validation schema, with the types your schema outputs).
+ * validation schema, with the types your schema outputs). It leaves out any
+ * other env var.
  *
  * You can use `process.env.SOME_SECRET` directly in your code, but we don't
  * recommend it, since `process.env` isn't validated and missing env vars can
@@ -155,8 +150,9 @@ type ServerConfig = {
  * const stripeApiKey = env.STRIPE_API_KEY;
  * ```
  *
- * @see [Env variables](https://wasp.sh/docs/advanced/env-vars)
+ * @see [Server env vars](https://wasp.sh/docs/advanced/env-vars#server-env-vars)
  * @see [Custom env var validations](https://wasp.sh/docs/advanced/env-vars#custom-env-var-validations)
+ * @see {@link "env"!defineEnvValidationSchema | defineEnvValidationSchema} to define your validation schema.
  */
 export declare const env: ServerEnv;
 
@@ -164,9 +160,7 @@ export declare const env: ServerEnv;
  * The Wasp-defined env vars in {@link env}.
  *
  * Wasp only includes the env vars of the features your app uses (e.g. the
- * `SMTP_*` ones only if you use the SMTP email sender). The fields of your
- * own `server.envValidationSchema` are also included, but aren't listed here
- * since they depend on your app.
+ * `SMTP_*` ones only if you use the SMTP email sender).
  *
  * @see [Wasp server env vars](https://wasp.sh/docs/advanced/env-vars#wasp-server-env-vars)
  */
@@ -178,7 +172,7 @@ type ServerEnv = {
    */
   NODE_ENV: "development" | "production";
   /**
-   * The URL of the PostgreSQL database you want your app to use.
+   * The URL of the database you want your app to use.
    */
   DATABASE_URL: string;
   /**
@@ -238,7 +232,8 @@ type ServerEnv = {
   /** The Mailgun domain. Only present if you use the Mailgun email sender. */
   MAILGUN_DOMAIN?: string;
   /**
-   * The Mailgun API URL. Only present if you use the Mailgun email sender.
+   * The Mailgun API URL. Only present if you use the Mailgun email sender and
+   * set it.
    *
    * Useful if you want to use the EU API endpoint
    * (`https://api.eu.mailgun.net`).
@@ -278,14 +273,11 @@ type ServerEnv = {
 
 /**
  * The [Prisma Client](https://www.prisma.io/docs/orm/prisma-client) instance
- * Wasp uses to access the database.
+ * Wasp uses to access the database, e.g. for the `entities` in your Operations'
+ * `context`.
  *
- * This is the same instance Wasp uses internally (e.g. for the `entities` in
- * your Operations' `context`). We recommend sticking with the Wasp-provided
- * mechanisms, and only using the Prisma Client directly if you need a feature
- * Wasp doesn't provide.
- *
- * You can only use it in server code.
+ * We recommend sticking with the Wasp-provided mechanisms, and only using the
+ * Prisma Client directly if you need a feature Wasp doesn't provide.
  *
  * @example
  * ```ts
@@ -317,8 +309,6 @@ export declare const prisma: PrismaClient;
  *
  * If your schema has no models, Prisma doesn't generate a client, and this
  * type (and {@link prisma}) is `null`.
- *
- * @see [Customising the Prisma Client](https://wasp.sh/docs/features/data/databases#customising-the-prisma-client)
  */
 export type PrismaClient = {
   /** Connects to the database. */
@@ -338,10 +328,8 @@ export type PrismaClient = {
  *   the middleware of Operations and APIs, use {@link MiddlewareConfigFn}.
  * - `server`: The Node.js `http.Server`.
  *
- * You can use it to store values for later use, e.g. to set up a resource
- * your Operations use. We recommend putting the variable in the module where
- * you define the setup function, and exposing functions that read it. That
- * turns your module into a singleton that's constructed on server start.
+ * You can also use the function to store values for later use, e.g. a resource
+ * your Operations read.
  *
  * @example
  * Adding a custom route:
@@ -361,22 +349,8 @@ export type PrismaClient = {
  * }
  * ```
  *
- * @example
- * Storing values for later use:
- *
- * ```ts
- * import type { ServerSetupFn } from "wasp/server";
- *
- * let someResource = undefined;
- *
- * export const mySetupFunction: ServerSetupFn = async () => {
- *   someResource = await setUpSomeResource();
- * };
- *
- * export const getSomeResource = () => someResource;
- * ```
- *
  * @see [Server config](https://wasp.sh/docs/advanced/server-customization/server-config)
+ * @see [Storing some values for later use](https://wasp.sh/docs/advanced/server-customization/server-config#storing-some-values-for-later-use)
  */
 export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
 
@@ -395,11 +369,11 @@ export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
  * Express `RequestHandler`s, and returns the new one. You can add, replace, or
  * delete entries.
  *
- * Wasp's default global middleware are, by name: `"helmet"`, `"cors"`,
- * `"logger"`, `"express.json"`, `"express.urlencoded"`, and `"cookieParser"`.
+ * The default global entries are `"helmet"`, `"cors"`, `"logger"`,
+ * `"express.json"`, `"express.urlencoded"`, and `"cookieParser"`.
  *
- * Please treat modifications to global middleware with extreme care, as they
- * affect all Operations and APIs.
+ * Treat modifications to global middleware with extreme care, as they affect
+ * all Operations and APIs. If you're unsure, use one of the other two options.
  *
  * @example
  * ```ts
@@ -431,12 +405,10 @@ export type { MiddlewareConfigFn } from "@wasp/lib-sdk-core/node";
  * spec.
  *
  * A seed function is an async function that receives the {@link prisma}
- * client, and uses it to populate the database with some initial data. Since
+ * client and uses it to populate the database with some initial data. Since
  * it's server code, it can import other server code, e.g. your Actions.
  *
  * Run seed functions with `wasp db seed` (or `wasp db seed <seed-name>`).
- *
- * @param prisma The {@link prisma} client.
  *
  * @example
  * ```ts

@@ -2,17 +2,8 @@
  * Types for overriding the Queries and Actions of your
  * [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.
  *
- * Like with Queries and Actions, you can define the implementation of a CRUD
- * operation (an override) in a JavaScript/TypeScript file. The overrides are
- * functions that take the following arguments:
- *
- * - `args`: The arguments of the operation, i.e., the data sent from the
- *   client.
- * - `context`: Contains the `user` making the request, and the `entities`
- *   object with the Entity that's being operated on.
- *
  * Wasp generates one type-only namespace export for each `crud` spec you
- * declare, named after it (e.g., `Tasks` for `crud("Tasks", "Task", { ... })`).
+ * declare, named after it (e.g. `Tasks` for `crud("Tasks", "Task", { ... })`).
  * It has a generic type for each operation you enabled in the spec, which
  * you can use to type its override:
  *
@@ -32,65 +23,48 @@
  * {@link UnauthenticatedActionDefinition}s instead, and `context` doesn't
  * include the `user`.
  *
- * In other words, annotating an override with one of these types tells
- * TypeScript about the type of the operation's `context` object, while the
- * two type arguments allow you to specify the operation's inputs and outputs.
- * `Input` defaults to `never`, and `Output` defaults to any serializable
- * value.
+ * The two type arguments specify the operation's inputs and outputs. `Input`
+ * defaults to `never`, and `Output` defaults to any serializable value.
+ *
+ * Like with Queries and Actions, you can define the implementation of a CRUD
+ * operation (an override) in a JavaScript/TypeScript file. The overrides are
+ * functions that take the following arguments:
+ *
+ * - `args`: The arguments of the operation, i.e., the data sent from the
+ *   client.
+ * - `context`: Contains the `user` making the request, and the `entities`
+ *   object with the Entity that's being operated on.
+ *
+ * Wasp only checks that the request is authenticated in its default
+ * implementations, so an override runs for anonymous requests too, and
+ * `isPublic` has no effect on it. If your override requires a logged-in user,
+ * check `context.user` yourself.
+ *
+ * For a complete example, see
+ * [our custom `create` operation](https://wasp.sh/docs/features/data/crud#our-custom-create-operation).
  *
  * @example
- * If you have a CRUD named `Tasks`, you would import the types like this:
+ * If you have a CRUD named `Tasks`, you can type a `getAll` override that only
+ * returns the logged-in user's tasks like this:
  *
  * ```ts
- * import { type Tasks } from "wasp/server/crud";
- *
- * // Each of the types is a generic type, so you can use it like this:
- * export const getAllOverride: Tasks.GetAllQuery<Input, Output> = async (
- *   args,
- *   context,
- * ) => {
- *   // ...
- * };
- * ```
- *
- * @example
- * A custom `create` operation that connects the new task to the user creating
- * it:
- *
- * ```ts
- * import { type Tasks } from "wasp/server/crud";
  * import { type Task } from "wasp/entities";
  * import { HttpError } from "wasp/server";
+ * import { type Tasks } from "wasp/server/crud";
  *
- * type CreateTaskInput = { description: string; isDone: boolean };
- *
- * export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
- *   args,
+ * export const getAllOverride: Tasks.GetAllQuery<void, Task[]> = async (
+ *   _args,
  *   context,
  * ) => {
  *   if (!context.user) {
  *     throw new HttpError(401, "User not authenticated.");
  *   }
  *
- *   const { description, isDone } = args;
- *   const { Task } = context.entities;
- *
- *   return await Task.create({
- *     data: {
- *       description,
- *       isDone,
- *       // Connect the task to the user that is creating it
- *       user: {
- *         connect: {
- *           id: context.user.id,
- *         },
- *       },
- *     },
+ *   return context.entities.Task.findMany({
+ *     where: { user: { id: context.user.id } },
  *   });
  * };
  * ```
- *
- * @see [Our custom `create` operation](https://wasp.sh/docs/features/data/crud#our-custom-create-operation)
  *
  * @module
  */

@@ -1,9 +1,10 @@
 /**
  * Auth APIs you can use both on the client and on the server: the
- * {@link AuthUser} type of the logged-in user, and helpers for reading auth
- * data from a `User` entity object.
+ * {@link AuthUser} type of the logged-in user, and helpers for
+ * [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object).
  *
- * Available when your app enables [auth](https://wasp.sh/docs/features/auth/overview).
+ * Only available if your app has
+ * [auth](https://wasp.sh/docs/features/auth/overview) enabled.
  *
  * @module
  */
@@ -19,7 +20,8 @@ interface UserEntity {}
 
 /**
  * A user entity object fetched with its `auth` relation, and the `auth`'s
- * `identities` relation, included.
+ * `identities` relation, included. An {@link AuthUser} doesn't have the `auth`
+ * relation, so read its `identities` field instead.
  *
  * For example, the `user` field of a `Task` you fetched with:
  *
@@ -58,11 +60,9 @@ interface UserEntityAuthIdentity {
 }
 
 /**
- * The auth data of each auth method the user signed up with.
- *
- * There's one property for each auth method your app enables. Its value is
- * `null` if the user doesn't have an identity for that auth method, so check
- * it before using it.
+ * The user's auth data. It only has properties for the auth methods your app
+ * enables. A property's value is `null` if the user doesn't have an identity
+ * for that auth method, so check it before using it.
  *
  * @example
  * ```ts
@@ -78,7 +78,7 @@ interface UserEntityAuthIdentity {
 interface AuthUserIdentities {
   /**
    * The user's [Email](https://wasp.sh/docs/features/auth/email/overview)
-   * auth data. Only present if your app enables email auth.
+   * auth data.
    */
   email?: {
     /** The user's email address. */
@@ -93,7 +93,7 @@ interface AuthUserIdentities {
   /**
    * The user's
    * [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)
-   * auth data. Only present if your app enables username and password auth.
+   * auth data.
    */
   username?: {
     /** The user's username. */
@@ -101,7 +101,7 @@ interface AuthUserIdentities {
   } | null;
   /**
    * The user's [Google](https://wasp.sh/docs/features/auth/social-auth/google)
-   * auth data. Only present if your app enables Google auth.
+   * auth data.
    */
   google?: {
     /** The user's Google ID. */
@@ -109,7 +109,7 @@ interface AuthUserIdentities {
   } | null;
   /**
    * The user's [GitHub](https://wasp.sh/docs/features/auth/social-auth/github)
-   * auth data. Only present if your app enables GitHub auth.
+   * auth data.
    */
   github?: {
     /** The user's GitHub ID. */
@@ -117,7 +117,7 @@ interface AuthUserIdentities {
   } | null;
   /**
    * The user's [Discord](https://wasp.sh/docs/features/auth/social-auth/discord)
-   * auth data. Only present if your app enables Discord auth.
+   * auth data.
    */
   discord?: {
     /** The user's Discord ID. */
@@ -125,7 +125,7 @@ interface AuthUserIdentities {
   } | null;
   /**
    * The user's [Slack](https://wasp.sh/docs/features/auth/social-auth/slack)
-   * auth data. Only present if your app enables Slack auth.
+   * auth data.
    */
   slack?: {
     /** The user's Slack ID. */
@@ -133,7 +133,7 @@ interface AuthUserIdentities {
   } | null;
   /**
    * The user's [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak)
-   * auth data. Only present if your app enables Keycloak auth.
+   * auth data.
    */
   keycloak?: {
     /** The user's Keycloak ID. */
@@ -142,7 +142,7 @@ interface AuthUserIdentities {
   /**
    * The user's
    * [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft)
-   * auth data. Only present if your app enables Microsoft auth.
+   * auth data.
    */
   microsoft?: {
     /** The user's Microsoft ID. */
@@ -154,14 +154,13 @@ interface AuthUserIdentities {
  * The logged-in user, as you receive it on the client (from
  * {@link "client/auth"!useAuth | useAuth} or
  * the `user` prop of pages with `authRequired`) and on the server (as
- * `context.user` in Operations).
+ * `context.user` in Operations and APIs, and `socket.data.user` in
+ * WebSockets).
  *
- * It has all the fields you defined on your user entity at the top level, and
- * the auth-related data of each auth method in the `identities` field. Wasp
- * strips the hashed passwords out of it.
- *
- * Its shape depends on your app: its fields come from your user entity, and
- * `identities` has a property for each auth method your app enables.
+ * Its shape depends on your app: it has all the fields you defined on your
+ * user entity at the top level, and the auth-related data of each auth method
+ * your app enables in the `identities` field. Wasp strips the hashed passwords
+ * out of it.
  *
  * @example
  * For a user that signed up with email, in an app with email and Google
@@ -202,122 +201,59 @@ interface AuthUserIdentities {
  * @see [Accessing user data](https://wasp.sh/docs/features/auth/entities#accessing-the-auth-fields)
  */
 export type AuthUser = UserEntity & {
-  /**
-   * The auth data of each auth method the user signed up with.
-   */
   identities: AuthUserIdentities;
   /**
-   * Returns the first user ID that it finds for the user. For example, if the
-   * user signed up with email, it returns their email. If they signed up with
-   * Google, it returns their Google ID.
+   * Returns the first user ID that it finds for the user, or `null` if they
+   * don't have any. For example, if the user signed up with email, it returns
+   * their email. If they signed up with Google, it returns their Google ID.
    *
    * This is useful if you support multiple auth methods and you need _any_ ID
    * that identifies the user in your app.
-   *
-   * @returns The user's ID for one of their auth methods, or `null` if they
-   * don't have any.
    */
   getFirstProviderUserId: () => string | null;
 };
 
 /**
  * Returns the user's email if they signed up with
- * [Email](https://wasp.sh/docs/features/auth/email/overview) auth.
- *
- * Works both on the client and on the server.
- *
- * @param user A user entity object with the `auth` and `identities` relations
- * included.
- * @returns The user's email, or `null` if they didn't sign up with email.
+ * [Email](https://wasp.sh/docs/features/auth/email/overview) auth, or `null`
+ * otherwise.
  *
  * @example
- * ```tsx
+ * ```ts
  * import { getEmail } from "wasp/auth";
  *
- * function MainPage() {
- *   // ...
- *   return (
- *     <div className="tasks">
- *       {tasks.map((task) => (
- *         <div key={task.id} className="task">
- *           {task.title} by {getEmail(task.user)}
- *         </div>
- *       ))}
- *     </div>
- *   );
- * }
+ * const email = getEmail(task.user);
  * ```
- *
- * @see [Getting auth data from the user object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object)
  */
 export declare function getEmail(user: UserEntityWithAuth): string | null;
 
 /**
  * Returns the user's username if they signed up with
  * [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)
- * auth.
- *
- * Works both on the client and on the server.
- *
- * @param user A user entity object with the `auth` and `identities` relations
- * included.
- * @returns The user's username, or `null` if they didn't sign up with a
- * username.
+ * auth, or `null` otherwise.
  *
  * @example
- * ```tsx
+ * ```ts
  * import { getUsername } from "wasp/auth";
  *
- * function MainPage() {
- *   // ...
- *   return (
- *     <div className="tasks">
- *       {tasks.map((task) => (
- *         <div key={task.id} className="task">
- *           {task.title} by {getUsername(task.user)}
- *         </div>
- *       ))}
- *     </div>
- *   );
- * }
+ * const username = getUsername(task.user);
  * ```
- *
- * @see [Getting auth data from the user object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object)
  */
 export declare function getUsername(user: UserEntityWithAuth): string | null;
 
 /**
- * Returns the first user ID that it finds for the user. For example, if the
- * user signed up with email, it returns their email. If they signed up with
- * Google, it returns their Google ID.
+ * Returns the user's ID for one of their auth methods, or `null` if you don't
+ * pass a user or they don't have any.
  *
- * Works both on the client and on the server. If you have an
- * {@link AuthUser}, you can call its `getFirstProviderUserId` method instead.
- *
- * @param user A user entity object with the `auth` and `identities` relations
- * included.
- * @returns The user's ID for one of their auth methods, or `null` if you
- * don't pass a user or they don't have any.
+ * Works like the `getFirstProviderUserId` method of {@link AuthUser}, which
+ * you can call instead if you have one.
  *
  * @example
- * ```tsx
+ * ```ts
  * import { getFirstProviderUserId } from "wasp/auth";
  *
- * function MainPage() {
- *   // ...
- *   return (
- *     <div className="tasks">
- *       {tasks.map((task) => (
- *         <div key={task.id} className="task">
- *           {task.title} by {getFirstProviderUserId(task.user)}
- *         </div>
- *       ))}
- *     </div>
- *   );
- * }
+ * const userId = getFirstProviderUserId(task.user);
  * ```
- *
- * @see [Getting auth data from the user object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object)
  */
 export declare function getFirstProviderUserId(
   user?: UserEntityWithAuth,

@@ -1,7 +1,8 @@
 /**
- * Helpers for testing your client code with
- * [Vitest](https://vitest.dev/) and
+ * Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code
+ * with [Vitest](https://vitest.dev/) and
  * [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
+ * The helper for configuring Vitest is in {@linkcode "test"! | wasp/test}.
  *
  * @module
  */
@@ -54,17 +55,13 @@ type RenderResult = {
 
 /**
  * Renders a React element inside the providers that Wasp's client code needs:
- * React Query's `QueryClientProvider` and React Router's router.
+ * _react-query_'s `QueryClientProvider` and React Router's `BrowserRouter`.
  *
- * Use it instead of Testing Library's `render` to render components in your
- * React component tests, so they can use Queries, Actions, and links. Each
- * call gets its own query client, so tests don't share cached data.
+ * Use it instead of Testing Library's `render` in your component tests, so your
+ * components can use `useQuery`, `useAction`, and links. Each call gets its own
+ * query client, so tests don't share cached data.
  *
  * It wraps the element in {@link WaspTestWrapper}.
- *
- * @param ui The element to render.
- * @param options Options for Testing Library's `render`.
- * @returns What Testing Library's `render` returns.
  *
  * @example
  * ```tsx
@@ -79,8 +76,6 @@ type RenderResult = {
  *   expect(screen.getByRole("link", { name: "Back home" })).toBeInTheDocument();
  * });
  * ```
- *
- * @see [Testing](https://wasp.sh/docs/advanced/testing)
  */
 export declare function renderInContext(
   ui: ReactElement,
@@ -91,22 +86,12 @@ export declare function renderInContext(
  * Mocks the result of a Wasp Query.
  *
  * Wasp registers an [MSW](https://mswjs.io/) request handler that responds to
- * the Query's requests with `mockData`. This is helpful when your component
- * uses `useQuery`.
+ * all of the Query's requests with `mockData`, whatever their input.
  *
- * @param query The Query to mock, imported from `wasp/client/operations`.
+ * @param query The Query to mock: one from `wasp/client/operations`, or
+ * {@link "client/auth"!getMe | getMe}.
  * @param mockData The data the Query should return. It must match the Query's
  * output type.
- *
- * @example
- * ```ts
- * import { getTasks } from "wasp/client/operations";
- * import { mockServer } from "wasp/client/test";
- *
- * const { mockQuery } = mockServer();
- *
- * mockQuery(getTasks, []);
- * ```
  */
 type MockQuery = <Input, Output, MockOutput extends Output>(
   query: Query<Input, Output>,
@@ -117,22 +102,8 @@ type MockQuery = <Input, Output, MockOutput extends Output>(
  * Mocks the response of one of your app's
  * [custom APIs](https://wasp.sh/docs/features/apis).
  *
- * Similar to {@link MockQuery}, but instead of a Query, it takes the API's
- * HTTP method and path. Wasp responds to the API's requests with `mockData`
- * as JSON.
- *
  * @param route The HTTP method and path of the API.
- * @param mockData The JSON data the API should respond with.
- *
- * @example
- * ```ts
- * import { HttpMethod } from "wasp/client";
- * import { mockServer } from "wasp/client/test";
- *
- * const { mockApi } = mockServer();
- *
- * mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
- * ```
+ * @param mockData The data the API should respond with, as JSON.
  */
 type MockApi = (route: Route, mockData: unknown) => void;
 
@@ -159,9 +130,7 @@ type MockServer = {
    * `mockQuery` and `mockApi` don't cover.
    */
   server: SetupServer;
-  /** Mocks the result of a Wasp Query. */
   mockQuery: MockQuery;
-  /** Mocks the response of one of your app's custom APIs. */
   mockApi: MockApi;
 };
 
@@ -171,9 +140,8 @@ type MockServer = {
  *
  * Call it once, at the top level of each test file that uses the helpers, not
  * inside a test case. It starts an [MSW](https://mswjs.io/) server before the
- * file's tests, and resets the mocks after each test.
- *
- * @returns The mock helpers.
+ * file's tests, resets the mocks after each test, and closes the server after
+ * the file's tests.
  *
  * @example
  * ```tsx
@@ -198,17 +166,12 @@ type MockServer = {
  *   expect(screen.getByRole("checkbox")).toBeChecked();
  * });
  * ```
- *
- * @see [Testing](https://wasp.sh/docs/advanced/testing)
  */
 export declare function mockServer(): MockServer;
 
 /**
- * Wraps its children in the providers that Wasp's client code needs: React
- * Query's `QueryClientProvider` and React Router's router. Each wrapper gets
- * its own query client, so tests don't share cached data.
- *
- * {@link renderInContext} uses it. Pass it as the
+ * Wraps its children in the same providers as {@link renderInContext}. Pass it
+ * as the
  * [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper)
  * option when you call Testing Library's `render` or `renderHook` yourself.
  *
@@ -222,8 +185,6 @@ export declare function mockServer(): MockServer;
  *   wrapper: WaspTestWrapper,
  * });
  * ```
- *
- * @see [Testing](https://wasp.sh/docs/advanced/testing)
  *
  * @component
  */

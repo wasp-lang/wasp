@@ -74,8 +74,8 @@ Two important things then happen:
 - Wasp **generates a server-side NodeJS function** with the Query's name.
 
 - Wasp **generates a client-side JavaScript function** with the Query's name (e.g., `getFilteredTasks`).
-  This function takes a single optional argument - an object containing any serializable data you wish to use inside the Query.
-  Wasp will send this object over the network and pass it into the Query's implementation as its first positional argument (more on this when we look at the implementations).
+  This function takes at most one argument: any serializable data you wish to use inside the Query (usually an object).
+  Wasp will send this data over the network and pass it into the Query's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Query's NodeJS implementation under the hood.
 
 Generating these two functions ensures a similar calling interface across the entire app (both client and server).
@@ -185,7 +185,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
 
     :::tip Inferring the return type
 
-    If don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+    If you don't want to explicitly type the Query's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
 
     ```typescript
     const getFoo = (async (_args, context) => {
@@ -330,7 +330,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
       )
     }
 
-    const Task = ({ description, isDone }: Task) => {
+    const Task = ({ description, isDone }) => {
       return (
         <div>
           <p>
@@ -399,7 +399,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
     export default MainPage
     ```
 
-    Notice how you don't need to annotate the Query's return value type. Wasp automatically infers the from the Query's backend implementation. This is **full-stack type safety**: the types on the client always match the types on the server.
+    Notice how you don't need to annotate the Query's return value type. Wasp automatically infers it from the Query's backend implementation. This is **full-stack type safety**: the types on the client always match the types on the server.
   </TabItem>
 </Tabs>
 
@@ -458,7 +458,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.
-To change this, set `retry` for a [single Query](../../../api/wasp/client/operations#usequery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
+To change this, set `retry` for a [single Query](../../../api/wasp/client/operations.md#usequery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
 
 ### Using Entities in Queries
 
@@ -528,7 +528,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
   to="../../../api/@wasp/spec#query-1"
   kind="api"
   title="query"
-  description="All the options for declaring a query in the Wasp spec."
+  description="All the options for declaring a query in the Wasp Spec."
 />
 
 <CardLink
@@ -559,6 +559,13 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
   kind="api"
   title="UnauthenticatedQueryDefinition"
   description="The same, for Queries that don't use auth."
+/>
+
+<CardLink
+  to="../../../api/wasp/server#httperror"
+  kind="api"
+  title="HttpError"
+  description="The error you throw to send an HTTP error response to the client."
 />
 
 ### The `useQuery` Hook

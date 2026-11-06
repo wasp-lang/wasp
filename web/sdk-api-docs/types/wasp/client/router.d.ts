@@ -1,5 +1,7 @@
 /**
- * Type-safe links and URLs for the routes you declare in your Wasp spec.
+ * Type-safe links and URLs for the
+ * [routes](https://wasp.sh/docs/features/pages-and-routes) you declare in your
+ * Wasp Spec.
  *
  * Wasp generates the {@link routes} object and the types of {@link Link}'s and
  * {@link NavLink}'s props from your app's routes, so linking to a route that
@@ -21,7 +23,7 @@ import type {
  */
 type RouteLinkProps = {
   /**
-   * The path of one of the routes in your Wasp spec, exactly as you declared
+   * The path of one of the routes in your Wasp Spec, exactly as you declared
    * it, e.g. `"/task/:id"`.
    *
    * If the path has optional static segments, pass one of the paths that
@@ -30,11 +32,12 @@ type RouteLinkProps = {
    */
   to: string;
   /**
-   * The values for the params in the path. Required if the path contains
-   * params.
+   * The values for the params in the path, e.g. `{ id: 1 }` for `/task/:id`.
+   * Required if the path contains params. You can leave out optional params
+   * (`:userId?`).
    *
-   * For example, if the path is `/task/:id`, `params` must be `{ id: 1 }`.
-   * Wasp supports both required and optional params.
+   * For a splat path like `/pages/*`, pass the matched rest of the path as
+   * `{ "*": "some/path" }`.
    */
   params?: Params;
   /**
@@ -53,9 +56,6 @@ type RouteLinkProps = {
  *
  * Use this type to build your own component on top of `Link` while keeping
  * its type safety.
- *
- * In your app, `to` and `params` are typed with your app's route paths and
- * their params.
  *
  * @example
  * ```tsx
@@ -78,8 +78,7 @@ export type LinkProps = Omit<
  * It behaves the same as
  * [React Router's `Link`](https://reactrouter.com/8.0.1/api/components/Link)
  * and accepts all of its props, but `to` must be a route path from your
- * Wasp spec, and `params` must match the params in that path. A wrong path or
- * wrong params cause a type error.
+ * Wasp Spec, and `params` must match the params in that path.
  *
  * @example
  * ```tsx
@@ -105,9 +104,6 @@ export declare function Link(props: LinkProps): JSX.Element;
  *
  * Use this type to build your own component on top of `NavLink` while keeping
  * its type safety.
- *
- * In your app, `to` and `params` are typed with your app's route paths and
- * their params.
  */
 export type NavLinkProps = Omit<
   RouterNavLinkProps & RefAttributes<HTMLAnchorElement>,
@@ -135,11 +131,11 @@ export type NavLinkProps = Omit<
  *   - `isTransitioning`: a
  *     [view transition](https://reactrouter.com/8.0.1/how-to/view-transitions)
  *     to the page is in progress.
- * - `end`: by default, a link is also active on nested paths. For example, a
- *   link to `/tasks` is active on `/tasks/123`. Set `end` to only make it
- *   active on its exact path.
- * - `caseSensitive`: by default, the link ignores letter case when checking if
- *   it's active. Set `caseSensitive` to take case into account.
+ * - `end: boolean`: by default, a link is also active on nested paths. For
+ *   example, a link to `/tasks` is active on `/tasks/123`. Set `end` to only
+ *   make it active on its exact path.
+ * - `caseSensitive: boolean`: by default, the link ignores letter case when
+ *   checking if it's active. Set `caseSensitive` to take case into account.
  *
  * @example
  * ```tsx
@@ -172,26 +168,19 @@ export declare function NavLink(props: NavLinkProps): JSX.Element;
  */
 type RouteBuildOptions = {
   /**
-   * The values for the params in the route's path. Required if the path
-   * contains params; Wasp makes optional params (`:userId?`) optional here
-   * too.
-   *
-   * For a splat path like `/pages/*`, pass the matched rest of the path as
-   * `{ "*": "some/path" }`.
+   * The values for the params in the route's path, in the same form as
+   * {@link RouteLinkProps.params}. Required if the path contains params.
    */
   params?: Params;
   /**
    * Which variant of the path to build. Required (and only accepted) if the
-   * route's path has optional static segments.
-   *
-   * For example, for the path `/task/:id/details?`, pass either
-   * `"/task/:id/details"` or `"/task/:id"`.
+   * route's path has optional static segments. See {@link RouteLinkProps.to}
+   * for the values it takes.
    */
   path?: string;
   /**
-   * The search params (query string), in any shape the
-   * [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams)
-   * constructor accepts.
+   * The search params (query string), in the same shapes as
+   * {@link RouteLinkProps.search}.
    */
   search?: Search;
   /** The hash (fragment) of the URL. */
@@ -199,18 +188,18 @@ type RouteBuildOptions = {
 };
 
 /**
- * The entry that Wasp generates in {@link routes} for each route in your spec.
- *
- * Each entry's `build` function is typed with that route's path: `options` is
- * required if the path has params (it must include `params`) or optional static
- * segments (it must include `path`), and otherwise it's optional.
+ * The entry that Wasp generates in {@link routes} for each route in your Wasp
+ * Spec.
  */
 type RouteEntry = {
-  /** The route's path, as declared in your Wasp spec, e.g. `"/task/:id"`. */
+  /** The route's path, as declared in your Wasp Spec, e.g. `"/task/:id"`. */
   readonly to: string;
   /**
    * Builds the URL of the route, filling in its params, search params, and
    * hash.
+   *
+   * `options` is optional only if the route's path has no params and no
+   * optional static segments.
    *
    * @returns The URL, e.g. `"/task/42?tab=comments#notes"`.
    */
@@ -218,13 +207,13 @@ type RouteEntry = {
 };
 
 /**
- * One {@link RouteEntry} for each route in your Wasp spec, under the route's
+ * One {@link RouteEntry} for each route in your Wasp Spec, under the route's
  * name.
  *
  * Use it to build a route's URL from your own code, for example to navigate
  * after a form submits.
  *
- * For example, for routes declared like this:
+ * For routes declared like this:
  *
  * ```ts
  * route("RootRoute", "/", page(MainPage)),

@@ -123,7 +123,7 @@ The worker function accepts two arguments:
 
 And that's it. Your job will be executed by `PgBoss` as if you called `mySpecialJob({ name: "Johnny" })`.
 
-In our example, `mySpecialJob` uses its argument, but your worker function doesn't have to. `submit` still requires an object, so pass `{}` if your worker function takes no arguments.
+In our example, `mySpecialJob` uses its argument, but your worker function doesn't have to. If it doesn't, pass `{}` to `submit`. In JavaScript, you can also call `submit()` without arguments, and the worker function receives `null`.
 
 ### Recurring Jobs
 
@@ -235,7 +235,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your Postgres connection url...","ar
   to="../api/@wasp/spec#job-1"
   kind="api"
   title="job"
-  description="All the options for defining a job in the Wasp spec."
+  description="All the options for defining a job in the Wasp Spec."
 />
 
 ### JavaScript API

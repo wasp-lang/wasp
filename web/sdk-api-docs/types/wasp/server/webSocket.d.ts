@@ -1,12 +1,9 @@
 /**
  * Types for implementing your app's
  * [WebSocket](https://wasp.sh/docs/features/websockets) server with
- * [Socket.IO](https://socket.io/docs/v4/server-api/).
- *
- * The event types you define on the server are exposed on the client, in
- * `wasp/client/webSocket`.
- *
- * @see [WebSockets](https://wasp.sh/docs/features/websockets)
+ * [Socket.IO](https://socket.io/docs/v4/server-api/). Only available if your
+ * app sets the {@linkcode "@wasp/spec"!WebSocket | webSocket} field of the app
+ * spec.
  *
  * @module
  */
@@ -24,10 +21,10 @@ import type { AuthUser } from "../auth";
  *
  * 1. `io`: The Socket.IO `Server`. Use it to register callbacks for all the
  *    regular [Socket.IO events](https://socket.io/docs/v4/server-api/). If a
- *    user is logged in, `socket.data.user` has their {@link AuthUser} data.
- * 2. `context`: An object whose `entities` field has the Prisma API for all
- *    the Entities in your app, keyed by the Entity's name (e.g.
- *    `context.entities.Task` exposes `prisma.task`).
+ *    user is logged in, {@linkcode WaspSocketData.user | socket.data.user} has
+ *    their data.
+ * 2. `context`: Gives you access to all the Entities in your app, in
+ *    `context.entities`.
  *
  * Typing your function with the event types lets you get full-stack type
  * safety: the client's `useSocket` and `useSocketListener` hooks, from
@@ -38,8 +35,7 @@ import type { AuthUser } from "../auth";
  * @typeParam ServerToClientEvents The events the server sends to the
  *   client, as a map from event names to listener functions.
  * @typeParam InterServerEvents The events sent between servers.
- * @typeParam SocketData The type of `socket.data`. It must extend
- *   {@link WaspSocketData}.
+ * @typeParam SocketData The type of `socket.data`.
  *
  * @example
  * ```ts
@@ -54,17 +50,15 @@ import type { AuthUser } from "../auth";
  *     const username = socket.data.user?.getFirstProviderUserId() ?? "Unknown";
  *     console.log("a user connected: ", username);
  *
- *     socket.on("chatMessage", async (msg) => {
- *       console.log("message: ", msg);
- *       io.emit("chatMessage", { id: uuidv4(), username, text: msg });
- *       // You can also use your entities here:
- *       // await context.entities.SomeEntity.create({ someField: msg })
+ *     socket.on("chatMessage", async (message) => {
+ *       console.log("message: ", message);
+ *       io.emit("chatMessage", { id: uuidv4(), username, text: message });
+ *       // You can also use your Entities here:
+ *       // await context.entities.SomeEntity.create({ someField: message })
  *     });
  *   });
  * };
  *
- * // Typing our WebSocket function with the events and payloads
- * // allows us to get type safety on the client as well
  * type WebSocketFn = WebSocketDefinition<
  *   ClientToServerEvents,
  *   ServerToClientEvents,
@@ -73,18 +67,20 @@ import type { AuthUser } from "../auth";
  * >;
  *
  * interface ServerToClientEvents {
- *   chatMessage: (msg: { id: string; username: string; text: string }) => void;
+ *   chatMessage: (message: {
+ *     id: string;
+ *     username: string;
+ *     text: string;
+ *   }) => void;
  * }
  *
  * interface ClientToServerEvents {
- *   chatMessage: (msg: string) => void;
+ *   chatMessage: (message: string) => void;
  * }
  *
  * interface InterServerEvents {}
  *
  * // Data that is attached to the socket.
- * // NOTE: Wasp automatically sends the user's session with the connection,
- * // and if it's valid, the server adds the user to the socket.
  * interface SocketData extends WaspSocketData {}
  * ```
  *

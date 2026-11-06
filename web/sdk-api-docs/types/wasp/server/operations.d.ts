@@ -20,16 +20,8 @@
  * An Operation uses auth if your app uses auth, unless you set `auth: false`
  * in its spec.
  *
- * To call Queries and Actions from the client, use `wasp/client/operations`
- * instead.
- *
- * @example
- * ```ts
- * // Use it on the server
- * import { getFoo } from "wasp/server/operations";
- * // Type its implementation
- * import { type GetFoo } from "wasp/server/operations";
- * ```
+ * To call Queries and Actions from the client, use
+ * {@linkcode "client/operations"! | wasp/client/operations} instead.
  *
  * @module
  */
@@ -40,54 +32,40 @@ import type { AuthUser } from "../auth";
 /**
  * The type of an authenticated Query's implementation.
  *
- * After you declare a Query, Wasp generates a generic type you can use when
- * defining its implementation. For the Query declared as `getSomething`, the
- * generated type is called `GetSomething`, and it's an
- * `AuthenticatedQueryDefinition` if the Query uses auth (otherwise it's an
- * {@link UnauthenticatedQueryDefinition}):
+ * Wasp generates one such type for each Query that uses auth, named after it
+ * (e.g. `GetFoo` for a Query declared as `getFoo`). Queries that don't use
+ * auth get an {@link UnauthenticatedQueryDefinition} instead.
  *
- * ```ts
- * import { type GetSomething } from "wasp/server/operations";
- * ```
+ * The generated type's `Input` and `Output` type arguments are optional, and
+ * their defaults make the type as permissive as possible. If you don't want
+ * your Query to take or return anything, use `void` as a type argument.
  *
- * The generated type fills in `Entities` with the Entities from the Query's
- * spec, and expects two (optional) type arguments:
+ * Using the generated type is optional, but it properly types the Query's
+ * `context`: TypeScript will know which Entities are in `context.entities`, and
+ * that `context` includes the `user`. Specifying `Input` and `Output` gives you
+ * type support for the arguments and the return value inside the
+ * implementation, and **full-stack type safety**: the client-side Query will
+ * have the same types.
  *
- * 1. `Input`: The type of the `args` object (the Query's input payload). The
- *    default value is `never`.
- * 2. `Output`: The type of the Query's return value (the Query's output
- *    payload). The default value is {@link Payload} (any serializable value).
- *
- * The defaults were chosen to make the type signature as permissive as
- * possible. If you don't want your Query to take/return anything, use `void`
- * as a type argument.
- *
- * Using the type is optional, but it's very helpful since it properly types
- * the Query's `context`: TypeScript will know which Entities are in
- * `context.entities`, and that `context` includes the `user`. Specifying
- * `Input` and `Output` gives you type support for the arguments and the
- * return value inside the implementation, and **full-stack type safety**: the
- * client-side Query will have the same types.
- *
- * The implementation is a Node.js function that takes two arguments (it can be
- * an `async` function if you need to use the `await` keyword). Since both
- * arguments are positional, you can name the parameters however you want, but
- * we'll stick with `args` and `context`:
- *
- * 1. `args`: An object containing the data **passed in when calling the
- *    Query** (e.g., filtering conditions).
- * 2. `context`: An additional context object **passed into the Query by
- *    Wasp**. It contains the logged-in `user`, and the Entities the Query uses
- *    in `entities`.
+ * The implementation is a Node.js function, and it can be `async`. Both
+ * arguments are positional, so you can name the parameters however you want.
  *
  * @typeParam Entities The type of `context.entities`: an object with the
- * Prisma API for each Entity in the Query's spec (e.g., `{ Task: ... }` for
+ * Prisma API for each Entity in the Query's spec (e.g. `{ Task: ... }` for
  * `entities: ["Task"]`). The generated type fills it in for you.
- * @typeParam Input The type of the Query's `args` (its input payload).
+ * @typeParam Input The type of the Query's `args` (its input payload). The
+ * generated type defaults it to `never`.
  * @typeParam Output The type of the Query's return value (its output payload).
+ * The generated type defaults it to {@link Payload} (any serializable value).
+ *
+ * @param args The data **passed in when calling the Query** (e.g. filtering
+ * conditions).
+ * @param context An additional context object **passed into the Query by
+ * Wasp**. It contains the logged-in `user`, and the Entities the Query uses in
+ * `entities`.
  *
  * @example
- * The Query `getFoo`, declared like this:
+ * With the Query `getFoo` declared like this:
  *
  * ```ts
  * import { app, query } from "@wasp/spec";
@@ -101,8 +79,8 @@ import type { AuthUser } from "../auth";
  * });
  * ```
  *
- * Expects to find a named export `getFoo` from the file `src/queries.ts`. You
- * can use the generated type `GetFoo` and specify the Query's inputs and
+ * Wasp expects to find a named export `getFoo` from the file `src/queries.ts`.
+ * You can use the generated type `GetFoo` and specify the Query's inputs and
  * outputs using its type arguments:
  *
  * ```ts
@@ -124,7 +102,9 @@ import type { AuthUser } from "../auth";
  * `satisfies` keyword tells TypeScript to infer it automatically:
  *
  * ```ts
- * const getFoo = (async (_args, context) => {
+ * import { type GetFoo } from "wasp/server/operations";
+ *
+ * export const getFoo = (async (_args, context) => {
  *   const foos = await context.entities.Foo.findMany();
  *   return {
  *     foos,
@@ -139,7 +119,6 @@ import type { AuthUser } from "../auth";
  *
  * @see [Implementing Queries](https://wasp.sh/docs/features/data/operations/queries#implementing-queries-in-node)
  * @see [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries)
- * @see [Using the `context.user` object](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object)
  *
  * @placeholder
  */
@@ -157,16 +136,8 @@ export type AuthenticatedQueryDefinition<
  *
  * It's the same as {@link AuthenticatedQueryDefinition}, except that the
  * `context` doesn't include the `user`. Wasp uses it for the generated Query
- * types (e.g., `GetSomething`) when your app doesn't use auth, or when you set
+ * types (e.g. `GetFoo`) when your app doesn't use auth, or when you set
  * `auth: false` in the Query's spec.
- *
- * @typeParam Entities The type of `context.entities`: an object with the
- * Prisma API for each Entity in the Query's spec (e.g., `{ Task: ... }` for
- * `entities: ["Task"]`). The generated type fills it in for you.
- * @typeParam Input The type of the Query's `args` (its input payload). The
- * generated type defaults it to `never`.
- * @typeParam Output The type of the Query's return value (its output payload).
- * The generated type defaults it to {@link Payload}.
  *
  * @example
  * ```ts
@@ -183,8 +154,6 @@ export type AuthenticatedQueryDefinition<
  * };
  * ```
  *
- * @see [Implementing Queries](https://wasp.sh/docs/features/data/operations/queries#implementing-queries-in-node)
- *
  * @placeholder
  */
 export type UnauthenticatedQueryDefinition<
@@ -199,70 +168,20 @@ export type UnauthenticatedQueryDefinition<
 /**
  * The type of an authenticated Action's implementation.
  *
- * After you declare an Action, Wasp generates a generic type you can use when
- * defining its implementation. For the Action declared as `createSomething`,
- * the generated type is called `CreateSomething`, and it's an
- * `AuthenticatedActionDefinition` if the Action uses auth (otherwise it's an
- * {@link UnauthenticatedActionDefinition}):
+ * It's the same as {@link AuthenticatedQueryDefinition}, but for Actions (see
+ * it for the generated type's `Input` and `Output` type arguments). Wasp
+ * generates one such type for each Action that uses auth, named after it
+ * (e.g. `CreateFoo` for an Action declared as `createFoo`). Actions that don't
+ * use auth get an {@link UnauthenticatedActionDefinition} instead.
  *
- * ```ts
- * import { type CreateSomething } from "wasp/server/operations";
- * ```
- *
- * The generated type fills in `Entities` with the Entities from the Action's
- * spec, and expects two (optional) type arguments:
- *
- * 1. `Input`: The type of the `args` object (the Action's input payload). The
- *    default value is `never`.
- * 2. `Output`: The type of the Action's return value (the Action's output
- *    payload). The default value is {@link Payload} (any serializable value).
- *
- * The defaults were chosen to make the type signature as permissive as
- * possible. If you don't want your Action to take/return anything, use `void`
- * as a type argument.
- *
- * Using the type is optional, but it's very helpful since it properly types
- * the Action's `context`: TypeScript will know which Entities are in
- * `context.entities`, and that `context` includes the `user`. Specifying
- * `Input` and `Output` gives you type support for the arguments and the
- * return value inside the implementation, and **full-stack type safety**: the
- * client-side Action will have the same types.
- *
- * The implementation is a Node.js function that takes two arguments (it can be
- * an `async` function if you need to use the `await` keyword). Since both
- * arguments are positional, you can name the parameters however you want, but
- * we'll stick with `args` and `context`:
- *
- * 1. `args`: An object containing the data **passed in when calling the
- *    Action** (e.g., the data for a new task).
- * 2. `context`: An additional context object **passed into the Action by
- *    Wasp**. It contains the logged-in `user`, and the Entities the Action uses
- *    in `entities`.
- *
- * @typeParam Entities The type of `context.entities`: an object with the
- * Prisma API for each Entity in the Action's spec (e.g., `{ Task: ... }` for
- * `entities: ["Task"]`). The generated type fills it in for you.
- * @typeParam Input The type of the Action's `args` (its input payload).
- * @typeParam Output The type of the Action's return value (its output payload).
+ * @param args The data **passed in when calling the Action** (e.g. the data
+ * for a new task).
+ * @param context An additional context object **passed into the Action by
+ * Wasp**. It contains the logged-in `user`, and the Entities the Action uses in
+ * `entities`.
  *
  * @example
- * The Action `createFoo`, declared like this:
- *
- * ```ts
- * import { action, app } from "@wasp/spec";
- * import { createFoo } from "./src/actions" with { type: "ref" };
- *
- * export default app({
- *   // ...
- *   spec: [
- *     action(createFoo, { entities: ["Foo"] }),
- *   ],
- * });
- * ```
- *
- * Expects to find a named export `createFoo` from the file `src/actions.ts`.
- * You can use the generated type `CreateFoo` and specify the Action's inputs
- * and outputs using its type arguments:
+ * With the Action declared as `action(createFoo, { entities: ["Foo"] })`:
  *
  * ```ts
  * import { type CreateFoo } from "wasp/server/operations";
@@ -274,31 +193,8 @@ export type UnauthenticatedQueryDefinition<
  * };
  * ```
  *
- * In this case, the Action expects to receive an object with a `bar` field of
- * type `string` (this is the type of `args`), and return a value of type `Foo`
- * (this must match the type of the Action's return value).
- *
- * @example
- * If you don't want to explicitly type the Action's return value, the
- * `satisfies` keyword tells TypeScript to infer it automatically:
- *
- * ```ts
- * const createFoo = (async (_args, context) => {
- *   const foo = await context.entities.Foo.create();
- *   return {
- *     newFoo: foo,
- *     message: "Here's your foo!",
- *     returnedAt: new Date(),
- *   };
- * }) satisfies CreateFoo;
- * ```
- *
- * TypeScript knows the correct type for `context`, and that the Action's
- * return type is `{ newFoo: Foo, message: string, returnedAt: Date }`.
- *
  * @see [Implementing Actions](https://wasp.sh/docs/features/data/operations/actions#implementing-actions-in-node)
  * @see [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/actions#using-entities-in-actions)
- * @see [Using the `context.user` object](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object)
  *
  * @placeholder
  */
@@ -316,16 +212,8 @@ export type AuthenticatedActionDefinition<
  *
  * It's the same as {@link AuthenticatedActionDefinition}, except that the
  * `context` doesn't include the `user`. Wasp uses it for the generated Action
- * types (e.g., `CreateSomething`) when your app doesn't use auth, or when you
- * set `auth: false` in the Action's spec.
- *
- * @typeParam Entities The type of `context.entities`: an object with the
- * Prisma API for each Entity in the Action's spec (e.g., `{ Task: ... }` for
- * `entities: ["Task"]`). The generated type fills it in for you.
- * @typeParam Input The type of the Action's `args` (its input payload). The
- * generated type defaults it to `never`.
- * @typeParam Output The type of the Action's return value (its output
- * payload). The generated type defaults it to {@link Payload}.
+ * types (e.g. `CreateFoo`) when your app doesn't use auth, or when you set
+ * `auth: false` in the Action's spec.
  *
  * @example
  * ```ts
@@ -341,8 +229,6 @@ export type AuthenticatedActionDefinition<
  *   });
  * };
  * ```
- *
- * @see [Implementing Actions](https://wasp.sh/docs/features/data/operations/actions#implementing-actions-in-node)
  *
  * @placeholder
  */
@@ -360,8 +246,7 @@ export type UnauthenticatedActionDefinition<
  * the server.
  *
  * Wasp generates one such function for each Query and Action that uses auth,
- * named after it (e.g., `getFoo` for a Query declared as `getFoo`). Import it
- * from `wasp/server/operations`.
+ * named after it.
  *
  * Calling an Operation on the server is similar to calling it on the client.
  * The difference is that you must pass in a context object with the `user`
@@ -374,35 +259,24 @@ export type UnauthenticatedActionDefinition<
  * - Otherwise, it takes the payload and the context:
  *   `getFoo(args, { user })`.
  *
- * It returns a `Promise` with the Operation's result.
- *
  * @typeParam Input The type of the Operation's `args` (its input payload).
  * @typeParam Output The type of the Operation's return value (its output
  * payload).
  *
  * @example
  * ```ts
- * import { getAllTasks, getFilteredTasks } from "wasp/server/operations";
+ * import { getAllTasks, getFilteredTasks, createTask } from "wasp/server/operations";
  *
- * const user = // Get an AuthUser object, e.g., from context.user in an operation.
+ * const user = // Get an AuthUser object, e.g. from context.user in an Operation.
  *
  * // TypeScript automatically infers the return values and type-checks
  * // the payloads.
  * const allTasks = await getAllTasks({ user });
  * const doneTasks = await getFilteredTasks({ isDone: true }, { user });
- * ```
- *
- * @example
- * ```ts
- * import { createTask, markTaskAsDone } from "wasp/server/operations";
- *
- * const user = // Get an AuthUser object, e.g., from context.user
- *
  * const newTask = await createTask(
  *   { description: "Keep learning TypeScript" },
  *   { user },
  * );
- * await markTaskAsDone({ id: 1 }, { user });
  * ```
  *
  * @see [Using Queries on the server](https://wasp.sh/docs/features/data/operations/queries#using-queries-on-the-server)
@@ -425,13 +299,11 @@ export type AuthenticatedOperation<Input, Output> =
  * auth on the server.
  *
  * Wasp generates one such function for each Query and Action that doesn't use
- * auth, named after it (e.g., `getFoo` for a Query declared as `getFoo`).
- * Import it from `wasp/server/operations`.
+ * auth, named after it.
  *
  * The function takes the Operation's payload as its only argument (or no
- * arguments, if the Operation's `Input` type is `void`), and returns a
- * `Promise` with the Operation's result. You don't have to pass the `context`
- * object: Wasp injects the Entities automatically.
+ * arguments, if the Operation's `Input` type is `void`). You don't have to pass
+ * the `context` object: Wasp injects the Entities automatically.
  *
  * @typeParam Input The type of the Operation's `args` (its input payload).
  * @typeParam Output The type of the Operation's return value (its output
@@ -446,6 +318,7 @@ export type AuthenticatedOperation<Input, Output> =
  * ```
  *
  * @see [Using Queries on the server](https://wasp.sh/docs/features/data/operations/queries#using-queries-on-the-server)
+ * @see [Using Actions on the server](https://wasp.sh/docs/features/data/operations/actions#using-actions-on-the-server)
  *
  * @placeholder
  */
@@ -465,11 +338,8 @@ export type UnauthenticatedOperation<Input, Output> =
  */
 type OperationContext<Entities> = {
   /**
-   * The Prisma API for each Entity in the Operation's spec, keyed by the
-   * Entity's name. For example, `context.entities.Task` exposes `prisma.task`
-   * from [Prisma's CRUD API](https://www.prisma.io/docs/orm/prisma-client/queries/crud).
-   *
-   * @see [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries)
+   * The Prisma API for each Entity in the Operation's spec, as in
+   * {@link AuthenticatedOperationContext}.
    */
   entities: Entities;
 };
@@ -483,8 +353,6 @@ type AuthenticatedOperationContext<Entities> = {
    * The Prisma API for each Entity in the Operation's spec, keyed by the
    * Entity's name. For example, `context.entities.Task` exposes `prisma.task`
    * from [Prisma's CRUD API](https://www.prisma.io/docs/orm/prisma-client/queries/crud).
-   *
-   * @see [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries)
    */
   entities: Entities;
   /**
