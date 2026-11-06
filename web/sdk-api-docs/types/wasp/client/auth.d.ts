@@ -612,7 +612,7 @@ export declare function signup(
  */
 export declare function verifyEmail(data: {
   token: string;
-}): Promise<{ success: boolean; reason?: string }>;
+}): Promise<{ success: boolean }>;
 
 /**
  * Sends the user a password reset email. It doesn't reset their password.

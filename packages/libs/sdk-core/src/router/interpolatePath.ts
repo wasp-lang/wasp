@@ -36,7 +36,7 @@ function interpolatePathParams(path: string, params: Params) {
 }
 
 function isValidPathPart(part: any): boolean {
-  return !!part;
+  return part !== undefined && part !== null && part !== "";
 }
 
 function extractParamNameFromPathPart(paramString: string) {

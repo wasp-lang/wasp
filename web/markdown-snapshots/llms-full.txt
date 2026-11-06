@@ -15205,13 +15205,15 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 10. Check your `context.user` types
+#### 10. Check the SDK behavior your app relies on
 
-**If your app doesn't use auth, you can skip this step.**
+Some SDK types and behavior changed to fix bugs. Check whether these affect your app:
 
-`context.user` is now typed `AuthUser | null`, and `socket.data.user` is typed `AuthUser | null | undefined`. These are the values they already had at runtime, so nothing changes when your app runs.
-
-Checks like `if (!context.user)` keep working. If TypeScript now reports an error, it's most likely because your code checks `context.user` against `undefined` and then reads from it, or passes it to something that expects `AuthUser | undefined`. Handle `null` in those places.
+- **`context.user`:** skip this if your app doesn't use auth. `context.user` is now typed `AuthUser | null`, and `socket.data.user` is typed `AuthUser | null | undefined`. These are the values they already had at runtime, so nothing changes when your app runs. Checks like `if (!context.user)` keep working. If TypeScript now reports an error, it's most likely because your code checks `context.user` against `undefined` and then reads from it, or passes it to something that expects `AuthUser | undefined`. Handle `null` in those places.
+- **`jobId`:** a submitted Job's `jobId` is now typed `string | null`. It's `null` when pg-boss doesn't create the Job because of its `singletonKey`. Handle `null` wherever you use `jobId` as a string.
+- **`verifyEmail`:** its result no longer has a `reason` field. The server never set it, so you can remove any code that reads it.
+- **Operation payloads:** Queries and Actions now receive falsy payloads as they were sent, including `false`, `0`, `""` and `null`. They used to receive `{}` instead. If an Operation's code relies on getting `{}` for those, update it.
+- **Client env validation:** refinements and options like `.refine()` and `.loose()` on your client's `envValidationSchema` now apply. They used to be silently ignored, so a `.refine()` that never ran can now fail your build.
 
 #### 11. Enjoy your updated Wasp app
 
@@ -29528,7 +29530,7 @@ export function Main() {
 
 #### verifyEmail()
 
-> **verifyEmail**(`data`): `Promise`<{ `reason?`: `string`; `success`: `boolean`; }>
+> **verifyEmail**(`data`): `Promise`<{ `success`: `boolean`; }>
 
 Marks the user's email as verified and their account as active.
 
@@ -29548,7 +29550,7 @@ The token Wasp created when the user signed up. Wasp puts it in the `token` quer
 
 ##### Returns
 
-`Promise`<{ `reason?`: `string`; `success`: `boolean`; }>
+`Promise`<{ `success`: `boolean`; }>
 
 ##### Example
 
@@ -31428,7 +31430,7 @@ test("shows the tasks", async () => {
 
 Renders a React element inside the providers that Wasp's client code needs: React Query's `QueryClientProvider` and React Router's router.
 
-Use it instead of Testing Library's `render` to render components in your React component tests, so they can use Queries, Actions, and links. Each call gets its own query client, so tests don't share cached data.
+Use it instead of Testing Library's `render` to render components in your React component tests, so they can use Queries, Actions, and links. Each call gets its own query client, so tests don't share cached data. Actions don't invalidate this query client, so Queries rendered in a test don't refetch after an Action.
 
 It wraps the element in [WaspTestWrapper](#wasptestwrapper).
 
@@ -31477,7 +31479,7 @@ test("links back home", () => {
 
 > **WaspTestWrapper**(`props`): `ReactNode`
 
-Wraps its children in the providers that Wasp's client code needs: React Query's `QueryClientProvider` and React Router's router. Each wrapper gets its own query client, so tests don't share cached data.
+Wraps its children in the providers that Wasp's client code needs: React Query's `QueryClientProvider` and React Router's router. Each wrapper gets its own query client, so tests don't share cached data. Actions don't invalidate this query client, so Queries rendered in a test don't refetch after an Action.
 
 [renderInContext](#renderincontext) uses it. Pass it as the [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper) option when you call Testing Library's `render` or `renderHook` yourself.
 
@@ -36226,7 +36228,7 @@ This is the result of submitting a Job to some executor. It can be used by calle
 
 ###### jobId
 
-`string`
+`string` | `null`
 
 ###### Returns
 
@@ -36240,7 +36242,7 @@ This is the result of submitting a Job to some executor. It can be used by calle
 
 ###### jobId {#jobid}
 
-> `readonly` **jobId**: `string`
+> `readonly` **jobId**: `string` | `null`
 
 ---
 
@@ -36304,13 +36306,13 @@ pg-boss specific functions for the submitted Job.
 
 ###### cancel
 
-> `readonly` **cancel**: () => `Promise`<`void`>
+> `readonly` **cancel**: () => `Promise`<[`PgBossCompletionResult`](#pgbosscompletionresult)>
 
-Attempts to cancel the Job.
+Attempts to cancel the Job. It rejects if [PgBossSubmittedJob.jobId](#jobid-1) is `null`.
 
 ###### Returns
 
-`Promise`<`void`>
+`Promise`<[`PgBossCompletionResult`](#pgbosscompletionresult)>
 
 ###### See
 
@@ -36332,13 +36334,13 @@ Gets pg-boss's details about the Job, or `null` if it doesn't exist.
 
 ###### resume
 
-> `readonly` **resume**: () => `Promise`<`void`>
+> `readonly` **resume**: () => `Promise`<[`PgBossCompletionResult`](#pgbosscompletionresult)>
 
-Attempts to resume a cancelled Job.
+Attempts to resume a cancelled Job. It rejects if [PgBossSubmittedJob.jobId](#jobid-1) is `null`.
 
 ###### Returns
 
-`Promise`<`void`>
+`Promise`<[`PgBossCompletionResult`](#pgbosscompletionresult)>
 
 ###### See
 
@@ -36349,6 +36351,34 @@ Attempts to resume a cancelled Job.
 #### JSONValue
 
 > **JSONValue** = [`PrimitiveJSONValue`](#primitivejsonvalue) | [`JSONArray`](#jsonarray) | [`JSONObject`](#jsonobject)
+
+---
+
+#### PgBossCompletionResult
+
+> **PgBossCompletionResult** = `object`
+
+The result of cancelling or resuming a submitted Job.
+
+##### Properties
+
+###### jobs
+
+> **jobs**: `string`\[]
+
+The IDs of the Jobs pg-boss was asked to update.
+
+###### requested
+
+> **requested**: `number`
+
+How many Jobs pg-boss was asked to update.
+
+###### updated
+
+> **updated**: `number`
+
+How many Jobs pg-boss updated.
 
 ---
 

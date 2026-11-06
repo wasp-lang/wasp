@@ -5,12 +5,12 @@ import { SuccessResponseSchema } from '@wasp/lib-sdk-core'
 // PUBLIC API
 export async function verifyEmail(data: {
   token: string
-}): Promise<{ success: boolean; reason?: string }> {
+}): Promise<{ success: boolean }> {
   try {
-    const { success, reason } = await api.post('{= verifyEmailPath =}', {
+    const { success } = await api.post('{= verifyEmailPath =}', {
       json: data,
     }).json(SuccessResponseSchema)
-    return { success, reason }
+    return { success }
   } catch (e) {
     throw handleApiError(e)
   }

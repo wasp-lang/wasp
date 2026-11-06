@@ -58,7 +58,9 @@ type RenderResult = {
  *
  * Use it instead of Testing Library's `render` to render components in your
  * React component tests, so they can use Queries, Actions, and links. Each
- * call gets its own query client, so tests don't share cached data.
+ * call gets its own query client, so tests don't share cached data. Actions
+ * don't invalidate this query client, so Queries rendered in a test don't
+ * refetch after an Action.
  *
  * It wraps the element in {@link WaspTestWrapper}.
  *
@@ -206,7 +208,9 @@ export declare function mockServer(): MockServer;
 /**
  * Wraps its children in the providers that Wasp's client code needs: React
  * Query's `QueryClientProvider` and React Router's router. Each wrapper gets
- * its own query client, so tests don't share cached data.
+ * its own query client, so tests don't share cached data. Actions don't
+ * invalidate this query client, so Queries rendered in a test don't refetch
+ * after an Action.
  *
  * {@link renderInContext} uses it. Pass it as the
  * [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper)

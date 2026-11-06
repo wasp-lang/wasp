@@ -19,9 +19,11 @@ export class Job {
  */
 export class SubmittedJob {
   public readonly job: Job;
-  public readonly jobId: string;
+  // It's `null` if the executor didn't create a job (e.g., pg-boss with a
+  // `singletonKey` that's already in use).
+  public readonly jobId: string | null;
 
-  constructor(job: Job, jobId: string) {
+  constructor(job: Job, jobId: string | null) {
     this.job = job;
     this.jobId = jobId;
   }
