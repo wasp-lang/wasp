@@ -59,8 +59,10 @@ run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-test
 ["test:waspc:e2e:accept-all"]
 description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests and replacing the golden snapshots that differ with the current ones."
 dir = "waspc"
+shell = "bash -c"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-run = "cabal test waspc-e2e-tests --test-option=--hide-successes --test-option=--accept"
+# See `test:waspc:e2e` for why we don't use `cabal test`.
+run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes --accept'
 
 ["test:cli"]
 description = "Executes only cli tests. Builds the project first if needed."
