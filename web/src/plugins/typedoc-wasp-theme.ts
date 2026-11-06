@@ -6,7 +6,6 @@
  * - Titles React components as `<Name>`, instead of `Name()`, and puts them in
  *   the "Components" group unless they set a `@group`. Mark a component with
  *   the `@component` modifier tag in its doc comment.
- * - Gives every heading a page-unique ID (see `addUniqueHeadingIds`).
  * - Adds a callout to declarations that stand in for the ones Wasp generates
  *   per app, and puts them in the "Placeholder Types" group unless they set a
  *   `@group`. Mark a declaration with the `@placeholder` modifier tag in its doc
@@ -16,7 +15,6 @@
  *   to that group.
  */
 
-import GithubSlugger from "github-slugger";
 import {
   Comment,
   CommentTag,
@@ -57,21 +55,11 @@ export function load(app: Application) {
   app.converter.on(Converter.EVENT_RESOLVE_END, (context) => {
     for (const reflection of Object.values(context.project.reflections)) {
       const group = getDefaultGroup(reflection, referencedTypes);
-      if (group) addDefaultGroup(reflection, group);
+      if (group) setGroupIfNone(reflection, group);
     }
   });
 
   app.renderer.defineTheme("wasp-markdown", WaspMarkdownTheme);
-
-  app.renderer.on(MarkdownPageEvent.END, (page) => {
-    if (page.contents) {
-      page.contents = addUniqueHeadingIds(
-        // Bundlers name React's namespace import `_$react` in the libs' built
-        // types, and it shows up in the types of re-exported components.
-        page.contents.replaceAll("_$react.", "React."),
-      );
-    }
-  });
 }
 
 /** Collects the types that `typedoc-plugin-missing-exports` documents. */
@@ -127,7 +115,7 @@ function getDefaultGroup(
   }
 }
 
-function addDefaultGroup(reflection: Reflection, group: string) {
+function setGroupIfNone(reflection: Reflection, group: string) {
   // Modules with any category are listed by category instead of by group.
   const usesCategories =
     reflection.parent instanceof ContainerReflection &&
@@ -147,59 +135,6 @@ function addDefaultGroup(reflection: Reflection, group: string) {
       );
     }
   }
-}
-
-const CODE_FENCE_PATTERN = /^\s*(```|~~~)/;
-const HEADING_PATTERN = /^(#{1,6}) (.*?)(?: \{#([^}]+)\})?$/;
-
-/**
- * With `useCustomAnchors`, TypeDoc gives explicit IDs (`{#auth-1}`) to the
- * headings of its reflections, but not to the others (e.g. "Parameters", or
- * the properties of an inlined object parameter). Docusaurus slugs those
- * without accounting for the explicit IDs, so they can end up with the same
- * ID as a reflection, and links to the reflection land on them instead.
- *
- * So we give those headings an explicit ID too, slugged like Docusaurus does
- * but skipping the IDs already in use on the page.
- */
-function addUniqueHeadingIds(markdown: string) {
-  const lines = markdown.split("\n");
-
-  const headings: { index: number; match: RegExpMatchArray }[] = [];
-  let inCodeBlock = false;
-  lines.forEach((line, index) => {
-    if (CODE_FENCE_PATTERN.test(line)) {
-      inCodeBlock = !inCodeBlock;
-    } else if (!inCodeBlock) {
-      const match = line.match(HEADING_PATTERN);
-      if (match) headings.push({ index, match });
-    }
-  });
-
-  const slugger = new GithubSlugger();
-  // Slugging the explicit IDs reserves them, as they are already slugs.
-  for (const { match } of headings) {
-    const [, , , explicitId] = match;
-    if (explicitId) slugger.slug(explicitId, true);
-  }
-
-  for (const { index, match } of headings) {
-    const [, hashes, text, explicitId] = match;
-    if (explicitId) continue;
-    const id = slugger.slug(getHeadingText(text));
-    // Docusaurus uses the page's H1 as its title, so we leave it alone.
-    if (hashes !== "#") lines[index] = `${lines[index]} {#${id}}`;
-  }
-
-  return lines.join("\n");
-}
-
-/** Approximates the text that Docusaurus slugs from a heading's Markdown. */
-function getHeadingText(markdown: string) {
-  return markdown
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/\\(.)/g, "$1")
-    .replaceAll("`", "");
 }
 
 class WaspMarkdownTheme extends MarkdownTheme {
