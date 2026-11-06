@@ -3,9 +3,9 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Control.Monad.Catch (bracket_)
-import Control.Monad.Except (catchError)
+import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Functor (($>))
 import Data.Maybe (isJust)
@@ -62,7 +62,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
   let extraSteps =
         ["wasp install" | not areDepsInstalled]
-          ++ ["wasp migrate" | needsMigration && not isDbMigrated]
+          ++ ["wasp db migrate-dev" | needsMigration && not isDbMigrated]
 
   unless (null extraSteps)
     $ liftIO
@@ -92,18 +92,23 @@ installDepsForNewProject absWaspProjectDir =
 -- app right away. Returns whether the database got migrated.
 --
 -- The project was already created at this point, so a failure here only results
--- in a warning. We also leave the database alone if the user's environment
--- points us to a specific one, since it might not be a throwaway dev database.
+-- in a warning.
 migrateDbForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command Bool
-migrateDbForNewProject absWaspProjectDir = do
-  isDbUrlInEnvironment <- liftIO $ isJust <$> lookupEnv databaseUrlEnvVarName
-  if isDbUrlInEnvironment
-    then return False
-    else
-      (inProjectDir (migrateDev initialMigrateArgs) $> True)
-        `catchError` warnAboutFailedMigration
+migrateDbForNewProject absWaspProjectDir =
+  (throwIfDbUrlInEnvironment >> inProjectDir (migrateDev initialMigrateArgs) $> True)
+    `catchError` warnAboutFailedMigration
   where
     initialMigrateArgs = defaultMigrateArgs {_migrationName = Just "initial-migration"}
+
+    -- We leave the database alone if the user's environment points us to a specific
+    -- one, since it might not be a throwaway dev database.
+    throwIfDbUrlInEnvironment = do
+      isDbUrlInEnvironment <- liftIO $ isJust <$> lookupEnv databaseUrlEnvVarName
+      when isDbUrlInEnvironment
+        $ throwError
+        $ CommandError
+          "Migration skipped"
+          (databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
 
     -- Commands find the project they work on through the current directory, and
     -- `wasp new` runs from outside of the project.

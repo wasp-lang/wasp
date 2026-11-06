@@ -1,6 +1,6 @@
 module Tests.WaspNewTest (waspNewTest) where
 
-import ShellCommands (ShellCommand, waspCliNew, waspCliNewWithPipedAnswersFails)
+import ShellCommands (ShellCommand, assertCommandOutputContainsAll, waspCliNew, waspCliNewWithPipedAnswersFails)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
 
@@ -29,7 +29,9 @@ waspNewTest =
       TestCase
         "create-basic-leaves-database-from-environment-alone"
         ( sequence
-            [ ("DATABASE_URL=file:./unrelated.db " ++) <$> waspCliNew "wasp-app" basicStarterTemplate,
+            [ assertCommandOutputContainsAll
+                (("DATABASE_URL=file:./unrelated.db " ++) <$> waspCliNew "wasp-app" basicStarterTemplate)
+                ["Migration skipped", "wasp db migrate-dev"],
               return $ assertDirectoryDoesNotExist "wasp-app/migrations"
             ]
         ),
