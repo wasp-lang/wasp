@@ -27,6 +27,7 @@ export {
   ensureValidEmail,
   ensureValidPassword,
   ensureValidUsername,
+  getPasswordValidationError,
   throwValidationError,
   type PasswordValidationSchema,
 } from "./auth/validation.js";
