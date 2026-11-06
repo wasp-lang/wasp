@@ -116,11 +116,7 @@ genLoginSignupForm auth =
     [ genLoginSigunFormComponent,
       genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
     ]
-    <++> genPasswordField
   where
-    genPasswordField =
-      genConditionally isAnyPasswordBasedAuthEnabled $
-        sequence [genFileCopyInAuthFormsInternal [relfile|common/passwordField.ts|]]
     genLoginSigunFormComponent =
       return $
         mkTmplFdWithData
