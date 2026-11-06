@@ -377,7 +377,7 @@ Optional settings: `middlewareConfigFn`, `entities`, `auth`.
 
 `boolean`
 
-If `true`, the handler requires the request to come from an authenticated user and receives `context.user`. Defaults to `true` when the app has auth enabled, and `false` otherwise. Set to `false` to skip parsing the JWT from the Authorization header.
+If `true`, the handler receives `context.user`, which is `null` for requests without an `Authorization` header. Defaults to `true` when the app has auth enabled, and `false` otherwise. Set to `false` to skip reading the session from the `Authorization` header.
 
 ###### entities?
 
@@ -871,7 +871,7 @@ See [Custom HTTP API Endpoints](https://wasp.sh/docs/features/apis).
 
 > `optional` **auth?**: `boolean`
 
-If `true`, the handler requires the request to come from an authenticated user and receives `context.user`. Defaults to `true` when the app has auth enabled, and `false` otherwise. Set to `false` to skip parsing the JWT from the Authorization header.
+If `true`, the handler receives `context.user`, which is `null` for requests without an `Authorization` header. Defaults to `true` when the app has auth enabled, and `false` otherwise. Set to `false` to skip reading the session from the `Authorization` header.
 
 ##### entities? {#entities-1}
 
@@ -1568,7 +1568,7 @@ Enabled authentication methods.
 
 > `optional` **onAfterEmailVerified?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
-Called once, after the user verifies their email. Receives `email` and `user`.
+Called after the user verifies their email. Receives `email` and `user`.
 
 ###### Inherited from
 
@@ -1711,7 +1711,7 @@ Check the [Base directory docs](https://wasp.sh/docs/advanced/client-customizati
 
 > `optional` **envValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
 
-Zod schema used to validate user-defined client environment variables at build time. Wasp merges it with built-in validation for Wasp-defined env vars when validating `import.meta.env`. Client env vars must be prefixed with `REACT_APP_`. Define the schema with `defineEnvValidationSchema` from `wasp/env` to make sure it is type-checked.
+Zod schema used to validate user-defined client environment variables when Vite starts and when the client code loads. Wasp merges it with built-in validation for Wasp-defined env vars when validating `import.meta.env`. Client env vars must be prefixed with `REACT_APP_`. Define the schema with `defineEnvValidationSchema` from `wasp/env` to make sure it is type-checked.
 
 Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) when passing values from your app into the Wasp spec. If a direct import is not practical, use [ref](#ref) as a fallback.
 
@@ -1810,6 +1810,8 @@ The override receives the caller-provided `args` payload and a Wasp-provided `co
 
 **Important** Use an override to validate or filter input before saving it; the default `create` and `update` implementations pass client-sent data to Prisma.
 
+Wasp doesn't check auth for an override, and `isPublic` has no effect on it, so check `context.user` yourself.
+
 ---
 
 ### CrudOperations {#crudoperations-1}
@@ -1818,7 +1820,7 @@ Mapping of CRUD operations to their options.
 
 Each key enables the matching operation; an empty object enables it with Wasp's defaults.
 
-The default implementations map directly to Prisma calls on the entity, and use the field marked with `@id` in the Prisma schema as the entity ID. Unless an operation is marked with [CrudOperationOptions.isPublic](#ispublic), Wasp checks that an authenticated user is making the request.
+The default implementations map directly to Prisma calls on the entity, and use the field marked with `@id` in the Prisma schema as the entity ID. Unless an operation is marked with [CrudOperationOptions.isPublic](#ispublic), its default implementation checks that an authenticated user is making the request.
 
 CRUD operations are implemented with Wasp queries and actions. See [Operations](https://wasp.sh/docs/features/data/operations/overview).
 
@@ -2016,7 +2018,7 @@ Object that defines extra fields to save on the user during signup (e.g. `firstN
 
 Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
 
-See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
+See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
 
 ###### Example
 
@@ -2054,7 +2056,7 @@ Name of the route that handles the link sent in the email (e.g. `"EmailVerificat
 
 The route must be defined in [App.spec](#spec) with the [route](#route-1) constructor.
 
-This route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our [`verifyEmail` action](https://wasp.sh/docs/features/auth/email/create-your-own-ui#verifyemail) and [`resetPassword` action](https://wasp.sh/docs/features/auth/email/create-your-own-ui#resetpassword) helpers for that.
+This route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our [`verifyEmail` action](https://wasp.sh/docs/api/wasp/client/auth#verifyemail) and [`resetPassword` action](https://wasp.sh/docs/api/wasp/client/auth#resetpassword) helpers for that.
 
 ##### getEmailContentFn?
 
@@ -2422,7 +2424,7 @@ Object that defines extra fields to save on the user during signup (e.g. `firstN
 
 Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
 
-See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
+See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
 
 ###### Example
 
@@ -2484,7 +2486,7 @@ Object that defines extra fields to save on the user during signup (e.g. `firstN
 
 Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
 
-See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
+See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
 
 ###### Example
 
@@ -2526,7 +2528,7 @@ The Wasp version this app is built for, as an npm-compatible [SemVer range](http
 
 WebSocket configuration.
 
-See [Web Sockets](https://wasp.sh/docs/features/websockets) for handler shape and client-side usage.
+See [WebSockets](https://wasp.sh/docs/features/websockets) for handler shape and client-side usage.
 
 #### Example
 
@@ -2563,7 +2565,7 @@ true
 
 Function that registers Socket.IO event handlers. Wasp calls it once on server start with the Socket.IO server instance and a context containing all app entities. If a connected socket is authenticated, Wasp stores the user on `socket.data.user`.
 
-See [the `websocketFn` docs](https://wasp.sh/docs/features/websockets#websocketfn).
+See [the `webSocketFn` docs](https://wasp.sh/docs/features/websockets#websocketfn).
 
 ---
 
@@ -2693,7 +2695,7 @@ The optional configuration object accepted as the last argument of the [route](#
 
 > `optional` **onAfterEmailVerified?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
-Called once, after the user verifies their email. Receives `email` and `user`.
+Called after the user verifies their email. Receives `email` and `user`.
 
 #### Hooks
 
@@ -2747,7 +2749,7 @@ Object that defines extra fields to save on the user during signup (e.g. `firstN
 
 Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
 
-See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
+See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
 
 ###### Example
 

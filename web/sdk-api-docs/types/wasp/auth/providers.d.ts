@@ -21,11 +21,8 @@
  * {@link "client/auth"!signup | signup}
  * function from `wasp/client/auth`.
  *
- * Wasp only exports this type if you define
- * `auth.methods.email.userSignupFields`.
- *
  * @example
- * If you define:
+ * If your `User` entity has an `address` field and you define:
  *
  * ```ts
  * import { defineUserSignupFields } from "wasp/server/auth";
@@ -49,14 +46,11 @@ export type UserEmailSignupFields = { [field: string]: unknown };
  * [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)
  * auth method.
  *
- * It's an object with one property for each field you defined in
- * `auth.methods.usernameAndPassword.userSignupFields`, typed with the awaited
- * return type of that field's function. It's also part of the input of the
- * username and password
+ * It has the same shape as {@link UserEmailSignupFields}, with one property
+ * for each field you defined in
+ * `auth.methods.usernameAndPassword.userSignupFields`. It's also part of the
+ * input of the username and password
  * {@link "client/auth"!signup | signup}
  * function from `wasp/client/auth`.
- *
- * Wasp only exports this type if you define
- * `auth.methods.usernameAndPassword.userSignupFields`.
  */
 export type UserUsernameAndPasswordSignupFields = { [field: string]: unknown };

@@ -58,7 +58,7 @@ export default app({
 
 1. It uses default implementation for `getAll`, `get`, and `update`,
 2. ... while specifying a custom implementation for `create`.
-3. `getAll` will be public (no auth needed), while the rest of the operations will be private.
+3. `getAll` will be public (no auth needed), while `get` and `update` will be private. Wasp doesn't check auth for custom implementations, so `createTask` must do it itself.
 
 Here's what it looks like when visualized:
 
@@ -455,7 +455,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
   to="../../api/@wasp/spec#crud-1"
   kind="api"
   title="crud"
-  description="All the options for declaring CRUD operations in the Wasp spec."
+  description="All the options for declaring CRUD operations in the Wasp Spec."
 />
 
 ### Defining the overrides

@@ -439,7 +439,7 @@ Some of the behavior you get out of the box:
 
 1. Rate limiting
 
-We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+We are limiting the rate of password reset requests to **1 request per minute** per email address. This is done to prevent spamming.
 
 2. Preventing user email leaks
 
@@ -471,16 +471,6 @@ Users can enter their new password there.
 
 The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec.md#getemailcontentfn).
 
-#### Password
-
-- `ensurePasswordIsPresent(args)`
-
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview#default-validations).
-
 ## Using Auth
 
 To read more about how to set up the logout button and how to get access to the logged-in user in our client and server code, read the [auth overview docs](../overview).
@@ -507,4 +497,9 @@ When you receive the `user` object [on the client or the server](../overview.md#
   description="All the options for the email auth method."
 />
 
-Read more about the `userSignupFields` function in the [Auth Overview docs](../overview.md#signup-fields-customization).
+<CardLink
+  to="../../../api/wasp/server/auth#defineusersignupfields"
+  kind="api"
+  title="defineUserSignupFields"
+  description="Define the extra fields Wasp saves on the user entity when a user signs up."
+/>

@@ -20,7 +20,6 @@ Wasp wants to make adding social login options to your app as painless as possib
 Using different social providers gives users a chance to sign into your app via their existing accounts on other platforms (Google, GitHub, etc.).
 
 This page goes through the common behaviors between all supported social login providers and shows you how to customize them.
-It also gives an overview of Wasp's UI helpers - the quickest possible way to get started with social auth.
 
 ## Available Providers
 

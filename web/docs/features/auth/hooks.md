@@ -4,7 +4,7 @@ description: Run custom code at stages of the Wasp auth flow with hooks like onB
 sidebar_label: Hooks
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, MicrosoftPill, SlackPill, DiscordPill } from "./Pills";
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { CardLink } from '@site/src/components/CardLink'
 
@@ -93,7 +93,7 @@ Wasp calls the `onBeforeSignup` hook before the user is created.
 
 The `onBeforeSignup` hook can be useful if you want to reject a user based on some criteria before they sign up.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill /> <MicrosoftPill />
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -174,7 +174,7 @@ The `onAfterSignup` hook can be useful if you want to send the user a welcome em
 
 Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill /> <MicrosoftPill />
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -334,7 +334,7 @@ Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is gene
 
 The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that you can use later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` or `onAfterLogin` hooks.
 
-Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill /> <MicrosoftPill />
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -397,7 +397,7 @@ Wasp calls the `onBeforeLogin` hook before the user is logged in.
 
 The `onBeforeLogin` hook can be useful if you want to reject a user based on some criteria before they log in.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill /> <MicrosoftPill />
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -461,7 +461,7 @@ The `onAfterLogin` hook can be useful if you want to perform some action after t
 
 Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill /> <MicrosoftPill />
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -586,37 +586,12 @@ If you want to refresh the token periodically, use a [Wasp Job](../jobs.md).
 
 ## API Reference
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import {
-  onBeforeSignup,
-  onAfterSignup,
-  onAfterEmailVerified,
-  onBeforeOAuthRedirect,
-  onBeforeLogin,
-  onAfterLogin,
-} from "./src/auth/hooks" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
-  auth: {
-    userEntity: "User",
-    methods: {
-      // ...
-    },
-    onBeforeSignup,
-    onAfterSignup,
-    onAfterEmailVerified,
-    onBeforeOAuthRedirect,
-    onBeforeLogin,
-    onAfterLogin,
-  },
-  // ...
-})
-```
+<CardLink
+  to="../../api/@wasp/spec#auth-3"
+  kind="api"
+  title="Auth"
+  description="All the options for the auth field of the app spec, including the hooks."
+/>
 
 ### The `onBeforeSignup` hook
 

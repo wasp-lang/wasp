@@ -320,6 +320,9 @@ const config: Config = {
 
         router: "module",
 
+        // Shows each package's and module's description on the landing pages.
+        indexFormat: "table",
+
         // Gives headings the same IDs that TypeDoc's links use. Otherwise
         // Docusaurus generates its own, which don't always match, e.g. when
         // two members share a name.

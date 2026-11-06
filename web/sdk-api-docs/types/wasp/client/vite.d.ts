@@ -1,6 +1,5 @@
 /**
- * The Vite plugin that powers your app's client. Use it in your
- * `vite.config.ts` (or `vite.config.js`).
+ * The Vite plugin that your app's client needs.
  *
  * @module
  */
@@ -42,11 +41,10 @@ export interface WaspPluginOptions {
 }
 
 /**
- * The Vite plugin that provides all the essential Wasp features to your
- * client:
+ * The Vite plugin that sets up your client:
  *
  * - The configuration that Wasp full-stack apps need to work.
- * - Env vars validation.
+ * - Environment variable validation.
  * - Prevention of server imports in client code.
  * - TypeScript type checking during production builds.
  *
@@ -56,12 +54,8 @@ export interface WaspPluginOptions {
  *
  * The plugin merges the rest of your Vite config with Wasp's defaults, but it
  * enforces some values that Wasp needs, and throws an error if you set them
- * yourself. See the
+ * to anything else. See the
  * [enforced options](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#enforced-options).
- *
- * @param options Options to customize the plugin.
- * @returns The Wasp plugins, to put in the `plugins` array of your Vite
- * config.
  *
  * @example
  * ```ts

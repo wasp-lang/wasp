@@ -3,29 +3,13 @@
  * [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.
  *
  * Wasp generates one export for each `crud` spec you declare, named after it
- * (e.g., `Tasks` for `crud("Tasks", "Task", { ... })`). Each one is a
- * {@link Crud} object, with a field for each operation you enabled in the
- * spec.
+ * (e.g. `Tasks` for `crud("Tasks", "Task", { ... })`). Each one is a
+ * {@link Crud} object.
  *
  * All CRUD operations are implemented with
- * [Queries and Actions](https://wasp.sh/docs/features/data/operations/overview)
- * under the hood, which means they come with all the features you'd expect
- * (e.g., automatic SuperJSON serialization, full-stack type safety when using
- * TypeScript).
- *
- * @example
- * ```tsx
- * import { Tasks } from "wasp/client/crud";
- *
- * export const SomePage = () => {
- *   const { data: tasks } = Tasks.getAll.useQuery();
- *   const { data: task } = Tasks.get.useQuery({ id: 1 });
- *   const createAction = Tasks.create.useAction();
- *   const updateAction = Tasks.update.useAction();
- *   const deleteAction = Tasks.delete.useAction();
- *   // ...
- * };
- * ```
+ * [Queries and Actions](https://wasp.sh/docs/features/data/operations/overview),
+ * so they have the same features (e.g. automatic SuperJSON serialization,
+ * full-stack type safety when using TypeScript).
  *
  * @module
  */
@@ -42,48 +26,19 @@ import type {
 /**
  * The type of the client-side object for a `crud` spec.
  *
- * Wasp generates one such export for each `crud` spec you declare, named after
- * it (e.g., `Tasks` for `crud("Tasks", "Task", { ... })`). Import it from
- * `wasp/client/crud`.
- *
  * It only has the fields for the operations you enabled in the spec. In
  * TypeScript, their input and output types come from the operations' default
  * implementations, or from your overrides (see
- * {@link "server/crud"! | wasp/server/crud}).
+ * {@linkcode "server/crud"! | wasp/server/crud}).
  *
  * @example
  * ```tsx
  * import { Tasks } from "wasp/client/crud";
- * import { useState } from "react";
  *
  * export const MainPage = () => {
- *   // Thanks to full-stack type safety, all payload types are inferred
- *   // automatically.
  *   const { data: tasks, isLoading, error } = Tasks.getAll.useQuery();
  *   const createTask = Tasks.create.useAction();
- *   const [taskDescription, setTaskDescription] = useState("");
- *
- *   function handleCreateTask() {
- *     createTask({ description: taskDescription, isDone: false });
- *     setTaskDescription("");
- *   }
- *
- *   if (isLoading) return <div>Loading...</div>;
- *   if (error) return <div>Error: {error.message}</div>;
- *   return (
- *     <div>
- *       <input
- *         value={taskDescription}
- *         onChange={(e) => setTaskDescription(e.target.value)}
- *       />
- *       <button onClick={handleCreateTask}>Create task</button>
- *       <ul>
- *         {tasks.map((task) => (
- *           <li key={task.id}>{task.description}</li>
- *         ))}
- *       </ul>
- *     </div>
- *   );
+ *   // ...
  * };
  * ```
  *
@@ -93,9 +48,9 @@ import type {
  */
 export interface Crud {
   /**
-   * Gets a single Entity. Present if you enabled the `get` operation.
+   * Gets a single Entity.
    *
-   * By default, it takes the Entity's ID (e.g., `{ id: 1 }`), and returns the
+   * By default, it takes the Entity's ID (e.g. `{ id: 1 }`), and returns the
    * matching Entity, or `null` if there isn't one.
    *
    * @example
@@ -105,7 +60,7 @@ export interface Crud {
    */
   get?: CrudQuery<any, any>;
   /**
-   * Gets all the Entities. Present if you enabled the `getAll` operation.
+   * Gets all the Entities.
    *
    * By default, it takes no arguments, and returns an array with all the
    * Entities. In TypeScript, pass an empty object (`{}`) when you call its
@@ -118,7 +73,7 @@ export interface Crud {
    */
   getAll?: CrudQuery<any, any>;
   /**
-   * Creates an Entity. Present if you enabled the `create` operation.
+   * Creates an Entity.
    *
    * By default, it takes the new Entity's data, and returns the created
    * Entity.
@@ -131,9 +86,9 @@ export interface Crud {
    */
   create?: CrudAction<any, any>;
   /**
-   * Updates an Entity. Present if you enabled the `update` operation.
+   * Updates an Entity.
    *
-   * By default, it takes the Entity's ID (e.g., `id`) and the fields to
+   * By default, it takes the Entity's ID (e.g. `id`) and the fields to
    * update, and returns the updated Entity.
    *
    * @example
@@ -144,9 +99,9 @@ export interface Crud {
    */
   update?: CrudAction<any, any>;
   /**
-   * Deletes an Entity. Present if you enabled the `delete` operation.
+   * Deletes an Entity.
    *
-   * By default, it takes the Entity's ID (e.g., `{ id: 1 }`), and returns the
+   * By default, it takes the Entity's ID (e.g. `{ id: 1 }`), and returns the
    * deleted Entity.
    *
    * @example
@@ -195,7 +150,7 @@ interface CrudAction<Input, Output> {
    */
   action: Action<Input, Output>;
   /**
-   * Enhances the Action with {@link useAction} (e.g., to add optimistic
+   * Enhances the Action with {@link useAction} (e.g. to add optimistic
    * updates).
    *
    * @param actionOptions The options for {@link useAction}.

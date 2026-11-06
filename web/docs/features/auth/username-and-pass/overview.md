@@ -259,4 +259,9 @@ When you receive the `user` object [on the client or the server](../overview.md#
   description="All the options for the usernameAndPassword auth method."
 />
 
-Read more about the `userSignupFields` function in the [Auth Overview docs](../overview.md#signup-fields-customization).
+<CardLink
+  to="../../../api/wasp/server/auth#defineusersignupfields"
+  kind="api"
+  title="defineUserSignupFields"
+  description="Define the extra fields Wasp saves on the user entity when a user signs up."
+/>

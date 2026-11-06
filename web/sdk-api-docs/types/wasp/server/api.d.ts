@@ -2,29 +2,14 @@
  * Types for implementing your app's
  * [APIs](https://wasp.sh/docs/features/apis) (custom HTTP endpoints).
  *
- * Wasp generates one generic type per `api` you declare in the app spec, named
+ * Wasp generates one generic type per `api` you declare in the Wasp Spec, named
  * after its implementation function in PascalCase (e.g. `FooBar` for
  * `fooBar`). It's an {@link AuthenticatedApi} if the API uses auth, or an
  * {@link Api} otherwise. An API uses auth if your app uses auth, unless you set
  * `auth: false` in its spec.
  *
- * To make sure Wasp generates the types, add your `api`s to the app spec
+ * To make sure Wasp generates the types, add your `api`s to the Wasp Spec
  * first, and keep `wasp start` running.
- *
- * @example
- * ```ts
- * import type { FooBar } from "wasp/server/api";
- *
- * export const fooBar: FooBar = (req, res, context) => {
- *   // Example of modifying headers to override Wasp default CORS middleware.
- *   res.set("Access-Control-Allow-Origin", "*");
- *   res.json({
- *     msg: `Hello, ${context.user ? "registered user" : "stranger"}!`,
- *   });
- * };
- * ```
- *
- * @see [API routes](https://wasp.sh/docs/features/apis)
  *
  * @module
  */
@@ -37,34 +22,43 @@ import type {
 import type { AuthUser } from "../auth";
 
 /**
- * The type of an API's implementation, when the API uses auth.
+ * The type of an API's Node.js implementation, when the API uses auth.
  *
- * The implementation is a Node.js function that takes three arguments:
+ * The generated type (e.g. `FooBar`) takes every type argument except
+ * `Entities`, and they're all optional:
+ * `FooBar<Params, ResBody, ReqBody, ReqQuery, Locals>`.
  *
- * 1. `req`: The Express `Request` object.
- * 2. `res`: The Express `Response` object. Use it to send the response.
- * 3. `context`: An additional context object **injected into the API by
- *    Wasp**. It contains the logged-in `user`, and the Entities the API uses
- *    in `entities`.
- *
- * Wasp generates one type per API, named after its implementation function
- * in PascalCase (e.g. `FooBar` for `fooBar`), that fills in `Entities` with
- * the Entities from the API's spec. You can pass it the other type arguments
- * to type the request and response (e.g. `FooBar<{ email: string }, { answer:
- * number }>` for the params and the response body).
- *
- * @typeParam Entities The type of `context.entities`: an object with the
- *   Prisma API for each Entity in the API's spec (e.g. `{ Task: ... }` for
- *   `entities: ["Task"]`). The generated type fills it in for you.
+ * @typeParam Entities The type of
+ *   {@linkcode AuthenticatedApiContext.entities | context.entities}. The
+ *   generated type fills it in with the Entities from the API's spec.
  * @typeParam Params The type of the route params in `req.params`.
  * @typeParam ResBody The type of the response body.
  * @typeParam ReqBody The type of the request body in `req.body`.
  * @typeParam ReqQuery The type of the query string params in `req.query`.
  * @typeParam Locals The type of `res.locals`.
  *
+ * @param req The Express `Request` object.
+ * @param res The Express `Response` object. Use it to send the response.
+ * @param context An additional context object Wasp injects into the API.
+ *
  * @example
- * With the API declared as
- * `api("GET", "/foo/bar/:email", fooBar, { entities: ["Task"] })`:
+ * A basic implementation:
+ *
+ * ```ts
+ * import type { FooBar } from "wasp/server/api";
+ *
+ * export const fooBar: FooBar = (req, res, context) => {
+ *   // Example of modifying headers to override Wasp default CORS middleware.
+ *   res.set("Access-Control-Allow-Origin", "*");
+ *   res.json({
+ *     msg: `Hello, ${context.user ? "registered user" : "stranger"}!`,
+ *   });
+ * };
+ * ```
+ *
+ * @example
+ * Typing the params and the response of an API declared as
+ * `api("GET", "/foo/bar/:email", fooBar)`:
  *
  * ```ts
  * import type { FooBar } from "wasp/server/api";
@@ -79,7 +73,7 @@ import type { AuthUser } from "../auth";
  * ```
  *
  * @example
- * Using Entities:
+ * Using Entities, with `entities: ["Task"]` in the API's spec:
  *
  * ```ts
  * import type { FooBar } from "wasp/server/api";
@@ -90,7 +84,6 @@ import type { AuthUser } from "../auth";
  * ```
  *
  * @see [Defining the API's Node.js implementation](https://wasp.sh/docs/features/apis#defining-the-apis-nodejs-implementation)
- * @see [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis)
  *
  * @placeholder
  */
@@ -110,21 +103,8 @@ export type AuthenticatedApi<
 /**
  * The type of an API's implementation, when the API doesn't use auth.
  *
- * It's the same as {@link AuthenticatedApi}, except that the `context`
- * doesn't include the `user`. Wasp uses it for the generated API types (e.g.
- * `FooBar`) when your app doesn't use auth, or when you set `auth: false` in
- * the API's spec.
- *
- * @typeParam Entities The type of `context.entities`: an object with the
- *   Prisma API for each Entity in the API's spec (e.g. `{ Task: ... }` for
- *   `entities: ["Task"]`). The generated type fills it in for you.
- * @typeParam Params The type of the route params in `req.params`.
- * @typeParam ResBody The type of the response body.
- * @typeParam ReqBody The type of the request body in `req.body`.
- * @typeParam ReqQuery The type of the query string params in `req.query`.
- * @typeParam Locals The type of `res.locals`.
- *
- * @see [Defining the API's Node.js implementation](https://wasp.sh/docs/features/apis#defining-the-apis-nodejs-implementation)
+ * It's the same as {@link AuthenticatedApi}, except that the `context` doesn't
+ * include the `user`.
  *
  * @placeholder
  */
@@ -147,11 +127,8 @@ export type Api<
  */
 type ApiContext<Entities> = {
   /**
-   * The Prisma API for each Entity in the API's spec, keyed by the Entity's
-   * name. For example, `context.entities.Task` exposes `prisma.task` from
-   * [Prisma's CRUD API](https://www.prisma.io/docs/orm/prisma-client/queries/crud).
-   *
-   * @see [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis)
+   * The same as {@linkcode AuthenticatedApiContext.entities | entities} in an
+   * API that uses auth.
    */
   entities: Entities;
 };

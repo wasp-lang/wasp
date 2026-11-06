@@ -1,34 +1,27 @@
 /**
  * Server-side auth APIs: types for your
  * [auth hooks](https://wasp.sh/docs/features/auth/hooks), defining extra
- * signup fields, helpers for working with users' auth identities (e.g. in
- * [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions)),
- * and the OAuth clients of your social auth providers.
+ * signup fields, helpers for working with users' auth identities, the
+ * validators Wasp uses in its default auth flows, and the OAuth clients of
+ * your social auth providers. You can use the helpers and the validators in
+ * [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).
  *
- * Available when your app enables
- * [auth](https://wasp.sh/docs/features/auth/overview). Some exports depend on
- * the auth methods your app enables:
+ * Only available if your app has
+ * [auth](https://wasp.sh/docs/features/auth/overview) enabled. Some exports also
+ * depend on the auth methods your app enables, as noted on each one.
  *
- * - With [Email](https://wasp.sh/docs/features/auth/email/overview) auth:
- *   {@link ensureValidEmail}, {@link createEmailVerificationLink},
- *   {@link sendEmailVerificationEmail}, {@link createPasswordResetLink},
- *   {@link sendPasswordResetEmail}, {@link isEmailResendAllowed},
- *   {@link GetVerificationEmailContentFn}, and
- *   {@link GetPasswordResetEmailContentFn}.
- * - With
- *   [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)
- *   auth: {@link ensureValidUsername}.
- * - With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview)
- *   provider: that provider's object with its OAuth client, e.g.
- *   {@link google} for Google.
+ * Auth hooks work with all auth methods, unless noted otherwise. Wasp awaits
+ * them if they're async, so the auth process waits for them to finish before
+ * continuing. Wasp ignores their return values, except for
+ * {@link OnBeforeOAuthRedirectHook}'s.
  *
  * @module
  */
 
 import type { PossibleProviderData, ProviderName } from "@wasp/lib-sdk-core";
-import type { EmailFromField } from "@wasp/lib-sdk-core/node";
 import type { Request } from "express";
 import type { PrismaClient } from "../server";
+import type { Email } from "./email";
 
 // Entities
 
@@ -74,21 +67,13 @@ interface AuthIdentityEntity {
 // Signup fields
 
 /**
- * A function that computes the value of an extra signup field.
- *
- * @param data The data the client sent in the signup request, without the
- * `password` field. For social auth providers, `{ profile }` with the user's
- * profile from the provider.
- * @returns The value to save in the user entity field. Throw an error if the
- * data is invalid.
+ * A function that computes the value of an extra signup field. See
+ * {@link defineUserSignupFields}.
  */
 type UserSignupFieldFn = (data: { [key: string]: unknown }) => unknown;
 
 /**
- * An object that tells Wasp how to compute your extra signup fields. Its keys
- * are fields of your user entity, and its values are
- * {@link UserSignupFieldFn | functions} that compute the field's value from
- * the data sent from the client.
+ * The object {@link defineUserSignupFields} receives.
  */
 type UserSignupFields = { [field: string]: UserSignupFieldFn };
 
@@ -108,11 +93,9 @@ type UserSignupFields = { [field: string]: UserSignupFieldFn };
  * If the value the function received is invalid, the function should throw
  * an error. Wasp then rejects the signup with that error message.
  *
- * You can use any validation library (e.g. `zod`) in the functions.
- *
  * For social auth providers, the functions don't receive client data. They
- * receive `{ profile }`, the user's profile from the provider; see each
- * provider's docs.
+ * receive `{ profile }`, the user's profile from the provider; see
+ * [each provider's docs](https://wasp.sh/docs/features/auth/social-auth/overview#using-the-users-provider-account-details).
  *
  * @param fields The extra signup fields.
  * @returns The same `fields` object, typed.
@@ -156,7 +139,7 @@ type UserSignupFields = { [field: string]: UserSignupFieldFn };
  * ```
  *
  * @example
- * Validating with `zod`:
+ * You can use any validation library in the functions, e.g. `zod`:
  *
  * ```ts
  * import { defineUserSignupFields } from "wasp/server/auth";
@@ -248,13 +231,11 @@ export type { OAuthProviderData } from "@wasp/lib-sdk-core";
  *
  * @example
  * ```ts
- * import { createProviderId, findAuthIdentity } from "wasp/server/auth";
+ * import { createProviderId } from "wasp/server/auth";
  *
- * const providerId = createProviderId("email", args.email);
- * const authIdentity = await findAuthIdentity(providerId);
+ * const providerId = createProviderId("email", "Test@Test.com");
+ * // { providerName: "email", providerUserId: "test@test.com" }
  * ```
- *
- * @see [Custom signup action](https://wasp.sh/docs/features/auth/entities#custom-signup-action)
  */
 export declare function createProviderId(
   providerName: ProviderName,
@@ -264,8 +245,7 @@ export declare function createProviderId(
 /**
  * Finds the auth identity of a user.
  *
- * @param providerId The auth identity to find. Create it with
- * {@link createProviderId}.
+ * @param providerId The auth identity to find.
  * @returns The `AuthIdentity` entity, or `null` if it doesn't exist.
  *
  * @example
@@ -288,8 +268,7 @@ export declare function findAuthIdentity(
  * Reads the auth method's data from an `AuthIdentity` entity's
  * `providerData` field, without the hashed password.
  *
- * Pass the auth method's name as the type parameter to get the right type,
- * e.g. `getProviderData<"email">(...)`.
+ * Pass the auth method's name as the type parameter to get the right type.
  *
  * @param providerData The `providerData` field of an `AuthIdentity` entity.
  *
@@ -306,24 +285,11 @@ export declare function findAuthIdentity(
 export { getProviderData } from "@wasp/lib-sdk-core";
 
 /**
- * Reads the auth method's data from an `AuthIdentity` entity's
- * `providerData` field, including the hashed password.
- *
- * Pass the auth method's name as the type parameter to get the right type,
- * e.g. `getProviderDataWithPassword<"email">(...)`.
+ * Works like {@link getProviderData}, but it includes the hashed password. Use
+ * it, for example, to read the data you pass to
+ * {@link updateAuthIdentityProviderData}.
  *
  * @param providerData The `providerData` field of an `AuthIdentity` entity.
- *
- * @example
- * ```ts
- * import { getProviderDataWithPassword } from "wasp/server/auth";
- *
- * const providerData = getProviderDataWithPassword<"email">(
- *   authIdentity.providerData,
- * );
- * ```
- *
- * @see [Password hashing](https://wasp.sh/docs/features/auth/overview#password-hashing)
  */
 export { getProviderDataWithPassword } from "@wasp/lib-sdk-core";
 
@@ -332,8 +298,7 @@ export { getProviderDataWithPassword } from "@wasp/lib-sdk-core";
  * `providerData` field: hashes the password (if the data has a
  * `hashedPassword` field) and serializes the data as JSON.
  *
- * Pass the auth method's name as the type parameter to get the right type,
- * e.g. `sanitizeAndSerializeProviderData<"username">(...)`.
+ * Pass the auth method's name as the type parameter to get the right type.
  *
  * @param providerData The auth method's data, with the plain-text password in
  * the `hashedPassword` field.
@@ -341,21 +306,15 @@ export { getProviderDataWithPassword } from "@wasp/lib-sdk-core";
  *
  * @example
  * ```ts
- * import {
- *   createProviderId,
- *   createUser,
- *   sanitizeAndSerializeProviderData,
- * } from "wasp/server/auth";
+ * import { sanitizeAndSerializeProviderData } from "wasp/server/auth";
  *
- * const providerId = createProviderId("username", args.username);
- * // Hashes the password and returns a JSON string.
- * const providerData = await sanitizeAndSerializeProviderData<"username">({
+ * const providerData = await sanitizeAndSerializeProviderData<"email">({
  *   hashedPassword: args.password,
+ *   isEmailVerified: false,
+ *   emailVerificationSentAt: null,
+ *   passwordResetSentAt: null,
  * });
- * await createUser(providerId, providerData, {});
  * ```
- *
- * @see [Custom signup action](https://wasp.sh/docs/features/auth/entities#custom-signup-action)
  */
 export declare function sanitizeAndSerializeProviderData<
   PN extends ProviderName,
@@ -367,10 +326,10 @@ export declare function sanitizeAndSerializeProviderData<
  * It hashes the password if you update the `hashedPassword` field, so pass
  * the new password **not hashed**.
  *
- * @param providerId The auth identity to update. Create it with
- * {@link createProviderId}.
- * @param existingProviderData The identity's current data, e.g. from
- * {@link getProviderDataWithPassword}.
+ * @param providerId The auth identity to update.
+ * @param existingProviderData The identity's current data. Wasp replaces the
+ * stored data with this data plus the updates, so read it with
+ * {@link getProviderDataWithPassword} to keep the hashed password.
  * @param providerDataUpdates The fields to update.
  * @returns The updated `AuthIdentity` entity.
  *
@@ -429,13 +388,11 @@ export type CreateUserResult = UserEntity & {
  * It's a more convenient way to create the `User`, `Auth`, and
  * `AuthIdentity` entities than using Prisma's `User.create` directly.
  *
- * @param providerId The user's auth identity. Create it with
- * {@link createProviderId}.
+ * @param providerId The user's auth identity.
  * @param serializedProviderData The auth method's data for the user. Create
  * it with {@link sanitizeAndSerializeProviderData}.
  * @param userFields Any additional data you want to store on the user
  * entity.
- * @returns The created user, with its `auth` relation.
  *
  * @example
  * ```ts
@@ -450,12 +407,7 @@ export type CreateUserResult = UserEntity & {
  *   hashedPassword: args.password,
  * });
  *
- * await createUser(
- *   providerId,
- *   providerData,
- *   // Any additional data you want to store on the User entity
- *   {},
- * );
+ * await createUser(providerId, providerData, {});
  *
  * // This is equivalent to:
  * // await User.create({
@@ -465,7 +417,7 @@ export type CreateUserResult = UserEntity & {
  * //         identities: {
  * //           create: {
  * //             providerName: "username",
- * //             providerUserId: args.username,
+ * //             providerUserId: providerId.providerUserId,
  * //             providerData,
  * //           },
  * //         },
@@ -489,10 +441,6 @@ export declare function createUser(
  * Checks that `args.password` is present, and throws an `HttpError` with
  * status 422 if it isn't.
  *
- * It's one of the validators Wasp uses in its default auth flows, which you
- * can use in your
- * [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).
- *
  * @param args The data sent from the client.
  *
  * @example
@@ -502,11 +450,12 @@ export declare function createUser(
  *   ensureValidPassword,
  *   ensureValidUsername,
  * } from "wasp/server/auth";
+ * import type { CustomSignup } from "wasp/server/operations";
  *
  * export const customSignup: CustomSignup<
- *   CustomSignupInput,
- *   CustomSignupOutput
- * > = async (args, _context) => {
+ *   { username: string; password: string },
+ *   void
+ * > = async (args, context) => {
  *   ensureValidUsername(args);
  *   ensurePasswordIsPresent(args);
  *   ensureValidPassword(args);
@@ -521,10 +470,6 @@ export { ensurePasswordIsPresent } from "@wasp/lib-sdk-core";
  * with status 422 if it isn't.
  *
  * A valid password has at least 8 characters and contains a number.
- *
- * It's one of the validators Wasp uses in its default auth flows, which you
- * can use in your
- * [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).
  *
  * @param args The data sent from the client.
  *
@@ -548,10 +493,7 @@ export { ensureTokenIsPresent } from "@wasp/lib-sdk-core";
  * support Unicode.
  *
  * Only available with
- * [Email](https://wasp.sh/docs/features/auth/email/overview) auth. It's one of
- * the validators Wasp uses in its default auth flows, which you can use in
- * your
- * [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).
+ * [Email](https://wasp.sh/docs/features/auth/email/overview) auth.
  *
  * @param args The data sent from the client.
  *
@@ -565,9 +507,7 @@ export { ensureValidEmail } from "@wasp/lib-sdk-core";
  *
  * Only available with
  * [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)
- * auth. It's one of the validators Wasp uses in its default auth flows, which
- * you can use in your
- * [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).
+ * auth.
  *
  * @param args The data sent from the client.
  *
@@ -576,25 +516,6 @@ export { ensureValidEmail } from "@wasp/lib-sdk-core";
 export { ensureValidUsername } from "@wasp/lib-sdk-core";
 
 // Email auth
-
-/**
- * The content of an email.
- */
-interface Email {
-  /**
-   * The sender. It's optional if you set up the `defaultFrom` field of
-   * `emailSender` in the app spec, and required otherwise.
-   */
-  from?: EmailFromField;
-  /** The recipient's email address. */
-  to: string;
-  /** The email's subject. */
-  subject: string;
-  /** The email's plain-text content. */
-  text: string;
-  /** The email's HTML content. */
-  html: string;
-}
 
 /**
  * Creates a link that verifies the user's email. The link points to the
@@ -619,7 +540,6 @@ interface Email {
  *   sendEmailVerificationEmail,
  * } from "wasp/server/auth";
  *
- * // Verification link links to a client route e.g. /email-verification
  * const verificationLink = await createEmailVerificationLink(
  *   args.email,
  *   "/email-verification",
@@ -638,8 +558,6 @@ interface Email {
  *   `,
  * });
  * ```
- *
- * @see [Custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions)
  */
 export declare function createEmailVerificationLink(
   email: string,
@@ -660,8 +578,6 @@ export declare function createEmailVerificationLink(
  * with that email.
  * @param content The email to send. Create its verification link with
  * {@link createEmailVerificationLink}.
- *
- * @see [Custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions)
  */
 export declare function sendEmailVerificationEmail(
   email: string,
@@ -691,10 +607,8 @@ export declare function createPasswordResetLink(
 
 /**
  * Sends the password reset email to a user, and saves when it was sent (in
- * the `passwordResetSentAt` field of their {@link EmailProviderData}).
- *
- * It sends the email in the background: it doesn't wait for it to be sent,
- * and it logs any errors sending it.
+ * the `passwordResetSentAt` field of their {@link EmailProviderData}). It sends
+ * the email in the background, like {@link sendEmailVerificationEmail}.
  *
  * Only available with
  * [Email](https://wasp.sh/docs/features/auth/email/overview) auth.
@@ -735,7 +649,10 @@ export declare function sendPasswordResetEmail(
  *   "passwordResetSentAt",
  * );
  * if (!isResendAllowed) {
- *   throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
+ *   throw new HttpError(
+ *     400,
+ *     `Please wait ${timeLeft} seconds before trying again.`,
+ *   );
  * }
  * ```
  */
@@ -863,10 +780,8 @@ interface OnBeforeOAuthRedirectHookParams extends CommonAuthHookParams {
   oauth: {
     /**
      * The unique request ID of the OAuth flow (you might know it as the
-     * `state` parameter in OAuth).
-     *
-     * You can use it to save data (e.g. request query params) that you can
-     * later use in the `onAfterSignup` or `onAfterLogin` hooks.
+     * `state` parameter in OAuth). The `onAfterSignup` and `onAfterLogin` hooks
+     * receive the same ID in {@link OAuthData}.
      */
     uniqueRequestId: string;
   };
@@ -899,9 +814,6 @@ interface OnAfterLoginHookParams extends CommonAuthHookParams {
  *
  * Use it to reject a user based on some criteria before they sign up, by
  * throwing an `HttpError`.
- *
- * Works with all auth methods. Wasp awaits the hook if it's async, and
- * ignores its return value.
  *
  * @example
  * ```ts
@@ -940,9 +852,6 @@ export type OnBeforeSignupHook = (
  * Use it to send the user a welcome email, sync the user with a third-party
  * service, or store the OAuth access and refresh tokens in your database.
  *
- * Works with all auth methods. Wasp awaits the hook if it's async, and
- * ignores its return value.
- *
  * @example
  * ```ts
  * import type { OnAfterSignupHook } from "wasp/server/auth";
@@ -979,8 +888,8 @@ export type OnAfterSignupHook = (
  * Use it to react to the verification, e.g. by sending a welcome email or
  * syncing the user with a third-party service.
  *
- * Only works with [Email](https://wasp.sh/docs/features/auth/email/overview)
- * auth. Wasp awaits the hook if it's async, and ignores its return value.
+ * Only available with
+ * [Email](https://wasp.sh/docs/features/auth/email/overview) auth.
  *
  * @example
  * ```ts
@@ -1018,9 +927,8 @@ export type OnAfterEmailVerifiedHook = (
  * in the OAuth flow, in the `onAfterSignup` or `onAfterLogin` hooks, through
  * the `uniqueRequestId`.
  *
- * Only works with
+ * Only available with
  * [social auth](https://wasp.sh/docs/features/auth/social-auth/overview).
- * Wasp awaits the hook if it's async.
  *
  * @returns An object with the URL that Wasp redirects the user to, e.g. the
  * `url` the hook received.
@@ -1035,7 +943,7 @@ export type OnAfterEmailVerifiedHook = (
  *   prisma,
  *   req,
  * }) => {
- *   // Saving query params for later use in onAfterSignup or onAfterLogin hooks
+ *   // Saving query parameters for later use in onAfterSignup or onAfterLogin hooks
  *   const id = oauth.uniqueRequestId;
  *   someKindOfStore.set(id, req.query);
  *
@@ -1055,9 +963,6 @@ export type OnBeforeOAuthRedirectHook = (
  *
  * Use it to reject a user based on some criteria before they log in, by
  * throwing an `HttpError`.
- *
- * Works with all auth methods. Wasp awaits the hook if it's async, and
- * ignores its return value.
  *
  * @example
  * ```ts
@@ -1092,11 +997,9 @@ export type OnBeforeLoginHook = (
  * Use it to sync the user with a third-party service, or to update or
  * refresh the user's OAuth access token.
  *
- * Works with all auth methods. Wasp awaits the hook if it's async, and
- * ignores its return value.
- *
- * When using social auth, Wasp calls it right before creating the session,
- * which shouldn't make any difference in practice.
+ * When using social auth, Wasp calls it before it creates the session. Wasp
+ * creates the session quickly afterward, so it shouldn't make any difference in
+ * practice.
  *
  * @example
  * ```ts
@@ -1111,10 +1014,14 @@ export type OnBeforeLoginHook = (
  * }) => {
  *   console.log("user object", user);
  *
- *   // If this is an OAuth login, you have access to the OAuth tokens and the uniqueRequestId
+ *   // If this is an OAuth login, you can get the data you saved in the onBeforeOAuthRedirect hook
  *   if (oauth) {
- *     console.log("accessToken", oauth.tokens.accessToken);
- *     console.log("uniqueRequestId", oauth.uniqueRequestId);
+ *     const id = oauth.uniqueRequestId;
+ *     const data = someKindOfStore.get(id);
+ *     if (data) {
+ *       console.log("saved data for the ID", data);
+ *     }
+ *     someKindOfStore.delete(id);
  *   }
  * };
  * ```
@@ -1181,11 +1088,8 @@ interface MicrosoftEntraIdTokens {
  * `onAfterLogin` hooks when the user authenticates with
  * [social auth](https://wasp.sh/docs/features/auth/social-auth/overview).
  *
- * It has the following fields:
+ * Besides `uniqueRequestId`, it has the following fields:
  *
- * - `uniqueRequestId`: the unique request ID of the OAuth flow (you might know
- *   it as the `state` parameter in OAuth). You can use it to get the data you
- *   saved in the `onBeforeOAuthRedirect` hook.
  * - `providerName`: the name of the OAuth provider the user authenticated
  *   with (e.g. `"google"`, `"github"`). It's one of the social auth providers
  *   your app enables.
@@ -1201,7 +1105,7 @@ interface MicrosoftEntraIdTokens {
  * ```ts
  * if (oauth && oauth.providerName === "google") {
  *   console.log(oauth.tokens.accessToken);
- *   //                  ^ Google specific tokens are available here
+ *   //                  ^ Google-specific tokens are available here
  *   console.log(oauth.tokens.refreshToken);
  *   console.log(oauth.tokens.idToken);
  *   console.log(oauth.tokens.accessTokenExpiresAt);
@@ -1213,7 +1117,8 @@ interface MicrosoftEntraIdTokens {
 export type OAuthData = {
   /**
    * The unique request ID of the OAuth flow (you might know it as the `state`
-   * parameter in OAuth).
+   * parameter in OAuth). You can use it to get the data you saved in the
+   * `onBeforeOAuthRedirect` hook.
    */
   uniqueRequestId: string;
 } & (
@@ -1235,7 +1140,9 @@ interface OAuthProvider<Id extends string, OAuthClient> {
   displayName: string;
   /**
    * The provider's OAuth client, from the [Arctic](https://arcticjs.dev/)
-   * library. You can use it e.g. to refresh the user's access token.
+   * library. You can use it e.g. to
+   * [refresh the user's access token](https://wasp.sh/docs/features/auth/hooks#refreshing-the-oauth-access-token),
+   * if the provider supports it.
    */
   oAuthClient: OAuthClient;
 }
@@ -1360,8 +1267,6 @@ export declare const github: OAuthProvider<"github", GitHubOAuthClient>;
  * provider, with the OAuth client Wasp uses for it.
  *
  * Only available with Discord auth.
- *
- * @see [Refreshing the OAuth access token](https://wasp.sh/docs/features/auth/hooks#refreshing-the-oauth-access-token)
  */
 export declare const discord: OAuthProvider<"discord", DiscordOAuthClient>;
 
@@ -1378,8 +1283,6 @@ export declare const slack: OAuthProvider<"slack", SlackOAuthClient>;
  * auth provider, with the OAuth client Wasp uses for it.
  *
  * Only available with Keycloak auth.
- *
- * @see [Refreshing the OAuth access token](https://wasp.sh/docs/features/auth/hooks#refreshing-the-oauth-access-token)
  */
 export declare const keycloak: OAuthProvider<"keycloak", KeycloakOAuthClient>;
 
@@ -1388,8 +1291,6 @@ export declare const keycloak: OAuthProvider<"keycloak", KeycloakOAuthClient>;
  * auth provider, with the OAuth client Wasp uses for it.
  *
  * Only available with Microsoft auth.
- *
- * @see [Refreshing the OAuth access token](https://wasp.sh/docs/features/auth/hooks#refreshing-the-oauth-access-token)
  */
 export declare const microsoft: OAuthProvider<
   "microsoft",

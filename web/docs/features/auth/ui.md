@@ -5,7 +5,7 @@ description: Wasp generates login, signup, forgot password, reset password and v
 ---
 
 import { CardLink } from "@site/src/components/CardLink";
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, MicrosoftPill, SlackPill, DiscordPill } from "./Pills";
 
 # Auth UI
 
@@ -88,7 +88,7 @@ The following components are available for you to use in your app:
 
 ### Login Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <MicrosoftPill />, <SlackPill /> and <DiscordPill /> authentication.
 
 ![Login form](/img/docs/features/auth/login.webp)
 
@@ -134,7 +134,7 @@ It will automatically show the correct authentication providers based on your `m
 
 ### Signup Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <MicrosoftPill />, <SlackPill /> and <DiscordPill /> authentication.
 
 ![Signup form](/img/docs/features/auth/signup.webp)
 
@@ -338,7 +338,7 @@ We use CSS variables in our styling so you can customize the styles by overridin
 
 :::info List of all available tokens
 
-See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth#customizationoptions).
+See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth.md#customizationoptions).
 
 :::
 
@@ -499,7 +499,7 @@ If we provide the logo and custom colors:
     ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from "wasp/client/auth"
 
-    import { authAppearance } from "./appearance"
+    import { appearance } from "./appearance"
     import todoLogo from "./todoLogo.png"
 
     export function LoginPage() {
@@ -524,7 +524,7 @@ If we provide the logo and custom colors:
     ```tsx title="src/LoginPage.tsx"
     import { LoginForm } from "wasp/client/auth"
 
-    import { authAppearance } from "./appearance"
+    import { appearance } from "./appearance"
     import todoLogo from "./todoLogo.png"
 
     export function LoginPage() {

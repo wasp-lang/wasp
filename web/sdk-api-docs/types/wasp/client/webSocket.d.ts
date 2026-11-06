@@ -1,53 +1,18 @@
 /**
  * React hooks for using your app's
  * [WebSocket](https://wasp.sh/docs/features/websockets) server from the
- * client.
+ * client. Only available if your app sets the
+ * {@linkcode "@wasp/spec"!WebSocket | webSocket} field of the app spec.
  *
  * All the hooks are typed with the events and payloads you defined on the
- * server, in your `webSocketFn` (see `WebSocketDefinition` in
- * `wasp/server/webSocket`). Your editor autocompletes the events and
- * payloads, and you get type errors if you make a mistake.
+ * server, in your `webSocketFn` (see
+ * {@link "server/webSocket"!WebSocketDefinition | WebSocketDefinition}). Your
+ * editor autocompletes the events and payloads, and you get type errors if you
+ * make a mistake. If you don't type your `webSocketFn`, any event name is
+ * allowed.
  *
- * @example
- * ```tsx
- * import React, { useState } from "react";
- * import {
- *   useSocket,
- *   useSocketListener,
- *   type ClientToServerPayload,
- *   type ServerToClientPayload,
- * } from "wasp/client/webSocket";
- *
- * export const ChatPage = () => {
- *   const [messageText, setMessageText] =
- *     useState<ClientToServerPayload<"chatMessage">>("");
- *   const [messages, setMessages] = useState<
- *     ServerToClientPayload<"chatMessage">[]
- *   >([]);
- *   // The "socket" instance is typed with the types you defined on the server.
- *   const { socket, isConnected } = useSocket();
- *
- *   // This is a type-safe event handler: "chatMessage" event and its payload
- *   // type are defined on the server.
- *   useSocketListener("chatMessage", logMessage);
- *
- *   function logMessage(msg: ServerToClientPayload<"chatMessage">) {
- *     setMessages((priorMessages) => [msg, ...priorMessages]);
- *   }
- *
- *   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
- *     e.preventDefault();
- *     // This is a type-safe event emitter: "chatMessage" event and its
- *     // payload type are defined on the server.
- *     socket.emit("chatMessage", messageText);
- *     setMessageText("");
- *   }
- *
- *   // ...
- * };
- * ```
- *
- * @see [Using the WebSocket on the client](https://wasp.sh/docs/features/websockets#using-the-websocket-on-the-client)
+ * See [Using the WebSocket on the client](https://wasp.sh/docs/features/websockets#using-the-websocket-on-the-client)
+ * for a complete chat page example.
  *
  * @module
  */
@@ -63,14 +28,9 @@ import type { Socket } from "socket.io-client";
  * set `autoConnect: false` in the `webSocket` field of the app spec, call
  * them as needed.
  *
- * All components using `useSocket` share the same underlying `socket`.
- *
- * @returns An object with:
- *
- * - `socket`: The Socket.IO client `Socket`, for sending and receiving
- *   events. It's typed with the events you defined on the server.
- * - `isConnected`: Whether the socket is connected. Useful for showing the
- *   connection status.
+ * All components using `useSocket` share the same underlying `socket`. When
+ * the user logs in or out, Wasp reconnects it if it's connected, so the server
+ * sees the new session.
  *
  * @example
  * ```tsx
@@ -85,11 +45,16 @@ import type { Socket } from "socket.io-client";
  *   // ...
  * };
  * ```
- *
- * @see [The `useSocket` hook](https://wasp.sh/docs/features/websockets#the-usesocket-hook)
  */
 export declare function useSocket(): {
+  /**
+   * The [Socket.IO client `Socket`](https://socket.io/docs/v4/client-api/#socket),
+   * for sending and receiving events.
+   */
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+  /**
+   * Whether the socket is connected. Useful for showing the connection status.
+   */
   isConnected: boolean;
 };
 
@@ -113,14 +78,12 @@ export declare function useSocket(): {
  *     ServerToClientPayload<"chatMessage">[]
  *   >([]);
  *
- *   useSocketListener("chatMessage", (msg) => {
- *     setMessages((priorMessages) => [msg, ...priorMessages]);
+ *   useSocketListener("chatMessage", (message) => {
+ *     setMessages((priorMessages) => [message, ...priorMessages]);
  *   });
  *   // ...
  * };
  * ```
- *
- * @see [The `useSocketListener` hook](https://wasp.sh/docs/features/websockets#the-usesocketlistener-hook)
  */
 export declare function useSocketListener<
   Event extends keyof ServerToClientEvents,
@@ -135,8 +98,8 @@ export declare function useSocketListener<
  * ```ts
  * import { type ServerToClientPayload } from "wasp/client/webSocket";
  *
- * function logMessage(msg: ServerToClientPayload<"chatMessage">) {
- *   console.log(msg);
+ * function logMessage(message: ServerToClientPayload<"chatMessage">) {
+ *   console.log(message);
  * }
  * ```
  */
@@ -163,8 +126,8 @@ export type ClientToServerPayload<Event extends keyof ClientToServerEvents> =
  * listener functions.
  *
  * In your app, it's the `ServerToClientEvents` type argument of the
- * `WebSocketDefinition` you type your `webSocketFn` with (from
- * `wasp/server/webSocket`). If you don't type it, any event name is allowed.
+ * {@link "server/webSocket"!WebSocketDefinition | WebSocketDefinition} you type
+ * your `webSocketFn` with.
  */
 interface ServerToClientEvents extends EventsMap {}
 
@@ -173,8 +136,8 @@ interface ServerToClientEvents extends EventsMap {}
  * listener functions.
  *
  * In your app, it's the `ClientToServerEvents` type argument of the
- * `WebSocketDefinition` you type your `webSocketFn` with (from
- * `wasp/server/webSocket`). If you don't type it, any event name is allowed.
+ * {@link "server/webSocket"!WebSocketDefinition | WebSocketDefinition} you type
+ * your `webSocketFn` with.
  */
 interface ClientToServerEvents extends EventsMap {}
 

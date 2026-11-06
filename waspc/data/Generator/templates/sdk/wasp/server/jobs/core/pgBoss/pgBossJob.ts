@@ -149,7 +149,7 @@ export class PgBossJob<
 /**
  * What pg-boss's `cancel` and `resume` resolve to. Its typings say `void`.
  */
-type PgBossCompletionResponse = {
+type PgBossUpdateResult = {
   jobs: string[]
   requested: number
   updated: number
@@ -164,8 +164,8 @@ class PgBossSubmittedJob<
   Entities extends Partial<PrismaDelegate>
 > extends SubmittedJob {
   public readonly pgBoss: {
-    readonly cancel: () => Promise<PgBossCompletionResponse>
-    readonly resume: () => Promise<PgBossCompletionResponse>
+    readonly cancel: () => Promise<PgBossUpdateResult>
+    readonly resume: () => Promise<PgBossUpdateResult>
     readonly details: () => Promise<PgBossDetails<Input, Output> | null>
   }
 
@@ -180,8 +180,8 @@ class PgBossSubmittedJob<
     const id = jobId as string
     this.pgBoss = {
       // Coarcing here since pg-boss typings are not precise enough.
-      cancel: () => boss.cancel(id) as unknown as Promise<PgBossCompletionResponse>,
-      resume: () => boss.resume(id) as unknown as Promise<PgBossCompletionResponse>,
+      cancel: () => boss.cancel(id) as unknown as Promise<PgBossUpdateResult>,
+      resume: () => boss.resume(id) as unknown as Promise<PgBossUpdateResult>,
       details: () =>
         boss.getJobById(id) as Promise<PgBossDetails<Input, Output> | null>,
     }

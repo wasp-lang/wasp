@@ -259,7 +259,7 @@ We suggest using the built-in field validators for your authentication flow. You
   to="../../../api/wasp/server/auth#ensurevalidusername"
   kind="api"
   title="ensureValidUsername"
-  description="Check that the username is valid."
+  description="Check that the username is present."
 />
 
 #### Email
@@ -268,7 +268,7 @@ We suggest using the built-in field validators for your authentication flow. You
   to="../../../api/wasp/server/auth#ensurevalidemail"
   kind="api"
   title="ensureValidEmail"
-  description="Check that the email is valid."
+  description="Check that the email is present and valid."
 />
 
 #### Password

@@ -4,18 +4,8 @@
  * @module
  */
 
-import type { ClientConfig } from "@wasp/lib-sdk-core";
-
 /**
  * The client's configuration object.
- *
- * Its fields are:
- *
- * - `apiUrl`: the URL of your server (the app's backend). Set it with the
- *   `REACT_APP_API_URL` env var. Wasp sets it automatically during development
- *   when you run `wasp start`. In production, it should contain the URL of your
- *   server as the user's browser sees it (i.e., with the DNS and proxies
- *   considered). Wasp strips any trailing slash from it.
  *
  * @example
  * ```ts
@@ -28,15 +18,26 @@ import type { ClientConfig } from "@wasp/lib-sdk-core";
  */
 export declare const config: ClientConfig;
 
+/** The type of the {@link config} object. */
+export type ClientConfig = {
+  /**
+   * The URL of your server (the app's backend), without a trailing slash, from
+   * the {@linkcode ClientEnv.REACT_APP_API_URL | REACT_APP_API_URL} env var.
+   */
+  apiUrl: string;
+};
+
 /**
  * The client's validated environment variables.
  *
- * It contains both the env vars that Wasp defines (like `REACT_APP_API_URL`)
- * and the ones you validate with the `client.envValidationSchema` field of the
- * app spec. Wasp merges your validation schema with its own and validates
+ * It contains the env vars that Wasp defines (like `REACT_APP_API_URL`) and the
+ * ones you validate with the `client.envValidationSchema` field of the app
+ * spec. It leaves out any other env var, even if its name starts with
+ * `REACT_APP_`.
+ *
+ * Wasp merges your validation schema with its own and validates
  * `import.meta.env` with it, both when Vite starts (in development and when
- * building) and when the client code loads, so the object's type includes the
- * outputs of your schema.
+ * building) and when the client code loads.
  *
  * Client env vars are embedded into the client code at build time, so anyone
  * can read them. Never store secrets in them. Their names must start with
@@ -66,15 +67,14 @@ export declare const env: ClientEnv;
 /**
  * The type of {@link env}.
  *
- * The fields of your own `client.envValidationSchema` are also included, but
- * aren't listed here since they depend on your app.
- *
  * @see [Wasp client env vars](https://wasp.sh/docs/advanced/env-vars#wasp-client-env-vars)
  */
 type ClientEnv = {
   /**
    * The URL of your server, which the client uses to call it. Wasp sets it
-   * during development, but your deployed app requires it.
+   * during development (`wasp start`). Your deployed app requires it: set it to
+   * the URL of your server as the user's browser sees it (with the DNS and
+   * proxies considered).
    */
   REACT_APP_API_URL: string;
   /**
@@ -105,6 +105,3 @@ export { HttpMethod } from "@wasp/lib-sdk-core";
  * ```
  */
 export type { Route } from "@wasp/lib-sdk-core";
-
-/** The type of the {@link config} object. */
-export type { ClientConfig } from "@wasp/lib-sdk-core";

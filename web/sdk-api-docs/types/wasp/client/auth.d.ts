@@ -3,9 +3,9 @@
  * generated [Auth UI](https://wasp.sh/docs/features/auth/ui) components, and
  * the functions and helpers for building your own auth UI.
  *
- * Available when your app enables
- * [auth](https://wasp.sh/docs/features/auth/overview). Some exports depend on
- * the auth methods your app enables:
+ * Only available if your app has
+ * [auth](https://wasp.sh/docs/features/auth/overview) enabled. Some exports
+ * depend on the auth methods your app enables:
  *
  * - With [Email](https://wasp.sh/docs/features/auth/email/overview) auth:
  *   the email versions of {@link login} and {@link signup}, and
@@ -18,6 +18,11 @@
  * - With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview)
  *   provider: that provider's sign-in URL and button, e.g.
  *   {@link googleSignInUrl} and {@link GoogleSignInButton} for Google.
+ *
+ * {@link login}, {@link signup}, {@link verifyEmail},
+ * {@link requestPasswordReset}, and {@link resetPassword} reject with a
+ * {@link "client/api"!WaspHttpError | WaspHttpError} if the server responds
+ * with an error, instead of resolving with `success: false`.
  *
  * @module
  */
@@ -47,8 +52,9 @@ import type {
  * You can use it in any page. In pages with `authRequired`, you can use the
  * `user` prop instead.
  *
- * @returns React Query's result object, whose `data` is the logged-in
- * {@link AuthUser}, or `null` if the user isn't logged in.
+ * @returns _react-query_'s result object, whose `data` is the logged-in
+ * {@link AuthUser}, `null` if the user isn't logged in, or `undefined` until
+ * the Query first loads.
  *
  * @example
  * ```tsx
@@ -86,8 +92,7 @@ export declare function useAuth(): UseQueryResult<AuthUser | null>;
  *
  * You can call it directly, or pass it to
  * {@link "client/operations"!useQuery | useQuery}.
- * It resolves to the logged-in {@link AuthUser}, or `null` if the user isn't
- * logged in.
+ * It resolves to `null` if the user isn't logged in.
  */
 export declare const getMe: Query<void, AuthUser | null>;
 
@@ -95,8 +100,9 @@ export declare const getMe: Query<void, AuthUser | null>;
  * Logs the user out.
  *
  * It deletes the session from the server and the user's data from the
- * client, and invalidates all Queries. It removes the local data even if the
- * request to the server fails.
+ * client, and clears the cache of all Queries. It removes the local data even
+ * if the request to the server fails, though the returned Promise still
+ * rejects.
  *
  * @example
  * ```tsx
@@ -117,10 +123,7 @@ export declare function logout(): Promise<void>;
  * A login form, which shows the login fields and buttons of all the auth
  * methods your app enables.
  *
- * Works with all auth methods.
- *
- * @param props Options to customize the form's look. See
- * {@link CustomizationOptions}.
+ * @param props Options to customize the form's look.
  *
  * @example
  * ```tsx
@@ -131,7 +134,7 @@ export declare function logout(): Promise<void>;
  * }
  * ```
  *
- * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#login-form)
+ * @see [Login form](https://wasp.sh/docs/features/auth/ui#login-form)
  *
  * @component
  */
@@ -141,14 +144,12 @@ export declare function LoginForm(props: CustomizationOptions): JSX.Element;
  * A signup form, which shows the signup fields and buttons of all the auth
  * methods your app enables.
  *
- * Works with all auth methods.
- *
- * @param props Options to customize the form's look (see
- * {@link CustomizationOptions}), and:
+ * @param props Options to customize the form's look, and:
  *
  * - `additionalFields`: extra fields or UI to add to the form, e.g. for
  *   [extra signup fields](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process).
- *   It can be either a list of extra fields or a render function.
+ *   It can be either a list of extra fields or a render function, and only has
+ *   an effect with Email or Username & password auth.
  *
  *   The list's items can be objects or render functions (you can combine
  *   them). Wasp adds them to the form one by one, in the order you pass them
@@ -162,17 +163,17 @@ export declare function LoginForm(props: CustomizationOptions): JSX.Element;
  *      - `label` (required): the label of the field (used in the UI).
  *      - `type` (required): the type of the field, which can be `"input"` or
  *        `"textarea"`.
- *      - `validations`: an object with the validation rules for the field.
- *        The keys are the validation names, and the values are the
- *        validation error messages. Read more about the available validation
- *        rules in the
- *        [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
+ *      - `validations`: an object with the validation rules for the field,
+ *        which Wasp passes to `react-hook-form`'s `register` function (e.g.
+ *        `{ required: "Address is required" }`). Read more about the available
+ *        validation rules in the
+ *        [react-hook-form docs](https://react-hook-form.com/docs/useform/register).
  *
  *   2. Render functions can render any UI you want, but they require a bit
  *      more code. They receive two arguments and return a React node:
  *
  *      - `form`: the `react-hook-form` object (read more about it in the
- *        [react-hook-form docs](https://react-hook-form.com/api/useform)).
+ *        [react-hook-form docs](https://react-hook-form.com/docs/useform)).
  *        Use its `form.register` function to register your fields.
  *      - `state`: the form state object, which has an `isLoading: boolean`
  *        property that tells whether the form is currently submitting.
@@ -242,7 +243,7 @@ export declare function LoginForm(props: CustomizationOptions): JSX.Element;
  *         return (
  *           username && (
  *             <FormItemGroup>
- *               Hello there <strong>{username}</strong> 👋
+ *               Hello there <strong>{username}</strong>
  *             </FormItemGroup>
  *           )
  *         );
@@ -252,7 +253,7 @@ export declare function LoginForm(props: CustomizationOptions): JSX.Element;
  * };
  * ```
  *
- * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#signup-form)
+ * @see [Signup form](https://wasp.sh/docs/features/auth/ui#signup-form)
  * @see [Customizing the signup component](https://wasp.sh/docs/features/auth/overview#2-customizing-the-signup-component)
  *
  * @component
@@ -268,8 +269,7 @@ export declare function SignupForm(
  * Only available with [Email](https://wasp.sh/docs/features/auth/email/overview)
  * auth.
  *
- * @param props Options to customize the form's look. See
- * {@link CustomizationOptions}.
+ * @param props Options to customize the form's look.
  *
  * @example
  * ```tsx
@@ -280,7 +280,7 @@ export declare function SignupForm(
  * }
  * ```
  *
- * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#forgot-password-form)
+ * @see [Forgot password form](https://wasp.sh/docs/features/auth/ui#forgot-password-form)
  *
  * @component
  */
@@ -296,8 +296,7 @@ export declare function ForgotPasswordForm(
  * auth. Render it in the page of the route you set as
  * `auth.methods.email.passwordReset.clientRoute`.
  *
- * @param props Options to customize the form's look. See
- * {@link CustomizationOptions}.
+ * @param props Options to customize the form's look.
  *
  * @example
  * ```tsx
@@ -308,7 +307,7 @@ export declare function ForgotPasswordForm(
  * }
  * ```
  *
- * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#reset-password-form)
+ * @see [Reset password form](https://wasp.sh/docs/features/auth/ui#reset-password-form)
  *
  * @component
  */
@@ -324,8 +323,7 @@ export declare function ResetPasswordForm(
  * auth. Render it in the page of the route you set as
  * `auth.methods.email.emailVerification.clientRoute`.
  *
- * @param props Options to customize the form's look. See
- * {@link CustomizationOptions}.
+ * @param props Options to customize the form's look.
  *
  * @example
  * ```tsx
@@ -336,7 +334,7 @@ export declare function ResetPasswordForm(
  * }
  * ```
  *
- * @see [Auth UI](https://wasp.sh/docs/features/auth/ui#verify-email-form)
+ * @see [Verify email form](https://wasp.sh/docs/features/auth/ui#verify-email-form)
  *
  * @component
  */
@@ -713,15 +711,6 @@ export declare function GoogleSignInButton(): JSX.Element;
  *
  * Only available with GitHub auth.
  *
- * @example
- * ```tsx
- * import { githubSignInUrl } from "wasp/client/auth";
- *
- * export const LoginPage = () => {
- *   return <a href={githubSignInUrl}>Sign in with GitHub</a>;
- * };
- * ```
- *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
  */
 export declare const githubSignInUrl: string;
@@ -731,15 +720,6 @@ export declare const githubSignInUrl: string;
  * login flow, styled like the Auth UI's.
  *
  * Only available with GitHub auth.
- *
- * @example
- * ```tsx
- * import { GitHubSignInButton } from "wasp/client/auth";
- *
- * export const LoginPage = () => {
- *   return <GitHubSignInButton />;
- * };
- * ```
  *
  * @see [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
  *

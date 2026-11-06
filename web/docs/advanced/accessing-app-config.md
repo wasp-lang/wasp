@@ -29,7 +29,7 @@ Wasp gives you runtime access to the processes' configurations through **configu
 
 ## Server configuration object
 
-The server configuration object contains these fields:
+The server configuration object contains this field, among others:
 
 - `frontendUrl: String` - Set it with env var `WASP_WEB_CLIENT_URL`.
 

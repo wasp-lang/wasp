@@ -11,7 +11,7 @@ import { CardLink } from '@site/src/components/CardLink'
 The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 
 :::tip
-Read more about the default email and password validation rules in the [auth overview docs](../overview.md#default-validations).
+Read more about the default username and password validation rules in the [auth overview docs](../overview.md#default-validations).
 :::
 
 Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times where you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions on your own code, similar to how Auth UI does it under the hood.
@@ -166,7 +166,7 @@ Below you can find a starting point for making your own UI in the client code. Y
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
           />
-          <button type="submit">Sign Up</button>
+          <button type="submit">Log In</button>
         </form>
       )
     }
@@ -214,7 +214,7 @@ Below you can find a starting point for making your own UI in the client code. Y
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
           />
-          <button type="submit">Sign Up</button>
+          <button type="submit">Log In</button>
         </form>
       )
     }
