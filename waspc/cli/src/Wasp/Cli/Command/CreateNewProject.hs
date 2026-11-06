@@ -143,4 +143,4 @@ printExtraInstructionsForProject steps = do
   putStrLn
     $ Term.applyStyles [Term.Yellow]
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
-      ++ concatMap (\step -> "  " ++ styleCode step ++ "\n") steps
+      ++ concatMap (\step -> "    " ++ styleCode step ++ "\n") steps
