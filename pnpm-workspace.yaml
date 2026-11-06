@@ -32,6 +32,58 @@ catalog:
   semver: ^7.7.3
   "@types/semver": ^7.7.1
 
+# Source of truth for the npm dependency versions of generated Wasp apps. waspc
+# reads them at compile time (see `Wasp.Generator.DepVersions.Catalog`).
+# Use `catalog:generated-app` for any version in this repo that must stay in sync
+# with the generated app's dependencies.
+catalogs:
+  generated-app:
+    # Also ensure `waspc/data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
+    prisma: 6.19.3
+    superjson: ^2.2.1
+    typescript: 6.0.3
+    # Follows the major version of Wasp's lowest supported Node version
+    # (see `/.node-version`).
+    "@types/node": ^24.0.0
+    # `react` and `react-dom` versions should always match.
+    react: ^19.2.1
+    react-dom: ^19.2.1
+    # Follows React major version.
+    "@types/react": ^19.2.7
+    "@types/react-dom": ^19.2.3
+    react-router: ^8.0.1
+    "@tanstack/react-query": ~4.42.0
+    react-hook-form: ^7.45.4
+    express: ~5.1.0
+    "@types/express": ^5.0.0
+    vite: ^8.1.0
+    "@vitejs/plugin-react": ^6.0.3
+    dotenv: ^16.6.1
+    ky: ^2.0.0
+    zod: ^4.3.6
+    cookie-parser: ~1.4.6
+    cors: ^2.8.5
+    "@types/cors": ^2.8.5
+    morgan: ~1.12.1
+    helmet: ^6.0.0
+    rollup: ^4.9.6
+    rollup-plugin-esbuild: ^6.1.1
+    "@rollup/plugin-node-resolve": ^16.0.0
+    nf3: 0.4.2
+    lucia: ^3.0.1
+    arctic: ^1.2.1
+    socket.io: ^4.6.1
+    "@socket.io/component-emitter": ^4.0.0
+    # Our pg-boss related documentation references this version in URLs.
+    # Please update the docs when this changes (until we solve:
+    # https://github.com/wasp-lang/wasp/issues/596).
+    pg-boss: ^8.4.2
+    nodemailer: ^8.0.1
+    "@types/nodemailer": ^8.0.0
+    "@sendgrid/mail": ^7.7.0
+    mailgun.js: ^10.2.3
+    resend: ^6.0.0
+
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
 

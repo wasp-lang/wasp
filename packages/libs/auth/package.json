@@ -29,7 +29,7 @@
     "test:types": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "^19.2.1"
+    "react": "catalog:generated-app"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
@@ -37,11 +37,11 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@types/node": "catalog:",
-    "@types/react": "^19.2.7",
+    "@types/node": "catalog:generated-app",
+    "@types/react": "catalog:generated-app",
     "@vitest/coverage-v8": "catalog:",
     "tsdown": "^0.21.5",
-    "typescript": "catalog:",
+    "typescript": "catalog:generated-app",
     "vitest": "catalog:"
   }
 }

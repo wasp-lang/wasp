@@ -15,7 +15,7 @@ import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   ( DependencyType (Development),
     makeRequiredDepValidator,
   )
-import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Generator.DepVersions (nodeTypesVersionRange)
 import Wasp.Project.Common
   ( CompileError,
     TsConfigPaths (..),
@@ -60,4 +60,4 @@ waspTsPackageJsonValidator tsConfigPaths
 nodeTypesInDevDependenciesValidator :: WaspV.Validator PackageJson
 nodeTypesInDevDependenciesValidator = makeRequiredDepValidator Development ("@types/node", requiredNodeTypesVersion)
   where
-    requiredNodeTypesVersion = show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion
+    requiredNodeTypesVersion = show nodeTypesVersionRange

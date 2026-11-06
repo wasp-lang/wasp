@@ -12,6 +12,7 @@ where
 import StrongPath (File', Path', Rel, relfile)
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
@@ -32,13 +33,13 @@ smtp =
     }
   where
     nodeMailerVersionRange :: SV.Range
-    nodeMailerVersionRange = [SV.r|^8.0.1|]
+    nodeMailerVersionRange = $$(catalogVersionRange "nodemailer")
 
     nodeMailerDependency :: Npm.Dependency.Dependency
     nodeMailerDependency = Npm.Dependency.make ("nodemailer", show nodeMailerVersionRange)
 
     nodeMailerTypesVersionRange :: SV.Range
-    nodeMailerTypesVersionRange = [SV.r|^8.0.0|]
+    nodeMailerTypesVersionRange = $$(catalogVersionRange "@types/nodemailer")
 
     nodeMailerTypesDependency :: Npm.Dependency.Dependency
     nodeMailerTypesDependency = Npm.Dependency.make ("@types/nodemailer", show nodeMailerTypesVersionRange)
@@ -52,7 +53,7 @@ sendGrid =
     }
   where
     sendGridVersionRange :: SV.Range
-    sendGridVersionRange = [SV.r|^7.7.0|]
+    sendGridVersionRange = $$(catalogVersionRange "@sendgrid/mail")
 
     sendGridDependency :: Npm.Dependency.Dependency
     sendGridDependency = Npm.Dependency.make ("@sendgrid/mail", show sendGridVersionRange)
@@ -66,7 +67,7 @@ mailgun =
     }
   where
     mailgunVersionRange :: SV.Range
-    mailgunVersionRange = [SV.r|^10.2.3|]
+    mailgunVersionRange = $$(catalogVersionRange "mailgun.js")
 
     mailgunDependency :: Npm.Dependency.Dependency
     mailgunDependency = Npm.Dependency.make ("mailgun.js", show mailgunVersionRange)
@@ -80,7 +81,7 @@ resend =
     }
   where
     resendVersionRange :: SV.Range
-    resendVersionRange = [SV.r|^6.0.0|]
+    resendVersionRange = $$(catalogVersionRange "resend")
 
     resendDependency :: Npm.Dependency.Dependency
     resendDependency = Npm.Dependency.make ("resend", show resendVersionRange)

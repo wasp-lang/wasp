@@ -18,7 +18,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -31,6 +31,7 @@ import Wasp.Generator.DepVersions
   ( expressTypesVersionRange,
     expressVersionRange,
     kyVersionRange,
+    nodeTypesVersionRange,
     prismaVersionRange,
     reactDomTypesVersionRange,
     reactDomVersionRange,
@@ -42,6 +43,7 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
     viteVersionRange,
   )
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
@@ -200,9 +202,9 @@ npmDepsForSdk spec =
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),
             ("react-router", show reactRouterVersionRange),
-            ("react-hook-form", "^7.45.4"),
+            ("react-hook-form", show $$(catalogVersionRange "react-hook-form")),
             ("superjson", show superjsonVersionRange),
-            ("@vitejs/plugin-react", "^6.0.3")
+            ("@vitejs/plugin-react", show $$(catalogVersionRange "@vitejs/plugin-react"))
           ]
           ++ depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
@@ -217,7 +219,7 @@ npmDepsForSdk spec =
             ("typescript", show typescriptVersionRange),
             ("@types/express", show expressTypesVersionRange),
             ("@types/express-serve-static-core", show expressTypesVersionRange),
-            ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
+            ("@types/node", show nodeTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
             ("@types/react-dom", show reactDomTypesVersionRange)
           ]

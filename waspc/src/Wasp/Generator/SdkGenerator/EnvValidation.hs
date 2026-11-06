@@ -14,6 +14,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -82,5 +83,5 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =
   Npm.Dependency.fromList
-    [ ("zod", "^4.3.6")
+    [ ("zod", show $$(catalogVersionRange "zod"))
     ]

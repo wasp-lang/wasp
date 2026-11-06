@@ -45,9 +45,11 @@ import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
     expressVersionRange,
+    nodeTypesVersionRange,
     superjsonVersionRange,
     typescriptVersionRange,
   )
+import Wasp.Generator.DepVersions.Catalog (catalogVersionRange)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
@@ -163,12 +165,12 @@ npmDepsFromWasp spec =
     N.NpmDepsForPackage
       { N.dependencies =
           Npm.Dependency.fromList
-            [ ("cookie-parser", "~1.4.6"),
-              ("cors", "^2.8.5"),
+            [ ("cookie-parser", show $$(catalogVersionRange "cookie-parser")),
+              ("cors", show $$(catalogVersionRange "cors")),
               ("express", show expressVersionRange),
-              ("morgan", "~1.12.1"),
+              ("morgan", show $$(catalogVersionRange "morgan")),
               ("dotenv", show dotenvVersionRange),
-              ("helmet", "^6.0.0"),
+              ("helmet", show $$(catalogVersionRange "helmet")),
               ("superjson", show superjsonVersionRange)
             ]
             ++ depsRequiredByWebSockets spec
@@ -180,14 +182,14 @@ npmDepsFromWasp spec =
               ("typescript", show typescriptVersionRange),
               ("@types/express", show expressTypesVersionRange),
               ("@types/express-serve-static-core", show expressTypesVersionRange),
-              ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
+              ("@types/node", show nodeTypesVersionRange),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-              ("@types/cors", "^2.8.5"),
-              ("rollup", "^4.9.6"),
-              ("rollup-plugin-esbuild", "^6.1.1"),
-              ("@rollup/plugin-node-resolve", "^16.0.0"),
+              ("@types/cors", show $$(catalogVersionRange "@types/cors")),
+              ("rollup", show $$(catalogVersionRange "rollup")),
+              ("rollup-plugin-esbuild", show $$(catalogVersionRange "rollup-plugin-esbuild")),
+              ("@rollup/plugin-node-resolve", show $$(catalogVersionRange "@rollup/plugin-node-resolve")),
               -- Used by `prepareProduction.ts` when building the Docker image.
-              ("nf3", "0.4.2")
+              ("nf3", show $$(catalogVersionRange "nf3"))
             ],
         peerDependencies = []
       }

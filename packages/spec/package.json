@@ -53,7 +53,7 @@
     "estree-walker": "^3.0.3",
     "rolldown": "^1.2.14",
     "type-fest": "^5.6.0",
-    "typescript": "catalog:",
+    "typescript": "catalog:generated-app",
     "unrun": "^0.3.0"
   },
   "devDependencies": {
