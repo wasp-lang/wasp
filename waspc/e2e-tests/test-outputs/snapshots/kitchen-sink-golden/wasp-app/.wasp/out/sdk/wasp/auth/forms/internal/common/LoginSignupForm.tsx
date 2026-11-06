@@ -22,7 +22,8 @@ import { emailFieldRules, emailInputProps } from '@wasp/lib-sdk-core/browser'
 import * as SocialIcons from '@wasp/lib-sdk-core/browser'
 import { SocialButton } from '@wasp/lib-sdk-core/browser'
 import { useNavigate } from 'react-router'
-import { getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
+import { getAuthErrorMessage, newPasswordFieldRules, passwordFieldRules } from '@wasp/lib-sdk-core/browser'
+import { passwordValidationSchema } from '../../../validation.js'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -122,9 +123,7 @@ export const LoginSignupForm = ({
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
             <FormPasswordInput
-              {...register('password', {
-                required: 'Password is required',
-              })}
+              {...register('password', isLogin ? passwordFieldRules : newPasswordFieldRules(passwordValidationSchema))}
               disabled={isLoading}
             />
             {errors.password && <FormError>{errors.password.message}</FormError>}
