@@ -316,11 +316,30 @@ const config: Config = {
 
         // typedoc-plugin-markdown options
         readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
-        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
+        name: "API Reference", // The title of the index page.
+
+        router: "module",
+
+        // Shows each package's and module's description on the landing pages.
+        indexFormat: "table",
+
+        // Gives headings the same IDs that TypeDoc's links use. Otherwise
+        // Docusaurus generates its own, which don't always match, e.g. when
+        // two members share a name.
+        useCustomAnchors: true,
+
+        // Documents types that our packages reference but don't export, e.g.
+        // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures. The
+        // theme plugin puts them in a "Referenced Types" group.
+        plugin: [
+          "typedoc-plugin-missing-exports",
+          "./src/plugins/typedoc-wasp-theme.ts",
+        ],
+        theme: "wasp-markdown",
 
         // input packages
         entryPointStrategy: "packages",
-        entryPoints: ["../packages/spec"],
+        entryPoints: ["../packages/spec", "./sdk-api-docs"],
 
         // If you want to set an option to a specific package, you can create a
         // `typedoc.jsonc` file in that package's folder with the desired

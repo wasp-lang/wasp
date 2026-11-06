@@ -141,7 +141,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec/interfaces/Server.md#setupfn).
+For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec.md#setupfn-1).
 
 ## Middleware Config Function
 
@@ -172,8 +172,22 @@ Read more in the [deployment section](../../deployment/methods/overview#missing-
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp/spec/interfaces/Server"
+  to="../../api/@wasp/spec#server-1"
   kind="api"
   title="Server"
   description="All the options for the server field of the app spec."
+/>
+
+<CardLink
+  to="../../api/wasp/server#serversetupfn"
+  kind="api"
+  title="ServerSetupFn"
+  description="The type of your setupFn function."
+/>
+
+<CardLink
+  to="../../api/wasp/server#middlewareconfigfn"
+  kind="api"
+  title="MiddlewareConfigFn"
+  description="The type of your middlewareConfigFn function."
 />
