@@ -28,7 +28,8 @@ export async function getAllFn(args, context) {
 // Get query
 const _waspGetQuery: RegisteredGetQuery = ((args, context) => {
   throwIfNotAuthenticated(context)
-  return context.entities.Task.findUnique({ where: { id: args.id } });
+  const { id: idFieldValue } = args
+  return context.entities.Task.findUnique({ where: { id: idFieldValue } });
 });
 
 export async function getFn(args, context) {

@@ -93,5 +93,5 @@ type Context<Entities extends _Entity[]> = Expand<{
 }>
 
 type ContextWithUser<Entities extends _Entity[]> = Expand<
-  Context<Entities> & { user?: AuthUser }
+  Context<Entities> & { user: AuthUser | null }
 >

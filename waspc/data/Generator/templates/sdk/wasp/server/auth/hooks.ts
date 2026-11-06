@@ -18,7 +18,8 @@ export type OnAfterSignupHook = (
 /**
  * Use this type for typing your `onAfterEmailVerified` hook.
  * 
- * Wasp calls this hook exactly once, after a user successfully verifies their email during the email verification flow.
+ * Wasp calls this hook after a user successfully verifies their email during the email verification flow.
+ * Submitting a valid verification token again calls the hook again.
  * 
  * @example
  * ```ts

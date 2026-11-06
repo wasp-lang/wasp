@@ -454,6 +454,14 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 10. Enjoy your updated Wasp app
+### 10. Check your `context.user` types
+
+**If your app doesn't use auth, you can skip this step.**
+
+`context.user` is now typed `AuthUser | null`, and `socket.data.user` is typed `AuthUser | null | undefined`. These are the values they already had at runtime, so nothing changes when your app runs.
+
+Checks like `if (!context.user)` keep working. If TypeScript now reports an error, it's most likely because your code checks `context.user` against `undefined` and then reads from it, or passes it to something that expects `AuthUser | undefined`. Handle `null` in those places.
+
+### 11. Enjoy your updated Wasp app
 
 That's it!

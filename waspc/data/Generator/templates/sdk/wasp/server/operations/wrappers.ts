@@ -264,5 +264,11 @@ type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinit
  *
  * @template OperationDefinition The type of the operation's definition.
  */
-type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> =
+type EntityMapFor<
+  OperationDefinition extends
+    {=# isAuthEnabled =}
+    | GenericAuthenticatedOperationDefinition
+    {=/ isAuthEnabled =}
+    | GenericUnauthenticatedOperationDefinition
+> =
   _Parameters<OperationDefinition>[1]["entities"]

@@ -86,7 +86,8 @@ const _waspGetQuery: RegisteredGetQuery = ((args, context) => {
   {=^ crud.operations.Get.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Get.isPublic =}
-  return context.entities.{= crud.entityUpper =}.findUnique({ where: { id: args.id } });
+  const { {= crud.idFieldName =}: idFieldValue } = args
+  return context.entities.{= crud.entityUpper =}.findUnique({ where: { {= crud.idFieldName =}: idFieldValue } });
 });
 {=/ overrides.Get.isDefined =}
 {=# overrides.Get.isDefined =}

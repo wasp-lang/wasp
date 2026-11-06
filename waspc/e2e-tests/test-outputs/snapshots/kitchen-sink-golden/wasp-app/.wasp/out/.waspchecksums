@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "09de485b7c71749db3980ffdcc2d6fce94ecaca23bf5e101520cf401e7284038"
+        "99089ce96129e796d494e82294aef464bc9b1841b46e48e15f82c744c0e1a3bd"
     ],
     [
         [
@@ -662,7 +662,7 @@
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "9769876842d122e967efde0574b7aa932488ae85f2762f86176a9dc6813adeb6"
+        "48d8d42ebe38173b40f0d690771864aae2980dbe896c60047f971ef5c7033a3e"
     ],
     [
         [
@@ -984,7 +984,7 @@
             "file",
             "sdk/wasp/server/operations/wrappers.ts"
         ],
-        "5e0669961b31c62062e5ada5f9cdd302fd5c8b577985d3dbac2bf9a139e0eabf"
+        "d0e6069014abc981c46957fba7a4378a894a5923362353bb7cbc68d2804819ed"
     ],
     [
         [
@@ -1005,7 +1005,7 @@
             "file",
             "sdk/wasp/server/webSocket/index.ts"
         ],
-        "f5f38234f2e6955ae5dc8868c4e1f2c3c8a6dad626192864f0b8e199db31f1e4"
+        "5dc26dc0d8566d4e879f737a673812cf81fa96d64846dec38e971bc3fa678b56"
     ],
     [
         [
@@ -1404,7 +1404,7 @@
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "db6714ae88c1b0aa0f0c2d594f7ef2e1bc4e8b79d49e90dd55aa86a11281f936"
+        "b1aac3f04637afbb40b7427805b81294b01f9062e4f8201aa7692c3ecdb92eee"
     ],
     [
         [

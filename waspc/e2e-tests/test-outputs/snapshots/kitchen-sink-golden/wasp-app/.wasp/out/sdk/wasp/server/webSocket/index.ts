@@ -32,7 +32,7 @@ export type WebSocketDefinition<
 
 // PUBLIC API
 export interface WaspSocketData {
-  user?: AuthUser
+  user?: AuthUser | null
 }
 
 // PRIVATE API (framework)
