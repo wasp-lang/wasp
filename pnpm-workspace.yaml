@@ -19,7 +19,7 @@ packages:
 
 # `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:
-  typescript: ~6.0.3
+  typescript: &typescript 6.0.3
   "@types/node": ^24.0.1
   vitest: ^5.0.5
   "@vitest/coverage-v8": ^5.0.5
@@ -41,13 +41,15 @@ catalogs:
     # Also ensure `waspc/data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
     prisma: 6.19.3
     superjson: ^2.2.1
-    typescript: 6.0.3
-    # `react-dom` always uses this same version.
-    # When updating the React version, also update it in `peerDependencies`
-    # in `packages/libs/auth/package.json`.
+    typescript: *typescript
+    # The major version of Wasp's lowest supported Node version. waspc computes
+    # the generated app's version from it (`Wasp.Node.Version`), and a unit test
+    # checks that it matches this one.
+    "@types/node": ^24.0.0
+    # `react` and `react-dom` versions should always match.
     react: ^19.2.1
-    # Follows React major version. When updating the value, also update it in
-    # `devDependencies` in `packages/libs/auth/package.json`.
+    react-dom: ^19.2.1
+    # Follows React major version.
     "@types/react": ^19.2.7
     "@types/react-dom": ^19.2.3
     react-router: ^8.0.1

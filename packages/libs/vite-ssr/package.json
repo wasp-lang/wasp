@@ -23,14 +23,14 @@
     "test": "exit 0"
   },
   "peerDependencies": {
-    "vite": "^8"
+    "vite": "catalog:generated-app"
   },
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node22": "^22.0.5",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:generated-app",
     "tsdown": "^0.21.5",
-    "typescript": "catalog:",
-    "vite": "^8.1.0"
+    "typescript": "catalog:generated-app",
+    "vite": "catalog:generated-app"
   }
 }

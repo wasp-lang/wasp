@@ -32,7 +32,7 @@ reactVersionRange :: SV.Range
 reactVersionRange = $$(catalogVersionRange "react")
 
 reactDomVersionRange :: SV.Range
-reactDomVersionRange = reactVersionRange
+reactDomVersionRange = $$(catalogVersionRange "react-dom")
 
 reactTypesVersionRange :: SV.Range
 reactTypesVersionRange = $$(catalogVersionRange "@types/react")

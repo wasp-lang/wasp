@@ -10,4 +10,5 @@
 # - The web package: /web/package.json
 # - The wasp-cli packages: /packages/cli/package.json, /scripts/make-npm-packages/templates/sub-package/package.json
 # - The embedded packages: /packages/*/package.json
+# - The major version of `@types/node` in the `generated-app` pnpm catalog: /pnpm-workspace.yaml
 # (Also just grep for the version in case we forgot somewhere.)
