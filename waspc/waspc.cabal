@@ -692,30 +692,57 @@ test-suite waspc-e2e-tests
   type: exitcode-stdio-1.0
   hs-source-dirs: e2e-tests
   main-is: Main.hs
+  -- Test steps often run commands only for their side effects.
+  ghc-options: -Wno-unused-do-bind
   build-tool-depends: waspc:wasp-cli
   build-depends:
     aeson,
     aeson-pretty,
+    async,
     base,
     base64-bytestring,
     bytestring,
     cli-lib,
+    containers,
+    Diff ^>=1.0.2,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
     hspec,
     mtl,
     neat-interpolation,
+    network,
     process,
+    resourcet ^>=1.3.0,
+    stm,
     strong-path,
-    tasty,
+    tasty ^>=1.5.4,
     tasty-golden,
     tasty-hspec,
     text,
+    time,
+    typed-process ^>=0.2.13,
     unliftio ^>=0.2.25,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
+    E2E
+    E2E.Assertions
+    E2E.Command
+    E2E.Files
+    E2E.Heartbeat
+    E2E.Net
+    E2E.Paths
+    E2E.Ports
+    E2E.Process
+    E2E.Process.Output
+    E2E.Signals
+    E2E.Snapshot
+    E2E.Test
+    E2E.TestM
+    E2E.Wasp
     FileSystem
     ShellCommands
     SnapshotTest
