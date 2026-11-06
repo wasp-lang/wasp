@@ -3,16 +3,16 @@ module Wasp.Cli.Command.Require.WaspNpmPackageAvailable
   )
 where
 
+import Control.Monad (unless, when)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
 import qualified Data.Map as M
 import StrongPath (Abs, Dir, Path', fromAbsDir)
-import System.IO (hPutStrLn, stderr)
-import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Terminal (asWaspWarningMessage)
+import Wasp.Cli.Message (cliSendWarningToStderr)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
@@ -26,7 +26,6 @@ import Wasp.Project.WaspNpmPackage
   )
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.Terminal (styleCode)
-import qualified Wasp.Util.Terminal as Term
 
 -- | Require that the project's \@wasp/wasp npm package is installed in
 -- node_modules, that it satisfies the version the project asks for, and that
@@ -40,111 +39,122 @@ instance Requirable WaspNpmPackageAvailable where
     -- they also need Node.js and npm.
     ValidNodeAndNpm <- require
     cliVersion <- liftIO getWaspCliNpmPackageVersion
-    declaredVersion <-
-      liftIO (getWaspNpmPackageDeclaration waspProjectDir)
-        >>= either (throwError . CommandError "Couldn't read package.json") return
-        >>= \case
-          DeclaredInDependencies version -> return version
-          DeclaredInDevDependencies version -> do
-            liftIO $ warnOnStderr inDevDependenciesWarningTitle inDevDependenciesWarning
-            return version
-          NotDeclared -> throwError $ notADependencyError cliVersion
-    liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
-      Right installedVersion
-        | not (doesVersionMatchDeclaredVersion declaredVersion installedVersion) ->
-            throwError
-              $ outOfDateError
-              $ "The package.json asks for "
-                ++ styleCode (waspNpmPackageName ++ " " ++ declaredVersion)
-                ++ ", but node_modules has "
-                ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
-                ++ "."
-        | cliVersion /= installedVersion -> do
-            isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
-            throwError $
-              if isRunByNpmPackage
-                then -- E.g. after a partial install.
-                  outOfDateError $
-                    "node_modules has "
-                      ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
-                      ++ ", but "
-                      ++ styleCode (waspCliNpmPackageName ++ " " ++ show cliVersion)
-                      ++ "."
-                else directRunError cliVersion installedVersion
-        | otherwise -> return WaspNpmPackageAvailable
-      Left WaspNpmPackageNotInstalled -> throwError $ notInstalledError waspProjectDir
-      Left (BrokenWaspNpmPackage reason) -> throwError $ brokenInstallError reason
-    where
-      notInstalledError :: Path' Abs (Dir WaspProjectDir) -> CommandError
-      notInstalledError waspProjectDir =
-        CommandError "Wasp is not installed" $
-          "Couldn't find "
-            ++ styleCode waspNpmPackageName
-            ++ " in the node_modules of "
-            ++ fromAbsDir waspProjectDir
-            ++ " or its parent dirs. Run "
-            ++ styleCode "npm install"
-            ++ " to install it."
+    declaredVersion <- getDeclaredWaspNpmPackageVersion waspProjectDir cliVersion
+    installedVersion <- getInstalledWaspNpmPackageVersion waspProjectDir
+    unless (doesVersionMatchDeclaredVersion declaredVersion installedVersion)
+      $ throwError
+      $ staleInstallError declaredVersion installedVersion
+    when (cliVersion /= installedVersion) $ do
+      isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
+      throwError $
+        if isRunByNpmPackage
+          then partialInstallError installedVersion cliVersion
+          else directRunError cliVersion installedVersion
+    return WaspNpmPackageAvailable
 
-      outOfDateError :: String -> CommandError
-      outOfDateError reason =
-        CommandError "The installed Wasp is out of date" $
-          reason ++ " Run " ++ styleCode "npm install" ++ " to update it."
+getDeclaredWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> SV.Version -> Command String
+getDeclaredWaspNpmPackageVersion waspProjectDir cliVersion =
+  liftIO (getWaspNpmPackageDeclaration waspProjectDir) >>= \case
+    Left parseError -> throwError $ CommandError "Couldn't read package.json" parseError
+    Right (DeclaredInDependencies version) -> return version
+    Right (DeclaredInDevDependencies version) -> do
+      liftIO $ cliSendWarningToStderr inDevDependenciesWarningTitle inDevDependenciesWarning
+      return version
+    Right NotDeclared -> throwError $ notADependencyError cliVersion
 
-      brokenInstallError :: String -> CommandError
-      brokenInstallError reason =
-        CommandError "The installed Wasp is broken" $
-          "Run "
-            ++ styleCode "npm install"
-            ++ " to reinstall it.\nDetails: "
-            ++ reason
+getInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> Command SV.Version
+getInstalledWaspNpmPackageVersion waspProjectDir =
+  liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
+    Right version -> return version
+    Left WaspNpmPackageNotInstalled -> throwError $ notInstalledError waspProjectDir
+    Left (BrokenWaspNpmPackage reason) -> throwError $ brokenInstallError reason
 
-      notADependencyError :: SV.Version -> CommandError
-      notADependencyError cliVersion =
-        CommandError
-          "Wasp is not a dependency of this project"
-          $ "Add "
-            ++ styleCode ("\"" ++ waspNpmPackageName ++ "\": \"" ++ show cliVersion ++ "\"")
-            ++ " to the "
-            ++ styleCode "dependencies"
-            ++ " in your "
-            ++ styleCode "package.json"
-            ++ " and run "
-            ++ styleCode "npm install"
-            ++ ". If you're upgrading from Wasp 0.26, follow the migration guide: "
-            ++ "https://wasp.sh/docs/0.27/migration-guide#2-depend-on-waspwasp-instead-of-waspshspec"
+notADependencyError :: SV.Version -> CommandError
+notADependencyError cliVersion =
+  CommandError
+    "Wasp is not a dependency of this project"
+    $ "Add "
+      ++ styleCode ("\"" ++ waspNpmPackageName ++ "\": \"" ++ show cliVersion ++ "\"")
+      ++ " to the "
+      ++ styleCode "dependencies"
+      ++ " in your "
+      ++ styleCode "package.json"
+      ++ " and run "
+      ++ styleCode "npm install"
+      ++ ". If you're upgrading from Wasp 0.26, follow the migration guide: "
+      ++ "https://wasp.sh/docs/0.27/migration-guide#2-depend-on-waspwasp-instead-of-waspshspec"
 
-      inDevDependenciesWarningTitle = "Wasp is a dev dependency of this project"
-      inDevDependenciesWarning =
-        "The "
-          ++ styleCode waspNpmPackageName
-          ++ " npm package brings your app's runtime dependencies, so installs that skip dev dependencies, like "
-          ++ styleCode "npm ci --omit=dev"
-          ++ ", leave them out. Move it from "
-          ++ styleCode "devDependencies"
-          ++ " to "
-          ++ styleCode "dependencies"
-          ++ " in your "
-          ++ styleCode "package.json"
-          ++ "."
+inDevDependenciesWarningTitle :: String
+inDevDependenciesWarningTitle = "Wasp is a dev dependency of this project"
 
-      -- Only the \@wasp/cli npm package hands over to the project's Wasp.
-      directRunError :: SV.Version -> SV.Version -> CommandError
-      directRunError cliVersion installedVersion =
-        CommandError "Wasp version mismatch" $
-          "You ran the Wasp binary "
-            ++ show cliVersion
-            ++ " directly, e.g. one built from source, so it can't switch to this project's Wasp "
-            ++ show installedVersion
-            ++ ". Run the project's Wasp with "
-            ++ styleCode "npm run wasp -- <command>"
-            ++ "."
+inDevDependenciesWarning :: String
+inDevDependenciesWarning =
+  "The "
+    ++ styleCode waspNpmPackageName
+    ++ " npm package brings your app's runtime dependencies, so installs that skip dev dependencies, like "
+    ++ styleCode "npm ci --omit=dev"
+    ++ ", leave them out. Move it from "
+    ++ styleCode "devDependencies"
+    ++ " to "
+    ++ styleCode "dependencies"
+    ++ " in your "
+    ++ styleCode "package.json"
+    ++ "."
 
--- | Prints to stderr, so a warning doesn't break the JSON that commands like
--- `wasp show spec --json` print to stdout.
-warnOnStderr :: String -> String -> IO ()
-warnOnStderr title body =
-  hPutStrLn stderr $ Term.applyStyles [Term.Magenta] $ asWaspWarningMessage (title ++ ":") ++ body
+notInstalledError :: Path' Abs (Dir WaspProjectDir) -> CommandError
+notInstalledError waspProjectDir =
+  CommandError "Wasp is not installed" $
+    "Couldn't find "
+      ++ styleCode waspNpmPackageName
+      ++ " in the node_modules of "
+      ++ fromAbsDir waspProjectDir
+      ++ " or its parent dirs. Run "
+      ++ styleCode "npm install"
+      ++ " to install it."
+
+brokenInstallError :: String -> CommandError
+brokenInstallError reason =
+  CommandError "The installed Wasp is broken" $
+    "Run "
+      ++ styleCode "npm install"
+      ++ " to reinstall it.\nDetails: "
+      ++ reason
+
+staleInstallError :: String -> SV.Version -> CommandError
+staleInstallError declaredVersion installedVersion =
+  outOfDateError $
+    "The package.json asks for "
+      ++ styleCode (waspNpmPackageName ++ " " ++ declaredVersion)
+      ++ ", but node_modules has "
+      ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
+      ++ "."
+
+-- | E.g. after a partial install.
+partialInstallError :: SV.Version -> SV.Version -> CommandError
+partialInstallError installedVersion cliVersion =
+  outOfDateError $
+    "node_modules has "
+      ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
+      ++ ", but "
+      ++ styleCode (waspCliNpmPackageName ++ " " ++ show cliVersion)
+      ++ "."
+
+outOfDateError :: String -> CommandError
+outOfDateError reason =
+  CommandError "The installed Wasp is out of date" $
+    reason ++ " Run " ++ styleCode "npm install" ++ " to update it."
+
+-- | Only the \@wasp/cli npm package hands over to the project's Wasp.
+directRunError :: SV.Version -> SV.Version -> CommandError
+directRunError cliVersion installedVersion =
+  CommandError "Wasp version mismatch" $
+    "You ran the Wasp binary "
+      ++ show cliVersion
+      ++ " directly, e.g. one built from source, so it can't switch to this project's Wasp "
+      ++ show installedVersion
+      ++ ". Run the project's Wasp with "
+      ++ styleCode "npm run wasp -- <command>"
+      ++ "."
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration
