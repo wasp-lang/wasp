@@ -103,7 +103,10 @@ withPostgresDevDb waspProjectDir appName devDbOptions action = do
           Left _exitCode -> throwDbError "The database stopped before accepting connections."
 
     runDbJob :: Dev.Postgres.DevDbSpec -> IO ExitCode
-    runDbJob devDbSpec = Job.run $ Dev.Postgres.runDevPostgresDb devDbSpec devDbOptions.dbImage devDbOptions.dbVolumeMountPath
+    runDbJob devDbSpec =
+      Job.run
+        $ Job.prefixWith Job.Db
+        $ Dev.Postgres.runDevPostgresDb devDbSpec devDbOptions.dbImage devDbOptions.dbVolumeMountPath
 
     throwIfDbFailed :: ExitCode -> Command ()
     throwIfDbFailed exitCode =
