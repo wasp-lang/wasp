@@ -8,7 +8,7 @@ module Wasp.Project.WaspNpmPackage
 
     -- * Scripts
     WaspNpmPackageScript (..),
-    waspNpmPackageScriptNodeArgs,
+    waspNpmPackageScriptCommand,
     runWaspNpmPackageScript,
   )
 where
@@ -20,6 +20,7 @@ import StrongPath (Abs, Dir, Path', fromAbsDir)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
+import Wasp.Generator.NodeCommand (NodeCommand (..))
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
@@ -91,24 +92,27 @@ waspNpmPackageScriptExportName = \case
   WaspDeployScript -> "run-deploy"
   WaspStudioScript -> "run-studio"
 
--- | Run `node` with these in the project dir. Node resolves the script through
--- \@wasp/wasp's `exports`, and the scripts parse their arguments with
--- commander, which handles `--eval`.
-waspNpmPackageScriptNodeArgs :: WaspNpmPackageScript -> [String] -> [String]
-waspNpmPackageScriptNodeArgs script args =
-  ["--input-type=module", "--eval", "import " ++ show scriptImport ++ ";", "--"] ++ args
+-- | Run from the project dir, Node resolves the script through \@wasp/wasp's
+-- `exports`. The scripts parse their arguments with commander, which handles
+-- `--eval`.
+waspNpmPackageScriptCommand :: WaspNpmPackageScript -> [String] -> NodeCommand WaspProjectDir
+waspNpmPackageScriptCommand script args =
+  NodeCommand "node" $ ["--input-type=module", "--eval", "import " ++ show scriptImport ++ ";", "--"] ++ args
   where
     scriptImport = waspNpmPackageName ++ "/" ++ waspNpmPackageScriptExportName script
 
--- | Runs the script attached to this terminal, so Ctrl+C reaches it and it
--- shuts down properly. Needs @ValidNodeAndNpm@ and @WaspNpmPackageAvailable@.
+-- | Needs @ValidNodeAndNpm@ and @WaspNpmPackageAvailable@.
 runWaspNpmPackageScript :: Path' Abs (Dir WaspProjectDir) -> WaspNpmPackageScript -> [String] -> IO ExitCode
 runWaspNpmPackageScript waspProjectDir script args =
   P.withCreateProcess scriptProcess $ \_ _ _ processHandle -> P.waitForProcess processHandle
   where
-    -- See https://hackage.haskell.org/package/process-1.6.17.0/docs/System-Process.html#g:4.
+    NodeCommand executable executableArgs = waspNpmPackageScriptCommand script args
+
+    -- Attached to this terminal, so Ctrl+C reaches the script and it shuts
+    -- down properly (see `delegate_ctlc` in
+    -- https://hackage.haskell.org/package/process-1.6.17.0/docs/System-Process.html#g:4).
     scriptProcess =
-      (P.proc "node" (waspNpmPackageScriptNodeArgs script args))
+      (P.proc executable executableArgs)
         { P.cwd = Just $ fromAbsDir waspProjectDir,
           P.std_in = P.Inherit,
           P.std_out = P.Inherit,

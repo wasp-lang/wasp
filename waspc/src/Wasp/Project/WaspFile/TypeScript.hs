@@ -29,6 +29,7 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import qualified Wasp.Job as Job
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
@@ -41,7 +42,7 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     tsConfigPaths,
   )
-import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspSpecAnalyzerScript), waspNpmPackageScriptNodeArgs)
+import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspSpecAnalyzerScript), waspNpmPackageScriptCommand)
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
@@ -115,9 +116,8 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
           --       Maybe consider using a different key, e.g. `WASP_MODE`?
           ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
         ]
-      $ Job.setCwd compileOptions.waspProjectDir
-      $ Job.proc "node"
-      $ waspNpmPackageScriptNodeArgs
+      $ NodeCommand.proc compileOptions.waspProjectDir
+      $ waspNpmPackageScriptCommand
         WaspSpecAnalyzerScript
         [ "analyze",
           fromAbsFile waspFilePath,

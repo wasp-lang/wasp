@@ -275,7 +275,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 `waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `<repo>/packages/` and are normal npm projects. See [`packages/README.md`](../packages/README.md) for how the projects are expected to be set up.
 
-The project's `@wasp/wasp` brings these packages, and `waspc` runs them from the project's `node_modules`. Wasp projects in this repo depend on dev tarballs of them under `waspc/.dev-packages/`. After you change a package, run `mise run build:dev-packages`, then run `mise run reinstall-dev-wasp-app-deps` from the project's directory to reinstall it.
+The project's `@wasp/wasp` brings these packages, and `waspc` runs them through it, wherever the project's package manager installed it. Wasp projects in this repo depend on dev tarballs of them under `waspc/.dev-packages/`. After you change a package, run `mise run build:dev-packages`, then run `mise run reinstall-dev-wasp-app-deps` from the project's directory to reinstall it.
 
 ### WaspLibs
 

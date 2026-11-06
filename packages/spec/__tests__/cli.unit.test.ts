@@ -24,15 +24,21 @@ describe("makeCli", () => {
     ]);
   });
 
-  test("should throw an error if an argument is missing", async () => {
-    await expectParseToError([
-      "analyze",
-      "main.wasp.ts",
-      "tsconfig.wasp.json",
-      "/project",
-      "output.json",
-    ]);
-  });
+  test.each([1, 2, 3, 4, 5])(
+    "should throw an error if argument %i is missing",
+    async (missingArgIndex) => {
+      const args = [
+        "analyze",
+        "main.wasp.ts",
+        "tsconfig.wasp.json",
+        "/project",
+        "output.json",
+        "[]",
+      ];
+      args.splice(missingArgIndex, 1);
+      await expectParseToError(args);
+    },
+  );
 
   test("should throw an error if there is an extra argument", async () => {
     await expectParseToError([
