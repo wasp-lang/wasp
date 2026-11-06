@@ -1,15 +1,17 @@
-import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import classNames from "classnames";
-import { useState } from "react";
-import { getPlacement, track } from "../lib/analytics";
+import { useState, type FormEvent } from "react";
+import {
+  getPlacement,
+  track,
+  type NewsletterErrorStatus,
+  type Placement,
+} from "../lib/analytics";
 
 const createNewEmailSubscriberApiEndpoint =
   "https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu";
 
-const NEWSLETTER_INPUT_ID = "newsletter-input";
-
 // Do not rename these values: Loops stores them on each new contact.
-const LOOPS_SOURCE_BY_PLACEMENT = {
+const LOOPS_SOURCE_BY_PLACEMENT: Partial<Record<Placement, string>> = {
   newsletter: "web-homepage",
   footer: "web-footer",
   post_card: "web-post",
@@ -23,16 +25,30 @@ const buttonVariantClasses = {
   black: "bg-wasp-black text-wasp-yellow hover:bg-wasp-g7",
 };
 
+type SubscribeFormProps = {
+  className?: string;
+  inputBgColor?: string;
+  buttonVariant?: keyof typeof buttonVariantClasses;
+  inputId?: string;
+  // Replaces the Loops source that the placement gives, for a page that needs
+  // its own source.
+  source?: string;
+  // Also adds the contact to this Loops mailing list.
+  mailingListId?: string;
+};
+
 const SubscribeForm = ({
   className,
   inputBgColor = "bg-wasp-white",
   buttonVariant = "yellow",
-}) => {
+  inputId,
+  source,
+  mailingListId,
+}: SubscribeFormProps) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  useBrokenLinks().collectAnchor(NEWSLETTER_INPUT_ID);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
     event.preventDefault();
     // React clears `currentTarget` after the first `await`.
@@ -41,10 +57,13 @@ const SubscribeForm = ({
     const body = new URLSearchParams({
       userGroup: "",
       email,
-      source: LOOPS_SOURCE_BY_PLACEMENT[getPlacement(form)] ?? "web",
+      source: source ?? LOOPS_SOURCE_BY_PLACEMENT[getPlacement(form)] ?? "web",
     });
+    if (mailingListId) {
+      body.set("mailingLists", mailingListId);
+    }
 
-    let response;
+    let response: Response;
     try {
       response = await fetch(createNewEmailSubscriberApiEndpoint, {
         method: "POST",
@@ -89,7 +108,7 @@ const SubscribeForm = ({
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            id={NEWSLETTER_INPUT_ID}
+            id={inputId}
             required
             autoComplete="email"
             placeholder="you@awesomedev.com"
@@ -115,7 +134,7 @@ const SubscribeForm = ({
   );
 };
 
-function getErrorStatus(httpStatus) {
+function getErrorStatus(httpStatus: number): NewsletterErrorStatus {
   if (httpStatus === 429) {
     return "429";
   }
