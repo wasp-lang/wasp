@@ -761,7 +761,9 @@ describe("mapUsernameAndPassword", () => {
         mapRefObjectForMockProjectDir(usernameAndPassword.userSignupFields),
       passwordValidationSchema:
         usernameAndPassword.passwordValidationSchema &&
-        mapRefObjectForMockProjectDir(usernameAndPassword.passwordValidationSchema),
+        mapRefObjectForMockProjectDir(
+          usernameAndPassword.passwordValidationSchema,
+        ),
     } satisfies AppSpec.UsernameAndPasswordConfig);
   }
 });
