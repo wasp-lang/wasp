@@ -25094,37 +25094,37 @@ See the [Wasp Spec docs](https://wasp.sh/docs/features/spec) for the full shape 
 
 The app configuration.
 
-###### auth? {#auth-5}
+###### auth? {#auth}
 
 [`Auth`](#auth-3)
 
 Configuration for authentication. Enables auth when set.
 
-###### client? {#client-2}
+###### client? {#client}
 
 [`Client`](#client-1)
 
 Configuration for the client part of the resulting Wasp app.
 
-###### db? {#db-2}
+###### db? {#db}
 
 [`Db`](#db-1)
 
 Configuration for the app's database.
 
-###### deployment? {#deployment-2}
+###### deployment? {#deployment}
 
 [`Deployment`](#deployment-1)
 
 Configuration for how the app will be deployed.
 
-###### emailSender? {#emailsender-2}
+###### emailSender? {#emailsender}
 
 [`EmailSender`](#emailsender-1)
 
 Configuration for the app's email sender.
 
-###### head?
+###### head? {#head}
 
 `string`\[]
 
@@ -25134,7 +25134,7 @@ Each entry is rendered inside a React component, so the strings must be valid JS
 
 Due to a [React bug](https://github.com/facebook/react/issues/36169), avoid `defer` on `<script>` tags because it can cause hydration warnings. Use `async` instead.
 
-###### name {#name-4}
+###### name {#name}
 
 `string`
 
@@ -25142,13 +25142,13 @@ Internal app name.
 
 Must not contain spaces.
 
-###### server? {#server-2}
+###### server? {#server}
 
 [`Server`](#server-1)
 
 Configuration for the server part of the resulting Wasp app.
 
-###### spec {#spec-2}
+###### spec {#spec}
 
 [`Spec`](#spec-1)
 
@@ -25156,7 +25156,7 @@ The specification ([Spec](#spec-1)) of the app.
 
 Build entries with the dedicated constructors ([page](#page-2), [route](#route-1), [query](#query-1), [action](#action-1), [api](#api-1), [apiNamespace](#apinamespace-1), [job](#job-1), [crud](#crud-1)).
 
-###### title
+###### title {#title}
 
 `string`
 
@@ -25164,7 +25164,7 @@ App title.
 
 Used as the browser tab title.
 
-###### wasp {#wasp-2}
+###### wasp {#wasp}
 
 [`Wasp`](#wasp-1)
 
@@ -25172,7 +25172,7 @@ Wasp metadata.
 
 This will get checked against the Wasp CLI.
 
-###### webSocket? {#websocket-2}
+###### webSocket? {#websocket}
 
 [`WebSocket`](#websocket-1)
 
@@ -25213,7 +25213,7 @@ See [Actions](https://wasp.sh/docs/features/data/operations/actions).
 
 ##### Parameters
 
-###### fn {#fn-5}
+###### fn
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25225,7 +25225,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 ###### config?
 
-###### auth? {#auth-6}
+###### auth? {#auth-1}
 
 `boolean`
 
@@ -25233,7 +25233,7 @@ Whether this Action requires auth. If your app has auth enabled, this defaults t
 
 Only available if your app has auth enabled.
 
-###### entities? {#entities-5}
+###### entities?
 
 `string`\[]
 
@@ -25272,19 +25272,19 @@ See [Custom HTTP API Endpoints](https://wasp.sh/docs/features/apis).
 
 ##### Parameters
 
-###### method {#method-1}
+###### method
 
 [`HttpMethod`](#httpmethod)
 
 HTTP method to listen on (or `"ALL"` for any).
 
-###### path {#path-3}
+###### path
 
 `string`
 
 Express path the endpoint is mounted at.
 
-###### fn {#fn-6}
+###### fn
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25296,13 +25296,13 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 Optional settings: `middlewareConfigFn`, `entities`, `auth`.
 
-###### auth? {#auth-7}
+###### auth? {#auth-2}
 
 `boolean`
 
 If `true`, the handler requires the request to come from an authenticated user and receives `context.user`. Defaults to `true` when the app has auth enabled, and `false` otherwise. Set to `false` to skip parsing the JWT from the Authorization header.
 
-###### entities? {#entities-6}
+###### entities?
 
 `string`\[]
 
@@ -25310,7 +25310,7 @@ Entities the handler operates on. Wasp injects a Prisma delegate for each one in
 
 See [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis).
 
-###### middlewareConfigFn? {#middlewareconfigfn-3}
+###### middlewareConfigFn?
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25345,7 +25345,7 @@ See the [per-path middleware section](https://wasp.sh/docs/advanced/server-custo
 
 ##### Parameters
 
-###### path {#path-4}
+###### path
 
 `string`
 
@@ -25357,7 +25357,7 @@ Required `middlewareConfigFn`.
 
 Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) when passing values from your app into the Wasp spec. If a direct import is not practical, use [ref](#ref) as a fallback.
 
-###### middlewareConfigFn {#middlewareconfigfn-4}
+###### middlewareConfigFn
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25390,19 +25390,19 @@ See [Automatic CRUD](https://wasp.sh/docs/features/data/crud).
 
 ##### Parameters
 
-###### name {#name-5}
+###### name {#name-1}
 
 `string`
 
 Unique name for the generated CRUD.
 
-###### entity {#entity-1}
+###### entity
 
 `string`
 
 Name of the Prisma entity to generate operations for.
 
-###### operations {#operations-1}
+###### operations
 
 [`CrudOperations`](#crudoperations-1)
 
@@ -25442,7 +25442,7 @@ See [Recurring Jobs](https://wasp.sh/docs/features/jobs).
 
 ##### Parameters
 
-###### fn {#fn-7}
+###### fn
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25454,7 +25454,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 Required `executor` and optional `schedule`, `entities`, and `performExecutorOptions`.
 
-###### entities? {#entities-7}
+###### entities?
 
 `string`\[]
 
@@ -25462,7 +25462,7 @@ Entities the worker operates on. Wasp injects a Prisma delegate for each one int
 
 This works like entity access in queries and actions. See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
 
-###### executor {#executor-1}
+###### executor
 
 `"PgBoss"`
 
@@ -25470,7 +25470,7 @@ Executor backing this job.
 
 Currently only `"PgBoss"` is available.
 
-###### performExecutorOptions? {#performexecutoroptions-1}
+###### performExecutorOptions?
 
 [`ExecutorOptions`](#executoroptions)
 
@@ -25484,7 +25484,7 @@ These options are passed through to the executor and can be overridden when subm
 {}
 ```
 
-###### schedule? {#schedule-2}
+###### schedule?
 
 [`Schedule`](#schedule-1)
 
@@ -25521,7 +25521,7 @@ See [Pages & Routes](https://wasp.sh/docs/features/pages-and-routes) and the [Au
 
 ##### Parameters
 
-###### component {#component-1}
+###### component
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25533,7 +25533,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 Optional page settings such as `authRequired`.
 
-###### authRequired? {#authrequired-1}
+###### authRequired?
 
 `boolean`
 
@@ -25574,7 +25574,7 @@ See [Queries](https://wasp.sh/docs/features/data/operations/queries).
 
 ##### Parameters
 
-###### fn {#fn-8}
+###### fn
 
 [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -25586,7 +25586,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 
 ###### config?
 
-###### auth? {#auth-8}
+###### auth? {#auth-3}
 
 `boolean`
 
@@ -25594,7 +25594,7 @@ Whether this Query requires auth. If your app has auth enabled, this defaults to
 
 Only available if your app has auth enabled.
 
-###### entities? {#entities-8}
+###### entities?
 
 `string`\[]
 
@@ -25634,19 +25634,19 @@ Use `config.prerender` to render the route to static HTML at build time: `true` 
 
 ##### Parameters
 
-###### name {#name-6}
+###### name {#name-2}
 
 `string`
 
 Unique name for the route.
 
-###### path {#path-5}
+###### path
 
 `string`
 
 URL path the route matches.
 
-###### page {#page-3}
+###### page {#page}
 
 [`Page`](#page)
 
@@ -25656,7 +25656,7 @@ The result of `page()`.
 
 Optional route settings (`lazy`, `prerender`).
 
-###### lazy? {#lazy-1}
+###### lazy?
 
 `boolean`
 
@@ -25670,7 +25670,7 @@ Set to `false` to include the page in the initial client bundle, which avoids th
 true
 ```
 
-###### prerender? {#prerender-1}
+###### prerender?
 
 `boolean` | readonly `string`\[]
 
@@ -27604,8 +27604,6 @@ The optional configuration object accepted as the last argument of the [route](#
 
 ### Referenced Types
 
-The exports on this page refer to these types. You can't import them from this module.
-
 #### AuthHooks
 
 ##### Extended by
@@ -27727,7 +27725,7 @@ The internal Wasp type of a [SpecElement](#specelement). Used by the compiler. Y
 
 ##### Parameters
 
-###### args
+###### args {#args}
 
 ...`never`\[]
 
@@ -27867,7 +27865,7 @@ Its shape depends on your app: its fields come from your user entity, and `ident
 
 ##### Type Declaration
 
-###### getFirstProviderUserId {#getfirstprovideruserid-1}
+###### getFirstProviderUserId
 
 > **getFirstProviderUserId**: () => `string` | `null`
 
@@ -28068,8 +28066,6 @@ function MainPage() {
 [Getting auth data from the user object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### AuthUserIdentities
 
@@ -28546,8 +28542,6 @@ const analyticsId = env.REACT_APP_ANALYTICS_ID;
 
 ### Referenced Types
 
-The exports on this page refer to these types. You can't import them from this module.
-
 #### ClientEnv
 
 > **ClientEnv** = `object`
@@ -28599,7 +28593,7 @@ An error that a request to your server failed with.
 
 ###### Parameters
 
-###### statusCode {#statuscode-1}
+###### statusCode
 
 `number`
 
@@ -28607,7 +28601,7 @@ An error that a request to your server failed with.
 
 `string`
 
-###### data {#data-1}
+###### data
 
 `unknown`
 
@@ -28704,8 +28698,6 @@ try {
 ```
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### KyInstance
 
@@ -30028,8 +30020,6 @@ export function VerifyEmailPage() {
 
 ### Referenced Types
 
-The exports on this page refer to these types. You can't import them from this module.
-
 #### AdditionalSignupField
 
 > **AdditionalSignupField** = `object`
@@ -30064,7 +30054,7 @@ The exports on this page refer to these types. You can't import them from this m
 
 `UseFormReturn`<[`LoginSignupFormFields`](#loginsignupformfields)>
 
-###### formState {#formstate-1}
+###### formState
 
 [`FormState`](#formstate)
 
@@ -30237,7 +30227,7 @@ export const SomePage = () => {
 #### Crud
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of the client-side object for a `crud` spec.
@@ -30363,8 +30353,6 @@ await updateTask({ id: 1, isDone: true });
 ```
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### CrudAction
 
@@ -30683,13 +30671,13 @@ Wasp's optimistic update API is deliberately small and focuses exclusively on up
 
 ##### Parameters
 
-###### action {#action-1}
+###### action
 
 [`Action`](#action)<`Input`, `Output`>
 
 The Wasp Action (the client-side Action function generated by Wasp based on an Action spec) you wish to enhance, imported from `wasp/client/operations`.
 
-###### actionOptions? {#actionoptions-1}
+###### actionOptions?
 
 [`ActionOptions`](#actionoptions)<`Input`>
 
@@ -30789,7 +30777,7 @@ When a Query fails, `useQuery` retries it a few times before giving up. Client e
 
 ##### Parameters
 
-###### query {#query-1}
+###### query
 
 [`Query`](#query)<`Input`, `Output`>
 
@@ -30876,7 +30864,7 @@ You don't need to annotate the Query's return value type. Wasp automatically inf
 > **Action**<`Input`, `Output`> = `0` *extends* `1` & `Input` ? (`args?`) => `Promise`<`Output`> : \[`Input`] *extends* \[`never`] ? (`args?`) => `Promise`<`Output`> : \[`Input`] *extends* \[`void`] ? () => `Promise`<`Output`> : (`args`) => `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of the client-side function for calling an Action.
@@ -30921,7 +30909,7 @@ await markTaskAsDone({ id: 1 });
 > **Query**<`Input`, `Output`> = [`QueryFunction`](#queryfunction)<`Input`, `Output`> & [`QueryMetadata`](#querymetadata)
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of the client-side function for calling a Query.
@@ -30960,8 +30948,6 @@ const doneTasks = await getFilteredTasks({ isDone: true });
 [Using Queries on the client](https://wasp.sh/docs/features/data/operations/queries#using-queries-on-the-client)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### ActionOptions {#actionoptions}
 
@@ -31242,8 +31228,6 @@ export function Navigation() {
 
 ### Referenced Types
 
-The exports on this page refer to these types. You can't import them from this module.
-
 #### Params
 
 > **Params** = `object`
@@ -31518,8 +31502,6 @@ const { result } = renderHook(() => useTaskCount(), {
 [Testing](https://wasp.sh/docs/advanced/testing)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### MockApi
 
@@ -31851,8 +31833,6 @@ export default defineConfig({
 
 ### Referenced Types
 
-The exports on this page refer to these types. You can't import them from this module.
-
 #### PluginOption
 
 > **PluginOption** = [`VitePluginOptionValue`](#vitepluginoptionvalue) | `Promise`<[`VitePluginOptionValue`](#vitepluginoptionvalue)>
@@ -32034,7 +32014,7 @@ Registers a handler for an event the server sends. It unregisters the handler wh
 
 ##### Parameters
 
-###### event
+###### event {#event}
 
 `Event`
 
@@ -32076,8 +32056,6 @@ export const ChatPage = () => {
 [The `useSocketListener` hook](https://wasp.sh/docs/features/websockets#the-usesocketlistener-hook)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### ClientToServerEvents
 
@@ -32182,7 +32160,7 @@ Wasp merges your schema with the built-in validation schema of the Wasp-defined 
 
 ##### Parameters
 
-###### schema
+###### schema {#schema}
 
 `Schema`
 
@@ -32304,7 +32282,7 @@ throw new HttpError(
 
 ###### Parameters
 
-###### statusCode {#statuscode-1}
+###### statusCode
 
 `number`
 
@@ -32312,7 +32290,7 @@ throw new HttpError(
 
 `string`
 
-###### data? {#data-1}
+###### data?
 
 `Record`<`string`, `unknown`>
 
@@ -32356,7 +32334,7 @@ Run seed functions with `wasp db seed` (or `wasp db seed <seed-name>`).
 
 ##### Parameters
 
-###### prisma {#prisma-1}
+###### prisma
 
 [`PrismaClient`](#prismaclient)
 
@@ -32402,7 +32380,7 @@ Please treat modifications to global middleware with extreme care, as they affec
 
 ##### Parameters
 
-###### middlewareConfig {#middlewareconfig-1}
+###### middlewareConfig
 
 [`MiddlewareConfig`](#middlewareconfig)
 
@@ -32623,8 +32601,6 @@ await prisma.task.create({
 - [Customising the Prisma Client](https://wasp.sh/docs/features/data/databases#customising-the-prisma-client)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### HttpErrorOptions
 
@@ -33000,7 +32976,7 @@ export const fooBar: FooBar = (req, res, context) => {
 > **Api**<`Entities`, `Params`, `ResBody`, `ReqBody`, `ReqQuery`, `Locals`> = (`req`, `res`, `context`) => `void`
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of an API's implementation, when the API doesn't use auth.
@@ -33074,7 +33050,7 @@ The type of `res.locals`.
 > **AuthenticatedApi**<`Entities`, `Params`, `ResBody`, `ReqBody`, `ReqQuery`, `Locals`> = (`req`, `res`, `context`) => `void`
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of an API's implementation, when the API uses auth.
@@ -33175,8 +33151,6 @@ export const fooBar: FooBar = async (req, res, context) => {
 - [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### ApiContext
 
@@ -33880,7 +33854,7 @@ Only available with [Email](https://wasp.sh/docs/features/auth/email/overview) a
 
 ##### Parameters
 
-###### email {#email-3}
+###### email
 
 `string`
 
@@ -33942,7 +33916,7 @@ Only available with [Email](https://wasp.sh/docs/features/auth/email/overview) a
 
 ##### Parameters
 
-###### email {#email-4}
+###### email
 
 `string`
 
@@ -33972,13 +33946,13 @@ It normalizes the user ID: emails and usernames are case-insensitive, so it lowe
 
 ##### Parameters
 
-###### providerName {#providername-3}
+###### providerName {#providername}
 
 keyof [`PossibleProviderData`](#possibleproviderdata)
 
 The auth method's name, e.g. `"email"`.
 
-###### providerUserId {#provideruserid-2}
+###### providerUserId {#provideruserid}
 
 `string`
 
@@ -34013,7 +33987,7 @@ It's a more convenient way to create the `User`, `Auth`, and `AuthIdentity` enti
 
 ##### Parameters
 
-###### providerId {#providerid-5}
+###### providerId {#providerid}
 
 [`ProviderId`](#providerid-4)
 
@@ -34340,7 +34314,7 @@ Finds the auth identity of a user.
 
 ##### Parameters
 
-###### providerId {#providerid-6}
+###### providerId {#providerid-1}
 
 [`ProviderId`](#providerid-4)
 
@@ -34383,7 +34357,7 @@ Pass the auth method's name as the type parameter to get the right type, e.g. `g
 
 ##### Parameters
 
-###### providerData {#providerdata-1}
+###### providerData
 
 `string`
 
@@ -34422,7 +34396,7 @@ Pass the auth method's name as the type parameter to get the right type, e.g. `g
 
 ##### Parameters
 
-###### providerData {#providerdata-2}
+###### providerData
 
 `string`
 
@@ -34470,7 +34444,7 @@ Only available with [Email](https://wasp.sh/docs/features/auth/email/overview) a
 
 The user's [EmailProviderData](#emailproviderdata).
 
-###### field
+###### field {#field}
 
 `Field`
 
@@ -34530,7 +34504,7 @@ Pass the auth method's name as the type parameter to get the right type, e.g. `s
 
 ##### Parameters
 
-###### providerData {#providerdata-3}
+###### providerData
 
 [`PossibleProviderData`](#possibleproviderdata)\[`PN`]
 
@@ -34577,7 +34551,7 @@ Only available with [Email](https://wasp.sh/docs/features/auth/email/overview) a
 
 ##### Parameters
 
-###### email {#email-5}
+###### email
 
 `string`
 
@@ -34611,7 +34585,7 @@ Only available with [Email](https://wasp.sh/docs/features/auth/email/overview) a
 
 ##### Parameters
 
-###### email {#email-6}
+###### email
 
 `string`
 
@@ -34645,7 +34619,7 @@ It hashes the password if you update the `hashedPassword` field, so pass the new
 
 ##### Parameters
 
-###### providerId {#providerid-7}
+###### providerId {#providerid-2}
 
 [`ProviderId`](#providerid-4)
 
@@ -34707,8 +34681,6 @@ export const updatePassword: UpdatePassword<
 [Password hashing](https://wasp.sh/docs/features/auth/overview#password-hashing)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### AuthEntity
 
@@ -34837,7 +34809,7 @@ Arctic's OAuth client for Discord.
 
 ###### Parameters
 
-###### refreshToken {#refreshtoken-4}
+###### refreshToken
 
 `string`
 
@@ -35005,7 +34977,7 @@ Arctic's OAuth client for Google.
 
 ###### Parameters
 
-###### refreshToken {#refreshtoken-5}
+###### refreshToken {#refreshtoken-1}
 
 `string`
 
@@ -35107,7 +35079,7 @@ Arctic's OAuth client for Keycloak.
 
 ###### Parameters
 
-###### refreshToken {#refreshtoken-6}
+###### refreshToken {#refreshtoken-2}
 
 `string`
 
@@ -35197,7 +35169,7 @@ Arctic's OAuth client for Microsoft Entra ID.
 
 ###### Parameters
 
-###### refreshToken {#refreshtoken-7}
+###### refreshToken {#refreshtoken-3}
 
 `string`
 
@@ -35907,7 +35879,7 @@ Sends an email.
 
 ###### Parameters
 
-###### email
+###### email {#email}
 
 [`Email`](#email)
 
@@ -35984,7 +35956,7 @@ await mySpecialJob.delay(10).submit({ name: "Johnny" });
 #### PgBossJob
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 A Job you can submit to be executed by its executor, pg-boss.
@@ -36049,7 +36021,7 @@ Returns a copy of this Job that delays the invocation of the worker function whe
 
 ###### Parameters
 
-###### startAfter {#startafter-1}
+###### startAfter
 
 `string` | `number` | `Date`
 
@@ -36114,7 +36086,7 @@ const submittedJob = await mySpecialJob.submit({ name: "Johnny" });
 > **JobFn**<`Input`, `Output`, `Entities`> = (`args`, `context`) => `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of a Job's worker function: an `async` function that performs the Job's work. The value it returns is the Job's result.
@@ -36155,7 +36127,7 @@ The data passed to the Job when it's submitted.
 
 The context object. Its `entities` field has the Prisma API for each Entity in the Job's `entities` field, keyed by the Entity's name (e.g. `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/orm/prisma-client/queries/crud)).
 
-###### entities
+###### entities {#entities}
 
 `Entities`
 
@@ -36188,8 +36160,6 @@ export const mySpecialJob: MySpecialJob<Input, Output> = async (
 
 ### Referenced Types
 
-The exports on this page refer to these types. You can't import them from this module.
-
 #### Job
 
 This is a definition of a job (think draft or invocable computation), not the running instance itself. This can be submitted one or more times to be executed by some job executor via the same instance. Once submitted, you get a SubmittedJob to track it later.
@@ -36206,11 +36176,11 @@ This is a definition of a job (think draft or invocable computation), not the ru
 
 ###### Parameters
 
-###### jobName {#jobname-2}
+###### jobName {#jobname}
 
 `string`
 
-###### executorName {#executorname-2}
+###### executorName {#executorname}
 
 `string` | `symbol`
 
@@ -36242,11 +36212,11 @@ This is the result of submitting a Job to some executor. It can be used by calle
 
 ###### Parameters
 
-###### job {#job-3}
+###### job {#job}
 
 [`Job`](#job)
 
-###### jobId {#jobid-2}
+###### jobId
 
 `string`
 
@@ -36544,7 +36514,7 @@ import { type GetFoo } from "wasp/server/operations";
 > **AuthenticatedActionDefinition**<`Entities`, `Input`, `Output`> = (`args`, `context`) => `Output` | `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of an authenticated Action's implementation.
@@ -36661,7 +36631,7 @@ TypeScript knows the correct type for `context`, and that the Action's return ty
 > **AuthenticatedOperation**<`Input`, `Output`> = `0` *extends* `1` & `Input` ? (`args`, `context`) => `Promise`<`Output`> : \[`Input`] *extends* \[`never`] ? (`args`, `context`) => `Promise`<`Output`> : \[`Input`] *extends* \[`void`] ? (`context`) => `Promise`<`Output`> : (`args`, `context`) => `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of the functions for calling authenticated Queries and Actions on the server.
@@ -36728,7 +36698,7 @@ await markTaskAsDone({ id: 1 }, { user });
 > **AuthenticatedQueryDefinition**<`Entities`, `Input`, `Output`> = (`args`, `context`) => `Output` | `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of an authenticated Query's implementation.
@@ -36845,7 +36815,7 @@ TypeScript knows the correct type for `context`, and that the Query's return typ
 > **UnauthenticatedActionDefinition**<`Entities`, `Input`, `Output`> = (`args`, `context`) => `Output` | `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of an Action's implementation, when the Action doesn't use auth.
@@ -36913,7 +36883,7 @@ export const createTask: CreateTask<Pick<Task, "description">, Task> = (
 > **UnauthenticatedOperation**<`Input`, `Output`> = `0` *extends* `1` & `Input` ? (`args?`) => `Promise`<`Output`> : \[`Input`] *extends* \[`never`] ? (`args?`) => `Promise`<`Output`> : \[`Input`] *extends* \[`void`] ? () => `Promise`<`Output`> : (`args`) => `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of the functions for calling Queries and Actions that don't use auth on the server.
@@ -36956,7 +36926,7 @@ const doneTasks = await getFilteredTasks({ isDone: true });
 > **UnauthenticatedQueryDefinition**<`Entities`, `Input`, `Output`> = (`args`, `context`) => `Output` | `Promise`<`Output`>
 
 :::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::
 
 The type of a Query's implementation, when the Query doesn't use auth.
@@ -37018,8 +36988,6 @@ export const getFilteredTasks: GetFilteredTasks<
 [Implementing Queries](https://wasp.sh/docs/features/data/operations/queries#implementing-queries-in-node)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### SuperJSONArray
 
@@ -37264,8 +37232,6 @@ interface SocketData extends WaspSocketData {}
 [The `webSocketFn` function](https://wasp.sh/docs/features/websockets#websocketfn)
 
 ### Referenced Types
-
-The exports on this page refer to these types. You can't import them from this module.
 
 #### WebSocketContext
 

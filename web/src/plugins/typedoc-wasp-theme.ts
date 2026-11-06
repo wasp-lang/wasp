@@ -11,8 +11,7 @@
  *   `@group`. Mark a declaration with the `@placeholder` modifier tag in its doc
  *   comment.
  * - Puts the types that `typedoc-plugin-missing-exports` documents in the
- *   "Referenced Types" group unless they set a `@group`, and adds a description
- *   to that group.
+ *   "Referenced Types" group unless they set a `@group`.
  */
 
 import {
@@ -41,7 +40,7 @@ const PLACEHOLDER_TYPES_GROUP = "Placeholder Types";
 const REFERENCED_TYPES_GROUP = "Referenced Types";
 
 const PLACEHOLDER_CALLOUT = `:::note[Placeholder]
-This type isn't a real export of the SDK, so you can't import it by this name. It describes the ones Wasp generates for your app, named after what you declare in your Wasp spec.
+You can't import this name. Wasp generates the real exports from your Wasp spec, one per declaration, so their names depend on your app. This entry tells you the general type of the real exports. Read on to understand how it is customized for your app.
 :::`;
 
 // `typedoc-plugin-missing-exports` documents the missing exports in a
