@@ -7,6 +7,8 @@ import ShellCommands
     WaspProjectContext (..),
     createTestWaspProject,
     inTestWaspProjectDir,
+    setWaspDbToPSQL,
+    skipIfDockerDisabled,
     waitUntil,
     waspCliCompile,
     waspCliStart,
@@ -15,6 +17,7 @@ import ShellCommands
 import StrongPath (fromAbsDir)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 
 -- | Each test case uses its own (client, server) ports, so they can run in
 -- parallel.
@@ -79,6 +82,23 @@ waspStartTest =
             ]
         ),
       TestCase
+        "start-and-stop-postgresql-dev-db"
+        ( skipIfDockerDisabled . sequence $
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $
+                setWaspDbToPSQL
+                  : runWaspStartAndStopIt "INT" postgresTestPorts
+                  ++ [ return $ "grep -q 'Starting a PostgreSQL dev database' " ++ waspStartLogFile,
+                       return $
+                         waitUntil
+                           30
+                           ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\" ]")
+                           "The dev database container was left behind after Wasp stopped.",
+                       return $ "docker volume rm \"" ++ reportedDevDbVolumeName ++ "\""
+                     ]
+            ]
+        ),
+      TestCase
         "fail-when-web-app-crashes"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
@@ -106,6 +126,15 @@ waspStartTest =
 
     terminalHangupTestPorts :: (Int, Int)
     terminalHangupTestPorts = (31050, 31051)
+
+    postgresTestPorts :: (Int, Int)
+    postgresTestPorts = (31060, 31061)
+
+    -- Shell substitution that extracts the volume name `wasp start` reported
+    -- when it started the dev database.
+    reportedDevDbVolumeName :: String
+    reportedDevDbVolumeName =
+      "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ waspStartLogFile ++ ")"
 
     -- Kills the Vite dev server of this test case's project.
     crashWebApp :: ShellCommand
@@ -164,7 +193,10 @@ waspCliStartWithPorts (clientPort, serverPort) = do
         "--client-port",
         show clientPort,
         "--server-port",
-        show serverPort
+        show serverPort,
+        -- So it doesn't compete for the default port with parallel test cases.
+        "--db-port",
+        show (serverPort + 1)
       ]
 
 -- | Registers an EXIT trap that stops whatever is left of the app when the
