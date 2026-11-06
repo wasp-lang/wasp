@@ -24,11 +24,9 @@ export function ensurePasswordIsPresent(args: object): void {
   validate(password, presentPasswordSchema);
 }
 
-// The parsed output is ignored, so a transforming schema never changes the
-// password that gets hashed.
 export function ensureValidPassword(
   args: object,
-  schema: PasswordValidationSchema,
+  schema: PasswordValidationSchema = defaultPasswordValidationSchema,
 ): void {
   const password = PASSWORD_FIELD in args ? args[PASSWORD_FIELD] : undefined;
   validate(password, schema);
