@@ -27819,7 +27819,7 @@ Each of the modules below is a path you can import from.
 
 ### Getting the package
 
-You don't need to install anything, and the package isn't published to npm. The Wasp CLI generates it specifically for your app, based on your Wasp Spec and Prisma schema, and sets it up as an npm workspace in `.wasp/out/sdk/wasp`.
+You don't need to install anything, and the package isn't published to npm. The Wasp CLI generates it specifically for your app, based on your Wasp Spec and Prisma schema, and sets it up as a dependency in your project.
 
 ### Modules
 

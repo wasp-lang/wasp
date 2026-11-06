@@ -2,7 +2,7 @@
 
 # @wasp/spec
 
-The `@wasp/spec` package has everything you need to write your app's [Wasp Spec](../../features/spec.md): the `main.wasp.ts` file where you define your app's pages, routes, queries, actions, auth, and more.
+The `@wasp/spec` package has everything you need to write your app's [Wasp Spec](/docs/features/spec): the `main.wasp.ts` file where you define your app's pages, routes, queries, actions, auth, and more.
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec";
