@@ -3,9 +3,11 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
+import Control.Monad (unless)
 import Control.Monad.Catch (bracket_)
 import Control.Monad.Except (catchError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Functor (($>))
 import Data.Maybe (isJust)
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
@@ -45,15 +47,26 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   ValidNodeAndNpm <- require
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
   let absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
+      needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
 
   createProjectOnDisk newProjectDescription
   -- TODO consider removing if we start doing `wasp install` automatically
   areDepsInstalled <- liftIO $ installDepsForNewProject absWaspProjectDir
+
   isDbMigrated <-
-    if areDepsInstalled && _migratesDbOnCreation (metadata $ _template newProjectDescription)
+    if needsMigration && areDepsInstalled
       then migrateDbForNewProject absWaspProjectDir
       else return False
-  liftIO $ printGettingStartedInstructionsForProject newProjectDescription isDbMigrated
+
+  liftIO $ printGettingStartedInstructionsForProject newProjectDescription
+
+  let extraSteps =
+        ["wasp install" | not areDepsInstalled]
+          ++ ["wasp migrate" | needsMigration && not isDbMigrated]
+
+  unless (null extraSteps)
+    $ liftIO
+    $ printExtraInstructionsForProject extraSteps
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
@@ -71,12 +84,8 @@ installDepsForNewProject absWaspProjectDir =
   installIO absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
-      putStrLn
-        $ Term.applyStyles [Term.Yellow]
-        $ "Warning: The project was created, but dependency installation failed.\n"
-          ++ "Run "
-          ++ styleCode "wasp install"
-          ++ " in the project directory to install the dependencies."
+      putStrLn $
+        Term.applyStyles [Term.Yellow] "Warning: The project was created, but dependency installation failed.\n"
       return False
 
 -- | Creates and applies the project's initial migration, so users can run the
@@ -91,7 +100,7 @@ migrateDbForNewProject absWaspProjectDir = do
   if isDbUrlInEnvironment
     then return False
     else
-      (inProjectDir (migrateDev initialMigrateArgs) >> return True)
+      (inProjectDir (migrateDev initialMigrateArgs) $> True)
         `catchError` warnAboutFailedMigration
   where
     initialMigrateArgs = defaultMigrateArgs {_migrationName = Just "initial-migration"}
@@ -113,15 +122,20 @@ migrateDbForNewProject absWaspProjectDir = do
           ++ _errorTitle commandError
           ++ ": "
           ++ _errorMsg commandError
-          ++ "\nRun "
-          ++ styleCode "wasp db migrate-dev"
-          ++ " in the project directory to migrate it."
+          ++ "\n"
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
-printGettingStartedInstructionsForProject :: NewProjectDescription -> Bool -> IO ()
-printGettingStartedInstructionsForProject projectDescription isDbMigrated = do
+printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
+printGettingStartedInstructionsForProject projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
-  let instructions = getTemplateStartingInstructions projectDirName isDbMigrated $ _template projectDescription
+  let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
   cliSendMessage $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
   putStrLn instructions
+
+printExtraInstructionsForProject :: [String] -> IO ()
+printExtraInstructionsForProject steps = do
+  putStrLn
+    $ Term.applyStyles [Term.Yellow]
+    $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
+      ++ concatMap (\step -> "  " ++ styleCode step ++ "\n") steps

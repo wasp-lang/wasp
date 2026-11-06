@@ -38,7 +38,7 @@ minimalStarterTemplate =
           { _name = "minimal",
             _description = "A minimal starter template that features just a single page.",
             _migratesDbOnCreation = False,
-            _buildStartingInstructions = \projectDirName _isDbMigrated ->
+            _buildStartingInstructions = \projectDirName ->
               unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
@@ -58,16 +58,14 @@ basicStarterTemplate =
           { _name = "basic",
             _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
             _migratesDbOnCreation = True,
-            _buildStartingInstructions = \projectDirName isDbMigrated ->
+            _buildStartingInstructions = \projectDirName ->
               unlines $
                 [ styleText $ "To run your new app, do:",
-                  styleCode $ "    cd " <> projectDirName
+                  styleCode $ "    cd " <> projectDirName,
+                  styleCode $ "    wasp start",
+                  styleText $ "",
+                  styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
                 ]
-                  ++ [styleCode "    wasp db migrate-dev" | not isDbMigrated]
-                  ++ [ styleCode $ "    wasp start",
-                       styleText $ "",
-                       styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
-                     ]
           }
     }
 
@@ -93,7 +91,7 @@ openSaasStarterTemplate =
                 "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
                   <> " Check out https://opensaas.sh/ for more details.",
               _migratesDbOnCreation = False,
-              _buildStartingInstructions = \projectDirName _isDbMigrated ->
+              _buildStartingInstructions = \projectDirName ->
                 unlines
                   [ styleText $
                       "To run your new app, follow the instructions below:",
