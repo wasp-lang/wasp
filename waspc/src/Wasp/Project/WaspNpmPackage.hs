@@ -61,7 +61,7 @@ doesVersionMatchDeclaredVersion declaredVersion version =
 getWaspCliNpmPackageVersion :: IO SV.Version
 getWaspCliNpmPackageVersion = fromMaybe WV.waspVersion <$> lookupWaspCliNpmPackageVersion
 
--- | A binary run directly, e.g. by the legacy installer, can't hand over to the
+-- | A binary run directly, e.g. one built from source, can't hand over to the
 -- project's Wasp, so errors advise it differently.
 isRunByWaspCliNpmPackage :: IO Bool
 isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion

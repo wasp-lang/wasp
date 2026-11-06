@@ -76,7 +76,7 @@ waspNpmPackageAvailableTest =
               inTestWaspProjectDir
                 [ setDeclaredWaspNpmPackageVersion nonexistentWaspVersion,
                   setInstalledWaspNpmPackageVersion nonexistentWaspVersion,
-                  assertCommandFailsWith "directly, which can't switch to the project's version" waspCliCompile
+                  assertCommandFailsWith "so it can't switch to this project's Wasp" waspCliCompile
                 ]
             ]
         ),
@@ -87,7 +87,7 @@ waspNpmPackageAvailableTest =
               inTestWaspProjectDir
                 [ setDeclaredWaspNpmPackageVersion nonexistentWaspVersion,
                   setInstalledWaspNpmPackageVersion nonexistentWaspVersion,
-                  assertCommandFailsWith "to install them together" (runAsNpmCli waspCliCompile)
+                  assertCommandFailsWith "The installed Wasp is out of date" (runAsNpmCli waspCliCompile)
                 ]
             ]
         ),
@@ -102,12 +102,12 @@ waspNpmPackageAvailableTest =
             ]
         ),
       TestCase
-        "compile-fails-with-hint-when-wasp-npm-package-is-a-dev-dependency"
+        "compile-warns-when-wasp-npm-package-is-a-dev-dependency"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ moveWaspNpmPackageToDevDependencies,
-                  assertCommandFailsWith "Wasp is a dev dependency of this project" waspCliCompile
+                  assertCommandOutputContains waspCliCompile "Wasp is a dev dependency of this project"
                 ]
             ]
         ),
