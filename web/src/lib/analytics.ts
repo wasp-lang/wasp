@@ -1,3 +1,5 @@
+import { captureInPostHog } from "./posthog";
+
 // The markup declares analytics events with `data-track-*` attributes.
 // `data-track-event` names the event of an element, and each property that the
 // markup sets has its own `data-track-<property>` attribute.
@@ -32,6 +34,10 @@ export type AnalyticsEvents = {
   "GitHub: Click": { target: GitHubTarget };
   // A click on a link to `opensaas.sh` or `docs.opensaas.sh`.
   "Open SaaS: Click": Record<string, never>;
+  // Plausible records both. PostHog records only "Accept", because the banner
+  // sends "Reject" after the PostHog opt-out.
+  "Cookie Consent: Accept": Record<string, never>;
+  "Cookie Consent: Reject": Record<string, never>;
 };
 
 export type AnalyticsEventName = keyof AnalyticsEvents;
@@ -83,6 +89,11 @@ const PLACEMENTS = [
   "sidebar",
   "doc_footer",
   "footer",
+  // The cookie banner when it shows by itself.
+  "cookie_banner",
+  // The cookie banner when a visitor opens it again with the "Cookie
+  // settings" link.
+  "cookie_settings",
   // Anywhere else.
   "body",
 ] as const;
@@ -291,7 +302,7 @@ function sendEvent(
     props: propsWithPlacement,
     interactive: false,
   });
-  window.posthog?.capture?.(
+  captureInPostHog(
     eventName,
     propsWithPlacement,
     options.leavesPage ? { transport: "sendBeacon" } : undefined,
