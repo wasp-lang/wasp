@@ -15,7 +15,7 @@ The CLI package uses npm's `optionalDependencies` to install the correct platfor
 
 ### CLI package
 
-- Contains a CLI wrapper (`packages/cli`, built into `dist/`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
+- Contains a CLI wrapper (`packages/cli/src/bin.ts`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
 - Executes the native binary with proper environment variables for the data directory
 - Declares all sub-packages as optional dependencies (so all the other non-matching platforms doesn't cause installation failure)
 
@@ -77,7 +77,7 @@ The tool creates:
    - Extracted tarball contents
 2. One directory for the CLI package, containing:
    - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies
-   - `dist/`, the built CLI wrapper (run `pnpm --filter @wasp/cli run build` first)
+   - `dist/`, the built CLI wrapper
    - `data.json` with sub-package metadata
 
 You can then run `npm publish` in each package directory to publish them to npm.
