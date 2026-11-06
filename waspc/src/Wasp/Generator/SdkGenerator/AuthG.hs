@@ -57,15 +57,9 @@ genAuth spec =
 
 genValidationTs :: AS.Auth.Auth -> Generator FileDraft
 genValidationTs auth =
-  return $
-    mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|validation.ts|])
-      tmplData
+  return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|validation.ts|]) tmplData
   where
-    tmplData =
-      object
-        [ "passwordValidationSchema" .= extImportToImportJson (AS.Auth.getPasswordValidationSchema auth)
-        ]
+    tmplData = object ["passwordValidationSchema" .= extImportToImportJson (AS.Auth.getPasswordValidationSchema auth)]
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
