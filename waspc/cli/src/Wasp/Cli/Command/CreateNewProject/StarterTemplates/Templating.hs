@@ -12,19 +12,20 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (
 import Wasp.Cli.DevWaspNpmPackages
   ( DevWaspNpmPackageTarballs,
     addDevWaspNpmPackageOverridesToPackageJsonFile,
+    devWaspNpmPackageVersion,
     findDevWaspNpmPackageTarballs,
-    getNewProjectWaspNpmPackageVersion,
   )
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
+import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import Wasp.Util (camelToKebabCase)
 import qualified Wasp.Util.IO as IOUtil
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
   devTarballs <- findDevWaspNpmPackageTarballs
-  waspNpmPackageVersion <- getNewProjectWaspNpmPackageVersion devTarballs
+  waspNpmPackageVersion <- maybe (show <$> getWaspCliNpmPackageVersion) (return . devWaspNpmPackageVersion) devTarballs
   replaceTemplatePlaceholdersInWaspFile waspNpmPackageVersion appName projectName projectDir
   replaceTemplatePlaceholdersInPackageJsonFile waspNpmPackageVersion appName projectName projectDir
   forM_ devTarballs $ addDevWaspNpmPackageOverridesToProject projectDir

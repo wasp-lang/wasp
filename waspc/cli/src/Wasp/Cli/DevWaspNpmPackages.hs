@@ -2,7 +2,8 @@ module Wasp.Cli.DevWaspNpmPackages
   ( DevWaspNpmPackageTarballs,
     devWaspNpmPackagesDirEnvVarName,
     findDevWaspNpmPackageTarballs,
-    getNewProjectWaspNpmPackageVersion,
+    devWaspNpmPackageTarballFile,
+    devWaspNpmPackageVersion,
     addDevWaspNpmPackageOverridesToPackageJsonFile,
     prepareDevWaspNpmPackagesForDockerBuild,
   )
@@ -27,58 +28,41 @@ import System.FilePath (isAbsolute)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedAppDir)
-import Wasp.NpmPackageNames (waspCliNpmPackageName, waspDeployNpmPackageName, waspNpmPackageName, waspSpecNpmPackageName, waspStudioNpmPackageName)
+import Wasp.NpmPackageNames (waspNpmPackageDependencyNames, waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
-import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import Wasp.Util.IO (copyFile)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, updateJsonFile)
 import Wasp.Version (waspVersion)
 
 {-
-NOTE: This module is a temporary black box, so it doesn't need a detailed
-review. Only the repo's own Wasp apps go through it.
+Lets the Wasp apps in this repo run against the Wasp in this repo, before its
+npm packages are published. Only the dev Wasp CLI (@waspc/tools/wasp-cli-dev@)
+sets 'devWaspNpmPackagesDirEnvVarName', so this does nothing for Wasp users.
 
-TODO: Remove this module once the repo's Wasp apps join the pnpm workspace and
-no longer depend on dev tarballs.
-
-This module lets the Wasp apps in the Wasp repo run against the Wasp in the
-repo, before its npm packages are published.
-
-A Wasp project depends on Wasp through the @wasp/wasp npm package (see
-"Wasp.Project.WaspNpmPackage"). While we develop a Wasp version, npm can't
-install it: the registry doesn't have @wasp/wasp at that version yet, nor the
-versions of the packages it depends on.
-
-So `mise run build:dev-packages` packs the packages from the repo into tarballs
-in `waspc/.dev-packages/` (see @tasks/build/dev-packages.ts@), and the
-repo's Wasp apps depend on those tarballs instead:
+`mise run build:dev-packages` packs the packages into `waspc/.dev-packages/`
+(see @tasks/build/dev-packages.ts@), and the repo's apps depend on the
+tarballs. The dev @wasp/wasp still pins the registry versions of the packages
+it brings, so `overrides` point npm at their tarballs too:
 
 > "dependencies": {
 >   "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz"
 > },
 > "overrides": {
 >   "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
->   "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
 >   ...
 > }
 
-The dev @wasp/wasp still pins the registry versions of the packages it
-depends on, so the `overrides` point npm at their tarballs too.
+With the env var set, `wasp new` writes the tarballs into the new project, and
+`wasp build` copies them into Docker's build context.
 
-The dev Wasp CLI (@waspc/tools/wasp-cli-dev@) tells Wasp where the tarballs
-are through the 'devWaspNpmPackagesDirEnvVarName' env var. When it's set,
-`wasp new` writes the tarballs into the new project's package.json, and
-`wasp build` copies them into Docker's build context. A released Wasp CLI
-doesn't set it, so this module does nothing for Wasp users.
+TODO: Remove this module once the repo's Wasp apps join the pnpm workspace.
 -}
 
 data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs
   { waspTarball :: Path' Abs File',
-    cliTarball :: Path' Abs File',
-    specTarball :: Path' Abs File',
-    deployTarball :: Path' Abs File',
-    studioTarball :: Path' Abs File'
+    -- | By package name, for each of 'waspNpmPackageDependencyNames'.
+    dependencyTarballs :: [(PJ.PackageName, Path' Abs File')]
   }
 
 devWaspNpmPackagesDirEnvVarName :: String
@@ -92,16 +76,13 @@ findDevWaspNpmPackageTarballs =
     Nothing -> return Nothing
     Just devPackagesDirPath -> do
       devPackagesDir <- parseAbsDir devPackagesDirPath
-      let tarballs =
+      let tarballOf packageName = devPackagesDir </> devWaspNpmPackageTarballFile packageName
+          tarballs =
             DevWaspNpmPackageTarballs
-              { waspTarball = devPackagesDir </> tarballFile "wasp-wasp",
-                cliTarball = devPackagesDir </> tarballFile "wasp-cli",
-                specTarball = devPackagesDir </> tarballFile "wasp-spec",
-                deployTarball = devPackagesDir </> tarballFile "wasp-deploy",
-                studioTarball = devPackagesDir </> tarballFile "wasp-studio"
+              { waspTarball = tarballOf waspNpmPackageName,
+                dependencyTarballs = [(name, tarballOf name) | name <- waspNpmPackageDependencyNames]
               }
-      forM_ [waspTarball, cliTarball, specTarball, deployTarball, studioTarball] $ \getTarball -> do
-        let tarball = getTarball tarballs
+      forM_ (waspTarball tarballs : map snd (dependencyTarballs tarballs)) $ \tarball -> do
         exists <- IOUtil.doesFileExist tarball
         unless exists
           $ ioError
@@ -111,16 +92,19 @@ findDevWaspNpmPackageTarballs =
             ++ fromAbsFile tarball
             ++ " does not exist. Run `mise run build:dev-packages`."
       return $ Just tarballs
-  where
-    -- Named the way `npm pack` and `pnpm pack` name tarballs.
-    tarballFile :: String -> Path' (Rel d) File'
-    tarballFile name = fromJust $ parseRelFile $ name ++ "-" ++ show waspVersion ++ ".tgz"
 
--- | The dev tarball if there is one, otherwise the \@wasp/cli version.
-getNewProjectWaspNpmPackageVersion :: Maybe DevWaspNpmPackageTarballs -> IO String
-getNewProjectWaspNpmPackageVersion = \case
-  Nothing -> show <$> getWaspCliNpmPackageVersion
-  Just tarballs -> return $ absTarballFileSpecifier $ waspTarball tarballs
+-- | Named the way `npm pack` and `pnpm pack` name tarballs, e.g.
+-- `wasp-cli-0.27.0.tgz` for \@wasp/cli.
+devWaspNpmPackageTarballFile :: PJ.PackageName -> Path' (Rel d) File'
+devWaspNpmPackageTarballFile packageName =
+  fromJust $ parseRelFile $ map slashToDash (dropWhile (== '@') packageName) ++ "-" ++ show waspVersion ++ ".tgz"
+  where
+    slashToDash '/' = '-'
+    slashToDash c = c
+
+-- | What a new project's package.json says for \@wasp/wasp.
+devWaspNpmPackageVersion :: DevWaspNpmPackageTarballs -> String
+devWaspNpmPackageVersion = absTarballFileSpecifier . waspTarball
 
 -- | Points npm at the dev tarballs of the packages \@wasp/wasp brings, and keeps
 -- the `overrides` the package.json already has.
@@ -138,12 +122,7 @@ addDevWaspNpmPackageOverridesToPackageJsonFile tarballs packageJsonFile =
           ?~ String (T.pack specifier)
 
     overrides :: [(PJ.PackageName, String)]
-    overrides =
-      [ (waspCliNpmPackageName, absTarballFileSpecifier $ cliTarball tarballs),
-        (waspSpecNpmPackageName, absTarballFileSpecifier $ specTarball tarballs),
-        (waspDeployNpmPackageName, absTarballFileSpecifier $ deployTarball tarballs),
-        (waspStudioNpmPackageName, absTarballFileSpecifier $ studioTarball tarballs)
-      ]
+    overrides = [(name, absTarballFileSpecifier tarball) | (name, tarball) <- dependencyTarballs tarballs]
 
 -- | A package.json field that can point at a dev tarball, e.g.
 -- `dependencies.@wasp/wasp` or `overrides.@wasp/cli`.
@@ -154,12 +133,8 @@ data DevTarballField = DevTarballField
 
 devTarballFields :: [DevTarballField]
 devTarballFields =
-  [ DevTarballField "dependencies" waspNpmPackageName,
-    DevTarballField "overrides" waspCliNpmPackageName,
-    DevTarballField "overrides" waspSpecNpmPackageName,
-    DevTarballField "overrides" waspDeployNpmPackageName,
-    DevTarballField "overrides" waspStudioNpmPackageName
-  ]
+  DevTarballField "dependencies" waspNpmPackageName
+    : map (DevTarballField "overrides") waspNpmPackageDependencyNames
 
 -- | Docker's build context is `.wasp/out/`, so we copy the tarballs into it and
 -- point the build's package.json and lock at the copies. The copies have the

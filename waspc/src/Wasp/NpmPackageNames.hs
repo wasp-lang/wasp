@@ -6,6 +6,7 @@ module Wasp.NpmPackageNames
     waspSpecNpmPackageName,
     waspDeployNpmPackageName,
     waspStudioNpmPackageName,
+    waspNpmPackageDependencyNames,
   )
 where
 
@@ -23,3 +24,12 @@ waspDeployNpmPackageName = "@wasp/deploy"
 
 waspStudioNpmPackageName :: String
 waspStudioNpmPackageName = "@wasp/studio"
+
+-- | The packages \@wasp/wasp brings, at its own version.
+waspNpmPackageDependencyNames :: [String]
+waspNpmPackageDependencyNames =
+  [ waspCliNpmPackageName,
+    waspSpecNpmPackageName,
+    waspDeployNpmPackageName,
+    waspStudioNpmPackageName
+  ]

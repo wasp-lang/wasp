@@ -65,15 +65,15 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, fromRelFile, parent, (</>))
 import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
-import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackagesDirEnvVarName)
+import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackageTarballFile, devWaspNpmPackagesDirEnvVarName)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
+import Wasp.NpmPackageNames (waspNpmPackageDependencyNames, waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import Wasp.Version (waspVersion)
 
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
@@ -300,18 +300,14 @@ npmInstall = return "npm install"
 -- place in the repo.
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
-  return $
-    unwords
-      [ "npm pkg set",
-        devTarballField "dependencies.@wasp/wasp" "wasp-wasp",
-        devTarballField "overrides.@wasp/cli" "wasp-cli",
-        devTarballField "overrides.@wasp/spec" "wasp-spec",
-        devTarballField "overrides.@wasp/deploy" "wasp-deploy",
-        devTarballField "overrides.@wasp/studio" "wasp-studio"
-      ]
+  return
+    $ unwords
+    $ "npm pkg set"
+      : devTarballField "dependencies" waspNpmPackageName
+      : map (devTarballField "overrides") waspNpmPackageDependencyNames
   where
-    devTarballField field tarballName =
-      "\"" ++ field ++ "=file:$" ++ devWaspNpmPackagesDirEnvVarName ++ "/" ++ tarballName ++ "-" ++ show waspVersion ++ ".tgz\""
+    devTarballField section packageName =
+      "\"" ++ section ++ "." ++ packageName ++ "=file:$" ++ devWaspNpmPackagesDirEnvVarName ++ "/" ++ fromRelFile (devWaspNpmPackageTarballFile packageName) ++ "\""
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand

@@ -17,7 +17,6 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { report } from "node:process";
 import {
   CLI_PACKAGE_SOURCE_DIR,
   CLI_PACKAGE_STATIC_FILES,
@@ -25,7 +24,7 @@ import {
 } from "../../packages/cli/scripts/make-cli-npm-packages/src/common.ts";
 import {
   type CliPackageData,
-  UNDEFINED_LIBC_NAME,
+  getCurrentPlatformTarget,
 } from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import {
   getPackageDirPath,
@@ -151,7 +150,7 @@ function packDevCliPackage(devPackagesDir: string): void {
 
     // Same shape `make-cli-npm-packages` writes, with only this machine's
     // platform. `dist/run.js` imports `packageName`, a path relative to it.
-    const { os, cpu, libc } = getCurrentTarget();
+    const { os, cpu, libc } = getCurrentPlatformTarget();
     const data = {
       subPackages: {
         [os]: {
@@ -166,24 +165,5 @@ function packDevCliPackage(devPackagesDir: string): void {
     packPackage(tmpDir, devPackagesDir);
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
-  }
-}
-
-// Keep in sync with the platform detection in `packages/cli/src/run.ts`.
-function getCurrentTarget(): { os: string; cpu: string; libc: string } {
-  const { platform: os, arch: cpu } = process;
-  const libc =
-    os === "linux" ? (isGlibc() ? "glibc" : "musl") : UNDEFINED_LIBC_NAME;
-  return { os, cpu, libc };
-}
-
-function isGlibc(): boolean {
-  try {
-    const header = (
-      report.getReport() as { header?: { glibcVersionRuntime?: string } }
-    ).header;
-    return Boolean(header?.glibcVersionRuntime);
-  } catch {
-    return false;
   }
 }

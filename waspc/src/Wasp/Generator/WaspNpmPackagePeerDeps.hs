@@ -23,24 +23,20 @@ import Wasp.Generator.DepVersions
 
 {-
 The generated server and SDK import packages like express, react and
-@prisma/client, but their package.json files don't list them. @wasp/wasp
-(packages/wasp/package.json) lists them as peer dependencies instead, so
-every Wasp project gets them by depending on @wasp/wasp.
+@prisma/client without listing them. @wasp/wasp (packages/wasp/package.json)
+lists them as peer dependencies instead:
 
-They can't be regular dependencies of @wasp/wasp. When the project wants
-another version of a regular dependency, npm nests @wasp/wasp's copy in
-node_modules/@wasp/wasp/node_modules, where the generated code can't import it.
+- npm installs peers at the project root, where the generated code finds
+  them. As regular dependencies of @wasp/wasp, npm would nest them in
+  node_modules/@wasp/wasp/node_modules whenever the project wants another
+  version.
+- npm refuses a conflicting version of a peer, so the package.json validator
+  doesn't check them. A project that needs another version uses `overrides`.
 
-npm installs peer dependencies at the project root, where the generated code
-finds them. Peer dependencies also ensure that the project can't install a
-conflicting version, so the package.json validator doesn't need to check these
-packages. A project that needs another version uses npm's `overrides` field.
+Only what every app needs is a peer. Packages only some apps need, like
+socket.io, stay in the generated package.json files.
 
-Only the packages every app needs are peer dependencies. The packages that
-only some apps need, like socket.io for WebSockets or pg-boss for jobs, stay
-in the package.json files of the generated server and SDK for now.
-
-"Generator.WaspNpmPackagePeerDepsTest" ensures that this list matches
+"Generator.WaspNpmPackagePeerDepsTest" keeps this list equal to
 packages/wasp/package.json.
 -}
 
@@ -83,6 +79,7 @@ sdkCoreDeps =
       ("react-hook-form", "^7.45.4")
     ]
 
+-- | Packages the user's project runs or imports itself.
 userProjectDeps :: [Npm.Dependency.Dependency]
 userProjectDeps =
   Npm.Dependency.fromList

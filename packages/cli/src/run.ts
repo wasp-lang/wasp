@@ -3,13 +3,12 @@
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 import {
   type CliPackageData,
+  getCurrentPlatformTarget,
   type SubPackageAPI,
-  UNDEFINED_LIBC_NAME,
 } from "./package-data.js";
 
 const debug = debuglog("wasp-bin-wrapper");
@@ -41,13 +40,11 @@ async function getSubPackage(packageJson: PackageJson): Promise<SubPackageAPI> {
 
   debug("Loaded CLI package data: %j", data);
 
-  const { platform, arch } = process;
-  const libc =
-    platform === "linux" ? (isGlibc() ? "glibc" : "musl") : UNDEFINED_LIBC_NAME;
+  const { os, cpu, libc } = getCurrentPlatformTarget();
 
-  debug("Selecting sub-package for %s / %s / %s", platform, arch, libc);
+  debug("Selecting sub-package for %s / %s / %s", os, cpu, libc);
 
-  const selectedSubPackage = data.subPackages[platform]?.[arch]?.[libc];
+  const selectedSubPackage = data.subPackages[os]?.[cpu]?.[libc];
   if (!selectedSubPackage) {
     throw new CLIError("Wasp is not supported on this platform.");
   }
@@ -76,23 +73,6 @@ async function getSubPackage(packageJson: PackageJson): Promise<SubPackageAPI> {
   debug("Imported sub-package: %j", importedPackage);
 
   return importedPackage.default;
-}
-
-// Adapted from rollup
-// https://github.com/rollup/rollup/blob/c5f3e1d3162ccb36e18704138c21457a084ef358/native.js#L5-L11
-function isGlibc(): boolean {
-  try {
-    const report = (
-      processReport.getReport() as { header?: { glibcVersionRuntime?: string } }
-    ).header;
-    debug("Process report header: %j", report);
-    const hasGlibc = Boolean(report?.glibcVersionRuntime);
-    debug("Has glibc: %s", hasGlibc);
-    return hasGlibc;
-  } catch {
-    debug("Failed to get process report, assuming not glibc.");
-    return false;
-  }
 }
 
 function assertNodeIsSupported(packageJson: PackageJson): void {
