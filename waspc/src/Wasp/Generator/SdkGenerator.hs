@@ -18,7 +18,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -31,6 +31,7 @@ import Wasp.Generator.DepVersions
   ( expressTypesVersionRange,
     expressVersionRange,
     kyVersionRange,
+    nodeTypesVersionRange,
     prismaVersionRange,
     reactDomTypesVersionRange,
     reactDomVersionRange,
@@ -216,7 +217,7 @@ npmDepsForSdk spec =
             ("typescript", show typescriptVersionRange),
             ("@types/express", show expressTypesVersionRange),
             ("@types/express-serve-static-core", show expressTypesVersionRange),
-            ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
+            ("@types/node", show nodeTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
             ("@types/react-dom", show reactDomTypesVersionRange)
           ]

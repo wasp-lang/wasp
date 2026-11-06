@@ -45,6 +45,7 @@ import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
     expressVersionRange,
+    nodeTypesVersionRange,
     superjsonVersionRange,
     typescriptVersionRange,
   )
@@ -179,7 +180,7 @@ npmDepsFromWasp spec =
               ("typescript", show typescriptVersionRange),
               ("@types/express", show expressTypesVersionRange),
               ("@types/express-serve-static-core", show expressTypesVersionRange),
-              ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
+              ("@types/node", show nodeTypesVersionRange),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
               ("@types/cors", show $$(catalogVersionRange "@types/cors")),
               ("rollup", show $$(catalogVersionRange "rollup")),

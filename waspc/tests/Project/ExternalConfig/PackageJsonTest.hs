@@ -4,7 +4,7 @@ import Data.List (isInfixOf)
 import qualified Data.Map as M
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Generator.DepVersions (nodeTypesVersionRange)
 import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
 import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
 
@@ -38,7 +38,7 @@ validPackageJson =
 
 requiredNodeTypesDependency :: (P.PackageName, P.PackageVersion)
 requiredNodeTypesDependency =
-  ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion)
+  ("@types/node", show nodeTypesVersionRange)
 
 withDevDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> P.PackageJson
 withDevDependency packageJson (name, version) =

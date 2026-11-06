@@ -13,6 +13,7 @@ module Wasp.Generator.DepVersions
     viteVersionRange,
     dotenvVersionRange,
     kyVersionRange,
+    nodeTypesVersionRange,
   )
 where
 
@@ -60,3 +61,6 @@ dotenvVersionRange = $$(catalogVersionRange "dotenv")
 
 kyVersionRange :: SV.Range
 kyVersionRange = $$(catalogVersionRange "ky")
+
+nodeTypesVersionRange :: SV.Range
+nodeTypesVersionRange = $$(catalogVersionRange "@types/node")

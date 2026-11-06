@@ -613,7 +613,6 @@ test-suite waspc-tests
     JsImportTest
     Node.InternalTest
     Node.NpmBinTest
-    Node.VersionTest
     Paths_waspc
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
