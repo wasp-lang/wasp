@@ -28,8 +28,7 @@ export function ensureValidPassword(args: object): void {
 }
 
 // PRIVATE API
-// Checks a new password in the Auth UI forms, in the shape react-hook-form expects.
-export function validateNewPassword(password: unknown): string | undefined {
+export function validatePassword(password: unknown): string | undefined {
   const result = passwordValidationSchema.safeParse(password)
   return result.error && getFirstErrorMessage(result.error)
 }

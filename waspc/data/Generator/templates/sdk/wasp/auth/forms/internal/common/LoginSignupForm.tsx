@@ -28,7 +28,7 @@ import { SocialButton } from '@wasp/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
-import { validateNewPassword } from '../../../validation.js'
+import { validatePassword } from '../../../validation.js'
 import { getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
@@ -205,7 +205,7 @@ export const LoginSignupForm = ({
             <FormPasswordInput
               {...register('password', {
                 required: 'Password is required',
-                validate: isLogin ? undefined : validateNewPassword,
+                validate: isLogin ? undefined : validatePassword,
               })}
               disabled={isLoading}
             />
