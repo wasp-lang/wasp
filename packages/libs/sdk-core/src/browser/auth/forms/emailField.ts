@@ -1,5 +1,3 @@
-import { isValidEmail } from "@wasp/lib-auth";
-
 /**
  * We deliberately don't use the usual `type="email"` here because
  * that one validates against HTML5 grammar which is stricter than our
@@ -15,10 +13,3 @@ export const emailInputProps = {
   inputMode: "email",
   autoComplete: "email",
 } as const;
-
-export const emailFieldRules = {
-  required: "Email is required",
-  setValueAs: (email: string) => email.trim(),
-  validate: (email: string) =>
-    isValidEmail(email) || "Email must be a valid email",
-};
