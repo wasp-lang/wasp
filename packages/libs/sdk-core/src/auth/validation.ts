@@ -48,7 +48,7 @@ export function getPasswordValidationError(
   schema: PasswordValidationSchema,
 ): string | undefined {
   const result = schema.safeParse(password);
-  return result.success ? undefined : getFirstIssueMessage(result.error);
+  return result.success ? undefined : getFirstErrorMessage(result.error);
 }
 
 export function throwValidationError(message: string): void {
