@@ -15,12 +15,6 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    devServerStartProcess,
-    devServerStartCommand,
-    dbSeedProcess,
-    serverTscProcess,
-    serverRollupProcess,
-    serverBundleCommand,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     serverPortEnvVarName,
@@ -29,7 +23,7 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Generator.Common
@@ -40,7 +34,6 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -130,54 +123,6 @@ serverPortEnvVarName :: String
 serverPortEnvVarName =
   -- Not prefixed with `WASP_` because many deployment platforms use this env.
   "PORT"
-
--- | Runs from the Wasp project dir.
-devServerStartProcess :: (String, [String])
-devServerStartProcess = nodeProcessFromWaspProjectDir [relfile|bundle/server.js|]
-
--- | Runs from the server dir, like all npm scripts.
-devServerStartCommand :: String
-devServerStartCommand =
-  "cd " <> SP.fromRelDir waspProjectDirFromServerDir <> " && " <> processToCommand devServerStartProcess
-  where
-    waspProjectDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromGeneratedAppComponentDir
-
--- | Runs from the Wasp project dir.
-dbSeedProcess :: (String, [String])
-dbSeedProcess = nodeProcessFromWaspProjectDir [relfile|bundle/dbSeed.js|]
-
--- | The server runs with the Wasp project dir as its working directory, so that
--- relative paths in the user's code resolve from where the user expects them to.
---
--- `loadDotEnv.cjs` loads the server's `.env` file.
-nodeProcessFromWaspProjectDir :: Path' (Rel ServerRootDir) File' -> (String, [String])
-nodeProcessFromWaspProjectDir scriptInServerDir =
-  ( "node",
-    [ "--enable-source-maps",
-      "-r",
-      "./" <> SP.fromRelFile (serverDirInWaspProjectDir </> [relfile|loadDotEnv.cjs|]),
-      SP.fromRelFile (serverDirInWaspProjectDir </> scriptInServerDir)
-    ]
-  )
-  where
-    serverDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir ServerRootDir) =
-      generatedAppDirInWaspProjectDir </> serverRootDirInGeneratedAppDir
-
--- | Through its project reference, `tsc --build` type-checks all of the user's
--- source files, client ones included, so their type errors also fail the
--- bundle.
-serverTscProcess :: (String, [String])
-serverTscProcess = ("tsc", ["--build"])
-
-serverRollupProcess :: (String, [String])
-serverRollupProcess = ("rollup", ["--config", "--silent"])
-
-serverBundleCommand :: String
-serverBundleCommand = processToCommand serverTscProcess <> " && " <> processToCommand serverRollupProcess
-
-processToCommand :: (String, [String]) -> String
-processToCommand (executable, args) = unwords $ executable : args
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
