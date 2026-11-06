@@ -20,6 +20,7 @@ const passwordValidationSchema: RegisteredPasswordValidationSchema = {= password
 const passwordValidationSchema: PasswordValidationSchema = defaultPasswordValidationSchema
 {=/ passwordValidationSchema.isDefined =}
 
+// PUBLIC API
 export function ensureValidPassword(args: object): void {
   ensureValidPasswordForSchema(args, passwordValidationSchema)
 }
