@@ -228,6 +228,8 @@ library
     Wasp.Generator.FileDraft.WriteableMonad
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
+    Wasp.Generator.NodeCommand
+    Wasp.Generator.NodeCommands
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
@@ -255,6 +257,7 @@ library
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
+    Wasp.Generator.SdkGenerator.NodeCommands
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
     Wasp.Generator.SdkGenerator.Server.EmailSenderG
@@ -275,6 +278,7 @@ library
     Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.JsImport
+    Wasp.Generator.ServerGenerator.NodeCommands
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.RunConfig
@@ -306,6 +310,7 @@ library
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.NodeCommands
     Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebSocket
@@ -327,6 +332,7 @@ library
     Wasp.Project.BuildType
     Wasp.Project.Common
     Wasp.Project.Db
+    Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Db.Migrations
@@ -489,7 +495,6 @@ library cli-lib
     Wasp.Cli.Command.News.Fetching
     Wasp.Cli.Command.News.Listing
     Wasp.Cli.Command.News.LocalNewsState
-    Wasp.Cli.Command.Require.DbConnectionEstablished
     Wasp.Cli.Command.Require.GeneratedApp
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
@@ -610,6 +615,7 @@ test-suite waspc-tests
     Node.InternalTest
     Node.VersionTest
     Paths_waspc
+    Project.Db.DevTest
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest

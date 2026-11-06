@@ -18,17 +18,19 @@ import Data.Either (fromLeft)
 import Data.List (nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
-import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
+import qualified Wasp.Generator.NodeCommand as NodeCommand
+import qualified Wasp.Generator.NodeCommands as NodeCommands
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
@@ -123,7 +125,9 @@ installDependencies spec generatedAppDir sendMessage = do
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do
-  warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
+  warning <- liftIO $ do
+    envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
+    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
   tell $ maybeToList warning
 
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
@@ -163,11 +167,7 @@ typeCheckUserCode spec sendMessage = do
   where
     typeCheck :: J.Job ExitCode
     typeCheck =
-      J.fromProc
-        $ J.setCwd (AS.waspProjectDir spec)
-        $ J.proc
-          "tsc"
-          [ "--project",
-            SP.fromRelFile $ AS.srcTsConfigPath spec,
-            "--noEmit"
-          ]
+      J.fromProc $
+        NodeCommand.proc
+          (AS.waspProjectDir spec)
+          (NodeCommands.typeCheckUserCode $ AS.srcTsConfigPath spec)
