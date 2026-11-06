@@ -6,7 +6,6 @@ import {
   ensureValidPassword,
   ensureValidUsername,
 } from "../../src/auth/validation";
-import { HttpError } from "../../src/HttpError";
 
 describe("ensureValidPassword", () => {
   it("accepts a password with at least 8 characters and a number", () => {
@@ -25,8 +24,8 @@ describe("ensureValidPassword", () => {
       "password must contain a number",
     ],
   ])("rejects a password that %s", (_, args, expectedMessage) => {
-    expect(getThrownValidationMessage(() => ensureValidPassword(args))).toBe(
-      expectedMessage,
+    expect(() => ensureValidPassword(args)).toThrow(
+      validationError(expectedMessage),
     );
   });
 });
@@ -40,8 +39,8 @@ describe("ensureValidEmail", () => {
     ["is missing", {}, "email must be present"],
     ["isn't an email", { email: "user" }, "email must be a valid email"],
   ])("rejects an email that %s", (_, args, expectedMessage) => {
-    expect(getThrownValidationMessage(() => ensureValidEmail(args))).toBe(
-      expectedMessage,
+    expect(() => ensureValidEmail(args)).toThrow(
+      validationError(expectedMessage),
     );
   });
 });
@@ -52,22 +51,16 @@ describe.each([
   ["ensureTokenIsPresent", ensureTokenIsPresent, "token"],
 ])("%s", (_, ensure, field) => {
   it("rejects a missing value", () => {
-    expect(getThrownValidationMessage(() => ensure({}))).toBe(
-      `${field} must be present`,
+    expect(() => ensure({})).toThrow(
+      validationError(`${field} must be present`),
     );
   });
 });
 
-function getThrownValidationMessage(fn: () => void): unknown {
-  try {
-    fn();
-  } catch (error) {
-    expect(error).toBeInstanceOf(HttpError);
-    expect(error).toMatchObject({
-      statusCode: 422,
-      message: "Validation failed",
-    });
-    return (error as HttpError & { data: { message: unknown } }).data.message;
-  }
-  throw new Error("Expected a validation error");
+function validationError(message: string) {
+  return expect.objectContaining({
+    statusCode: 422,
+    message: "Validation failed",
+    data: { message },
+  });
 }
