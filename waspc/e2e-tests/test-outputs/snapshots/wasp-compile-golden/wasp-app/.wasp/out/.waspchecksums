@@ -32,14 +32,14 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "58c81826c6ce0289872be824e338498db78ce35f9d2b6d11dadb1185d9a2d33d"
+        "52fca0ab67074fd9b844f288be496437938e0d046ce619e1291de19c25035b0f"
     ],
     [
         [
             "file",
             "libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
         ],
-        "ef440a29d3d296ed4617ebbfc85435d0b79d2733bdd45cf9654a275ca0029823"
+        "ca560824e65d0ec71cdba990bfdb1de9de7d7ae54b9a162a12e1d100fa0da750"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "4c3a840544086dfbd9cdfaa29e40f7e6de938258c48e6761e9e288d897b97341"
+        "77977db5174ac9ec576117848339cf23811f77aa9c5ff76ad122d13173c140dc"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/client/test/index.ts"
         ],
-        "1e11ec499f6ced0883b05c13691eb9a1623e7e86d96351fb9ad1e59dff9573ba"
+        "4a8e6bb3ac940619defcc6743dc0767ab9e85324cc193f83ee9997655bbec316"
     ],
     [
         [
@@ -410,7 +410,7 @@
             "file",
             "sdk/wasp/server/operations/wrappers.ts"
         ],
-        "8a17a0ef42fa7cf77470c212b9ee78e5e69ea18851099bd162ab2c4126f1c930"
+        "74d59115d742ded89a161c13578ed2b09332a4e850d27f8561fb5ac35aa446c6"
     ],
     [
         [
@@ -557,7 +557,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "08c4c24a9eaee24af4237ff694be570231de9e8b3b90cc86bfca3b776aab6e34"
+        "67db6afd4be0eabb051160dda67fdee2778271a99f4c2ec1f64dc7aaae8f75e4"
     ],
     [
         [

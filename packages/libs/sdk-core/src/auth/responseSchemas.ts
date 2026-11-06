@@ -6,5 +6,4 @@ export const SessionResponseSchema = z.object({
 
 export const SuccessResponseSchema = z.object({
   success: z.boolean(),
-  reason: z.string().optional(),
 });

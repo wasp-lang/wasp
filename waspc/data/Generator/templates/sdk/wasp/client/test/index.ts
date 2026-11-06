@@ -1,6 +1,11 @@
+import { initializeQueryClient } from "@wasp/lib-sdk-core/browser";
 import { createMockServer, type MockServer } from "@wasp/lib-test-utils";
 import { serialize } from "../../core/serialization/index.js";
 import { config } from "../config.js";
+
+// Actions wait for Wasp's shared query client when they finish. The app's entry
+// point usually initializes it, but that doesn't run in tests.
+initializeQueryClient();
 
 // PUBLIC API
 export { renderInContext, WaspTestWrapper } from "@wasp/lib-test-utils";

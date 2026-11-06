@@ -7,6 +7,8 @@ import { BrowserRouter } from "react-router";
  * can render components that use queries, actions, or links.
  *
  * Each wrapper gets its own query client, so tests don't share cached data.
+ * Actions invalidate Wasp's shared query client instead of this one, so Queries
+ * rendered in a test don't refetch after an Action.
  *
  * @see https://testing-library.com/docs/react-testing-library/api#wrapper
  */

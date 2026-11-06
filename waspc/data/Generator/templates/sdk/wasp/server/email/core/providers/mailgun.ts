@@ -1,4 +1,5 @@
 import Mailgun from 'mailgun.js';
+import { formatFromField } from '@wasp/lib-sdk-core/node'
 import { getDefaultFromField } from "../helpers.js";
 import type { MailgunEmailProvider, EmailSender } from "../types";
 
@@ -18,9 +19,8 @@ export function initMailgunEmailSender(
 
   return {
     async send(email) {
-      const fromField = email.from || defaultFromField;
       return mailer.messages.create(config.domain, {
-        from: `${fromField.name} <${fromField.email}>`,
+        from: formatFromField(email.from || defaultFromField),
         to: [email.to],
         subject: email.subject,
         text: email.text,

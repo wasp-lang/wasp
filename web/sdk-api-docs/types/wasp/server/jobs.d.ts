@@ -194,13 +194,15 @@ interface PgBossSubmittedJob<Input extends JSONObject>
      */
     readonly details: () => Promise<PgBossJobDetails<Input> | null>;
     /**
-     * Attempts to cancel the Job.
+     * Attempts to cancel the Job. It rejects if {@link PgBossSubmittedJob.jobId}
+     * is `null`.
      *
      * @see [pg-boss's `cancel` docs](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
      */
     readonly cancel: () => Promise<PgBossUpdateResult>;
     /**
-     * Attempts to resume a cancelled Job.
+     * Attempts to resume a cancelled Job. It rejects if
+     * {@link PgBossSubmittedJob.jobId} is `null`.
      *
      * @see [pg-boss's `resume` docs](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
      */

@@ -147,6 +147,15 @@ export class PgBossJob<
 }
 
 /**
+ * What pg-boss's `cancel` and `resume` resolve to. Its typings say `void`.
+ */
+type PgBossUpdateResult = {
+  jobs: string[]
+  requested: number
+  updated: number
+}
+
+/**
  * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
  */
 class PgBossSubmittedJob<
@@ -155,8 +164,8 @@ class PgBossSubmittedJob<
   Entities extends Partial<PrismaDelegate>
 > extends SubmittedJob {
   public readonly pgBoss: {
-    readonly cancel: () => ReturnType<PgBoss['cancel']>
-    readonly resume: () => ReturnType<PgBoss['resume']>
+    readonly cancel: () => Promise<PgBossUpdateResult>
+    readonly resume: () => Promise<PgBossUpdateResult>
     readonly details: () => Promise<PgBossDetails<Input, Output> | null>
   }
 
@@ -166,12 +175,15 @@ class PgBossSubmittedJob<
     jobId: SubmittedJob['jobId']
   ) {
     super(job, jobId)
+    // pg-boss handles a `null` ID at runtime: `cancel` and `resume` reject, and
+    // `getJobById` resolves to `null`.
+    const id = jobId as string
     this.pgBoss = {
-      cancel: () => boss.cancel(jobId),
-      resume: () => boss.resume(jobId),
       // Coarcing here since pg-boss typings are not precise enough.
+      cancel: () => boss.cancel(id) as unknown as Promise<PgBossUpdateResult>,
+      resume: () => boss.resume(id) as unknown as Promise<PgBossUpdateResult>,
       details: () =>
-        boss.getJobById(jobId) as Promise<PgBossDetails<Input, Output> | null>,
+        boss.getJobById(id) as Promise<PgBossDetails<Input, Output> | null>,
     }
   }
 }

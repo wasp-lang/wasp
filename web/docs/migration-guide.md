@@ -454,6 +454,16 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 10. Enjoy your updated Wasp app
+### 10. Check the SDK behavior your app relies on
+
+Some SDK types and behavior changed to fix bugs. Check whether these affect your app:
+
+- **`context.user`:** skip this if your app doesn't use auth. `context.user` is now typed `AuthUser | null`, and `socket.data.user` is typed `AuthUser | null | undefined`. These are the values they already had at runtime, so nothing changes when your app runs. Checks like `if (!context.user)` keep working. If TypeScript now reports an error, it's most likely because your code checks `context.user` against `undefined` and then reads from it, or passes it to something that expects `AuthUser | undefined`. Handle `null` in those places.
+- **`jobId`:** a submitted Job's `jobId` is now typed `string | null`. It's `null` when pg-boss doesn't create the Job because of its `singletonKey`. Handle `null` wherever you use `jobId` as a string.
+- **`verifyEmail`:** its result no longer has a `reason` field. The server never set it, so you can remove any code that reads it.
+- **Operation payloads:** Queries and Actions now receive falsy payloads as they were sent, including `false`, `0`, `""` and `null`. They used to receive `{}` instead. If an Operation's code relies on getting `{}` for those, update it.
+- **Client env validation:** refinements and options like `.refine()` and `.loose()` on your client's `envValidationSchema` now apply. They used to be silently ignored, so a `.refine()` that never ran can now fail your build.
+
+### 11. Enjoy your updated Wasp app
 
 That's it!

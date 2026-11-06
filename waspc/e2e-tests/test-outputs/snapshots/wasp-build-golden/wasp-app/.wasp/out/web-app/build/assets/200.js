@@ -269,7 +269,7 @@ function interpolatePathParams(path, params) {
 	return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
 function isValidPathPart(part) {
-	return !!part;
+	return part !== void 0 && part !== null && part !== "";
 }
 function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
@@ -291,10 +291,7 @@ var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
 	"PROD": true,
 	"REACT_APP_API_URL": "http://localhost:3001",
 	"SSR": false
-}, z.object({
-	...userClientEnvSchema.shape,
-	...waspClientEnvSchema.shape
-}))["REACT_APP_API_URL"]) };
+}, userClientEnvSchema.and(waspClientEnvSchema))["REACT_APP_API_URL"]) };
 ky.extend({
 	prefix: config.apiUrl,
 	hooks: {

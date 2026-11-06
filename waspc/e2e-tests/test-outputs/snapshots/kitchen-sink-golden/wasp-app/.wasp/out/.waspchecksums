@@ -39,14 +39,14 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "58c81826c6ce0289872be824e338498db78ce35f9d2b6d11dadb1185d9a2d33d"
+        "52fca0ab67074fd9b844f288be496437938e0d046ce619e1291de19c25035b0f"
     ],
     [
         [
             "file",
             "libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
         ],
-        "ef440a29d3d296ed4617ebbfc85435d0b79d2733bdd45cf9654a275ca0029823"
+        "ca560824e65d0ec71cdba990bfdb1de9de7d7ae54b9a162a12e1d100fa0da750"
     ],
     [
         [
@@ -88,7 +88,7 @@
             "file",
             "sdk/wasp/auth/email/actions/verifyEmail.ts"
         ],
-        "d0abf3de193f46ec0ce6556c73b6aba8cf675b13be06f47706ff4fb2aa4befae"
+        "191c08b8e5b0e49c3f05ee887c3a7e107ad53c65d4bfde154134e32455c480b2"
     ],
     [
         [
@@ -410,7 +410,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "ac48ebc252e2b9370063d083c137d281486296ccfed7886236ea2cf1127fd0cc"
+        "6bb1eafe384ddbff1bf63b369b77d2cd5b4c4f935e5d1b7c06bff0e11f79757f"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "sdk/wasp/client/test/index.ts"
         ],
-        "1e11ec499f6ced0883b05c13691eb9a1623e7e86d96351fb9ad1e59dff9573ba"
+        "4a8e6bb3ac940619defcc6743dc0767ab9e85324cc193f83ee9997655bbec316"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "09de485b7c71749db3980ffdcc2d6fce94ecaca23bf5e101520cf401e7284038"
+        "99089ce96129e796d494e82294aef464bc9b1841b46e48e15f82c744c0e1a3bd"
     ],
     [
         [
@@ -662,7 +662,7 @@
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "9769876842d122e967efde0574b7aa932488ae85f2762f86176a9dc6813adeb6"
+        "48d8d42ebe38173b40f0d690771864aae2980dbe896c60047f971ef5c7033a3e"
     ],
     [
         [
@@ -900,7 +900,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "eaa4719ec3b41931225660f0a660bca6ac40c33497a4378073efb64e55496778"
+        "b1ebd199027d08851bcfd1d1bcc75650ad7999d017d1a885b4bf9108456b8d5e"
     ],
     [
         [
@@ -984,7 +984,7 @@
             "file",
             "sdk/wasp/server/operations/wrappers.ts"
         ],
-        "5e0669961b31c62062e5ada5f9cdd302fd5c8b577985d3dbac2bf9a139e0eabf"
+        "d0e6069014abc981c46957fba7a4378a894a5923362353bb7cbc68d2804819ed"
     ],
     [
         [
@@ -1005,7 +1005,7 @@
             "file",
             "sdk/wasp/server/webSocket/index.ts"
         ],
-        "f5f38234f2e6955ae5dc8868c4e1f2c3c8a6dad626192864f0b8e199db31f1e4"
+        "5dc26dc0d8566d4e879f737a673812cf81fa96d64846dec38e971bc3fa678b56"
     ],
     [
         [
@@ -1404,7 +1404,7 @@
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "db6714ae88c1b0aa0f0c2d594f7ef2e1bc4e8b79d49e90dd55aa86a11281f936"
+        "b1aac3f04637afbb40b7427805b81294b01f9062e4f8201aa7692c3ecdb92eee"
     ],
     [
         [
@@ -1460,7 +1460,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "b7e2dc990c87a962e9ad624af77e4885f2915d4c0abceb9b7772d4d63ecceef3"
+        "6e6fe9729cff6cfcb2e1c3dea73a75995a11238b7b4016d83597b8a1fdf10467"
     ],
     [
         [

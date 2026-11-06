@@ -35,7 +35,7 @@ export type WebSocketDefinition<
 // PUBLIC API
 export interface WaspSocketData {
   {=# isAuthEnabled =}
-  user?: AuthUser
+  user?: AuthUser | null
   {=/ isAuthEnabled =}
 }
 

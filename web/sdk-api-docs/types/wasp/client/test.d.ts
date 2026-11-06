@@ -59,7 +59,8 @@ type RenderResult = {
  *
  * Use it instead of Testing Library's `render` in your component tests, so your
  * components can use `useQuery`, `useAction`, and links. Each call gets its own
- * query client, so tests don't share cached data.
+ * query client, so tests don't share cached data. Actions don't invalidate this
+ * query client, so Queries rendered in a test don't refetch after an Action.
  *
  * It wraps the element in {@link WaspTestWrapper}.
  *
