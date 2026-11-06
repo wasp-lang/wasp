@@ -80,7 +80,7 @@ Don't forget to update the database schema by running:
 
 <TutorialAction id="migration-add-user" action="MIGRATE_DB" />
 
-<WaspCommand command="wasp db migrate-dev" />
+<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
 
 By doing this, Wasp will create:
 
@@ -227,7 +227,7 @@ Since we just added users, you don't have an account yet. Go to the signup page 
 
 Let's check out what the database looks like. Start the Prisma Studio:
 
-<WaspCommand command="wasp db studio" />
+<WaspCommand npm="npm run wasp -- db studio" global="wasp db studio" />
 
 <img alt="Database demonstration - password hashing" src={userInDbGif} className="tutorial-image" />
 
@@ -269,7 +269,7 @@ model Task {
 As always, you must migrate the database after changing the Entities:
 
 <TutorialAction id="migration-connect-task-user" action="MIGRATE_DB" />
-<WaspCommand command="wasp db migrate-dev" />
+<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
 
 :::note
 We made `user` and `userId` in `Task` optional (via `?`) because that allows us to keep the existing tasks, which don't have a user assigned, in the database.
@@ -360,7 +360,7 @@ With these changes, each user should have a list of tasks that only they can see
 
 Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
-<WaspCommand command="wasp db studio" />
+<WaspCommand npm="npm run wasp -- db studio" global="wasp db studio" />
 
 <img alt="Database demonstration" src={dbDemonstrationGif} className="tutorial-image" />
 

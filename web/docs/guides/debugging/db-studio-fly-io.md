@@ -104,7 +104,7 @@ DATABASE_URL=postgres://postgres:myDatabasePassword@localhost:5432/some_test_ser
 
 Now you can run Prisma Studio to browse and edit your production data:
 
-<WaspCommand command="wasp db studio" />
+<WaspCommand npm="npm run wasp -- db studio" global="wasp db studio" />
 
 This will open a web interface where you can view and modify your database records.
 

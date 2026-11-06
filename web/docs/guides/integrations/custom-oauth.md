@@ -73,7 +73,7 @@ GOOGLE_CLIENT_SECRET=x
 
 Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
 
-<WaspCommand command={"wasp start \\\n  --client-port 3000 --client-url http://127.0.0.1:3000 \\\n  --server-port 3001 --server-url http://127.0.0.1:3001"} />
+<WaspCommand npm={"npm run dev -- \\\n  --client-port 3000 --client-url http://127.0.0.1:3000 \\\n  --server-port 3001 --server-url http://127.0.0.1:3001"} global={"wasp start \\\n  --client-port 3000 --client-url http://127.0.0.1:3000 \\\n  --server-port 3001 --server-url http://127.0.0.1:3001"} />
 
 :::note
 Most OAuth providers accept `localhost` directly; the `127.0.0.1` setup above is specific to Spotify. Other providers (e.g., Slack) require a real hostname. See [Local Network Testing](../debugging/local-network-testing.md) for the `nip.io` workaround.

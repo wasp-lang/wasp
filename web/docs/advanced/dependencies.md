@@ -12,9 +12,7 @@ In a Wasp project, dependencies are defined in a standard way for JavaScript pro
 
 To add a new package, like `date-fns` (a great date handling library), you use `npm`:
 
-```bash
-npm install date-fns
-```
+<PackageManagerCommand npm="npm install date-fns" />
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
@@ -106,8 +104,6 @@ The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-e
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 
-```bash
-npm install some-package --min-release-age=0
-```
+<PackageManagerCommand npm="npm install some-package --min-release-age=0" />
 
 Or you can adjust the value in your project's `.npmrc` file.

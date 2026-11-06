@@ -40,10 +40,7 @@ The build steps are also ordered so that a code change reuses the installed depe
 
 The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
 
-```sh
-npm uninstall -g @wasp.sh/wasp-cli
-npm i -g @wasp/cli@0.27
-```
+<PackageManagerCommand npm={"npm uninstall -g @wasp.sh/wasp-cli\nnpm i -g @wasp/cli@0.27"} />
 
 ### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec`
 
@@ -238,7 +235,7 @@ npm install
 
 Then run the migrations:
 
-<WaspCommand command="wasp db migrate-dev" />
+<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
@@ -332,9 +329,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 1. Install Vitest and the testing libraries your tests use:
 
-   ```bash
-   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
-   ```
+   <PackageManagerCommand npm="npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw" />
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
 
@@ -484,7 +479,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
 
-   <WaspCommand command={"wasp compile\nnpm test"} />
+   <WaspCommand npm={"npm run wasp -- compile\nnpm test"} global={"wasp compile\nnpm test"} />
 
 Read more in the [testing docs](./advanced/testing.md).
 

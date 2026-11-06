@@ -215,7 +215,7 @@ The recipe's [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environm
 1. In the Zerops dashboard, open the `db` service and copy the PostgreSQL user, password, port, and database name from **Environment variables**.
 1. Connect to the project network, then start Wasp with an explicit URL (do not put production credentials in `.env.server`):
 
-<WaspCommand command={"zcli vpn up\nDATABASE_URL=\"postgresql://<user>:<password>@db:<port>/<database>\" wasp start"} />
+<WaspCommand npm={"zcli vpn up\nDATABASE_URL=\"postgresql://<user>:<password>@db:<port>/<database>\" npm run dev"} global={"zcli vpn up\nDATABASE_URL=\"postgresql://<user>:<password>@db:<port>/<database>\" wasp start"} />
 
 Use the hostname `db` (the service hostname), not a public host - that only works while the VPN is up. If hostname resolution fails, try `db.zerops` as described in the [Zerops VPN docs](https://docs.zerops.io/references/networking/vpn).
 

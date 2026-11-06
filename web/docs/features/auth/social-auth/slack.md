@@ -177,7 +177,7 @@ what your IP is, you can find it by running `curl ifconfig.me` or going to [ifco
 
 Now that the tunnel exposes your server to the public, tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
 
-<WaspCommand command="wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt" />
+<WaspCommand npm="npm run dev -- --server-port 3001 --server-url https://<subdomain>.loca.lt" global="wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt" />
 
 </Collapse>
 

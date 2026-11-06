@@ -59,7 +59,15 @@ There are four main categories of issues (Performance, Accessibility, Best Pract
 
 A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's env vars, see [Testing locally](../../deployment/local-testing.md):
 
-<WaspCommand command={`# First, build and start the production build of your app:
+<WaspCommand npm={`# First, build and start the production build of your app:
+npm run build
+npm run preview
+
+# While the server is running, open another terminal and run Lighthouse:
+npx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.`} global={`# First, build and start the production build of your app:
 wasp build
 wasp build start
 

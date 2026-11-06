@@ -19,9 +19,7 @@ This guide shows you how to deploy your Wasp app's client to [Cloudflare](https:
 
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
-```bash
-npx wrangler login
-```
+<PackageManagerCommand npm="npx wrangler login" />
 
 Before you continue, make sure you have [built the Wasp app](../../../deployment/methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
 
@@ -57,9 +55,7 @@ Keeping these files in the project root ensures they are tracked in your reposit
 
 Finally, deploy from your project root:
 
-```shell
-npx wrangler deploy
-```
+<PackageManagerCommand npm="npx wrangler deploy" />
 
 That is it! Your client should be live at `https://my-wasp-app-client.<subdomain>.workers.dev`.
 

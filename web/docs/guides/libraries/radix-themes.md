@@ -19,9 +19,7 @@ This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.co
 
 Install the Radix Themes package:
 
-```bash
-npm install @radix-ui/themes
-```
+<PackageManagerCommand npm="npm install @radix-ui/themes" />
 
 ### 2. Create a Root Component if it doesn't exist
 

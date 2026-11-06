@@ -26,7 +26,7 @@ To deploy to Railway using Wasp CLI:
 
 Using the Wasp CLI, you can easily deploy a new app to Railway with a single command:
 
-<WaspCommand command="wasp deploy railway launch my-wasp-app" />
+<WaspCommand npm="npm run wasp -- deploy railway launch my-wasp-app" global="wasp deploy railway launch my-wasp-app" />
 
 <small>
   Please do not CTRL-C or exit your terminal while the commands are running.
@@ -83,7 +83,7 @@ That's it, your app should be available at `https://mycoolapp.com`!
 
 `launch` is a convenience command that runs `setup` and `deploy` in sequence.
 
-<WaspCommand command="wasp deploy railway launch <project-name>" />
+<WaspCommand npm="npm run wasp -- deploy railway launch <project-name>" global="wasp deploy railway launch <project-name>" />
 
 It accepts the following arguments:
 
@@ -93,7 +93,8 @@ It accepts the following arguments:
 
 Running `wasp deploy railway launch` is the same as running the following commands:
 
-<WaspCommand command={`wasp deploy railway setup <project-name>
+<WaspCommand npm={`npm run wasp -- deploy railway setup <project-name>
+npm run wasp -- deploy railway deploy <project-name>`} global={`wasp deploy railway setup <project-name>
 wasp deploy railway deploy <project-name>`} />
 
 <CustomPostgresOption command="launch" />
@@ -102,13 +103,13 @@ wasp deploy railway deploy <project-name>`} />
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
-<WaspCommand command="wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>" />
+<WaspCommand npm="npm run wasp -- deploy railway launch <project-name> --existing-project-id <railway-project-id>" global="wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>" />
 
 #### Explicitly providing the Railway Workspace
 
 By default, Wasp CLI will prompt you to select a Railway workspace for your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
-<WaspCommand command="wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>" />
+<WaspCommand npm="npm run wasp -- deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>" global="wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>" />
 
 #### Environment Variables {#railway-launch-environment-variables}
 
@@ -116,13 +117,13 @@ By default, Wasp CLI will prompt you to select a Railway workspace for your proj
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
-<WaspCommand command="wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>" />
+<WaspCommand npm="npm run wasp -- deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>" global="wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>" />
 
 ##### Client
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
-<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app"} />
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway launch my-wasp-app"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app"} />
 
 <CustomServerUrlOption provider="railway" command="launch" example="my-wasp-app" />
 
@@ -132,7 +133,7 @@ The `deploy` command deploys your client and server apps to Railway.
 
 It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
 
-<WaspCommand command="wasp deploy railway deploy <project-name>" />
+<WaspCommand npm="npm run wasp -- deploy railway deploy <project-name>" global="wasp deploy railway deploy <project-name>" />
 
 It accepts the following arguments:
 
@@ -142,7 +143,7 @@ It accepts the following arguments:
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
-<WaspCommand command="wasp deploy railway deploy <project-name>" />
+<WaspCommand npm="npm run wasp -- deploy railway deploy <project-name>" global="wasp deploy railway deploy <project-name>" />
 
 #### Explicitly providing the Railway project ID
 
@@ -150,7 +151,7 @@ When you run the `deploy` command, Wasp CLI will use the Railway project that's 
 
 If you are deploying your Railway app in the CI, you can pass the `--existing-project-id` option to tell Wasp CLI the Railway project ID to use for the deployment:
 
-<WaspCommand command="wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>" />
+<WaspCommand npm="npm run wasp -- deploy railway deploy <project-name> --existing-project-id <railway-project-id>" global="wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>" />
 
 #### Other Available Options
 
@@ -159,7 +160,7 @@ If you are deploying your Railway app in the CI, you can pass the `--existing-pr
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
-<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>"} />
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway deploy <project-name>"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>"} />
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
@@ -169,7 +170,7 @@ You must specify your client-side environment variables every time you redeploy 
 
 The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does _not_ deploy the client or server services.
 
-<WaspCommand command="wasp deploy railway setup <project-name>" />
+<WaspCommand npm="npm run wasp -- deploy railway setup <project-name>" global="wasp deploy railway setup <project-name>" />
 
 It accepts the following arguments:
 
@@ -190,13 +191,13 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
-<WaspCommand command="wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>" />
+<WaspCommand npm="npm run wasp -- deploy railway setup <project-name> --existing-project-id <railway-project-id>" global="wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>" />
 
 #### Explicitly providing the Railway Workspace
 
 By default, Wasp CLI will prompt you to select in which Railway workspace you want to create your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
-<WaspCommand command="wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>" />
+<WaspCommand npm="npm run wasp -- deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>" global="wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>" />
 
 :::caution Execute Only Once
 You should only run `setup` once per app. Wasp CLI skips creating the services if they already exist.
@@ -215,11 +216,11 @@ If your app requires any other server-side environment variables (like social au
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
-<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app"} />
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway launch my-wasp-app"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app"} />
 
 or
 
-<WaspCommand command={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy"} />
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway deploy"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy"} />
 
 Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
 

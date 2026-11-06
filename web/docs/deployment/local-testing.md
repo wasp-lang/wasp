@@ -20,7 +20,12 @@ While it's not identical to a real production environment, it's the closest you 
 
 ## Usage
 
-<WaspCommand command={`# Start a local database, copy the connection URL
+<WaspCommand npm={`# Start a local database, copy the connection URL
+npm run wasp -- start db
+
+# Start the local production build server
+# (this is an example, you'll probably need to add more environment variables)
+npm run preview -- --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>`} global={`# Start a local database, copy the connection URL
 wasp start db
 
 # Start the local production build server
@@ -83,21 +88,21 @@ The only exception is the environment variables that configure your app's ports 
 
 Example:
 
-<WaspCommand command="wasp build start --server-env-file .env.staging --client-env-file .env.client.staging" />
+<WaspCommand npm="npm run preview -- --server-env-file .env.staging --client-env-file .env.client.staging" global="wasp build start --server-env-file .env.staging --client-env-file .env.client.staging" />
 
 ### Server environment variables
 
 Use `--server-env` to specify environment variables for the server:
 
-<WaspCommand command="wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp" />
+<WaspCommand npm="npm run preview -- --server-env DATABASE_URL=postgresql://localhost:5432/myapp" global="wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp" />
 
 You can specify multiple server environment variables:
 
-<WaspCommand command="wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key" />
+<WaspCommand npm="npm run preview -- --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key" global="wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key" />
 
 You can also point to an `.env` file to load environment variables:
 
-<WaspCommand command="wasp build start --server-env-file .env.production" />
+<WaspCommand npm="npm run preview -- --server-env-file .env.production" global="wasp build start --server-env-file .env.production" />
 
 :::warning
 Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.
@@ -107,15 +112,15 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 Use `--client-env` to specify environment variables for the client:
 
-<WaspCommand command="wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456" />
+<WaspCommand npm="npm run preview -- --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456" global="wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456" />
 
 Multiple client environment variables:
 
-<WaspCommand command="wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456" />
+<WaspCommand npm="npm run preview -- --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456" global="wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456" />
 
 You can also point to an `.env` file for client variables:
 
-<WaspCommand command="wasp build start --client-env-file .env.client.production" />
+<WaspCommand npm="npm run preview -- --client-env-file .env.client.production" global="wasp build start --client-env-file .env.client.production" />
 
 :::warning
 Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.

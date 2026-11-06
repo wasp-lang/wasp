@@ -121,10 +121,7 @@ nvm install {minimumNodeJsVersion}
 
 In your project directory, install dependencies and build the app:
 
-```bash
-npm ci
-npm run build
-```
+<PackageManagerCommand npm={"npm ci\nnpm run build"} />
 
 ### Step 9: Start the Database
 

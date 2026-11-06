@@ -22,7 +22,7 @@ This guide shows you how to test your Wasp application on other devices (phones,
 
 Run your application normally:
 
-<WaspCommand command="wasp start" />
+<WaspCommand npm="npm run dev" global="wasp start" />
 
 ## Step 2: Find Your Network URL
 
@@ -44,7 +44,7 @@ If you have multiple network interfaces, you'll see multiple Network URLs. Note 
 
 By default, Wasp tells the client and the server that they live on `localhost`, which other devices can't reach. Stop the app and start it again with the URLs the other devices will use:
 
-<WaspCommand command={"wasp start \\\n  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \\\n  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001"} />
+<WaspCommand npm={"npm run dev -- \\\n  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \\\n  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001"} global={"wasp start \\\n  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \\\n  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001"} />
 
 Replace `192.168.1.39` with your actual IP address from Step 2. The URLs don't change the ports Wasp runs on, so we pin the ports to match them.
 

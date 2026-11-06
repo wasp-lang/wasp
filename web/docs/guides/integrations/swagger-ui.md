@@ -19,10 +19,7 @@ This guide shows you how to add Swagger UI documentation to your Wasp APIs, maki
 
 Install the required packages:
 
-```bash
-npm install swagger-jsdoc swagger-ui-express
-npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
-```
+<PackageManagerCommand npm={"npm install swagger-jsdoc swagger-ui-express\nnpm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express"} />
 
 ### 2. Configure the API namespace in main.wasp.ts
 

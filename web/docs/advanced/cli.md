@@ -24,9 +24,7 @@ npm reads the flags after `npm run <script>` as its own, so pass Wasp's argument
 
 **Global CLI.** If you'd rather type `wasp <command>` directly, install the Wasp CLI globally:
 
-```shell
-npm i -g @wasp/cli@latest
-```
+<PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
 
 Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the version from your `package.json`. Outside of a project, it runs commands with its own version, so `wasp new` creates projects on the global CLI's version. Read more in [Installing Wasp globally](../getting-started/quick-start.md#global-cli).
 
@@ -34,7 +32,7 @@ To create a project without a global install, run `npx @wasp/cli@latest new`.
 
 The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
 
-<WaspCommand command="wasp db migrate-dev --name init" />
+<WaspCommand npm="npm run wasp -- db migrate-dev --name init" global="wasp db migrate-dev --name init" />
 
 :::caution Don't run `npx wasp`
 

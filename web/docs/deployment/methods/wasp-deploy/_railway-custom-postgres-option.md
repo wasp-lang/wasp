@@ -8,7 +8,8 @@ Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for 
 You only need to specify the Docker image once, when first creating the app.
 :::
 
-<WaspCommand command={`# Use PostGIS:
+<WaspCommand npm={`# Use PostGIS:
+npm run wasp -- deploy railway ${props.command} my-wasp-app --db-image postgis/postgis:18-3.6`} global={`# Use PostGIS:
 wasp deploy railway ${props.command} my-wasp-app --db-image postgis/postgis:18-3.6`} />
 
 Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](../../database.md#connect-to-the-production-database).

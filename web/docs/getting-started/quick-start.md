@@ -20,7 +20,7 @@ Let's create and run our first Wasp app in 2 short steps:
 
    <Trackable event="CLI Command: Copy" command="wasp_new">
 
-   <WaspCommand command="wasp new" />
+   <WaspCommand npm="npx @wasp/cli@latest new" global="wasp new" />
 
    </Trackable>
 
@@ -30,7 +30,7 @@ Let's create and run our first Wasp app in 2 short steps:
 
    <Trackable event="CLI Command: Copy" command="wasp_start">
 
-   <WaspCommand command={"cd <my-project-name>\nwasp start"} />
+   <WaspCommand npm={"cd <my-project-name>\nnpm run dev"} global={"cd <my-project-name>\nwasp start"} />
 
    </Trackable>
 
@@ -59,9 +59,7 @@ But don't stop there! Turn your coding agent into a Wasp framework expert in the
 
     <Trackable event="Agent Plugin: Copy" kind="skills_cli">
 
-    ```bash
-    npx skills add wasp-lang/wasp-agent-plugins
-    ```
+    <PackageManagerCommand npm="npx skills add wasp-lang/wasp-agent-plugins" />
 
     </Trackable>
 
@@ -154,9 +152,7 @@ You don't need a global install to use Wasp. If you prefer shorter commands, and
 
 <Trackable event="Install Command: Copy">
 
-```shell
-npm i -g @wasp/cli@latest
-```
+<PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
 
 </Trackable>
 
@@ -174,9 +170,7 @@ Check out the **[Legacy installer guide](../guides/legacy/installer.md)** for in
 
 To switch a project to another Wasp version, change its `@wasp/wasp` dependency:
 
-```shell
-npm install --save-exact @wasp/wasp@x.y.z
-```
+<PackageManagerCommand npm="npm install --save-exact @wasp/wasp@x.y.z" />
 
 Check the [migration guide](../migration-guide.md) before upgrading to a new minor version.
 

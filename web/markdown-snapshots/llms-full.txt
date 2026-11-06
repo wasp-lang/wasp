@@ -293,7 +293,7 @@ But don't stop there! Turn your coding agent into a Wasp framework expert in the
 
    **Other Agents (Cursor, Codex, Gemini, Copilot, OpenCode, etc.):**
 
-   ```bash
+   ```shell
    npx skills add wasp-lang/wasp-agent-plugins
    ```
 
@@ -556,7 +556,7 @@ We recommend installing with `project` scope so the settings are committed to gi
 
 Run the following command and select all the skills:
 
-```bash
+```shell
 npx skills add wasp-lang/wasp-agent-plugins
 ```
 
@@ -11758,7 +11758,7 @@ In a Wasp project, dependencies are defined in a standard way for JavaScript pro
 
 To add a new package, like `date-fns` (a great date handling library), you use `npm`:
 
-```bash
+```shell
 npm install date-fns
 ```
 
@@ -11845,7 +11845,7 @@ The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-e
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 
-```bash
+```shell
 npm install some-package --min-release-age=0
 ```
 
@@ -11876,7 +11876,7 @@ Creating the worktree is only the first step. Each worktree is a fresh copy of t
 
 After you create a new worktree for your Wasp app, you must first run:
 
-```bash
+```shell
 npm install
 ```
 
@@ -12404,7 +12404,7 @@ Wasp doesn't provide helpers for testing server code yet. You can follow the pro
 
 Install Vitest and the libraries for testing React components:
 
-```bash
+```shell
 npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
 ```
 
@@ -12468,7 +12468,7 @@ Add a script for running your tests to your `package.json`:
 
 Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app. Keep `wasp start` running in one terminal, and run your tests in another:
 
-```sh
+```shell
 npm test
 ```
 
@@ -12492,7 +12492,7 @@ npm test
 
 Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in the browser. Install it and start Vitest with it:
 
-```sh
+```shell
 npm install -D @vitest/ui
 npm test -- --ui
 ```
@@ -13390,7 +13390,7 @@ Chrome DevTools support [mapping a page's resources to a folder](https://develop
 
 1. Install the plugin as a **dev dependency**:
 
-```bash
+```shell
 npm i -D vite-plugin-devtools-json
 ```
 
@@ -16147,7 +16147,7 @@ The build steps are also ordered so that a code change reuses the installed depe
 
 The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
 
-```sh
+```shell
 npm uninstall -g @wasp.sh/wasp-cli
 npm i -g @wasp/cli@0.27
 ```
@@ -16418,7 +16418,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 1. Install Vitest and the testing libraries your tests use:
 
-   ```bash
+   ```shell
    npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
    ```
 
@@ -21240,7 +21240,7 @@ This guide shows you how to deploy your Wasp app's client to [Cloudflare](https:
 
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
-```bash
+```shell
 npx wrangler login
 ```
 
@@ -23142,7 +23142,7 @@ nvm install 24.22.1
 
 In your project directory, install dependencies and build the app:
 
-```bash
+```shell
 npm ci
 npm run build
 ```
@@ -23621,7 +23621,7 @@ This guide shows you how to implement file uploads in your Wasp application usin
 
 Install the Multer package and its types:
 
-```bash
+```shell
 npm install multer
 npm install --save-dev @types/multer
 ```
@@ -23794,7 +23794,7 @@ After creating each project, you'll receive a unique DSN (Data Source Name) that
 
 Install the Sentry SDKs:
 
-```bash
+```shell
 npm install @sentry/node @sentry/react
 ```
 
@@ -23981,7 +23981,7 @@ This guide shows you how to add Swagger UI documentation to your Wasp APIs, maki
 
 Install the required packages:
 
-```bash
+```shell
 npm install swagger-jsdoc swagger-ui-express
 npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 ```
@@ -25241,7 +25241,7 @@ This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.co
 
 Install the Radix Themes package:
 
-```bash
+```shell
 npm install @radix-ui/themes
 ```
 
@@ -25372,7 +25372,7 @@ Add a top-level `compilerOptions` block to your `tsconfig.json`:
 
 Go into your project directory and run:
 
-```bash
+```shell
 npx shadcn@latest init -b radix -p luma
 ```
 
@@ -25437,7 +25437,7 @@ In this example, we'll add the `Button` component.
 
 We'll add a button component with:
 
-```bash
+```shell
 npx shadcn@latest add button
 ```
 
@@ -25487,7 +25487,7 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
 1. Install Tailwind and its Vite plugin.
 
-   ```bash
+   ```shell
    npm install tailwindcss
    npm install -D @tailwindcss/vite
    ```

@@ -32,9 +32,7 @@ After creating each project, you'll receive a unique DSN (Data Source Name) that
 
 Install the Sentry SDKs:
 
-```bash
-npm install @sentry/node @sentry/react
-```
+<PackageManagerCommand npm="npm install @sentry/node @sentry/react" />
 
 ### 3. Configure your Wasp file
 
