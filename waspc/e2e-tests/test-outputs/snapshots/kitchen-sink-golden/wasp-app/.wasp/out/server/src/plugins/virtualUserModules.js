@@ -15,6 +15,7 @@ const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 const serverVirtualUserModuleMap = {
   "virtual:wasp/user/env": "../../../src/env",
   "virtual:wasp/user/features/db/prisma": "../../../src/features/db/prisma",
+  "virtual:wasp/user/features/auth/password": "../../../src/features/auth/password",
   "virtual:wasp/user/features/operations/queries": "../../../src/features/operations/queries",
   "virtual:wasp/user/features/operations/getOldestTask": "../../../src/features/operations/getOldestTask",
   "virtual:wasp/user/features/jobs/uppercaseText": "../../../src/features/jobs/uppercaseText",

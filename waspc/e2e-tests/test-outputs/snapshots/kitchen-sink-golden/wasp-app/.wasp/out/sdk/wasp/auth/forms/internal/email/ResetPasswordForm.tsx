@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { Form, FormItemGroup, FormLabel, FormPasswordInput, SubmitButton, FormError, getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
+import { passwordValidationSchema } from '../../../validation.js'
+import { Form, FormItemGroup, FormLabel, FormPasswordInput, SubmitButton, FormError, getAuthErrorMessage, newPasswordFieldRules } from '@wasp/lib-sdk-core/browser'
 
 type ResetPasswordFormFields = { password: string; passwordConfirmation: string };
 
@@ -19,11 +20,6 @@ export const ResetPasswordForm = () => {
         title:
           'The token is missing from the URL. Please check the link you received in your email.',
       })
-      return
-    }
-
-    if (!data.password || data.password !== data.passwordConfirmation) {
-      setErrorMessage({ title: `Passwords don't match!` })
       return
     }
 
@@ -47,9 +43,7 @@ export const ResetPasswordForm = () => {
         <FormItemGroup>
           <FormLabel>New password</FormLabel>
           <FormPasswordInput
-            {...register('password', {
-              required: 'Password is required',
-            })}
+            {...register('password', newPasswordFieldRules(passwordValidationSchema))}
             disabled={isLoading}
           />
           {errors.password && (
@@ -61,6 +55,8 @@ export const ResetPasswordForm = () => {
           <FormPasswordInput
             {...register('passwordConfirmation', {
               required: 'Password confirmation is required',
+              validate: (passwordConfirmation, { password }) =>
+                passwordConfirmation === password || 'Passwords must match',
             })}
             disabled={isLoading}
           />

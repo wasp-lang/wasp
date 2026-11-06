@@ -13,6 +13,7 @@ declare module "wasp/types" {
     clientEnvValidationSchema: typeof import("../../../../../src/env").clientEnvValidationSchema
     webSocketFn: typeof import("../../../../../src/features/chat/webSocket").chatWebSocket
     emailUserSignupFields: typeof import("../../../../../src/features/auth/providers/email").emailUserSignupFields
+    passwordValidationSchema: typeof import("../../../../../src/features/auth/password").passwordValidationSchema
     operations: {
       'getTasks': typeof import("../../../../../src/features/operations/queries").getTasks
       'getNumTasks': typeof import("../../../../../src/features/operations/queries").getNumTasks
