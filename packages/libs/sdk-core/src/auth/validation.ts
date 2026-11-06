@@ -47,7 +47,7 @@ export function throwValidationError(message: string): void {
   throw new HttpError(422, "Validation failed", { message });
 }
 
-const PASSWORD_MIN_LENGTH_MESSAGE = "password must be at least 8 characters";
+const PASSWORD_MIN_LENGTH_MESSAGE = "Password must be at least 8 characters";
 
 const emailSchema = presentValueSchema("email must be present").refine(
   isValidEmail,
@@ -58,7 +58,7 @@ const presentPasswordSchema = presentValueSchema("password must be present");
 export const defaultPasswordValidationSchema = z
   .string(PASSWORD_MIN_LENGTH_MESSAGE)
   .min(8, PASSWORD_MIN_LENGTH_MESSAGE)
-  .regex(/\d/, "password must contain a number");
+  .regex(/\d/, "Password must contain a number");
 const tokenSchema = presentValueSchema("token must be present");
 
 function presentValueSchema(message: string): z.ZodType {
@@ -74,7 +74,7 @@ function validate(value: unknown, schema: z.ZodType): void {
   }
 }
 
-function getFirstErrorMessage(error: z.ZodError): string {
+export function getFirstErrorMessage(error: z.ZodError): string {
   // A failed parse always has at least one issue.
   return error.issues[0]!.message;
 }

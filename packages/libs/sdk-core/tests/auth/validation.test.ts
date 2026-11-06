@@ -16,12 +16,12 @@ describe("ensureValidPassword", () => {
     [
       "is too short",
       { password: "pass1" },
-      "password must be at least 8 characters",
+      "Password must be at least 8 characters",
     ],
     [
       "has no number",
       { password: "password" },
-      "password must contain a number",
+      "Password must contain a number",
     ],
   ])("rejects a password that %s", (_, args, expectedMessage) => {
     expect(() => ensureValidPassword(args)).toThrow(

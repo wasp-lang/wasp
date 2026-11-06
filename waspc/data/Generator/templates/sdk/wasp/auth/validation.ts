@@ -13,11 +13,12 @@ export { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensure
 
 export type RegisteredPasswordValidationSchema = FromRegister<"passwordValidationSchema", PasswordValidationSchema>
 
+// PUBLIC API
 {=# passwordValidationSchema.isDefined =}
-const passwordValidationSchema: RegisteredPasswordValidationSchema = {= passwordValidationSchema.importIdentifier =}
+export const passwordValidationSchema: RegisteredPasswordValidationSchema = {= passwordValidationSchema.importIdentifier =}
 {=/ passwordValidationSchema.isDefined =}
 {=^ passwordValidationSchema.isDefined =}
-const passwordValidationSchema: PasswordValidationSchema = defaultPasswordValidationSchema
+export const passwordValidationSchema: PasswordValidationSchema = defaultPasswordValidationSchema
 {=/ passwordValidationSchema.isDefined =}
 
 // PUBLIC API
