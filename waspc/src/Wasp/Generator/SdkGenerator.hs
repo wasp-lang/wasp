@@ -44,6 +44,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
@@ -56,6 +57,7 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.Generator.SdkGenerator.NodeCommands as SdkNodeCommands
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, devDepsRequiredByEmail, genEmailSenderApi)
@@ -84,8 +86,8 @@ buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
     Job.run . Job.prefixWith Job.Wasp $
-      Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "tsc" [])
-        `Job.andThen` Job.fromProc (Job.setCwd sdkRootDir $ Job.proc "node" ["./scripts/copy-assets.js"])
+      Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)
+        `Job.andThen` Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.copySdkAssets)
 
   return $ checkExitSuccess "SDK build" exitCode
   where
