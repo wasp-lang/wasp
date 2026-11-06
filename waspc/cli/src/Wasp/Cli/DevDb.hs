@@ -1,6 +1,6 @@
 module Wasp.Cli.DevDb
   ( startPostgresDevDb,
-    withPostgresDevDb,
+    withRunningPostgresDevDb,
     throwIfCustomDbAlreadyInUse,
   )
 where
@@ -34,38 +34,39 @@ import qualified Wasp.Util.Docker as Docker
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> Command ()
 startPostgresDevDb waspProjectDir appName devDbOptions =
-  withPostgresDevDb waspProjectDir appName devDbOptions $ \waitForDbExit -> do
-    cliSendMessageC $ Msg.Info "PostgreSQL dev database is ready. Press Ctrl+C to stop it."
-    waitForDbExit
+  liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
+    Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
+    Nothing ->
+      withStartedPostgresDevDb waspProjectDir appName devDbOptions $ \waitForDbExit -> do
+        cliSendMessageC $ Msg.Info "PostgreSQL dev database is ready. Press Ctrl+C to stop it."
+        waitForDbExit
+  where
+    noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
+    noteDbIsAlreadyRunningAndExit devDbSpec = do
+      cliSendMessageC . Msg.Info . unlines $
+        ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
+          : additionalInfoLines devDbSpec
+      liftIO exitFailure
+
+-- | Runs the action with the project's PostgreSQL dev database: the one that's
+-- already running, or a new one that is stopped and removed when the action
+-- finishes.
+withRunningPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> Command a -> Command a
+withRunningPostgresDevDb waspProjectDir appName devDbOptions action =
+  liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
+    Just runningDb -> do
+      throwUnlessDevDbAcceptsConnections =<< liftIO (Dev.Postgres.waitUntilDevDbAcceptsConnections runningDb)
+      action
+    Nothing -> withStartedPostgresDevDb waspProjectDir appName devDbOptions $ const action
 
 -- | Starts the project's PostgreSQL dev database, and runs the action once the
 -- database accepts connections. The action gets a way to wait for the database
 -- to exit. The database is stopped and removed when the action finishes.
-withPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> (Command () -> Command a) -> Command a
-withPostgresDevDb waspProjectDir appName devDbOptions action = do
-  throwIfExeIsNotAvailable
-    "docker"
-    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
-  throwIfDockerDaemonIsNotReachable
-
-  liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
-    Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
-    Nothing -> startDbOnPort =<< resolveDevDbPort
+withStartedPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> (Command () -> Command a) -> Command a
+withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
+  throwIfDockerIsNotAvailable
+  startDbOnPort =<< resolveDevDbPort
   where
-    throwIfDockerDaemonIsNotReachable :: Command ()
-    throwIfDockerDaemonIsNotReachable =
-      liftIO Docker.checkDockerDaemonConnection >>= \case
-        Right () -> return ()
-        Left dockerError ->
-          E.throwError $
-            CommandError
-              "Couldn't connect to the Docker daemon"
-              ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
-                  <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
-                  <> "Docker reported:\n"
-                  <> dockerError
-              )
-
     resolveDevDbPort :: Command PortNumber
     resolveDevDbPort =
       resolvePort
@@ -74,13 +75,6 @@ withPostgresDevDb waspProjectDir appName devDbOptions action = do
         []
         "Choose a different port with --db-port, or free up this one."
         "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
-
-    noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command a
-    noteDbIsAlreadyRunningAndExit devDbSpec = do
-      cliSendMessageC . Msg.Info . unlines $
-        ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
-          : additionalInfoLines devDbSpec
-      liftIO exitFailure
 
     startDbOnPort :: PortNumber -> Command a
     startDbOnPort port = do
@@ -97,9 +91,9 @@ withPostgresDevDb waspProjectDir appName devDbOptions action = do
               exitCode <- liftIO $ wait dbJob
               throwIfDbFailed exitCode
         liftIO (race (wait dbJob) (Dev.Postgres.waitUntilDevDbAcceptsConnections devDbSpec)) >>= \case
-          Right Dev.Postgres.AcceptsConnections -> action waitForDbExit
-          Right Dev.Postgres.UnableToCheckConnection ->
-            throwDbError "Unable to check the database connection. Check that the database Docker image is a valid PostgreSQL image."
+          Right connectionCheck -> do
+            throwUnlessDevDbAcceptsConnections connectionCheck
+            action waitForDbExit
           Left _exitCode -> throwDbError "The database stopped before accepting connections."
 
     runDbJob :: Dev.Postgres.DevDbSpec -> IO ExitCode
@@ -113,20 +107,6 @@ withPostgresDevDb waspProjectDir appName devDbOptions action = do
       either throwDbError return $
         checkExitSuccess "Running the PostgreSQL dev database" exitCode
 
-    throwDbError :: String -> Command b
-    throwDbError = E.throwError . CommandError "Dev database failed"
-
-    additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
-    additionalInfoLines devDbSpec =
-      [ "",
-        "Additional info:",
-        " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> Dev.Postgres.getDevConnectionUrl devDbSpec,
-        " ℹ Database data is persisted in a Docker volume with the following name"
-          <> " (useful to know if you will want to delete it at some point):",
-        "     " <> devDbSpec.dockerVolumeName
-      ]
-
     -- These lines describe what `docker run` is about to use, so we print them
     -- only when starting the database: an already running container might have
     -- been started with a different image or mount path than the current
@@ -136,6 +116,47 @@ withPostgresDevDb waspProjectDir appName devDbOptions action = do
       [ " ℹ Using Docker image: " <> devDbOptions.dbImage,
         "   with the data volume mounted at: " <> devDbOptions.dbVolumeMountPath
       ]
+
+throwUnlessDevDbAcceptsConnections :: Dev.Postgres.ConnectionCheck -> Command ()
+throwUnlessDevDbAcceptsConnections = \case
+  Dev.Postgres.AcceptsConnections -> return ()
+  Dev.Postgres.UnableToCheckConnection ->
+    throwDbError "Unable to check the database connection. Check that the database Docker image is a valid PostgreSQL image."
+
+throwDbError :: String -> Command a
+throwDbError = E.throwError . CommandError "Dev database failed"
+
+throwIfDockerIsNotAvailable :: Command ()
+throwIfDockerIsNotAvailable = do
+  throwIfExeIsNotAvailable
+    "docker"
+    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+  throwIfDockerDaemonIsNotReachable
+  where
+    throwIfDockerDaemonIsNotReachable :: Command ()
+    throwIfDockerDaemonIsNotReachable =
+      liftIO Docker.checkDockerDaemonConnection >>= \case
+        Right () -> return ()
+        Left dockerError ->
+          E.throwError $
+            CommandError
+              "Couldn't connect to the Docker daemon"
+              ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
+                  <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
+                  <> "Docker reported:\n"
+                  <> dockerError
+              )
+
+additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
+additionalInfoLines devDbSpec =
+  [ "",
+    "Additional info:",
+    " ℹ Connection URL, in case you might want to connect with external tools:",
+    "     " <> Dev.Postgres.getDevConnectionUrl devDbSpec,
+    " ℹ Database data is persisted in a Docker volume with the following name"
+      <> " (useful to know if you will want to delete it at some point):",
+    "     " <> devDbSpec.dockerVolumeName
+  ]
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
