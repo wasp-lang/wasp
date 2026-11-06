@@ -52,7 +52,9 @@ usage = 'arg "[pattern]"'
 dir = "waspc"
 shell = "bash -c"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-run = 'cabal test waspc-e2e-tests --test-option=--hide-successes --test-option=--pattern="$usage_pattern"'
+# We run the test binary directly, since `cabal test` exits on Ctrl+C without
+# waiting for the tests to stop the processes they started.
+run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes --pattern="$usage_pattern"'
 
 ["test:waspc:e2e:accept-all"]
 description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests and replacing the golden snapshots that differ with the current ones."

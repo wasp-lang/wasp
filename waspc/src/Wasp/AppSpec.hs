@@ -78,9 +78,6 @@ data AppSpec = AppSpec
     buildType :: BuildType.BuildType,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | Connection URL for a database used during development. If provided, generated app will
-    -- make sure to use it when run in development mode.
-    devDatabaseUrl :: Maybe String,
     srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
   }
 
