@@ -59,7 +59,7 @@ basicStarterTemplate =
             _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
             _migratesDbOnCreation = True,
             _buildStartingInstructions = \projectDirName ->
-              unlines $
+              unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
                   styleCode $ "    wasp start",

@@ -50,10 +50,6 @@ data TemplateMetadata = TemplateMetadata
     -- | Whether `wasp new` should try to create and apply the project's initial
     -- database migration. Only meant for templates whose database doesn't need any
     -- setup (i.e. SQLite) and that define entities.
-    --
-    -- Even when this is on, `wasp new` doesn't migrate if the dependency installation
-    -- failed, or if `DATABASE_URL` is set in the user's environment, since that
-    -- database might not be a throwaway dev database.
     _migratesDbOnCreation :: !Bool,
     -- | Given the name of the project directory, makes the starting instructions.
     _buildStartingInstructions :: !(String -> String)
