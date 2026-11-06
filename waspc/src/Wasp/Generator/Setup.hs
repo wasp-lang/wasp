@@ -30,6 +30,7 @@ import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
@@ -124,7 +125,9 @@ installDependencies spec generatedAppDir sendMessage = do
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do
-  warning <- liftIO $ DbGenerator.warnIfDbNeedsMigration spec generatedAppDir
+  warning <- liftIO $ do
+    envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
+    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
   tell $ maybeToList warning
 
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
