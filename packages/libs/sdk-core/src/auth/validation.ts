@@ -43,14 +43,6 @@ export function ensureTokenIsPresent(args: object): void {
   validate(token, tokenSchema);
 }
 
-export function getPasswordValidationError(
-  password: unknown,
-  schema: PasswordValidationSchema,
-): string | undefined {
-  const result = schema.safeParse(password);
-  return result.success ? undefined : getFirstErrorMessage(result.error);
-}
-
 export function throwValidationError(message: string): void {
   throw new HttpError(422, "Validation failed", { message });
 }
@@ -82,7 +74,7 @@ function validate(value: unknown, schema: z.ZodType): void {
   }
 }
 
-function getFirstErrorMessage(error: z.ZodError): string {
+export function getFirstErrorMessage(error: z.ZodError): string {
   // A failed parse always has at least one issue.
   return error.issues[0]!.message;
 }
