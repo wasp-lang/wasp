@@ -7,20 +7,6 @@ const USERNAME_FIELD = "username";
 const EMAIL_FIELD = "email";
 const TOKEN_FIELD = "token";
 
-const PASSWORD_MIN_LENGTH_MESSAGE = "password must be at least 8 characters";
-
-const emailSchema = presentValueSchema("email must be present").refine(
-  isValidEmail,
-  "email must be a valid email",
-);
-const usernameSchema = presentValueSchema("username must be present");
-const presentPasswordSchema = presentValueSchema("password must be present");
-const defaultPasswordValidationSchema = z
-  .string(PASSWORD_MIN_LENGTH_MESSAGE)
-  .min(8, PASSWORD_MIN_LENGTH_MESSAGE)
-  .regex(/\d/, "password must contain a number");
-const tokenSchema = presentValueSchema("token must be present");
-
 export function ensureValidEmail(args: object): void {
   const email = EMAIL_FIELD in args ? args[EMAIL_FIELD] : undefined;
   validate(email, emailSchema);
@@ -38,7 +24,7 @@ export function ensurePasswordIsPresent(args: object): void {
 
 export function ensureValidPassword(args: object): void {
   const password = PASSWORD_FIELD in args ? args[PASSWORD_FIELD] : undefined;
-  validate(password, defaultPasswordValidationSchema);
+  validate(password, passwordSchema);
 }
 
 export function ensureTokenIsPresent(args: object): void {
@@ -50,6 +36,20 @@ export function throwValidationError(message: string): void {
   throw new HttpError(422, "Validation failed", { message });
 }
 
+const PASSWORD_MIN_LENGTH_MESSAGE = "password must be at least 8 characters";
+
+const emailSchema = presentValueSchema("email must be present").refine(
+  isValidEmail,
+  "email must be a valid email",
+);
+const usernameSchema = presentValueSchema("username must be present");
+const presentPasswordSchema = presentValueSchema("password must be present");
+const passwordSchema = z
+  .string(PASSWORD_MIN_LENGTH_MESSAGE)
+  .min(8, PASSWORD_MIN_LENGTH_MESSAGE)
+  .regex(/\d/, "password must contain a number");
+const tokenSchema = presentValueSchema("token must be present");
+
 function presentValueSchema(message: string): z.ZodType {
   return z
     .unknown()
@@ -59,10 +59,11 @@ function presentValueSchema(message: string): z.ZodType {
 function validate(value: unknown, schema: z.ZodType): void {
   const result = schema.safeParse(value);
   if (!result.success) {
-    throwValidationError(getFirstIssueMessage(result.error));
+    throwValidationError(getFirstErrorMessage(result.error));
   }
 }
 
-function getFirstIssueMessage(error: z.ZodError): string {
-  return error.issues[0]?.message ?? error.message;
+// A failed parse always has at least one issue.
+function getFirstErrorMessage(error: z.ZodError): string {
+  return error.issues[0]!.message;
 }
