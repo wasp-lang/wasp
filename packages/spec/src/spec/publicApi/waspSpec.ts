@@ -299,7 +299,7 @@ type SocialAuthMethodName =
  * })
  * ```
  */
-export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
+export interface UsernameAndPasswordConfig extends LocalAuthMethodConfig {}
 
 /**
  * Social auth provider configuration.
@@ -390,7 +390,7 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
  * })
  * ```
  */
-export interface EmailAuthConfig extends BaseAuthMethodConfig {
+export interface EmailAuthConfig extends LocalAuthMethodConfig {
   /** Sender identity used for verification and password reset emails. */
   fromField: EmailFromField;
   /**
@@ -401,6 +401,14 @@ export interface EmailAuthConfig extends BaseAuthMethodConfig {
    * An object that specifies the password reset process.
    */
   passwordReset: EmailFlowConfig;
+}
+
+interface LocalAuthMethodConfig extends BaseAuthMethodConfig {
+  /**
+   * Zod string schema that new passwords must pass on signup and password
+   * reset. Wasp uses its default rules when it's not set.
+   */
+  passwordValidationSchema?: Reference<ZodSchema>;
 }
 
 interface BaseAuthMethodConfig {

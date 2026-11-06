@@ -196,6 +196,7 @@ export type AuthMethods = {
 
 export type UsernameAndPasswordConfig = {
   userSignupFields: Optional<ExtImport>;
+  passwordValidationSchema: Optional<ExtImport>;
 };
 
 export type ExternalAuthConfig = {
@@ -205,6 +206,7 @@ export type ExternalAuthConfig = {
 
 export type EmailAuthConfig = {
   userSignupFields: Optional<ExtImport>;
+  passwordValidationSchema: Optional<ExtImport>;
   fromField: EmailFromField;
   emailVerification: EmailVerificationConfig;
   passwordReset: PasswordResetConfig;
