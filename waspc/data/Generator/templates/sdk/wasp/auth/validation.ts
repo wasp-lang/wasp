@@ -2,7 +2,7 @@
 import {
   defaultPasswordValidationSchema,
   ensureValidPassword as ensureValidPasswordForSchema,
-  getPasswordValidationError,
+  getFirstErrorMessage,
   type PasswordValidationSchema,
 } from '@wasp/lib-sdk-core'
 import type { FromRegister } from '../types/register'
@@ -29,6 +29,7 @@ export function ensureValidPassword(args: object): void {
 
 // PRIVATE API
 // Checks a new password in the Auth UI forms, in the shape react-hook-form expects.
-export function validateNewPassword(password: unknown): string | true {
-  return getPasswordValidationError(password, passwordValidationSchema) ?? true
+export function validateNewPassword(password: unknown): string | undefined {
+  const result = passwordValidationSchema.safeParse(password)
+  return result.error && getFirstErrorMessage(result.error)
 }
