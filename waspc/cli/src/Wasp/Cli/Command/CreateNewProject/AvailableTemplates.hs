@@ -37,7 +37,8 @@ minimalStarterTemplate =
         TemplateMetadata
           { _name = "minimal",
             _description = "A minimal starter template that features just a single page.",
-            _buildStartingInstructions = \projectDirName ->
+            _migratesDbOnCreation = False,
+            _buildStartingInstructions = \projectDirName _isDbMigrated ->
               unlines
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
@@ -56,15 +57,17 @@ basicStarterTemplate =
         TemplateMetadata
           { _name = "basic",
             _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
-            _buildStartingInstructions = \projectDirName ->
-              unlines
+            _migratesDbOnCreation = True,
+            _buildStartingInstructions = \projectDirName isDbMigrated ->
+              unlines $
                 [ styleText $ "To run your new app, do:",
-                  styleCode $ "    cd " <> projectDirName,
-                  styleCode $ "    wasp db migrate-dev",
-                  styleCode $ "    wasp start",
-                  styleText $ "",
-                  styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
+                  styleCode $ "    cd " <> projectDirName
                 ]
+                  ++ [styleCode "    wasp db migrate-dev" | not isDbMigrated]
+                  ++ [ styleCode $ "    wasp start",
+                       styleText $ "",
+                       styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
+                     ]
           }
     }
 
@@ -89,7 +92,8 @@ openSaasStarterTemplate =
               _description =
                 "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
                   <> " Check out https://opensaas.sh/ for more details.",
-              _buildStartingInstructions = \projectDirName ->
+              _migratesDbOnCreation = False,
+              _buildStartingInstructions = \projectDirName _isDbMigrated ->
                 unlines
                   [ styleText $
                       "To run your new app, follow the instructions below:",

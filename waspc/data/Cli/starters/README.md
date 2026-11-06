@@ -23,4 +23,4 @@ The recommended approach for developing starter templates:
 3. **Copy changes back**: Once satisfied with the implementation, copy the files from your project back to the starter templates
 4. **Test the starter**: Create a new project with `wasp-cli` to verify it matches your previously created project
 
-When copying changes back, don't include the `migrations/` directory. Starters intentionally ship without migrations so users aren't locked into a specific database provider. They'll get a single clean initial migration when they run `wasp db migrate-dev` for the first time.
+When copying changes back, don't include the `migrations/` directory. Starters intentionally ship without migrations, so the initial migration always matches the schema that Wasp generates. Starters that opt in through `_migratesDbOnCreation` get it from `wasp new`. The rest get it when users run `wasp db migrate-dev` for the first time.

@@ -47,8 +47,21 @@ waspProjectDirFromTemplateOutputDir template@(GhRepoReleaseArchiveTemplate {}) =
 data TemplateMetadata = TemplateMetadata
   { _name :: !String,
     _description :: !String,
-    -- | Given the name of the project directory, makes the starting instructions.
-    _buildStartingInstructions :: !(String -> String)
+    -- | Whether `wasp new` should try to create and apply the project's initial
+    -- database migration. Only meant for templates whose database doesn't need any
+    -- setup (i.e. SQLite) and that define entities.
+    --
+    -- Even when this is on, `wasp new` doesn't migrate if the dependency installation
+    -- failed, or if `DATABASE_URL` is set in the user's environment, since that
+    -- database might not be a throwaway dev database.
+    _migratesDbOnCreation :: !Bool,
+    -- | Given the name of the project directory and whether `wasp new` migrated the
+    -- database, makes the starting instructions.
+    --
+    -- We pass the second parameter for templates with '_migratesDbOnCreation' on: it
+    -- is 'False' if the migration failed or was skipped (e.g. `DATABASE_URL` is set),
+    -- so the instructions can tell users to run `wasp db migrate-dev` themselves.
+    _buildStartingInstructions :: !(String -> Bool -> String)
   }
 
 instance Show StarterTemplate where
@@ -66,10 +79,10 @@ instance Interactive.IsOption StarterTemplate where
 -- | Returns instructions for running the newly created (from the template) Wasp project.
 -- Instructions assume that user is positioned right next to the just created project directory,
 -- whose name is provided via projectDirName.
-getTemplateStartingInstructions :: String -> StarterTemplate -> String
-getTemplateStartingInstructions projectDirName = \case
-  GhRepoReleaseArchiveTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' projectDirName
-  BundledStarterTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' projectDirName
+getTemplateStartingInstructions :: String -> Bool -> StarterTemplate -> String
+getTemplateStartingInstructions projectDirName isDbMigrated = \case
+  GhRepoReleaseArchiveTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' projectDirName isDbMigrated
+  BundledStarterTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' projectDirName isDbMigrated
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
