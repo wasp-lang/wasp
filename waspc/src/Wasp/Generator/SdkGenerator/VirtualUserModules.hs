@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
-import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
+import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), defaultExportName, getJsImportPathStringFromPath)
 import Wasp.Util.Js (makeJsStringLiteral)
 
 {-
@@ -163,7 +163,7 @@ nubByDeclaredExport = nubBy ((==) `on` declaredExportKey)
   where
     declaredExportKey virtualUserModule = (getVirtualUserModuleId virtualUserModule, getExportedName virtualUserModule)
     getExportedName virtualUserModule = case EI.name $ extImport virtualUserModule of
-      EI.ExtImportModule _ -> "default"
+      EI.ExtImportModule _ -> defaultExportName
       EI.ExtImportField name -> name
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
