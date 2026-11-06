@@ -123,7 +123,7 @@ The worker function accepts two arguments:
 
 And that's it. Your job will be executed by `PgBoss` as if you called `mySpecialJob({ name: "Johnny" })`.
 
-In our example, `mySpecialJob` takes an argument, but passing arguments to jobs is not a requirement. It depends on how you've implemented your worker function.
+In our example, `mySpecialJob` uses its argument, but your worker function doesn't have to. `submit` still requires an object, so pass `{}` if your worker function takes no arguments.
 
 ### Recurring Jobs
 

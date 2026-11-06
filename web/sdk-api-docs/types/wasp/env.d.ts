@@ -18,7 +18,6 @@
  * `env` object from `wasp/client` and `wasp/server`.
  *
  * @param schema A Zod object schema describing your env vars.
- * @returns The same schema.
  *
  * @example
  * ```ts

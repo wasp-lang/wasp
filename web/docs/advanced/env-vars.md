@@ -302,7 +302,7 @@ Take a look at an example of defining env vars validation:
     export const serverEnvValidationSchema = defineEnvValidationSchema(
       z.object({
         STRIPE_API_KEY: z.string({
-          required_error: "STRIPE_API_KEY is required.",
+          error: "STRIPE_API_KEY is required.",
         }),
       })
     )
@@ -324,7 +324,7 @@ Take a look at an example of defining env vars validation:
     export const serverEnvValidationSchema = defineEnvValidationSchema(
       z.object({
         STRIPE_API_KEY: z.string({
-          required_error: "STRIPE_API_KEY is required.",
+          error: "STRIPE_API_KEY is required.",
         }),
       })
     )

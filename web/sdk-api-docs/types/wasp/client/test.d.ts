@@ -6,8 +6,9 @@
  * @module
  */
 
-import type { Query, Route } from "@wasp/lib-sdk-core";
+import type { Route } from "@wasp/lib-sdk-core";
 import type { ReactElement, ReactNode } from "react";
+import type { Query } from "./operations";
 
 /**
  * The options of React Testing Library's
@@ -100,6 +101,9 @@ export declare function renderInContext(
  * @example
  * ```ts
  * import { getTasks } from "wasp/client/operations";
+ * import { mockServer } from "wasp/client/test";
+ *
+ * const { mockQuery } = mockServer();
  *
  * mockQuery(getTasks, []);
  * ```
@@ -123,6 +127,9 @@ type MockQuery = <Input, Output, MockOutput extends Output>(
  * @example
  * ```ts
  * import { HttpMethod } from "wasp/client";
+ * import { mockServer } from "wasp/client/test";
+ *
+ * const { mockApi } = mockServer();
  *
  * mockApi({ method: HttpMethod.Get, path: "/foo/bar" }, { res: "hello" });
  * ```
@@ -138,7 +145,10 @@ type MockApi = (route: Route, mockData: unknown) => void;
 type SetupServer = {
   /** Adds request handlers, which take precedence over the existing ones. */
   use(...handlers: unknown[]): void;
-  /** Removes the request handlers added at runtime with `use`. */
+  /**
+   * Resets the request handlers to the initial ones, removing those added with
+   * `use`, or to `nextHandlers` if you pass any.
+   */
   resetHandlers(...nextHandlers: unknown[]): void;
 };
 

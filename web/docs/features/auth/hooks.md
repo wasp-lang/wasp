@@ -256,7 +256,7 @@ Read more about the data the `onAfterSignup` hook receives in the [API Reference
 
 ### Executing code after a user verifies their email
 
-Wasp calls the `onAfterEmailVerified` hook exactly once, after the user verifies their email.
+Wasp calls the `onAfterEmailVerified` hook after the user verifies their email. It runs every time a valid verification token is submitted, so it can run more than once if the user opens the link again while the token is valid.
 
 The `onAfterEmailVerified` hook is useful for triggering actions in response to the verification event — such as sending a welcome email or syncing user data with a third-party service.
 
@@ -293,6 +293,7 @@ export const onAfterEmailVerified = async ({ email }) => {
     to: email,
     subject: "Thank you for verifying your email!",
     text: `Your email ${email} has been successfully verified!`,
+    html: `<p>Your email ${email} has been successfully verified!</p>`,
   })
   // ...
 }
@@ -316,6 +317,7 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
     to: email,
     subject: "Thank you for verifying your email!",
     text: `Your email ${email} has been successfully verified!`,
+    html: `<p>Your email ${email} has been successfully verified!</p>`,
   })
   // ...
 }
@@ -551,7 +553,7 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin = async ({ oauth }) => {
-      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth && oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
@@ -567,7 +569,7 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth && oauth.providerName === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )

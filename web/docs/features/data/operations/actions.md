@@ -197,7 +197,7 @@ Here's how you might implement the previously declared Actions `createTask` and 
       On the other hand, the Action `markTaskAsDone` expects an object of type `Pick<Task, 'id'>`. This type is derived from the `Task` entity type.
 
       If you don't care about typing the Action's inputs and outputs, you can omit both type arguments.
-      TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
+      TypeScript will then infer the most general types (`never` for the input and `Payload`, any serializable value, for the output).
 
       Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
 
@@ -394,7 +394,7 @@ Here's what you have to do differently:
 
 ### Error Handling
 
-For security reasons, all exceptions thrown in the Action's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
+For security reasons, Wasp hides the details of exceptions thrown in the Action's NodeJS implementation: by default, the client gets a generic response with the HTTP status code `500`. In development, the response also includes the original message and stack trace.
 Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:

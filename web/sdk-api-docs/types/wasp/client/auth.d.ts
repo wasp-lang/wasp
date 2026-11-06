@@ -425,6 +425,17 @@ export { FormLabel } from "@wasp/lib-sdk-core/browser";
 export { FormInput } from "@wasp/lib-sdk-core/browser";
 
 /**
+ * A password input with a button that shows or hides the password, styled like
+ * the rest of the Auth UI. It takes the same props as an `<input>`, except
+ * `type`. Use it to build the extra fields you pass to {@link SignupForm}.
+ *
+ * @see [Using a list of extra fields](https://wasp.sh/docs/features/auth/overview#using-a-list-of-extra-fields)
+ *
+ * @component
+ */
+export { FormPasswordInput } from "@wasp/lib-sdk-core/browser";
+
+/**
  * A textarea, styled like the rest of the Auth UI. Use it to build the extra
  * fields you pass to {@link SignupForm}.
  *
@@ -519,9 +530,8 @@ export declare function login(data: {
  * [define extra signup fields](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process),
  * pass them in `data` too.
  *
- * @param data The new user's data, including your extra signup fields.
- * @param data.email The user's email.
- * @param data.password The user's password.
+ * @param data The new user's data: `email` and `password` (both required), plus
+ * your extra signup fields.
  *
  * @example
  * ```ts
@@ -553,9 +563,8 @@ export declare function signup(
  * [define extra signup fields](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process),
  * pass them in `data` too.
  *
- * @param data The new user's data, including your extra signup fields.
- * @param data.username The user's username.
- * @param data.password The user's password.
+ * @param data The new user's data: `username` and `password` (both required),
+ * plus your extra signup fields.
  *
  * @example
  * ```ts
@@ -594,6 +603,7 @@ export declare function signup(
  * import { verifyEmail } from "wasp/client/auth";
  *
  * const token = new URLSearchParams(location.search).get("token");
+ * if (!token) throw new Error("Token not found in URL");
  * await verifyEmail({ token });
  * navigate("/login");
  * ```
@@ -643,6 +653,7 @@ export declare function requestPasswordReset(data: {
  * import { resetPassword } from "wasp/client/auth";
  *
  * const token = new URLSearchParams(location.search).get("token");
+ * if (!token) throw new Error("Token not found in URL");
  * await resetPassword({ token, password });
  * navigate("/login");
  * ```

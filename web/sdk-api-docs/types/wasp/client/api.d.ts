@@ -68,8 +68,10 @@ interface KyInstance {
  * {@link handleApiError} to get a {@link WaspHttpError} with the server's
  * status code, message, and response body.
  *
- * Your custom APIs don't use the default middleware like Operations do, so
- * make sure CORS is enabled for the ones you call from the client.
+ * Each custom API gets the default middleware, including CORS, only on its own
+ * HTTP method, not on `OPTIONS`. Requests that need a CORS preflight (e.g., with
+ * the auth header or a JSON body) fail unless you also apply the middleware to
+ * the path with an `apiNamespace`.
  *
  * @example
  * ```tsx
@@ -98,9 +100,11 @@ export declare const api: KyInstance;
  * Transforms an error thrown by {@link api} into a {@link WaspHttpError}.
  *
  * If the error comes from an HTTP response, it returns a `WaspHttpError` with
- * the response's status code, and the `message` and `data` the server sent
- * (the format that `HttpError` from `wasp/server` produces). It returns any
- * other error unchanged.
+ * the response's status code, the `message` from the response body (or ky's
+ * error message if the body has none), and the parsed response body as `data`.
+ * For an `HttpError` from `wasp/server`, the body is `{ message, data }`, so
+ * that error's data is in `error.data.data`. It returns any other error
+ * unchanged.
  *
  * @param error The error that `api` threw.
  * @returns A `WaspHttpError`, or `error` if it doesn't come from an HTTP
@@ -117,11 +121,14 @@ export declare const api: KyInstance;
  * }
  * ```
  */
-export { handleApiError } from "@wasp/lib-sdk-core/browser";
+export declare function handleApiError(error: unknown): unknown;
 
 /**
  * An error that a request to your server failed with.
  *
  * {@link handleApiError} creates it from the errors that {@link api} throws.
+ * Its `data` is the parsed response body. For an `HttpError` from
+ * `wasp/server`, the body is `{ message, data }`, so that error's data is in
+ * `error.data.data`.
  */
 export { WaspHttpError } from "@wasp/lib-sdk-core";

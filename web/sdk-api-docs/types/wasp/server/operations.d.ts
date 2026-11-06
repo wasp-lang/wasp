@@ -140,6 +140,8 @@ import type { AuthUser } from "../auth";
  * @see [Implementing Queries](https://wasp.sh/docs/features/data/operations/queries#implementing-queries-in-node)
  * @see [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries)
  * @see [Using the `context.user` object](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object)
+ *
+ * @placeholder
  */
 export type AuthenticatedQueryDefinition<
   Entities,
@@ -182,6 +184,8 @@ export type AuthenticatedQueryDefinition<
  * ```
  *
  * @see [Implementing Queries](https://wasp.sh/docs/features/data/operations/queries#implementing-queries-in-node)
+ *
+ * @placeholder
  */
 export type UnauthenticatedQueryDefinition<
   Entities,
@@ -295,6 +299,8 @@ export type UnauthenticatedQueryDefinition<
  * @see [Implementing Actions](https://wasp.sh/docs/features/data/operations/actions#implementing-actions-in-node)
  * @see [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/actions#using-entities-in-actions)
  * @see [Using the `context.user` object](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object)
+ *
+ * @placeholder
  */
 export type AuthenticatedActionDefinition<
   Entities,
@@ -337,6 +343,8 @@ export type AuthenticatedActionDefinition<
  * ```
  *
  * @see [Implementing Actions](https://wasp.sh/docs/features/data/operations/actions#implementing-actions-in-node)
+ *
+ * @placeholder
  */
 export type UnauthenticatedActionDefinition<
   Entities,
@@ -399,6 +407,8 @@ export type UnauthenticatedActionDefinition<
  *
  * @see [Using Queries on the server](https://wasp.sh/docs/features/data/operations/queries#using-queries-on-the-server)
  * @see [Using Actions on the server](https://wasp.sh/docs/features/data/operations/actions#using-actions-on-the-server)
+ *
+ * @placeholder
  */
 export type AuthenticatedOperation<Input, Output> =
   // `Input` is `any`
@@ -436,6 +446,8 @@ export type AuthenticatedOperation<Input, Output> =
  * ```
  *
  * @see [Using Queries on the server](https://wasp.sh/docs/features/data/operations/queries#using-queries-on-the-server)
+ *
+ * @placeholder
  */
 export type UnauthenticatedOperation<Input, Output> =
   // `Input` is `any`
@@ -476,11 +488,12 @@ type AuthenticatedOperationContext<Entities> = {
    */
   entities: Entities;
   /**
-   * The logged-in user, or `undefined` if the request isn't authenticated.
+   * The logged-in user, or `null` if the request isn't authenticated. Check it
+   * with `if (!context.user)`.
    *
    * @see [Using the `context.user` object](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object)
    */
-  user?: AuthUser;
+  user: AuthUser | null;
 };
 
 export {};

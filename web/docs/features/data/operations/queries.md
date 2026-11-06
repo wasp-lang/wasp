@@ -173,7 +173,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
 
       On the other hand, the Query `getFilteredTasks` expects an object of type `{ isDone: boolean }`. This type is derived from the `Task` entity type.
 
-      If you don't care about typing the Query's inputs and outputs, you can omit both type arguments. TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
+      If you don't care about typing the Query's inputs and outputs, you can omit both type arguments. TypeScript will then infer the most general types (`never` for the input and `Payload`, any serializable value, for the output).
 
       Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
 
@@ -409,7 +409,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ### Error Handling
 
-For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
+For security reasons, Wasp hides the details of exceptions thrown in the Query's NodeJS implementation: by default, the client gets a generic response with the HTTP status code `500`. In development, the response also includes the original message and stack trace.
 Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
@@ -445,7 +445,7 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 </Tabs>
 
-The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error with these fields.
+The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error as a `WaspHttpError` with `statusCode`, `message`, and `data`. On the client, `data` holds the whole response body (`{ message, data }`), so the `data` you passed to the `HttpError` is at `error.data.data`.
 This happens for every status code, so only put information in them that is safe to show to the user.
 
 To also set response headers, e.g. `Retry-After`, pass them in the options argument:
@@ -457,7 +457,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 ```
 
 When a Query fails, `useQuery` retries it a few times before giving up.
-Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away.
+Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.
 To change this, set `retry` for a [single Query](../../../api/wasp/client/operations#usequery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
 
 ### Using Entities in Queries

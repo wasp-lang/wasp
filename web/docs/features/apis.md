@@ -142,7 +142,7 @@ export const Foo = () => {
 
 #### Making Sure CORS Works
 
-APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
+Each API gets the default middleware, including CORS (Cross-Origin Resource Sharing), but only on its own HTTP method. Browsers first send an `OPTIONS` preflight request for requests with the auth header or a JSON body, and that request doesn't go through the API's middleware. As a result, to use these APIs on the client side, you must ensure that CORS is also enabled for `OPTIONS` requests.
 
 You can do this by defining custom middleware for your APIs in the Wasp file.
 
@@ -371,6 +371,13 @@ async function fetchStream(
   kind="api"
   title="wasp/server/api"
   description="The types Wasp generates for implementing your APIs (e.g. FooBar)."
+/>
+
+<CardLink
+  to="../api/wasp/client/api"
+  kind="api"
+  title="wasp/client/api"
+  description="The HTTP client for calling your APIs from the client, and its error helpers."
 />
 
 <CardLink

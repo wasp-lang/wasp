@@ -11,9 +11,13 @@
  * Throw an `HttpError` from an Operation or API to send an HTTP error response
  * to the client.
  *
- * For security reasons, Wasp sends any other exception thrown in your server
- * code to the client as a `500` response, with all details removed. Throw an
- * `HttpError` when you want to pass error information to the client.
+ * For security reasons, Wasp hides the details of any other exception thrown
+ * while handling a request: the client gets the generic message for the status
+ * code. The status code is `500`, unless the error has a valid `status` or
+ * `statusCode` field, in which case Wasp keeps it, along with the error's
+ * `headers`. In development, Wasp also adds the original message and stack
+ * trace to `data`. Throw an `HttpError` when you want to pass error information
+ * to the client.
  *
  * The constructor takes:
  *
@@ -24,9 +28,15 @@
  * - `options` (optional): The standard `Error` options (e.g. `cause`), and
  *   `headers` to set on the response.
  *
- * Wasp sends the status code, `message`, and `data` to the client, which
- * rethrows the error with these fields. This happens for every status code,
- * so only put information in them that is safe to show to the user.
+ * Wasp sends the status code, `message`, and `data` to the client. When an
+ * Operation fails, the client rethrows the error as a `WaspHttpError` with
+ * `statusCode`, `message`, and `data`. On the client, `data` holds the whole
+ * response body (`{ message, data }`), so the `data` you passed here is at
+ * `error.data.data`. For your custom APIs, pass the error that the `api` client
+ * throws through `handleApiError` from `wasp/client/api` to get the same error.
+ *
+ * This happens for every status code, so only put information in them that is
+ * safe to show to the user.
  *
  * @example
  * ```ts
@@ -104,7 +114,7 @@ type ServerConfig = {
    * The origins the default CORS middleware allows.
    *
    * In development, it allows every origin. In production, it only allows
-   * the origin of {@link ServerConfig.frontendUrl | `frontendUrl`}.
+   * the origin of {@linkcode ServerConfig.frontendUrl | frontendUrl}.
    *
    * @see [Middleware](https://wasp.sh/docs/advanced/server-customization/middleware)
    */
@@ -311,7 +321,7 @@ export declare const prisma: PrismaClient;
  * @see [Customising the Prisma Client](https://wasp.sh/docs/features/data/databases#customising-the-prisma-client)
  */
 export type PrismaClient = {
-  /** Connects to the database. Wasp calls this for you. */
+  /** Connects to the database. */
   $connect(): Promise<void>;
   /** Disconnects from the database. */
   $disconnect(): Promise<void>;
@@ -324,8 +334,8 @@ export type PrismaClient = {
  *
  * It receives an object with:
  *
- * - `app`: The Express `Application`. Use it to add custom routes or
- *   middleware.
+ * - `app`: The Express `Application`. Use it to add custom routes. To change
+ *   the middleware of Operations and APIs, use {@link MiddlewareConfigFn}.
  * - `server`: The Node.js `http.Server`.
  *
  * You can use it to store values for later use, e.g. to set up a resource

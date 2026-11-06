@@ -201,11 +201,11 @@ type RouteBuildOptions = {
 /**
  * The entry that Wasp generates in {@link routes} for each route in your spec.
  *
- * Each entry's `build` function is typed with that route's params: `options`
- * is required and must include `params` if the route's path has params, and
- * otherwise it's optional.
+ * Each entry's `build` function is typed with that route's path: `options` is
+ * required if the path has params (it must include `params`) or optional static
+ * segments (it must include `path`), and otherwise it's optional.
  */
-export type RouteEntry = {
+type RouteEntry = {
   /** The route's path, as declared in your Wasp spec, e.g. `"/task/:id"`. */
   readonly to: string;
   /**
