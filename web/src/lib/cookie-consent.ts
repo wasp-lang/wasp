@@ -5,15 +5,11 @@
 export const COOKIE_SETTINGS_HREF = "#cookie-settings";
 
 /**
- * Returns `true` when the visitor must accept cookies before PostHog records
- * anything. Any failure returns `true`, so a visitor with an unknown region
- * gets the cookie banner.
- *
- * Only Cloudflare runs the endpoint (`functions/api/requires-consent.ts`).
- * Locally the answer is the HTML of the site, not JSON, so this function
- * returns `true` and every visitor gets the banner.
+ * Asks `functions/api/requires-consent.ts` if the law in the country of the
+ * visitor requires consent for analytics. Any failure counts as `true`, so the
+ * visitor gets the cookie banner.
  */
-export async function fetchRequiresConsent(): Promise<boolean> {
+export async function isAnalyticsConsentRequired(): Promise<boolean> {
   try {
     // The answer depends on the country of each request, so the browser must
     // not take it from its cache.

@@ -23,10 +23,18 @@ export function captureInPostHog(...event: CaptureArguments): void {
 
 /**
  * Loads PostHog from its own chunk of the site bundle and starts it. With
- * `requiresConsent`, PostHog sends nothing and stores nothing in the browser
+ * `isConsentRequired`, PostHog sends nothing and stores nothing in the browser
  * until the visitor clicks "Accept all".
+ *
+ * The consent options and calls (`opt_out_capturing_by_default`,
+ * `consent_persistence_name`, `get_explicit_consent_status()`,
+ * `opt_in_capturing()`, `opt_out_capturing()`) are the PostHog API, as
+ * https://posthog.com/docs/privacy/data-collection describes them. The event
+ * queue, `syncHeatmaps()` and `copyChoiceFromEarlierBanner()` are ours.
  */
-export async function startPostHog(requiresConsent: boolean): Promise<PostHog> {
+export async function startPostHog(
+  isConsentRequired: boolean,
+): Promise<PostHog> {
   const earlierChoice = copyChoiceFromEarlierBanner();
 
   // The `no-external` build of PostHog contains no code that downloads other
@@ -45,7 +53,8 @@ export async function startPostHog(requiresConsent: boolean): Promise<PostHog> {
     // In the consent region, the visitor starts opted out. A stored choice
     // counts before this default. A "Reject all" in the earlier banner also
     // counts when the browser could not copy it into localStorage.
-    opt_out_capturing_by_default: requiresConsent || earlierChoice === "false",
+    opt_out_capturing_by_default:
+      isConsentRequired || earlierChoice === "false",
     // While the visitor is opted out, PostHog stores nothing in the browser.
     // An opt-out also deletes the PostHog cookie and localStorage data.
     opt_out_persistence_by_default: true,

@@ -89,9 +89,10 @@ const PLACEMENTS = [
   "sidebar",
   "doc_footer",
   "footer",
-  // The cookie banner when it shows by itself, and when a visitor opens it
-  // again with the "Cookie settings" link.
+  // The cookie banner when it shows by itself.
   "cookie_banner",
+  // The cookie banner when a visitor opens it again with the "Cookie
+  // settings" link.
   "cookie_settings",
   // Anywhere else.
   "body",

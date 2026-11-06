@@ -3,7 +3,7 @@ import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { track, trackPlacementAttributes } from "../lib/analytics";
 import {
   COOKIE_SETTINGS_HREF,
-  fetchRequiresConsent,
+  isAnalyticsConsentRequired,
 } from "../lib/cookie-consent";
 import {
   CONSENT_STORAGE_KEY,
@@ -29,12 +29,12 @@ export default function CookieConsentBanner() {
       return;
     }
 
-    fetchRequiresConsent().then(async (requiresConsent) => {
-      const posthog = await startPostHog(requiresConsent);
+    isAnalyticsConsentRequired().then(async (isConsentRequired) => {
+      const posthog = await startPostHog(isConsentRequired);
       setPostHog(posthog);
       // PostHog keeps the choice, so a visitor sees this banner only once.
       if (
-        requiresConsent &&
+        isConsentRequired &&
         posthog.get_explicit_consent_status() === "pending"
       ) {
         setBannerState("banner");

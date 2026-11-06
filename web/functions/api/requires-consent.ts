@@ -1,10 +1,9 @@
 // Cloudflare adds the country of the visitor to each request, in `cf`.
 type RequestWithCountry = Request & { cf?: { country?: string } };
 
-// Visitors from these countries must accept cookies before PostHog records
-// anything: the EU (with its regions that have their own country code), the
-// EEA, the United Kingdom, Switzerland, and four places with data protection
-// laws like the GDPR.
+// In these countries, the law requires consent for analytics: the EU (with its
+// regions that have their own country code), the EEA, the United Kingdom,
+// Switzerland, and four places with data protection laws like the GDPR.
 const CONSENT_COUNTRY_CODES = new Set([
   // EU
   "AT",
@@ -60,9 +59,9 @@ const CONSENT_COUNTRY_CODES = new Set([
 const UNKNOWN_COUNTRY_CODES = new Set(["XX", "T1"]);
 
 /**
- * Tells the page whether the visitor must accept cookies before PostHog
- * records anything. The page asks once per full page load, and shows the
- * cookie banner when the answer is `true` or when the request fails.
+ * Tells the page if the law in the country of the visitor requires consent for
+ * analytics. The page asks once per full page load, and shows the cookie
+ * banner when the answer is `true` or when the request fails.
  *
  * Cloudflare Pages runs this file for `GET /api/requires-consent`, because the
  * path of the file is the route and `static/_routes.json` includes it.
@@ -80,7 +79,7 @@ export const onRequestGet = async (context: {
     headers: {
       "Content-Type": "application/json",
       // The answer depends on the country of each request, so no browser and
-      // no CDN may cache it. `fetchRequiresConsent()` in
+      // no CDN may cache it. `isAnalyticsConsentRequired()` in
       // `src/lib/cookie-consent.ts` also asks with `cache: "no-store"`.
       "Cache-Control": "no-store",
     },

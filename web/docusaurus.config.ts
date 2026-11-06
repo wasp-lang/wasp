@@ -354,7 +354,9 @@ const config: Config = {
 
 type DocusaurusScript = DocusaurusConfig["scripts"][number];
 
-// PostHog is not in this list: `src/lib/posthog.ts` loads it from npm.
+// None of these scripts needs consent. PostHog needs it, so it is not in this
+// list: `src/lib/posthog.ts` loads it from npm and starts it after the consent
+// check.
 function getScripts(): DocusaurusScript[] {
   const sharedScripts: DocusaurusScript[] = [
     "/js/fix-multiple-trailing-slashes.js",
@@ -366,11 +368,11 @@ function getScripts(): DocusaurusScript[] {
     "/scripts/plausible-queue.js",
     {
       // We are using Cloudflare Workers to proxy the Plausible script.
+      // Plausible doesn't use cookies, so it can be loaded right away.
       src: "/waspara/wasp/script.js",
       defer: true,
       "data-domain": "wasp.sh",
       "data-api": "/waspara/wasp/event",
-      // Plausible doesn't use cookies, so it can be loaded right away.
     },
   ];
 
