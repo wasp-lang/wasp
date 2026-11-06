@@ -271,7 +271,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 }
 ```
 
-To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
+To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `null` inside a private operation, the user's access should be denied.
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](../websockets#websocketfn).
 
@@ -306,6 +306,7 @@ import {
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
 } from "wasp/server/auth"
+import { HttpError } from "wasp/server"
 import type { UpdatePassword } from "wasp/server/operations"
 
 export const updatePassword: UpdatePassword<
@@ -455,8 +456,10 @@ You can use any validation library you want to validate the fields. For example,
     address: (data) => {
       const AddressSchema = z
         .string({
-          required_error: "Address is required",
-          invalid_type_error: "Address must be a string",
+          error: (issue) =>
+            issue.input === undefined
+              ? "Address is required"
+              : "Address must be a string",
         })
         .min(10, "Address must be at least 10 characters long")
       const result = AddressSchema.safeParse(data.address)

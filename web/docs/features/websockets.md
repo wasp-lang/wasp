@@ -121,8 +121,8 @@ This is how we can define our `webSocketFn` function:
     interface InterServerEvents {}
 
     // Data that is attached to the socket.
-    // NOTE: Wasp automatically injects the JWT into the connection,
-    // and if present/valid, the server adds a user to the socket.
+    // NOTE: Wasp automatically sends the user's session with the connection,
+    // and if it's valid, the server adds the user to the socket.
     interface SocketData extends WaspSocketData {}
     ```
   </TabItem>

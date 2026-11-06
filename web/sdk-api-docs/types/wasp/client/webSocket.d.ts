@@ -78,8 +78,11 @@ import type { Socket } from "socket.io-client";
  *
  * export const ChatPage = () => {
  *   const { socket, isConnected } = useSocket();
+ *
+ *   function sayHello() {
+ *     socket.emit("chatMessage", "Hello!");
+ *   }
  *   // ...
- *   socket.emit("chatMessage", "Hello!");
  * };
  * ```
  *

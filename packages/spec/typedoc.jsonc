@@ -1,9 +1,8 @@
 {
   "$schema": "https://typedoc.org/schema.json",
 
-  // We don't want to show a readme for this package: it's an npm-facing README
-  // whose links are redundant on the docs site.
-  "readme": "none",
+  // `README.md` is for people looking at the package on npm or in the repo.
+  "readme": "docs.md",
 
   // Linking to the source code is not useful for this package, and might be
   // confusing about the package's location.

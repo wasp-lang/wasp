@@ -77,7 +77,8 @@ interface AuthIdentityEntity {
  * A function that computes the value of an extra signup field.
  *
  * @param data The data the client sent in the signup request, without the
- * `password` field.
+ * `password` field. For social auth providers, `{ profile }` with the user's
+ * profile from the provider.
  * @returns The value to save in the user entity field. Throw an error if the
  * data is invalid.
  */
@@ -109,8 +110,9 @@ type UserSignupFields = { [field: string]: UserSignupFieldFn };
  *
  * You can use any validation library (e.g. `zod`) in the functions.
  *
- * For social auth providers, the data the functions receive also includes
- * the user's profile from the provider; see each provider's docs.
+ * For social auth providers, the functions don't receive client data. They
+ * receive `{ profile }`, the user's profile from the provider; see each
+ * provider's docs.
  *
  * @param fields The extra signup fields.
  * @returns The same `fields` object, typed.
@@ -164,8 +166,10 @@ type UserSignupFields = { [field: string]: UserSignupFieldFn };
  *   address: (data) => {
  *     const AddressSchema = z
  *       .string({
- *         required_error: "Address is required",
- *         invalid_type_error: "Address must be a string",
+ *         error: (issue) =>
+ *           issue.input === undefined
+ *             ? "Address is required"
+ *             : "Address must be a string",
  *       })
  *       .min(10, "Address must be at least 10 characters long");
  *     const result = AddressSchema.safeParse(data.address);
@@ -266,6 +270,7 @@ export declare function createProviderId(
  *
  * @example
  * ```ts
+ * import { HttpError } from "wasp/server";
  * import { createProviderId, findAuthIdentity } from "wasp/server/auth";
  *
  * const providerId = createProviderId("email", args.email);
@@ -371,6 +376,7 @@ export declare function sanitizeAndSerializeProviderData<
  *
  * @example
  * ```ts
+ * import { HttpError } from "wasp/server";
  * import {
  *   createProviderId,
  *   findAuthIdentity,
@@ -575,7 +581,10 @@ export { ensureValidUsername } from "@wasp/lib-sdk-core";
  * The content of an email.
  */
 interface Email {
-  /** The sender. Defaults to the `defaultFrom` of your email sender. */
+  /**
+   * The sender. It's optional if you set up the `defaultFrom` field of
+   * `emailSender` in the app spec, and required otherwise.
+   */
   from?: EmailFromField;
   /** The recipient's email address. */
   to: string;
@@ -717,6 +726,7 @@ export declare function sendPasswordResetEmail(
  *
  * @example
  * ```ts
+ * import { HttpError } from "wasp/server";
  * import { getProviderData, isEmailResendAllowed } from "wasp/server/auth";
  *
  * const providerData = getProviderData<"email">(authIdentity.providerData);
@@ -812,13 +822,13 @@ interface CommonAuthHookParams {
   req: Request;
 }
 
-/** The input of the {@link OnBeforeSignupHook | `onBeforeSignup`} hook. */
+/** The input of the {@linkcode OnBeforeSignupHook | onBeforeSignup} hook. */
 interface OnBeforeSignupHookParams extends CommonAuthHookParams {
   /** The auth identity the user is signing up with. */
   providerId: ProviderId;
 }
 
-/** The input of the {@link OnAfterSignupHook | `onAfterSignup`} hook. */
+/** The input of the {@linkcode OnAfterSignupHook | onAfterSignup} hook. */
 interface OnAfterSignupHookParams extends CommonAuthHookParams {
   /** The auth identity the user signed up with. */
   providerId: ProviderId;
@@ -832,7 +842,7 @@ interface OnAfterSignupHookParams extends CommonAuthHookParams {
 }
 
 /**
- * The input of the {@link OnAfterEmailVerifiedHook | `onAfterEmailVerified`}
+ * The input of the {@linkcode OnAfterEmailVerifiedHook | onAfterEmailVerified}
  * hook.
  */
 interface OnAfterEmailVerifiedHookParams extends CommonAuthHookParams {
@@ -843,7 +853,7 @@ interface OnAfterEmailVerifiedHookParams extends CommonAuthHookParams {
 }
 
 /**
- * The input of the {@link OnBeforeOAuthRedirectHook | `onBeforeOAuthRedirect`}
+ * The input of the {@linkcode OnBeforeOAuthRedirectHook | onBeforeOAuthRedirect}
  * hook.
  */
 interface OnBeforeOAuthRedirectHookParams extends CommonAuthHookParams {
@@ -862,7 +872,7 @@ interface OnBeforeOAuthRedirectHookParams extends CommonAuthHookParams {
   };
 }
 
-/** The input of the {@link OnBeforeLoginHook | `onBeforeLogin`} hook. */
+/** The input of the {@linkcode OnBeforeLoginHook | onBeforeLogin} hook. */
 interface OnBeforeLoginHookParams extends CommonAuthHookParams {
   /** The auth identity the user is logging in with. */
   providerId: ProviderId;
@@ -870,7 +880,7 @@ interface OnBeforeLoginHookParams extends CommonAuthHookParams {
   user: UserEntity;
 }
 
-/** The input of the {@link OnAfterLoginHook | `onAfterLogin`} hook. */
+/** The input of the {@linkcode OnAfterLoginHook | onAfterLogin} hook. */
 interface OnAfterLoginHookParams extends CommonAuthHookParams {
   /** The auth identity the user logged in with. */
   providerId: ProviderId;
@@ -961,8 +971,10 @@ export type OnAfterSignupHook = (
 ) => void | Promise<void>;
 
 /**
- * The type of the `onAfterEmailVerified` auth hook, which Wasp calls exactly
- * once, after a user verifies their email.
+ * The type of the `onAfterEmailVerified` auth hook, which Wasp calls after a
+ * user verifies their email. It runs every time a valid verification token is
+ * submitted, so it can run more than once if the user opens the link again
+ * while the token is valid.
  *
  * Use it to react to the verification, e.g. by sending a welcome email or
  * syncing the user with a third-party service.
@@ -979,6 +991,10 @@ export type OnAfterSignupHook = (
  *   email,
  * }) => {
  *   await emailSender.send({
+ *     from: {
+ *       name: "John Doe",
+ *       email: "john@doe.com",
+ *     },
  *     to: email,
  *     subject: "Thank you for verifying your email!",
  *     text: `Your email ${email} has been successfully verified!`,

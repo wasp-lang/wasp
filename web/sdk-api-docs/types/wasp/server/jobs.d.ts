@@ -76,6 +76,8 @@ import type {
  * ```
  *
  * @see [Jobs](https://wasp.sh/docs/features/jobs)
+ *
+ * @placeholder
  */
 export type JobFn<
   Input extends JSONObject,
@@ -96,6 +98,8 @@ export type JobFn<
  * @typeParam Input The type of the data you submit the Job with.
  * @typeParam Output The type of the Job's result.
  * @typeParam Entities The Entities the Job uses.
+ *
+ * @placeholder
  */
 export interface PgBossJob<
   Input extends JSONObject,
@@ -165,7 +169,11 @@ type PgBossSendOptions = {
   priority?: number;
   /** Delays the Job like {@link PgBossJob.delay}. */
   startAfter?: number | string | Date;
-  /** Only allows one Job with this key in the queue at a time. */
+  /**
+   * Only allows one queued or active Job with this key at a time. If there
+   * already is one, pg-boss doesn't create a new Job, and the submitted Job's
+   * `jobId` is `null`.
+   */
   singletonKey?: string;
   /** How many times to retry the Job if it fails. */
   retryLimit?: number;
@@ -182,9 +190,13 @@ type PgBossSendOptions = {
 /**
  * The result of submitting a Job, which you can use to track it.
  */
-interface PgBossSubmittedJob<Input extends JSONObject> extends SubmittedJob {
-  /** The ID of the Job in pg-boss. */
-  readonly jobId: string;
+interface PgBossSubmittedJob<Input extends JSONObject>
+  extends Omit<SubmittedJob, "jobId"> {
+  /**
+   * The ID of the Job in pg-boss, or `null` if pg-boss didn't create the Job
+   * because of its `singletonKey`.
+   */
+  readonly jobId: string | null;
   /**
    * The Job you submitted. It has the Job's `jobName` and `executorName`.
    */
@@ -206,7 +218,7 @@ interface PgBossSubmittedJob<Input extends JSONObject> extends SubmittedJob {
      */
     readonly cancel: () => Promise<void>;
     /**
-     * Attempts to resume the Job, if it was cancelled.
+     * Attempts to resume a cancelled Job.
      *
      * @see [pg-boss's `resume` docs](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
      */
@@ -240,18 +252,19 @@ type PgBossJobDetails<Input extends JSONObject> = {
    * The Job's result:
    *
    * - When `state` is `"completed"`, the worker function's return value.
-   *   pg-boss wraps primitive values in an object with a `value` property
+   *   pg-boss wraps primitives and arrays in an object with a `value` property
    *   (e.g. `{ value: 42 }`), and stores `null` if it returned nothing.
-   * - When `state` is `"failed"`, the error.
-   * - Otherwise, `null`.
+   * - When `state` is `"failed"`, the error. A Job that failed and is waiting
+   *   to be retried also has the error here.
+   * - Otherwise, usually `null`.
    */
   output: object | null;
   /** How many times pg-boss has retried the Job. */
   retrycount: number;
   /** When the Job was created. */
   createdon: Date;
-  /** When the Job started. */
-  startedon: Date;
+  /** When the Job started, or `null` if it hasn't started yet. */
+  startedon: Date | null;
   /** When the Job completed, if it did. */
   completedon: Date | null;
 };

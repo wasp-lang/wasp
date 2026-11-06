@@ -3,6 +3,40 @@
 
 # @wasp/spec
 
+The `@wasp/spec` package has everything you need to write your app's [Wasp Spec](https://wasp.sh/docs/features/spec): the `main.wasp.ts` file where you define your app's pages, routes, queries, actions, auth, and more.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec";
+
+export default app({
+  name: "todoApp",
+  wasp: { version: "^0.26" },
+  title: "ToDo App",
+  spec: [],
+});
+```
+
+## Getting the package
+
+### In a Wasp app
+
+You don't need to install anything. Wasp apps come with `@wasp/spec` already listed in their `package.json`, and the Wasp CLI manages it for you.
+
+### In a library
+
+If you are publishing a helper or library for the Wasp Spec, add `@wasp/spec` to both the `devDependencies` and the `peerDependencies` of your `package.json`. That way, you have a local copy during development, and your library uses the version installed in your users' Wasp projects:
+
+```json title="package.json"
+{
+  "peerDependencies": {
+    "@wasp/spec": "^0.26"
+  },
+  "devDependencies": {
+    "@wasp/spec": "^0.26"
+  }
+}
+```
+
 ## Wasp Spec
 
 ### App
@@ -1636,121 +1670,6 @@ Called before the user is created. Receives `providerId` plus the common hook in
 
 ---
 
-### AuthHooks
-
-#### Extended by
-
-- [`Auth`](#auth-3)
-
-#### Fields
-
-##### onAfterEmailVerified?
-
-> `optional` **onAfterEmailVerified?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Called once, after the user verifies their email. Receives `email` and `user`.
-
-#### Hooks
-
-##### onAfterLogin?
-
-> `optional` **onAfterLogin?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Called after a successful login. Receives `providerId`, `user`, and, for social auth, `oauth` fields including tokens and the unique OAuth request ID.
-
-##### onAfterSignup?
-
-> `optional` **onAfterSignup?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Called after the user is created. Receives `providerId`, the created `user`, and, for social auth, `oauth` fields including tokens and the unique OAuth request ID.
-
-##### onBeforeLogin?
-
-> `optional` **onBeforeLogin?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Called before the user is logged in. Receives `providerId` and `user`. Throw from this hook to reject a login based on custom criteria.
-
-##### onBeforeOAuthRedirect?
-
-> `optional` **onBeforeOAuthRedirect?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Called before redirecting the user to the OAuth provider. Receives the generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override the redirect URL.
-
-##### onBeforeSignup?
-
-> `optional` **onBeforeSignup?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Called before the user is created. Receives `providerId` plus the common hook input. Throw from this hook to reject a signup based on custom criteria.
-
----
-
-### BaseAuthMethodConfig
-
-#### Extended by
-
-- [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
-- [`SocialAuthConfig`](#socialauthconfig)
-- [`EmailAuthConfig`](#emailauthconfig)
-
-#### Properties
-
-##### userSignupFields?
-
-> `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
-
-Object that defines extra fields to save on the user during signup (e.g. `firstName`, `address`). Each field name must exist on the configured [Auth.userEntity](#userentity).
-
-Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
-
-See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
-
-###### Example
-
-```ts
-import { defineUserSignupFields } from 'wasp/server/auth'
-
-export const userSignupFields = defineUserSignupFields({
-  address: (data) => {
-    if (!data.address) {
-      throw new Error('Address is required')
-    }
-    return data.address
-  },
-  phone: (data) => data.phone,
-})
-```
-
----
-
-### BaseSpecElement
-
-#### Extended by
-
-- [`Page`](#page)
-- [`Route`](#route)
-- [`Query`](#query)
-- [`Action`](#action)
-- [`Api`](#api)
-- [`ApiNamespace`](#apinamespace)
-- [`Job`](#job)
-- [`Crud`](#crud)
-
-#### Type Parameters
-
-##### Kind {#kind-3}
-
-`Kind` *extends* `string`
-
-#### Properties
-
-##### kind {#kind-4}
-
-> **kind**: `Kind`
-
-The internal Wasp type of a [SpecElement](#specelement). Used by the compiler. You should not set this field directly, instead use the dedicated constructors.
-
----
-
 ### Client {#client-1}
 
 Client-side application configuration.
@@ -2089,7 +2008,7 @@ Sender identity used for verification and password reset emails.
 
 An object that specifies the password reset process.
 
-##### userSignupFields?
+##### userSignupFields? {#usersignupfields-1}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -2495,7 +2414,7 @@ export function getConfig() {
 }
 ```
 
-##### userSignupFields?
+##### userSignupFields? {#usersignupfields-2}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -2557,7 +2476,7 @@ export default app({
 
 #### Properties
 
-##### userSignupFields?
+##### userSignupFields? {#usersignupfields-3}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -2656,28 +2575,6 @@ The optional configuration object accepted as the last argument of the [action](
 
 ---
 
-### AnyFunction
-
-> **AnyFunction** = (...`args`) => `unknown`
-
-#### Parameters
-
-##### args
-
-...`never`\[]
-
-#### Returns
-
-`unknown`
-
----
-
-### AnyObject
-
-> **AnyObject** = `Record`<`PropertyKey`, `unknown`>
-
----
-
 ### ApiConfig
 
 > **ApiConfig** = `Omit`<[`Api`](#api), `"kind"` | `"method"` | `"path"` | `"fn"`>
@@ -2704,40 +2601,6 @@ At most one local auth method ([LocalAuthMethods](#localauthmethods)) can be use
 
 ---
 
-### Brand
-
-> **Brand**<`B`> = `object`
-
-#### Type Parameters
-
-##### B
-
-`B`
-
-#### Properties
-
-##### \[\_\_\_brand]
-
-> **\[\_\_\_brand]**: `B`
-
----
-
-### Branded
-
-> **Branded**<`T`, `B`> = `T` & [`Brand`](#brand)<`B`>
-
-#### Type Parameters
-
-##### T
-
-`T`
-
-##### B
-
-`B`
-
----
-
 ### DeploymentMode {#deploymentmode-1}
 
 > **DeploymentMode** = `"split"`
@@ -2756,33 +2619,11 @@ Supported email sender providers.
 
 ---
 
-### Entities {#entities-4}
-
-> **Entities** = [`FromRegister`](#fromregister)<`"entities"`, { }>
-
----
-
 ### EntityName
 
 > **EntityName** = keyof [`Entities`](#entities-4) *extends* `never` ? `string` : `Extract`\<keyof [`Entities`](#entities-4), `string`>
 
 One of the app's entity names, matching a model in `schema.prisma`.
-
----
-
-### FromRegister
-
-> **FromRegister**<`Key`, `Fallback`> = `Key` *extends* keyof `Register` ? `Register`\[`Key`] : `Fallback`
-
-#### Type Parameters
-
-##### Key
-
-`Key` *extends* `string`
-
-##### Fallback
-
-`Fallback`
 
 ---
 
@@ -2837,6 +2678,201 @@ The optional configuration object accepted as the last argument of the [query](#
 > **RouteConfig** = `Omit`<[`Route`](#route), `"kind"` | `"name"` | `"path"` | `"page"`>
 
 The optional configuration object accepted as the last argument of the [route](#route-1) constructor.
+
+## Referenced Types
+
+The exports on this page refer to these types. You can't import them from this module.
+
+### AuthHooks
+
+#### Extended by
+
+- [`Auth`](#auth-3)
+
+#### Fields
+
+##### onAfterEmailVerified?
+
+> `optional` **onAfterEmailVerified?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Called once, after the user verifies their email. Receives `email` and `user`.
+
+#### Hooks
+
+##### onAfterLogin?
+
+> `optional` **onAfterLogin?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Called after a successful login. Receives `providerId`, `user`, and, for social auth, `oauth` fields including tokens and the unique OAuth request ID.
+
+##### onAfterSignup?
+
+> `optional` **onAfterSignup?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Called after the user is created. Receives `providerId`, the created `user`, and, for social auth, `oauth` fields including tokens and the unique OAuth request ID.
+
+##### onBeforeLogin?
+
+> `optional` **onBeforeLogin?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Called before the user is logged in. Receives `providerId` and `user`. Throw from this hook to reject a login based on custom criteria.
+
+##### onBeforeOAuthRedirect?
+
+> `optional` **onBeforeOAuthRedirect?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Called before redirecting the user to the OAuth provider. Receives the generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override the redirect URL.
+
+##### onBeforeSignup?
+
+> `optional` **onBeforeSignup?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Called before the user is created. Receives `providerId` plus the common hook input. Throw from this hook to reject a signup based on custom criteria.
+
+---
+
+### BaseAuthMethodConfig
+
+#### Extended by
+
+- [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
+- [`SocialAuthConfig`](#socialauthconfig)
+- [`EmailAuthConfig`](#emailauthconfig)
+
+#### Properties
+
+##### userSignupFields? {#usersignupfields}
+
+> `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
+
+Object that defines extra fields to save on the user during signup (e.g. `firstName`, `address`). Each field name must exist on the configured [Auth.userEntity](#userentity).
+
+Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
+
+See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
+
+###### Example
+
+```ts
+import { defineUserSignupFields } from 'wasp/server/auth'
+
+export const userSignupFields = defineUserSignupFields({
+  address: (data) => {
+    if (!data.address) {
+      throw new Error('Address is required')
+    }
+    return data.address
+  },
+  phone: (data) => data.phone,
+})
+```
+
+---
+
+### BaseSpecElement
+
+#### Extended by
+
+- [`Page`](#page)
+- [`Route`](#route)
+- [`Query`](#query)
+- [`Action`](#action)
+- [`Api`](#api)
+- [`ApiNamespace`](#apinamespace)
+- [`Job`](#job)
+- [`Crud`](#crud)
+
+#### Type Parameters
+
+##### Kind {#kind-3}
+
+`Kind` *extends* `string`
+
+#### Properties
+
+##### kind {#kind-4}
+
+> **kind**: `Kind`
+
+The internal Wasp type of a [SpecElement](#specelement). Used by the compiler. You should not set this field directly, instead use the dedicated constructors.
+
+---
+
+### AnyFunction
+
+> **AnyFunction** = (...`args`) => `unknown`
+
+#### Parameters
+
+##### args
+
+...`never`\[]
+
+#### Returns
+
+`unknown`
+
+---
+
+### AnyObject
+
+> **AnyObject** = `Record`<`PropertyKey`, `unknown`>
+
+---
+
+### Brand
+
+> **Brand**<`B`> = `object`
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Properties
+
+##### \[\_\_\_brand]
+
+> **\[\_\_\_brand]**: `B`
+
+---
+
+### Branded
+
+> **Branded**<`T`, `B`> = `T` & [`Brand`](#brand)<`B`>
+
+#### Type Parameters
+
+##### T
+
+`T`
+
+##### B
+
+`B`
+
+---
+
+### Entities {#entities-4}
+
+> **Entities** = [`FromRegister`](#fromregister)<`"entities"`, { }>
+
+---
+
+### FromRegister
+
+> **FromRegister**<`Key`, `Fallback`> = `Key` *extends* keyof `Register` ? `Register`\[`Key`] : `Fallback`
+
+#### Type Parameters
+
+##### Key
+
+`Key` *extends* `string`
+
+##### Fallback
+
+`Fallback`
 
 ---
 

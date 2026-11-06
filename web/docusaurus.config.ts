@@ -326,8 +326,8 @@ const config: Config = {
         useCustomAnchors: true,
 
         // Documents types that our packages reference but don't export, e.g.
-        // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures,
-        // and groups them so we can keep them out of the sidebar.
+        // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures. The
+        // theme plugin puts them in a "Referenced Types" group.
         plugin: [
           "typedoc-plugin-missing-exports",
           "./sdk-api-docs/typedoc-plugin-wasp-theme.ts",

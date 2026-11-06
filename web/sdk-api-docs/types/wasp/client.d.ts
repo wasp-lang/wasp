@@ -34,8 +34,9 @@ export declare const config: ClientConfig;
  * It contains both the env vars that Wasp defines (like `REACT_APP_API_URL`)
  * and the ones you validate with the `client.envValidationSchema` field of the
  * app spec. Wasp merges your validation schema with its own and validates
- * `import.meta.env` with it when the client starts, so the object's type
- * includes the outputs of your schema.
+ * `import.meta.env` with it, both when Vite starts (in development and when
+ * building) and when the client code loads, so the object's type includes the
+ * outputs of your schema.
  *
  * Client env vars are embedded into the client code at build time, so anyone
  * can read them. Never store secrets in them. Their names must start with
@@ -84,10 +85,12 @@ type ClientEnv = {
 };
 
 /**
- * The HTTP methods that Wasp APIs and Operations can use.
+ * The HTTP methods that a {@link Route} can use. These are the methods of
+ * Wasp's Operations and APIs, except for the `ALL` method that you can declare
+ * an API with.
  *
- * Use it to describe a {@link Route}, for example when mocking an API with
- * `mockApi` from `wasp/client/test`.
+ * Use it to describe a {@link Route}, for example when mocking an API with the
+ * `mockApi` helper that {@link "client/test"!mockServer | mockServer} returns.
  */
 export { HttpMethod } from "@wasp/lib-sdk-core";
 

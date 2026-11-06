@@ -40,4 +40,8 @@ import type { TestConfig } from "@wasp/lib-test-utils/config";
  */
 export declare function waspTestConfig(options?: TestConfig): TestConfig;
 
+/**
+ * The `test` options of your Vitest config, which {@link waspTestConfig} takes
+ * and returns.
+ */
 export type { TestConfig };

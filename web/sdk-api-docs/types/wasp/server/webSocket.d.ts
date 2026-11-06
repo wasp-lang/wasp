@@ -83,8 +83,8 @@ import type { AuthUser } from "../auth";
  * interface InterServerEvents {}
  *
  * // Data that is attached to the socket.
- * // NOTE: Wasp automatically injects the JWT into the connection,
- * // and if present/valid, the server adds a user to the socket.
+ * // NOTE: Wasp automatically sends the user's session with the connection,
+ * // and if it's valid, the server adds the user to the socket.
  * interface SocketData extends WaspSocketData {}
  * ```
  *
@@ -126,10 +126,11 @@ type WebSocketContext = {
  */
 export interface WaspSocketData {
   /**
-   * The logged-in user, or `undefined` if the connection isn't
-   * authenticated. Only present if your app uses auth.
+   * The logged-in user. It's `undefined` if the connection has no session, and
+   * `null` if the session is invalid, so check it with
+   * `if (!socket.data.user)`. Only present if your app uses auth.
    */
-  user?: AuthUser;
+  user?: AuthUser | null;
 }
 
 export {};

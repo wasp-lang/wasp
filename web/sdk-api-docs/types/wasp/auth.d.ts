@@ -8,8 +8,6 @@
  * @module
  */
 
-import type { EmailProviderData } from "@wasp/lib-sdk-core";
-
 /**
  * Your app's user entity: the Prisma model you set as `auth.userEntity` in
  * your app spec (usually `User`).
@@ -47,14 +45,17 @@ interface UserEntity {}
  */
 type UserEntityWithAuth = UserEntity & {
   auth: {
-    identities: {
-      /** The auth method's name, e.g. `"email"` or `"google"`. */
-      providerName: string;
-      /** The user's ID for that auth method, e.g. their email or Google ID. */
-      providerUserId: string;
-    }[];
+    identities: UserEntityAuthIdentity[];
   } | null;
 };
+
+/** One of the auth identities in a {@link UserEntityWithAuth}. */
+interface UserEntityAuthIdentity {
+  /** The auth method's name, e.g. `"email"` or `"google"`. */
+  providerName: string;
+  /** The user's ID for that auth method, e.g. their email or Google ID. */
+  providerUserId: string;
+}
 
 /**
  * The auth data of each auth method the user signed up with.
@@ -79,12 +80,16 @@ interface AuthUserIdentities {
    * The user's [Email](https://wasp.sh/docs/features/auth/email/overview)
    * auth data. Only present if your app enables email auth.
    */
-  email?:
-    | ({
-        /** The user's email address. */
-        id: string;
-      } & Omit<EmailProviderData, "hashedPassword">)
-    | null;
+  email?: {
+    /** The user's email address. */
+    id: string;
+    /** `true` if the user has verified their email address. */
+    isEmailVerified: boolean;
+    /** Datetime when the email verification email was sent. */
+    emailVerificationSentAt: string | null;
+    /** Datetime when the last password reset email was sent. */
+    passwordResetSentAt: string | null;
+  } | null;
   /**
    * The user's
    * [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)

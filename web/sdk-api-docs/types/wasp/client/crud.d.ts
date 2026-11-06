@@ -51,8 +51,6 @@ import type {
  * implementations, or from your overrides (see
  * {@link "server/crud"! | wasp/server/crud}).
  *
- * This type itself isn't exported from `wasp/client/crud`.
- *
  * @example
  * ```tsx
  * import { Tasks } from "wasp/client/crud";
@@ -90,13 +88,15 @@ import type {
  * ```
  *
  * @see [Using the generated CRUD operations on the client](https://wasp.sh/docs/features/data/crud#using-the-generated-crud-operations-on-the-client)
+ *
+ * @placeholder
  */
 export interface Crud {
   /**
    * Gets a single Entity. Present if you enabled the `get` operation.
    *
-   * By default, it takes the Entity's unique fields (e.g., `{ id: 1 }`), and
-   * returns the matching Entity, or `null` if there isn't one.
+   * By default, it takes the Entity's ID (e.g., `{ id: 1 }`), and returns the
+   * matching Entity, or `null` if there isn't one.
    *
    * @example
    * ```ts
@@ -108,7 +108,8 @@ export interface Crud {
    * Gets all the Entities. Present if you enabled the `getAll` operation.
    *
    * By default, it takes no arguments, and returns an array with all the
-   * Entities.
+   * Entities. In TypeScript, pass an empty object (`{}`) when you call its
+   * `query` function directly.
    *
    * @example
    * ```ts
@@ -132,8 +133,8 @@ export interface Crud {
   /**
    * Updates an Entity. Present if you enabled the `update` operation.
    *
-   * By default, it takes the Entity's unique fields (e.g., `id`) and the
-   * fields to update, and returns the updated Entity.
+   * By default, it takes the Entity's ID (e.g., `id`) and the fields to
+   * update, and returns the updated Entity.
    *
    * @example
    * ```ts
@@ -145,8 +146,8 @@ export interface Crud {
   /**
    * Deletes an Entity. Present if you enabled the `delete` operation.
    *
-   * By default, it takes the Entity's unique fields (e.g., `{ id: 1 }`), and
-   * returns the deleted Entity.
+   * By default, it takes the Entity's ID (e.g., `{ id: 1 }`), and returns the
+   * deleted Entity.
    *
    * @example
    * ```ts

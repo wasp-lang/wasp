@@ -91,6 +91,8 @@ import type { AuthUser } from "../auth";
  *
  * @see [Defining the API's Node.js implementation](https://wasp.sh/docs/features/apis#defining-the-apis-nodejs-implementation)
  * @see [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis)
+ *
+ * @placeholder
  */
 export type AuthenticatedApi<
   Entities,
@@ -123,6 +125,8 @@ export type AuthenticatedApi<
  * @typeParam Locals The type of `res.locals`.
  *
  * @see [Defining the API's Node.js implementation](https://wasp.sh/docs/features/apis#defining-the-apis-nodejs-implementation)
+ *
+ * @placeholder
  */
 export type Api<
   Entities,
@@ -165,11 +169,13 @@ type AuthenticatedApiContext<Entities> = {
    */
   entities: Entities;
   /**
-   * The logged-in user, or `undefined` if the request isn't authenticated.
+   * The logged-in user, or `null` if the request has no `Authorization` header.
+   * Check it with `if (!context.user)`. Requests with an invalid session get an
+   * error response before reaching your API.
    *
    * @see [Using the `context.user` object](https://wasp.sh/docs/features/auth/overview#using-the-contextuser-object)
    */
-  user?: AuthUser;
+  user: AuthUser | null;
 };
 
 export {};

@@ -35,6 +35,7 @@ import type { EmailFromField, SentMessageInfo } from "@wasp/lib-sdk-core/node";
  * import { emailSender } from "wasp/server/email";
  *
  * const info = await emailSender.send({
+ *   // You can omit `from` if you set up `defaultFrom` in the app spec.
  *   to: "user@domain.com",
  *   subject: "Saying hello",
  *   text: "Hello world",
@@ -62,7 +63,7 @@ export type EmailSender = {
 };
 
 /**
- * An email to send with {@link EmailSender.send | `emailSender.send`}.
+ * An email to send with {@linkcode EmailSender.send | emailSender.send}.
  */
 export type Email = {
   /**
@@ -91,7 +92,7 @@ export type { EmailFromField } from "@wasp/lib-sdk-core/node";
 
 /**
  * The status of a sent email, returned by
- * {@link EmailSender.send | `emailSender.send`}. It varies depending on the
+ * {@linkcode EmailSender.send | emailSender.send}. It varies depending on the
  * provider you use.
  */
 export type { SentMessageInfo } from "@wasp/lib-sdk-core/node";

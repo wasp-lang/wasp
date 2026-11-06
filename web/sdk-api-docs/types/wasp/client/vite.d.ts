@@ -1,6 +1,6 @@
 /**
  * The Vite plugin that powers your app's client. Use it in your
- * `vite.config.ts`.
+ * `vite.config.ts` (or `vite.config.js`).
  *
  * @module
  */
@@ -34,8 +34,9 @@ export interface WaspPluginOptions {
    * [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react)
    * plugin.
    *
-   * This allows you to configure React-specific options like Babel plugins,
-   * Fast Refresh settings, and JSX configuration.
+   * This allows you to configure React-specific options like which files the
+   * plugin processes, the JSX runtime and import source, and the Fast Refresh
+   * host.
    */
   reactOptions?: LibWaspPluginOptions["reactOptions"];
 }
@@ -49,9 +50,9 @@ export interface WaspPluginOptions {
  * - Prevention of server imports in client code.
  * - TypeScript type checking during production builds.
  *
- * You must use it in your `vite.config.ts`, and it must be the **first**
- * plugin in the `plugins` array. Add any other plugins (like Tailwind CSS)
- * after it.
+ * You must use it in your `vite.config.ts` (or `vite.config.js`), and it must
+ * be the **first** plugin in the `plugins` array. Add any other plugins (like
+ * Tailwind CSS) after it.
  *
  * The plugin merges the rest of your Vite config with Wasp's defaults, but it
  * enforces some values that Wasp needs, and throws an error if you set them

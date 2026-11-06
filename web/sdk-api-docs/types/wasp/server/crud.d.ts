@@ -38,9 +38,6 @@
  * `Input` defaults to `never`, and `Output` defaults to any serializable
  * value.
  *
- * Wasp also generates a `wasp/server/crud/<crud name>` import path for each
- * `crud` spec, which exports the same namespace.
- *
  * @example
  * If you have a CRUD named `Tasks`, you would import the types like this:
  *
