@@ -63,7 +63,7 @@ function validate(value: unknown, schema: z.ZodType): void {
   }
 }
 
-// A failed parse always has at least one issue.
 function getFirstErrorMessage(error: z.ZodError): string {
+  // A failed parse always has at least one issue.
   return error.issues[0]!.message;
 }
