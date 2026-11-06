@@ -456,6 +456,7 @@ export function getUsernameAndPasswordConfig(
     case "full":
       return {
         userSignupFields: getRefObject("full", "named"),
+        passwordValidationSchema: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.UsernameAndPasswordConfig>;
     default:
       assertUnreachable(scope);
@@ -500,6 +501,7 @@ export function getEmailAuthConfig(
         emailVerification: getEmailVerificationConfig("full"),
         passwordReset: getPasswordResetConfig("full"),
         userSignupFields: getRefObject("full", "named"),
+        passwordValidationSchema: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.EmailAuthConfig>;
     default:
       assertUnreachable(scope);

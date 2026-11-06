@@ -347,7 +347,7 @@ Default validations depend on the auth method you use.
 If you use [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) authentication, the default validations are:
 
 - The `username` must not be empty
-- The `password` must not be empty, have at least 8 characters, and contain a number
+- The `password` must not be empty, have at least 8 characters, and contain a number. You can [change the password rules](#custom-password-rules).
 
 Note that `username`s are stored in a **case-insensitive** manner.
 
@@ -356,11 +356,60 @@ Note that `username`s are stored in a **case-insensitive** manner.
 If you use [Email](https://wasp.sh/docs/features/auth/email/overview) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address (HTML5 format widened to support Unicode)
-- The `password` must not be empty, have at least 8 characters, and contain a number
+- The `password` must not be empty, have at least 8 characters, and contain a number. You can [change the password rules](#custom-password-rules).
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
 Since Wasp's definition of valid email addresses is wider than the HTML5 grammar (we also support Unicode!), you won't want to use the usual `type="email"` attribute on the `input` element (which follows HTML5 grammar and doesn't accept Unicode). Instead use `type="text"` with `inputMode="email"` and `autoComplete="email"`.
+
+#### Custom Password Rules
+
+You can replace the default password rules with your own [Zod](https://zod.dev) schema. Set the `passwordValidationSchema` field on the `email` or `usernameAndPassword` auth method:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { passwordValidationSchema } from "./src/auth/password" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  // ...
+  auth: {
+    userEntity: "User",
+    methods: {
+      email: {
+        passwordValidationSchema,
+        // ...
+      },
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+  // ...
+})
+```
+
+Then define the schema in the `src/auth/password.ts` file:
+
+```ts title="src/auth/password.ts"
+import { definePasswordValidationSchema } from "wasp/auth";
+import * as z from "zod";
+
+export const passwordValidationSchema = definePasswordValidationSchema(
+  z
+    .string()
+    .min(12, "Password must be at least 12 characters")
+    .regex(/\p{Lu}/u, "Password must contain an uppercase letter"),
+);
+```
+
+Wasp checks new passwords against your schema on signup and password reset. `ensureValidPassword` uses it too, so your [custom auth actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions) follow the same rules. Logging in doesn't check the schema, so changing the rules doesn't lock out existing users.
+
+When a password fails, Wasp responds with the schema's first error message.
+
+Keep in mind:
+
+- The schema must validate a string. `definePasswordValidationSchema` type-checks that for you.
+- Wasp only checks the password with the schema. It ignores the parsed value, so transforms like `.trim()` don't change the password Wasp saves.
+- Async refinements aren't supported. Use the [`onBeforeSignup` hook](https://wasp.sh/docs/features/auth/hooks#executing-code-before-the-user-signs-up) for checks that need to call other services.
 
 ## Customizing the Signup Process
 

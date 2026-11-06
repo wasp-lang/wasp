@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import * as z from "zod";
 import {
+  defaultPasswordValidationSchema,
   ensurePasswordIsPresent,
   ensureTokenIsPresent,
   ensureValidEmail,
@@ -7,9 +9,14 @@ import {
   ensureValidUsername,
 } from "../../src/auth/validation";
 
-describe("ensureValidPassword", () => {
+describe("ensureValidPassword with the default schema", () => {
   it("accepts a password with at least 8 characters and a number", () => {
-    expect(() => ensureValidPassword({ password: "password1" })).not.toThrow();
+    expect(() =>
+      ensureValidPassword(
+        { password: "password1" },
+        defaultPasswordValidationSchema,
+      ),
+    ).not.toThrow();
   });
 
   it.each([
@@ -24,8 +31,18 @@ describe("ensureValidPassword", () => {
       "password must contain a number",
     ],
   ])("rejects a password that %s", (_, args, expectedMessage) => {
-    expect(() => ensureValidPassword(args)).toThrow(
-      validationError(expectedMessage),
+    expect(() =>
+      ensureValidPassword(args, defaultPasswordValidationSchema),
+    ).toThrow(validationError(expectedMessage));
+  });
+});
+
+describe("ensureValidPassword with a custom schema", () => {
+  const schema = z.string().min(12, "Use at least 12 characters");
+
+  it("rejects with the schema's message", () => {
+    expect(() => ensureValidPassword({ password: "short" }, schema)).toThrow(
+      validationError("Use at least 12 characters"),
     );
   });
 });
