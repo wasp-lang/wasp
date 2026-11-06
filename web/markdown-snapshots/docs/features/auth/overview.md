@@ -434,7 +434,7 @@ export const userSignupFields = defineUserSignupFields({
 });
 ```
 
-Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
+Read more about the `userSignupFields` object in the [API Reference](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp.ts` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
 
