@@ -15,6 +15,8 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Compile (waitEnsureCompile)
+import Wasp.Cli.DevDb (withDevDb)
+import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions)
 import Wasp.Cli.ProjectRunConfig (makeDefaultDevProjectRunConfig)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
@@ -26,14 +28,15 @@ import Wasp.Project.RunConfig (ProjectRunConfig)
 --   run config, which tells it how to connect to the database.
 --
 --   All the commands that operate on the db should be created using this function.
-makeDbCommand :: [SetupGoal] -> (AS.AppSpec -> ProjectRunConfig -> Command a) -> Command a
-makeDbCommand setupGoals cmd = do
+makeDbCommand :: DevDbOptions -> [SetupGoal] -> (AS.AppSpec -> ProjectRunConfig -> Command a) -> Command a
+makeDbCommand devDbOptions setupGoals cmd = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   appSpec <- waitEnsureCompile $ withSetupGoals setupGoals $ defaultCompileOptions waspProjectDir
-  projectRunConfig <- liftIO $ makeDefaultDevProjectRunConfig appSpec
-  throwIfDbConnectionNotEstablished projectRunConfig
-  cmd appSpec projectRunConfig
+  withDevDb appSpec devDbOptions $ do
+    projectRunConfig <- liftIO $ makeDefaultDevProjectRunConfig appSpec
+    throwIfDbConnectionNotEstablished projectRunConfig
+    cmd appSpec projectRunConfig
 
 throwIfDbConnectionNotEstablished :: ProjectRunConfig -> Command ()
 throwIfDbConnectionNotEstablished projectRunConfig = do
@@ -55,6 +58,5 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
       CommandError
         "Can not connect to database"
         ( "The database needs to be running in order to execute this command."
-            ++ " Wasp starts its managed dev database when you run `wasp start`,"
-            ++ " or you can start just the database with `wasp start db`."
+            ++ " If you set your own DATABASE_URL, make sure that database is running."
         )
