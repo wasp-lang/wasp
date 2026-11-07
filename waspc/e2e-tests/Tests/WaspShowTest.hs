@@ -7,7 +7,6 @@ import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliShowBuild, waspCliShowBuildJson, waspCliShowSpec, waspCliShowSpecJson, (~&&))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 waspShowTest :: Test
 waspShowTest =
@@ -78,16 +77,12 @@ waspShowTest =
         export default app({
           name: "concurrentSpecAnalysesTest",
           title: "concurrentSpecAnalysesTest",
-          wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           spec: [
             route("RootRoute", `/$${process.env.E2E_ROUTE}`, page(MainPage)),
           ]
         })
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
 
     waspCliShowFails :: ShellCommand
     waspCliShowFails = "! $WASP_CLI_CMD show"
