@@ -11,7 +11,7 @@ import starterScreenshot from './img/wasp-new-screenshot.webp';
 # 1. Creating a new project
 
 :::info
-You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [Quick start](../quick-start) guide!
+You'll need Node.js and npm to follow this tutorial. Check the [Quick start](../quick-start) guide for the requirements. You don't need to install Wasp first, since creating the project installs it.
 :::
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
@@ -32,9 +32,7 @@ To setup a new Wasp project, run the following command in your terminal:
 
 <TutorialAction id="create-wasp-app" action="INIT_APP" starterTemplateName="minimal">
 
-```sh
-wasp new TodoApp -t minimal
-```
+<WaspCommand npm="npx @wasp/cli@latest new TodoApp -t minimal" global="wasp new TodoApp -t minimal" />
 </TutorialAction>
 
 <small>
@@ -44,10 +42,9 @@ We are using the `minimal` template because we're going to implement the app fro
 
 Enter the newly created directory and start the development server:
 
-```sh
-cd TodoApp
-wasp start
-```
+<WaspCommand npm={`cd TodoApp
+npm run dev`} global={`cd TodoApp
+wasp start`} />
 
 `wasp start` will take a bit of time to start the server the first time you run it in a new project.
 

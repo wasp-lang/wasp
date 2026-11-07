@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # File uploads
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", multer: "2.1.1" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", multer: "2.1.1" }} />
 
 This guide shows you how to implement file uploads in your Wasp application using [Multer](https://github.com/expressjs/multer).
 
@@ -19,10 +19,7 @@ This guide shows you how to implement file uploads in your Wasp application usin
 
 Install the Multer package and its types:
 
-```bash
-npm install multer
-npm install --save-dev @types/multer
-```
+<PackageManagerCommand npm={"npm install multer\nnpm install --save-dev @types/multer"} />
 
 ### 2. Define the API endpoint in main.wasp.ts
 

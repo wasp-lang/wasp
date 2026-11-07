@@ -32,7 +32,6 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -174,7 +173,6 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
     // ...
