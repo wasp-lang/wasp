@@ -3,6 +3,7 @@ module FileSystem
     WaspcDir,
     getWaspcDirPath,
     waspCliDevToolInWaspcDir,
+    devWaspNpmPackagesDirInWaspcDir,
     SeedsDir,
     seedsDirInWaspProjectDir,
     seedsFileInSeedsDir,
@@ -50,6 +51,13 @@ getWaspcDirPath = do
 
 waspCliDevToolInWaspcDir :: Path' (Rel WaspcDir) File'
 waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev|]
+
+data DevWaspNpmPackagesDir
+
+-- | Where `mise run build:dev-packages` packs the dev Wasp npm packages
+-- (see "Wasp.Cli.DevWaspNpmPackages").
+devWaspNpmPackagesDirInWaspcDir :: Path' (Rel WaspcDir) (Dir DevWaspNpmPackagesDir)
+devWaspNpmPackagesDirInWaspcDir = [reldir|.dev-packages|]
 
 waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
 waspcDirInGitRootDir = [reldir|waspc|]
