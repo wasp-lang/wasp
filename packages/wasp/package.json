@@ -1,0 +1,47 @@
+{
+  "name": "@wasp/wasp",
+  "version": "0.27.0",
+  "type": "module",
+  "description": "Wasp is a full-stack web framework for React, Node.js and Prisma.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/wasp"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "bin": {
+    "wasp": "bin.js"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./run-spec": "./scripts/run-spec.js",
+    "./run-deploy": "./scripts/run-deploy.js",
+    "./run-studio": "./scripts/run-studio.js"
+  },
+  "files": [
+    "bin.js",
+    "scripts"
+  ],
+  "dependencies": {
+    "@wasp/cli": "workspace:*",
+    "@wasp/deploy": "workspace:*",
+    "@wasp/spec": "workspace:*",
+    "@wasp/studio": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "//": "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/project-wasp-cli.ts), so changing it breaks their hand-over. The CLI of the same version runs the `./run-*` exports."
+}
