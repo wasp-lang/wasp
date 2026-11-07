@@ -2,7 +2,7 @@ import slugify from "@sindresorhus/slugify";
 import fs from "fs-extra";
 import * as path from "node:path";
 import { parseArgs } from "node:util";
-import { makeMainPackage } from "./generator/main-package.ts";
+import { makeCliPackage } from "./generator/cli-package.ts";
 import { makeSubPackage } from "./generator/sub-package.ts";
 import { ARGS_OPTIONS, ArgsSchema } from "./schema/args.ts";
 import { BuildDataSchema } from "./schema/input-data.ts";
@@ -19,7 +19,7 @@ if (args.values.help) {
   const {
     "input-dir": inputDir,
     "output-dir": outputDir,
-    "main-package-name": mainPackageName,
+    "cli-package-name": cliPackageName,
     "sub-package-name": makeSubPackageName,
   } = ArgsSchema.parse(args.values);
 
@@ -61,18 +61,18 @@ if (args.values.help) {
   });
   console.groupEnd();
 
-  console.group("Creating main package in:", outputDir);
+  console.group("Creating CLI package in:", outputDir);
 
-  const mainPackageOutputDir = path.join(outputDir, slugify(mainPackageName));
+  const cliPackageOutputDir = path.join(outputDir, slugify(cliPackageName));
 
-  console.log(`Main package name: ${mainPackageName}`);
-  console.log(`Main package output dir: ${mainPackageOutputDir}`);
+  console.log(`CLI package name: ${cliPackageName}`);
+  console.log(`CLI package output dir: ${cliPackageOutputDir}`);
 
-  makeMainPackage({
-    packageName: mainPackageName,
+  makeCliPackage({
+    packageName: cliPackageName,
     packageVersion: data.version,
     subPackages: createdSubPackages,
-    outputDirPath: mainPackageOutputDir,
+    outputDirPath: cliPackageOutputDir,
   });
 
   console.groupEnd();

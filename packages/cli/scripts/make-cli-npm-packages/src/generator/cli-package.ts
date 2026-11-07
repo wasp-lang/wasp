@@ -1,25 +1,18 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { copyStaticFiles } from "../common.ts";
+import {
+  CLI_PACKAGE_SOURCE_DIR,
+  CLI_PACKAGE_STATIC_FILES,
+  copyStaticFiles,
+} from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
-  type MainPackageData,
+  type CliPackageData,
 } from "../schema/output-data.ts";
 
-// The main package (`@wasp/cli`) is a workspace package. This script turns it
-// into the published one: it copies these files as they are and adds the
-// version and the platform sub-packages to the package.json.
-const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
-  import.meta.dirname,
-  "../../../../packages/cli",
-);
-const COPIED_FILES = ["dist", "readme.md"];
-
-const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
-
-export function makeMainPackage({
+export function makeCliPackage({
   packageName,
   packageVersion,
   subPackages,
@@ -30,12 +23,16 @@ export function makeMainPackage({
   subPackages: { packageName: string; data: TarballData }[];
   outputDirPath: string;
 }) {
-  console.group(`Creating main package ${packageName}...`);
+  console.group(`Creating CLI package ${packageName}...`);
 
-  console.log(`Preparing main package directory: ${outputDirPath}`);
+  console.log(`Preparing CLI package directory: ${outputDirPath}`);
   fs.emptyDirSync(outputDirPath);
 
-  copyStaticFiles(COPIED_FILES, MAIN_PACKAGE_SOURCE_DIR, outputDirPath);
+  copyStaticFiles(
+    CLI_PACKAGE_STATIC_FILES,
+    CLI_PACKAGE_SOURCE_DIR,
+    outputDirPath,
+  );
 
   const pkgJson = generatePackageJson(packageName, packageVersion, subPackages);
   const outPkgFilePath = path.join(outputDirPath, "package.json");
@@ -44,7 +41,7 @@ export function makeMainPackage({
 
   writeDataFile(subPackages, outputDirPath);
 
-  console.log(`Main package created at: ${outputDirPath}`);
+  console.log(`CLI package created at: ${outputDirPath}`);
 
   console.groupEnd();
 }
@@ -56,7 +53,7 @@ function generatePackageJson(
 ) {
   console.group("Generating package.json...");
 
-  const pkgSourceFilePath = path.join(MAIN_PACKAGE_SOURCE_DIR, "package.json");
+  const pkgSourceFilePath = path.join(CLI_PACKAGE_SOURCE_DIR, "package.json");
   const pkg = fs.readJsonSync(pkgSourceFilePath) as PackageJson;
   console.log(`Read package.json source: ${pkgSourceFilePath}`);
 
@@ -71,8 +68,8 @@ function generatePackageJson(
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  pkg.os = unique(subPackages.map((subPackage) => subPackage.data.target.os));
-  pkg.cpu = unique(subPackages.map((subPackage) => subPackage.data.target.cpu));
+  // `os` and `cpu` stay on the platform sub-packages, or npm would refuse to
+  // install any Wasp project on other platforms.
 
   console.log("Filled out package.json fields");
   console.groupEnd();
@@ -84,9 +81,9 @@ function writeDataFile(
   subPackages: { packageName: string; data: TarballData }[],
   outputDirPath: string,
 ) {
-  console.group("Writing data file for main package...");
+  console.group("Writing data file for CLI package...");
 
-  const pkgPaths = { subPackages: {} } as MainPackageData;
+  const pkgPaths = { subPackages: {} } as CliPackageData;
   for (const subPackage of subPackages) {
     const { os, cpu, libc = UNDEFINED_LIBC_NAME } = subPackage.data.target;
     pkgPaths.subPackages[os] ??= {};

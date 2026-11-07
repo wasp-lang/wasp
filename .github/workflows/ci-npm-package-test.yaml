@@ -52,23 +52,25 @@ jobs:
           persist-credentials: false
       - uses: $/.github/actions/setup-tools
 
-      - name: Install Wasp CLI from pkg.pr.new
+      - name: Install Wasp npm packages from pkg.pr.new
         env:
           COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run:
-          # We are testing the published package itself, so there is no lockfile.
+          # We are testing the published packages themselves, so there is no lockfile.
           # zizmor: ignore[adhoc-packages]
           |
           set -eux
 
-          # Create a test project to install into
+          # Create a test project to install into. The `.wasproot` file makes
+          # it a Wasp project, so the Wasp CLI looks for the project's own CLI.
           mkdir install-test && cd install-test
           echo '{}' > package.json
+          touch .wasproot
 
-          # Install the CLI package (its optional deps pull in the
-          # platform-specific sub-package for this runner). The short form of
-          # the pkg.pr.new URL requires the package to be published.
-          npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/cli@$COMMIT_SHA"
+          # pkg.pr.new points `@wasp/wasp`'s dependencies at this commit's other
+          # packages, so it brings them all.
+          # Its short URL form only works for packages already on npm.
+          npm install "https://pkg.pr.new/wasp-lang/wasp/@wasp/wasp@$COMMIT_SHA"
 
       - name: Run Wasp CLI
         run: |
@@ -76,9 +78,14 @@ jobs:
           cd install-test
 
           # Test that the Wasp CLI can find and run the binary.
-          NODE_DEBUG=wasp-bin-wrapper npx wasp version
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version 2> wrapper-debug.log
+          cat wrapper-debug.log
 
-      - name: Generate list of installed data files
+          # Test that the Wasp CLI finds the project's `@wasp/cli` in the npm
+          # layout, and recognizes it is that CLI.
+          grep -q "Running as the project's own Wasp CLI" wrapper-debug.log
+
+      - name: List the data files of the platform sub-package
         run: |
           set -eux
 
@@ -100,7 +107,7 @@ jobs:
             printf '%s\t%s\n' "$file" "$hash"
           done) > actual-data-files.txt
 
-      - name: Verify data files match
+      - name: Verify the data files of the platform sub-package
         env:
           EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
         run: |
