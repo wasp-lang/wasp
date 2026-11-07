@@ -33,7 +33,7 @@ All waspc development commands are mise tasks, run with `mise run <task>` from a
 
 Key things to know:
 
-- Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `mise run build` for the full build.
+- Two-phase build: the libs in `packages/libs/` compile and get packed into `waspc/data/`, and the other TS packages get packed into `waspc/.dev-packages/` for Wasp projects to depend on. Then Haskell builds, embedding `waspc/data/`. Use `mise run build` for the full build.
 - Run the dev CLI with `mise run wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
 - The repo is a pnpm workspace (`pnpm-workspace.yaml`). Only Wasp apps (`examples/`, e2e test apps) use npm, since Wasp requires it.
