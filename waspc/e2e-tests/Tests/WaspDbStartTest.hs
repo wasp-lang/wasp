@@ -35,18 +35,6 @@ waspDbStartTest =
                 ]
             ]
         ),
-      TestCase
-        "fail-postgresql-project-when-dev-db-not-running"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  assertCommandOutputContains
-                    (return waspCliDbMigrateDevFails)
-                    "The database needs to be running"
-                ]
-            ]
-        ),
       -- NOTE: Tasty runs test cases in parallel, so the PostgreSQL scenarios (which
       -- compete for the same host ports) are all in a single sequential test case.
       TestCase
@@ -104,9 +92,6 @@ waspDbStartTest =
   where
     waspCliDbStartFails :: ShellCommand
     waspCliDbStartFails = "! $WASP_CLI_CMD db start"
-
-    waspCliDbMigrateDevFails :: ShellCommand
-    waspCliDbMigrateDevFails = "! $WASP_CLI_CMD db migrate-dev"
 
 -- | `wasp db start` runs the database in the foreground, so we background it.
 -- We capture its output to test whether it correctly reports its readiness and volume name.

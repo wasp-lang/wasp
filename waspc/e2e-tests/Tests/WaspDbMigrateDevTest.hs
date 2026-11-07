@@ -3,7 +3,7 @@ module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 import Control.Monad.Reader (MonadReader (ask))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&), (~|))
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, skipIfDockerDisabled, waitUntil, waspCliDbMigrateDev, (~&&), (~|))
 import StrongPath (fromAbsDir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -15,6 +15,7 @@ import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
     generatedAppDirInDotWaspDir,
   )
+import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
@@ -41,6 +42,30 @@ waspDbMigrateDevTest =
               inTestWaspProjectDir
                 [ appendToPrismaFile taskPrismaModel,
                   waspCliDbMigrateDev "yes_migration",
+                  assertMigrationDirsExist "yes_migration"
+                ]
+            ]
+        ),
+      TestCase
+        "start-and-stop-postgresql-dev-db"
+        ( skipIfDockerDisabled . sequence $
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  appendToPrismaFile taskPrismaModel,
+                  return $
+                    "$WASP_CLI_CMD db migrate-dev --name yes_migration --db-port "
+                      ++ show postgresTestPort
+                      ++ " > "
+                      ++ migrateDevLogFile
+                      ++ " 2>&1",
+                  return $ "grep -q 'Starting a PostgreSQL dev database' " ++ migrateDevLogFile,
+                  return $
+                    waitUntil
+                      30
+                      ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\" ]")
+                      "The dev database container was left behind after the command finished.",
+                  return $ "docker volume rm \"" ++ reportedDevDbVolumeName ++ "\"",
                   assertMigrationDirsExist "yes_migration"
                 ]
             ]
@@ -85,6 +110,20 @@ waspDbMigrateDevTest =
 
     waspCliDbMigrateDevFails :: ShellCommand
     waspCliDbMigrateDevFails = "! $WASP_CLI_CMD db migrate-dev"
+
+    -- So it doesn't compete for the default port with parallel test cases.
+    postgresTestPort :: Int
+    postgresTestPort = 31070
+
+    -- Outside the project dir, so that it doesn't end up in the project.
+    migrateDevLogFile :: FilePath
+    migrateDevLogFile = "../wasp-db-migrate-dev.log"
+
+    -- Shell substitution that extracts the volume name the command reported
+    -- when it started the dev database.
+    reportedDevDbVolumeName :: String
+    reportedDevDbVolumeName =
+      "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ migrateDevLogFile ++ ")"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =

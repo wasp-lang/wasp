@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 🎉 New Features
 
 - `wasp start` now starts the managed PostgreSQL dev database when your app needs it and it isn't running yet, and stops it when you stop `wasp start`. You no longer have to run `wasp db start` in a separate terminal first. ([#4914](https://github.com/wasp-lang/wasp/pull/4914))
+- `wasp db migrate-dev`, `wasp db reset`, `wasp db seed` and `wasp db studio` now start the managed PostgreSQL dev database when your app needs it and it isn't running yet, and stop it when they finish. They accept the same `--db-port`, `--db-image` and `--db-volume-mount-path` options as `wasp db start`. ([#5309](https://github.com/wasp-lang/wasp/pull/5309))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - The `basic` starter has a refreshed look, and a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
