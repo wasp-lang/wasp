@@ -11,11 +11,8 @@ module Wasp.AppSpec.Valid
   )
 where
 
-import Control.Monad (unless)
-import Data.Bifunctor (first)
 import Data.List (find, groupBy, intercalate, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
-import qualified Text.Parsec as P
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -28,7 +25,6 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
-import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declName))
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -49,10 +45,8 @@ import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
-import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
-import qualified Wasp.Version as WV
 
 validateAppSpec :: AppSpec -> [ValidationError]
 validateAppSpec spec =
@@ -61,8 +55,7 @@ validateAppSpec spec =
     Nothing ->
       -- NOTE: We check these only if App exists because they all rely on it existing.
       concat
-        [ validateWasp spec,
-          validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+        [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
@@ -89,49 +82,6 @@ validateExactlyOneAppExists spec =
       Just
         $ GenericValidationError
         $ "You have more than one 'app' declaration in your Wasp app. You have " ++ show (length apps) ++ "."
-
-validateWasp :: AppSpec -> [ValidationError]
-validateWasp = validateWaspVersion . Wasp.version . App.wasp . getApp
-
-validateWaspVersion :: String -> [ValidationError]
-validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
-  specWaspVersionRange <- first parseErrorToValidationError $ SV.parseRange specWaspVersionStr
-  unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left (incompatibleVersionError WV.waspVersion specWaspVersionRange)
-  where
-    -- Currently the 'ParseError' does not give user-friendly information,
-    -- so we discard it for a generic error.
-    parseErrorToValidationError :: P.ParseError -> ValidationError
-    parseErrorToValidationError _err =
-      GenericValidationError $
-        unlines
-          [ "Invalid Wasp version requirement: " ++ specWaspVersionStr,
-            "Make sure to use a npm-compatible version range.",
-            "For example: "
-              ++ show (SV.backwardsCompatibleWith WV.waspVersion)
-              ++ ", "
-              ++ show (SV.approximatelyEquivalentTo WV.waspVersion)
-              ++ " or "
-              ++ show (SV.eq WV.waspVersion)
-          ]
-
-    incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
-    incompatibleVersionError actualVersion expectedVersionRange =
-      GenericValidationError $
-        unlines
-          [ "Your Wasp version does not match the app's requirements.",
-            "You are running Wasp " ++ show actualVersion ++ ".",
-            "This app requires Wasp " ++ show expectedVersionRange ++ ".",
-            "To install a specific version of Wasp, do:",
-            indent 2 $ getInstallationCommand $ Just "x.y.z",
-            "where x.y.z is your desired version.",
-            legacyVersionsNote,
-            "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
-          ]
-
-    eitherUnitToErrorList :: Either e () -> [e]
-    eitherUnitToErrorList (Left e) = [e]
-    eitherUnitToErrorList (Right ()) = []
 
 validateUserEntity :: AppSpec -> [ValidationError]
 validateUserEntity spec =
