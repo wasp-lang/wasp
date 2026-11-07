@@ -13,7 +13,7 @@ packages:
   - packages/wasp-app-runner
   - web
   - web/tutorial-actions-executor
-  - scripts/make-npm-packages
+  - packages/cli/scripts/make-cli-npm-packages
   - waspc/starters-e2e-tests
   - waspc/tools
   - tasks

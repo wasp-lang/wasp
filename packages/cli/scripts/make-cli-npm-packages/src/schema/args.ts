@@ -14,7 +14,7 @@ export const ARGS_OPTIONS = {
   help: { type: "boolean", short: "h" },
   "input-dir": { type: "string" },
   "output-dir": { type: "string" },
-  "main-package-name": { type: "string", default: "@wasp/cli" },
+  "cli-package-name": { type: "string", default: "@wasp/cli" },
   "sub-package-name": {
     type: "string",
     default: `@wasp/cli-${PLACEHOLDERS.os}-${PLACEHOLDERS.cpu}-${PLACEHOLDERS.libc}`,
@@ -24,7 +24,7 @@ export const ARGS_OPTIONS = {
 export const ArgsSchema = z.object({
   "input-dir": PathSchema().check(isDirPath).check(pathExists),
   "output-dir": PathSchema().check(isDirPath),
-  "main-package-name": z.string().nonempty(),
+  "cli-package-name": z.string().nonempty(),
   "sub-package-name": z
     .string()
     .check(checkIncludesPlaceholder(PLACEHOLDERS.os))
