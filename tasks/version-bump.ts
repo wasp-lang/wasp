@@ -14,7 +14,7 @@ import {
 import { getLibsDirPath } from "../waspc/tools/libs/utils.ts";
 import {
   getPackageDirPath,
-  WASPC_PACKAGES,
+  WASP_PACKAGE_DIR_NAMES,
 } from "../waspc/tools/packages/utils.ts";
 import {
   discoverSubDirs,
@@ -44,7 +44,6 @@ function bumpWaspVersion(bumpType: BumpType): void {
   rebuildLibs();
 
   bumpPackagesVersion(nextVersion);
-  rebuildPackages();
 
   bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
@@ -72,11 +71,9 @@ function bumpLibsVersion(nextVersion: string): void {
 }
 
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const { name } of WASPC_PACKAGES) {
-    bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
+  for (const packageDirPath of WASP_PACKAGE_DIR_NAMES.map(getPackageDirPath)) {
+    bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
-  // The `wasp` executable wrapper, which `packages/cli/scripts/make-cli-npm-packages` publishes.
-  bumpPackageJsonVersion(getPackageDirPath("cli"), nextVersion);
 }
 
 function bumpWaspProjectsVersion(nextVersion: string): void {
@@ -147,13 +144,6 @@ function findWaspFilePath(projectDir: string): string {
 
 function rebuildLibs(): void {
   runCmd("mise", ["run", "build:libs"], {
-    cwd: waspcDirPath,
-    stdio: "inherit",
-  });
-}
-
-function rebuildPackages(): void {
-  runCmd("mise", ["run", "build:packages"], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });
