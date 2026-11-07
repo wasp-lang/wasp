@@ -27,4 +27,4 @@ clean = ProjectLock.acquireExclusive $ do
 
   cliSendMessageC
     $ Msg.Info
-    $ "\nRun " ++ styleCode "wasp install" ++ " to reinstall dependencies."
+    $ "\nRun " ++ styleCode "npm install" ++ " to reinstall dependencies."
