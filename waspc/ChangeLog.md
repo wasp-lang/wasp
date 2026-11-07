@@ -6,6 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
+- Wasp projects now depend on the `@wasp/wasp` npm package, which brings `@wasp/spec` and the Wasp CLI, and `npm install` replaces `wasp install`. ([#5264](https://github.com/wasp-lang/wasp/pull/5264), [#5266](https://github.com/wasp-lang/wasp/pull/5266))
 - The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))

@@ -13,7 +13,7 @@ import Wasp.Cli.Command.Compile (defaultCompileOptions, withSetupGoals)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsDevelopment (GeneratedAppIsDevelopment))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Compile (waitEnsureCompile)
 import Wasp.Cli.ProjectRunConfig (makeDefaultDevProjectRunConfig)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
@@ -29,7 +29,7 @@ import Wasp.Project.RunConfig (ProjectRunConfig)
 makeDbCommand :: [SetupGoal] -> (AS.AppSpec -> ProjectRunConfig -> Command a) -> Command a
 makeDbCommand setupGoals cmd = do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  WaspNpmPackageAvailable <- require
   appSpec <- waitEnsureCompile $ withSetupGoals setupGoals $ defaultCompileOptions waspProjectDir
   projectRunConfig <- liftIO $ makeDefaultDevProjectRunConfig appSpec
   throwIfDbConnectionNotEstablished projectRunConfig
