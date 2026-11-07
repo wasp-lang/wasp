@@ -93,15 +93,14 @@ waspNpmPackageScriptExportName = \case
   WaspStudioScript -> "run-studio"
 
 -- | Run from the project dir, Node resolves the script through \@wasp/wasp's
--- `exports`. The scripts parse their arguments with commander, which handles
--- `--eval`.
+-- `exports`. Requires the scripts to handle `--eval` arguments, which have no
+-- script path in `process.argv`.
 waspNpmPackageScriptCommand :: WaspNpmPackageScript -> [String] -> NodeCommand WaspProjectDir
 waspNpmPackageScriptCommand script args =
   NodeCommand "node" $ ["--input-type=module", "--eval", "import " ++ show scriptImport ++ ";", "--"] ++ args
   where
     scriptImport = waspNpmPackageName ++ "/" ++ waspNpmPackageScriptExportName script
 
--- | Needs @ValidNodeAndNpm@ and @WaspNpmPackageAvailable@.
 runWaspNpmPackageScript :: Path' Abs (Dir WaspProjectDir) -> WaspNpmPackageScript -> [String] -> IO ExitCode
 runWaspNpmPackageScript waspProjectDir script args =
   P.withCreateProcess scriptProcess $ \_ _ _ processHandle -> P.waitForProcess processHandle

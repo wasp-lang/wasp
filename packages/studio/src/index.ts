@@ -13,10 +13,7 @@ function getUrlFromRelativePathToCwd(path: string) {
 }
 
 const program = new Command();
-program
-  .requiredOption("-d, --data-file <path>", "Path to data file")
-  // Without arguments, so commander also finds them under `node --eval`.
-  .parse();
+program.requiredOption("-d, --data-file <path>", "Path to data file").parse();
 
 const options = program.opts<{
   dataFile: string;
@@ -39,8 +36,6 @@ app.use(
   }),
 );
 
-// `fileURLToPath` decodes the URL, so the path works when the project's path
-// has spaces or non-ASCII characters.
 const publicDirPath = fileURLToPath(new URL("./public", import.meta.url));
 app.use(express.static(publicDirPath));
 

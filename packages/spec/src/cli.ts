@@ -8,11 +8,6 @@ export interface AnalyzeArgs {
   entityNames: string[];
 }
 
-/**
- * The CLI that waspc runs (see `Wasp.Project.WaspFile.TypeScript`). Commander
- * finds the arguments whether Node runs this file directly or through
- * `node --eval`.
- */
 export function makeCli(
   analyze: (args: AnalyzeArgs) => Promise<void>,
 ): Command {

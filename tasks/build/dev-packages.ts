@@ -28,8 +28,8 @@ import {
 } from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import {
   getPackageDirPath,
-  WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES,
-  WASP_NPM_PACKAGE_DIR_NAME,
+  WASP_MAIN_PACKAGE_DIR_NAME,
+  WASP_NPM_SUBPACKAGES_DIR_NAMES,
 } from "../../waspc/tools/packages/utils.ts";
 import {
   assertPackageVersionMatchesWaspc,
@@ -65,7 +65,7 @@ function buildDevPackages(): void {
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
 
-  for (const packageDirName of WASP_NPM_PACKAGE_DEPENDENCY_DIR_NAMES) {
+  for (const packageDirName of WASP_NPM_SUBPACKAGES_DIR_NAMES) {
     console.log(`Building @wasp/${packageDirName}`);
     runCmd(
       "pnpm",
@@ -88,7 +88,7 @@ function buildDevPackages(): void {
   writeDevCliConfig(devPackagesDir);
   packDevCliPackage(devPackagesDir);
 
-  packPackage(getPackageDirPath(WASP_NPM_PACKAGE_DIR_NAME), devPackagesDir);
+  packPackage(getPackageDirPath(WASP_MAIN_PACKAGE_DIR_NAME), devPackagesDir);
 
   console.log(`Dev packages are in ${devPackagesDir}`);
 }

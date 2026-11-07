@@ -25,6 +25,8 @@ export type PackageJson = {
   version: string;
   scripts?: Record<string, string>;
   dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  peerDependenciesMeta?: Record<string, { optional?: boolean }>;
   devDependencies?: Record<string, string>;
 };
 
