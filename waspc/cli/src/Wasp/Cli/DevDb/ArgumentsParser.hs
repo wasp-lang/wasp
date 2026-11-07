@@ -1,11 +1,14 @@
 module Wasp.Cli.DevDb.ArgumentsParser
   ( DevDbOptions (..),
+    defaultDevDbOptions,
     devDbOptionsParser,
+    withDevDbOptions,
   )
 where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
@@ -17,6 +20,14 @@ data DevDbOptions = DevDbOptions
   }
   deriving (Eq, Show)
 
+defaultDevDbOptions :: DevDbOptions
+defaultDevDbOptions =
+  DevDbOptions
+    { dbPort = Nothing,
+      dbImage = fst defaultPostgresDockerImageSpec,
+      dbVolumeMountPath = snd defaultPostgresDockerImageSpec
+    }
+
 devDbOptionsParser :: Opt.Parser DevDbOptions
 devDbOptionsParser =
   DevDbOptions
@@ -26,12 +37,16 @@ devDbOptionsParser =
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
           <> Opt.showDefault
-          <> Opt.value (fst defaultPostgresDockerImageSpec)
+          <> Opt.value defaultDevDbOptions.dbImage
       )
     <*> Opt.strOption
       ( Opt.long "db-volume-mount-path"
           <> Opt.metavar "PATH"
           <> Opt.help "Path inside Docker container where database files are stored"
           <> Opt.showDefault
-          <> Opt.value (snd defaultPostgresDockerImageSpec)
+          <> Opt.value defaultDevDbOptions.dbVolumeMountPath
       )
+
+withDevDbOptions :: ArgsParser a -> ArgsParser (a, DevDbOptions)
+withDevDbOptions argsParser =
+  argsParser {optParser = (,) <$> argsParser.optParser <*> devDbOptionsParser}
