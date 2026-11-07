@@ -30,7 +30,7 @@ Then navigate to the project directory
 
 ```bash
 cd examples/websockets-realtime-voting
-wasp install
+npm install
 wasp db migrate-dev
 ```
 
