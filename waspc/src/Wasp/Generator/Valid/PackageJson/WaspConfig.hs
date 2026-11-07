@@ -2,9 +2,12 @@ module Wasp.Generator.Valid.PackageJson.WaspConfig (waspConfigValidator) where
 
 import Data.Foldable (traverse_)
 import qualified Data.Map as M
+import qualified Data.Set as Set
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getAllWaspDependencies)
+import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getGeneratedServerDeps)
+import Wasp.Generator.WaspNpmPackagePeerDeps (waspNpmPackagePeerDeps)
 import qualified Wasp.Validator as V
 
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
@@ -22,12 +25,16 @@ overriddenDepsValidator spec =
     $ forEachDep getValidationForDep
   where
     overridableDeps :: M.Map P.PackageName P.PackageVersion
-    overridableDeps = getAllWaspDependencies spec
+    overridableDeps = getGeneratedServerDeps spec
 
-    getValidationForDep (depName, actualVersion) =
-      overridenVersionValidator
-        (depName `M.lookup` overridableDeps)
-        actualVersion
+    getValidationForDep (depName, actualVersion)
+      | depName `Set.member` waspNpmPackagePeerNames = peerDepOverrideError
+      | otherwise =
+          overridenVersionValidator
+            (depName `M.lookup` overridableDeps)
+            actualVersion
+
+    waspNpmPackagePeerNames = Set.fromList $ map Npm.Dependency.name waspNpmPackagePeerDeps
 
     overridenVersionValidator Nothing _ = unrecognizedDepError
     overridenVersionValidator (Just expectedVersion) actualVersion
@@ -41,6 +48,10 @@ overriddenDepsValidator spec =
           ++ ", but found an override for version "
           ++ actualVersion
           ++ "."
+
+    peerDepOverrideError =
+      V.failure
+        "@wasp/wasp lists this package as a peer dependency, so npm checks its version and `wasp.overriddenDeps` can't change it. Use npm's `overrides` field in package.json instead."
 
     unrecognizedDepError =
       V.failure
