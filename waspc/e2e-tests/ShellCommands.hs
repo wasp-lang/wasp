@@ -41,7 +41,8 @@ module ShellCommands
     waspCliShowBuildJson,
     waspCliDeps,
     waspCliDeploy,
-    waspCliInstall,
+    npmInstall,
+    useDevWaspNpmPackages,
     assertCommandOutputContains,
     skipIfDockerDisabled,
     createSeedFile,
@@ -64,11 +65,13 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, fromRelFile, parent, (</>))
 import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
+import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackageTarballFile, devWaspNpmPackagesDirEnvVarName)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
+import Wasp.NpmPackageNames (waspNpmPackageDependencyNames, waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
@@ -289,8 +292,22 @@ waspCliDockerfile = return "$WASP_CLI_CMD dockerfile"
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStudio = return "$WASP_CLI_CMD studio"
 
-waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInstall = return "$WASP_CLI_CMD install"
+npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
+npmInstall = return "npm install"
+
+-- | Like `wasp new` does (see "Wasp.Cli.DevWaspNpmPackages"). Projects copied
+-- from the repo, e.g. the examples, point at the tarballs relative to their
+-- place in the repo.
+useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
+useDevWaspNpmPackages =
+  return
+    $ unwords
+    $ "npm pkg set"
+      : devTarballField "dependencies" waspNpmPackageName
+      : map (devTarballField "overrides") waspNpmPackageDependencyNames
+  where
+    devTarballField section packageName =
+      "\"" ++ section ++ "." ++ packageName ++ "=file:$" ++ devWaspNpmPackagesDirEnvVarName ++ "/" ++ fromRelFile (devWaspNpmPackageTarballFile packageName) ++ "\""
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand

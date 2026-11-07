@@ -25,7 +25,7 @@ This is an example Wasp app that supports:
 2. Install the project dependencies:
 
    ```bash
-   wasp install
+   npm install
    ```
 
 3. Start the database with:

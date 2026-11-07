@@ -1,0 +1,76 @@
+{
+  "name": "@wasp/wasp",
+  "version": "0.27.0",
+  "type": "module",
+  "description": "Wasp is a full-stack web framework for React, Node.js and Prisma.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/wasp"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "bin": {
+    "wasp": "bin.js"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./run-spec": "./scripts/run-spec.js",
+    "./run-deploy": "./scripts/run-deploy.js",
+    "./run-studio": "./scripts/run-studio.js"
+  },
+  "files": [
+    "bin.js",
+    "scripts"
+  ],
+  "peerDependencies": {
+    "@prisma/client": "6.19.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@tanstack/react-query": "~4.42.0",
+    "@types/cors": "^2.8.5",
+    "@types/express": "^5.0.0",
+    "@types/express-serve-static-core": "^5.0.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "cookie-parser": "~1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "~5.1.0",
+    "helmet": "^6.0.0",
+    "ky": "^2.0.0",
+    "morgan": "~1.12.1",
+    "nf3": "0.4.2",
+    "prisma": "6.19.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-hook-form": "^7.45.4",
+    "react-router": "^8.0.1",
+    "rollup": "^4.9.6",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "superjson": "^2.2.1",
+    "typescript": "6.0.3",
+    "vite": "^8.1.0"
+  },
+  "dependencies": {
+    "@wasp/cli": "workspace:*",
+    "@wasp/deploy": "workspace:*",
+    "@wasp/spec": "workspace:*",
+    "@wasp/studio": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "//": "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/project-wasp-cli.ts), so changing it breaks their hand-over. The CLI of the same version runs the `./run-*` exports."
+}

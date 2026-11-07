@@ -41,10 +41,8 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
-      wasp install &&
-      wasp build &&
+      npm install &&
+      npm run build &&
       cd .wasp/out/server &&
       npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
@@ -70,10 +68,8 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
-      wasp install &&
-      wasp build &&
+      npm install &&
+      npm run build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
     envVars:
@@ -98,7 +94,6 @@ You should replace the following values for your app:
 | Variable | Value | Example |
 |---|---|---|
 | `<app-name>` | A unique name for your app | `my-wasp-app` |
-| `<wasp-version>` | The Wasp CLI version you're using | `0.24` |
 | `<plan>` | The Render plan for your services | `free` |
 | `<region>` | The Render region closest to your users | `oregon` |
 

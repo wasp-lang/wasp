@@ -22,12 +22,12 @@ wasp new <project-name> -t basic
 
 ## Development
 
-After cloning the project, run `wasp install`.
+After cloning the project, run `npm install`.
 
 To start the application locally for development or preview purposes:
 
-1. Run `wasp db migrate-dev` to migrate the database to the latest migration
-2. Run `wasp start` to start the Wasp application.
+1. Run `npm run wasp -- db migrate-dev` to migrate the database to the latest migration.
+2. Run `npm run dev` to start the Wasp application.
 3. The application should be running on `localhost:3000`. Open it in your browser, and the welcome page will walk you through your next steps.
 
 ### Removing the welcome page

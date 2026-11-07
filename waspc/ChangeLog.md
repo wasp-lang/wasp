@@ -6,6 +6,9 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
+- Wasp projects now depend on the `@wasp/wasp` npm package, which brings `@wasp/spec` and the Wasp CLI, and `npm install` replaces `wasp install`. ([#5264](https://github.com/wasp-lang/wasp/pull/5264), [#5266](https://github.com/wasp-lang/wasp/pull/5266))
+- `app()` in `main.wasp.ts` no longer takes a `wasp: { version }` field. The `@wasp/wasp` version in `package.json` decides which Wasp a project runs. ([#5269](https://github.com/wasp-lang/wasp/pull/5269))
+- `wasp.overriddenDeps` no longer works for packages that come with `@wasp/wasp`, like React, Vite or Express. Use npm's `overrides` instead. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
 - The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
@@ -17,10 +20,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🎉 New Features
 
+- A globally installed `wasp` now runs the Wasp version of the project you call it in, so each project keeps the version it installed. ([#5265](https://github.com/wasp-lang/wasp/pull/5265))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - The `basic` starter has a refreshed look, and a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
+- New Wasp projects come with `dev`, `build`, `preview` and `wasp` npm scripts, so `npm run dev` starts the app without a global Wasp CLI. ([#5271](https://github.com/wasp-lang/wasp/pull/5271))
 
 ### 🐞 Bug fixes
 

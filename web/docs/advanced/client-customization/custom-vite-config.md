@@ -116,9 +116,7 @@ export default defineConfig({
 
 `wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
-```bash
-wasp start --client-port 4000
-```
+<WaspCommand npm="npm run dev -- --client-port 4000" global="wasp start --client-port 4000" />
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 
@@ -126,9 +124,7 @@ Chrome DevTools support [mapping a page's resources to a folder](https://develop
 
 1. Install the plugin as a **dev dependency**:
 
-```bash
-npm i -D vite-plugin-devtools-json
-```
+<PackageManagerCommand npm="npm i -D vite-plugin-devtools-json" />
 
 2. Extend your `vite.config.{ts,js}`:
 

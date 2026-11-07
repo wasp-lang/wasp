@@ -18,9 +18,7 @@ Wasp doesn't provide helpers for testing server code yet. You can follow the pro
 
 Install Vitest and the libraries for testing React components:
 
-```bash
-npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
-```
+<PackageManagerCommand npm="npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw" />
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
@@ -87,25 +85,19 @@ Add a script for running your tests to your `package.json`:
 Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app.
 Keep `wasp start` running in one terminal, and run your tests in another:
 
-```sh
-npm test
-```
+<PackageManagerCommand npm="npm test" />
 
 Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `wasp compile` before running the tests:
 
-```sh
-wasp compile
-npm test
-```
+<WaspCommand npm={`npm run wasp -- compile
+npm test`} global={`wasp compile
+npm test`} />
 
 ### Running tests visually
 
 Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in the browser. Install it and start Vitest with it:
 
-```sh
-npm install -D @vitest/ui
-npm test -- --ui
-```
+<PackageManagerCommand npm={"npm install -D @vitest/ui\nnpm test -- --ui"} />
 
 ## Writing client tests
 
