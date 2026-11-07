@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { parseProcessArgsOrThrow } from "../src/cli.js";
+import { type AnalyzeArgs, makeCli } from "../src/cli.js";
 
-describe("parseProcessArgsOrThrow", () => {
-  test("should parse arguments correctly", () => {
-    expectParseProcessArgsToSucceed([
+describe("makeCli", () => {
+  test("should parse arguments correctly", async () => {
+    await expectParseToSucceed([
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
@@ -13,8 +13,8 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
-  test("should parse 0 entities correctly", () => {
-    expectParseProcessArgsToSucceed([
+  test("should parse 0 entities correctly", async () => {
+    await expectParseToSucceed([
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
@@ -24,18 +24,24 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
-  test("should throw an error if less than 8 arguments", () => {
-    expectParseProcessArgsToError([
-      "analyze",
-      "main.wasp.ts",
-      "tsconfig.wasp.json",
-      "/project",
-      "output.json",
-    ]);
-  });
+  test.each([1, 2, 3, 4, 5])(
+    "should throw an error if argument %i is missing",
+    async (missingArgIndex) => {
+      const args = [
+        "analyze",
+        "main.wasp.ts",
+        "tsconfig.wasp.json",
+        "/project",
+        "output.json",
+        "[]",
+      ];
+      args.splice(missingArgIndex, 1);
+      await expectParseToError(args);
+    },
+  );
 
-  test("should throw an error if more than 8 arguments", () => {
-    expectParseProcessArgsToError([
+  test("should throw an error if there is an extra argument", async () => {
+    await expectParseToError([
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
@@ -46,8 +52,8 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
-  test("should throw an error if command is unsupported", () => {
-    expectParseProcessArgsToError([
+  test("should throw an error if command is unsupported", async () => {
+    await expectParseToError([
       "compile",
       "main.wasp.ts",
       "tsconfig.wasp.json",
@@ -57,63 +63,8 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
-  test("should throw an error if waspTsSpecPath is not a string", () => {
-    expectParseProcessArgsToError([
-      "analyze",
-      undefined,
-      "tsconfig.wasp.json",
-      "/project",
-      "output.json",
-      JSON.stringify(["entity1"]),
-    ] as string[]);
-  });
-
-  test("should throw an error if tsconfigPath is not a string", () => {
-    expectParseProcessArgsToError([
-      "analyze",
-      "main.wasp.ts",
-      undefined,
-      "/project",
-      "output.json",
-      JSON.stringify(["entity1"]),
-    ] as string[]);
-  });
-
-  test("should throw an error if projectRootDir is not a string", () => {
-    expectParseProcessArgsToError([
-      "analyze",
-      "main.wasp.ts",
-      "tsconfig.wasp.json",
-      undefined,
-      "output.json",
-      JSON.stringify(["entity1"]),
-    ] as string[]);
-  });
-
-  test("should throw an error if specResultPath is not a string", () => {
-    expectParseProcessArgsToError([
-      "analyze",
-      "main.wasp.ts",
-      "tsconfig.wasp.json",
-      "/project",
-      undefined,
-      JSON.stringify(["entity1"]),
-    ] as string[]);
-  });
-
-  test("should throw an error if any entityNames is not a string", () => {
-    expectParseProcessArgsToError([
-      "analyze",
-      "main.wasp.ts",
-      "tsconfig.wasp.json",
-      "/project",
-      "output.json",
-      undefined,
-    ] as string[]);
-  });
-
-  test("should throw an error if the entity names JSON is not an array", () => {
-    expectParseProcessArgsToError([
+  test("should throw an error if the entity names JSON is not an array", async () => {
+    await expectParseToError([
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
@@ -123,9 +74,7 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
-  function expectParseProcessArgsToSucceed(args: string[]) {
-    const result = parseProcessArgsOrThrow(["node", "run.js", ...args]);
-
+  async function expectParseToSucceed(args: string[]) {
     const [
       _command,
       waspTsSpecPath,
@@ -134,7 +83,7 @@ describe("parseProcessArgsOrThrow", () => {
       specResultPath,
       entityNames,
     ] = args;
-    expect(result).toEqual({
+    expect(await parse(args)).toEqual({
       waspTsSpecPath,
       tsconfigPath,
       projectRootDir,
@@ -143,9 +92,20 @@ describe("parseProcessArgsOrThrow", () => {
     });
   }
 
-  function expectParseProcessArgsToError(args: string[]) {
-    expect(() =>
-      parseProcessArgsOrThrow(["node", "run.js", ...args]),
-    ).toThrowError();
+  async function expectParseToError(args: string[]) {
+    await expect(parse(args)).rejects.toThrowError();
+  }
+
+  async function parse(args: string[]): Promise<AnalyzeArgs | undefined> {
+    let parsedArgs: AnalyzeArgs | undefined;
+    const program = makeCli(async (analyzeArgs) => {
+      parsedArgs = analyzeArgs;
+    });
+    // Throw instead of exiting the process, and keep the usage errors quiet.
+    for (const command of [program, ...program.commands]) {
+      command.exitOverride().configureOutput({ writeErr: () => {} });
+    }
+    await program.parseAsync(args, { from: "user" });
+    return parsedArgs;
   }
 });
