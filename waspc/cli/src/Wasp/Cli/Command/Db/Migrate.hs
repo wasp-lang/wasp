@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions, withDevDbOptions)
 import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -27,8 +28,8 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
-migrateDev :: MigrateArgs -> Command ()
-migrateDev migrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig -> do
+migrateDev :: (MigrateArgs, DevDbOptions) -> Command ()
+migrateDev (migrateArgs, devDbOptions) = makeDbCommand devDbOptions [PrismaCliReady] $ \_appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
@@ -46,9 +47,10 @@ migrateDatabase envVars migrateArgs generatedAppDir dbMigrationsDir = do
     Left err -> throwError $ CommandError "Migrate dev failed" err
     Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
 
-migrateArgsParser :: ArgsParser MigrateArgs
+migrateArgsParser :: ArgsParser (MigrateArgs, DevDbOptions)
 migrateArgsParser =
-  ArgsParser "wasp db migrate-dev" $
-    MigrateArgs
+  withDevDbOptions
+    $ ArgsParser "wasp db migrate-dev"
+    $ MigrateArgs
       <$> Opt.optional (Opt.strOption (Opt.long "name" <> Opt.metavar "NAME" <> Opt.help "Migration name"))
       <*> Opt.switch (Opt.long "create-only" <> Opt.help "Create the migration without applying it")
