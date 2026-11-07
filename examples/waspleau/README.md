@@ -9,7 +9,7 @@ The deployed version of this example can be found at https://waspleau-app-client
 
 ## Running in development
 
-1. `wasp install` to install the project dependencies.
+1. `npm install` to install the project dependencies.
 2. `wasp start db` to run the development database.
 3. `wasp db migrate-dev` to migrate the database.
 4. `wasp start` to run the app.

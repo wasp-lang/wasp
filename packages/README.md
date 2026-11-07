@@ -36,6 +36,7 @@ Create a directory in this folder with a `build` script in `package.json` that c
   there (see `waspc/tools/packages/utils.ts`).
 - `publish_packages` in `scripts/pack-published-packages.sh`
 - `waspNpmPackageDependencyNames` in `Wasp.NpmPackageNames`
+- the `overrides` of the example apps
 
 Give `@wasp/wasp` a run script for the package in `wasp/scripts/` (see `run-deploy.js`), export
 it from `wasp/package.json`, and add it to `WaspNpmPackageScript` in `Wasp.Project.WaspNpmPackage`.
