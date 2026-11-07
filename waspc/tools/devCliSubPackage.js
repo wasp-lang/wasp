@@ -1,7 +1,7 @@
 // @ts-check
 
 // The dev stand-in for the platform packages of `@wasp/cli`. Its default
-// export must match `SubPackageAPI` in `packages/cli/src/package-data.ts`.
+// export must match `CliSubPackageAPI` in `packages/cli/src/package-data.ts`.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

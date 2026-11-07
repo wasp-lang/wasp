@@ -43,14 +43,14 @@ import {
 const DEV_PACKAGES_DIR_NAME = ".dev-packages";
 // Keep in sync with `waspc/tools/devCliSubPackage.js`.
 const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";
-const DEV_SUB_PACKAGE_FILE_NAME = "dev-sub-package.js";
-const DEV_SUB_PACKAGE_SOURCE_PATH = join(
+const DEV_CLI_SUB_PACKAGE_FILE_NAME = "dev-sub-package.js";
+const DEV_CLI_SUB_PACKAGE_SOURCE_PATH = join(
   getWaspcDirPath(),
   "tools",
   "devCliSubPackage.js",
 );
 
-// We pack `@wasp/cli` ourselves, with the dev sub-package.
+// We pack `@wasp/cli` ourselves, with the dev CLI sub-package.
 const CLI_PACKAGE_DIR_NAME = "cli";
 
 try {
@@ -128,12 +128,12 @@ function packDevCliPackage(devPackagesDir: string): void {
   const tmpDir = mkdtempSync(join(tmpdir(), "wasp-dev-cli-"));
   try {
     // Same files as the published package (see `packages/cli/scripts/make-cli-npm-packages`),
-    // plus the dev sub-package next to the compiled CLI, and a package.json
+    // plus the dev CLI sub-package next to the compiled CLI, and a package.json
     // that lists them.
     copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
     copyFileSync(
-      DEV_SUB_PACKAGE_SOURCE_PATH,
-      join(tmpDir, "dist", DEV_SUB_PACKAGE_FILE_NAME),
+      DEV_CLI_SUB_PACKAGE_SOURCE_PATH,
+      join(tmpDir, "dist", DEV_CLI_SUB_PACKAGE_FILE_NAME),
     );
 
     const { scripts, devDependencies, ...cliPackageJson } = getPackageJson(
@@ -155,7 +155,7 @@ function packDevCliPackage(devPackagesDir: string): void {
       subPackages: {
         [os]: {
           [cpu]: {
-            [libc]: { packageName: `./${DEV_SUB_PACKAGE_FILE_NAME}` },
+            [libc]: { packageName: `./${DEV_CLI_SUB_PACKAGE_FILE_NAME}` },
           },
         },
       },

@@ -6,9 +6,9 @@ import * as path from "node:path";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 import {
-  type CliPackageData,
   getCurrentPlatformTarget,
-  type SubPackageAPI,
+  type CliPackageData,
+  type CliSubPackageAPI,
 } from "./package-data.js";
 
 const debug = debuglog("wasp-bin-wrapper");
@@ -32,7 +32,9 @@ export async function runWaspCli(): Promise<number> {
   }).catch(CLIError.rethrowWith("Failed to run Wasp."));
 }
 
-async function getSubPackage(packageJson: PackageJson): Promise<SubPackageAPI> {
+async function getSubPackage(
+  packageJson: PackageJson,
+): Promise<CliSubPackageAPI> {
   debug("Loading CLI package data...");
 
   const data = await readPackageData();
@@ -50,7 +52,7 @@ async function getSubPackage(packageJson: PackageJson): Promise<SubPackageAPI> {
 
   debug("Selected sub-package: %j", selectedSubPackage);
 
-  const importedPackage: { default: SubPackageAPI } = await import(
+  const importedPackage: { default: CliSubPackageAPI } = await import(
     selectedSubPackage.packageName
   )
     .catch(async (error: unknown) => {
@@ -149,7 +151,7 @@ async function runWasp({
   waspBinPath,
   dataDirPath,
   waspVersion,
-}: SubPackageAPI & { waspVersion: string }): Promise<number> {
+}: CliSubPackageAPI & { waspVersion: string }): Promise<number> {
   try {
     debug("Running Wasp executable at path: %s", waspBinPath);
     debug("Using data directory at path: %s", dataDirPath);

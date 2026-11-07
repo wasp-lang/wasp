@@ -3,7 +3,7 @@
 
 import { report as processReport } from "node:process";
 
-export interface SubPackageInfo {
+export interface CliSubPackageInfo {
   packageName: string;
 }
 
@@ -16,13 +16,13 @@ export interface CliPackageData {
   subPackages: {
     [os: string]: {
       [arch: string]: {
-        [libc: string | typeof UNDEFINED_LIBC_NAME]: SubPackageInfo;
+        [libc: string | typeof UNDEFINED_LIBC_NAME]: CliSubPackageInfo;
       };
     };
   };
 }
 
-export interface SubPackageAPI {
+export interface CliSubPackageAPI {
   waspBinPath: string;
   dataDirPath: string;
 }
