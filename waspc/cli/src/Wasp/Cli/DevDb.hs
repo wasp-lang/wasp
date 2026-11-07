@@ -20,6 +20,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions (..))
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Db.Postgres (defaultPostgresPort)
 import qualified Wasp.Job as Job
@@ -29,20 +30,19 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (checkExitSuccess)
-import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Docker as Docker
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> Command ()
-startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath =
-  withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath $ \waitForDbExit -> do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> Command ()
+startPostgresDevDb waspProjectDir appName devDbOptions =
+  withPostgresDevDb waspProjectDir appName devDbOptions $ \waitForDbExit -> do
     cliSendMessageC $ Msg.Info "PostgreSQL dev database is ready. Press Ctrl+C to stop it."
     waitForDbExit
 
 -- | Starts the project's PostgreSQL dev database, and runs the action once the
 -- database accepts connections. The action gets a way to wait for the database
 -- to exit. The database is stopped and removed when the action finishes.
-withPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> (Command () -> Command a) -> Command a
-withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath action = do
+withPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> (Command () -> Command a) -> Command a
+withPostgresDevDb waspProjectDir appName devDbOptions action = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
@@ -69,7 +69,7 @@ withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerV
     resolveDevDbPort :: Command PortNumber
     resolveDevDbPort =
       resolvePort
-        requestedDbPort
+        devDbOptions.dbPort
         defaultPostgresPort
         []
         "Choose a different port with --db-port, or free up this one."
@@ -103,7 +103,7 @@ withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerV
           Left _exitCode -> throwDbError "The database stopped before accepting connections."
 
     runDbJob :: Dev.Postgres.DevDbSpec -> IO ExitCode
-    runDbJob devDbSpec = Job.run $ Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath
+    runDbJob devDbSpec = Job.run $ Dev.Postgres.runDevPostgresDb devDbSpec devDbOptions.dbImage devDbOptions.dbVolumeMountPath
 
     throwIfDbFailed :: ExitCode -> Command ()
     throwIfDbFailed exitCode =
@@ -130,8 +130,8 @@ withPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerV
     -- invocation's arguments.
     dockerRunInfoLines :: [String]
     dockerRunInfoLines =
-      [ " ℹ Using Docker image: " <> dbDockerImage,
-        "   with the data volume mounted at: " <> dbDockerVolumeMountPath
+      [ " ℹ Using Docker image: " <> devDbOptions.dbImage,
+        "   with the data volume mounted at: " <> devDbOptions.dbVolumeMountPath
       ]
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
