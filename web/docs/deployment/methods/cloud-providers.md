@@ -49,9 +49,7 @@ Let's go through each of these steps.
 
 Running the command `wasp build` generates deployable code for the whole app in the `.wasp/out/` directory.
 
-```
-wasp build
-```
+<WaspCommand npm="npm run build" global="wasp build" />
 
 :::caution PostgreSQL in production
 You won't be able to build the app if you are using SQLite as a database (which is the default database).

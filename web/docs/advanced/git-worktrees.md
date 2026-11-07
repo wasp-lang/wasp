@@ -1,6 +1,6 @@
 ---
 title: "Git worktree setup: parallel coding agents in Wasp"
-description: "Set up Git worktrees of a Wasp app for parallel coding agents: run wasp install, copy env files and migrate. Each gets free ports and its own dev database."
+description: "Set up Git worktrees of a Wasp app for parallel coding agents: run npm install, copy env files and migrate. Each gets free ports and its own dev database."
 sidebar_label: Worktrees
 ---
 
@@ -28,11 +28,9 @@ Creating the worktree is only the first step. Each worktree is a fresh copy of t
 
 After you create a new worktree for your Wasp app, you must first run:
 
-```bash
-wasp install
-```
+<PackageManagerCommand npm="npm install" />
 
-It installs the Wasp app dependencies. When creating a new project, `wasp new` installs them for you, but in a fresh clone or worktree you need to run it manually.
+It installs the app's dependencies, including Wasp itself through the `@wasp/wasp` package. `wasp new` installs them for you when it creates a project, but in a fresh clone or worktree you need to run it yourself.
 
 ### Setting up environment variables {#setting-up-environment-variables}
 
@@ -61,23 +59,17 @@ See [Environment variables](./env-vars.md) for Wasp's environment file rules.
 
 If you are using SQLite, it doesn't need a separate database process. It's enough to apply the migrations:
 
-```bash
-wasp db migrate-dev
-```
+<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
 
 #### PostgreSQL
 
 If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
 
-```bash
-wasp start db
-```
+<WaspCommand npm="npm run wasp -- start db" global="wasp start db" />
 
 Then apply the migrations from another terminal:
 
-```bash
-wasp db migrate-dev
-```
+<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
 
 Wasp gives each worktree a unique [development database](../features/data/databases.md#using-the-dev-database-provided-by-wasp) name and Docker volume.
 
@@ -89,9 +81,7 @@ If your app needs to seed scaffold data, you can apply it with the `wasp db seed
 
 After the setup, the app should start successfully:
 
-```bash
-wasp start
-```
+<WaspCommand npm="npm run dev" global="wasp start" />
 
 ## Running worktrees at the same time
 

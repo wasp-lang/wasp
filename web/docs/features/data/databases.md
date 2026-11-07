@@ -86,9 +86,7 @@ Also, make sure that you have [Docker installed](https://www.docker.com/get-star
 
 By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
 
-```bash
-wasp start db --db-port 8080
-```
+<WaspCommand npm="npm run wasp -- start db --db-port 8080" global="wasp start db --db-port 8080" />
 
 :::tip
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
@@ -112,21 +110,31 @@ If you need to customise the development database, you can use the following opt
 
 Here are some examples of customising the development database:
 
-```bash
-# Use default PostgreSQL image:
+<WaspCommand npm={`# Use default PostgreSQL image:
+npm run wasp -- start db
+# Same as:
+npm run wasp -- start db --db-image postgres:18
+
+# Use PostgreSQL with PostGIS extension for geographic data:
+npm run wasp -- start db --db-image postgis/postgis:18-3.6
+
+# Use PostgreSQL with pgvector extension for AI embeddings:
+npm run wasp -- start db --db-image pgvector/pgvector:pg18
+
+# Use PostgreSQL version 15 (requires different volume path):
+npm run wasp -- start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data`} global={`# Use default PostgreSQL image:
 wasp start db
 # Same as:
 wasp start db --db-image postgres:18
 
 # Use PostgreSQL with PostGIS extension for geographic data:
-wasp start db --db-image postgis/postgis:18-3.6 
+wasp start db --db-image postgis/postgis:18-3.6
 
 # Use PostgreSQL with pgvector extension for AI embeddings:
 wasp start db --db-image pgvector/pgvector:pg18
 
 # Use PostgreSQL version 15 (requires different volume path):
-wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
-```
+wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data`} />
 
 :::note
 
@@ -153,9 +161,7 @@ DATABASE_URL=<my-db-url> wasp ...
 This trick is useful for running a certain `wasp` command on a specific database.
 For example, you could do:
 
-```bash
-DATABASE_URL=<production-db-url> wasp db seed myProductionSeed
-```
+<WaspCommand npm={"DATABASE_URL=<production-db-url> npm run wasp -- db seed myProductionSeed"} global={"DATABASE_URL=<production-db-url> wasp db seed myProductionSeed"} />
 
 This command seeds the data for a fresh staging or production database. Read more about [seeding the database](#seeding-the-database).
 
@@ -175,12 +181,9 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    // ...
    ```
 
-2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../../advanced/cli#project-commands):
+2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../../advanced/cli#project-commands). `wasp clean` also deletes `node_modules`, so install the dependencies again:
 
-   ```bash
-   rm -r migrations/
-   wasp clean
-   ```
+   <WaspCommand npm={"rm -r migrations/\nnpm run wasp -- clean\nnpm install"} global={"rm -r migrations/\nwasp clean\nnpm install"} />
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 
@@ -332,9 +335,7 @@ Run the command `wasp db seed` and Wasp will ask you which seed function you'd l
 
 Alternatively, run the command `wasp db seed <seed-name>` to choose a specific seed function right away, for example:
 
-```
-wasp db seed devSeedSimple
-```
+<WaspCommand npm="npm run wasp -- db seed devSeedSimple" global="wasp db seed devSeedSimple" />
 
 Check the [API Reference](#cli-commands-for-seeding-the-database) for more details on these commands.
 
@@ -457,6 +458,4 @@ Use one of the following commands to run the seed functions:
 
   Use the following command:
 
-  ```
-  wasp db seed devSeedSimple
-  ```
+  <WaspCommand npm="npm run wasp -- db seed devSeedSimple" global="wasp db seed devSeedSimple" />

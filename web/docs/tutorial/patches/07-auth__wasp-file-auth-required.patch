@@ -2,7 +2,7 @@ diff --git a/main.wasp.ts b/main.wasp.ts
 index f8ca9ec..55707d4 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
-@@ -18,7 +18,13 @@ export default app({
+@@ -17,7 +17,13 @@ export default app({
      onAuthFailedRedirectTo: "/login",
    },
    spec: [

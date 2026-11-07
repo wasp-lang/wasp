@@ -102,8 +102,6 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  // Pins the version of Wasp to use.
-  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp", // Used as the browser tab title.
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // Add your specs here so Wasp knows to register them.
