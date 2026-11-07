@@ -2,7 +2,7 @@
   "name": "@wasp/studio",
   "version": "0.27.0",
   "type": "module",
-  "description": "The Wasp Studio server that `wasp studio` runs. Comes with `@wasp/wasp`.",
+  "description": "The Wasp Studio server that `wasp studio` runs.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
