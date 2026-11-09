@@ -20,6 +20,8 @@ It can be a PostgreSQL database running on the same server as the server app, or
 
 Some managed services give you two connection strings: a pooled one that goes through a connection pooler, and a direct one. Use the direct connection string for `DATABASE_URL`. The production server [applies pending migrations](#applying-migrations) every time it starts, and Prisma Migrate needs a direct connection to the database.
 
+The server app uses the same `DATABASE_URL` for its queries, so they bypass the pooler too. Each server instance keeps its own pool of open connections, and managed services cap the number of direct connections. Check your provider's limit before you run several server instances. To make each instance use fewer connections, add the `connection_limit` parameter to the connection string, for example `?connection_limit=5`.
+
 :::
 
 ## Migrations
