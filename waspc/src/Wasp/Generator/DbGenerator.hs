@@ -169,7 +169,7 @@ warnIfDbNeedsMigration envVars spec generatedAppDir = do
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
       if entitiesExist
-        then warnProjectDiffersFromDb envVars generatedAppDir
+        then warnIfProjectDoesNotMatchDb envVars generatedAppDir
         else return Nothing
   where
     dbSchemaFp = generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
@@ -189,13 +189,14 @@ warnIfSchemaDiffersFromChecksum dbSchemaFileAbs dbschemachecksumfile =
           "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready."
     )
 
--- | Checks if the project's Prisma schema file and migrations dir matches the DB state.
--- Issues a warning if it cannot connect, or if either check fails.
-warnProjectDiffersFromDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnProjectDiffersFromDb envVars generatedAppDir = do
-  schemaMatchesDb <- DbOps.doesSchemaMatchDb envVars generatedAppDir
-  case schemaMatchesDb of
-    Just True -> do
+-- | Checks if the project (schema and migrations) matches the DB state.
+-- Returns Nothing if it matches, and Just warning if e.g.
+-- they differ, or the DB does not exist yet, etc.
+warnIfProjectDoesNotMatchDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
+  schemaDbMatch <- DbOps.checkIfSchemaMatchesDb envVars generatedAppDir
+  case schemaDbMatch of
+    DbOps.SchemaMatchesDb -> do
       allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb envVars generatedAppDir
       if allMigrationsAppliedToDb == Just True
         then do
@@ -206,14 +207,17 @@ warnProjectDiffersFromDb envVars generatedAppDir = do
         else
           return . Just . GeneratorNeedsMigrationWarning $
             "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
-    Just False ->
+    DbOps.SchemaDiffersFromDb ->
       return . Just . GeneratorNeedsMigrationWarning $
         "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
-    -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it
-    -- does not exist. Or it could mean their databaseUrlEnvVar is wrong, or database is down, or
-    -- any other number of causes. In any case, migrating will either solve it (in the SQLite case),
-    -- or allow Prisma to give them enough info to troubleshoot.
-    Nothing ->
+    -- DB not yet existing is not an error but a common case, i.e. when app is
+    -- run for the first time on a new machine.
+    DbOps.DbDoesNotExist ->
+      return . Just . GeneratorNeedsMigrationWarning $
+        "Your database has not been created yet, please run `wasp db migrate-dev` to create it."
+    -- If db match check failed we don't really know what is the issue so we
+    -- suggest they call db migrate-dev and get more info.
+    DbOps.SchemaDbMatchCheckFailed ->
       return . Just . GeneratorNeedsMigrationWarning $
         "Wasp was unable to verify your database is up to date."
           <> " Running `wasp db migrate-dev` may fix this and will provide more info."
