@@ -63,7 +63,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
-        ["install"] -> Command.Call.Install
+        ("install" : installArgs) -> Command.Call.Install installArgs
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ("uninstall" : uninstallArgs) -> Command.Call.Uninstall uninstallArgs
@@ -91,7 +91,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Start startArgs -> runCommand $ start startArgs
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
-    Command.Call.Install -> runCommand install
+    Command.Call.Install installArgs -> runCommand $ install installArgs
     Command.Call.Compile -> runCommand compileCommand
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion

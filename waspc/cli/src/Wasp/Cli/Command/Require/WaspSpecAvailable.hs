@@ -9,8 +9,10 @@ import Data.Data (Typeable)
 import qualified Data.Map as M
 import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Cli.Command.Install (installArgsParser)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Util.Parser (ArgsParser (commandName))
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
@@ -52,12 +54,12 @@ instance Requirable WaspSpecAvailable where
             ++ " and update your imports from "
             ++ styleCode legacyWaspSpecPackageName
             ++ ". Then run "
-            ++ styleCode "wasp install"
+            ++ styleCode (commandName installArgsParser)
             ++ "."
       missingDepsError =
         CommandError
           "Missing or stale dependencies in project"
-          $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
+          $ "Your project dependencies are out of date. Run " ++ styleCode (commandName installArgsParser) ++ " to fix this."
 
 legacyWaspSpecPackageName :: P.PackageName
 legacyWaspSpecPackageName = "@wasp.sh/spec"
