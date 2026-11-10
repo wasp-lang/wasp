@@ -203,7 +203,7 @@ interface AuthHooks {
    * @category Hooks
    */
   onAfterSignup?: Reference<AnyFunction>;
-  /** Called once, after the user verifies their email. Receives `email` and `user`. */
+  /** Called after the user verifies their email. Receives `email` and `user`. */
   onAfterEmailVerified?: Reference<AnyFunction>;
   /**
    * Called before redirecting the user to the OAuth provider. Receives the
@@ -415,7 +415,7 @@ interface BaseAuthMethodConfig {
    * error. The `password` field is excluded from this object and handled by
    * Wasp's auth backend.
    *
-   * See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
+   * See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
    *
    * @example
    * ```ts
@@ -477,9 +477,9 @@ export interface EmailFlowConfig {
    * This route should handle the process of taking a token from the URL and
    * sending it to the server to verify the e-mail address. You can use our
    * [`verifyEmail`
-   * action](https://wasp.sh/docs/features/auth/email/create-your-own-ui#verifyemail) and
+   * action](https://wasp.sh/docs/api/wasp/client/auth#verifyemail) and
    * [`resetPassword`
-   * action](https://wasp.sh/docs/features/auth/email/create-your-own-ui#resetpassword)
+   * action](https://wasp.sh/docs/api/wasp/client/auth#resetpassword)
    * helpers for that.
    */
   clientRoute: string;
@@ -675,8 +675,8 @@ export interface Client {
    */
   baseDir?: `/${string}`;
   /**
-   * Zod schema used to validate user-defined client environment variables at
-   * build time. Wasp merges it with built-in validation for Wasp-defined env
+   * Zod schema used to validate user-defined client environment variables when
+   * Vite starts and when the client code loads. Wasp merges it with built-in validation for Wasp-defined env
    * vars when validating `import.meta.env`. Client env vars must be prefixed
    * with `REACT_APP_`. Define the schema with `defineEnvValidationSchema`
    * from `wasp/env` to make sure it is type-checked.
@@ -809,7 +809,7 @@ export interface EmailFromField {
 /**
  * WebSocket configuration.
  *
- * See [Web Sockets](https://wasp.sh/docs/features/websockets) for handler
+ * See [WebSockets](https://wasp.sh/docs/features/websockets) for handler
  * shape and client-side usage.
  *
  * @example
@@ -833,7 +833,7 @@ export interface WebSocket {
    * all app entities. If a connected socket is authenticated, Wasp stores the
    * user on `socket.data.user`.
    *
-   * See [the `websocketFn` docs](https://wasp.sh/docs/features/websockets#websocketfn).
+   * See [the `webSocketFn` docs](https://wasp.sh/docs/features/websockets#websocketfn).
    */
   fn: Reference<AnyFunction>;
   /**
@@ -1080,10 +1080,10 @@ export interface Api extends BaseSpecElement<"api"> {
    */
   entities?: EntityName[];
   /**
-   * If `true`, the handler requires the request to come from an
-   * authenticated user and receives `context.user`. Defaults to `true` when
-   * the app has auth enabled, and `false` otherwise. Set to `false` to skip
-   * parsing the JWT from the Authorization header.
+   * If `true`, the handler receives `context.user`, which is `null` for
+   * requests without an `Authorization` header. Defaults to `true` when the
+   * app has auth enabled, and `false` otherwise. Set to `false` to skip
+   * reading the session from the `Authorization` header.
    */
   auth?: boolean;
 }
@@ -1234,8 +1234,9 @@ export interface Crud extends BaseSpecElement<"crud"> {
  *
  * The default implementations map directly to Prisma calls on the entity, and
  * use the field marked with `@id` in the Prisma schema as the entity ID. Unless
- * an operation is marked with {@link CrudOperationOptions.isPublic}, Wasp
- * checks that an authenticated user is making the request.
+ * an operation is marked with {@link CrudOperationOptions.isPublic}, its
+ * default implementation checks that an authenticated user is making the
+ * request.
  *
  * CRUD operations are implemented with Wasp queries and actions. See
  * [Operations](https://wasp.sh/docs/features/data/operations/overview).
@@ -1295,6 +1296,9 @@ export interface CrudOperationOptions {
    * Use an override to validate or filter input before saving it;
    * the default `create` and `update` implementations pass client-sent data to
    * Prisma.
+   *
+   * Wasp doesn't check auth for an override, and `isPublic` has no effect on
+   * it, so check `context.user` yourself.
    */
   overrideFn?: Reference<AnyFunction>;
 }

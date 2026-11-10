@@ -131,6 +131,9 @@ const legacyWildcardRedirects: RedirectRule[] = [
   // also moved its API reference.
   permanent("/docs/api/@wasp.sh/spec",   "/docs/api/@wasp/spec"),
   permanent("/docs/api/@wasp.sh/spec/*", "/docs/api/@wasp/spec/:splat"),
+  // The API reference moved from a page per member (e.g.
+  // `/docs/api/@wasp/spec/interfaces/Server`) to a page per module.
+  permanent("/docs/api/@wasp/spec/*",    "/docs/api/@wasp/spec"),
 
   // Migration guides
   // We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}

@@ -11,6 +11,7 @@ packages:
   - packages/libs/*
   - packages/wasp-app-runner
   - web
+  - web/sdk-api-docs
   - web/tutorial-actions-executor
   - scripts/make-npm-packages
   - waspc/starters-e2e-tests
@@ -56,6 +57,7 @@ packageExtensions:
     dependencies:
       typedoc-plugin-markdown: "*"
       typedoc-docusaurus-theme: "*"
+      typedoc-plugin-missing-exports: "*"
 
 # Dev convenience only, a failed install here just warns. Scripts and CI
 # install explicitly.

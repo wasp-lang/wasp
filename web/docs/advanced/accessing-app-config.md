@@ -4,6 +4,8 @@ sidebar_label: Accessing the configuration
 description: Read the server config (frontendUrl) and the client config (apiUrl) of a Wasp app, and set them with WASP_WEB_CLIENT_URL and REACT_APP_API_URL.
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 # Accessing the configuration
 
 Whenever you start a Wasp app, you are starting two processes.
@@ -27,7 +29,7 @@ Wasp gives you runtime access to the processes' configurations through **configu
 
 ## Server configuration object
 
-The server configuration object contains these fields:
+The server configuration object contains this field, among others:
 
 - `frontendUrl: String` - Set it with env var `WASP_WEB_CLIENT_URL`.
 
@@ -62,3 +64,19 @@ import { config } from 'wasp/client'
 
 console.log(config.apiUrl)
 ```
+
+## API Reference
+
+<CardLink
+  to="../api/wasp/server#config"
+  kind="api"
+  title="config (wasp/server)"
+  description="All the fields of the server configuration object."
+/>
+
+<CardLink
+  to="../api/wasp/client#config"
+  kind="api"
+  title="config (wasp/client)"
+  description="All the fields of the client configuration object."
+/>
