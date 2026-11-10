@@ -9,12 +9,23 @@ The deployed version of this example can be found at https://waspleau-app-client
 
 ## Running in development
 
-1. `wasp install` to install the project dependencies.
-2. `wasp start db` to run the development database.
-3. `wasp db migrate-dev` to migrate the database.
-4. `wasp start` to run the app.
+1. `npm install` to install the project dependencies, which include Wasp.
+2. `npm run wasp -- start db` to run the development database.
+3. `npm run wasp -- db migrate-dev` to migrate the database.
+4. `npm run dev` to run the app.
 
 This will start your background workers as Wasp Jobs and present a dashboard UI that will auto-refresh every minute.
+
+### Installing with the development version of Wasp
+
+<!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
+
+In this repo, the example depends on the development version of Wasp, which isn't on npm, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
+
+```sh
+mise run build
+mise run reinstall-dev-wasp-app-deps
+```
 
 ## Modifying the example to track the data of your choice
 

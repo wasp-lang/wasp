@@ -297,27 +297,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-export async function waspInstall({
-  waspCliCmd,
-  pathToApp,
-}: {
-  waspCliCmd: WaspCliCmd;
-  pathToApp: PathToApp;
-}): Promise<void> {
-  const logger = createLogger("wasp-install");
-  const { stderrData, exitCode } = await spawnAndCollectOutput({
-    name: "wasp-install",
-    cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, "install"],
-    cwd: pathToApp,
-  });
-
-  if (exitCode !== 0) {
-    logger.error(`Failed to install Wasp project dependencies: ${stderrData}`);
-    process.exit(1);
-  }
-}
-
 function ensureRegexMatch(
   match: RegExpMatchArray | null,
   name: string,
