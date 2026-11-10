@@ -25,16 +25,16 @@ ghcup = "0.2.6.2"
 "mise-cabal:hlint" = "3.8"
 "mise-cabal:stan" = "0.2.1.0"
 
-jq = "1.8.2"
+jq = "latest"
 railway = "5.64.2"
 
-"github:tfausak/cabal-gild" = "1.8.4.2"
+"github:tfausak/cabal-gild" = "latest"
 
 # TODO: Provide a fallback for Linux ARM64
 # The upstream repo only distributes prebuilt binaries for Linux x64, macOS
 # (all, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
-ormolu.version = "0.9.0.0"
+ormolu.version = "latest"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
 [plugins]
