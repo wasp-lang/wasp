@@ -1,5 +1,5 @@
 {
-  "name": "make-npm-packages",
+  "name": "make-cli-npm-packages",
   "type": "module",
   "private": true,
   "dependencies": {
