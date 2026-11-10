@@ -10,7 +10,7 @@ index 788c52d..f8ca9ec 100644
  import { getTasks } from "./src/queries" with { type: "ref" };
  import { createTask, updateTask } from "./src/actions" with { type: "ref" };
  
-@@ -17,6 +19,8 @@ export default app({
+@@ -16,6 +18,8 @@ export default app({
    },
    spec: [
      route("RootRoute", "/", page(MainPage)),

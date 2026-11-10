@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Multiple domains CORS
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27" }} />
 
 This guide shows you how to configure CORS (Cross-Origin Resource Sharing) to support multiple domains in your Wasp application using custom global middleware.
 
@@ -23,7 +23,7 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Quick star
 
 ## When You Need This
 
-By default, Wasp configures CORS to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). You might need to support multiple domains when:
+By default, Wasp configures CORS in production to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). In development, it allows requests from every origin, so you'll only see the effect of this guide in production. You might need to support multiple domains when:
 
 - You have multiple domains for the same client application
 - You're building a public API
@@ -43,7 +43,6 @@ import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
 
 export default app({
   name: "CorsTest",
-  wasp: { version: "^0.24.0" },
   head: ["<link rel='icon' href='/favicon.ico' />"],
   title: "cors-test",
   server: {
@@ -115,9 +114,9 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
 };
 ```
 
-Then in your `.env.server`:
+Then set the environment variable on your production server:
 
-```bash title=".env.server"
+```bash
 CORS_ALLOWED_DOMAINS=https://app.example.com,https://admin.example.com
 ```
 
@@ -161,13 +160,18 @@ For complete control over CORS, you can set all options:
 
 ```ts title="src/middleware.ts"
 import cors from "cors";
-import { MiddlewareConfigFn } from "wasp/server";
+import { config, type MiddlewareConfigFn } from "wasp/server";
 
-export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  config.set(
+export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
+  middlewareConfig.set(
     "cors",
     cors({
-      origin: ["https://app.example.com", "https://admin.example.com"],
+      // Keep your app's own client URL, or the server blocks the Wasp client.
+      origin: [
+        ...config.allowedCORSOrigins,
+        "https://app.example.com",
+        "https://admin.example.com",
+      ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
@@ -175,7 +179,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
     }),
   );
 
-  return config;
+  return middlewareConfig;
 };
 ```
 

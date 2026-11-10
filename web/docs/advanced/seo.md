@@ -12,7 +12,7 @@ Search engine optimization (SEO) and generative engine optimization (GEO) are ab
 
 ## What Wasp does for you
 
-When you run `wasp build`, your app is automatically optimized for production. You don't need to configure anything for:
+When you run <InlineWaspCommand npm="npm run build" global="wasp build" />, your app is automatically optimized for production. You don't need to configure anything for:
 
 - **Bundling and minification.** Wasp uses Vite to minify your JavaScript and CSS, and split it by page, so browsers only download the code each page needs. Page speed is a ranking factor for search engines.
 - **Asset hashing.** [Assets imported from your source code](/advanced/client-customization/static-assets.md#importing-an-asset-as-url) get hashed filenames, so browsers can cache them aggressively.

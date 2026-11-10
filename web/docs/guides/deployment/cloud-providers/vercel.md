@@ -55,7 +55,7 @@ Please check Vercel's [pricing page](https://vercel.com/pricing#:~:text=Vercel%2
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. Make sure your Wasp app is built by running <InlineWaspCommand npm="npm run build" global="wasp build" /> in the project dir.
 1. Create a [Vercel](https://vercel.com/signup) account.
 1. Log in with the Vercel CLI by running `npx vercel login`. A browser tab will open to authenticate you.
 1. Go to your Wasp project root and run `npx vercel link`. Follow the prompts to link your project to a new Vercel project for your Wasp app's server (e.g. `my-wasp-app-server`), and use the default settings otherwise.
@@ -64,21 +64,13 @@ To get started, follow these steps:
 
 We'll use [Supabase](https://supabase.com/) from the Vercel Marketplace. From your project root (which should now be linked to the server project), run:
 
-```shell
-npx vercel integration add supabase
-```
+<PackageManagerCommand npm="npx vercel integration add supabase" />
 
 The first time, the CLI will ask you to accept the Marketplace terms in your browser. Open the link it prints, accept the terms and run the command again. Vercel creates a Supabase database, connects it to your server project and adds a set of `POSTGRES_*` and `SUPABASE_*` environment variables to it.
 
 Wasp expects the connection string in the `DATABASE_URL` environment variable, so we need to copy it over. Use the value of `POSTGRES_PRISMA_URL`: this is Supabase's transaction-mode pooler, which is the one [recommended for serverless](https://supabase.com/docs/guides/database/connecting-to-postgres#pooler-transaction-mode). You can use the CLI to copy the value from one environment variable to the other:
 
-```shell
-npx vercel env run -- printenv POSTGRES_PRISMA_URL
-# Copy the line that starts with "postgres://"
-
-npx vercel env add --no-sensitive DATABASE_URL production
-# Paste it when prompted
-```
+<PackageManagerCommand npm={"npx vercel env run -- printenv POSTGRES_PRISMA_URL\n# Copy the line that starts with \"postgres://\"\n\nnpx vercel env add --no-sensitive DATABASE_URL production\n# Paste it when prompted"} />
 
 Prisma migrations can't run through the transaction-mode pooler, so the build command in the next section runs them against `POSTGRES_URL_NON_POOLING` (Supabase's session-mode pooler) instead.
 
@@ -118,7 +110,7 @@ The Supabase database is linked to your Vercel account. If you remove the integr
    ```
 
    <small>
-     `/migrations` is excluded because `wasp build` already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
+     `/migrations` is excluded because <InlineWaspCommand npm="npm run build" global="wasp build" /> already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
    </small>
 
 1. Add the remaining [required server env variables](../../../advanced/env-vars.md#server-general-configuration) to the production environment, one at a time, with `npx vercel env add <NAME> production`:
@@ -131,9 +123,7 @@ The Supabase database is linked to your Vercel account. If you remove the integr
 
 1. Deploy the server from your project root:
 
-   ```shell
-   npx vercel deploy --prod
-   ```
+   <PackageManagerCommand npm="npx vercel deploy --prod" />
 
    Vercel uploads the project, runs the build command (including the database migrations) and turns the bundled server into a function. Once it finishes, your server is live at `https://my-wasp-app-server.vercel.app`.
 
@@ -156,16 +146,11 @@ The client is deployed as a static site from the `.wasp/out/web-app/build` direc
 
 1. Next, create the Vercel project for the client:
 
-   ```shell
-   npx vercel project add my-wasp-app-client
-   ```
+   <PackageManagerCommand npm="npx vercel project add my-wasp-app-client" />
 
 1. Finally, deploy the build directory to the client project:
 
-   ```shell
-   cd .wasp/out/web-app/build
-   npx vercel deploy --prod --yes --project my-wasp-app-client
-   ```
+   <PackageManagerCommand npm={"cd .wasp/out/web-app/build\nnpx vercel deploy --prod --yes --project my-wasp-app-client"} />
 
 That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
 
@@ -173,12 +158,10 @@ That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
 
 When you make updates and need to redeploy:
 
-1. Run `wasp build` to rebuild your app.
+1. Run <InlineWaspCommand npm="npm run build" global="wasp build" /> to rebuild your app.
 1. Deploy the server from the project root:
 
-   ```shell
-   npx vercel deploy --prod
-   ```
+   <PackageManagerCommand npm="npx vercel deploy --prod" />
 
 1. Rebuild the client from the project root:
 
@@ -188,7 +171,4 @@ When you make updates and need to redeploy:
 
    And then deploy the client with:
 
-   ```shell
-   cd .wasp/out/web-app/build
-   npx vercel deploy --prod --yes --project my-wasp-app-client
-   ```
+   <PackageManagerCommand npm={"cd .wasp/out/web-app/build\nnpx vercel deploy --prod --yes --project my-wasp-app-client"} />

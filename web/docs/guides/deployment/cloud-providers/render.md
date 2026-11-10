@@ -17,7 +17,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 This guide shows you how to deploy the server, client, and provision a database on Render.
 
-Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
+Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run <InlineWaspCommand npm="npm run build" global="wasp build" /> locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
 
 ### Prerequisites
 
@@ -25,7 +25,7 @@ To get started, follow these steps:
 
 1. Create a [Render](https://render.com/) account.
 1. Push your Wasp project to a Git repository (GitHub, GitLab, or Bitbucket).
-1. Generate your initial database migrations locally by running `wasp db migrate-dev` and commit the `migrations/` directory. Render needs these migration files in the repo to set up your database.
+1. Generate your initial database migrations locally by running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and commit the `migrations/` directory. Render needs these migration files in the repo to set up your database.
 
 ### Create the render.yaml Blueprint
 
@@ -41,10 +41,8 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
-      wasp install &&
-      wasp build &&
+      npm ci &&
+      npm run build &&
       cd .wasp/out/server &&
       npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
@@ -70,10 +68,8 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp/cli@<wasp-version> &&
-      export PATH="$(npm prefix -g)/bin:$PATH" &&
-      wasp install &&
-      wasp build &&
+      npm ci &&
+      npm run build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
     envVars:
@@ -98,7 +94,6 @@ You should replace the following values for your app:
 | Variable | Value | Example |
 |---|---|---|
 | `<app-name>` | A unique name for your app | `my-wasp-app` |
-| `<wasp-version>` | The Wasp CLI version you're using | `0.24` |
 | `<plan>` | The Render plan for your services | `free` |
 | `<region>` | The Render region closest to your users | `oregon` |
 
@@ -157,7 +152,7 @@ Render auto-deploys when it detects a new commit on the configured branch. Just 
 git push origin main
 ```
 
-If you have new database model changes, make sure to run `wasp db migrate-dev` locally first and commit the generated migration files along with your code changes. The server runs `prisma migrate deploy` on startup, so new migrations are applied automatically on each deploy.
+If you have new database model changes, make sure to run <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> locally first and commit the generated migration files along with your code changes. The server runs `prisma migrate deploy` on startup, so new migrations are applied automatically on each deploy.
 
 :::note Build time
 Both services install Wasp and compile the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.

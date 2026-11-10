@@ -197,7 +197,7 @@ We provide some helper env variables in development:
 
 ## Defining Env Vars in Development
 
-During development (`wasp start`), there are two ways to provide env vars to your Wasp project:
+During development (<InlineWaspCommand npm="npm run dev" global="wasp start" />), there are two ways to provide env vars to your Wasp project:
 
 1. Using `.env` files. **(recommended)**
 2. Using shell. (useful for overrides)
@@ -234,7 +234,7 @@ By default, in the `.gitignore` file that comes with a new Wasp app, we ignore a
 
 ### 2. Using Shell
 
-If you set environment variables in the shell where you run your Wasp commands (e.g., `wasp start`), Wasp will recognize them.
+If you set environment variables in the shell where you run your Wasp commands (e.g., <InlineWaspCommand npm="npm run dev" global="wasp start" />), Wasp will recognize them.
 
 You can set environment variables in the `.profile` or a similar file, which will set them permanently, or you can set them temporarily by defining them at the start of a command (`SOME_VAR_NAME=SOMEVALUE wasp start`).
 
