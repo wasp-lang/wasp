@@ -2,6 +2,7 @@ module Wasp.Project.WaspNpmPackage
   ( -- * Versions
     InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
+    tryGettingInstalledWaspNpmPackagePeerDeps,
     doesVersionMatchDeclaredVersion,
     WaspNpmPackageDeclaration (..),
     getWaspNpmPackageDeclaration,
@@ -14,13 +15,16 @@ module Wasp.Project.WaspNpmPackage
   )
 where
 
+import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
+import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List (find, isInfixOf)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.NodeCommand (NodeCommand (..))
 import Wasp.NpmPackageNames (waspNpmPackageName)
@@ -41,6 +45,20 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
     parseVersion = \case
       "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
       version -> first (BrokenWaspNpmPackage . show) $ SV.parseVersion version
+
+-- | The packages the generated code needs in every app, e.g. React or Express.
+-- They are the peer dependencies of \@wasp/wasp, and its package.json is the
+-- only place that lists them.
+tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
+tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
+  (>>= parsePeerDeps) <$> evaluateOnInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
+  where
+    peerDepsAsJson packageJson = "JSON.stringify(" ++ packageJson ++ ".peerDependencies ?? {})"
+    parsePeerDeps =
+      first BrokenWaspNpmPackage
+        . fmap (Npm.Dependency.fromList . M.toList)
+        . Aeson.eitherDecode
+        . BLU.fromString
 
 -- | Evaluates, in Node, the JS expression that the function builds from the JS
 -- expression of the installed \@wasp/wasp's package.json, and returns its
