@@ -745,12 +745,10 @@ test-suite waspc-e2e-tests
     E2E.Wasp
     FileSystem
     ShellCommands
-    SnapshotTest
     Test
     TestLogging
     Tests.Fixtures
     Tests.IncrementalTypeCheckingTest
-    Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
