@@ -1,47 +1,41 @@
-export function parseProcessArgsOrThrow(args: string[]): {
+import { Command } from "commander";
+
+export interface AnalyzeArgs {
   waspTsSpecPath: string;
   tsconfigPath: string;
   projectRootDir: string;
   specResultPath: string;
   entityNames: string[];
-} {
-  if (args.length !== 8 || args[2] !== "analyze") {
-    throw new Error(
-      "Usage: node run.js analyze <path to main.wasp.ts> <path to tsconfig.wasp.json> <project root dir> <path to spec result JSON file> <entity names json>",
+}
+
+export function makeCli(
+  analyze: (args: AnalyzeArgs) => Promise<void>,
+): Command {
+  const program = new Command();
+  program
+    .command("analyze")
+    .argument("<waspTsSpecPath>", "path to main.wasp.ts")
+    .argument("<tsconfigPath>", "path to tsconfig.wasp.json")
+    .argument("<projectRootDir>", "project root dir")
+    .argument("<specResultPath>", "path to the spec result JSON file")
+    .argument("<entityNamesJson>", "entity names, as a JSON array")
+    .action(
+      (
+        waspTsSpecPath: string,
+        tsconfigPath: string,
+        projectRootDir: string,
+        specResultPath: string,
+        entityNamesJson: string,
+      ) =>
+        analyze({
+          waspTsSpecPath,
+          tsconfigPath,
+          projectRootDir,
+          specResultPath,
+          entityNames: getValidEntityNamesOrThrow(entityNamesJson),
+        }),
     );
-  }
-
-  const [
-    _node,
-    _runjs,
-    _command,
-    waspTsSpecPath,
-    tsconfigPath,
-    projectRootDir,
-    specResultPath,
-    entityNamesJson,
-  ] = args;
-  if (
-    typeof waspTsSpecPath !== "string" ||
-    typeof tsconfigPath !== "string" ||
-    typeof projectRootDir !== "string" ||
-    typeof specResultPath !== "string" ||
-    typeof entityNamesJson !== "string"
-  ) {
-    throw new Error(
-      "All arguments must be strings: <path to main.wasp.ts> <path to tsconfig.wasp.json> <project root dir> <path to spec result JSON file> <entity names json>",
-    );
-  }
-
-  const entityNames = getValidEntityNamesOrThrow(entityNamesJson);
-
-  return {
-    waspTsSpecPath,
-    tsconfigPath,
-    projectRootDir,
-    specResultPath,
-    entityNames,
-  };
+  return program;
 }
 
 function getValidEntityNamesOrThrow(entityNamesJson: string): string[] {

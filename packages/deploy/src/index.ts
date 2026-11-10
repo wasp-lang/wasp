@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { Command } from "commander";
 import { $, syncProcessCwd } from "zx";
 import { waspSays } from "./common/terminal.js";

@@ -21,9 +21,6 @@
   "engines": {
     "node": ">=24.22.1"
   },
-  "bin": {
-    "__internal_wasp_spec__": "dist/src/run.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -32,7 +29,8 @@
     "./internal": {
       "types": "./dist/src/internal.d.ts",
       "default": "./dist/src/internal.js"
-    }
+    },
+    "./internal/run": "./dist/src/run.js"
   },
   "files": [
     "dist/src"
@@ -48,6 +46,7 @@
     "test:watch": "pnpm run build && vitest --reporter=verbose"
   },
   "dependencies": {
+    "commander": "catalog:",
     "es-toolkit": "^1.49.0",
     "estree-util-scope": "^1.0.0",
     "estree-walker": "^3.0.3",
