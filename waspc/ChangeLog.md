@@ -14,11 +14,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
-- `context.user` is now typed `AuthUser | null` and `socket.data.user` is typed `AuthUser | null | undefined`, matching their runtime values. Checks like `if (!context.user)` keep working, but checking `context.user` against `undefined` no longer narrows it to `AuthUser`, and passing it where `AuthUser | undefined` is expected is now a type error. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- A submitted Job's `jobId` is now typed `string | null`, matching its runtime value when pg-boss doesn't create the Job because of its `singletonKey`. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- `verifyEmail`'s result no longer has a `reason` field, which the server never set. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- Queries and Actions now receive falsy payloads (`false`, `0`, `""` and `null`) as they were sent, instead of `{}`. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- `.refine()` and `.loose()` on a client `envValidationSchema` now apply, instead of being silently ignored. A `.refine()` that never ran can now fail your build. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
+- Some SDK types have been tweaked to match the actual runtime behavior. Check the [migration guide](https://wasp.sh/docs/0.27/migration-guide) to see if your app is affected. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
 
 ### 🎉 New Features
 
@@ -43,11 +39,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
-- The default CRUD `get` operation now works on Entities whose ID field isn't named `id`. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- The Mailgun and dummy email senders no longer use `undefined <email>` as the sender when `from.name` is omitted. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- `routes.<name>.build()` no longer drops a path param whose value is `0`. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- `pgBoss.cancel()` and `pgBoss.resume()` on a submitted Job are now typed with what they return (`jobs`, `requested` and `updated`), instead of `void`. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
-- Actions no longer hang in tests that use `renderInContext` or `WaspTestWrapper` from `wasp/client/test`. ([#5294](https://github.com/wasp-lang/wasp/pull/5294))
 
 ### 🔧 Small improvements
 
