@@ -896,6 +896,7 @@ wasp-app/src/features/auth/pages/ProfilePage.tsx
 wasp-app/src/features/auth/pages/RequestPasswordReset.tsx
 wasp-app/src/features/auth/pages/Signup.tsx
 wasp-app/src/features/auth/pages/auth-ui.ts
+wasp-app/src/features/auth/password.ts
 wasp-app/src/features/auth/providers/discord.ts
 wasp-app/src/features/auth/providers/email.ts
 wasp-app/src/features/auth/providers/github.ts

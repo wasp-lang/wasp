@@ -6,8 +6,8 @@ import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import mitt from "mitt";
-import ky from "ky";
 import * as z from "zod";
+import ky from "ky";
 import "superjson";
 // \0vite/modulepreload-polyfill.js
 (function polyfill() {
