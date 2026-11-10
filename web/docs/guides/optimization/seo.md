@@ -10,7 +10,7 @@ import { CardLink } from "@site/src/components/CardLink"
 
 # Optimizing for search and AI crawlers (SEO & GEO)
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
 
 Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible and attractive to search engines, social media platforms, and AI assistants.
 
@@ -31,7 +31,7 @@ We recommend **first to measure your app** against common industry tools and see
 SEO can come with costs; at a minimum, the cost of development time and maintenance burden. So while there's always room for improvement, it's important to focus on the techniques that will give you the biggest boost. A little improvement can go a long way, and you don't need to get a perfect score to see significant benefits.
 
 :::warning Always run measurements against your production build
-Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](../../deployment/local-testing.md) or [after deploying](../../deployment/overview.md).
+Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against <InlineWaspCommand npm="npm run dev" global="wasp start" /> won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](../../deployment/local-testing.md) or [after deploying](../../deployment/overview.md).
 :::
 
 ### Lighthouse
@@ -57,19 +57,25 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line:
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](../../deployment/local-testing.md) shows how to set them up:
 
-```sh
-# First, build and start the production build of your app:
-$ wasp build
-$ wasp build start
+<WaspCommand npm={`# First, build and start the production build of your app:
+npm run build
+npm run preview
 
 # While the server is running, open another terminal and run Lighthouse:
-$ npx lighthouse http://localhost:3000 --preset=desktop --view
+npx lighthouse http://localhost:3000 --preset=desktop --view
 
 # You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
-# Remove the --preset=desktop argument to test the mobile experience instead.
-```
+# Remove the --preset=desktop argument to test the mobile experience instead.`} global={`# First, build and start the production build of your app:
+wasp build
+wasp build start
+
+# While the server is running, open another terminal and run Lighthouse:
+npx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.`} />
 
 It will take a minute to run (you'll see an automated browser window while it runs), and then it will save your report as an HTML file and open it.
 
@@ -179,7 +185,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), {
       // highlight-next-line
       prerender: true

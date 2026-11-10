@@ -12,7 +12,7 @@ description: "Step 2 of the Wasp tutorial explains the files of a new project: m
     By default, Wasp will create a TypeScript project. We recommend using TypeScript in new projects, and you can always mix-and-match TypeScript and JavaScript files.
 
     To use JavaScript in the main page, you must manually rename the file
-    `src/MainPage.tsx` to `src/MainPage.jsx`. Restart `wasp start` after you do this.
+    `src/MainPage.tsx` to `src/MainPage.jsx`. Restart <InlineWaspCommand npm="npm run dev" global="wasp start" /> after you do this.
 
     No updates to the `main.wasp.ts` file are necessary - it stays the same regardless of the language you use.
 
@@ -102,8 +102,6 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  // Pins the version of Wasp to use.
-  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp", // Used as the browser tab title.
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // Add your specs here so Wasp knows to register them.

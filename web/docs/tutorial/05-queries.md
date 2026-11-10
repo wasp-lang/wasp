@@ -51,7 +51,7 @@ export default app({
 
 <ShowForTs>
   :::note
-  To generate the types used in the next section, make sure that `wasp start` is still running.
+  To generate the types used in the next section, make sure that <InlineWaspCommand npm="npm run dev" global="wasp start" /> is still running.
   :::
 </ShowForTs>
 </TutorialAction>

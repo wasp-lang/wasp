@@ -18,7 +18,7 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
 ## When and what is sent?
 
 - Information is sent via HTTPS request when `wasp` CLI command is invoked.
-  Information is sent no more than three times in a period of 12 hours (sending is paused for 12 hours after the last attempt to send it, separately for `wasp build` command, for `wasp deploy` command, and for all other commands). Exact information as it is sent:
+  Information is sent no more than three times in a period of 12 hours (sending is paused for 12 hours after the last attempt to send it, separately for <InlineWaspCommand npm="npm run build" global="wasp build" /> command, for <InlineWaspCommand npm="npm run wasp -- deploy" global="wasp deploy" /> command, and for all other commands). Exact information as it is sent:
 
   ```json
   {

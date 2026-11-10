@@ -1,7 +1,7 @@
 ---
 title: "Dependencies: npm packages and overrides in Wasp"
 sidebar_label: Dependencies
-description: Add npm packages to a Wasp project in package.json, override a version Wasp manages with wasp.overriddenDeps, and change the 7-day min-release-age.
+description: Add npm packages to a Wasp project in package.json, override a version Wasp manages with npm overrides or wasp.overriddenDeps, and change the 7-day min-release-age.
 ---
 
 # Dependencies
@@ -12,21 +12,23 @@ In a Wasp project, dependencies are defined in a standard way for JavaScript pro
 
 To add a new package, like `date-fns` (a great date handling library), you use `npm`:
 
-```bash
-npm install date-fns
-```
+<PackageManagerCommand npm="npm install date-fns" />
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
-You will notice that there are some other packages in the `dependencies` section, like `react` and `wasp`. These are the packages that Wasp uses internally, and you should not modify or remove them.
+You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't modify or remove them.
 
 ### Using Packages that are Already Used by Wasp Internally
 
-Wasp internally uses certain dependencies (e.g. React, Prisma, Vite) with specific versions. By default, you cannot specify a different version for these packages - if you try, you'll get an error telling you which version Wasp requires.
+Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run <InlineWaspCommand npm="npm run wasp -- deps" global="wasp deps" /> to see them.
+
+npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
+
+The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
 
 #### Overriding Wasp's Dependencies (Advanced)
 
-If you need to use a different version of a Wasp-managed dependency, you can override it using the `wasp.overriddenDeps` field in your `package.json`. This is an advanced feature intended for:
+If you need to use a different version of a Wasp-managed dependency, you can override it. This is an advanced feature intended for:
 
 - Testing newer versions of dependencies before Wasp officially supports them
 - Working around bugs in a specific dependency version
@@ -49,15 +51,15 @@ If you find the need to override any dependency, we'd appreciate for you to [pos
 
 :::
 
-To override a dependency, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
+To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 <Tabs>
   <TabItem value="before" label="Before">
     ```json title="package.json"
     {
       "dependencies": {
-        "react": "19.2.1",
-        "react-dom": "19.2.1"
+        "react": "^19.2.1",
+        "react-dom": "^19.2.1"
       }
     }
     ```
@@ -70,38 +72,40 @@ To override a dependency, add the `wasp` field to your `package.json` with an `o
         "react": "18.2.0",
         "react-dom": "18.2.0"
       },
-      "wasp": {
-        "overriddenDeps": {
-          "react": "19.2.1",
-          "react-dom": "19.2.1"
-        }
+      "overrides": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
       }
     }
     ```
   </TabItem>
 </Tabs>
 
-In this example:
-- You want to use React 18.2.0 (specified in `dependencies`)
-- Wasp requires React 19.2.1 (specified in `overriddenDeps`)
-- By declaring this, you acknowledge you're deviating from Wasp's tested version
+To override a dependency that the generated server lists, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
 
-When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
+```json title="package.json"
+{
+  "dependencies": {
+    "socket.io": "^4.8.0"
+  },
+  "wasp": {
+    "overriddenDeps": {
+      "socket.io": "^4.6.1"
+    }
+  }
+}
+```
 
-:::note
-
-If you need the override to apply to transitive dependencies as well (dependencies of your dependencies), you can use npm's built-in [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) feature alongside `wasp.overriddenDeps`.
-
-:::
+By declaring this, you acknowledge you're deviating from Wasp's tested version. When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 
 ### Supply Chain Protection
 
 New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
 
+The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`, so you can upgrade Wasp on the day a release comes out. Keep this line when you edit the file.
+
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 
-```bash
-npm install some-package --min-release-age=0
-```
+<PackageManagerCommand npm="npm install some-package --min-release-age=0" />
 
 Or you can adjust the value in your project's `.npmrc` file.

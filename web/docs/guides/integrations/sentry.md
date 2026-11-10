@@ -32,9 +32,7 @@ After creating each project, you'll receive a unique DSN (Data Source Name) that
 
 Install the Sentry SDKs:
 
-```bash
-npm install @sentry/node @sentry/react
-```
+<PackageManagerCommand npm="npm install @sentry/node @sentry/react" />
 
 ### 3. Configure your Wasp file
 
@@ -47,7 +45,6 @@ import { setupServer } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {

@@ -45,7 +45,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -146,7 +145,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 Yay, we've successfully set up Keycloak Auth!
 
-Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
+Running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and <InlineWaspCommand npm="npm run dev" global="wasp start" /> should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).
 
 ## Default Behaviour
@@ -158,7 +157,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -211,7 +209,6 @@ import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

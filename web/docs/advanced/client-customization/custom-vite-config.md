@@ -58,9 +58,9 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
 | `build.outDir` | `".wasp/out/web-app/build/"` | Build artifacts must go to the location Wasp expects for deployment. |
-| `server.port` | dynamically assigned | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it. |
+| `server.port` | dynamically assigned | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [<InlineWaspCommand npm="npm run dev -- --client-port" global="wasp start --client-port" />](#custom-dev-server-port) to control it. |
 | `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
-| `preview.port` | dynamically assigned | Same as `server.port`, but for the preview server that [`wasp build start`](../../deployment/local-testing.md) runs. Use [`wasp build start --client-port`](../cli.md#project-commands) to control it. |
+| `preview.port` | dynamically assigned | Same as `server.port`, but for the preview server that [<InlineWaspCommand npm="npm run preview" global="wasp build start" />](../../deployment/local-testing.md) runs. Use [<InlineWaspCommand npm="npm run preview -- --client-port" global="wasp build start --client-port" />](../cli.md#project-commands) to control it. |
 
 ## Customization
 
@@ -97,7 +97,7 @@ Below are some examples of how you can customize the Vite config.
 
 ### Changing the Dev Server Behaviour
 
-If you want Vite to open the browser automatically when you run `wasp start`, you can do that by customizing the `open` option.
+If you want Vite to open the browser automatically when you run <InlineWaspCommand npm="npm run dev" global="wasp start" />, you can do that by customizing the `open` option.
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
@@ -113,11 +113,9 @@ export default defineConfig({
 
 ### Custom Dev Server Port {#custom-dev-server-port}
 
-`wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
+<InlineWaspCommand npm="npm run dev" global="wasp start" /> automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
-```bash
-wasp start --client-port 4000
-```
+<WaspCommand npm="npm run dev -- --client-port 4000" global="wasp start --client-port 4000" />
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 
@@ -125,9 +123,7 @@ Chrome DevTools support [mapping a page's resources to a folder](https://develop
 
 1. Install the plugin as a **dev dependency**:
 
-```bash
-npm i -D vite-plugin-devtools-json
-```
+<PackageManagerCommand npm="npm i -D vite-plugin-devtools-json" />
 
 2. Extend your `vite.config.{ts,js}`:
 
@@ -144,7 +140,7 @@ export default defineConfig({
 })
 ```
 
-3. Start your app with `wasp start`, open **Chrome DevTools → Sources → Workspace** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite's HMR updates the browser instantly!
+3. Start your app with <InlineWaspCommand npm="npm run dev" global="wasp start" />, open **Chrome DevTools → Sources → Workspace** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite's HMR updates the browser instantly!
 
 :::tip Path normalisation
 The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Docker Desktop path fixes contributed by the Wasp community – make sure you are on version 0.4.0 or greater.

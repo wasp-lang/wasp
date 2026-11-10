@@ -34,7 +34,7 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
-    wasp start
+    npm run dev
 ```
 
 ## Available Templates
@@ -51,9 +51,7 @@ Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments
 
 Use this template:
 
-```
-wasp new <project-name> -t saas
-```
+<WaspCommand npm="npx @wasp/cli@latest new <project-name> -t saas" global="wasp new <project-name> -t saas" />
 
 ### Basic Template
 
@@ -61,13 +59,11 @@ wasp new <project-name> -t saas
 
 The default template: a to-do app with email and password auth, tasks and tags, styled with Tailwind. It covers the features most apps need, like pages, auth, entities, queries, and actions.
 
-When you run it for the first time, it opens on a welcome page that walks you through the app: creating a user and logging in, managing tasks, inspecting your app and data with `wasp studio` and `wasp db studio`, finding the docs for each Wasp feature, and deploying.
+When you run it for the first time, it opens on a welcome page that walks you through the app: creating a user and logging in, managing tasks, inspecting your app and data with <InlineWaspCommand npm="npm run wasp -- studio" global="wasp studio" /> and <InlineWaspCommand npm="npm run wasp -- db studio" global="wasp db studio" />, finding the docs for each Wasp feature, and deploying.
 
 Use this template:
 
-```
-wasp new <project-name> -t basic
-```
+<WaspCommand npm="npx @wasp/cli@latest new <project-name> -t basic" global="wasp new <project-name> -t basic" />
 
 ### Minimal Template
 
@@ -77,6 +73,4 @@ A minimal starter template that features just a single page. Perfect for startin
 
 Use this template:
 
-```
-wasp new <project-name> -t minimal
-```
+<WaspCommand npm="npx @wasp/cli@latest new <project-name> -t minimal" global="wasp new <project-name> -t minimal" />

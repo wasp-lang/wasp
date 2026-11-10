@@ -28,9 +28,7 @@ To deploy to Fly.io using Wasp CLI:
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 
-```shell
-wasp deploy fly launch my-wasp-app dfw
-```
+<WaspCommand npm="npm run wasp -- deploy fly launch my-wasp-app dfw" global="wasp deploy fly launch my-wasp-app dfw" />
 
 <small>
   Please do not CTRL-C or exit your terminal while the commands are running.
@@ -59,7 +57,7 @@ You should include these files in your version control so that you can deploy yo
 
 <LaunchCommandEnvVars />
 
-If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
+If your app requires any additional environment variables, use the <InlineWaspCommand npm="npm run wasp -- deploy fly cmd secrets set" global="wasp deploy fly cmd secrets set" /> command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
 
 <CiCdMention />
 
@@ -69,9 +67,7 @@ Setting up a custom domain is a three-step process:
 
 1. You need to add your domain to your Fly client app. You can do this by running:
 
-```shell
-wasp deploy fly cmd --context client certs create mycoolapp.com
-```
+<WaspCommand npm="npm run wasp -- deploy fly cmd --context client certs create mycoolapp.com" global="wasp deploy fly cmd --context client certs create mycoolapp.com" />
 
 :::note Use Your Domain
 Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section.
@@ -99,9 +95,7 @@ You can validate your ownership of mycoolapp.com by:
 
 3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
 
-```shell
-wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
-```
+<WaspCommand npm="npm run wasp -- deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com" global="wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com" />
 
 <small>
   We need to do this to keep our CORS configuration up to date.
@@ -113,9 +107,7 @@ That's it, your app should be available at `https://mycoolapp.com`!
 
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
-```shell
-wasp deploy fly cmd --context client certs create www.mycoolapp.com
-```
+<WaspCommand npm="npm run wasp -- deploy fly cmd --context client certs create www.mycoolapp.com" global="wasp deploy fly cmd --context client certs create www.mycoolapp.com" />
 
 Once you do that, you will need to add another DNS record for your domain. It should be a CNAME record for `www` with the value of your root domain.
 Here's an example:
@@ -143,23 +135,17 @@ If your app requires any other server-side environment variables (like social au
 1. Initially, in the `launch` or `setup` commands with the [`--server-secret` option](#fly-launch-environment-variables)
 2. After the app has already been deployed by using the `secrets set` command:
 
-    ```
-    wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
-    ```
+    <WaspCommand npm="npm run wasp -- deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server" global="wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server" />
 
 ### Client Environment Variables
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
-```
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly launch my-wasp-app dfw"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw"} />
 
 or
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
-```
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly deploy"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy"} />
 
 Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
 
@@ -191,15 +177,13 @@ fly platform regions
 
 If you have multiple organizations, you can specify a `--org` option. For example:
 
-```shell
-wasp deploy fly launch my-wasp-app dfw --org hive
-```
+<WaspCommand npm="npm run wasp -- deploy fly launch my-wasp-app dfw --org hive" global="wasp deploy fly launch my-wasp-app dfw --org hive" />
 
 ## Building Locally
 
 Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
 
-If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
+If you want to build locally, supply the `--build-locally` option to <InlineWaspCommand npm="npm run wasp -- deploy fly launch" global="wasp deploy fly launch" /> or <InlineWaspCommand npm="npm run wasp -- deploy fly deploy" global="wasp deploy fly deploy" />.
 
 #### Using a custom PostgreSQL database
 
@@ -212,10 +196,9 @@ We have crafted a small guide on [how to create a custom Docker image with PostG
 :::tip
 You only need to specify the Docker image once, when creating the database:
 
-```shell
-wasp deploy fly create-db <region> --db-image <custom-postgres-image>
-wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
-```
+<WaspCommand npm={`npm run wasp -- deploy fly create-db <region> --db-image <custom-postgres-image>
+npm run wasp -- deploy fly launch <app-name> <region> --db-image <custom-postgres-image>`} global={`wasp deploy fly create-db <region> --db-image <custom-postgres-image>
+wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>`} />
 :::
 
 ## API Reference
@@ -224,9 +207,7 @@ wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 
 `launch` is a convenience command that runs `setup`, `create-db`, and `deploy` in sequence.
 
-```shell
-wasp deploy fly launch <app-name> <region>
-```
+<WaspCommand npm="npm run wasp -- deploy fly launch <app-name> <region>" global="wasp deploy fly launch <app-name> <region>" />
 
 It accepts the following arguments:
 
@@ -238,13 +219,13 @@ It accepts the following arguments:
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
-Running `wasp deploy fly launch` is the same as running the following commands:
+Running <InlineWaspCommand npm="npm run wasp -- deploy fly launch" global="wasp deploy fly launch" /> is the same as running the following commands:
 
-```shell
-wasp deploy fly setup <app-name> <region>
+<WaspCommand npm={`npm run wasp -- deploy fly setup <app-name> <region>
+npm run wasp -- deploy fly create-db <region>
+npm run wasp -- deploy fly deploy`} global={`wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
-wasp deploy fly deploy
-```
+wasp deploy fly deploy`} />
 
 #### Database options
 
@@ -256,17 +237,13 @@ wasp deploy fly deploy
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
-```
-wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
-```
+<WaspCommand npm="npm run wasp -- deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>" global="wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>" />
 
 ##### Client
 
 If you've added any [client-side environment variables](../../../advanced/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
-```
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly launch my-wasp-app dfw"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw"} />
 
 <CustomServerUrlOption provider="fly" command="launch" example="my-wasp-app dfw" />
 
@@ -275,9 +252,7 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
 It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy for the client or server apps.
 
-```shell
-wasp deploy fly setup <app-name> <region>
-```
+<WaspCommand npm="npm run wasp -- deploy fly setup <app-name> <region>" global="wasp deploy fly setup <app-name> <region>" />
 
 It accepts the following arguments:
 
@@ -304,9 +279,7 @@ You should only run `setup` once per app. If you run it multiple times, it creat
 
 The `create-db` command creates a new database for your app.
 
-```shell
-wasp deploy fly create-db <region>
-```
+<WaspCommand npm="npm run wasp -- deploy fly create-db <region>" global="wasp deploy fly create-db <region>" />
 
 It accepts the following arguments:
 
@@ -324,23 +297,17 @@ You should only run `create-db` once per app. If you run it multiple times, it c
 
 ### `deploy`
 
-```shell
-wasp deploy fly deploy
-```
+<WaspCommand npm="npm run wasp -- deploy fly deploy" global="wasp deploy fly deploy" />
 
 The `deploy` command pushes your built client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
-```shell
-wasp deploy fly deploy
-```
+<WaspCommand npm="npm run wasp -- deploy fly deploy" global="wasp deploy fly deploy" />
 
 If you've added any [client-side environment variables](../../../advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
-```
+<WaspCommand npm={"REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly deploy"} global={"REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy"} />
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
@@ -350,6 +317,4 @@ You must specify your client-side environment variables every time you redeploy 
 
 If you want to run arbitrary Fly commands (for example `fly secrets list` for your server app), here's how to do it:
 
-```shell
-wasp deploy fly cmd secrets list --context server
-```
+<WaspCommand npm="npm run wasp -- deploy fly cmd secrets list --context server" global="wasp deploy fly cmd secrets list --context server" />

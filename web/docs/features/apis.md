@@ -51,7 +51,7 @@ Express answers `HEAD` requests with the `GET` api on the same path, so a `HEAD`
 
 <ShowForTs>
   :::note
-  To make sure the Wasp compiler generates the types for APIs for use in the NodeJS implementation, you should add your `api`s to your Wasp file first _and_ keep the `wasp start` command running.
+  To make sure the Wasp compiler generates the types for APIs for use in the NodeJS implementation, you should add your `api`s to your Wasp file first _and_ keep the <InlineWaspCommand npm="npm run dev" global="wasp start" /> command running.
   :::
 </ShowForTs>
 

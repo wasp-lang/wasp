@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Adding `<meta>` tags to your Wasp app
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27" }} />
 
 This guide shows you how to set up meta tags for your Wasp application to improve SEO and enable rich previews when your app is shared on platforms like Slack, X, or Discord.
 
@@ -24,7 +24,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
   title: "My App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
@@ -52,28 +51,28 @@ export default app({
 
 ### Setting metadata for a specific page
 
-You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. This allows you to customize the metadata based on the content of each page. These tags will only be included in the page when the component is being shown, so it's better to add them to the top-most level if possible.
+You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. React moves the tags into the document's `<head>` for you, so render them anywhere in the component, without a `<head>` wrapper. This allows you to customize the metadata based on the content of each page. React only adds these tags while it shows the component, so it's better to add them to the top-most level if possible.
+
+The page's tags add to the ones from `head` in `main.wasp.ts`. They don't replace them. Link previews on platforms like Slack, X, or Discord don't run JavaScript, so they only see a page's tags when you [prerender](../../advanced/prerendering.md) the page.
 
 ```tsx title="src/pages/HomePage.tsx"
 export function HomePage() {
   return (
     <>
-      <head>
-        <meta
-          name="description"
-          content="Home page description specific to this page."
-        />
-        <meta property="og:title" content="Home Page - My App" />
-        <meta
-          property="og:description"
-          content="Description for the home page."
-        />
-        <meta
-          property="og:image"
-          content="https://your-app.com/home-page-banner.webp"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-      </head>
+      <meta
+        name="description"
+        content="Home page description specific to this page."
+      />
+      <meta property="og:title" content="Home Page - My App" />
+      <meta
+        property="og:description"
+        content="Description for the home page."
+      />
+      <meta
+        property="og:image"
+        content="https://your-app.com/home-page-banner.webp"
+      />
+      <meta name="twitter:card" content="summary_large_image" />
       <div>
         <h1>Welcome to the Home Page</h1>
         {/* The rest of the page content */}
