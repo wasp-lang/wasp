@@ -180,8 +180,8 @@ library
     Wasp.AppSpec.Valid
     Wasp.CompileOptions
     Wasp.Data
-    Wasp.Docs
     Wasp.Db.Postgres
+    Wasp.Docs
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
