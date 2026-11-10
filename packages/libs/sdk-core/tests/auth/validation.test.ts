@@ -36,8 +36,8 @@ describe("ensureValidEmail", () => {
   });
 
   it.each([
-    ["is missing", {}, "email must be present"],
-    ["isn't an email", { email: "user" }, "email must be a valid email"],
+    ["is missing", {}, "Email must be present"],
+    ["isn't an email", { email: "user" }, "Email must be a valid email"],
   ])("rejects an email that %s", (_, args, expectedMessage) => {
     expect(() => ensureValidEmail(args)).toThrow(
       validationError(expectedMessage),
@@ -46,9 +46,9 @@ describe("ensureValidEmail", () => {
 });
 
 describe.each([
-  ["ensureValidUsername", ensureValidUsername, "username"],
-  ["ensurePasswordIsPresent", ensurePasswordIsPresent, "password"],
-  ["ensureTokenIsPresent", ensureTokenIsPresent, "token"],
+  ["ensureValidUsername", ensureValidUsername, "Username"],
+  ["ensurePasswordIsPresent", ensurePasswordIsPresent, "Password"],
+  ["ensureTokenIsPresent", ensureTokenIsPresent, "Token"],
 ])("%s", (_, ensure, field) => {
   it("rejects a missing value", () => {
     expect(() => ensure({})).toThrow(

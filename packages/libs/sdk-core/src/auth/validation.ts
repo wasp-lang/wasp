@@ -49,17 +49,17 @@ export function throwValidationError(message: string): void {
 
 const PASSWORD_MIN_LENGTH_MESSAGE = "Password must be at least 8 characters";
 
-const emailSchema = presentValueSchema("email must be present").refine(
+const emailSchema = presentValueSchema("Email must be present").refine(
   isValidEmail,
-  "email must be a valid email",
+  "Email must be a valid email",
 );
-const usernameSchema = presentValueSchema("username must be present");
-const presentPasswordSchema = presentValueSchema("password must be present");
+const usernameSchema = presentValueSchema("Username must be present");
+const presentPasswordSchema = presentValueSchema("Password must be present");
 export const defaultPasswordValidationSchema = z
   .string(PASSWORD_MIN_LENGTH_MESSAGE)
   .min(8, PASSWORD_MIN_LENGTH_MESSAGE)
   .regex(/\d/, "Password must contain a number");
-const tokenSchema = presentValueSchema("token must be present");
+const tokenSchema = presentValueSchema("Token must be present");
 
 function presentValueSchema(message: string): z.ZodType {
   return z
