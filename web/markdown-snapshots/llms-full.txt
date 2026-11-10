@@ -30302,7 +30302,7 @@ Client-side APIs for calling your [Queries](https://wasp.sh/docs/features/data/o
 
 Wasp generates one export for each Query and Action you declare, named after it (e.g. `getFoo` for a Query declared as `getFoo`). Each Query export is a [Query](#query), and each Action export is an [Action](#action).
 
-The client-side function takes at most one argument: the payload, which can be any serializable data you wish to use inside the Operation (usually an object). Whether it's required depends on the Operation's `Input` type (see [QueryFunction](#queryfunction)). Wasp sends the payload over the network and passes it into the Operation's implementation as its first positional argument. If the payload is missing or falsy (e.g. `0` or `false`), the implementation receives `{}` instead. The usage doesn't change depending on whether the Operation uses auth or not: Wasp authenticates the logged-in user in the background.
+The client-side function takes at most one argument: the payload, which can be any serializable data you wish to use inside the Operation (usually an object). Whether it's required depends on the Operation's `Input` type (see [QueryFunction](#queryfunction)). Wasp sends the payload over the network and passes it into the Operation's implementation as its first positional argument. If you don't pass a payload, the implementation receives `{}` instead. The usage doesn't change depending on whether the Operation uses auth or not: Wasp authenticates the logged-in user in the background.
 
 To call Queries and Actions from server code, use [`wasp/server/operations`](https://wasp.sh/docs/api/wasp/server/operations) instead.
 

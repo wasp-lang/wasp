@@ -12,10 +12,9 @@
  * object). Whether it's required depends on the Operation's `Input` type (see
  * {@link QueryFunction}). Wasp sends the payload over the network and passes
  * it into the Operation's implementation as its first positional argument. If
- * the payload is missing or falsy (e.g. `0` or `false`), the implementation
- * receives `{}` instead. The usage doesn't change depending on whether the
- * Operation uses auth or not: Wasp authenticates the logged-in user in the
- * background.
+ * you don't pass a payload, the implementation receives `{}` instead. The usage
+ * doesn't change depending on whether the Operation uses auth or not: Wasp
+ * authenticates the logged-in user in the background.
  *
  * To call Queries and Actions from server code, use
  * {@linkcode "server/operations"! | wasp/server/operations} instead.
