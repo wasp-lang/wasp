@@ -95,6 +95,8 @@ compile = false
 # so the tasks use these absolute paths instead.
 wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
 wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
+wasp_dev_packages_dir = "{{config_root}}/waspc/.dev-packages"
+reinstall_dev_wasp_app_deps = "{{config_root}}/tasks/reinstall-dev-wasp-app-deps.ts"
 
 # Installs the workspace dependencies before `mise run` and `mise exec` when
 # they are out of date.
