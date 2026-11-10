@@ -17,9 +17,7 @@ import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldNotBe, shouldReturn)
 import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
-import Wasp.AppComponentUrl (makeAppComponentUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..))
 import Wasp.Generator.ServerGenerator.Start
   ( CompileChanges (..),
@@ -33,6 +31,7 @@ import Wasp.Generator.ServerGenerator.Start
   )
 import qualified Wasp.Job as Job
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.RunConfig (ProjectRunConfig (..), makeLocalUrl)
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_startServer :: Spec
@@ -178,8 +177,30 @@ spec_startServer =
         notifySuccessfulCompile fixture RebundleAndRestartServer
         waitUntil "server crash report" $ ("Server process exited" `T.isInfixOf`) <$> readIORef (_output fixture)
 
-serverRunConfig :: ServerRunConfig
-serverRunConfig = makeServerRunConfig (makeAppComponentUrl 0 Nothing Nothing) "http://localhost:3000"
+    it "restarts the server with the run config of the latest compile" $
+      withServerFixture loopingServerScript $ \fixture -> do
+        void $ waitForServerStart fixture
+        let managedDatabaseUrl = "file:./dev.db"
+
+        -- E.g. the user removed their DATABASE_URL from .env.server, so Wasp
+        -- passes the managed database's URL.
+        void $ compileWithRunConfigAndWaitForServer fixture projectRunConfig {databaseUrl = Just managedDatabaseUrl} RestartServer
+        readServerDatabaseUrl fixture `shouldReturn` managedDatabaseUrl
+
+        -- E.g. the user added their DATABASE_URL to .env.server, so Wasp stops
+        -- passing the managed database's URL.
+        void $ compileWithRunConfigAndWaitForServer fixture projectRunConfig {databaseUrl = Nothing} RestartServer
+        readServerDatabaseUrl fixture >>= (`shouldNotBe` managedDatabaseUrl)
+
+projectRunConfig :: ProjectRunConfig
+projectRunConfig =
+  ProjectRunConfig
+    { clientUrl = makeLocalUrl 3000 Nothing,
+      serverUrl = makeLocalUrl 0 Nothing,
+      clientPort = 3000,
+      serverPort = 0,
+      databaseUrl = Nothing
+    }
 
 data ServerFixture = ServerFixture
   { _waspProjectDirPath :: FilePath,
@@ -210,7 +231,7 @@ withServerFixture serverScript test = do
         Job.run
           $ Job.captureOutput
           $ Job.observeOutput (\_ chunk -> modifyIORef' output (<> chunk))
-          $ startServer serverRunConfig generatedAppDir inbox
+          $ startServer projectRunConfig generatedAppDir inbox
   withAsync
     runController
     (\controllerJob -> test fixture >> stopController fixture controllerJob)
@@ -244,6 +265,7 @@ loopingServerScript =
     [ "const fs = require('node:fs');",
       "const net = require('node:net');",
       "fs.writeFileSync('runtime-env.txt', [process.env.PORT, process.env.WASP_SERVER_URL, process.env.WASP_WEB_CLIENT_URL].join('\\n'));",
+      "fs.writeFileSync('" <> serverDatabaseUrlFileName <> "', process.env.DATABASE_URL ?? '');",
       "const port = Number(fs.readFileSync('" <> serverPortFileName <> "', 'utf8'));",
       "const server = net.createServer();",
       "server.listen(port, '127.0.0.1', () => {",
@@ -301,6 +323,12 @@ bundleScriptPath fixture = serverDirPath fixture </> "bundle.js"
 serverPortFileName :: FilePath
 serverPortFileName = "server-port.txt"
 
+serverDatabaseUrlFileName :: FilePath
+serverDatabaseUrlFileName = "server-database-url.txt"
+
+readServerDatabaseUrl :: ServerFixture -> IO String
+readServerDatabaseUrl fixture = readFile' (_waspProjectDirPath fixture </> serverDatabaseUrlFileName)
+
 serverPortFilePath :: ServerFixture -> FilePath
 serverPortFilePath fixture = _waspProjectDirPath fixture </> serverPortFileName
 
@@ -313,16 +341,22 @@ waitForServerStart fixture = do
         serverPid <- readServerPid fixture
         serverPort <- readServerPort fixture
         processAlive <- isProcessAlive serverPid
-        portAvailable <- isPortAvailable serverPort
-        return $ processAlive && not portAvailable
+        -- Checking the port binds it, so we don't do it for a PID file left
+        -- by a previous server: the next one might be binding the port.
+        if processAlive
+          then not <$> isPortAvailable serverPort
+          else return False
       else return False
   readServerPid fixture
 
--- | Clears the previous PID so waiting cannot mistake the old server for the new one.
 compileAndWaitForServer :: ServerFixture -> ServerEffect -> IO ProcessId
-compileAndWaitForServer fixture serverEffect = do
+compileAndWaitForServer fixture = compileWithRunConfigAndWaitForServer fixture projectRunConfig
+
+-- | Clears the previous PID so waiting cannot mistake the old server for the new one.
+compileWithRunConfigAndWaitForServer :: ServerFixture -> ProjectRunConfig -> ServerEffect -> IO ProcessId
+compileWithRunConfigAndWaitForServer fixture compiledProjectRunConfig serverEffect = do
   clearServerPid fixture
-  notifySuccessfulCompile fixture serverEffect
+  notifySuccessfulCompileWithRunConfig fixture compiledProjectRunConfig serverEffect
   waitForServerStart fixture
 
 waitForServerExit :: ProcessId -> IO ()
@@ -363,9 +397,12 @@ readBundleCount fixture = do
     else return 0
 
 notifySuccessfulCompile :: ServerFixture -> ServerEffect -> IO ()
-notifySuccessfulCompile fixture serverEffect = do
+notifySuccessfulCompile fixture = notifySuccessfulCompileWithRunConfig fixture projectRunConfig
+
+notifySuccessfulCompileWithRunConfig :: ServerFixture -> ProjectRunConfig -> ServerEffect -> IO ()
+notifySuccessfulCompileWithRunConfig fixture compiledProjectRunConfig serverEffect = do
   compileStartTime <- getCurrentTime
-  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile $ compileChangesWithEffect compileStartTime serverEffect
+  notifyServer (_inbox fixture) $ Compiled $ SuccessfulCompile compiledProjectRunConfig $ compileChangesWithEffect compileStartTime serverEffect
 
 -- | The changes of a compile that started at the given time, that have the
 -- given effect on the server.

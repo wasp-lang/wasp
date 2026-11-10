@@ -30,11 +30,11 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
     waspProjectDirFromTemplateOutputDir,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
-import Wasp.Cli.Interactive (InteractiveTerminal)
-import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Util.Parser (requireInteractiveTerminal)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
+import Wasp.Util.Interactive (InteractiveTerminal)
+import qualified Wasp.Util.Interactive as Interactive
 
 data NewProjectDescription = NewProjectDescription
   { _projectName :: NewProjectName,

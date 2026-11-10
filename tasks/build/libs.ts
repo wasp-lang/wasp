@@ -1,20 +1,20 @@
+#!/usr/bin/env node
+//MISE description="Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
 /// <reference types="node" />
-// Helper to compile the packages/libs/* packages locally and in CI and pack
-// them into tarballs inside the Cabal data dir, where `waspc` expects them.
 
 import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import { basename, join } from "node:path";
+import {
+  getDataLibsDirPath,
+  getLibsDirPath,
+  runScriptInEveryLib,
+} from "../../waspc/tools/libs/utils.ts";
 import {
   assertPackageVersionMatchesWaspc,
   discoverSubDirs,
   getPackageJson,
   runCmd,
-} from "../utils.ts";
-import {
-  getDataLibsDirPath,
-  getLibsDirPath,
-  runScriptInEveryLib,
-} from "./utils.ts";
+} from "../../waspc/tools/utils.ts";
 
 try {
   buildLibs();

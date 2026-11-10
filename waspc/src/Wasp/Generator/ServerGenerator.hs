@@ -50,6 +50,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
@@ -60,6 +61,7 @@ import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
@@ -67,8 +69,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromGeneratedAppComponentDir)
-import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -77,7 +78,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|rollup.config.js|],
-      genFileCopy [relfile|loadDotEnv.cjs|],
+      genFileCopy $ C.asTmplFile $ SP.castFile ServerNodeCommands.loadDotEnvFileInServerRootDir,
       genFileCopy [relfile|src/createRollupBundle.js|],
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
@@ -103,15 +104,8 @@ genDotEnv spec =
   return
     [ createTextFileDraft
         (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
-        (envVarsToDotEnvContent envVars)
+        (envVarsToDotEnvContent spec.devEnvVarsServer)
     ]
-  where
-    envVars = waspEnvVars ++ userEnvVars
-    userEnvVars = spec.devEnvVarsServer
-    waspEnvVars = case spec.devDatabaseUrl of
-      Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
-      _ -> []
-    isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
 
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
@@ -143,8 +137,8 @@ genPackageJson spec waspDependencies =
             [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
-              "serverBundleCommand" .= C.serverBundleCommand,
-              "devServerStartCommand" .= C.devServerStartCommand,
+              "serverBundleCommand" .= serverBundleCommand,
+              "devServerStartCommand" .= devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
@@ -154,6 +148,14 @@ genPackageJson spec waspDependencies =
       )
   where
     serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+
+    -- npm scripts run from the server dir.
+    serverBundleCommand =
+      NodeCommand.toShellCommand ServerNodeCommands.typeCheckServer <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.bundleServer
+    devServerStartCommand =
+      NodeCommand.toShellCommandFrom waspProjectDirFromServerDir ServerNodeCommands.runServer
+    waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
+      waspProjectDirFromGeneratedAppComponentDir
 
 npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =

@@ -16,6 +16,7 @@ packages:
   - scripts/make-npm-packages
   - waspc/starters-e2e-tests
   - waspc/tools
+  - tasks
 
 # `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:

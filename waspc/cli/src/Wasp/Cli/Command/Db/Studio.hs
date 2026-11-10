@@ -10,19 +10,20 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
+import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady))
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 studio :: Command ()
-studio = makeDbCommand [PrismaCliReady] $ \_appSpec -> do
+studio = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Running studio..."
 
-  _ <- Job.run $ Job.prefixWith Job.Db $ runStudio genProjectDir
+  _ <- Job.run $ Job.prefixWith Job.Db $ runStudio (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir
 
   error "This should never happen, studio should never stop."

@@ -69,7 +69,7 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apk:pkgconfig" = "latest"
 "apk:tar" = "latest"
 "apk:xz" = "latest"
-# `./run` script dependencies
+# Task dependencies
 "apk:bash" = "latest"
 # Cabal dependencies
 "apk:zlib-dev" = "latest"
@@ -89,3 +89,18 @@ idiomatic_version_file_enable_tools = ["node", "pnpm"]
 # The Node backend has a knack for compiling from source on Alpine even when
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
+
+[vars]
+# `{{config_root}}` in a task's `env` resolves to the task file's directory,
+# so the tasks use these absolute paths instead.
+wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
+wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
+
+# Installs the workspace dependencies before `mise run` and `mise exec` when
+# they are out of date.
+[deps.pnpm]
+auto = true
+
+[task_config]
+includes = ["tasks"]
+excludes = ["tasks/node_modules"]
