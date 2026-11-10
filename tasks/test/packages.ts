@@ -4,28 +4,27 @@
 
 import {
   getPackageDirPath,
-  WASPC_PACKAGES,
-  type WaspcPackage,
+  WASP_PACKAGE_DIR_NAMES,
 } from "../../waspc/tools/packages/utils.ts";
 import { getPackageJson, runCmd } from "../../waspc/tools/utils.ts";
 
 testPackages();
 
 function testPackages(): void {
-  for (const waspcPackage of WASPC_PACKAGES) {
-    testPackage(waspcPackage);
+  for (const packageDirName of WASP_PACKAGE_DIR_NAMES) {
+    testPackage(packageDirName);
   }
 }
 
-function testPackage({ name }: WaspcPackage): void {
-  const packageDir = getPackageDirPath(name);
+function testPackage(packageDirName: string): void {
+  const packageDir = getPackageDirPath(packageDirName);
   const packageJson = getPackageJson(packageDir);
 
   if (!packageJson.scripts?.test) {
     return;
   }
 
-  console.log(`Testing ${name} (${packageDir})`);
+  console.log(`Testing ${packageJson.name} (${packageDir})`);
 
   runCmd("pnpm", ["run", "test"], {
     cwd: packageDir,

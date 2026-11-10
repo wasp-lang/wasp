@@ -206,7 +206,6 @@ emptyPackageJson :: P.PackageJson
 emptyPackageJson =
   P.PackageJson
     { P.name = "mock-package",
-      P.version = Nothing,
       P.dependencies = M.empty,
       P.devDependencies = M.empty,
       P.workspaces = Nothing,
