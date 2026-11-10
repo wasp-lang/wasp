@@ -1,19 +1,13 @@
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  type MouseEvent,
-  forwardRef,
-  useState,
-} from "react";
+import * as React from "react";
 import { FormInput } from "./Form";
 import styles from "./FormPasswordInput.module.css";
 import { clsx } from "./util";
 
-export const FormPasswordInput = forwardRef<
-  ComponentRef<"input">,
-  Omit<ComponentPropsWithoutRef<"input">, "type">
+export const FormPasswordInput = React.forwardRef<
+  React.ComponentRef<"input">,
+  Omit<React.ComponentPropsWithoutRef<"input">, "type">
 >(({ className, disabled, ...props }, ref) => {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const toggleLabel = isPasswordVisible ? "Hide password" : "Show password";
 
   return (
@@ -39,7 +33,7 @@ export const FormPasswordInput = forwardRef<
   );
 });
 
-function keepFocusInInput(event: MouseEvent<HTMLButtonElement>) {
+function keepFocusInInput(event: React.MouseEvent<HTMLButtonElement>) {
   event.preventDefault();
 }
 

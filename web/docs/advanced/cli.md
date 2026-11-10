@@ -125,7 +125,6 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
-    npm run wasp -- db migrate-dev
     npm run dev
 ```
 
@@ -140,7 +139,6 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
-    npm run wasp -- db migrate-dev
     npm run dev
 ```
 

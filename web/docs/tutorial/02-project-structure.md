@@ -125,10 +125,10 @@ Notice the `with { type: "ref" }` part at the end of the import statement. This 
 
 This Wasp app uses three specifications:
 
-- [**app**](../api/@wasp/spec/functions/app): Top-level configuration information about your app.
+- [**app**](../api/@wasp/spec#app-1): Top-level configuration information about your app.
 
-- [**route**](../api/@wasp/spec/functions/route): Describes which path each page should be accessible from.
+- [**route**](../api/@wasp/spec#route-1): Describes which path each page should be accessible from.
 
-- [**page**](../api/@wasp/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
+- [**page**](../api/@wasp/spec#page-2): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.

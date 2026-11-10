@@ -92,7 +92,7 @@ export default app({
 })
 ```
 
-Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../../../api/@wasp/spec/interfaces/EmailAuthConfig.md).
+Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../../../api/@wasp/spec.md#emailauthconfig).
 
 ### 2. Add the User Entity
 
@@ -421,7 +421,7 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec.md#getemailcontentfn).
 
 ### Email Verification Page
 
@@ -437,7 +437,7 @@ Some of the behavior you get out of the box:
 
 1. Rate limiting
 
-We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+We are limiting the rate of password reset requests to **1 request per minute** per email address. This is done to prevent spamming.
 
 2. Preventing user email leaks
 
@@ -467,17 +467,7 @@ When the user receives an e-mail, they receive a link that goes to the client ro
 
 Users can enter their new password there.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
-
-#### Password
-
-- `ensurePasswordIsPresent(args)`
-
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview#default-validations).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec.md#getemailcontentfn).
 
 ## Using Auth
 
@@ -492,17 +482,22 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp/spec/interfaces/Auth"
+  to="../../../api/@wasp/spec#auth-3"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec, including userEntity."
 />
 
 <CardLink
-  to="../../../api/@wasp/spec/interfaces/EmailAuthConfig"
+  to="../../../api/@wasp/spec#emailauthconfig"
   kind="api"
   title="EmailAuthConfig"
   description="All the options for the email auth method."
 />
 
-Read more about the `userSignupFields` function in the [Auth Overview docs](../overview.md#signup-fields-customization).
+<CardLink
+  to="../../../api/wasp/server/auth#defineusersignupfields"
+  kind="api"
+  title="defineUserSignupFields"
+  description="Define the extra fields Wasp saves on the user entity when a user signs up."
+/>

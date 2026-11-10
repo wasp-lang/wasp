@@ -24,6 +24,9 @@ declare module "wasp/types" {
     {=# emailUserSignupFields.isDefined =}
     emailUserSignupFields: typeof {=& emailUserSignupFields.dynamicImportExpression =}
     {=/ emailUserSignupFields.isDefined =}
+    {=# passwordValidationSchema.isDefined =}
+    passwordValidationSchema: typeof {=& passwordValidationSchema.dynamicImportExpression =}
+    {=/ passwordValidationSchema.isDefined =}
     {=# usernameAndPasswordUserSignupFields.isDefined =}
     usernameAndPasswordUserSignupFields: typeof {=& usernameAndPasswordUserSignupFields.dynamicImportExpression =}
     {=/ usernameAndPasswordUserSignupFields.isDefined =}

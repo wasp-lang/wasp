@@ -662,6 +662,9 @@ describe("mapEmailAuth", () => {
       userSignupFields:
         emailAuth.userSignupFields &&
         mapRefObjectForMockProjectDir(emailAuth.userSignupFields),
+      passwordValidationSchema:
+        emailAuth.passwordValidationSchema &&
+        mapRefObjectForMockProjectDir(emailAuth.passwordValidationSchema),
       fromField: AppSpecMapper.mapEmailFromField(emailAuth.fromField),
       emailVerification: AppSpecMapper.mapEmailFlow(
         emailAuth.emailVerification,
@@ -753,6 +756,11 @@ describe("mapUsernameAndPassword", () => {
       userSignupFields:
         usernameAndPassword.userSignupFields &&
         mapRefObjectForMockProjectDir(usernameAndPassword.userSignupFields),
+      passwordValidationSchema:
+        usernameAndPassword.passwordValidationSchema &&
+        mapRefObjectForMockProjectDir(
+          usernameAndPassword.passwordValidationSchema,
+        ),
     } satisfies AppSpec.UsernameAndPasswordConfig);
   }
 });

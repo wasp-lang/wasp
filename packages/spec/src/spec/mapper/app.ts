@@ -108,9 +108,11 @@ export function mapUsernameAndPassword(
   usernameAndPassword: WaspSpec.UsernameAndPasswordConfig,
   ctx: AppMapperContext,
 ): AppSpec.UsernameAndPasswordConfig {
-  const { userSignupFields } = usernameAndPassword;
+  const { userSignupFields, passwordValidationSchema } = usernameAndPassword;
   return {
     userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
+    passwordValidationSchema:
+      passwordValidationSchema && ctx.parseRefObject(passwordValidationSchema),
   };
 }
 
@@ -129,10 +131,17 @@ export function mapEmailAuth(
   emailAuth: WaspSpec.EmailAuthConfig,
   ctx: AppMapperContext,
 ): AppSpec.EmailAuthConfig {
-  const { userSignupFields, fromField, emailVerification, passwordReset } =
-    emailAuth;
+  const {
+    userSignupFields,
+    passwordValidationSchema,
+    fromField,
+    emailVerification,
+    passwordReset,
+  } = emailAuth;
   return {
     userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
+    passwordValidationSchema:
+      passwordValidationSchema && ctx.parseRefObject(passwordValidationSchema),
     fromField: mapEmailFromField(fromField),
     emailVerification: mapEmailFlow(emailVerification, ctx),
     passwordReset: mapEmailFlow(passwordReset, ctx),

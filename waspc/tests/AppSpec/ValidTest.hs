@@ -72,7 +72,7 @@ spec_AppSpecValid = do
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
-                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
+                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing, AS.Auth.passwordValidationSchema = Nothing},
                       AS.Auth.discord = Nothing,
                       AS.Auth.slack = Nothing,
                       AS.Auth.google = Nothing,
@@ -154,6 +154,7 @@ spec_AppSpecValid = do
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
                 { AS.Auth.userSignupFields = Nothing,
+                  AS.Auth.passwordValidationSchema = Nothing,
                   AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",
@@ -181,7 +182,8 @@ spec_AppSpecValid = do
                     { usernameAndPassword =
                         Just
                           AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.userSignupFields = Nothing
+                            { AS.Auth.userSignupFields = Nothing,
+                              AS.Auth.passwordValidationSchema = Nothing
                             },
                       discord = Nothing,
                       slack = Nothing,
@@ -204,7 +206,8 @@ spec_AppSpecValid = do
                     { usernameAndPassword =
                         Just
                           AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.userSignupFields = Nothing
+                            { AS.Auth.userSignupFields = Nothing,
+                              AS.Auth.passwordValidationSchema = Nothing
                             },
                       slack = Nothing,
                       discord = Nothing,
@@ -277,6 +280,7 @@ spec_AppSpecValid = do
         let emailAuthConfig =
               AS.Auth.EmailAuthConfig
                 { AS.Auth.userSignupFields = Nothing,
+                  AS.Auth.passwordValidationSchema = Nothing,
                   AS.Auth.fromField =
                     AS.EmailSender.EmailFromField
                       { AS.EmailSender.email = "dummy@info.com",

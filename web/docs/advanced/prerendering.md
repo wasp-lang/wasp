@@ -207,7 +207,7 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 ## API reference
 
 <CardLink
-  to="../api/@wasp/spec/interfaces/Route#prerender"
+  to="../api/@wasp/spec#prerender"
   kind="api"
   title="Route.prerender"
   description="The full description of the prerender option of the route spec."

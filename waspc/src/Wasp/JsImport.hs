@@ -16,6 +16,7 @@ module Wasp.JsImport
     getJsImportPathString,
     getJsImportPathStringFromPath,
     getJsDynamicImportExpression,
+    defaultExportName,
   )
 where
 
@@ -132,8 +133,11 @@ getJsDynamicImportExpression jsImport = case jsImport._kind of
   where
     importPath = makeJsStringLiteral (getJsImportPathString jsImport)
     importName = case jsImport._name of
-      JsImportModule _ -> "default"
+      JsImportModule _ -> defaultExportName
       JsImportField name -> name
+
+defaultExportName :: String
+defaultExportName = "default"
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")

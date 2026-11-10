@@ -44,6 +44,7 @@ module ShellCommands
     npmInstall,
     useDevWaspNpmPackages,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,

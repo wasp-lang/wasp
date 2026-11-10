@@ -4,6 +4,8 @@ sidebar_label: Testing
 description: Write unit tests and React component tests for the client code of a Wasp app with Vitest, and mock queries and APIs.
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 # Testing
 
 Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/).
@@ -245,26 +247,30 @@ test("shows the stats", async () => {
 
 ## API reference
 
-`wasp/test` exports the helper for your Vitest config:
+<CardLink
+  to="../api/wasp/test#wasptestconfig"
+  kind="api"
+  title="waspTestConfig"
+  description="Configure Vitest with the defaults a Wasp app needs."
+/>
 
-- `waspTestConfig(options?)`
+<CardLink
+  to="../api/wasp/client/test#renderincontext"
+  kind="api"
+  title="renderInContext"
+  description="Render a component with the providers Wasp needs."
+/>
 
-  Returns Vitest's `test` options with the defaults a Wasp app needs: `environment: "jsdom"`, `include` with the test files in `src`, and `env` with a placeholder `REACT_APP_API_URL`. The [Vitest options](https://vitest.dev/config/) you pass override the defaults, only the `env` is merged instead.
+<CardLink
+  to="../api/wasp/client/test#mockserver-1"
+  kind="api"
+  title="mockServer"
+  description="Set up a mock server and mock your Queries and APIs."
+/>
 
-`wasp/client/test` exports the helpers for your tests:
-
-- `renderInContext(ui, options?)`
-
-  Renders a React element inside the providers Wasp's client code needs. It takes the same options as [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#render), except `wrapper`, and returns the same result.
-
-- `mockServer()`
-
-  Starts an [MSW](https://mswjs.io/) server for the current test file and resets its mocks after each test. Call it once, at the top level of the test file. It returns:
-
-  - `mockQuery(query, data)`: makes `query` return `data`.
-  - `mockApi(route, data)`: makes the API at `route` (an object with `method` and `path`) respond with `data` as JSON.
-  - `server`: the underlying MSW server, for mocking any other request.
-
-- `WaspTestWrapper`
-
-  The component `renderInContext` wraps your element in. Pass it as the `wrapper` option when you call [Testing Library's `render`](https://testing-library.com/docs/react-testing-library/api#wrapper) or `renderHook` yourself.
+<CardLink
+  to="../api/wasp/client/test#wasptestwrapper"
+  kind="api"
+  title="WaspTestWrapper"
+  description="Wrap your own Testing Library renders in the providers Wasp needs."
+/>
