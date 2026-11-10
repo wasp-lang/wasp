@@ -57,10 +57,12 @@ env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes --pattern="$usage_pattern"'
 
 ["test:waspc:e2e:accept-all"]
-description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests and replacing the golden snapshots that differ with the current ones."
 dir = "waspc"
 shell = "bash -c"
-run = ["rm -rf e2e-tests/test-outputs/snapshots/*-golden", { task = "test:waspc:e2e" }]
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
+# See `test:waspc:e2e` for why we don't use `cabal test`.
+run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes --accept'
 
 ["test:cli"]
 description = "Executes only cli tests. Builds the project first if needed."
