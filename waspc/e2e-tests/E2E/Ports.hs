@@ -4,6 +4,8 @@ module E2E.Ports
     allocateAppPorts,
     appPortList,
     appPortArgs,
+    waspStudioPort,
+    prismaStudioPort,
   )
 where
 
@@ -61,3 +63,8 @@ appPortList ports = [ports.clientPort, ports.serverPort]
 -- | For `wasp start` and `wasp build start`.
 appPortArgs :: AppPorts -> [String]
 appPortArgs ports = ["--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
+
+-- | Fixed by Wasp. Only one test may use each of them.
+waspStudioPort, prismaStudioPort :: Int
+waspStudioPort = 4000
+prismaStudioPort = 5555

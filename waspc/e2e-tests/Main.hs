@@ -7,7 +7,6 @@ import System.Environment (lookupEnv, setEnv)
 import System.Exit (ExitCode (..))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
-import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
 import Test.Tasty.Ingredients (composeReporters)
 import Test.Tasty.Runners (NumThreads (..), consoleTestReporter, listingTests)
@@ -20,6 +19,7 @@ import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.ViteBuildTest (viteBuildTest)
 import Tests.ViteConfigTest (viteConfigTest)
 import Tests.VitestTest (vitestTest)
+import Tests.WaspBuildStartTest (waspBuildStartTest)
 import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
@@ -28,6 +28,7 @@ import Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest)
 import Tests.WaspDbResetTest (waspDbResetTest)
 import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDbStartTest (waspDbStartTest)
+import Tests.WaspDbStudioTest (waspDbStudioTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInstallTest (waspInstallTest)
@@ -37,6 +38,7 @@ import Tests.WaspShowTest (waspShowTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspStartTest (waspStartTest)
+import Tests.WaspStudioTest (waspStudioTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
@@ -51,10 +53,9 @@ main = do
       setWaspCliCmd
       warmUpWaspCli
       maxJobs <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS" :: IO (Maybe Int)
-      tests <- e2eTests
       defaultMainWithIngredients
         [listingTests, composeReporters heartbeatReporter consoleTestReporter]
-        (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) tests)
+        (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) e2eTests)
 
 -- | The tests run the Wasp CLI from @WASP_CLI_CMD@ (e.g. @tools/wasp-cli-dev@
 -- from the mise tasks). When it's not set, we use the @wasp-cli@ that Cabal builds
@@ -85,58 +86,52 @@ warmUpWaspCli = do
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Port the remaining tests from the shell commands DSL to the 'E2E' one.
 --       See: github.com/wasp-lang/wasp/issues/3404
-e2eTests :: IO TestTree
-e2eTests = do
-  shellTestTrees <-
-    mapM
-      testTreeFromTest
-      [ -- FIXME: waspBuildStartTest,
-        waspProjectLockTest
-        -- FIXME: waspStudioTest,
-        -- FIXME: waspDbStudioTest,
-      ]
-  return $
-    testGroup
-      "E2E tests"
-      [ -- Tasty starts the tests in order, so the slowest ones go first.
-        testGroup "Snapshot Tests" $
-          map
-            toTestTree
-            [ kitchenSinkSnapshotTest,
-              waspBuildSnapshotTest,
-              waspMigrateSnapshotTest,
-              waspCompileSnapshotTest,
-              waspNewSnapshotTest
-            ],
-        testGroup "Shell tests" shellTestTrees,
-        testGroup "Tests" $
-          map
-            toTestTree
-            [ -- general Wasp commands
-              waspNewTest,
-              waspTelemetryTest,
-              waspCompletionTest,
-              waspVersionTest,
-              -- Wasp project commands
-              waspCompileTest,
-              waspStartTest,
-              waspBuildTest,
-              waspTsSpecNodeEnvTest,
-              viteBuildTest,
-              viteConfigTest,
-              vitestTest,
-              waspCleanTest,
-              waspSpecAvailableTest,
-              waspShowTest,
-              waspInstallTest,
-              waspDepsTest,
-              waspDockerfileTest,
-              -- Wasp project db commands
-              waspDbStartTest,
-              waspDbSeedTest,
-              waspDbResetTest,
-              waspDbMigrateDevTest,
-              waspSpecEntityTypesTest,
-              incrementalTypeCheckingTest
-            ]
-      ]
+e2eTests :: TestTree
+e2eTests =
+  testGroup
+    "E2E tests"
+    [ -- Tasty starts the tests in order, so the slowest ones go first.
+      testGroup "Snapshot Tests" $
+        map
+          toTestTree
+          [ kitchenSinkSnapshotTest,
+            waspBuildSnapshotTest,
+            waspMigrateSnapshotTest,
+            waspCompileSnapshotTest,
+            waspNewSnapshotTest
+          ],
+      testGroup "Tests" $
+        map
+          toTestTree
+          [ -- general Wasp commands
+            waspNewTest,
+            waspTelemetryTest,
+            waspCompletionTest,
+            waspVersionTest,
+            -- Wasp project commands
+            waspCompileTest,
+            waspStartTest,
+            waspBuildTest,
+            waspBuildStartTest,
+            waspTsSpecNodeEnvTest,
+            viteBuildTest,
+            viteConfigTest,
+            vitestTest,
+            waspCleanTest,
+            waspProjectLockTest,
+            waspSpecAvailableTest,
+            waspShowTest,
+            waspInstallTest,
+            waspDepsTest,
+            waspDockerfileTest,
+            waspStudioTest,
+            -- Wasp project db commands
+            waspDbStartTest,
+            waspDbStudioTest,
+            waspDbSeedTest,
+            waspDbResetTest,
+            waspDbMigrateDevTest,
+            waspSpecEntityTypesTest,
+            incrementalTypeCheckingTest
+          ]
+    ]

@@ -1,30 +1,23 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliStudio)
-import Test (Test (..), TestCase (..))
+import E2E
+import qualified E2E.Ports as Ports
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
--- | NOTE: Once it evolves it will probably have it's own
--- playwright tests inside of the TS package.
--- So we will tests just that the command works.
--- FIXME: @waspCliStudio@ - figure out long lasting processes
-waspStudioTest :: Test
+-- | NOTE: Studio will probably get its own Playwright tests in its package,
+-- so here we only test that the command works.
+waspStudioTest :: E2ETest
 waspStudioTest =
-  Test
+  testGroup
     "wasp-studio"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliStudioFails]),
-      TestCase
-        "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliStudio
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["studio"],
+      test "succeed-uncompiled-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          studio <- startInBackground $ waspCli ["studio"]
+          -- The port is fixed, so we also check the output to know it's our Studio.
+          waitForOutput studio "Server listening on port 4000" (5 * 60)
+          waitUntilListening [Ports.waspStudioPort] 30
+          signalProcessGroupOf SIGINT studio
+          waitForExit studio 60
+          waitUntilNotListening [Ports.waspStudioPort] 30
     ]
-  where
-    waspCliStudioFails :: ShellCommand
-    waspCliStudioFails = "! $WASP_CLI_CMD studio"
