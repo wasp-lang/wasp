@@ -270,6 +270,9 @@ export declare function getFirstProviderUserId(
  * the `passwordValidationSchema` field of the `email` or `usernameAndPassword`
  * auth method in the app spec.
  *
+ * Wasp checks the schema on the server, and in the
+ * [Auth UI](https://wasp.sh/docs/features/auth/ui) forms before they submit.
+ *
  * @param schema A Zod schema for a string.
  *
  * @example

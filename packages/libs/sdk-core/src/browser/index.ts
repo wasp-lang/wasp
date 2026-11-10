@@ -7,6 +7,7 @@ export { getAuthErrorMessage } from "./auth/forms/authErrorMessage.js";
 export { emailInputProps } from "./auth/forms/emailField.js";
 export {
   emailFieldRules,
+  newPasswordFieldRules,
   passwordFieldRules,
   usernameFieldRules,
 } from "./auth/forms/fieldRules.js";

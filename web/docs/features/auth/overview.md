@@ -399,13 +399,24 @@ export const passwordValidationSchema = definePasswordValidationSchema(
 )
 ```
 
-Wasp checks new passwords against your schema on signup and password reset. `ensureValidPassword` uses it too, so your [custom auth actions](./advanced/custom-auth-actions.md) follow the same rules. Logging in doesn't check the schema, so changing the rules doesn't lock out existing users.
+Wasp checks new passwords against your schema on signup and password reset, on the server and in the [Auth UI](./ui.md) forms before they submit. `ensureValidPassword` uses it too, so your [custom auth actions](./advanced/custom-auth-actions.md) follow the same rules. Logging in doesn't check the schema, so changing the rules doesn't lock out existing users.
+
+To check passwords in your own forms, import the schema from `wasp/client/auth`:
+
+```ts title="src/auth/SignupPage.tsx"
+import { passwordValidationSchema } from "wasp/client/auth"
+
+const result = passwordValidationSchema.safeParse(password)
+```
+
+It's your schema, or Wasp's default rules when you didn't set one.
 
 When a password fails, Wasp responds with the schema's first error message.
 
 Keep in mind:
 
 - The schema must validate a string. `definePasswordValidationSchema` type-checks that for you.
+- The schema file runs in the browser too, so don't import server-only code in it.
 - Wasp only checks the password with the schema. It ignores the parsed value, so transforms like `.trim()` don't change the password Wasp saves.
 - Async refinements aren't supported. Use the [`onBeforeSignup` hook](./hooks.md#executing-code-before-the-user-signs-up) for checks that need to call other services.
 
