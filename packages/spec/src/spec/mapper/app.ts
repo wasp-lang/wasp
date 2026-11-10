@@ -8,7 +8,6 @@ export function mapAppSpec(
 ): AppSpec.GetDeclForType<"App"> {
   const {
     name,
-    wasp,
     title,
     deployment,
     head,
@@ -24,7 +23,6 @@ export function mapAppSpec(
     declType: "App",
     declValue: {
       name,
-      wasp,
       title,
       deployment: deployment && mapDeployment(deployment),
       head,

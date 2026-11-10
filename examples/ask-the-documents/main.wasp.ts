@@ -19,7 +19,6 @@ import { Main } from "./src/pages/MainPage" with { type: "ref" };
 
 export default app({
   name: "askTheDocuments",
-  wasp: { version: "0.27.0" },
   title: "PG Vector Example",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
