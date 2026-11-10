@@ -20,6 +20,9 @@ spec_WaspNpmPackage = do
       doesVersionMatchDeclaredVersion "0.27.0-rc.1" (version "0.27.0-rc.2") `shouldBe` False
       doesVersionMatchDeclaredVersion "0.27.0-rc.1" (version "0.27.0") `shouldBe` False
 
+    it "matches a release candidate against a range that names one of the same version" $ do
+      doesVersionMatchDeclaredVersion "^0.27.0-rc.1" (version "0.27.0-rc.2") `shouldBe` True
+
     it "doesn't constrain declared versions that aren't ranges" $ do
       doesVersionMatchDeclaredVersion "file:../wasp-wasp-0.27.0.tgz" (version "0.27.0-rc.1") `shouldBe` True
   where

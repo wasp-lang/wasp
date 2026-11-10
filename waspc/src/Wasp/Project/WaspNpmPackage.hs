@@ -49,8 +49,9 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir = do
         { P.cwd = Just $ fromAbsDir waspProjectDir
         }
 
--- | Matches like npm: a range never matches a prerelease, and a declared version
--- that isn't a range, e.g. a `file:` tarball, matches anything.
+-- | Matches like npm. A prerelease only matches a range that names a prerelease
+-- of the same version: `^0.27.0-rc.1` matches 0.27.0-rc.2, `^0.27.0` doesn't.
+-- A declared version that isn't a range, e.g. a `file:` tarball, matches anything.
 doesVersionMatchDeclaredVersion :: String -> SV.Version -> Bool
 doesVersionMatchDeclaredVersion declaredVersion version =
   either (const True) (SV.isVersionInRange version) (SV.parseRange declaredVersion)
