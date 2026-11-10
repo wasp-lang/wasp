@@ -1,4 +1,6 @@
+import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import { getPackageName, WASP_PACKAGE_DIR_NAMES } from "./packages/utils.ts";
 
 /** What Wasp generates into a Wasp app, relative to the app's dir. */
@@ -21,8 +23,14 @@ type PackageLockEntry = { dependencies?: Record<string, string> };
  * packages whenever they're repacked. Apps from before Wasp 0.27 use the
  * `@wasp.sh` scope, so we match it too.
  */
-export async function removeStaleWaspLockEntries(): Promise<void> {
-  const packageLockPath = "package-lock.json";
+export async function removeStaleWaspLockEntries(
+  waspAppDir: string,
+): Promise<void> {
+  const packageLockPath = join(waspAppDir, "package-lock.json");
+  // A fresh app has no lockfile yet, so nothing in it is stale.
+  if (!existsSync(packageLockPath)) {
+    return;
+  }
   const packageLock: { packages: Record<string, PackageLockEntry> } =
     JSON.parse(await readFile(packageLockPath, "utf-8"));
   const freshLockEntries = Object.entries(packageLock.packages)

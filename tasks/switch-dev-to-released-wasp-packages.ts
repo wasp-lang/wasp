@@ -24,4 +24,4 @@ const devOverrides = WASP_NPM_SUBPACKAGES_DIR_NAMES.map(
 await $`npm pkg set dependencies.${getPackageName(WASP_MAIN_PACKAGE_DIR_NAME)}=${version}`;
 // `//` holds the examples' note about the dev packages.
 await $`npm pkg delete ${devOverrides} //`;
-await reinstallDevWaspAppDeps();
+await reinstallDevWaspAppDeps(process.cwd());

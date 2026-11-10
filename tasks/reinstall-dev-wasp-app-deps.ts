@@ -4,4 +4,4 @@
 
 import { reinstallDevWaspAppDeps } from "../waspc/tools/reinstallDevWaspAppDeps.ts";
 
-await reinstallDevWaspAppDeps();
+await reinstallDevWaspAppDeps(process.cwd());

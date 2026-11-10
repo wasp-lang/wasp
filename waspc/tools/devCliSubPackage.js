@@ -10,9 +10,15 @@ import { fileURLToPath } from "node:url";
 // Keep in sync with `DEV_CLI_CONFIG_FILE_NAME` in `tasks/build/dev-packages.ts`.
 const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";
 
+const devPackagesDir = findDevPackagesDir();
+
+// `@wasp/cli` passes its environment on to the Wasp binary, which uses the dev
+// packages only with this variable set (see `Wasp.Cli.DevWaspNpmPackages`).
+process.env.WASP_DEV_PACKAGES_DIR ??= devPackagesDir;
+
 /** @type {{ waspBinPath: string, dataDirPath: string }} */
 const devCliConfig = JSON.parse(
-  readFileSync(join(findDevPackagesDir(), DEV_CLI_CONFIG_FILE_NAME), "utf8"),
+  readFileSync(join(devPackagesDir, DEV_CLI_CONFIG_FILE_NAME), "utf8"),
 );
 
 export default devCliConfig;

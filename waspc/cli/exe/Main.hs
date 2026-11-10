@@ -36,6 +36,7 @@ import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
+import Wasp.Cli.DevWaspNpmPackages (checkDirectlyRunWaspUsesDevWaspNpmPackages)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
@@ -56,6 +57,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- started) when it's stopped with SIGTERM (process managers, `kill`) or
   -- SIGHUP (closed terminal), and not only with Ctrl+C.
   handleTerminationSignalsLikeInterrupt
+
+  checkDirectlyRunWaspUsesDevWaspNpmPackages >>= \case
+    Right () -> return ()
+    Left errorMessage -> hPutStrLn stderr (Term.applyStyles [Term.Red] errorMessage) >> exitFailure
 
   args <- getArgs
   let commandCall = case args of

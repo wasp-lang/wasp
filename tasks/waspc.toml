@@ -20,9 +20,9 @@ run = [
   { task = "build:libs" },
   { task = "build:dev-packages" },
   "cabal install --overwrite-policy=always",
-  # `wasp-cli new` writes the dev Wasp npm package tarballs into new projects
-  # only when this env var is set. `mise run wasp-cli` sets it for you.
-  "echo 'For `wasp-cli new` to use the dev Wasp npm packages, add this to your shell profile:'",
+  # A directly run `wasp-cli` refuses to run without this env var, since its
+  # projects depend on the dev Wasp npm packages. `mise run wasp-cli` sets it for you.
+  "echo 'The installed `wasp-cli` needs the dev Wasp npm packages. Add this to your shell profile:'",
   "echo 'export WASP_DEV_PACKAGES_DIR=\"{{vars.wasp_dev_packages_dir}}\"'",
 ]
 

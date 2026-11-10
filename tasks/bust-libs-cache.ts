@@ -17,7 +17,7 @@ const $ = execa({ stdio: "inherit", verbose: "short" });
 for (const generatedPath of GENERATED_WASP_PATHS) {
   await rm(generatedPath, { recursive: true, force: true });
 }
-await reinstallDevWaspAppDeps();
+await reinstallDevWaspAppDeps(process.cwd());
 
 // Compiling the project copies the new lib tarball to the out dir.
 await $`${waspCliDevPath} compile`;
