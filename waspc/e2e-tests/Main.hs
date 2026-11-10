@@ -105,35 +105,10 @@ e2eTests = do
   shellTestTrees <-
     mapM
       testTreeFromTest
-      [ -- general Wasp commads
-        waspNewTest,
-        waspTelemetryTest,
-        waspCompletionTest,
-        -- Wasp project commands
-        -- NOTE(Franjo): The following tests have the `FIXME` comment because they
-        -- are long running processes, which we haven't implmemented support for yet.
-        -- These will be fixed as part of the refactor to pure Haskell tests.
-        waspBuildTest,
-        waspTsSpecNodeEnvTest,
-        viteBuildTest,
-        viteConfigTest,
-        vitestTest,
-        -- FIXME: waspBuildStartTest,
-        waspCleanTest,
-        waspProjectLockTest,
-        waspSpecAvailableTest,
-        waspShowTest,
-        waspInstallTest,
-        waspDepsTest,
-        waspDockerfileTest,
+      [ -- FIXME: waspBuildStartTest,
+        waspProjectLockTest
         -- FIXME: waspStudioTest,
-        -- Wasp project db commands
         -- FIXME: waspDbStudioTest,
-        waspDbSeedTest,
-        waspDbResetTest,
-        waspDbMigrateDevTest,
-        waspSpecEntityTypesTest,
-        incrementalTypeCheckingTest
       ]
   sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
 
@@ -147,10 +122,32 @@ e2eTests = do
           ( sdkPackageExportsTestTree
               : map
                 toTestTree
-                [ waspVersionTest,
+                [ -- general Wasp commands
+                  waspNewTest,
+                  waspTelemetryTest,
+                  waspCompletionTest,
+                  waspVersionTest,
+                  -- Wasp project commands
                   waspCompileTest,
                   waspStartTest,
-                  waspDbStartTest
+                  waspBuildTest,
+                  waspTsSpecNodeEnvTest,
+                  viteBuildTest,
+                  viteConfigTest,
+                  vitestTest,
+                  waspCleanTest,
+                  waspSpecAvailableTest,
+                  waspShowTest,
+                  waspInstallTest,
+                  waspDepsTest,
+                  waspDockerfileTest,
+                  -- Wasp project db commands
+                  waspDbStartTest,
+                  waspDbSeedTest,
+                  waspDbResetTest,
+                  waspDbMigrateDevTest,
+                  waspSpecEntityTypesTest,
+                  incrementalTypeCheckingTest
                 ]
           )
       ]

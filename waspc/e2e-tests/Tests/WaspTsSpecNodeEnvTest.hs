@@ -1,47 +1,23 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
 
 import qualified Data.Text as T
+import E2E
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( assertCommandOutputContains,
-    createTestWaspProject,
-    inTestWaspProjectDir,
-    replaceMainWaspTsFile,
-    setWaspDbToPSQL,
-    waspCliBuild,
-    waspCliCompile,
-  )
-import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
-waspTsSpecNodeEnvTest :: Test
+waspTsSpecNodeEnvTest :: E2ETest
 waspTsSpecNodeEnvTest =
-  Test
+  testGroup
     "wasp-ts-spec-node-env"
-    [ TestCase
-        "node-env-is-development-on-compile"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandOutputContains waspCliCompile "E2E-NODE-ENV=development"
-                ]
-            ]
-        ),
-      TestCase
-        "node-env-is-production-on-build"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandOutputContains waspCliBuild "E2E-NODE-ENV=production"
-                ]
-            ]
-        )
+    [ test "node-env-is-development-on-compile" $
+        withNewWaspProject minimalStarterTemplate $ do
+          writeToFile "main.wasp.ts" nodeEnvMainWaspTs
+          wasp ["compile"] >>= assertOutputContains "E2E-NODE-ENV=development",
+      test "node-env-is-production-on-build" $
+        withNewWaspProject minimalStarterTemplate $ do
+          setDbToPostgres
+          writeToFile "main.wasp.ts" nodeEnvMainWaspTs
+          wasp ["build"] >>= assertOutputContains "E2E-NODE-ENV=production"
     ]
   where
     nodeEnvMainWaspTs :: T.Text
@@ -62,6 +38,3 @@ waspTsSpecNodeEnvTest =
           ]
         })
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion

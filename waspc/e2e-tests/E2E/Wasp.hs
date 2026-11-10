@@ -3,9 +3,11 @@ module E2E.Wasp
   ( waspAppDirName,
     wasp,
     waspFails,
+    assertFailsWithoutInteractiveTerminal,
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
+    waspDbResetForce,
     setDbToPostgres,
     waspPidFromLockFile,
     textWaspVersion,
@@ -17,7 +19,8 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
-import E2E.Command (waspCli)
+import E2E.Assertions (assertOutputContains)
+import E2E.Command (Command, waspCli, withEnv)
 import E2E.Files (replaceInFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
 import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
@@ -43,6 +46,15 @@ wasp = run . waspCli
 -- | Runs a Wasp CLI command and fails the test if it succeeds.
 waspFails :: [String] -> TestM ProcessResult
 waspFails = runExpectingFailure . waspCli
+
+-- | Asserts that a command that needs to prompt fails when stdin is not an
+-- interactive terminal, and prints its usage so the user can pass the answers
+-- as arguments instead.
+assertFailsWithoutInteractiveTerminal :: String -> Command -> TestM ()
+assertFailsWithoutInteractiveTerminal commandName cmd = do
+  result <- runExpectingFailure cmd
+  assertOutputContains "stdin is not an interactive terminal" result
+  assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
 createWaspProject :: StarterTemplate -> TestM ()
 createWaspProject template = void $ wasp ["new", waspAppDirName, "-t", show template]
@@ -78,6 +90,14 @@ waspDbMigrateDev migrationName = do
             SP.</> dbRootDirInGeneratedAppDir
             SP.</> dbMigrationsDirInDbRootDir
       ]
+
+-- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g.
+-- when the e2e tests are run from Claude Code), unless the consent env var is
+-- set. Tests only reset their own throwaway database, so we always consent.
+waspDbResetForce :: Command
+waspDbResetForce =
+  withEnv [("PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION", "Resetting the throwaway e2e test database")] $
+    waspCli ["db", "reset", "--force"]
 
 setDbToPostgres :: TestM ()
 setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provider = \"postgresql\""

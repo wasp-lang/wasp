@@ -1,113 +1,54 @@
 module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
-import Control.Monad.Reader (MonadReader (ask))
-import qualified Data.Text as T
-import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&), (~|))
-import StrongPath (fromAbsDir, (</>))
-import Test (Test (..), TestCase (..))
+import Control.Monad (forM_)
+import Control.Monad.IO.Class (liftIO)
+import Data.List (isInfixOf)
+import E2E
+import qualified StrongPath as SP
+import System.Directory (listDirectory)
+import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Generator.DbGenerator.Common
-  ( dbMigrationsDirInDbRootDir,
-    dbRootDirInGeneratedAppDir,
-  )
-import Wasp.Project.Common
-  ( dotWaspDirInWaspProjectDir,
-    generatedAppDirInDotWaspDir,
-  )
+import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
-waspDbMigrateDevTest :: Test
+waspDbMigrateDevTest :: E2ETest
 waspDbMigrateDevTest =
-  Test
+  testGroup
     "wasp-db-migrate-dev"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliDbMigrateDevFails]),
-      TestCase
-        "succeed-migrations-up-to-date"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDbMigrateDev "no_migration"
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-create-new-migration"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ appendToPrismaFile taskPrismaModel,
-                  waspCliDbMigrateDev "yes_migration",
-                  assertMigrationDirsExist "yes_migration"
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-with-stdin-open-but-empty"
-        -- Wasp's DB connection check runs `prisma db execute --stdin`, which
-        -- reads its stdin to the end. It used to inherit Wasp's stdin, so when
-        -- that was a pipe nobody wrote to or closed, the check hung forever.
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ withStdinOpenButEmpty <$> waspCliDbMigrateDev "no_migration",
-                  return assertStdinWasNotClosedByTimeout
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["db", "migrate-dev"],
+      test "succeed-migrations-up-to-date"
+        $ withNewWaspProject minimalStarterTemplate
+        $ waspDbMigrateDev "no_migration",
+      test "succeed-create-new-migration" $
+        withNewWaspProject minimalStarterTemplate $ do
+          appendToFile "schema.prisma" taskPrismaModel
+          waspDbMigrateDev "yes_migration"
+          assertMigrationExists "yes_migration",
+      -- Wasp's DB connection check runs `prisma db execute --stdin`, which
+      -- reads its stdin to the end. It used to inherit Wasp's stdin, so when
+      -- that was a pipe nobody wrote to or closed, the check hung forever.
+      test "succeed-with-stdin-open-but-empty"
+        $ withNewWaspProject minimalStarterTemplate
+        $ run
+          (waspCli ["db", "migrate-dev", "--name", "no_migration"])
+            { stdinMode = OpenEmptyStdin,
+              timeoutSeconds = 5 * 60
+            }
     ]
   where
-    -- Pipes into the command from a writer that never writes anything and
-    -- keeps the pipe open until the command finishes. After ~5 minutes it gives
-    -- up and closes the pipe (so a hanging command can finish and the test
-    -- doesn't hang), leaving a marker file behind for us to check.
-    withStdinOpenButEmpty :: ShellCommand -> ShellCommand
-    withStdinOpenButEmpty command =
-      ( "( i=0; until [ -f "
-          ++ commandFinishedMarkerFile
-          ++ " ]; do i=$((i+1)); if [ \"$i\" -ge 1500 ]; then touch "
-          ++ stdinTimedOutMarkerFile
-          ++ "; exit 0; fi; sleep 0.2; done )"
-      )
-        ~| ("{ " ++ command ++ "; exitCode=$?; touch " ++ commandFinishedMarkerFile ++ "; [ \"$exitCode\" -eq 0 ]; }")
+    -- In the project and in the generated app.
+    assertMigrationExists :: String -> TestM ()
+    assertMigrationExists migrationName =
+      forM_ [SP.fromRelDir dbMigrationsDirInWaspProjectDir, SP.fromRelDir generatedAppMigrationsDir] $ \migrationsDir -> do
+        migrations <- resolvePath migrationsDir >>= liftIO . listDirectory
+        assertTrue
+          ("there's a migration named " ++ show migrationName ++ " in " ++ migrationsDir)
+          (any (migrationName `isInfixOf`) migrations)
 
-    assertStdinWasNotClosedByTimeout :: ShellCommand
-    assertStdinWasNotClosedByTimeout = "[ ! -f " ++ stdinTimedOutMarkerFile ++ " ]"
-
-    commandFinishedMarkerFile :: FilePath
-    commandFinishedMarkerFile = ".wasp-e2e-command-finished"
-
-    stdinTimedOutMarkerFile :: FilePath
-    stdinTimedOutMarkerFile = ".wasp-e2e-stdin-timed-out"
-
-    waspCliDbMigrateDevFails :: ShellCommand
-    waspCliDbMigrateDevFails = "! $WASP_CLI_CMD db migrate-dev"
-
-    taskPrismaModel :: T.Text
-    taskPrismaModel =
-      [trimming|
-        model Task {
-          id          Int     @id @default(autoincrement())
-          description String
-          isDone      Boolean @default(false)
-        }
-      |]
-
-assertMigrationDirsExist :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-assertMigrationDirsExist migrationName = do
-  waspProjectContext <- ask
-  let waspMigrationsDir = waspProjectContext.waspProjectDir </> dbMigrationsDirInWaspProjectDir
-      waspOutMigrationsDir =
-        waspProjectContext.waspProjectDir
-          </> dotWaspDirInWaspProjectDir
-          </> generatedAppDirInDotWaspDir
-          </> dbRootDirInGeneratedAppDir
-          </> dbMigrationsDirInDbRootDir
-  return $
-    ("cd " ++ fromAbsDir waspMigrationsDir)
-      ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")
-      ~&& ("cd " ++ fromAbsDir waspOutMigrationsDir)
-      ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")
+    generatedAppMigrationsDir =
+      dotWaspDirInWaspProjectDir
+        SP.</> generatedAppDirInDotWaspDir
+        SP.</> dbRootDirInGeneratedAppDir
+        SP.</> dbMigrationsDirInDbRootDir

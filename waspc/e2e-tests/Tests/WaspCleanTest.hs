@@ -1,43 +1,22 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliClean, waspCliCompile)
-import Test (Test (..), TestCase (..))
+import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspCleanTest :: Test
+waspCleanTest :: E2ETest
 waspCleanTest =
-  Test
+  testGroup
     "wasp-clean"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliCleanFails]),
-      TestCase
-        "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliClean,
-                  return $ assertDirectoryDoesNotExist ".wasp",
-                  return $ assertDirectoryDoesNotExist "node_modules"
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-compiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  waspCliClean,
-                  return $ assertDirectoryDoesNotExist ".wasp",
-                  return $ assertDirectoryDoesNotExist "node_modules"
-                ]
-            ]
-        )
+    [ test "fail-outside-project" $ waspFails ["clean"],
+      test "succeed-uncompiled-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          wasp ["clean"]
+          assertDirectoryDoesNotExist ".wasp"
+          assertDirectoryDoesNotExist "node_modules",
+      test "succeed-compiled-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          wasp ["compile"]
+          wasp ["clean"]
+          assertDirectoryDoesNotExist ".wasp"
+          assertDirectoryDoesNotExist "node_modules"
     ]
-  where
-    waspCliCleanFails :: ShellCommand
-    waspCliCleanFails = "! $WASP_CLI_CMD clean"
-
-    assertDirectoryDoesNotExist :: FilePath -> ShellCommand
-    assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"
