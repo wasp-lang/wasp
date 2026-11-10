@@ -2,6 +2,7 @@ module Wasp.Project.WaspNpmPackage
   ( -- * Versions
     InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
+    tryGettingInstalledWaspNpmPackagePeerDeps,
     doesVersionMatchDeclaredVersion,
     getWaspCliNpmPackageVersion,
     isRunByWaspCliNpmPackage,
@@ -13,13 +14,17 @@ module Wasp.Project.WaspNpmPackage
   )
 where
 
+import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
+import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List (find, isInfixOf)
+import qualified Data.Map as M
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.NodeCommand (NodeCommand (..))
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
@@ -29,25 +34,48 @@ import qualified Wasp.Version as WV
 
 data InstalledWaspNpmPackageError
   = WaspNpmPackageNotInstalled
-  | -- | Its package.json is unreadable or has no valid version, with this reason.
+  | -- | Its package.json is unreadable or has an invalid field, with this reason.
     BrokenWaspNpmPackage String
 
--- | Asks Node, so the CLI finds the same \@wasp/wasp that Node and \@wasp/cli do.
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
-tryGettingInstalledWaspNpmPackageVersion waspProjectDir = do
-  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode printWaspNpmPackageVersionProcess ""
-  return $ case exitCode of
-    ExitSuccess -> case trim stdout of
+tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
+  (>>= parseVersion) <$> printFromInstalledWaspNpmPackageJson waspProjectDir (++ ".version")
+  where
+    parseVersion = \case
       "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
       version -> first (BrokenWaspNpmPackage . show) $ SV.parseVersion version
+
+-- | The packages the generated code needs in every app, e.g. React or Express.
+-- They are the peer dependencies of \@wasp/wasp, and its package.json is the
+-- only place that lists them.
+tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
+tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
+  (>>= parsePeerDeps) <$> printFromInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
+  where
+    peerDepsAsJson packageJson = "JSON.stringify(" ++ packageJson ++ ".peerDependencies ?? {})"
+    parsePeerDeps =
+      first BrokenWaspNpmPackage
+        . fmap (Npm.Dependency.fromList . M.toList)
+        . Aeson.eitherDecode
+        . BLU.fromString
+
+-- | Prints a JS expression that the function builds from the JS expression of
+-- the installed \@wasp/wasp's package.json. Asks Node, so the CLI finds the
+-- same \@wasp/wasp that Node and \@wasp/cli do.
+printFromInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
+printFromInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
+  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode printProcess ""
+  return $ case exitCode of
+    ExitSuccess -> Right $ trim stdout
     ExitFailure _
       | "MODULE_NOT_FOUND" `isInfixOf` stderr -> Left WaspNpmPackageNotInstalled
       | otherwise -> Left $ BrokenWaspNpmPackage $ fromMaybe (trim stderr) $ find ("Error" `isInfixOf`) $ lines stderr
   where
-    printWaspNpmPackageVersionProcess =
-      (P.proc "node" ["--print", "require(" ++ show (waspNpmPackageName ++ "/package.json") ++ ").version"])
+    printProcess =
+      (P.proc "node" ["--print", makeJsExpression packageJsonJsExpression])
         { P.cwd = Just $ fromAbsDir waspProjectDir
         }
+    packageJsonJsExpression = "require(" ++ show (waspNpmPackageName ++ "/package.json") ++ ")"
 
 -- | Matches like npm. A prerelease only matches a range that names a prerelease
 -- of the same version: `^0.27.0-rc.1` matches 0.27.0-rc.2, `^0.27.0` doesn't.

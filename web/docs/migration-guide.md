@@ -115,6 +115,8 @@ The two fields take different versions. `wasp.overriddenDeps` lists the version 
 
 Read more in [Overriding Wasp's dependencies](./advanced/dependencies.md#overriding-wasps-dependencies-advanced).
 
+The packages that come with `@wasp/wasp` are its peer dependencies, so npm has to install peer dependencies. If your `.npmrc` sets `legacy-peer-deps=true` or `omit=peer`, remove that setting. With it, npm skips these packages and your app fails with missing modules.
+
 If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
 
 ```ini title=".npmrc"

@@ -44,7 +44,6 @@ import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
-import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
@@ -154,9 +153,8 @@ npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp spec =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
-      { -- @wasp/wasp brings the server's core dependencies as peer
-        -- dependencies (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The server
-        -- lists only the ones that depend on the app.
+      { -- Only the dependencies that depend on the app. The core ones are peer
+        -- dependencies of @wasp/wasp.
         N.dependencies =
           depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
@@ -164,8 +162,7 @@ npmDepsFromWasp spec =
           Npm.Dependency.fromList
             [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest")
-            ],
-        peerDependencies = []
+            ]
       }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)

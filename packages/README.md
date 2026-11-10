@@ -41,6 +41,20 @@ Create a directory in this folder with a `build` script in `package.json` that c
 Give `@wasp/wasp` a run script for the package in `wasp/scripts/` (see `run-deploy.js`), export
 it from `wasp/package.json`, and add it to `WaspNpmPackageScript` in `Wasp.Project.WaspNpmPackage`.
 
+### Changing the peer dependencies of `@wasp/wasp`
+
+The `peerDependencies` of `wasp/package.json` are the packages the generated code needs in every
+app (React, Express, Prisma and so on). No other place lists them: `waspc` reads them from the
+project's installed `@wasp/wasp`. When you change one:
+
+- `@prisma/client` and `prisma` must have the same version. Also update
+  `waspc/data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts`.
+- `react` and `react-dom` must have the same range. Also update `react` in the libs that list it
+  (`libs/*/package.json`).
+- `@types/react` and `@types/react-dom` follow React's major version. Also update `@types/react`
+  in the libs that list it.
+- `@types/express` and `@types/express-serve-static-core` must have the same range.
+
 ## CI builds and release
 
 CI runs the same build scripts, and `waspc/tools/make_binary_package.sh` copies the data files

@@ -12,14 +12,15 @@ import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Terminal (title)
+import Wasp.Docs (waspDocsUrl)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
-import qualified Wasp.Generator.WaspNpmPackagePeerDeps as WaspNpmPackagePeerDeps
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (analyzeWaspProject)
+import Wasp.Project.WaspNpmPackage (InstalledWaspNpmPackageError (..), tryGettingInstalledWaspNpmPackagePeerDeps)
 import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
@@ -34,18 +35,27 @@ deps = do
       return
       appSpecOrAnalyzerErrors
 
-  liftIO $ putStrLn $ depsMessage appSpec
+  waspNpmPackagePeerDeps <-
+    liftIO (tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir) >>= \case
+      Right peerDeps -> return peerDeps
+      Left WaspNpmPackageNotInstalled -> throwError $ peerDepsError "It is not installed."
+      Left (BrokenWaspNpmPackage reason) -> throwError $ peerDepsError reason
 
-depsMessage :: AppSpec -> String
-depsMessage appSpec =
+  liftIO $ putStrLn $ depsMessage appSpec waspNpmPackagePeerDeps
+  where
+    peerDepsError = CommandError $ "Couldn't read the peer dependencies of " ++ waspNpmPackageName
+
+depsMessage :: AppSpec -> [Npm.Dependency.Dependency] -> String
+depsMessage appSpec waspNpmPackagePeerDeps =
   unlines $
     [ "",
-      title "Below are the dependencies Wasp uses in your project. You can import them in your code as if you specified them yourself. To use another version, see https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced.",
+      title "Below are the dependencies Wasp uses in your project. You can import them in your code as if you specified them yourself.",
+      "To use another version, see " ++ waspDocsUrl "advanced/dependencies#overriding-wasps-dependencies-advanced",
       ""
     ]
       ++ printDeps
         ("Peer dependencies of " ++ waspNpmPackageName ++ ":")
-        WaspNpmPackagePeerDeps.waspNpmPackagePeerDeps
+        waspNpmPackagePeerDeps
       ++ [""]
       ++ printDeps
         "Server dependencies:"

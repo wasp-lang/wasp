@@ -18,9 +18,13 @@ forbiddenUserDeps =
     "wasp"
   ]
 
--- | If the user's package.json lists one of these too, it must use the same
--- version, so npm installs one copy. npm itself checks the peer dependencies of
--- \@wasp/wasp (see "Wasp.Generator.WaspNpmPackagePeerDeps").
+-- | The dependencies of the generated server, regular and dev. If the user's
+-- package.json lists one of them too, it must use the same version, so npm
+-- installs one copy.
+--
+-- The SDK's dependencies are left out, since the SDK can use its own copies.
+-- The core dependencies are left out too: they are peer dependencies of
+-- \@wasp/wasp, and npm checks those.
 getGeneratedServerDeps :: AS.AppSpec -> Map P.PackageName P.PackageVersion
 getGeneratedServerDeps spec =
   M.fromListWithKey dedupeVersions serverDeps
@@ -46,6 +50,5 @@ getGeneratedServerDeps spec =
       concatMap
         (\getDeps -> D.toPair <$> getDeps pkg)
         [ N.dependencies,
-          N.devDependencies,
-          N.peerDependencies
+          N.devDependencies
         ]

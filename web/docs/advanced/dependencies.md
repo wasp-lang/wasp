@@ -22,6 +22,8 @@ You will notice that `package.json` already lists some packages, like `@wasp/was
 
 Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `wasp deps` to see them.
 
+npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
+
 The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
 
 #### Overriding Wasp's Dependencies (Advanced)

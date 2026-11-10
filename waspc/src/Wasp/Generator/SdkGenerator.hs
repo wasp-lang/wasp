@@ -174,9 +174,8 @@ genPackageJson spec = do
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { -- @wasp/wasp brings the SDK's core dependencies, vite included, as peer
-      -- dependencies (see "Wasp.Generator.WaspNpmPackagePeerDeps"). The SDK
-      -- lists only the ones that depend on the app.
+    { -- Only the dependencies that depend on the app. The core ones are peer
+      -- dependencies of @wasp/wasp.
       N.dependencies =
         depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
@@ -189,8 +188,7 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
-          ++ devDepsRequiredByEmail spec,
-      N.peerDependencies = []
+          ++ devDepsRequiredByEmail spec
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
