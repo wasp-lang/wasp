@@ -4,9 +4,6 @@ module Wasp.NpmPackageNames
   ( waspNpmPackageName,
     waspCliNpmPackageName,
     waspSpecNpmPackageName,
-    waspDeployNpmPackageName,
-    waspStudioNpmPackageName,
-    waspNpmPackageDependencyNames,
   )
 where
 
@@ -18,18 +15,3 @@ waspCliNpmPackageName = "@wasp/cli"
 
 waspSpecNpmPackageName :: String
 waspSpecNpmPackageName = "@wasp/spec"
-
-waspDeployNpmPackageName :: String
-waspDeployNpmPackageName = "@wasp/deploy"
-
-waspStudioNpmPackageName :: String
-waspStudioNpmPackageName = "@wasp/studio"
-
--- | The packages \@wasp/wasp brings, at its own version.
-waspNpmPackageDependencyNames :: [String]
-waspNpmPackageDependencyNames =
-  [ waspCliNpmPackageName,
-    waspSpecNpmPackageName,
-    waspDeployNpmPackageName,
-    waspStudioNpmPackageName
-  ]

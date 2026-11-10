@@ -35,7 +35,6 @@ Create a directory in this folder with a `build` script in `package.json` that c
 - the `dependencies` of `wasp/package.json`. The repo's TS tooling reads the package list from
   there (see `waspc/tools/packages/utils.ts`).
 - `publish_packages` in `scripts/pack-published-packages.sh`
-- `waspNpmPackageDependencyNames` in `Wasp.NpmPackageNames`
 - the `overrides` of the example apps
 
 Give `@wasp/wasp` a run script for the package in `wasp/scripts/` (see `run-deploy.js`), export

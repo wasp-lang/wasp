@@ -69,9 +69,9 @@ import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelD
 import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
-import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackageTarballFile, devWaspNpmPackagesDirEnvVarName)
+import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackagesDirEnvVarName, devWaspNpmPackagesManifestFile)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.NpmPackageNames (waspNpmPackageDependencyNames, waspNpmPackageName)
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
@@ -300,14 +300,24 @@ npmInstall = return "npm install"
 -- place in the repo.
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
-  return
-    $ unwords
-    $ "npm pkg set"
-      : devTarballField "dependencies" waspNpmPackageName
-      : map (devTarballField "overrides") waspNpmPackageDependencyNames
+  return $ "eval \"npm pkg set $(jq -r '" ++ npmPkgSetArgsJqProgram ++ "' \"" ++ devPackagesDir ++ "/" ++ fromRelFile devWaspNpmPackagesManifestFile ++ "\")\""
   where
-    devTarballField section packageName =
-      "\"" ++ section ++ "." ++ packageName ++ "=file:$" ++ devWaspNpmPackagesDirEnvVarName ++ "/" ++ fromRelFile (devWaspNpmPackageTarballFile packageName) ++ "\""
+    -- One shell-quoted `<field>=file:<tarball>` argument per tarball that the
+    -- dev packages manifest lists.
+    npmPkgSetArgsJqProgram =
+      "[\"dependencies."
+        ++ waspNpmPackageName
+        ++ "="
+        ++ tarballSpecifier ".waspTarball"
+        ++ "\"]"
+        ++ " + [.dependencyTarballs | to_entries[] | \"overrides.\\(.key)="
+        ++ tarballSpecifier ".value"
+        ++ "\"]"
+        ++ " | @sh"
+
+    tarballSpecifier tarballFileJqPath = "file:\\(env." ++ devWaspNpmPackagesDirEnvVarName ++ ")/\\(" ++ tarballFileJqPath ++ ")"
+
+    devPackagesDir = "$" ++ devWaspNpmPackagesDirEnvVarName
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand

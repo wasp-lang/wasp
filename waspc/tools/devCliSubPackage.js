@@ -7,8 +7,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Keep in sync with `DEV_CLI_CONFIG_FILE_NAME` in `tasks/build/dev-packages.ts`.
-const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";
+// Keep in sync with `DEV_PACKAGES_MANIFEST_FILE_NAME` in `tasks/build/dev-packages.ts`.
+const DEV_PACKAGES_MANIFEST_FILE_NAME = "dev-packages.json";
 
 const devPackagesDir = findDevPackagesDir();
 
@@ -17,11 +17,11 @@ const devPackagesDir = findDevPackagesDir();
 process.env.WASP_DEV_PACKAGES_DIR ??= devPackagesDir;
 
 /** @type {{ waspBinPath: string, dataDirPath: string }} */
-const devCliConfig = JSON.parse(
-  readFileSync(join(devPackagesDir, DEV_CLI_CONFIG_FILE_NAME), "utf8"),
+const { waspBinPath, dataDirPath } = JSON.parse(
+  readFileSync(join(devPackagesDir, DEV_PACKAGES_MANIFEST_FILE_NAME), "utf8"),
 );
 
-export default devCliConfig;
+export default { waspBinPath, dataDirPath };
 
 /**
  * Reads it from the `@wasp/cli` override, which names the dev `@wasp/cli`

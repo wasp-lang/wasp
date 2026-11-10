@@ -16,18 +16,20 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import {
   CLI_PACKAGE_SOURCE_DIR,
   CLI_PACKAGE_STATIC_FILES,
   copyStaticFiles,
 } from "../../packages/cli/scripts/make-cli-npm-packages/src/common.ts";
 import {
-  type CliPackageData,
-  getCurrentPlatformTarget,
-} from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
+  makeCliPackageData,
+  readCliPackageJsonForPublishing,
+} from "../../packages/cli/scripts/make-cli-npm-packages/src/generator/cli-package.ts";
+import { getCurrentPlatformTarget } from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import {
   getPackageDirPath,
+  getPackageName,
   WASP_MAIN_PACKAGE_DIR_NAME,
   WASP_NPM_SUBPACKAGES_DIR_NAMES,
 } from "../../waspc/tools/packages/utils.ts";
@@ -41,8 +43,9 @@ import {
 } from "../../waspc/tools/utils.ts";
 
 const DEV_PACKAGES_DIR_NAME = ".dev-packages";
-// Keep in sync with `waspc/tools/devCliSubPackage.js`.
-const DEV_CLI_CONFIG_FILE_NAME = "dev-cli.json";
+// Keep in sync with `waspc/tools/devCliSubPackage.js` and
+// `devWaspNpmPackagesManifestFile` in `Wasp.Cli.DevWaspNpmPackages`.
+const DEV_PACKAGES_MANIFEST_FILE_NAME = "dev-packages.json";
 const DEV_CLI_SUB_PACKAGE_FILE_NAME = "dev-sub-package.js";
 const DEV_CLI_SUB_PACKAGE_SOURCE_PATH = join(
   getWaspcDirPath(),
@@ -65,54 +68,65 @@ function buildDevPackages(): void {
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
 
+  const dependencyTarballs: Record<string, string> = {};
   for (const packageDirName of WASP_NPM_SUBPACKAGES_DIR_NAMES) {
-    console.log(`Building @wasp/${packageDirName}`);
+    const packageName = getPackageName(packageDirName);
+    console.log(`Building ${packageName}`);
     runCmd(
       "pnpm",
-      [
-        "--filter",
-        `@wasp/${packageDirName}`,
-        "--fail-if-no-match",
-        "run",
-        "build",
-      ],
-      {
-        cwd: getRepoRootPath(),
-      },
+      ["--filter", packageName, "--fail-if-no-match", "run", "build"],
+      { cwd: getRepoRootPath() },
     );
-    if (packageDirName !== CLI_PACKAGE_DIR_NAME) {
-      packPackage(getPackageDirPath(packageDirName), devPackagesDir);
-    }
+    dependencyTarballs[packageName] =
+      packageDirName === CLI_PACKAGE_DIR_NAME
+        ? packDevCliPackage(devPackagesDir)
+        : packPackage(getPackageDirPath(packageDirName), devPackagesDir);
   }
 
-  writeDevCliConfig(devPackagesDir);
-  packDevCliPackage(devPackagesDir);
+  const waspTarball = packPackage(
+    getPackageDirPath(WASP_MAIN_PACKAGE_DIR_NAME),
+    devPackagesDir,
+  );
 
-  packPackage(getPackageDirPath(WASP_MAIN_PACKAGE_DIR_NAME), devPackagesDir);
+  writeDevPackagesManifest(devPackagesDir, { waspTarball, dependencyTarballs });
 
   console.log(`Dev packages are in ${devPackagesDir}`);
 }
 
-function packPackage(packageDir: string, destinationDir: string): void {
+/** Returns the tarball's file name. */
+function packPackage(packageDir: string, destinationDir: string): string {
   const { name, version } = getPackageJson(packageDir);
-  // `Wasp.Cli.DevWaspNpmPackages` looks for the tarballs at the Wasp version.
+  // The repo's Wasp apps name the tarballs at the Wasp version in their package.json.
   assertPackageVersionMatchesWaspc(name, version);
   console.log(`Packing ${name}`);
-  runCmd("pnpm", ["pack", "--pack-destination", destinationDir], {
-    cwd: packageDir,
-  });
+  const packOutput: { filename: string } = JSON.parse(
+    runCmdAndGetStdout(
+      "pnpm",
+      ["pack", "--json", "--pack-destination", destinationDir],
+      { cwd: packageDir },
+    ),
+  );
+  return basename(packOutput.filename);
 }
 
-// Next to the tarballs, not inside them, so the tarballs are the same on every
-// machine and the lockfiles of the repo's Wasp apps stay stable.
-function writeDevCliConfig(devPackagesDir: string): void {
+// What we packed, for `Wasp.Cli.DevWaspNpmPackages`, and what the dev
+// `@wasp/cli` runs, for `waspc/tools/devCliSubPackage.js`.
+//
+// Next to the tarballs, not inside them, because the paths are of this
+// checkout. The tarballs still differ between platforms (see the `data.json`
+// of the dev `@wasp/cli`), so `reinstall-dev-wasp-app-deps` always drops their
+// lockfile entries.
+function writeDevPackagesManifest(
+  devPackagesDir: string,
+  tarballs: { waspTarball: string; dependencyTarballs: Record<string, string> },
+): void {
   const waspBinPath = process.env.WASP_DEV_CLI_BIN ?? getCabalWaspCliBinPath();
   const dataDirPath =
     process.env.WASP_DEV_DATA_DIR ?? join(getWaspcDirPath(), "data");
 
   writeFileSync(
-    join(devPackagesDir, DEV_CLI_CONFIG_FILE_NAME),
-    JSON.stringify({ waspBinPath, dataDirPath }, null, 2) + "\n",
+    join(devPackagesDir, DEV_PACKAGES_MANIFEST_FILE_NAME),
+    JSON.stringify({ waspBinPath, dataDirPath, ...tarballs }, null, 2) + "\n",
   );
 
   console.log(`Dev @wasp/cli runs ${waspBinPath} with data dir ${dataDirPath}`);
@@ -124,23 +138,21 @@ function getCabalWaspCliBinPath(): string {
   }).trim();
 }
 
-function packDevCliPackage(devPackagesDir: string): void {
+/** Returns the tarball's file name. */
+function packDevCliPackage(devPackagesDir: string): string {
   const tmpDir = mkdtempSync(join(tmpdir(), "wasp-dev-cli-"));
   try {
-    // Same files as the published package (see `packages/cli/scripts/make-cli-npm-packages`),
-    // plus the dev CLI sub-package next to the compiled CLI, and a package.json
-    // that lists them.
+    // The published package (see `packages/cli/scripts/make-cli-npm-packages`),
+    // with the dev CLI sub-package next to the compiled CLI in place of the
+    // platform packages.
     copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
     copyFileSync(
       DEV_CLI_SUB_PACKAGE_SOURCE_PATH,
       join(tmpDir, "dist", DEV_CLI_SUB_PACKAGE_FILE_NAME),
     );
 
-    const { scripts, devDependencies, ...cliPackageJson } = getPackageJson(
-      CLI_PACKAGE_SOURCE_DIR,
-    );
     const packageJson = {
-      ...cliPackageJson,
+      ...readCliPackageJsonForPublishing(),
       files: [...CLI_PACKAGE_STATIC_FILES, "data.json"],
     };
     writeFileSync(
@@ -148,21 +160,17 @@ function packDevCliPackage(devPackagesDir: string): void {
       JSON.stringify(packageJson, null, 2) + "\n",
     );
 
-    // Same shape `make-cli-npm-packages` writes, with only this machine's
-    // platform. `dist/run.js` imports `packageName`, a path relative to it.
-    const { os, cpu, libc } = getCurrentPlatformTarget();
-    const data = {
-      subPackages: {
-        [os]: {
-          [cpu]: {
-            [libc]: { packageName: `./${DEV_CLI_SUB_PACKAGE_FILE_NAME}` },
-          },
-        },
+    // Only this machine's platform. `dist/run.js` imports `packageName`, a
+    // path relative to it.
+    const data = makeCliPackageData([
+      {
+        packageName: `./${DEV_CLI_SUB_PACKAGE_FILE_NAME}`,
+        target: getCurrentPlatformTarget(),
       },
-    } satisfies CliPackageData;
+    ]);
     writeFileSync(join(tmpDir, "data.json"), JSON.stringify(data));
 
-    packPackage(tmpDir, devPackagesDir);
+    return packPackage(tmpDir, devPackagesDir);
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
   }

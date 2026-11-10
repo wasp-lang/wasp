@@ -26,7 +26,7 @@ replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectNam
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
   devTarballs <- findDevWaspNpmPackageTarballs
   waspNpmPackageVersion <- maybe (show <$> getWaspCliNpmPackageVersion) (return . devWaspNpmPackageSpecifier) devTarballs
-  replaceTemplatePlaceholdersInWaspFile waspNpmPackageVersion appName projectName projectDir
+  replaceTemplatePlaceholdersInWaspFile appName projectName projectDir
   replaceTemplatePlaceholdersInPackageJsonFile waspNpmPackageVersion appName projectName projectDir
   forM_ devTarballs $ addDevWaspNpmPackageOverridesToProject projectDir
 
@@ -34,13 +34,16 @@ replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
 -- in the .wasp file we have written to the disk.
 -- If no .wasp file was found in the project, do nothing.
 replaceTemplatePlaceholdersInWaspFile ::
-  String -> NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
-replaceTemplatePlaceholdersInWaspFile waspNpmPackageVersion appName projectName projectDir =
+  NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
+replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Left _error -> return ()
-    Right absMainTsFile -> replaceTemplatePlaceholders absMainTsFile
-  where
-    replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk waspNpmPackageVersion appName projectName
+    Right absMainTsFile ->
+      replaceTemplatePlaceholdersInFileOnDisk
+        [ ("__waspAppName__", show appName),
+          ("__waspProjectName__", show projectName)
+        ]
+        absMainTsFile
 
 -- | Template file for package.json file has placeholders in it that we want to replace
 -- in the package.json file we have written to the disk.
@@ -50,9 +53,13 @@ replaceTemplatePlaceholdersInPackageJsonFile ::
 replaceTemplatePlaceholdersInPackageJsonFile waspNpmPackageVersion appName projectName projectDir =
   findUserPackageJsonFile projectDir >>= \case
     Nothing -> return ()
-    Just absPackageJsonFile -> do
-      let kebabCaseAppName = NewProjectAppName . camelToKebabCase . show $ appName
-      replaceTemplatePlaceholdersInFileOnDisk waspNpmPackageVersion kebabCaseAppName projectName absPackageJsonFile
+    Just absPackageJsonFile ->
+      replaceTemplatePlaceholdersInFileOnDisk
+        [ ("__waspNpmPackageVersion__", waspNpmPackageVersion),
+          ("__waspAppName__", camelToKebabCase $ show appName),
+          ("__waspProjectName__", show projectName)
+        ]
+        absPackageJsonFile
 
 -- | If no package.json file was found in the project, do nothing.
 addDevWaspNpmPackageOverridesToProject :: Path' Abs (Dir WaspProjectDir) -> DevWaspNpmPackageTarballs -> IO ()
@@ -60,14 +67,10 @@ addDevWaspNpmPackageOverridesToProject projectDir devTarballs =
   findUserPackageJsonFile projectDir
     >>= mapM_ (addDevWaspNpmPackageOverridesToPackageJsonFile devTarballs)
 
-replaceTemplatePlaceholdersInFileOnDisk :: String -> NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
-replaceTemplatePlaceholdersInFileOnDisk waspNpmPackageVersion appName projectName file = do
-  let waspTemplateReplacements =
-        [ ("__waspNpmPackageVersion__", waspNpmPackageVersion),
-          ("__waspAppName__", show appName),
-          ("__waspProjectName__", show projectName)
-        ]
-  updateFileContentWith (replacePlaceholders waspTemplateReplacements) file
+-- | Replaces each placeholder in the file with its value.
+replaceTemplatePlaceholdersInFileOnDisk :: [(String, String)] -> Path' Abs (File f) -> IO ()
+replaceTemplatePlaceholdersInFileOnDisk placeholdersWithValues file =
+  updateFileContentWith (replacePlaceholders placeholdersWithValues) file
   where
     updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()
     updateFileContentWith updateFn absFilePath = IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
