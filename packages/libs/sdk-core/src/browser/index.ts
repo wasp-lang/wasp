@@ -4,7 +4,12 @@ export { Loader } from "./app/Loader.js";
 export { MessageError, MessageLoading } from "./app/Message.js";
 export { apiEventsEmitter } from "./auth/events.js";
 export { getAuthErrorMessage } from "./auth/forms/authErrorMessage.js";
-export { emailFieldRules, emailInputProps } from "./auth/forms/emailField.js";
+export { emailInputProps } from "./auth/forms/emailField.js";
+export {
+  emailFieldRules,
+  passwordFieldRules,
+  usernameFieldRules,
+} from "./auth/forms/fieldRules.js";
 export {
   Form,
   FormError,

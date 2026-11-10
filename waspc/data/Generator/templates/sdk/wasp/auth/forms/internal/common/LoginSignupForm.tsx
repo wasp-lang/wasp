@@ -28,9 +28,10 @@ import { SocialButton } from '@wasp/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
-import { getAuthErrorMessage } from '@wasp/lib-sdk-core/browser'
+import { getAuthErrorMessage, passwordFieldRules } from '@wasp/lib-sdk-core/browser'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
+import { usernameFieldRules } from '@wasp/lib-sdk-core/browser'
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
 {=# enabledProviders.isEmailAuthEnabled =}
@@ -180,9 +181,7 @@ export const LoginSignupForm = ({
           <FormItemGroup>
             <FormLabel>Username</FormLabel>
             <FormInput
-              {...register('username', {
-                required: 'Username is required',
-              })}
+              {...register('username', usernameFieldRules)}
               type="text"
               disabled={isLoading}
             />
@@ -203,9 +202,7 @@ export const LoginSignupForm = ({
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
             <FormPasswordInput
-              {...register('password', {
-                required: 'Password is required',
-              })}
+              {...register('password', passwordFieldRules)}
               disabled={isLoading}
             />
             {errors.password && <FormError>{errors.password.message}</FormError>}
