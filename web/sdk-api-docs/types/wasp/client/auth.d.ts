@@ -28,7 +28,7 @@
  */
 
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { Query } from "@wasp/lib-sdk-core";
+import type { PasswordValidationSchema, Query } from "@wasp/lib-sdk-core";
 import type {
   AdditionalSignupFields,
   CustomizationOptions,
@@ -116,6 +116,25 @@ export declare const getMe: Query<void, AuthUser | null>;
  * @see [Logout action](https://wasp.sh/docs/features/auth/overview#logout-action)
  */
 export declare function logout(): Promise<void>;
+
+/**
+ * The Zod schema that new passwords must pass: your app's
+ * [password validation schema](https://wasp.sh/docs/features/auth/overview#custom-password-rules),
+ * or Wasp's default rules when you didn't set one.
+ *
+ * The Auth UI forms already check it. Use it to check passwords in your own
+ * signup or password reset forms.
+ *
+ * @example
+ * ```ts
+ * import { passwordValidationSchema } from "wasp/client/auth";
+ *
+ * const result = passwordValidationSchema.safeParse(password);
+ * ```
+ *
+ * @see [Custom password rules](https://wasp.sh/docs/features/auth/overview#custom-password-rules)
+ */
+export declare const passwordValidationSchema: PasswordValidationSchema;
 
 // Auth UI
 

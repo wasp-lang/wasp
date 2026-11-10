@@ -30,3 +30,5 @@ export {
 } from '../../auth/useAuth'
 
 export { default as logout } from '../../auth/logout'
+
+export { passwordValidationSchema } from '../../auth/validation'

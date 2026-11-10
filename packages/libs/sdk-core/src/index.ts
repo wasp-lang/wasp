@@ -20,12 +20,15 @@ export {
 
 export {
   PASSWORD_FIELD,
+  defaultPasswordValidationSchema,
+  definePasswordValidationSchema,
   ensurePasswordIsPresent,
   ensureTokenIsPresent,
   ensureValidEmail,
   ensureValidPassword,
   ensureValidUsername,
   throwValidationError,
+  type PasswordValidationSchema,
 } from "./auth/validation.js";
 export { type ClientConfig } from "./config.js";
 export { defineEnvValidationSchema } from "./env/schema.js";

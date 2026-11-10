@@ -1988,7 +1988,7 @@ export default app({
 
 #### Extends
 
-- [`BaseAuthMethodConfig`](#baseauthmethodconfig)
+- [`LocalAuthMethodConfig`](#localauthmethodconfig)
 
 #### Properties
 
@@ -2009,6 +2009,16 @@ Sender identity used for verification and password reset emails.
 > **passwordReset**: [`EmailFlowConfig`](#emailflowconfig)
 
 An object that specifies the password reset process.
+
+##### passwordValidationSchema?
+
+> `optional` **passwordValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Zod string schema that new passwords must pass on signup and password reset. Wasp uses its default rules when it's not set.
+
+###### Inherited from
+
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`passwordValidationSchema`](#passwordvalidationschema-1)
 
 ##### userSignupFields? {#usersignupfields-1}
 
@@ -2038,7 +2048,7 @@ export const userSignupFields = defineUserSignupFields({
 
 ###### Inherited from
 
-[`BaseAuthMethodConfig`](#baseauthmethodconfig).[`userSignupFields`](#usersignupfields)
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`userSignupFields`](#usersignupfields-2)
 
 ---
 
@@ -2416,7 +2426,7 @@ export function getConfig() {
 }
 ```
 
-##### userSignupFields? {#usersignupfields-2}
+##### userSignupFields? {#usersignupfields-3}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -2474,11 +2484,21 @@ export default app({
 
 #### Extends
 
-- [`BaseAuthMethodConfig`](#baseauthmethodconfig)
+- [`LocalAuthMethodConfig`](#localauthmethodconfig)
 
 #### Properties
 
-##### userSignupFields? {#usersignupfields-3}
+##### passwordValidationSchema? {#passwordvalidationschema-2}
+
+> `optional` **passwordValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Zod string schema that new passwords must pass on signup and password reset. Wasp uses its default rules when it's not set.
+
+###### Inherited from
+
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`passwordValidationSchema`](#passwordvalidationschema-1)
+
+##### userSignupFields? {#usersignupfields-4}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -2506,7 +2526,7 @@ export const userSignupFields = defineUserSignupFields({
 
 ###### Inherited from
 
-[`BaseAuthMethodConfig`](#baseauthmethodconfig).[`userSignupFields`](#usersignupfields)
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`userSignupFields`](#usersignupfields-2)
 
 ---
 
@@ -2735,9 +2755,8 @@ Called before the user is created. Receives `providerId` plus the common hook in
 
 #### Extended by
 
-- [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
 - [`SocialAuthConfig`](#socialauthconfig)
-- [`EmailAuthConfig`](#emailauthconfig)
+- [`LocalAuthMethodConfig`](#localauthmethodconfig)
 
 #### Properties
 
@@ -2795,6 +2814,57 @@ export const userSignupFields = defineUserSignupFields({
 > **kind**: `Kind`
 
 The internal Wasp type of a [SpecElement](#specelement). Used by the compiler. You should not set this field directly, instead use the dedicated constructors.
+
+---
+
+### LocalAuthMethodConfig
+
+#### Extends
+
+- [`BaseAuthMethodConfig`](#baseauthmethodconfig)
+
+#### Extended by
+
+- [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
+- [`EmailAuthConfig`](#emailauthconfig)
+
+#### Properties
+
+##### passwordValidationSchema? {#passwordvalidationschema-1}
+
+> `optional` **passwordValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Zod string schema that new passwords must pass on signup and password reset. Wasp uses its default rules when it's not set.
+
+##### userSignupFields? {#usersignupfields-2}
+
+> `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
+
+Object that defines extra fields to save on the user during signup (e.g. `firstName`, `address`). Each field name must exist on the configured [Auth.userEntity](#userentity).
+
+Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
+
+See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
+
+###### Example
+
+```ts
+import { defineUserSignupFields } from 'wasp/server/auth'
+
+export const userSignupFields = defineUserSignupFields({
+  address: (data) => {
+    if (!data.address) {
+      throw new Error('Address is required')
+    }
+    return data.address
+  },
+  phone: (data) => data.phone,
+})
+```
+
+###### Inherited from
+
+[`BaseAuthMethodConfig`](#baseauthmethodconfig).[`userSignupFields`](#usersignupfields)
 
 ---
 

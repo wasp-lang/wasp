@@ -4553,7 +4553,7 @@ Default validations depend on the auth method you use.
 If you use [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) authentication, the default validations are:
 
 - The `username` must not be empty
-- The `password` must not be empty, have at least 8 characters, and contain a number
+- The `password` must not be empty, have at least 8 characters, and contain a number. You can [change the password rules](#custom-password-rules).
 
 Note that `username`s are stored in a **case-insensitive** manner.
 
@@ -4562,11 +4562,71 @@ Note that `username`s are stored in a **case-insensitive** manner.
 If you use [Email](https://wasp.sh/docs/features/auth/email/overview) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address (HTML5 format widened to support Unicode)
-- The `password` must not be empty, have at least 8 characters, and contain a number
+- The `password` must not be empty, have at least 8 characters, and contain a number. You can [change the password rules](#custom-password-rules).
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
 Since Wasp's definition of valid email addresses is wider than the HTML5 grammar (we also support Unicode!), you won't want to use the usual `type="email"` attribute on the `input` element (which follows HTML5 grammar and doesn't accept Unicode). Instead use `type="text"` with `inputMode="email"` and `autoComplete="email"`.
+
+##### Custom Password Rules
+
+You can replace the default password rules with your own [Zod](https://zod.dev) schema. Set the `passwordValidationSchema` field on the `email` or `usernameAndPassword` auth method:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { passwordValidationSchema } from "./src/auth/password" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  // ...
+  auth: {
+    userEntity: "User",
+    methods: {
+      email: {
+        passwordValidationSchema,
+        // ...
+      },
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+  // ...
+})
+```
+
+Then define the schema in the `src/auth/password.ts` file:
+
+```ts title="src/auth/password.ts"
+import { definePasswordValidationSchema } from "wasp/auth";
+import * as z from "zod";
+
+export const passwordValidationSchema = definePasswordValidationSchema(
+  z
+    .string()
+    .min(12, "Password must be at least 12 characters")
+    .regex(/\p{Lu}/u, "Password must contain an uppercase letter"),
+);
+```
+
+Wasp checks new passwords against your schema on signup and password reset, on the server and in the [Auth UI](https://wasp.sh/docs/features/auth/ui) forms before they submit. `ensureValidPassword` uses it too, so your [custom auth actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions) follow the same rules. Logging in doesn't check the schema, so changing the rules doesn't lock out existing users.
+
+To check passwords in your own forms, import the schema from `wasp/client/auth`:
+
+```ts title="src/auth/SignupPage.tsx"
+import { passwordValidationSchema } from "wasp/client/auth"
+
+const result = passwordValidationSchema.safeParse(password)
+```
+
+It's your schema, or Wasp's default rules when you didn't set one.
+
+When a password fails, Wasp responds with the schema's first error message.
+
+Keep in mind:
+
+- The schema must validate a string. `definePasswordValidationSchema` type-checks that for you.
+- The schema file runs in the browser too, so don't import server-only code in it.
+- Wasp only checks the password with the schema. It ignores the parsed value, so transforms like `.trim()` don't change the password Wasp saves.
+- Async refinements aren't supported. Use the [`onBeforeSignup` hook](https://wasp.sh/docs/features/auth/hooks#executing-code-before-the-user-signs-up) for checks that need to call other services.
 
 ### Customizing the Signup Process
 
@@ -26899,7 +26959,7 @@ export default app({
 
 ##### Extends
 
-- [`BaseAuthMethodConfig`](#baseauthmethodconfig)
+- [`LocalAuthMethodConfig`](#localauthmethodconfig)
 
 ##### Properties
 
@@ -26920,6 +26980,16 @@ Sender identity used for verification and password reset emails.
 > **passwordReset**: [`EmailFlowConfig`](#emailflowconfig)
 
 An object that specifies the password reset process.
+
+###### passwordValidationSchema?
+
+> `optional` **passwordValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Zod string schema that new passwords must pass on signup and password reset. Wasp uses its default rules when it's not set.
+
+###### Inherited from
+
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`passwordValidationSchema`](#passwordvalidationschema-1)
 
 ###### userSignupFields? {#usersignupfields-1}
 
@@ -26949,7 +27019,7 @@ export const userSignupFields = defineUserSignupFields({
 
 ###### Inherited from
 
-[`BaseAuthMethodConfig`](#baseauthmethodconfig).[`userSignupFields`](#usersignupfields)
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`userSignupFields`](#usersignupfields-2)
 
 ---
 
@@ -27327,7 +27397,7 @@ export function getConfig() {
 }
 ```
 
-###### userSignupFields? {#usersignupfields-2}
+###### userSignupFields? {#usersignupfields-3}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -27385,11 +27455,21 @@ export default app({
 
 ##### Extends
 
-- [`BaseAuthMethodConfig`](#baseauthmethodconfig)
+- [`LocalAuthMethodConfig`](#localauthmethodconfig)
 
 ##### Properties
 
-###### userSignupFields? {#usersignupfields-3}
+###### passwordValidationSchema? {#passwordvalidationschema-2}
+
+> `optional` **passwordValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Zod string schema that new passwords must pass on signup and password reset. Wasp uses its default rules when it's not set.
+
+###### Inherited from
+
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`passwordValidationSchema`](#passwordvalidationschema-1)
+
+###### userSignupFields? {#usersignupfields-4}
 
 > `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
 
@@ -27417,7 +27497,7 @@ export const userSignupFields = defineUserSignupFields({
 
 ###### Inherited from
 
-[`BaseAuthMethodConfig`](#baseauthmethodconfig).[`userSignupFields`](#usersignupfields)
+[`LocalAuthMethodConfig`](#localauthmethodconfig).[`userSignupFields`](#usersignupfields-2)
 
 ---
 
@@ -27646,9 +27726,8 @@ Called before the user is created. Receives `providerId` plus the common hook in
 
 ##### Extended by
 
-- [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
 - [`SocialAuthConfig`](#socialauthconfig)
-- [`EmailAuthConfig`](#emailauthconfig)
+- [`LocalAuthMethodConfig`](#localauthmethodconfig)
 
 ##### Properties
 
@@ -27706,6 +27785,57 @@ export const userSignupFields = defineUserSignupFields({
 > **kind**: `Kind`
 
 The internal Wasp type of a [SpecElement](#specelement). Used by the compiler. You should not set this field directly, instead use the dedicated constructors.
+
+---
+
+#### LocalAuthMethodConfig
+
+##### Extends
+
+- [`BaseAuthMethodConfig`](#baseauthmethodconfig)
+
+##### Extended by
+
+- [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
+- [`EmailAuthConfig`](#emailauthconfig)
+
+##### Properties
+
+###### passwordValidationSchema? {#passwordvalidationschema-1}
+
+> `optional` **passwordValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Zod string schema that new passwords must pass on signup and password reset. Wasp uses its default rules when it's not set.
+
+###### userSignupFields? {#usersignupfields-2}
+
+> `optional` **userSignupFields?**: [`Reference`](#reference)<[`AnyObject`](#anyobject)>
+
+Object that defines extra fields to save on the user during signup (e.g. `firstName`, `address`). Each field name must exist on the configured [Auth.userEntity](#userentity).
+
+Each field function receives the data sent from the client and returns the value Wasp saves to the database. For social auth, this data includes provider-specific profile information. If the value is invalid, throw an error. The `password` field is excluded from this object and handled by Wasp's auth backend.
+
+See [`defineUserSignupFields`](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
+
+###### Example
+
+```ts
+import { defineUserSignupFields } from 'wasp/server/auth'
+
+export const userSignupFields = defineUserSignupFields({
+  address: (data) => {
+    if (!data.address) {
+      throw new Error('Address is required')
+    }
+    return data.address
+  },
+  phone: (data) => data.phone,
+})
+```
+
+###### Inherited from
+
+[`BaseAuthMethodConfig`](#baseauthmethodconfig).[`userSignupFields`](#usersignupfields)
 
 ---
 
@@ -27811,35 +27941,35 @@ You don't need to install anything, and the package isn't published to npm. The 
 
 ### Modules
 
-| Module                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [auth](https://wasp.sh/docs/api/wasp/auth)                           | Auth APIs you can use both on the client and on the server: the [AuthUser](https://wasp.sh/docs/api/wasp/auth#authuser) type of the logged-in user, and helpers for [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object).                                                                                                                         |
-| [auth/providers](https://wasp.sh/docs/api/wasp/auth/providers)       | Types of the extra signup fields you define for your auth methods.                                                                                                                                                                                                                                                                                                                                                             |
-| [client](https://wasp.sh/docs/api/wasp/client)                       | Runtime configuration and environment variables of your app's client.                                                                                                                                                                                                                                                                                                                                                          |
-| [client/api](https://wasp.sh/docs/api/wasp/client/api)               | An HTTP client for calling your app's server, including your [custom APIs](https://wasp.sh/docs/features/apis).                                                                                                                                                                                                                                                                                                                |
-| [client/auth](https://wasp.sh/docs/api/wasp/client/auth)             | Client-side auth APIs: getting the logged-in user, logging out, the generated [Auth UI](https://wasp.sh/docs/features/auth/ui) components, and the functions and helpers for building your own auth UI.                                                                                                                                                                                                                        |
-| [client/crud](https://wasp.sh/docs/api/wasp/client/crud)             | Client-side APIs for the Queries and Actions of your [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.                                                                                                                                                                                                                                                                                                          |
-| [client/operations](https://wasp.sh/docs/api/wasp/client/operations) | Client-side APIs for calling your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions).                                                                                                                                                                                                                                                       |
-| [client/router](https://wasp.sh/docs/api/wasp/client/router)         | Type-safe links and URLs for the [routes](https://wasp.sh/docs/features/pages-and-routes) you declare in your Wasp Spec.                                                                                                                                                                                                                                                                                                       |
-| [client/test](https://wasp.sh/docs/api/wasp/client/test)             | Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`wasp/test`](https://wasp.sh/docs/api/wasp/test).                                                                                                                        |
-| [client/vite](https://wasp.sh/docs/api/wasp/client/vite)             | The Vite plugin that your app's client needs.                                                                                                                                                                                                                                                                                                                                                                                  |
-| [client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket)   | React hooks for using your app's [WebSocket](https://wasp.sh/docs/features/websockets) server from the client. Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                                       |
-| [entities](https://wasp.sh/docs/api/wasp/entities)                   | Types for your app's [Entities](https://wasp.sh/docs/features/data/entities), which you can use on both the server and the client.                                                                                                                                                                                                                                                                                             |
-| [env](https://wasp.sh/docs/api/wasp/env)                             | Helper for defining the validation schemas of your app's environment variables.                                                                                                                                                                                                                                                                                                                                                |
-| [server](https://wasp.sh/docs/api/wasp/server)                       | Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.                                                                                                                                                                                                                                                                                                                                            |
-| [server/api](https://wasp.sh/docs/api/wasp/server/api)               | Types for implementing your app's [APIs](https://wasp.sh/docs/features/apis) (custom HTTP endpoints).                                                                                                                                                                                                                                                                                                                          |
-| [server/auth](https://wasp.sh/docs/api/wasp/server/auth)             | Server-side auth APIs: types for your [auth hooks](https://wasp.sh/docs/features/auth/hooks), defining extra signup fields, helpers for working with users' auth identities, the validators Wasp uses in its default auth flows, and the OAuth clients of your social auth providers. You can use the helpers and the validators in [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions). |
-| [server/crud](https://wasp.sh/docs/api/wasp/server/crud)             | Types for overriding the Queries and Actions of your [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.                                                                                                                                                                                                                                                                                                          |
-| [server/email](https://wasp.sh/docs/api/wasp/server/email)           | [Send emails](https://wasp.sh/docs/features/email) from your server code.                                                                                                                                                                                                                                                                                                                                                      |
-| [server/jobs](https://wasp.sh/docs/api/wasp/server/jobs)             | Your app's [Jobs](https://wasp.sh/docs/features/jobs), which you can submit from your server code.                                                                                                                                                                                                                                                                                                                             |
-| [server/operations](https://wasp.sh/docs/api/wasp/server/operations) | Server-side APIs for your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions): the types for implementing them, and the functions for calling them from other server code.                                                                                                                                                                   |
-| [server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket)   | Types for implementing your app's [WebSocket](https://wasp.sh/docs/features/websockets) server with [Socket.IO](https://socket.io/docs/v4/server-api/). Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                              |
-| [test](https://wasp.sh/docs/api/wasp/test)                           | The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).                                                                                                                                                                                                                               |
+| Module                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [auth](https://wasp.sh/docs/api/wasp/auth)                           | Auth APIs you can use both on the client and on the server: the [AuthUser](https://wasp.sh/docs/api/wasp/auth#authuser) type of the logged-in user, and helpers for [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object), and [definePasswordValidationSchema](https://wasp.sh/docs/api/wasp/auth#definepasswordvalidationschema) for setting your own password rules. |
+| [auth/providers](https://wasp.sh/docs/api/wasp/auth/providers)       | Types of the extra signup fields you define for your auth methods.                                                                                                                                                                                                                                                                                                                                                                                  |
+| [client](https://wasp.sh/docs/api/wasp/client)                       | Runtime configuration and environment variables of your app's client.                                                                                                                                                                                                                                                                                                                                                                               |
+| [client/api](https://wasp.sh/docs/api/wasp/client/api)               | An HTTP client for calling your app's server, including your [custom APIs](https://wasp.sh/docs/features/apis).                                                                                                                                                                                                                                                                                                                                     |
+| [client/auth](https://wasp.sh/docs/api/wasp/client/auth)             | Client-side auth APIs: getting the logged-in user, logging out, the generated [Auth UI](https://wasp.sh/docs/features/auth/ui) components, and the functions and helpers for building your own auth UI.                                                                                                                                                                                                                                             |
+| [client/crud](https://wasp.sh/docs/api/wasp/client/crud)             | Client-side APIs for the Queries and Actions of your [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.                                                                                                                                                                                                                                                                                                                               |
+| [client/operations](https://wasp.sh/docs/api/wasp/client/operations) | Client-side APIs for calling your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions).                                                                                                                                                                                                                                                                            |
+| [client/router](https://wasp.sh/docs/api/wasp/client/router)         | Type-safe links and URLs for the [routes](https://wasp.sh/docs/features/pages-and-routes) you declare in your Wasp Spec.                                                                                                                                                                                                                                                                                                                            |
+| [client/test](https://wasp.sh/docs/api/wasp/client/test)             | Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`wasp/test`](https://wasp.sh/docs/api/wasp/test).                                                                                                                                             |
+| [client/vite](https://wasp.sh/docs/api/wasp/client/vite)             | The Vite plugin that your app's client needs.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| [client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket)   | React hooks for using your app's [WebSocket](https://wasp.sh/docs/features/websockets) server from the client. Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                                                            |
+| [entities](https://wasp.sh/docs/api/wasp/entities)                   | Types for your app's [Entities](https://wasp.sh/docs/features/data/entities), which you can use on both the server and the client.                                                                                                                                                                                                                                                                                                                  |
+| [env](https://wasp.sh/docs/api/wasp/env)                             | Helper for defining the validation schemas of your app's environment variables.                                                                                                                                                                                                                                                                                                                                                                     |
+| [server](https://wasp.sh/docs/api/wasp/server)                       | Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.                                                                                                                                                                                                                                                                                                                                                                 |
+| [server/api](https://wasp.sh/docs/api/wasp/server/api)               | Types for implementing your app's [APIs](https://wasp.sh/docs/features/apis) (custom HTTP endpoints).                                                                                                                                                                                                                                                                                                                                               |
+| [server/auth](https://wasp.sh/docs/api/wasp/server/auth)             | Server-side auth APIs: types for your [auth hooks](https://wasp.sh/docs/features/auth/hooks), defining extra signup fields, helpers for working with users' auth identities, the validators Wasp uses in its default auth flows, and the OAuth clients of your social auth providers. You can use the helpers and the validators in [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).                      |
+| [server/crud](https://wasp.sh/docs/api/wasp/server/crud)             | Types for overriding the Queries and Actions of your [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.                                                                                                                                                                                                                                                                                                                               |
+| [server/email](https://wasp.sh/docs/api/wasp/server/email)           | [Send emails](https://wasp.sh/docs/features/email) from your server code.                                                                                                                                                                                                                                                                                                                                                                           |
+| [server/jobs](https://wasp.sh/docs/api/wasp/server/jobs)             | Your app's [Jobs](https://wasp.sh/docs/features/jobs), which you can submit from your server code.                                                                                                                                                                                                                                                                                                                                                  |
+| [server/operations](https://wasp.sh/docs/api/wasp/server/operations) | Server-side APIs for your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions): the types for implementing them, and the functions for calling them from other server code.                                                                                                                                                                                        |
+| [server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket)   | Types for implementing your app's [WebSocket](https://wasp.sh/docs/features/websockets) server with [Socket.IO](https://socket.io/docs/v4/server-api/). Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                   |
+| [test](https://wasp.sh/docs/api/wasp/test)                           | The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).                                                                                                                                                                                                                                                    |
 
 
 ## wasp/auth
 
-Auth APIs you can use both on the client and on the server: the [AuthUser](#authuser) type of the logged-in user, and helpers for [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object).
+Auth APIs you can use both on the client and on the server: the [AuthUser](#authuser) type of the logged-in user, and helpers for [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object), and [definePasswordValidationSchema](#definepasswordvalidationschema) for setting your own password rules.
 
 Only available if your app has [auth](https://wasp.sh/docs/features/auth/overview) enabled.
 
@@ -27911,6 +28041,55 @@ export const AccountPage = ({ user }: { user: AuthUser }) => {
 - [Accessing user data](https://wasp.sh/docs/features/auth/entities#accessing-the-auth-fields)
 
 ### Functions
+
+#### definePasswordValidationSchema()
+
+> **definePasswordValidationSchema**<`Schema`>(`schema`): `Schema`
+
+Defines a Zod schema that new passwords must pass on signup and password reset, replacing Wasp's default password rules.
+
+It returns the schema unchanged, and only exists to make sure the schema validates a string. Export the schema from a file in `src/` and pass it to the `passwordValidationSchema` field of the `email` or `usernameAndPassword` auth method in the app spec.
+
+Wasp checks the schema on the server, and in the [Auth UI](https://wasp.sh/docs/features/auth/ui) forms before they submit.
+
+##### Type Parameters
+
+###### Schema
+
+`Schema` *extends* [`PasswordValidationSchema`](#passwordvalidationschema)
+
+##### Parameters
+
+###### schema {#schema}
+
+`Schema`
+
+A Zod schema for a string.
+
+##### Returns
+
+`Schema`
+
+##### Example
+
+```ts
+// src/auth/password.ts
+import * as z from "zod";
+import { definePasswordValidationSchema } from "wasp/auth";
+
+export const passwordValidationSchema = definePasswordValidationSchema(
+  z
+    .string()
+    .min(12, "Password must be at least 12 characters")
+    .regex(/\p{Lu}/u, "Password must contain an uppercase letter"),
+);
+```
+
+##### See
+
+[Custom password rules](https://wasp.sh/docs/features/auth/overview#custom-password-rules)
+
+---
 
 #### getEmail()
 
@@ -28231,6 +28410,12 @@ The auth method's name, e.g. `"email"` or `"google"`.
 > **providerUserId**: `string`
 
 The user's ID for that auth method, e.g. their email or Google ID.
+
+---
+
+#### PasswordValidationSchema
+
+> **PasswordValidationSchema** = `z.ZodType`<`string`, `string`>
 
 ---
 
@@ -29059,6 +29244,28 @@ Only available with Microsoft auth.
 ##### See
 
 [Create your own UI for social auth](https://wasp.sh/docs/features/auth/social-auth/create-your-own-ui)
+
+---
+
+#### passwordValidationSchema
+
+> `const` **passwordValidationSchema**: [`PasswordValidationSchema`](https://wasp.sh/docs/api/wasp/auth#passwordvalidationschema)
+
+The Zod schema that new passwords must pass: your app's [password validation schema](https://wasp.sh/docs/features/auth/overview#custom-password-rules), or Wasp's default rules when you didn't set one.
+
+The Auth UI forms already check it. Use it to check passwords in your own signup or password reset forms.
+
+##### Example
+
+```ts
+import { passwordValidationSchema } from "wasp/client/auth";
+
+const result = passwordValidationSchema.safeParse(password);
+```
+
+##### See
+
+[Custom password rules](https://wasp.sh/docs/features/auth/overview#custom-password-rules)
 
 ---
 
@@ -33842,7 +34049,7 @@ The data sent from the client.
 
 Checks that `args.password` is a valid password, and throws an `HttpError` with status 422 if it isn't.
 
-A valid password has at least 8 characters and contains a number.
+A valid password passes your app's [password validation schema](https://wasp.sh/docs/features/auth/overview#custom-password-rules). Without one, it has at least 8 characters and contains a number.
 
 ##### Parameters
 

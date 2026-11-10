@@ -26,6 +26,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - The `basic` starter has a refreshed look, and a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
+- Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
+- The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
 
 ### 🐞 Bug fixes
 
@@ -60,6 +62,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp no longer installs its own copy of Prisma on the first `wasp compile`, which saves about 200 MB of disk space. ([#5202](https://github.com/wasp-lang/wasp/pull/5202))
 - New projects approve the install scripts of Prisma, esbuild, and fsevents in their `package.json`, so `npm install` no longer warns about them and they keep running once npm starts skipping unapproved scripts. Existing projects can add the same `allowScripts` block. ([#5255](https://github.com/wasp-lang/wasp/pull/5255))
 - `wasp new` now creates and applies the initial database migration, so you can go straight to `wasp start`. ([#5298](https://github.com/wasp-lang/wasp/pull/5298))
+- The Auth UI reset password form now shows a password mismatch under the confirmation field. ([#5303](https://github.com/wasp-lang/wasp/pull/5303))
 
 ### 📖 Documentation
 

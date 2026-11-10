@@ -469,13 +469,15 @@ export { ensurePasswordIsPresent } from "@wasp/lib-sdk-core";
  * Checks that `args.password` is a valid password, and throws an `HttpError`
  * with status 422 if it isn't.
  *
- * A valid password has at least 8 characters and contains a number.
+ * A valid password passes your app's
+ * [password validation schema](https://wasp.sh/docs/features/auth/overview#custom-password-rules).
+ * Without one, it has at least 8 characters and contains a number.
  *
  * @param args The data sent from the client.
  *
  * @see [Default validations](https://wasp.sh/docs/features/auth/overview#default-validations)
  */
-export { ensureValidPassword } from "@wasp/lib-sdk-core";
+export declare function ensureValidPassword(args: object): void;
 
 /**
  * Checks that `args.token` is present, and throws an `HttpError` with status
