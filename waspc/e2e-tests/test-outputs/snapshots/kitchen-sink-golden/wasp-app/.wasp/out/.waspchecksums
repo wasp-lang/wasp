@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "52fca0ab67074fd9b844f288be496437938e0d046ce619e1291de19c25035b0f"
+        "cd719c87785d73cb87271cd6c9f9121eb952ae35afe99dcbd31a4b06bc954ba4"
     ],
     [
         [
@@ -151,7 +151,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "da708990ad64a084509f433b37a1460004fb6718d11319cc473b0503dc043324"
+        "82d31f1f796032a1c63eebe2a2ff8d6d3ec1986ec1716fa83c4859a672da4218"
     ],
     [
         [
@@ -165,7 +165,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "337daef5af4b499227a1da3e2e270b64e4290b9cee55655434cd07ab685ab1bd"
+        "8c05cdf5467ced2426d5abc46f07d959cf2b48e0ab40828bcb3949f43cb7090f"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "sdk/wasp/auth/index.ts"
         ],
-        "318a6569cf9622966c0a918736d24733d54b6db70653d34e1358d53a5dab99fa"
+        "2d6fbda20b5c671b39c9b350f442a020f46f68b7d15a28303e607a2c72527afd"
     ],
     [
         [
@@ -270,7 +270,7 @@
             "file",
             "sdk/wasp/auth/validation.ts"
         ],
-        "cf71c3979b4fe1bae042b6f46b8763597aee3042a661510b7df63a190e41fc01"
+        "c014a48cb982fa3480fa75ba507ac1ca3d902ac93b983c3b235b4341ac17e82a"
     ],
     [
         [
@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "d637e7f7ac33a73ed335a6c8889dc43e6a6cf23035aec8b0ab062e88f6d7c2e6"
+        "d626fe60871359d4af18be0920f90e3f31ff1ac108480c3c48a5a1320c2ee4bc"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
         ],
-        "615f5019d93bf6be2ecec4f8d47f906ab1de408ce5e6764df3511fe83a4fbcd4"
+        "004edfbc13d8a60497c2632392ff892a50805aab968b9ae061fe0026147fb738"
     ],
     [
         [
@@ -669,7 +669,7 @@
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "68ec8a81f73658dac521894948819eac796db48c08426d92709e98a894d735bd"
+        "e9455e321485626e9710a20069b4da2188bdb77501aa8acf4274ee985f68e5d1"
     ],
     [
         [
@@ -1054,7 +1054,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "f86bed13b3be46d4f246cb0ef337295260204ecf52ba7b528f4a67d4030980b7"
+        "1367db8497ccaff2fcd34dadc83f62e33f86d230737f184935e11d973ad90360"
     ],
     [
         [
@@ -1467,7 +1467,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "7d01a92b6b6462bede6e2eda16b765a920a9d9a87b29ad09b16abe60992816ec"
+        "49042031e9212e25294be435bde68458e33ab59ed49e5b8b65164ba494a1e3e7"
     ],
     [
         [
@@ -1873,7 +1873,7 @@
             "file",
             "types/app/sdk/register.ts"
         ],
-        "081639ad8281350272f01e9aab3752d0c8236adaec034abf6b124cd74579361d"
+        "eb75f504a70da99a13aa077b9708a2d53759382cbe13c1e8186ebb41a54d5ae4"
     ],
     [
         [
