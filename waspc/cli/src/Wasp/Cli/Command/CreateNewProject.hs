@@ -3,7 +3,7 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import Control.Monad.Catch (bracket_)
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -61,13 +61,10 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 
-  let extraSteps =
-        ["wasp install" | not areDepsInstalled]
-          ++ ["wasp db migrate-dev" | needsMigration && not isDbMigrated]
-
-  unless (null extraSteps)
-    $ liftIO
-    $ printExtraInstructionsForProject extraSteps
+  liftIO
+    $ printExtraInstructionsForProject
+    $ ["wasp install" | not areDepsInstalled]
+      ++ ["wasp db migrate-dev" | needsMigration && not isDbMigrated]
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
@@ -140,7 +137,8 @@ printGettingStartedInstructionsForProject projectDescription = do
   putStrLn instructions
 
 printExtraInstructionsForProject :: [String] -> IO ()
-printExtraInstructionsForProject steps = do
+printExtraInstructionsForProject [] = return ()
+printExtraInstructionsForProject steps =
   putStrLn
     $ Term.applyStyles [Term.Yellow]
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
