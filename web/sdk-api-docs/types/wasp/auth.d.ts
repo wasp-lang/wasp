@@ -1,7 +1,9 @@
 /**
  * Auth APIs you can use both on the client and on the server: the
  * {@link AuthUser} type of the logged-in user, and helpers for
- * [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object).
+ * [reading auth data from a user entity object](https://wasp.sh/docs/features/auth/entities#getting-auth-data-from-the-user-object),
+ * and {@link definePasswordValidationSchema} for setting your own password
+ * rules.
  *
  * Only available if your app has
  * [auth](https://wasp.sh/docs/features/auth/overview) enabled.
@@ -258,5 +260,34 @@ export declare function getUsername(user: UserEntityWithAuth): string | null;
 export declare function getFirstProviderUserId(
   user?: UserEntityWithAuth,
 ): string | null;
+
+/**
+ * Defines a Zod schema that new passwords must pass on signup and password
+ * reset, replacing Wasp's default password rules.
+ *
+ * It returns the schema unchanged, and only exists to make sure the schema
+ * validates a string. Export the schema from a file in `src/` and pass it to
+ * the `passwordValidationSchema` field of the `email` or `usernameAndPassword`
+ * auth method in the app spec.
+ *
+ * @param schema A Zod schema for a string.
+ *
+ * @example
+ * ```ts
+ * // src/auth/password.ts
+ * import * as z from "zod";
+ * import { definePasswordValidationSchema } from "wasp/auth";
+ *
+ * export const passwordValidationSchema = definePasswordValidationSchema(
+ *   z
+ *     .string()
+ *     .min(12, "Password must be at least 12 characters")
+ *     .regex(/\p{Lu}/u, "Password must contain an uppercase letter"),
+ * );
+ * ```
+ *
+ * @see [Custom password rules](https://wasp.sh/docs/features/auth/overview#custom-password-rules)
+ */
+export { definePasswordValidationSchema } from "@wasp/lib-sdk-core";
 
 export {};

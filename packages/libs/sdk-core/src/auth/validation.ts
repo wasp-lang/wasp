@@ -2,6 +2,8 @@ import { isValidEmail } from "@wasp/lib-auth";
 import * as z from "zod";
 import { HttpError } from "../HttpError.js";
 
+export type PasswordValidationSchema = z.ZodType<string, string>;
+
 export const PASSWORD_FIELD = "password";
 const USERNAME_FIELD = "username";
 const EMAIL_FIELD = "email";
@@ -22,9 +24,18 @@ export function ensurePasswordIsPresent(args: object): void {
   validate(password, presentPasswordSchema);
 }
 
-export function ensureValidPassword(args: object): void {
+export function ensureValidPassword(
+  args: object,
+  schema: PasswordValidationSchema = defaultPasswordValidationSchema,
+): void {
   const password = PASSWORD_FIELD in args ? args[PASSWORD_FIELD] : undefined;
-  validate(password, passwordSchema);
+  validate(password, schema);
+}
+
+export function definePasswordValidationSchema<
+  Schema extends PasswordValidationSchema,
+>(schema: Schema): Schema {
+  return schema;
 }
 
 export function ensureTokenIsPresent(args: object): void {
@@ -44,7 +55,7 @@ const emailSchema = presentValueSchema("email must be present").refine(
 );
 const usernameSchema = presentValueSchema("username must be present");
 const presentPasswordSchema = presentValueSchema("password must be present");
-const passwordSchema = z
+export const defaultPasswordValidationSchema = z
   .string(PASSWORD_MIN_LENGTH_MESSAGE)
   .min(8, PASSWORD_MIN_LENGTH_MESSAGE)
   .regex(/\d/, "password must contain a number");
