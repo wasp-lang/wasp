@@ -7,7 +7,6 @@ description: Wasp has authentication out of the box. Choose your auth methods, p
 import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { CardLink } from "@site/src/components/CardLink";
 import { LinkGrid } from "@site/src/components/LinkGrid";
-import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './_read-more-about-auth-entities.md';
 
 # Auth overview
@@ -272,7 +271,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 }
 ```
 
-To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
+To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `null` inside a private operation, the user's access should be denied.
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](../websockets#websocketfn).
 
@@ -307,6 +306,7 @@ import {
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
 } from "wasp/server/auth"
+import { HttpError } from "wasp/server"
 import type { UpdatePassword } from "wasp/server/operations"
 
 export const updatePassword: UpdatePassword<
@@ -434,7 +434,7 @@ export const userSignupFields = defineUserSignupFields({
 ```
 
 <small>
-  Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
+  Read more about the `userSignupFields` object in the [API Reference](../../api/wasp/server/auth.md#defineusersignupfields).
 </small>
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp.ts` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
@@ -456,8 +456,10 @@ You can use any validation library you want to validate the fields. For example,
     address: (data) => {
       const AddressSchema = z
         .string({
-          required_error: "Address is required",
-          invalid_type_error: "Address must be a string",
+          error: (issue) =>
+            issue.input === undefined
+              ? "Address is required"
+              : "Address must be a string",
         })
         .min(10, "Address must be at least 10 characters long")
       const result = AddressSchema.safeParse(data.address)
@@ -587,7 +589,7 @@ export const SignupPage = () => {
 ### Auth Fields
 
 <CardLink
-  to="../../api/@wasp/spec/interfaces/Auth"
+  to="../../api/@wasp/spec#auth-3"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec."
@@ -595,144 +597,41 @@ export const SignupPage = () => {
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  // ...
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {
-        // highlight-next-line
-        userSignupFields,
-      },
-    },
-    onAuthFailedRedirectTo: "/login",
-  },
-  // ...
-})
-```
-
-Then we'll export the `userSignupFields` object from the `src/auth/signup.{js,ts}` file:
-
-```ts title="src/auth/signup.ts" auto-js
-import { defineUserSignupFields } from "wasp/server/auth"
-
-export const userSignupFields = defineUserSignupFields({
-  address: async (data) => {
-    const address = data.address
-    if (typeof address !== "string") {
-      throw new Error("Address is required")
-    }
-    if (address.length < 5) {
-      throw new Error("Address must be at least 5 characters long")
-    }
-    return address
-  },
-})
-```
-
-The `userSignupFields` object is an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
-
-If the value that the function received is invalid, the function should throw an error.
-
-<small>
-  \* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
-</small>
+<CardLink
+  to="../../api/wasp/server/auth#defineusersignupfields"
+  kind="api"
+  title="defineUserSignupFields"
+  description="Define the extra fields Wasp saves on the user entity when a user signs up."
+/>
 
 ### `SignupForm` Customization
 
-To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
+<CardLink
+  to="../../api/wasp/client/auth#signupform"
+  kind="api"
+  title="SignupForm"
+  description="The signup form component, including its additionalFields prop."
+/>
 
-```tsx title="src/SignupPage.tsx" auto-js
-import {
-  SignupForm,
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from "wasp/client/auth"
+### Auth APIs
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: "address",
-          label: "Address",
-          type: "input",
-          validations: {
-            required: "Address is required",
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register("phoneNumber", {
-                  required: "Phone number is required",
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
-  )
-}
-```
+<CardLink
+  to="../../api/wasp/auth"
+  kind="api"
+  title="wasp/auth"
+  description="The AuthUser type and helpers for reading a user's auth data, on the client and the server."
+/>
 
-The extra fields can be either **objects** or **render functions** (you can combine them):
+<CardLink
+  to="../../api/wasp/client/auth"
+  kind="api"
+  title="wasp/client/auth"
+  description="Client-side auth APIs, like useAuth, logout, and the Auth UI components."
+/>
 
-1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
-
-   The objects have the following properties:
-
-   - `name` <Required />
-     - the name of the field
-
-   - `label` <Required />
-
-     - the label of the field (used in the UI)
-
-   - `type` <Required />
-
-     - the type of the field, which can be `input` or `textarea`
-
-   - `validations`
-     - an object with the validation rules for the field. The keys are the validation names, and the values are the validation error messages. Read more about the available validation rules in the [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
-
-2. Render functions receive the `react-hook-form` object and the form state as arguments, and they can use them to render arbitrary UI elements.
-
-   The render function has the following signature:
-
-   ```ts
-   type AdditionalSignupFieldRenderFn = (
-      hookForm: UseFormReturn,
-      formState: FormState
-    ) => React.ReactNode
-   ```
-
-   - `form` <Required />
-
-     The `react-hook-form` object, read more about it in the [react-hook-form docs](https://react-hook-form.com/api/useform). You need to use the `form.register` function to register your fields
-
-   - `state` <Required />
-
-     The form state object, which has the following properties:
-
-     - `isLoading: boolean`
-
-       Whether the form is currently submitting
+<CardLink
+  to="../../api/wasp/server/auth"
+  kind="api"
+  title="wasp/server/auth"
+  description="Server-side auth APIs, like the auth hook types and helpers for working with auth identities."
+/>

@@ -1,0 +1,22 @@
+{
+  "name": "wasp-sdk-api-docs",
+  "type": "module",
+  "description": "The code you import from your app's source files, generated for your app.",
+  "private": true,
+  "devDependencies": {
+    "@socket.io/component-emitter": "^4.0.0",
+    "@tanstack/react-query": "~4.42.0",
+    "@types/express": "^5.0.0",
+    "@types/express-serve-static-core": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.7",
+    "@wasp/lib-auth": "workspace:*",
+    "@wasp/lib-sdk-core": "workspace:*",
+    "@wasp/lib-test-utils": "workspace:*",
+    "react-router": "^8.0.1",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
+    "vitest": "catalog:",
+    "zod": "^4.3.6"
+  }
+}

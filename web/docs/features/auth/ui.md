@@ -4,7 +4,8 @@ sidebar_label: Auth UI
 description: Wasp generates login, signup, forgot password, reset password and verify email forms. Use them as is or change their colors, logo and social button layout.
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
+import { CardLink } from "@site/src/components/CardLink";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, MicrosoftPill, SlackPill, DiscordPill } from "./Pills";
 
 # Auth UI
 
@@ -87,7 +88,7 @@ The following components are available for you to use in your app:
 
 ### Login Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <MicrosoftPill />, <SlackPill /> and <DiscordPill /> authentication.
 
 ![Login form](/img/docs/features/auth/login.webp)
 
@@ -133,7 +134,7 @@ It will automatically show the correct authentication providers based on your `m
 
 ### Signup Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <MicrosoftPill />, <SlackPill /> and <DiscordPill /> authentication.
 
 ![Signup form](/img/docs/features/auth/signup.webp)
 
@@ -337,7 +338,7 @@ We use CSS variables in our styling so you can customize the styles by overridin
 
 :::info List of all available tokens
 
-See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/sdk/wasp/auth/forms/types.ts) which you can override.
+See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth.md#customizationoptions).
 
 :::
 
@@ -498,7 +499,7 @@ If we provide the logo and custom colors:
     ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from "wasp/client/auth"
 
-    import { authAppearance } from "./appearance"
+    import { appearance } from "./appearance"
     import todoLogo from "./todoLogo.png"
 
     export function LoginPage() {
@@ -523,7 +524,7 @@ If we provide the logo and custom colors:
     ```tsx title="src/LoginPage.tsx"
     import { LoginForm } from "wasp/client/auth"
 
-    import { authAppearance } from "./appearance"
+    import { appearance } from "./appearance"
     import todoLogo from "./todoLogo.png"
 
     export function LoginPage() {
@@ -538,3 +539,47 @@ We get a form looking like this:
 <div style={{ textAlign: 'center' }}>
   <img src="/img/docs/features/auth/ui/custom_login.webp" alt="Custom login form" />
 </div>
+
+## API Reference
+
+<CardLink
+  to="../../api/wasp/client/auth#loginform"
+  kind="api"
+  title="LoginForm"
+  description="The login form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth#signupform"
+  kind="api"
+  title="SignupForm"
+  description="The signup form component, including its additionalFields prop."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth#forgotpasswordform"
+  kind="api"
+  title="ForgotPasswordForm"
+  description="The forgot password form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth#resetpasswordform"
+  kind="api"
+  title="ResetPasswordForm"
+  description="The reset password form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth#verifyemailform"
+  kind="api"
+  title="VerifyEmailForm"
+  description="The verify email form component."
+/>
+
+<CardLink
+  to="../../api/wasp/client/auth#customizationoptions"
+  kind="api"
+  title="CustomizationOptions"
+  description="The props for customizing the look of all the forms."
+/>
