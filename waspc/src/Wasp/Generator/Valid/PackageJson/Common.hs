@@ -25,6 +25,9 @@ forbiddenUserDeps =
 -- The SDK's dependencies are left out, since the SDK can use its own copies.
 -- The core dependencies are left out too: they are peer dependencies of
 -- \@wasp/wasp, and npm checks those.
+--
+-- TODO(#4824): Once the optional dependencies move to the user's project, the
+-- generated server lists none, so this check and `wasp.overriddenDeps` go away.
 getGeneratedServerDeps :: AS.AppSpec -> Map P.PackageName P.PackageVersion
 getGeneratedServerDeps spec =
   M.fromListWithKey dedupeVersions serverDeps

@@ -12,6 +12,9 @@ import { GENERATED_WASP_PATHS } from "../waspc/tools/waspAppPackageLock.ts";
 const waspCliDevPath = join(getWaspcDirPath(), "tools", "wasp-cli-dev");
 const $ = execa({ stdio: "inherit", verbose: "short" });
 
+// TODO(#4824): Once the generated code stops being npm workspaces, it can't
+// depend on the lib tarballs, so this task goes away.
+//
 // Old generated workspaces point at old lib tarballs, so we drop them first.
 // Installing before compiling makes the installed @wasp/wasp match the CLI.
 for (const generatedPath of GENERATED_WASP_PATHS) {

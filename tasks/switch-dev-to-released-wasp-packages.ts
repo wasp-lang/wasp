@@ -16,6 +16,8 @@ if (!version) {
   throw new Error("Pass the Wasp version to switch to, e.g. 0.27.0.");
 }
 
+// TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, there are no
+// overrides and no note to delete. This only swaps `workspace:*` for the version.
 const $ = execa({ stdio: "inherit", verbose: "short" });
 const devOverrides = WASP_NPM_SUBPACKAGES_DIR_NAMES.map(
   (packageDirName) => `overrides.${getPackageName(packageDirName)}`,

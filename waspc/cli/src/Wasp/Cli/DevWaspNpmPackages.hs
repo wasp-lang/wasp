@@ -60,7 +60,10 @@ it brings, so `overrides` point npm at their tarballs too:
 With the env var set, `wasp new` writes the tarballs into the new project, and
 `wasp build` copies them into Docker's build context.
 
-TODO: Remove this module once the repo's Wasp apps join the pnpm workspace.
+TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps join the pnpm
+workspace and depend on \@wasp/wasp through `workspace:*`. Then this module is
+only needed for projects outside the workspace, which `wasp new` creates with
+the dev CLI, and for their Docker builds.
 -}
 
 data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs
@@ -178,6 +181,10 @@ devTarballsDirInGeneratedAppDir = libsRootDirInGeneratedAppDir </> devTarballsDi
 -- same bytes, so `npm ci` still finds the lock in sync.
 --
 -- Does nothing when 'devWaspNpmPackagesDirEnvVarName' isn't set.
+--
+-- TODO(#4824): The tarballs go next to the Wasp lib tarballs. Once the
+-- generated code stops being npm workspaces, the libs dir goes away, so pick
+-- another place in the build context.
 prepareDevWaspNpmPackagesForDockerBuild ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->

@@ -5,8 +5,11 @@
 // of it instead (see `Wasp.Cli.DevWaspNpmPackages`). The dev `@wasp/cli` runs
 // the `wasp-cli` binary built in this repo (see `waspc/tools/devCliSubPackage.ts`).
 //
-// TODO: Remove most of this once the repo's Wasp apps join the pnpm workspace
-// and depend on `@wasp/wasp` through `workspace:*`.
+// TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps join the pnpm
+// workspace and depend on `@wasp/wasp` through `workspace:*`, so they stop
+// needing the tarballs. What stays is for projects outside the workspace
+// (`wasp new` with the dev CLI) and for telling `@wasp/cli` where the dev
+// binary is.
 
 import {
   mkdirSync,

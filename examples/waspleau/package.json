@@ -37,5 +37,5 @@
     "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
     "@wasp/studio": "file:../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
   },
-  "//": "TODO(#4824): Depends on the unreleased Wasp in this repo through `file:` tarballs, so run `mise run build:dev-packages` before installing. Switch to a plain version once the examples join the pnpm workspace."
+  "//": "TODO(#2262): Depends on the unreleased Wasp in this repo through `file:` tarballs, so run `mise run build:dev-packages` before installing. Switch to a plain version once the examples join the pnpm workspace."
 }

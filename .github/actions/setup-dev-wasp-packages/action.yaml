@@ -7,6 +7,9 @@ description: |
   `wasp new` uses the packages. Run it after setup-tools and
   install-wasp-cli-artifact.
 
+  TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, only the jobs
+  that create projects with `wasp new` need this.
+
 runs:
   using: composite
   steps:

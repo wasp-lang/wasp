@@ -40,6 +40,8 @@ minimumReleaseAge: 10080
 # dependencies anyway. @heroui/shared-utils only swaps in a Next.js build when
 # Next.js is installed. Prisma only gets here as a peer of @wasp/wasp, and
 # nothing in the repo runs it.
+# TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, they run
+# Prisma, so allow its builds then.
 allowBuilds:
   "@heroui/shared-utils": false
   "@prisma/client": false

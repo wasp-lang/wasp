@@ -121,6 +121,8 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
 
 // The Wasp projects in this repo depend on the dev Wasp npm package tarballs
 // (see `tasks/build/dev-packages.ts`), whose file names carry the version.
+// TODO(#2262): Once they join the pnpm workspace, they depend on `@wasp/wasp`
+// through `workspace:*`, so this and `rebuildDevPackages` go away.
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   const packageJsonPath = join(projectDir, "package.json");
   const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
