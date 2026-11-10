@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 
-// @ts-check
-
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
-import { CLIError } from "./CLIError.js";
+import { CLIError } from "./cli-error.js";
+import {
+  type MainPackageData,
+  type SubPackageAPI,
+  UNDEFINED_LIBC_NAME,
+} from "./package-data.js";
 
 // If you want to turn on debug logging, set the following environment variable:
 // `NODE_DEBUG=wasp-bin-wrapper`
@@ -30,7 +33,7 @@ try {
   debug("Exiting Wasp wrapper process with code: %d", process.exitCode);
 }
 
-async function main() {
+async function main(): Promise<number> {
   assertNoLegacyInstallerConflict();
 
   const { waspBinPath, dataDirPath } = await getSubPackage().catch(
@@ -42,27 +45,16 @@ async function main() {
   );
 }
 
-async function getSubPackage() {
+async function getSubPackage(): Promise<SubPackageAPI> {
   debug("Loading main package data...");
 
-  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").MainPackageData }} */
-  const { default: data } = await import(
-    // @ts-expect-error This file does not exist at dev time, only in the built package.
-    "./data.json",
-    { with: { type: "json" } }
-  );
+  const data = readPackageData();
 
   debug("Loaded main package data: %j", data);
 
   const { platform, arch } = process;
   const libc =
-    platform === "linux"
-      ? isGlibc()
-        ? "glibc"
-        : "musl"
-      : /** @satisfies {typeof import("../../scripts/make-npm-packages/src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
-          "unknown"
-        );
+    platform === "linux" ? (isGlibc() ? "glibc" : "musl") : UNDEFINED_LIBC_NAME;
 
   debug("Selecting sub-package for %s / %s / %s", platform, arch, libc);
 
@@ -73,16 +65,17 @@ async function getSubPackage() {
 
   debug("Selected sub-package: %j", selectedSubPackage);
 
-  /** @type {{ default: import("../../scripts/make-npm-packages/src/schema/output-data.ts").SubPackageAPI }} */
-  const importedPackage = await import(selectedSubPackage.packageName)
-    .catch(async (error) => {
+  const importedPackage: { default: SubPackageAPI } = await import(
+    selectedSubPackage.packageName
+  )
+    .catch(async (error: unknown) => {
       // A common case for failure here is that the Node.js version is not
       // supported. `npm` doesn't like to complain when being specifically asked
       // to install a package, but will then **not** install our subpackages
       // because they are marked as "optionalDependencies". Because it is quite
       // a common case, we'll check if we're on an unsupported Node version and
       // throw a specific error for that.
-      await assertNodeIsSupported();
+      assertNodeIsSupported();
       throw error;
     })
     .catch(
@@ -96,12 +89,10 @@ async function getSubPackage() {
   return importedPackage.default;
 }
 
-async function runWasp(
-  /** @type {import("../../scripts/make-npm-packages/src/schema/output-data.ts").SubPackageAPI} */ {
-    waspBinPath,
-    dataDirPath,
-  },
-) {
+async function runWasp({
+  waspBinPath,
+  dataDirPath,
+}: SubPackageAPI): Promise<number> {
   try {
     debug("Running Wasp executable at path: %s", waspBinPath);
     debug("Using data directory at path: %s", dataDirPath);
@@ -115,24 +106,25 @@ async function runWasp(
     debug("Wasp executed successfully.");
 
     return 0;
-  } catch (/** @type {any} */ e) {
-    debug("Wasp execution failed with error: %o", e);
+  } catch (error: unknown) {
+    debug("Wasp execution failed with error: %o", error);
+    const status = (error as { status?: number | null }).status;
     // We do a loose equality check because the documentation points to this property
     // being `number | undefined`, but from testing it seems it can also be `null`.
-    if (e.status != undefined) {
+    if (status != undefined) {
       // The executed process ran correctly, but exited with a non-zero status
       // code. This is not considered an error in the scope of this wrapper,
       // so we just return the exit code.
-      debug("We got an exit code from Wasp: %d", e.status);
-      return /** @type {number} */ (e.status);
+      debug("We got an exit code from Wasp: %d", status);
+      return status;
     } else {
-      throw e;
+      throw error;
     }
   }
 }
 
-async function assertNodeIsSupported() {
-  const minVersion = await getMinimumNodeVersion();
+function assertNodeIsSupported(): void {
+  const minVersion = getMinimumNodeVersion();
   if (!minVersion) {
     debug(
       "No minimum Node.js version specified in package.json, skipping check.",
@@ -160,18 +152,14 @@ async function assertNodeIsSupported() {
   }
 }
 
-async function getMinimumNodeVersion() {
-  // We import here and not in the top level to keep the happy path free of this
-  // overhead.
-  const { default: pkg } = await import("./package.json", {
-    with: { type: "json" },
-  });
+function getMinimumNodeVersion(): number[] | undefined {
+  const pkg = readPackageJson();
 
   const requirement = pkg.engines.node;
   const requirementMatch = requirement.match(/(\d+)\.(\d+)\.(\d+)/);
   if (!requirementMatch) return undefined;
 
-  const [_, major, minor, patch] = requirementMatch;
+  const [, major, minor, patch] = requirementMatch;
   return [
     Number.parseInt(major),
     Number.parseInt(minor),
@@ -179,7 +167,7 @@ async function getMinimumNodeVersion() {
   ];
 }
 
-function getCurrentNodeVersion() {
+function getCurrentNodeVersion(): number[] {
   const [major, minor, patch] = process.versions.node.split(".");
   return [
     Number.parseInt(major),
@@ -188,10 +176,13 @@ function getCurrentNodeVersion() {
   ];
 }
 
-function checkNodeVersionIsSupported(
-  /** @type {{minVersion: number[], currentVersion: number[]}} */
-  { minVersion, currentVersion },
-) {
+function checkNodeVersionIsSupported({
+  minVersion,
+  currentVersion,
+}: {
+  minVersion: number[];
+  currentVersion: number[];
+}): boolean {
   for (let i = 0; i < minVersion.length; i++) {
     const currentPart = currentVersion[i];
     const requiredPart = minVersion[i];
@@ -214,7 +205,7 @@ function checkNodeVersionIsSupported(
 //
 // TODO: Consider removing this check once we no longer expect any users to
 // have a shell-installer based Wasp installation.
-function assertNoLegacyInstallerConflict() {
+function assertNoLegacyInstallerConflict(): void {
   const waspLangDir = tryGetWaspLangDir();
   // No home dir (some containers), so no installer-based Wasp to conflict with.
   if (waspLangDir === undefined) {
@@ -246,10 +237,10 @@ and follow the instructions.`);
 }
 
 // The path is also defined in:
-// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/FileSystem.hs
+// - `waspc/cli/src/Wasp/Cli/FileSystem.hs`
 // - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
 // TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
-function tryGetWaspLangDir() {
+function tryGetWaspLangDir(): string | undefined {
   try {
     return path.join(os.homedir(), ".local", "share", "wasp-lang");
   } catch {
@@ -257,7 +248,7 @@ function tryGetWaspLangDir() {
   }
 }
 
-function hasInstallerWasp(/** @type {string} */ waspLangDir) {
+function hasInstallerWasp(waspLangDir: string): boolean {
   try {
     // If the folder exists and has any subdirectories (for the installed version(s)),
     // we assume it's an installer-based Wasp installation.
@@ -268,10 +259,7 @@ function hasInstallerWasp(/** @type {string} */ waspLangDir) {
   }
 }
 
-function ensureNpmMarker(
-  /** @type {string} */ waspLangDir,
-  /** @type {string} */ npmMarkerFile,
-) {
+function ensureNpmMarker(waspLangDir: string, npmMarkerFile: string): void {
   try {
     fs.mkdirSync(waspLangDir, { recursive: true });
 
@@ -285,15 +273,32 @@ function ensureNpmMarker(
 
 // Adapted from rollup
 // https://github.com/rollup/rollup/blob/c5f3e1d3162ccb36e18704138c21457a084ef358/native.js#L5-L11
-function isGlibc() {
+function isGlibc(): boolean {
   try {
-    const report = /** @type {any} */ (processReport.getReport()).header;
+    const report = (
+      processReport.getReport() as { header?: { glibcVersionRuntime?: string } }
+    ).header;
     debug("Process report header: %j", report);
-    const hasGlibc = Boolean(report.glibcVersionRuntime);
+    const hasGlibc = Boolean(report?.glibcVersionRuntime);
     debug("Has glibc: %s", hasGlibc);
     return hasGlibc;
   } catch {
     debug("Failed to get process report, assuming not glibc.");
     return false;
   }
+}
+
+function readPackageJson(): { engines: { node: string } } {
+  return readJsonFromPackageRoot("package.json");
+}
+
+// `data.json` doesn't exist at dev time, only in the built package.
+function readPackageData(): MainPackageData {
+  return readJsonFromPackageRoot("data.json");
+}
+
+// The compiled code runs from `dist/`, one level below the package root.
+function readJsonFromPackageRoot<T>(fileName: string): T {
+  const filePath = path.join(import.meta.dirname, "..", fileName);
+  return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 }

@@ -21,6 +21,14 @@
     "node": ">=24.22.1"
   },
   "bin": {
-    "wasp": "bin.js"
+    "wasp": "dist/bin.js"
+  },
+  "scripts": {
+    "build": "pnpm run remove:dist && tsc",
+    "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\""
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
   }
 }
