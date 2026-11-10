@@ -24,6 +24,8 @@ module ShellCommands
     waspCliDbStart,
     waspCliDbReset,
     waspCliDbSeed,
+    waspCliDbSeedWithoutName,
+    waspCliDbSeedWithoutNameFailsNonInteractively,
     waspCliCompile,
     waspCliDbMigrateDev,
     waspCliBuild,
@@ -41,6 +43,7 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -153,9 +156,9 @@ replaceLineInFile fileName lineNumber line =
 -- an interactive terminal, Wasp refuses to prompt and the command must fail.
 waspCliNewWithPipedAnswersFails :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewWithPipedAnswersFails appName starterTemplate =
-  assertCommandOutputContains
-    (return $ "! " ++ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new")
-    "stdin is not an interactive terminal"
+  assertCommandFailsWithoutInteractiveTerminal "wasp new"
+    $ return
+    $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
 
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
@@ -237,6 +240,16 @@ waspCliDbMigrateDev migrationName = do
 
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "$WASP_CLI_CMD db seed " ++ seedName
+
+waspCliDbSeedWithoutName :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeedWithoutName = return "$WASP_CLI_CMD db seed"
+
+-- | With more than one seed and no name, `wasp db seed` has to ask which one to
+-- run. Without an interactive terminal it must fail instead.
+waspCliDbSeedWithoutNameFailsNonInteractively :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeedWithoutNameFailsNonInteractively =
+  assertCommandFailsWithoutInteractiveTerminal "wasp db seed" $
+    (++ " < /dev/null") <$> waspCliDbSeedWithoutName
 
 -- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g. when
 -- the e2e tests are run from Claude Code), unless the consent env var is set.
@@ -364,17 +377,36 @@ assertCommandOutputContains ::
   ShellCommandBuilder context ShellCommand ->
   String ->
   ShellCommandBuilder context ShellCommand
-assertCommandOutputContains commandBuilder marker = do
+assertCommandOutputContains commandBuilder marker =
+  assertCommandOutputContainsAll commandBuilder [marker]
+
+assertCommandOutputContainsAll ::
+  ShellCommandBuilder context ShellCommand ->
+  [String] ->
+  ShellCommandBuilder context ShellCommand
+assertCommandOutputContainsAll commandBuilder markers = do
   command <- commandBuilder
   let logFile = ".wasp-e2e-output.log"
       logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
-      searchMarkerInLogFile = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
-  return $ logCommandOutputToFile ~&& searchMarkerInLogFile
+      searchMarkerInLogFile marker = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
+  return $ foldl (~&&) logCommandOutputToFile (searchMarkerInLogFile <$> markers)
   where
     shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
 
     escapeSingleQuote '\'' = "'\\''"
     escapeSingleQuote c = [c]
+
+-- | Asserts that a command that needs to prompt fails when stdin is not an
+-- interactive terminal, and prints its usage so the user can pass the answers
+-- as arguments instead.
+assertCommandFailsWithoutInteractiveTerminal ::
+  String ->
+  ShellCommandBuilder context ShellCommand ->
+  ShellCommandBuilder context ShellCommand
+assertCommandFailsWithoutInteractiveTerminal commandName commandBuilder =
+  assertCommandOutputContainsAll
+    (("! " ++) <$> commandBuilder)
+    ["stdin is not an interactive terminal", "Usage: " ++ commandName]
 
 -- 'SnapshotTest' specific commands
 

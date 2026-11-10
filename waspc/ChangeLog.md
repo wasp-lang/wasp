@@ -58,6 +58,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `wasp start db` now fails right away with a clear error when it can't connect to the Docker daemon. ([#5144](https://github.com/wasp-lang/wasp/pull/5144))
 - The page shown when opening the server's URL in the browser during development now has a refreshed look. ([#5178](https://github.com/wasp-lang/wasp/pull/5178))
 - Wasp no longer installs its own copy of Prisma on the first `wasp compile`, which saves about 200 MB of disk space. ([#5202](https://github.com/wasp-lang/wasp/pull/5202))
+- New projects approve the install scripts of Prisma, esbuild, and fsevents in their `package.json`, so `npm install` no longer warns about them and they keep running once npm starts skipping unapproved scripts. Existing projects can add the same `allowScripts` block. ([#5255](https://github.com/wasp-lang/wasp/pull/5255))
+- `wasp new` now creates and applies the initial database migration, so you can go straight to `wasp start`. ([#5298](https://github.com/wasp-lang/wasp/pull/5298))
+
+### 📖 Documentation
+
+- The [API Reference](https://wasp.sh/docs/api) now documents everything you can import from `wasp/...` (e.g. `wasp/client/operations`, `wasp/server`), next to the Wasp Spec. ([#5148](https://github.com/wasp-lang/wasp/pull/5148))
 
 ## 0.26.1
 
