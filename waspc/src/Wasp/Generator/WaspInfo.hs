@@ -13,14 +13,13 @@ where
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)
 import Data.Time (UTCTime, getCurrentTime)
-import Data.Version (showVersion)
 import GHC.Generics (Generic)
-import qualified Paths_waspc
 import StrongPath (Abs, Dir, File, Path', Rel, relfile, toFilePath, (</>))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Inspectable (Inspectable (inspect), InspectionEntry (InspectionEntry))
 import Wasp.Project.BuildType (BuildType)
 import Wasp.Util.IO (doesFileExist)
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 data WaspInfo = WaspInfo
   { waspVersion :: String,
@@ -50,26 +49,27 @@ waspInfoInGeneratedAppDir = [relfile|.waspinfo|]
 
 persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> IO ()
 persist generatedAppDir currentBuildType = do
-  encodeFile (toFilePath waspInfoFile) . generateWaspInfo =<< getCurrentTime
+  currentVersion <- getCurrentWaspVersion
+  currentTime <- getCurrentTime
+  encodeFile (toFilePath waspInfoFile) $
+    WaspInfo
+      { waspVersion = currentVersion,
+        generatedAt = currentTime,
+        buildType = currentBuildType
+      }
   where
-    generateWaspInfo currentTime =
-      WaspInfo
-        { waspVersion = currentVersion,
-          generatedAt = currentTime,
-          buildType = currentBuildType
-        }
-
     waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir
-    currentVersion = showVersion Paths_waspc.version
 
 isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
-currentBuildType `isCompatibleWithExistingBuildAt` outDir =
-  either (const False) isCompatible <$> safeRead outDir
+currentBuildType `isCompatibleWithExistingBuildAt` outDir = do
+  currentVersion <- getCurrentWaspVersion
+  either (const False) (isCompatibleWith currentVersion) <$> safeRead outDir
   where
-    isCompatible (WaspInfo {waspVersion = storedVersion, buildType = storedBuildType}) =
+    isCompatibleWith currentVersion (WaspInfo {waspVersion = storedVersion, buildType = storedBuildType}) =
       (storedVersion == currentVersion) && (storedBuildType == currentBuildType)
 
-    currentVersion = showVersion Paths_waspc.version
+getCurrentWaspVersion :: IO String
+getCurrentWaspVersion = show <$> getWaspCliNpmPackageVersion
 
 type ReadResult = Either ReadError WaspInfo
 
