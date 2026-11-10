@@ -1,19 +1,19 @@
-# make-npm-packages
+# make-cli-npm-packages
 
-A tool for creating platform-specific npm packages for distributing native executables. This tool generates a main npm package and multiple sub-packages, one for each target platform (OS/CPU/libc combination).
+A tool for creating platform-specific npm packages for distributing native executables. This tool generates the CLI npm package and multiple sub-packages, one for each target platform (OS/CPU/libc combination).
 
 ## Overview
 
 This tool solves the problem of distributing native executables through npm. It creates:
 
-1. **Main package** - The package users install, which contains a CLI wrapper. Its source is the `packages/cli` workspace package. This tool adds the version and the sub-package wiring.
+1. **CLI package** - The package users install, which contains a CLI wrapper. Its source is the `packages/cli` workspace package. This tool adds the version and the sub-package wiring.
 2. **Sub-packages** - Platform-specific packages containing the actual executables
 
-The main package uses npm's `optionalDependencies` to install the correct platform-specific sub-package based on the user's system. The CLI wrapper then detects and runs the appropriate executable.
+The CLI package uses npm's `optionalDependencies` to install the correct platform-specific sub-package based on the user's system. The CLI wrapper then detects and runs the appropriate executable.
 
 ## Architecture
 
-### Main Package
+### CLI package
 
 - Contains a CLI wrapper (`packages/cli/src/bin.ts`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
 - Executes the native binary with proper environment variables for the data directory
@@ -38,7 +38,7 @@ node src/index.ts \
 - `-h, --help` - Show help and exit
 - `--input-dir` (required) - Directory containing `data.json` and tarballs
 - `--output-dir` (required) - Directory where packages will be created
-- `--main-package-name` - Name of the main package (default: `@wasp/cli`)
+- `--cli-package-name` - Name of the CLI package (default: `@wasp/cli`)
 - `--sub-package-name` - Template for sub-package names (default: `@wasp/cli-$os-$cpu-$libc`)
   - Must include placeholders: `$os`, `$cpu`, `$libc`
 
@@ -75,7 +75,7 @@ The tool creates:
    - `package.json` with platform constraints
    - `main.js` entry point
    - Extracted tarball contents
-2. One directory for the main package, containing:
+2. One directory for the CLI package, containing:
    - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies
    - `dist/`, the built CLI wrapper
    - `data.json` with sub-package metadata
@@ -86,4 +86,4 @@ You can then run `npm publish` in each package directory to publish them to npm.
 
 The generator script is written in TypeScript. It is run through the native Node.js TypeScript support in v22.18+, so no compilation step is needed.
 
-The sub-package template is in the `templates/` directory and the main package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. The sub-package template is regular JavaScript with JSDoc comments for type hinting, and the main package is TypeScript.
+The sub-package template is in the `templates/` directory and the CLI package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. The sub-package template is regular JavaScript with JSDoc comments for type hinting, and the CLI package is TypeScript.
