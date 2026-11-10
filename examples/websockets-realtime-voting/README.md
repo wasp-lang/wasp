@@ -20,27 +20,32 @@ First, clone the this repo:
 git clone https://github.com/wasp-lang/wasp.git
 ```
 
-Make sure you've downloaded and installed Wasp
-
-```bash
-npm i -g @wasp/cli@latest
-```
-
-Then navigate to the project directory
+Then navigate to the project directory, install the dependencies, which include Wasp, and migrate the DB:
 
 ```bash
 cd examples/websockets-realtime-voting
-wasp install
-wasp db migrate-dev
+npm install
+npm run wasp -- db migrate-dev
 ```
 
 Start the app:
 
 ```bash
-wasp start
+npm run dev
 ```
 
 Check out the `src/server/websocket.ts` and `src/client/pages/MainPage.tsx` to see how Websockets are used in Wasp.
+
+### Installing with the development version of Wasp
+
+<!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
+
+In this repo, the example depends on the development version of Wasp, which isn't on npm, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
+
+```sh
+mise run build
+mise run reinstall-dev-wasp-app-deps
+```
 
 ## Need Help?
 

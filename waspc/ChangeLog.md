@@ -26,6 +26,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - The `basic` starter has a refreshed look, and a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
+- New Wasp projects come with `dev`, `build`, `preview` and `wasp` npm scripts, so `npm run dev` starts the app without a global Wasp CLI. ([#5271](https://github.com/wasp-lang/wasp/pull/5271))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
 
