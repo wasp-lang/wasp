@@ -59,13 +59,13 @@ waspNpmPackageAvailableTest =
             ]
         ),
       TestCase
-        "compile-fails-with-install-hint-when-installed-wasp-npm-package-is-stale"
+        "compile-fails-with-stale-install-error-when-installed-wasp-npm-package-is-stale"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ setDeclaredWaspNpmPackageVersion (show waspVersion),
                   setInstalledWaspNpmPackageVersion nonexistentWaspVersion,
-                  assertCommandFailsWith installHint waspCliCompile
+                  assertCommandFailsWith staleInstallError waspCliCompile
                 ]
             ]
         ),
@@ -177,6 +177,9 @@ waspNpmPackageAvailableTest =
 
     installHint :: String
     installHint = "Run " ++ styleCode "npm install"
+
+    staleInstallError :: String
+    staleInstallError = "The package.json asks for"
 
     -- Negates the command, so the assertion holds when it fails (exits non-zero)
     -- and its output contains the expected text.

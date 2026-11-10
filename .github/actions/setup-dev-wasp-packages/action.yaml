@@ -1,14 +1,14 @@
 name: Set up dev Wasp npm packages
 description: |
+  TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, only the jobs
+  that create projects with `wasp new` need this.
+
   Sets up the job to use the unreleased Wasp npm packages from this repo. Packs
   @wasp/wasp and the packages it depends on into waspc/.dev-packages (see
   tasks/build/dev-packages.ts), points the dev @wasp/cli at the wasp-cli that
   install-wasp-cli-artifact installed, and sets WASP_DEV_PACKAGES_DIR so
   `wasp new` uses the packages. Run it after setup-tools and
   install-wasp-cli-artifact.
-
-  TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, only the jobs
-  that create projects with `wasp new` need this.
 
 runs:
   using: composite

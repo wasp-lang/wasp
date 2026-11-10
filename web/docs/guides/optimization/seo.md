@@ -31,7 +31,7 @@ We recommend **first to measure your app** against common industry tools and see
 SEO can come with costs; at a minimum, the cost of development time and maintenance burden. So while there's always room for improvement, it's important to focus on the techniques that will give you the biggest boost. A little improvement can go a long way, and you don't need to get a perfect score to see significant benefits.
 
 :::warning Always run measurements against your production build
-Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](../../deployment/local-testing.md) or [after deploying](../../deployment/overview.md).
+Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `npm run dev` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](../../deployment/local-testing.md) or [after deploying](../../deployment/overview.md).
 :::
 
 ### Lighthouse
@@ -57,7 +57,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's env vars, see [Testing locally](../../deployment/local-testing.md):
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](../../deployment/local-testing.md) shows how to set them up:
 
 <WaspCommand npm={`# First, build and start the production build of your app:
 npm run build

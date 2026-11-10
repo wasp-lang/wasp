@@ -29,7 +29,7 @@ To connect to your production database, you'll need to:
 2. Get the database password
 3. Open a tunnel to the database
 4. Configure your local environment
-5. Run `wasp db studio`
+5. Run `npm run wasp -- db studio`
 
 ## Step 1: Get the Database Name
 

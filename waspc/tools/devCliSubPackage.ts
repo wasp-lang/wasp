@@ -1,11 +1,11 @@
+// TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, they run the
+// workspace's `@wasp/cli`, which has no `overrides` to find the dev packages
+// through. Point it at the dev binary directly then.
+//
 // The dev stand-in for the platform packages of `@wasp/cli`.
 //
 // `tasks/build/dev-packages.ts` strips the types and puts the result into the
 // dev `@wasp/cli`, so this file can only import types and Node.js built-ins.
-//
-// TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, they run the
-// workspace's `@wasp/cli`, which has no `overrides` to find the dev packages
-// through. Point it at the dev binary directly then.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

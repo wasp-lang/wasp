@@ -16,14 +16,14 @@ The backend is hosted on Fly.io at https://waspello.fly.dev.
 
 ## Development
 
-Run `npm install` before using the project.
+Run `npm install` before using the project. It also installs Wasp, which you run through npm.
 
 ### Database
 
 Wasp needs the Postgres database running.
 
-Easiest way to do this is to use `wasp start db` to start a PostgreSQL locally using Docker.
-Then run `wasp db migrate-dev` in another terminal.
+Easiest way to do this is to use `npm run wasp -- start db` to start a PostgreSQL locally using Docker.
+Then run `npm run wasp -- db migrate-dev` in another terminal.
 
 ### Env variables
 
@@ -31,7 +31,18 @@ Copy `env.server` to `.env.server` and fill in the values.
 
 ### Running
 
-`wasp start`
+`npm run dev`
+
+### Installing on the `main` branch
+
+<!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
+
+On `main`, this example depends on the unreleased Wasp in this repo, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
+
+```sh
+mise run build
+mise run reinstall-dev-wasp-app-deps
+```
 
 ## Testing
 

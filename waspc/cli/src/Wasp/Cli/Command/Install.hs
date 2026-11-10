@@ -7,9 +7,10 @@ import Control.Monad.Except (throwError)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Util.Terminal (styleCode)
 
--- | Wasp 0.27 dropped `wasp install`, because `npm install` installs Wasp now.
+-- | TODO: Remove this stub in Wasp 0.28.
+--
+-- Wasp 0.27 dropped `wasp install`, because `npm install` installs Wasp now.
 -- This stub tells the scripts that still call it what to run instead.
--- TODO: Remove it in Wasp 0.28.
 install :: Command ()
 install =
   throwError

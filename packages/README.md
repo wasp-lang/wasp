@@ -23,8 +23,8 @@ depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs 
   into `waspc/.dev-packages/`.
 
 Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`. A globally
-installed `wasp-cli` also needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` exported,
-so that `wasp-cli new` makes projects depend on the dev packages. `mise run install` prints the exact line.
+installed `wasp-cli` needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` only for `wasp-cli new`,
+so that the new project depends on the dev packages. `mise run install` prints the exact command.
 
 ### Adding a new package that `waspc` runs
 

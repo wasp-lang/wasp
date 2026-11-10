@@ -99,20 +99,20 @@ openSaasStarterTemplate =
                     styleText $ "",
                     styleText $
                       "  2. Run the development database (and leave it running):",
-                    styleCode $ "    wasp db start",
+                    styleCode $ "    npm run wasp -- db start",
                     styleText $ "",
                     styleText $
                       "  3. Open new terminal window (or tab) in that same dir and continue in it.",
                     styleText $ "",
                     styleText $ "  4. Apply initial database migrations:",
-                    styleCode $ "    wasp db migrate-dev",
+                    styleCode $ "    npm run wasp -- db migrate-dev",
                     styleText $ "",
                     styleText $
                       "  5. Create initial dot env file from the template:",
                     styleCode $ "    cp .env.server.example .env.server",
                     styleText $ "",
                     styleText $ "  6. Last step: run the app!",
-                    styleCode $ "    wasp start",
+                    styleCode $ "    npm run dev",
                     styleText $ "",
                     styleText $
                       "Check the README for additional guidance and the link to docs!"

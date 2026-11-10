@@ -1,6 +1,6 @@
 # make-cli-npm-packages
 
-A tool for creating platform-specific npm packages for distributing native executables. This tool generates a main npm package and multiple sub-packages, one for each target platform (OS/CPU/libc combination).
+A tool for creating platform-specific npm packages for distributing native executables. This tool generates the CLI npm package and multiple sub-packages, one for each target platform (OS/CPU/libc combination).
 
 ## Overview
 

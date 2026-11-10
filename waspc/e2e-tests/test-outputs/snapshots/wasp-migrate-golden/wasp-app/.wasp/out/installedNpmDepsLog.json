@@ -4,7 +4,7 @@
             "dependencies": [
                 {
                     "name": "@wasp/wasp",
-                    "version": "file:<dev-tarball>"
+                    "version": "file:<dev-packages-dir>/wasp-wasp-0.27.0.tgz"
                 },
                 {
                     "name": "react",
@@ -44,8 +44,7 @@
                     "name": "vite",
                     "version": "^8.1.0"
                 }
-            ],
-            "peerDependencies": []
+            ]
         }
     },
     "_waspSdkNpmDeps": {
@@ -76,8 +75,7 @@
                 "name": "@types/node",
                 "version": "^24.0.0"
             }
-        ],
-        "peerDependencies": []
+        ]
     },
     "_waspServerNpmDeps": {
         "dependencies": [
@@ -107,7 +105,6 @@
                 "name": "@types/node",
                 "version": "^24.0.0"
             }
-        ],
-        "peerDependencies": []
+        ]
     }
 }

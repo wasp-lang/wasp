@@ -15,6 +15,14 @@ export interface InstalledWaspCli {
   version: string;
 }
 
+/**
+ * What every version of `@wasp/cli` exports from `./run`. Other versions hand
+ * over through it, so it can only grow (see the note in `package.json`).
+ */
+interface WaspCliRunModule {
+  runWaspCli(): Promise<number>;
+}
+
 export async function getThisWaspCli(): Promise<InstalledWaspCli> {
   const { version } = await readJsonFromPackageRoot<{ version: string }>(
     "package.json",
@@ -48,7 +56,10 @@ export async function runProjectWaspCli(
   projectWaspCli: InstalledWaspCli,
   thisWaspCli: InstalledWaspCli,
 ): Promise<number> {
-  if (projectWaspCli.version !== thisWaspCli.version) {
+  if (
+    projectWaspCli.version !== thisWaspCli.version &&
+    !isBashCompletionRequest()
+  ) {
     console.error(
       `Running Wasp ${projectWaspCli.version} from this project. The Wasp CLI you called is ${thisWaspCli.version}.`,
     );
@@ -58,10 +69,18 @@ export async function runProjectWaspCli(
     "Handing over to the project's Wasp CLI: %s",
     projectWaspCli.runModulePath,
   );
-  const { runWaspCli }: typeof import("./run.js") = await import(
+  const { runWaspCli }: WaspCliRunModule = await import(
     pathToFileURL(projectWaspCli.runModulePath).href
   );
   return runWaspCli();
+}
+
+/**
+ * Bash runs `wasp completion:list` on every TAB and reads only its stdout, so
+ * anything that run prints to stderr lands in the user's prompt.
+ */
+function isBashCompletionRequest(): boolean {
+  return process.argv[2] === "completion:list";
 }
 
 /** Finds the CLI the project's `@wasp/wasp` pins with Node's resolution algorithm. */

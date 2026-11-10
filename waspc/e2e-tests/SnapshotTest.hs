@@ -190,7 +190,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
 
     -- Normalizes the JSON files that differ between machines. It reformats
     -- @package.json@ files (ref: https://github.com/wasp-lang/wasp/issues/482),
-    -- and hides the dev tarball paths in them and in the installed npm deps log.
+    -- and hides the dev packages dir in them and in the installed npm deps log.
     normalizeJsonFiles :: [Path' Abs (File file)] -> IO ()
     normalizeJsonFiles snapshotFiles = do
       mapM_ (normalizeJsonFile formatPackageJson) $ filter isPackageJsonFile snapshotFiles
@@ -199,18 +199,21 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
         normalizeJsonFile :: (Aeson.Value -> BSL.ByteString) -> Path' Abs (File file) -> IO ()
         normalizeJsonFile format jsonFile =
           BS.readFile (SP.fromAbsFile jsonFile)
-            >>= BSL.writeFile (SP.fromAbsFile jsonFile) . format . hideDevWaspNpmPackageTarballs . unsafeDecodeJson
+            >>= BSL.writeFile (SP.fromAbsFile jsonFile) . format . hideDevWaspNpmPackagesDir . unsafeDecodeJson
 
-        -- The dev tarball paths are absolute, so they depend on where the repo
-        -- is checked out. The lib tarball paths are relative and stay.
+        -- The dev tarball paths are absolute, so their dir depends on where the
+        -- repo is checked out. The file names stay, so the snapshot shows which
+        -- tarball each package points at. The lib tarball paths are relative
+        -- and stay as they are.
         -- TODO: Also match Windows absolute paths (`file:C:/...`) once we run
         -- the e2e snapshot tests on Windows (`main` skips them there).
-        hideDevWaspNpmPackageTarballs :: Aeson.Value -> Aeson.Value
-        hideDevWaspNpmPackageTarballs (Aeson.Object object) = Aeson.Object $ fmap hideDevWaspNpmPackageTarballs object
-        hideDevWaspNpmPackageTarballs (Aeson.Array array) = Aeson.Array $ fmap hideDevWaspNpmPackageTarballs array
-        hideDevWaspNpmPackageTarballs (Aeson.String specifier)
-          | "file:/" `T.isPrefixOf` specifier && ".tgz" `T.isSuffixOf` specifier = Aeson.String "file:<dev-tarball>"
-        hideDevWaspNpmPackageTarballs other = other
+        hideDevWaspNpmPackagesDir :: Aeson.Value -> Aeson.Value
+        hideDevWaspNpmPackagesDir (Aeson.Object object) = Aeson.Object $ fmap hideDevWaspNpmPackagesDir object
+        hideDevWaspNpmPackagesDir (Aeson.Array array) = Aeson.Array $ fmap hideDevWaspNpmPackagesDir array
+        hideDevWaspNpmPackagesDir (Aeson.String specifier)
+          | "file:/" `T.isPrefixOf` specifier && ".tgz" `T.isSuffixOf` specifier =
+              Aeson.String $ "file:<dev-packages-dir>/" <> T.takeWhileEnd (/= '/') specifier
+        hideDevWaspNpmPackagesDir other = other
 
         isPackageJsonFile :: Path' Abs (File file) -> Bool
         isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile

@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 //MISE description="Packs the unreleased @wasp/wasp and the packages it depends on into waspc/.dev-packages/, for Wasp projects to depend on the Wasp in this repo."
 /// <reference types="node" />
-// The unreleased Wasp isn't on npm, so the repo's Wasp apps depend on tarballs
-// of it instead (see `Wasp.Cli.DevWaspNpmPackages`). The dev `@wasp/cli` runs
-// the `wasp-cli` binary built in this repo (see `waspc/tools/devCliSubPackage.ts`).
-//
 // TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps join the pnpm
 // workspace and depend on `@wasp/wasp` through `workspace:*`, so they stop
 // needing the tarballs. What stays is for projects outside the workspace
 // (`wasp new` with the dev CLI) and for telling `@wasp/cli` where the dev
 // binary is.
+//
+// The unreleased Wasp isn't on npm, so the repo's Wasp apps depend on tarballs
+// of it instead (see `Wasp.Cli.DevWaspNpmPackages`). The dev `@wasp/cli` runs
+// the `wasp-cli` binary built in this repo (see `waspc/tools/devCliSubPackage.ts`).
 
 import {
   mkdirSync,

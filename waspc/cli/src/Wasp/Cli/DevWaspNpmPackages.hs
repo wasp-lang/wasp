@@ -4,7 +4,7 @@ module Wasp.Cli.DevWaspNpmPackages
     devWaspNpmPackagesManifestFile,
     findDevWaspNpmPackageTarballs,
     devWaspNpmPackageSpecifier,
-    checkDirectlyRunWaspUsesDevWaspNpmPackages,
+    checkDirectlyRunWaspCanCreateProjects,
     addDevWaspNpmPackageOverridesToPackageJsonFile,
     prepareDevWaspNpmPackagesForDockerBuild,
   )
@@ -18,7 +18,7 @@ import Data.Aeson (Value (String), object)
 import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens (key, _Object, _String)
-import Data.List (find, foldl', isSuffixOf, stripPrefix)
+import Data.List (find, foldl', isPrefixOf, isSuffixOf, stripPrefix)
 import Data.Maybe (isJust, mapMaybe)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, File', Path', Rel, basename, fromAbsFile, fromRelFile, parseAbsDir, parseAbsFile, parseRelFile, reldir, relfile, (</>))
@@ -29,19 +29,25 @@ import System.FilePath (isAbsolute)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WaspLibs.Common (LibsRootDir, libsRootDirInGeneratedAppDir)
-import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName)
+import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName, waspNpmScope)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
-import Wasp.Project.WaspNpmPackage (isRunByWaspCliNpmPackage)
 import Wasp.Util.IO (copyFile)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.InstallMethod (getGlobalInstallationCommand)
 import Wasp.Util.Json (readJsonFile, updateJsonFile)
+import Wasp.Version (isRunByWaspCliNpmPackage)
 
 {-
+TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps join the pnpm
+workspace and depend on \@wasp/wasp through `workspace:*`. Then this module is
+only needed for projects outside the workspace, which `wasp new` creates with
+the dev CLI, and for their Docker builds.
+
 Lets the Wasp apps in this repo run against the Wasp in this repo, before its
 npm packages are published. Only the dev Wasp CLI (@waspc/tools/wasp-cli-dev@
 and the dev \@wasp/cli, see @waspc/tools/devCliSubPackage.ts@) sets
-'devWaspNpmPackagesDirEnvVarName', so this does nothing for Wasp users.
+'devWaspNpmPackagesDirEnvVarName', and only projects in this repo depend on
+the tarballs, so this does nothing for Wasp users.
 
 `mise run build:dev-packages` packs the packages into `waspc/.dev-packages/`
 (see @tasks/build/dev-packages.ts@) and lists the tarballs in
@@ -57,13 +63,9 @@ it brings, so `overrides` point npm at their tarballs too:
 >   ...
 > }
 
-With the env var set, `wasp new` writes the tarballs into the new project, and
-`wasp build` copies them into Docker's build context.
-
-TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps join the pnpm
-workspace and depend on \@wasp/wasp through `workspace:*`. Then this module is
-only needed for projects outside the workspace, which `wasp new` creates with
-the dev CLI, and for their Docker builds.
+With the env var set, `wasp new` writes the tarballs into the new project. For
+a project that depends on the tarballs, `wasp build` copies them into Docker's
+build context.
 -}
 
 data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs
@@ -75,26 +77,23 @@ data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs
 devWaspNpmPackagesDirEnvVarName :: String
 devWaspNpmPackagesDirEnvVarName = "WASP_DEV_PACKAGES_DIR"
 
--- | A Wasp binary that \@wasp/cli doesn't run is a development build. Its
--- projects can only depend on the dev Wasp npm packages, so it needs
--- 'devWaspNpmPackagesDirEnvVarName'.
-checkDirectlyRunWaspUsesDevWaspNpmPackages :: IO (Either String ())
-checkDirectlyRunWaspUsesDevWaspNpmPackages = do
+-- | A Wasp binary that \@wasp/cli doesn't run is a development build, whose
+-- version isn't on npm. The projects it creates can only depend on the dev Wasp
+-- npm packages, so `wasp new` needs 'devWaspNpmPackagesDirEnvVarName'.
+checkDirectlyRunWaspCanCreateProjects :: IO (Either String ())
+checkDirectlyRunWaspCanCreateProjects = do
   isRunByNpmPackage <- isRunByWaspCliNpmPackage
-  isDevPackagesDirSet <- isDevWaspNpmPackagesDirSet
+  isDevPackagesDirSet <- isJust <$> lookupEnv devWaspNpmPackagesDirEnvVarName
   return $
     if isRunByNpmPackage || isDevPackagesDirSet
       then Right ()
       else
         Left $
           unlines
-            [ "This Wasp binary was run directly, not through the `" ++ waspCliNpmPackageName ++ "` npm package.",
-              "If you're developing Wasp, run it with `mise run wasp-cli`, or set " ++ devWaspNpmPackagesDirEnvVarName ++ " (`mise run install` prints the line to add to your shell profile).",
+            [ "This Wasp binary was run directly, not through the `" ++ waspCliNpmPackageName ++ "` npm package, so the projects it creates must depend on the dev Wasp npm packages.",
+              "If you're developing Wasp, run `mise run wasp-cli new`, or set " ++ devWaspNpmPackagesDirEnvVarName ++ " (`mise run install` prints its value).",
               "Otherwise, install Wasp with `" ++ getGlobalInstallationCommand Nothing ++ "`."
             ]
-
-isDevWaspNpmPackagesDirSet :: IO Bool
-isDevWaspNpmPackagesDirSet = isJust <$> lookupEnv devWaspNpmPackagesDirEnvVarName
 
 -- | Written by `mise run build:dev-packages` into the dev packages dir. Names
 -- the tarball of \@wasp/wasp and of each package it brings.
@@ -162,10 +161,16 @@ data DevTarballField = DevTarballField
     packageName :: PJ.PackageName
   }
 
-devTarballFields :: DevWaspNpmPackageTarballs -> [DevTarballField]
-devTarballFields tarballs =
+-- | The dependency on \@wasp/wasp, and the override of each Wasp package that
+-- the package.json overrides.
+devTarballFields :: Value -> [DevTarballField]
+devTarballFields packageJson =
   DevTarballField "dependencies" waspNpmPackageName
-    : map (DevTarballField "overrides" . fst) (dependencyTarballs tarballs)
+    : map (DevTarballField "overrides") overriddenWaspPackageNames
+  where
+    overriddenWaspPackageNames =
+      filter (waspNpmScope `isPrefixOf`) $
+        maybe [] (map Key.toString . KM.keys) (packageJson ^? key "overrides" . _Object)
 
 data DevTarballsDir
 
@@ -176,38 +181,36 @@ devTarballsDirInGeneratedAppDir = libsRootDirInGeneratedAppDir </> devTarballsDi
     devTarballsDirInLibsRootDir :: Path' (Rel LibsRootDir) (Dir DevTarballsDir)
     devTarballsDirInLibsRootDir = [reldir|wasp|]
 
--- | Docker's build context is `.wasp/out/`, so we copy the tarballs into it and
+-- | TODO(#4824): The tarballs go next to the Wasp lib tarballs. Once the
+-- generated code stops being npm workspaces, the libs dir goes away, so pick
+-- another place in the build context.
+--
+-- Docker's build context is `.wasp/out/`, so we copy the tarballs into it and
 -- point the build's package.json and lock at the copies. The copies have the
 -- same bytes, so `npm ci` still finds the lock in sync.
 --
--- Does nothing when 'devWaspNpmPackagesDirEnvVarName' isn't set.
---
--- TODO(#4824): The tarballs go next to the Wasp lib tarballs. Once the
--- generated code stops being npm workspaces, the libs dir goes away, so pick
--- another place in the build context.
+-- Does nothing for a project that doesn't depend on the tarballs. Reads them
+-- from the project's package.json, so it needs no
+-- 'devWaspNpmPackagesDirEnvVarName'.
 prepareDevWaspNpmPackagesForDockerBuild ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   Path' Abs (File packageJson) ->
   Path' Abs (File packageLockJson) ->
   IO (Either String ())
-prepareDevWaspNpmPackagesForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir =
-  findDevWaspNpmPackageTarballs >>= maybe (return $ Right ()) copyDevTarballsIntoBuildDir
+prepareDevWaspNpmPackagesForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir = runExceptT $ do
+  packageJson <- maybe (throwError "Couldn't read package.json in the build dir.") return =<< liftIO (readJsonFile packageJsonInBuildDir)
+  let fieldsWithTarballs =
+        mapMaybe
+          (\field -> (,) field <$> getTarballPath (getField field packageJson))
+          (devTarballFields packageJson)
+  unless (null fieldsWithTarballs) $ do
+    let tarballsDirInBuildDir = buildDir </> devTarballsDirInGeneratedAppDir
+    liftIO $ SD.createDirectoryIfMissing True $ SP.fromAbsDir tarballsDirInBuildDir
+    copiedTarballs <- liftIO $ mapM (copyTarball tarballsDirInBuildDir) fieldsWithTarballs
+    ExceptT $ updateJsonFile (\json -> foldl' pointFieldAtCopiedTarball json copiedTarballs) packageJsonInBuildDir
+    ExceptT $ updateJsonFile (pointLockAtCopiedTarballs (map snd copiedTarballs)) packageLockJsonInBuildDir
   where
-    copyDevTarballsIntoBuildDir :: DevWaspNpmPackageTarballs -> IO (Either String ())
-    copyDevTarballsIntoBuildDir devTarballs = runExceptT $ do
-      packageJson <- maybe (throwError "Couldn't read package.json in the build dir.") return =<< liftIO (readJsonFile packageJsonInBuildDir)
-      let fieldsWithTarballs =
-            mapMaybe
-              (\field -> (,) field <$> getTarballPath (getField field packageJson))
-              (devTarballFields devTarballs)
-      unless (null fieldsWithTarballs) $ do
-        let tarballsDirInBuildDir = buildDir </> devTarballsDirInGeneratedAppDir
-        liftIO $ SD.createDirectoryIfMissing True $ SP.fromAbsDir tarballsDirInBuildDir
-        copiedTarballs <- liftIO $ mapM (copyTarball tarballsDirInBuildDir) fieldsWithTarballs
-        ExceptT $ updateJsonFile (\json -> foldl' pointFieldAtCopiedTarball json copiedTarballs) packageJsonInBuildDir
-        ExceptT $ updateJsonFile (pointLockAtCopiedTarballs (map snd copiedTarballs)) packageLockJsonInBuildDir
-
     getField :: DevTarballField -> Value -> Maybe T.Text
     getField field json =
       json ^? key (Key.fromString $ section field) . key (Key.fromString $ packageName field) . _String

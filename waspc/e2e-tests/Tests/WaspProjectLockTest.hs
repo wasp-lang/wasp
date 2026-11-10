@@ -1,20 +1,24 @@
 module Tests.WaspProjectLockTest (waspProjectLockTest) where
 
+import Control.Monad.Reader (ask)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    WaspProjectContext,
+    WaspProjectContext (..),
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliClean,
     waspCliCompile,
     (~&&),
   )
+import StrongPath (fromAbsFile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
+import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (installedNpmDepsLogFileInGeneratedAppDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 waspProjectLockTest :: Test
 waspProjectLockTest =
@@ -112,11 +116,15 @@ waspProjectLockTest =
 
     startWaspCompileInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
     startWaspCompileInBackground = do
+      context <- ask
       compileCommand <- waspCliCompile
+      let installedNpmDepsLogFile =
+            context.waspProjectDir
+              </> generatedAppDirInWaspProjectDir
+              </> installedNpmDepsLogFileInGeneratedAppDir
       return $
-        -- Deleting the installed deps log (`installedNpmDepsLogFileInGeneratedAppDir`)
-        -- makes `wasp compile` run `npm install` again.
-        "rm -f .wasp/out/installedNpmDepsLog.json"
+        -- Deleting the installed deps log makes `wasp compile` run `npm install` again.
+        ("rm -f " ++ fromAbsFile installedNpmDepsLogFile)
           ~&& ("{ " ++ compileCommand ++ " > .wasp-e2e-compile.log 2>&1 & }")
           ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
 

@@ -76,9 +76,9 @@ jobs:
         working-directory: ${{ matrix.app-dir }}
         env:
           WASP_VERSION: ${{ inputs.version }}
+        # TODO(#2262): Remove once the examples join the pnpm workspace.
         # The examples depend on the dev Wasp tarballs from this repo (see
         # their package.json). We deploy with the released version instead.
-        # TODO(#2262): Remove once the examples join the pnpm workspace.
         run: mise run switch-dev-to-released-wasp-packages "$WASP_VERSION"
 
       - name: Deploy
@@ -137,9 +137,9 @@ jobs:
         working-directory: examples/ask-the-documents
         env:
           WASP_VERSION: ${{ inputs.version }}
+        # TODO(#2262): Remove once the examples join the pnpm workspace.
         # The examples depend on the dev Wasp tarballs from this repo (see
         # their package.json). We deploy with the released version instead.
-        # TODO(#2262): Remove once the examples join the pnpm workspace.
         run: mise run switch-dev-to-released-wasp-packages "$WASP_VERSION"
 
       - name: Deploy to Railway

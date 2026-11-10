@@ -16,25 +16,19 @@ This is an example Wasp app that supports:
 
 ## Running it locally
 
-1. Make sure you have the latest version of Wasp installed.
-
-   ```bash
-   npm i -g @wasp/cli@latest
-   ```
-
-2. Install the project dependencies:
+1. Install the project dependencies, which include Wasp:
 
    ```bash
    npm install
    ```
 
-3. Start the database with:
+2. Start the database with:
 
    ```bash
-   wasp start db --db-image pgvector/pgvector:pg18
+   npm run wasp -- start db --db-image pgvector/pgvector:pg18
    ```
 
-4. Copy `.env.server.example` to `.env.server` and fill out the environment variables.
+3. Copy `.env.server.example` to `.env.server` and fill out the environment variables.
 
    ```bash
    OPENAI_API_KEY="<your_openai_key>"
@@ -42,14 +36,25 @@ This is an example Wasp app that supports:
    GOOGLE_CLIENT_SECRET="<your_google_client_secret>"
    ```
 
-5. Migrate the database with:
+4. Migrate the database with:
 
    ```bash
-   wasp db migrate-dev
+   npm run wasp -- db migrate-dev
    ```
 
-6. Start the server with:
+5. Start the server with:
 
    ```bash
-   wasp start
+   npm run dev
    ```
+
+### Installing on the `main` branch
+
+<!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
+
+On `main`, this example depends on the unreleased Wasp in this repo, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
+
+```sh
+mise run build
+mise run reinstall-dev-wasp-app-deps
+```

@@ -15,7 +15,7 @@ This guide shows you how to test your Wasp application on other devices (phones,
 
 ## Prerequisites
 
-- A Wasp project running locally with `wasp start`
+- A Wasp project running locally with `npm run dev`
 - Other devices connected to the same network as your development machine
 
 ## Step 1: Start Your App
@@ -111,7 +111,7 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 
 ### API calls failing
 
-1. Verify the server URL you passed to `wasp start` is correct
+1. Verify the server URL you passed to `npm run dev` is correct
 2. Make sure the server is accessible on port 3001
 3. Check browser console for CORS errors
 

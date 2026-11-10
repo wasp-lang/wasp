@@ -20,14 +20,14 @@ import qualified Wasp.Validator as V
 dependenciesValidator :: AS.AppSpec -> V.Validator P.PackageJson
 dependenciesValidator spec =
   V.all
-    [ optionalDepsValidator,
+    [ generatedServerDepsValidator,
       forbiddenDepsValidator
     ]
   where
     -- npm checks the versions of @wasp/wasp's peer dependencies (react,
     -- vite, express, ...), so this only checks the generated server's.
-    optionalDepsValidator :: V.Validator P.PackageJson
-    optionalDepsValidator =
+    generatedServerDepsValidator :: V.Validator P.PackageJson
+    generatedServerDepsValidator =
       V.all $
         [ makeOptionalDepValidator depType dep
         | depType <- [Runtime, Development],

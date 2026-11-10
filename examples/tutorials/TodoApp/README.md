@@ -8,21 +8,26 @@ This example app represents the final state of the tutorial. If you'd prefer to 
 
 After you've cloned this repository, you can run the app locally by following these steps:
 
-Install Wasp
-
-```bash
-npm i -g @wasp/cli@latest
-```
-
-Position yourself in the project directory, then migrate the DB:
+Position yourself in the project directory, install the dependencies, which include Wasp, and migrate the DB:
 
 ```bash
 npm install
-wasp db migrate-dev
+npm run wasp -- db migrate-dev
 ```
 
 Finally, run the app:
 
 ```bash
-wasp start
+npm run dev
+```
+
+### Installing on the `main` branch
+
+<!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
+
+On `main`, this example depends on the unreleased Wasp in this repo, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../../waspc/README.md)), and then install against it from this directory:
+
+```sh
+mise run build
+mise run reinstall-dev-wasp-app-deps
 ```

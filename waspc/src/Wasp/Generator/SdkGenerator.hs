@@ -174,11 +174,12 @@ genPackageJson spec = do
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { -- Only the dependencies that depend on the app. The core ones are peer
-      -- dependencies of @wasp/wasp.
-      -- TODO(#4824): The generated SDK stops being an npm workspace once it
+    { -- TODO(#4824): The generated SDK stops being an npm workspace once it
       -- lists no dependencies. For that, the optional ones (e.g. for email or
       -- WebSockets) move to the user's project, and the rest to @wasp/wasp.
+      --
+      -- Only the dependencies that depend on the app. The core ones are peer
+      -- dependencies of @wasp/wasp.
       N.dependencies =
         depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec

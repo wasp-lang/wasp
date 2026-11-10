@@ -18,16 +18,16 @@ forbiddenUserDeps =
     "wasp"
   ]
 
--- | The dependencies of the generated server, regular and dev. If the user's
+-- | TODO(#4824): Once the optional dependencies move to the user's project, the
+-- generated server lists none, so this check and `wasp.overriddenDeps` go away.
+--
+-- The dependencies of the generated server, regular and dev. If the user's
 -- package.json lists one of them too, it must use the same version, so npm
 -- installs one copy.
 --
 -- The SDK's dependencies are left out, since the SDK can use its own copies.
 -- The core dependencies are left out too: they are peer dependencies of
 -- \@wasp/wasp, and npm checks those.
---
--- TODO(#4824): Once the optional dependencies move to the user's project, the
--- generated server lists none, so this check and `wasp.overriddenDeps` go away.
 getGeneratedServerDeps :: AS.AppSpec -> Map P.PackageName P.PackageVersion
 getGeneratedServerDeps spec =
   M.fromListWithKey dedupeVersions serverDeps

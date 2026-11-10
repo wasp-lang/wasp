@@ -5,19 +5,15 @@ Basic starter is a well-rounded template that showcases the most important bits 
 ## Prerequisites
 
 - **Node.js** (newest LTS version recommended): We recommend install Node through a Node version manager, e.g. `nvm`.
-- **Wasp** (latest version): Install via
-  ```sh
-  npm i -g @wasp/cli@latest
-  ```
 
 ## Using the template
 
 You can use this template through the Wasp CLI:
 
 ```bash
-wasp new <project-name>
+npx @wasp/cli@latest new <project-name>
 # or
-wasp new <project-name> -t basic
+npx @wasp/cli@latest new <project-name> -t basic
 ```
 
 ## Development

@@ -26,7 +26,7 @@ This guide shows you how to deploy the client, the server, and provision a datab
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. Make sure your Wasp app is built by running `npm run build` in the project dir.
 1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account.
 1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli).
 1. Run `railway login` and a browser tab will open to authenticate you.
@@ -212,7 +212,7 @@ Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integr
 
 When you make updates and need to redeploy:
 
-1. Run `wasp build` to rebuild your app.
+1. Run `npm run build` to rebuild your app.
 1. Go into the `.wasp/out` directory and:
 
     Deploy the server with:

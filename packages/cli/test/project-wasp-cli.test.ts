@@ -179,6 +179,30 @@ describe("runProjectWaspCli", () => {
     );
     consoleError.mockRestore();
   });
+
+  test("stays silent for a bash completion request, even when the versions differ", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const originalArgv = process.argv;
+    process.argv = ["node", "wasp", "completion:list"];
+    const runModulePath = await makeWaspCliPackage(
+      path.join(tmpDir, "node_modules"),
+      "0.28.0",
+    );
+
+    try {
+      await runProjectWaspCli(
+        { runModulePath, version: "0.28.0" },
+        globalWaspCli,
+      );
+
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      process.argv = originalArgv;
+      consoleError.mockRestore();
+    }
+  });
 });
 
 async function makeWaspProject(relativeDir: string): Promise<string> {

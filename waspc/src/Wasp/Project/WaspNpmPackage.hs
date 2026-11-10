@@ -4,8 +4,9 @@ module Wasp.Project.WaspNpmPackage
     tryGettingInstalledWaspNpmPackageVersion,
     tryGettingInstalledWaspNpmPackagePeerDeps,
     doesVersionMatchDeclaredVersion,
-    getWaspCliNpmPackageVersion,
-    isRunByWaspCliNpmPackage,
+    WaspNpmPackageDeclaration (..),
+    getWaspNpmPackageDeclaration,
+    getDeclaredVersion,
 
     -- * Scripts
     WaspNpmPackageScript (..),
@@ -19,18 +20,18 @@ import Data.Bifunctor (first)
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List (find, isInfixOf)
 import qualified Data.Map as M
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
-import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.NodeCommand (NodeCommand (..))
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (trim)
-import qualified Wasp.Version as WV
 
 data InstalledWaspNpmPackageError
   = WaspNpmPackageNotInstalled
@@ -39,7 +40,7 @@ data InstalledWaspNpmPackageError
 
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
 tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
-  (>>= parseVersion) <$> printFromInstalledWaspNpmPackageJson waspProjectDir (++ ".version")
+  (>>= parseVersion) <$> evaluateOnInstalledWaspNpmPackageJson waspProjectDir (++ ".version")
   where
     parseVersion = \case
       "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
@@ -50,7 +51,7 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
 -- only place that lists them.
 tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
 tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
-  (>>= parsePeerDeps) <$> printFromInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
+  (>>= parsePeerDeps) <$> evaluateOnInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
   where
     peerDepsAsJson packageJson = "JSON.stringify(" ++ packageJson ++ ".peerDependencies ?? {})"
     parsePeerDeps =
@@ -59,19 +60,20 @@ tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
         . Aeson.eitherDecode
         . BLU.fromString
 
--- | Prints a JS expression that the function builds from the JS expression of
--- the installed \@wasp/wasp's package.json. Asks Node, so the CLI finds the
--- same \@wasp/wasp that Node and \@wasp/cli do.
-printFromInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
-printFromInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
-  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode printProcess ""
+-- | Evaluates, in Node, the JS expression that the function builds from the JS
+-- expression of the installed \@wasp/wasp's package.json, and returns its
+-- printed value. Asks Node, so the CLI finds the same \@wasp/wasp that Node and
+-- \@wasp/cli do.
+evaluateOnInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
+evaluateOnInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
+  (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode evaluateProcess ""
   return $ case exitCode of
     ExitSuccess -> Right $ trim stdout
     ExitFailure _
       | "MODULE_NOT_FOUND" `isInfixOf` stderr -> Left WaspNpmPackageNotInstalled
       | otherwise -> Left $ BrokenWaspNpmPackage $ fromMaybe (trim stderr) $ find ("Error" `isInfixOf`) $ lines stderr
   where
-    printProcess =
+    evaluateProcess =
       (P.proc "node" ["--print", makeJsExpression packageJsonJsExpression])
         { P.cwd = Just $ fromAbsDir waspProjectDir
         }
@@ -84,30 +86,33 @@ doesVersionMatchDeclaredVersion :: String -> SV.Version -> Bool
 doesVersionMatchDeclaredVersion declaredVersion version =
   either (const True) (SV.isVersionInRange version) (SV.parseRange declaredVersion)
 
--- \@wasp/cli tells this binary its version through an env var, because Cabal
--- versions can't express npm prereleases like `0.27.0-rc.1`.
+-- | Where the user's package.json lists \@wasp/wasp, if anywhere.
+data WaspNpmPackageDeclaration
+  = -- | Listed in `dependencies`, with this version.
+    DeclaredInDependencies String
+  | DeclaredInDevDependencies String
+  | NotDeclared
 
--- | Falls back to the binary's own version when \@wasp/cli doesn't run it.
-getWaspCliNpmPackageVersion :: IO SV.Version
-getWaspCliNpmPackageVersion = fromMaybe WV.waspVersion <$> lookupWaspCliNpmPackageVersion
-
--- | A binary run directly, e.g. one built from source, can't hand over to the
--- project's Wasp, so errors advise it differently.
-isRunByWaspCliNpmPackage :: IO Bool
-isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
-
--- | The env var that \@wasp/cli sets its version to.
-waspCliNpmPackageVersionEnvVarName :: String
-waspCliNpmPackageVersionEnvVarName = "WASP_CLI_NPM_PACKAGE_VERSION"
-
--- | Fails on a version that doesn't parse, which should never happen.
-lookupWaspCliNpmPackageVersion :: IO (Maybe SV.Version)
-lookupWaspCliNpmPackageVersion =
-  lookupEnv waspCliNpmPackageVersionEnvVarName
-    >>= traverse (either (fail . invalidVersionMessage . show) return . SV.parseVersion)
+getWaspNpmPackageDeclaration :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspNpmPackageDeclaration)
+getWaspNpmPackageDeclaration waspProjectDir =
+  findUserPackageJsonFile waspProjectDir >>= \case
+    Nothing -> return $ Right NotDeclared
+    Just packageJsonFile ->
+      fmap getDeclaration <$> PJ.parsePackageJsonFile packageJsonFile
   where
-    invalidVersionMessage parseError =
-      waspCliNpmPackageVersionEnvVarName ++ " is not a valid version: " ++ parseError
+    getDeclaration packageJson =
+      case ( M.lookup waspNpmPackageName (PJ.dependencies packageJson),
+             M.lookup waspNpmPackageName (PJ.devDependencies packageJson)
+           ) of
+        (Just version, _) -> DeclaredInDependencies version
+        (Nothing, Just version) -> DeclaredInDevDependencies version
+        (Nothing, Nothing) -> NotDeclared
+
+getDeclaredVersion :: WaspNpmPackageDeclaration -> Maybe String
+getDeclaredVersion = \case
+  DeclaredInDependencies version -> Just version
+  DeclaredInDevDependencies version -> Just version
+  NotDeclared -> Nothing
 
 -- | The scripts \@wasp/wasp exports for the CLI to run.
 data WaspNpmPackageScript

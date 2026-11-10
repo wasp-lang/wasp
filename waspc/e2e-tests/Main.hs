@@ -4,6 +4,7 @@ import SnapshotTest (testTreeFromSnapshotTest)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Environment (lookupEnv, setEnv)
+import System.FilePath (dropTrailingPathSeparator)
 import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
@@ -58,7 +59,7 @@ ensureE2eTestsEnvironment = do
   setEnvIfUnset "WASP_CLI_CMD" $ SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
   -- The test projects depend on the dev Wasp npm packages of this repo, no
   -- matter which Wasp CLI runs the tests.
-  setEnvIfUnset devWaspNpmPackagesDirEnvVarName $ SP.fromAbsDir (waspcDir </> devWaspNpmPackagesDirInWaspcDir)
+  setEnvIfUnset devWaspNpmPackagesDirEnvVarName $ dropTrailingPathSeparator $ SP.fromAbsDir (waspcDir </> devWaspNpmPackagesDirInWaspcDir)
   where
     setEnvIfUnset :: String -> String -> IO ()
     setEnvIfUnset name value = lookupEnv name >>= maybe (setEnv name value) (const $ return ())

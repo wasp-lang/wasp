@@ -89,6 +89,14 @@ This is to make it easier to differentiate between the development version of wa
 
 First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-sink/) dir.
 
+<!-- TODO(#2262): Once the examples join the pnpm workspace, `pnpm install` at the repo root replaces this. -->
+
+Install its dependencies against the Wasp npm packages you built with `mise run build`. Plain `npm install` fails on their stale lockfile entries:
+
+```sh
+mise run reinstall-dev-wasp-app-deps
+```
+
 Then, run the dev database:
 
 ```sh

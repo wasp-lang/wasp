@@ -277,7 +277,7 @@ Let's create and run our first Wasp app in 2 short steps:
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>, unless it's taken) to see it.
 
 :::tip[Prefer shorter commands?]
-Your project already has Wasp installed, so you don't need a global install. If you prefer shorter commands, and want Wasp available outside of projects too, install the [global Wasp CLI](#global-cli).
+These commands run the Wasp your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
 :::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
@@ -391,7 +391,7 @@ npm install --save-exact @wasp/wasp@x.y.z
 
 Check the [migration guide](https://wasp.sh/docs/migration-guide) before upgrading to a new minor version.
 
-##### Windows and other platforms
+##### Windows and building from source
 
 **Windows**
 
@@ -4203,7 +4203,7 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    // ...
    ```
 
-2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](https://wasp.sh/docs/advanced/cli#project-commands). `wasp clean` also deletes `node_modules`, so install the dependencies again:
+2. Delete the old migrations, because PostgreSQL can't use SQLite migrations, and delete the SQLite database by running [`wasp clean`](https://wasp.sh/docs/advanced/cli#project-commands). `wasp clean` also deletes `node_modules`, so install the dependencies again:
 
    **npm**
 
@@ -16152,16 +16152,21 @@ The build steps are also ordered so that a code change reuses the installed depe
 
 #### 1. Switch to the new global Wasp CLI package
 
-**If you don't want a global Wasp CLI, you can skip this step.** Your project's `@wasp/wasp` dependency brings the Wasp CLI, and you run it through npm (see [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands)).
-
-The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
+The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package. It doesn't hand commands over to your project's Wasp, so `wasp start` would keep running Wasp 0.26 on your migrated project:
 
 ```shell
 npm uninstall -g @wasp.sh/wasp-cli
+```
+
+**If you don't want a global Wasp CLI, you can skip the rest of this step.** Your project's `@wasp/wasp` dependency brings the Wasp CLI, and you run it through npm (see [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands)).
+
+To keep typing `wasp <command>`, install the new package. If you skipped the uninstall above, npm fails here with an `EEXIST` error:
+
+```shell
 npm i -g @wasp/cli@0.27
 ```
 
-#### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec`
+#### 2. Depend on `@wasp/wasp` instead of `@wasp.sh/spec` {#depend-on-wasp}
 
 Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
 
@@ -16191,7 +16196,13 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
 }
 ```
 
-If your `package.json` lists React, Vite, Express, or another package that comes with `@wasp/wasp` in `wasp.overriddenDeps`, override it with npm's `overrides` field instead. Wasp reports such `overriddenDeps` entries as errors.
+Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 8](#reinstall-dependencies).
+
+#### 3. Move your overrides of Wasp's dependencies to npm `overrides`
+
+**If your `package.json` has no `wasp.overriddenDeps` field, you can skip this step.**
+
+If `wasp.overriddenDeps` lists React, Vite, Express, or another package that comes with `@wasp/wasp`, override it with npm's `overrides` field instead. Wasp reports such `overriddenDeps` entries as errors.
 
 The two fields take different versions. `wasp.overriddenDeps` lists the version Wasp requires, while `overrides` lists the version you want. So don't copy the value over. Set the override to the version from your `dependencies`, since npm fails with `EOVERRIDE` when the two don't match exactly:
 
@@ -16225,16 +16236,20 @@ The two fields take different versions. `wasp.overriddenDeps` lists the version 
 
 Read more in [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced).
 
+#### 4. Check your `.npmrc`
+
+**If your project has no `.npmrc` file, you can skip this step.**
+
 The packages that come with `@wasp/wasp` are its peer dependencies, so npm has to install peer dependencies. If your `.npmrc` sets `legacy-peer-deps=true` or `omit=peer`, remove that setting. With it, npm skips these packages and your app fails with missing modules.
 
-If your project's `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
+If your `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
 
 ```ini title=".npmrc"
 min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-#### 3. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+#### 5. Rename `@wasp.sh/spec` imports to `@wasp/spec`
 
 Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
@@ -16269,7 +16284,7 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or
 - Run `npm install` before other Wasp commands in a fresh clone or worktree.
 ```
 
-#### 4. Remove the Wasp version from `main.wasp.ts`
+#### 6. Remove the Wasp version from `main.wasp.ts`
 
 `package.json` now sets the Wasp version, so remove the `wasp` field:
 
@@ -16292,7 +16307,7 @@ export default app({
 });
 ```
 
-#### 5. Upgrade to Prisma 6
+#### 7. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -16322,18 +16337,22 @@ Update the Prisma packages in your `package.json`:
 }
 ```
 
-Now delete the old build output and `node_modules`, and install the dependencies. Don't run `npm install` before this step. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5:
+Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+#### 8. Reinstall your dependencies {#reinstall-dependencies}
 
 :::caution[Back up your SQLite development database]
 If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
 :::
+
+Delete the old build output and `node_modules`, and install the dependencies:
 
 ```sh
 rm -rf .wasp node_modules
 npm install
 ```
 
-Then run the migrations:
+Then run the migrations. Prisma 6 changed how it stores some things in the database, so `wasp db migrate-dev` creates a new migration if your app needs one:
 
 **npm**
 
@@ -16347,9 +16366,7 @@ npm run wasp -- db migrate-dev
 wasp db migrate-dev
 ```
 
-Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
-
-#### 6. Update your Vitest setup
+#### 9. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -16581,13 +16598,13 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
-#### 7. Check relative paths in your server code
+#### 10. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-#### 8. Check the packages your server loads at runtime
+#### 11. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -16606,7 +16623,7 @@ export default app({
 })
 ```
 
-#### 9. Install the system dependencies your app needs
+#### 12. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -16616,7 +16633,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 10. Update your custom Dockerfile
+#### 13. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -16628,7 +16645,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 11. Enjoy your updated Wasp app
+#### 14. Enjoy your updated Wasp app
 
 That's it!
 
@@ -20893,7 +20910,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
 };
 ```
 
-Then set the env var on your production server:
+Then set the environment variable on your production server:
 
 ```bash
 CORS_ALLOWED_DOMAINS=https://app.example.com,https://admin.example.com
@@ -20945,7 +20962,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
   middlewareConfig.set(
     "cors",
     cors({
-      // Keep your app's own client URL, or the Wasp client gets blocked.
+      // Keep your app's own client URL, or the server blocks the Wasp client.
       origin: [
         ...config.allowedCORSOrigins,
         "https://app.example.com",
@@ -20997,7 +21014,7 @@ To connect to your production database, you'll need to:
 2. Get the database password
 3. Open a tunnel to the database
 4. Configure your local environment
-5. Run `wasp db studio`
+5. Run `npm run wasp -- db studio`
 
 ### Step 1: Get the Database Name
 
@@ -21108,7 +21125,7 @@ This guide shows you how to test your Wasp application on other devices (phones,
 
 ### Prerequisites
 
-- A Wasp project running locally with `wasp start`
+- A Wasp project running locally with `npm run dev`
 - Other devices connected to the same network as your development machine
 
 ### Step 1: Start Your App
@@ -21226,7 +21243,7 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 
 #### API calls failing
 
-1. Verify the server URL you passed to `wasp start` is correct
+1. Verify the server URL you passed to `npm run dev` is correct
 2. Make sure the server is accessible on port 3001
 3. Check browser console for CORS errors
 
@@ -21484,7 +21501,7 @@ fly ssh console
 
 #### Redeploying After Wasp Builds
 
-When you rebuild your Wasp app (with `wasp build`), it will remove your `.wasp/out/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
+When you rebuild your Wasp app (with `npm run build`), it will remove your `.wasp/out/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
 
 While we will improve this process in the future, in the meantime, you have a few options:
 
@@ -21492,7 +21509,7 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 From there, you can reference it in `fly deploy --config <path>` commands, like above.
 
-1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/out/ after.
+1. Backup the `fly.toml` file somewhere before running `npm run build`, and copy it into .wasp/out/ after.
 
 When the `fly.toml` file exists in .wasp/out/ dir, you do not need to specify the `--config <path>`.
 
@@ -21759,7 +21776,7 @@ This guide shows you how to deploy the client, the server, and provision a datab
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. Make sure your Wasp app is built by running `npm run build` in the project dir.
 2. Create a [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp) account.
 3. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp#installing-the-cli).
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -21936,7 +21953,7 @@ Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integr
 
 When you make updates and need to redeploy:
 
-1. Run `wasp build` to rebuild your app.
+1. Run `npm run build` to rebuild your app.
 
 2. Go into the `.wasp/out` directory and:
 
@@ -21972,7 +21989,7 @@ This guide depends on external libraries or services, so it may become outdated 
 
 This guide shows you how to deploy the server, client, and provision a database on Render.
 
-Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
+Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run `npm run build` locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
 
 #### Prerequisites
 
@@ -21980,7 +21997,7 @@ To get started, follow these steps:
 
 1. Create a [Render](https://render.com/) account.
 2. Push your Wasp project to a Git repository (GitHub, GitLab, or Bitbucket).
-3. Generate your initial database migrations locally by running `wasp db migrate-dev` and commit the `migrations/` directory. Render needs these migration files in the repo to set up your database.
+3. Generate your initial database migrations locally by running `npm run wasp -- db migrate-dev` and commit the `migrations/` directory. Render needs these migration files in the repo to set up your database.
 
 #### Create the render.yaml Blueprint
 
@@ -21996,7 +22013,7 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install &&
+      npm ci &&
       npm run build &&
       cd .wasp/out/server &&
       npm install &&
@@ -22023,7 +22040,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install &&
+      npm ci &&
       npm run build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
@@ -22109,7 +22126,7 @@ Render auto-deploys when it detects a new commit on the configured branch. Just 
 git push origin main
 ```
 
-If you have new database model changes, make sure to run `wasp db migrate-dev` locally first and commit the generated migration files along with your code changes. The server runs `prisma migrate deploy` on startup, so new migrations are applied automatically on each deploy.
+If you have new database model changes, make sure to run `npm run wasp -- db migrate-dev` locally first and commit the generated migration files along with your code changes. The server runs `prisma migrate deploy` on startup, so new migrations are applied automatically on each deploy.
 
 :::note[Build time]
 Both services install Wasp and compile the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.
@@ -22166,7 +22183,7 @@ Please check Vercel's [pricing page](https://vercel.com/pricing#:~\:text=Vercel%
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. Make sure your Wasp app is built by running `npm run build` in the project dir.
 2. Create a [Vercel](https://vercel.com/signup) account.
 3. Log in with the Vercel CLI by running `npx vercel login`. A browser tab will open to authenticate you.
 4. Go to your Wasp project root and run `npx vercel link`. Follow the prompts to link your project to a new Vercel project for your Wasp app's server (e.g. `my-wasp-app-server`), and use the default settings otherwise.
@@ -22228,7 +22245,7 @@ The Supabase database is linked to your Vercel account. If you remove the integr
    .wasp/out/user
    ```
 
-   `/migrations` is excluded because `wasp build` already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
+   `/migrations` is excluded because `npm run build` already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
 
 3. Add the remaining [required server env variables](https://wasp.sh/docs/advanced/env-vars#server-general-configuration) to the production environment, one at a time, with `npx vercel env add <NAME> production`:
 
@@ -22297,7 +22314,7 @@ That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
 
 When you make updates and need to redeploy:
 
-1. Run `wasp build` to rebuild your app.
+1. Run `npm run build` to rebuild your app.
 
 2. Deploy the server from the project root:
 
@@ -22331,7 +22348,7 @@ This guide depends on external libraries or services, so it may become outdated 
 
 This guide shows you how to deploy the server, the client, and provision a database on [Zerops](https://zerops.io/).
 
-Zerops builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define the project topology in an `import.yaml` and the build/deploy pipeline in a `zerops.yaml`. Wasp maps to three Zerops services: a static client (`app`), a Node.js API (`api`), and PostgreSQL (`db`).
+Zerops builds your Wasp app from source on its servers, so you don't need to run `npm run build` locally before deploying. You'll define the project topology in an `import.yaml` and the build/deploy pipeline in a `zerops.yaml`. Wasp maps to three Zerops services: a static client (`app`), a Node.js API (`api`), and PostgreSQL (`db`).
 
 #### Prerequisites
 
@@ -22339,7 +22356,7 @@ To get started, follow these steps:
 
 1. Create a [Zerops](https://zerops.io/) account.
 2. Push your Wasp project to a Git repository.
-3. Generate your initial database migrations locally by running `wasp db migrate-dev` and commit the `migrations/` directory. Zerops needs these migration files in the repo to set up your database.
+3. Generate your initial database migrations locally by running `npm run wasp -- db migrate-dev` and commit the `migrations/` directory. Zerops needs these migration files in the repo to set up your database.
 
 #### Create the zerops.yaml
 
@@ -22354,7 +22371,7 @@ zerops:
     build:
       base: nodejs@24
       buildCommands:
-        - npm install
+        - npm ci
         - npm run build
         - npx vite build
       envVariables:
@@ -22374,7 +22391,7 @@ zerops:
       base: nodejs@24
       os: ubuntu
       buildCommands:
-        - npm install
+        - npm ci
         - npm run build
         - cd .wasp/out/server && npm install
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
@@ -22408,7 +22425,7 @@ zerops:
       start: sh -c 'cd .wasp/out/server && npm run start'
 ```
 
-The `prod-client` setup runs `npm install` and `npm run build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
+The `prod-client` setup runs `npm ci` and `npm run build`, then `npx vite build`. `REACT_APP_API_URL` must be set at **build time** - Vite embeds it into the compiled JavaScript. If it's missing, all API calls from the client will fail.
 
 The `prod-api` setup bundles the server, then on each new deploy version `zsc execOnce` runs `prisma migrate deploy` once before the server starts on port **3001**. Runtime env vars map from the project value store (set in `import.yaml` below):
 
@@ -22502,7 +22519,7 @@ git push origin main
 
 Zerops starts a new build of each connected service. You can also trigger a rebuild from the dashboard or with `zcli service trigger-build`.
 
-If you changed the Prisma schema, run `wasp db migrate-dev` locally first and commit the generated files in `migrations/` along with your code. On the next API deploy, `zsc execOnce` runs `prisma migrate deploy` once for that new app version before the server starts.
+If you changed the Prisma schema, run `npm run wasp -- db migrate-dev` locally first and commit the generated files in `migrations/` along with your code. On the next API deploy, `zsc execOnce` runs `prisma migrate deploy` once for that new app version before the server starts.
 
 Changing `APP_URL` or `API_URL` in the project value store requires a **rebuild** of the client and a **restart** of the API.
 
@@ -22510,14 +22527,14 @@ Changing `APP_URL` or `API_URL` in the project value store requires a **rebuild*
 
 Zerops maintains an official [Wasp Hello World recipe](https://app.zerops.io/recipes/wasp-hello-world) that imports a ready-made project with one click. It covers several environments - from AI-assisted development to production:
 
-| Environment                                                                                                               | Best for                                                  |
-| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [**AI Agent**](https://app.zerops.io/recipes/wasp-hello-world?environment=ai-agent)                                       | Coding agents - SSH into dev containers, run `wasp start` |
-| [**Remote (CDE)**](https://app.zerops.io/recipes/wasp-hello-world?environment=remote-cde)                                 | Cloud dev environment over SSH                            |
-| [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environment=local)                                             | Laptop + cloud DB via [zCLI VPN](#local-development)      |
-| [**Stage**](https://app.zerops.io/recipes/wasp-hello-world?environment=stage)                                             | Pre-production / QA                                       |
-| [**Small Production**](https://app.zerops.io/recipes/wasp-hello-world?environment=small-production)                       | Small live apps                                           |
-| [**Highly-available Production**](https://app.zerops.io/recipes/wasp-hello-world?environment=highly-available-production) | Production with HA PostgreSQL                             |
+| Environment                                                                                                               | Best for                                                   |
+| ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [**AI Agent**](https://app.zerops.io/recipes/wasp-hello-world?environment=ai-agent)                                       | Coding agents - SSH into dev containers, run `npm run dev` |
+| [**Remote (CDE)**](https://app.zerops.io/recipes/wasp-hello-world?environment=remote-cde)                                 | Cloud dev environment over SSH                             |
+| [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environment=local)                                             | Laptop + cloud DB via [zCLI VPN](#local-development)       |
+| [**Stage**](https://app.zerops.io/recipes/wasp-hello-world?environment=stage)                                             | Pre-production / QA                                        |
+| [**Small Production**](https://app.zerops.io/recipes/wasp-hello-world?environment=small-production)                       | Small live apps                                            |
+| [**Highly-available Production**](https://app.zerops.io/recipes/wasp-hello-world?environment=highly-available-production) | Production with HA PostgreSQL                              |
 
 Recipe `import.yaml` files live in the [recipe repo](https://github.com/zeropsio/recipes/tree/main/wasp-hello-world); the [demo app](https://github.com/zerops-recipe-apps/wasp-hello-world-app) provides the reference `zerops.yaml`. The [official recipe's Small Production `import.yaml`](https://github.com/zeropsio/recipes/blob/main/wasp-hello-world/4%20%E2%80%94%20Small%20Production/import.yaml) uses the same service topology but points at the demo app repo and does not define `APP_SECRET` - the demo hardcodes `JWT_SECRET` in its `zerops.yaml` instead. AI Agent and Remote environments use `appstage` as the preview client (not `app`) and add `appdev` / `apidev` containers for live development.
 
@@ -22525,7 +22542,7 @@ If you start from the recipe and later switch `buildFromGit` to your own repo, a
 
 #### Local development
 
-The recipe's [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environment=local) environment deploys client, API, and PostgreSQL on Zerops while you run `wasp start` on your machine.
+The recipe's [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environment=local) environment deploys client, API, and PostgreSQL on Zerops while you run `npm run dev` on your machine.
 
 `zcli vpn up` only gives you network access to project hostnames (so `db:5432` resolves). Zerops does **not** inject environment variables over the VPN - you must pass `DATABASE_URL` yourself.
 
@@ -25605,9 +25622,9 @@ export default app({
 
 #### Setting metadata for a specific page
 
-You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. React moves the tags into the document's `<head>` for you, so render them anywhere in the component, without a `<head>` wrapper. This allows you to customize the metadata based on the content of each page. These tags will only be included in the page when the component is being shown, so it's better to add them to the top-most level if possible.
+You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. React moves the tags into the document's `<head>` for you, so render them anywhere in the component, without a `<head>` wrapper. This allows you to customize the metadata based on the content of each page. React only adds these tags while it shows the component, so it's better to add them to the top-most level if possible.
 
-The page's tags come in addition to the ones from `head` in your Wasp config, they don't replace them. Link previews on platforms like Slack, X, or Discord don't run JavaScript, so they only see a page's tags when you [prerender](https://wasp.sh/docs/advanced/prerendering) the page.
+The page's tags add to the ones from `head` in `main.wasp.ts`. They don't replace them. Link previews on platforms like Slack, X, or Discord don't run JavaScript, so they only see a page's tags when you [prerender](https://wasp.sh/docs/advanced/prerendering) the page.
 
 ```tsx title="src/pages/HomePage.tsx"
 export function HomePage() {
@@ -25719,7 +25736,7 @@ We recommend **first to measure your app** against common industry tools and see
 SEO can come with costs; at a minimum, the cost of development time and maintenance burden. So while there's always room for improvement, it's important to focus on the techniques that will give you the biggest boost. A little improvement can go a long way, and you don't need to get a perfect score to see significant benefits.
 
 :::warning[Always run measurements against your production build]
-Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](https://wasp.sh/docs/deployment/local-testing) or [after deploying](https://wasp.sh/docs/deployment/overview).
+Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `npm run dev` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](https://wasp.sh/docs/deployment/local-testing) or [after deploying](https://wasp.sh/docs/deployment/overview).
 :::
 
 #### Lighthouse
@@ -25732,7 +25749,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's env vars, see [Testing locally](https://wasp.sh/docs/deployment/local-testing):
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](https://wasp.sh/docs/deployment/local-testing) shows how to set them up:
 
 **npm**
 

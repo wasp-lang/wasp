@@ -1,6 +1,5 @@
 module Wasp.Docs
-  ( waspDocsUrl,
-    versionedWaspDocsUrl,
+  ( versionedWaspDocsUrl,
   )
 where
 

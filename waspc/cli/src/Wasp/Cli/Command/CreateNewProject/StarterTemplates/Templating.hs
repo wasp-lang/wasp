@@ -18,9 +18,9 @@ import Wasp.Cli.DevWaspNpmPackages
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
-import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import Wasp.Util (camelToKebabCase)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do

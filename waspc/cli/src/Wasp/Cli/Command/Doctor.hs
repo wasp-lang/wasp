@@ -14,12 +14,12 @@ import System.IO.Error (tryIOError)
 import qualified System.Info
 import System.Process (readProcessWithExitCode)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.WaspNpmPackage (getWaspCliNpmPackageVersion)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (trim)
 import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.GitRev (gitRevDescription)
 import qualified Wasp.Util.Terminal as Term
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 type Check a = ExceptT String IO a
 

@@ -51,9 +51,9 @@ export default app({
 
 ### Setting metadata for a specific page
 
-You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. React moves the tags into the document's `<head>` for you, so render them anywhere in the component, without a `<head>` wrapper. This allows you to customize the metadata based on the content of each page. These tags will only be included in the page when the component is being shown, so it's better to add them to the top-most level if possible.
+You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. React moves the tags into the document's `<head>` for you, so render them anywhere in the component, without a `<head>` wrapper. This allows you to customize the metadata based on the content of each page. React only adds these tags while it shows the component, so it's better to add them to the top-most level if possible.
 
-The page's tags come in addition to the ones from `head` in your Wasp config, they don't replace them. Link previews on platforms like Slack, X, or Discord don't run JavaScript, so they only see a page's tags when you [prerender](../../advanced/prerendering.md) the page.
+The page's tags add to the ones from `head` in `main.wasp.ts`. They don't replace them. Link previews on platforms like Slack, X, or Discord don't run JavaScript, so they only see a page's tags when you [prerender](../../advanced/prerendering.md) the page.
 
 ```tsx title="src/pages/HomePage.tsx"
 export function HomePage() {

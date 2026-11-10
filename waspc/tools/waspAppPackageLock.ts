@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { getPackageName, WASP_PACKAGE_DIR_NAMES } from "./packages/utils.ts";
 
 /**
- * What Wasp generates into a Wasp app, relative to the app's dir.
- *
  * TODO(#4824): Once the generated code stops being npm workspaces, it has no
  * lockfile entries. Then drop these paths, and the Wasp lib handling below.
+ *
+ * What Wasp generates into a Wasp app, relative to the app's dir.
  */
 export const GENERATED_WASP_PATHS = [
   ".wasp/out",
@@ -15,9 +15,9 @@ export const GENERATED_WASP_PATHS = [
   "node_modules/wasp",
 ];
 
+// TODO(#2262): Drop these once the repo's Wasp apps join the pnpm workspace.
 // The dev Wasp npm packages, which the repo's Wasp apps install from `file:`
 // tarballs (see `tasks/build/dev-packages.ts`).
-// TODO(#2262): Drop these once the repo's Wasp apps join the pnpm workspace.
 const DEV_WASP_NPM_PACKAGE_NAMES = WASP_PACKAGE_DIR_NAMES.map(getPackageName);
 
 type PackageLockEntry = { dependencies?: Record<string, string> };

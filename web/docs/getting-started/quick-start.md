@@ -1,7 +1,7 @@
 ---
 title: "Quick start: install Wasp and create your first app"
 sidebar_label: Quick start
-description: Create a Wasp app with npx @wasp/cli new and run it with npm run dev. Wasp installs as an npm dependency of your project. Then add the Wasp agent plugin to Claude Code or another coding agent.
+description: Create a Wasp app with npx @wasp/cli new and run it with npm run dev. Then add the Wasp agent plugin to Claude Code or another coding agent.
 slug: /quick-start
 ---
 
@@ -37,7 +37,7 @@ Let's create and run our first Wasp app in 2 short steps:
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually [http://localhost:3000](http://localhost:3000), unless it's taken) to see it.
 
 :::tip Prefer shorter commands?
-Your project already has Wasp installed, so you don't need a global install. If you prefer shorter commands, and want Wasp available outside of projects too, install the [global Wasp CLI](#global-cli).
+These commands run the Wasp your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
 :::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
@@ -174,7 +174,7 @@ To switch a project to another Wasp version, change its `@wasp/wasp` dependency:
 
 Check the [migration guide](../migration-guide.md) before upgrading to a new minor version.
 
-#### Windows and other platforms
+#### Windows and building from source
 
 <Tabs
   defaultValue="win"

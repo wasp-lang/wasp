@@ -1,9 +1,9 @@
 {
-  "//": "TODO: This example depends on Wasp through `file:` tarballs, so it runs against the unreleased Wasp in this repo. Run `mise run build:dev-packages` before installing, see tasks/build/dev-packages.ts. The release-examples-deploy workflow switches to the released version. Once Wasp apps can use pnpm, the examples join the repo's pnpm workspace and depend on a plain version, see #4824.",
+  "//": "TODO(#2262): Depends on the unreleased Wasp in this repo through `file:` tarballs. Install with `mise run build:dev-packages` and then `mise run reinstall-dev-wasp-app-deps`, since plain `npm install` fails on the tarballs' stale lockfile entries. Switch to a plain version once the examples join the pnpm workspace.",
   "dependencies": {
     "@prisma/client": "6.19.3",
     "@tanstack/react-query": "~4.42.0",
-    "@wasp/wasp": "file:<dev-tarball>",
+    "@wasp/wasp": "file:<dev-packages-dir>/wasp-wasp-0.27.0.tgz",
     "chai": "^5.2.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
@@ -44,10 +44,10 @@
   },
   "name": "kitchen-sink",
   "overrides": {
-    "@wasp/cli": "file:<dev-tarball>",
-    "@wasp/deploy": "file:<dev-tarball>",
-    "@wasp/spec": "file:<dev-tarball>",
-    "@wasp/studio": "file:<dev-tarball>"
+    "@wasp/cli": "file:<dev-packages-dir>/wasp-cli-0.27.0.tgz",
+    "@wasp/deploy": "file:<dev-packages-dir>/wasp-deploy-0.27.0.tgz",
+    "@wasp/spec": "file:<dev-packages-dir>/wasp-spec-0.27.0.tgz",
+    "@wasp/studio": "file:<dev-packages-dir>/wasp-studio-0.27.0.tgz"
   },
   "scripts": {
     "build": "wasp build",

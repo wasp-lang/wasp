@@ -125,7 +125,7 @@ fly ssh console
 
 ### Redeploying After Wasp Builds
 
-When you rebuild your Wasp app (with `wasp build`), it will remove your `.wasp/out/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
+When you rebuild your Wasp app (with `npm run build`), it will remove your `.wasp/out/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
 
 While we will improve this process in the future, in the meantime, you have a few options:
 
@@ -133,7 +133,7 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 From there, you can reference it in `fly deploy --config <path>` commands, like above.
 
-1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/out/ after.
+1. Backup the `fly.toml` file somewhere before running `npm run build`, and copy it into .wasp/out/ after.
 
 When the `fly.toml` file exists in .wasp/out/ dir, you do not need to specify the `--config <path>`.
 
