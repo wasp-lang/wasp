@@ -5,10 +5,9 @@ import * as fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
-import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
-
-const debug = debuglog("wasp-bin-wrapper");
+import { debug } from "./debug.js";
+import { readJsonFromPackageRoot } from "./package-root.js";
 
 export interface InstalledWaspCli {
   /** A real path, so symlinked installs of the same CLI compare equal. */
@@ -17,10 +16,13 @@ export interface InstalledWaspCli {
 }
 
 export async function getThisWaspCli(): Promise<InstalledWaspCli> {
-  return readInstalledWaspCli(
-    path.join(import.meta.dirname, "../package.json"),
-    path.join(import.meta.dirname, "run.js"),
+  const { version } = await readJsonFromPackageRoot<{ version: string }>(
+    "package.json",
   );
+  return {
+    runModulePath: await fs.realpath(path.join(import.meta.dirname, "run.js")),
+    version,
+  };
 }
 
 /**

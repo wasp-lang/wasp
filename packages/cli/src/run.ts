@@ -1,17 +1,14 @@
 // Runs the Wasp binary of this `@wasp/cli`.
 
 import { execFileSync } from "node:child_process";
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
+import { debug } from "./debug.js";
 import {
   getCurrentPlatformTarget,
   type CliPackageData,
   type CliSubPackageAPI,
 } from "./package-data.js";
-
-const debug = debuglog("wasp-bin-wrapper");
+import { readJsonFromPackageRoot } from "./package-root.js";
 
 interface PackageJson {
   version: string;
@@ -25,7 +22,7 @@ export async function runWaspCli(): Promise<number> {
     CLIError.rethrowWith("Can't find the Wasp executable."),
   );
 
-  return await runWasp({
+  return await runWaspBinary({
     waspBinPath,
     dataDirPath,
     waspVersion: packageJson.version,
@@ -147,7 +144,7 @@ function checkNodeVersionIsSupported({
   return true;
 }
 
-async function runWasp({
+async function runWaspBinary({
   waspBinPath,
   dataDirPath,
   waspVersion,
@@ -195,10 +192,4 @@ async function readPackageJson(): Promise<PackageJson> {
 // `data.json` doesn't exist at dev time, only in the built package.
 async function readPackageData(): Promise<CliPackageData> {
   return readJsonFromPackageRoot("data.json");
-}
-
-// The compiled code runs from `dist/`, one level below the package root.
-async function readJsonFromPackageRoot<T>(fileName: string): Promise<T> {
-  const filePath = path.join(import.meta.dirname, "..", fileName);
-  return JSON.parse(await fs.readFile(filePath, "utf8")) as T;
 }

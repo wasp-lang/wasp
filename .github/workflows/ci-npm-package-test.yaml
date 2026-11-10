@@ -74,12 +74,12 @@ jobs:
 
       - name: Run Wasp CLI
         run: |
-          set -eux
+          set -euxo pipefail
           cd install-test
 
-          # Test that the Wasp CLI can find and run the binary.
-          NODE_DEBUG=wasp-bin-wrapper npx wasp version 2> wrapper-debug.log
-          cat wrapper-debug.log
+          # Test that the Wasp CLI can find and run the binary. `tee` keeps the
+          # wrapper's debug log in the CI output even when the command fails.
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version 2>&1 | tee wrapper-debug.log
 
           # Test that the Wasp CLI finds the project's `@wasp/cli` in the npm
           # layout, and recognizes it is that CLI.

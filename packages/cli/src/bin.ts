@@ -4,18 +4,14 @@ import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
+import { debug } from "./debug.js";
 import {
   findProjectWaspCliToHandOverTo,
   getThisWaspCli,
   runProjectWaspCli,
 } from "./project-wasp-cli.js";
 import { runWaspCli } from "./run.js";
-
-// If you want to turn on debug logging, set the following environment variable:
-// `NODE_DEBUG=wasp-bin-wrapper`
-const debug = debuglog("wasp-bin-wrapper");
 
 try {
   const childProcessExitCode = await main();
