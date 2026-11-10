@@ -364,7 +364,7 @@ export default app({
 
 That's it! We have set up email authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [auth overview](../overview).
+Running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and then <InlineWaspCommand npm="npm run dev" global="wasp start" /> should give you a working app with email authentication. If you want to put some of the pages behind authentication, read the [auth overview](../overview).
 
 ## Login and Signup Flows
 

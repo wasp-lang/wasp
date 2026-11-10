@@ -124,7 +124,7 @@ model Task {
 }
 ```
 
-We can then run `wasp db migrate-dev` to create the database and run the migrations.
+We can then run <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> to create the database and run the migrations.
 
 ### Adding CRUD to the `Task` Entity ✨
 
@@ -430,7 +430,7 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
   </TabItem>
 </Tabs>
 
-That's it. You can now run `wasp start` and see the app in action. ⚡️
+That's it. You can now run <InlineWaspCommand npm="npm run dev" global="wasp start" /> and see the app in action. ⚡️
 
 You should see a login page and a signup page. After you log in, you should see a page with a list of tasks and a form to create new tasks.
 

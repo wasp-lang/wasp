@@ -3,6 +3,8 @@ import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { type ReactNode } from "react";
 import {
+  assertHasEveryPackageManagerCommand,
+  PACKAGE_MANAGER_TAB_GROUP_ID,
   PACKAGE_MANAGERS,
   type PackageManagerCommands,
 } from "./packageManagers";
@@ -15,19 +17,13 @@ import {
 export default function PackageManagerCommand(
   commands: PackageManagerCommands,
 ): ReactNode {
-  for (const { name } of PACKAGE_MANAGERS) {
-    if (!commands[name]) {
-      throw new Error(
-        `PackageManagerCommand is missing the ${name} command in: ${JSON.stringify(commands)}`,
-      );
-    }
-  }
+  assertHasEveryPackageManagerCommand("PackageManagerCommand", commands);
 
   if (PACKAGE_MANAGERS.length === 1) {
     return <ShellCodeBlock command={commands[PACKAGE_MANAGERS[0].name]} />;
   }
   return (
-    <Tabs groupId="package-manager">
+    <Tabs groupId={PACKAGE_MANAGER_TAB_GROUP_ID}>
       {PACKAGE_MANAGERS.map(({ name, label }) => (
         <TabItem key={name} value={name} label={label}>
           <ShellCodeBlock command={commands[name]} />

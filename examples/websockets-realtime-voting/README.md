@@ -36,11 +36,11 @@ npm run dev
 
 Check out the `src/server/websocket.ts` and `src/client/pages/MainPage.tsx` to see how Websockets are used in Wasp.
 
-### Installing on the `main` branch
+### Installing with the development version of Wasp
 
 <!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
 
-On `main`, this example depends on the unreleased Wasp in this repo, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
+In this repo, the example depends on the development version of Wasp, which isn't on npm, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
 
 ```sh
 mise run build

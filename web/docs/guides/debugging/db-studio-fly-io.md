@@ -10,7 +10,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Fly CLI": "0.4.11" }} />
 
-This guide shows you how to connect to your production database on Fly.io and run `wasp db studio` to inspect or modify your data.
+This guide shows you how to connect to your production database on Fly.io and run <InlineWaspCommand npm="npm run wasp -- db studio" global="wasp db studio" /> to inspect or modify your data.
 
 :::warning Working with production data
 You are about to point your local tooling at the live production database. Make sure to understand the [Security Considerations](#security-considerations) before proceeding.
@@ -29,7 +29,7 @@ To connect to your production database, you'll need to:
 2. Get the database password
 3. Open a tunnel to the database
 4. Configure your local environment
-5. Run `npm run wasp -- db studio`
+5. Run <InlineWaspCommand npm="npm run wasp -- db studio" global="wasp db studio" />
 
 ## Step 1: Get the Database Name
 
@@ -69,11 +69,11 @@ Copy this password and type `exit` to leave the SSH session.
 
 Before opening the tunnel, make sure nothing else is running on port 5432:
 
-- Stop any local database started with `wasp db start`
+- Stop any local database started with <InlineWaspCommand npm="npm run wasp -- db start" global="wasp db start" />
 - Check for Docker containers that might be using the port
 
 :::warning Background processes
-Even if you close the terminal that was running `wasp db start`, the Docker container may still be running in the background. Make sure to stop it before proceeding.
+Even if you close the terminal that was running <InlineWaspCommand npm="npm run wasp -- db start" global="wasp db start" />, the Docker container may still be running in the background. Make sure to stop it before proceeding.
 :::
 
 Open the tunnel:

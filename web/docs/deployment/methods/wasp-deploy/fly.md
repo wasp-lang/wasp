@@ -57,7 +57,7 @@ You should include these files in your version control so that you can deploy yo
 
 <LaunchCommandEnvVars />
 
-If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
+If your app requires any additional environment variables, use the <InlineWaspCommand npm="npm run wasp -- deploy fly cmd secrets set" global="wasp deploy fly cmd secrets set" /> command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
 
 <CiCdMention />
 
@@ -183,7 +183,7 @@ If you have multiple organizations, you can specify a `--org` option. For exampl
 
 Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
 
-If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
+If you want to build locally, supply the `--build-locally` option to <InlineWaspCommand npm="npm run wasp -- deploy fly launch" global="wasp deploy fly launch" /> or <InlineWaspCommand npm="npm run wasp -- deploy fly deploy" global="wasp deploy fly deploy" />.
 
 #### Using a custom PostgreSQL database
 
@@ -219,7 +219,7 @@ It accepts the following arguments:
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
-Running `wasp deploy fly launch` is the same as running the following commands:
+Running <InlineWaspCommand npm="npm run wasp -- deploy fly launch" global="wasp deploy fly launch" /> is the same as running the following commands:
 
 <WaspCommand npm={`npm run wasp -- deploy fly setup <app-name> <region>
 npm run wasp -- deploy fly create-db <region>

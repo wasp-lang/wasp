@@ -227,7 +227,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 That's it! We have set up username authentication in our app. 🎉
 
-Running `wasp db migrate-dev` and then `wasp start` should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [auth overview docs](../overview).
+Running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and then <InlineWaspCommand npm="npm run dev" global="wasp start" /> should give you a working app with username authentication. If you want to put some of the pages behind authentication, read the [auth overview docs](../overview).
 
 <MultipleIdentitiesWarning />
 

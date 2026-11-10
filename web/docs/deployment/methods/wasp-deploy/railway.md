@@ -91,7 +91,7 @@ It accepts the following arguments:
 
   The name of your project.
 
-Running `wasp deploy railway launch` is the same as running the following commands:
+Running <InlineWaspCommand npm="npm run wasp -- deploy railway launch" global="wasp deploy railway launch" /> is the same as running the following commands:
 
 <WaspCommand npm={`npm run wasp -- deploy railway setup <project-name>
 npm run wasp -- deploy railway deploy <project-name>`} global={`wasp deploy railway setup <project-name>

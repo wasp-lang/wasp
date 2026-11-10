@@ -142,7 +142,7 @@ Yay, we've successfully set up GitHub Auth! 🎉
 
 ![GitHub Auth](/img/docs/features/auth/social-auth/github/github.png)
 
-Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
+Running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and <InlineWaspCommand npm="npm run dev" global="wasp start" /> should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).
 
 ## Default Behaviour

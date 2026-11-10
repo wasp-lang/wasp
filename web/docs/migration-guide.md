@@ -253,7 +253,7 @@ rm -rf .wasp node_modules
 npm install
 ```
 
-Then run the migrations. Prisma 6 changed how it stores some things in the database, so `wasp db migrate-dev` creates a new migration if your app needs one:
+Then run the migrations. Prisma 6 changed how it stores some things in the database, so <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> creates a new migration if your app needs one:
 
 <WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
 
@@ -495,7 +495,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-   Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
+   Your tests import the Wasp SDK, so generate it first with <InlineWaspCommand npm="npm run wasp -- compile" global="wasp compile" />, or keep <InlineWaspCommand npm="npm run dev" global="wasp start" /> running in another terminal:
 
    <WaspCommand npm={"npm run wasp -- compile\nnpm test"} global={"wasp compile\nnpm test"} />
 
@@ -540,7 +540,7 @@ RUN apk add --no-cache python3
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
-The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
+The generated Dockerfile changed. Run <InlineWaspCommand npm="npm run wasp -- dockerfile" global="wasp dockerfile" /> to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
 
 The final stage (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`. If your steps use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
 

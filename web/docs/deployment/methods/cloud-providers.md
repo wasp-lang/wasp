@@ -47,7 +47,7 @@ Let's go through each of these steps.
 
 ### 1. Generating Deployable Code
 
-Running the command `wasp build` generates deployable code for the whole app in the `.wasp/out/` directory.
+Running the command <InlineWaspCommand npm="npm run build" global="wasp build" /> generates deployable code for the whole app in the `.wasp/out/` directory.
 
 <WaspCommand npm="npm run build" global="wasp build" />
 

@@ -55,7 +55,7 @@ Please check Vercel's [pricing page](https://vercel.com/pricing#:~:text=Vercel%2
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `npm run build` in the project dir.
+1. Make sure your Wasp app is built by running <InlineWaspCommand npm="npm run build" global="wasp build" /> in the project dir.
 1. Create a [Vercel](https://vercel.com/signup) account.
 1. Log in with the Vercel CLI by running `npx vercel login`. A browser tab will open to authenticate you.
 1. Go to your Wasp project root and run `npx vercel link`. Follow the prompts to link your project to a new Vercel project for your Wasp app's server (e.g. `my-wasp-app-server`), and use the default settings otherwise.
@@ -110,7 +110,7 @@ The Supabase database is linked to your Vercel account. If you remove the integr
    ```
 
    <small>
-     `/migrations` is excluded because `npm run build` already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
+     `/migrations` is excluded because <InlineWaspCommand npm="npm run build" global="wasp build" /> already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
    </small>
 
 1. Add the remaining [required server env variables](../../../advanced/env-vars.md#server-general-configuration) to the production environment, one at a time, with `npx vercel env add <NAME> production`:
@@ -158,7 +158,7 @@ That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
 
 When you make updates and need to redeploy:
 
-1. Run `npm run build` to rebuild your app.
+1. Run <InlineWaspCommand npm="npm run build" global="wasp build" /> to rebuild your app.
 1. Deploy the server from the project root:
 
    <PackageManagerCommand npm="npx vercel deploy --prod" />

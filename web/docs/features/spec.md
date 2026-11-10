@@ -153,8 +153,8 @@ All spec files should have the `.wasp.ts` extension, so they are included in the
 
 Wasp sets the `NODE_ENV` environment variable based on which command you use to run Wasp:
 
-- `"development"` during `wasp start` (and some other commands that compile the project, like `wasp db migrate-dev`).
-- `"production"` during `wasp build`.
+- `"development"` during <InlineWaspCommand npm="npm run dev" global="wasp start" /> (and some other commands that compile the project, like <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />).
+- `"production"` during <InlineWaspCommand npm="npm run build" global="wasp build" />.
 
 Because the Wasp Spec is just TypeScript, you can read this variable to switch config values per environment:
 

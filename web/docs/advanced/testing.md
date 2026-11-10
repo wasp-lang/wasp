@@ -85,11 +85,11 @@ Add a script for running your tests to your `package.json`:
 ```
 
 Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app.
-Keep `wasp start` running in one terminal, and run your tests in another:
+Keep <InlineWaspCommand npm="npm run dev" global="wasp start" /> running in one terminal, and run your tests in another:
 
 <PackageManagerCommand npm="npm test" />
 
-Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `wasp compile` before running the tests:
+Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with <InlineWaspCommand npm="npm run wasp -- compile" global="wasp compile" /> before running the tests:
 
 <WaspCommand npm={`npm run wasp -- compile
 npm test`} global={`wasp compile

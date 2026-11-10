@@ -60,7 +60,7 @@ datasource db {
   Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](./prisma-file.md) section.
 </small>
 
-You'll have to ensure a database instance is running during development to use PostgreSQL. Wasp needs access to your database for commands such as `wasp start` or `wasp db migrate-dev`.
+You'll have to ensure a database instance is running during development to use PostgreSQL. Wasp needs access to your database for commands such as <InlineWaspCommand npm="npm run dev" global="wasp start" /> or <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />.
 
 We cover all supported ways of connecting to a database in [the next section](#connecting-to-a-database).
 
@@ -79,17 +79,17 @@ If you are using PostgreSQL, Wasp supports two ways of connecting to a database:
 
 #### Using the Dev Database provided by Wasp
 
-The command `wasp start db` will start a default PostgreSQL dev database for you.
+The command <InlineWaspCommand npm="npm run wasp -- start db" global="wasp start db" /> will start a default PostgreSQL dev database for you.
 
-Your Wasp app will automatically connect to it, just keep `wasp start db` running in the background.
+Your Wasp app will automatically connect to it, just keep <InlineWaspCommand npm="npm run wasp -- start db" global="wasp start db" /> running in the background.
 Also, make sure that you have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
 
-By default, `wasp start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
+By default, <InlineWaspCommand npm="npm run wasp -- start db" global="wasp start db" /> runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
 
 <WaspCommand npm="npm run wasp -- start db --db-port 8080" global="wasp start db --db-port 8080" />
 
 :::tip
-In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
+In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run <InlineWaspCommand npm="npm run wasp -- db start" global="wasp db start" />, at the very beginning.
 :::
 
 ##### Customising the dev database {#custom-database}
@@ -181,13 +181,13 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    // ...
    ```
 
-2. Delete the old migrations, because PostgreSQL can't use SQLite migrations, and delete the SQLite database by running [`wasp clean`](../../advanced/cli#project-commands). `wasp clean` also deletes `node_modules`, so install the dependencies again:
+2. Delete the old migrations, because PostgreSQL can't use SQLite migrations, and delete the SQLite database by running [<InlineWaspCommand npm="npm run wasp -- clean" global="wasp clean" />](../../advanced/cli#project-commands). <InlineWaspCommand npm="npm run wasp -- clean" global="wasp clean" /> also deletes `node_modules`, so install the dependencies again:
 
    <WaspCommand npm={"rm -r migrations/\nnpm run wasp -- clean\nnpm install"} global={"rm -r migrations/\nwasp clean\nnpm install"} />
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 
-4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
+4. In a different terminal, run <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> to apply the changes and create a new initial migration.
 
 5. That is it, you are all done!
 
@@ -331,16 +331,16 @@ Here's an example of a seed function that imports an Action:
 
 ### Running seed functions
 
-Run the command `wasp db seed` and Wasp will ask you which seed function you'd like to run (if you've defined more than one).
+Run the command <InlineWaspCommand npm="npm run wasp -- db seed" global="wasp db seed" /> and Wasp will ask you which seed function you'd like to run (if you've defined more than one).
 
-Alternatively, run the command `wasp db seed <seed-name>` to choose a specific seed function right away, for example:
+Alternatively, run the command <InlineWaspCommand npm="npm run wasp -- db seed <seed-name>" global="wasp db seed <seed-name>" /> to choose a specific seed function right away, for example:
 
 <WaspCommand npm="npm run wasp -- db seed devSeedSimple" global="wasp db seed devSeedSimple" />
 
 Check the [API Reference](#cli-commands-for-seeding-the-database) for more details on these commands.
 
 :::tip
-You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
+You'll often want to call <InlineWaspCommand npm="npm run wasp -- db seed" global="wasp db seed" /> right after you run <InlineWaspCommand npm="npm run wasp -- db reset" global="wasp db reset" />, as it makes sense to fill the database with initial data after clearing it.
 :::
 
 ## Customising the Prisma Client
@@ -445,11 +445,11 @@ export default app({
 
 Use one of the following commands to run the seed functions:
 
-- `wasp db seed`
+- <InlineWaspCommand npm="npm run wasp -- db seed" global="wasp db seed" />
 
   If you've only defined a single seed function, this command runs it. If you've defined multiple seed functions, it asks you to choose one interactively.
 
-- `wasp db seed <seed-name>`
+- <InlineWaspCommand npm="npm run wasp -- db seed <seed-name>" global="wasp db seed <seed-name>" />
 
   This command runs the seed function with the specified name. Wasp derives this name from the imported function name you list in `db.seeds`.
   For example, to run the seed function `devSeedSimple` which was defined like this:

@@ -81,7 +81,7 @@ Check [More Details](#more-details) section below if anything went wrong with th
 :::
 
 :::tip Having trouble running Wasp?
-  If you get stuck with a weird error while developing with Wasp, try running `wasp clean` - this is the Wasp equivalent of "turning it off and on again"!
+  If you get stuck with a weird error while developing with Wasp, try running <InlineWaspCommand npm="npm run wasp -- clean" global="wasp clean" /> - this is the Wasp equivalent of "turning it off and on again"!
   Do however let us know about the issue on our GitHub repo or Discord server.
 :::
 

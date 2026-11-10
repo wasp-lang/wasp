@@ -14,7 +14,7 @@ The command automates the manual deployment process and is the recommended way o
 It looks like this:
 <WaspCommand npm="npm run wasp -- deploy <provider> launch my-wasp-app" global="wasp deploy <provider> launch my-wasp-app" />
 
-The `wasp deploy` command sets up all the necessary services on the provider, builds your Wasp app, and deploys it.
+The <InlineWaspCommand npm="npm run wasp -- deploy" global="wasp deploy" /> command sets up all the necessary services on the provider, builds your Wasp app, and deploys it.
 
 ### Supported Providers
 

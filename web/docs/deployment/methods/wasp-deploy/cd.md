@@ -14,7 +14,7 @@ You can use CI/CD platforms like Github Actions to re-deploy your application au
 
 ### Prerequisites
 
-Make sure to first deploy your application from your local machine using `wasp deploy <provider> launch`. The `launch` command creates services for your application in the deployment provider and deploys them. After your application is deployed, you are able to use `wasp deploy <provider> deploy` in a CI/CD workflow to re-deploy it.
+Make sure to first deploy your application from your local machine using <InlineWaspCommand npm="npm run wasp -- deploy <provider> launch" global="wasp deploy <provider> launch" />. The `launch` command creates services for your application in the deployment provider and deploys them. After your application is deployed, you are able to use <InlineWaspCommand npm="npm run wasp -- deploy <provider> deploy" global="wasp deploy <provider> deploy" /> in a CI/CD workflow to re-deploy it.
 
 <WaspDeployProvidersGrid />
 

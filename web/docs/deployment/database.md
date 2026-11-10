@@ -8,7 +8,7 @@ import { CardLink } from '@site/src/components/CardLink'
 
 # Database
 
-In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local dev database (started with `wasp start db` or some other way). However, when it's time to deploy your app, you'll need to set up a production database.
+In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local dev database (started with <InlineWaspCommand npm="npm run wasp -- start db" global="wasp start db" /> or some other way). However, when it's time to deploy your app, you'll need to set up a production database.
 
 ### Production database requirements
 
@@ -32,7 +32,7 @@ This command will create a new migration in the `migrations` directory. The migr
 
 ### Applying migrations
 
-**In development**, the migrations are applied as soon as you run the `wasp start` command.
+**In development**, the migrations are applied as soon as you run the <InlineWaspCommand npm="npm run dev" global="wasp start" /> command.
 
 **In production**, the server app first checks if there are any new migrations that need to be applied, and if there are, it applies them before starting the server. This way, the database schema is always in sync with the Prisma schema.
 
@@ -56,20 +56,20 @@ You can try resolving the error e.g. if you tried adding a `@unique` constraint 
 
 :::tip Viewing the `_prisma_migrations` table
 
-You can't use the `wasp db studio` command to view the `_prisma_migrations` table in the production database, but you can use a database management tool like [DBeaver](https://dbeaver.io/) or [pgAdmin](https://www.pgadmin.org/).
+You can't use the <InlineWaspCommand npm="npm run wasp -- db studio" global="wasp db studio" /> command to view the `_prisma_migrations` table in the production database, but you can use a database management tool like [DBeaver](https://dbeaver.io/) or [pgAdmin](https://www.pgadmin.org/).
 :::
 
 ## Connect to the production database
 
-**In development**, you can use the `wasp db studio` command to open a web-based database management tool that allows you to inspect the database.
+**In development**, you can use the <InlineWaspCommand npm="npm run wasp -- db studio" global="wasp db studio" /> command to open a web-based database management tool that allows you to inspect the database.
 
-You can use the same tool to inspect the **production database**, but you'll need to set the `DATABASE_URL` env variable to point to the production database. Set the `DATABASE_URL` env variable in your terminal before running the `wasp db studio` command:
+You can use the same tool to inspect the **production database**, but you'll need to set the `DATABASE_URL` env variable to point to the production database. Set the `DATABASE_URL` env variable in your terminal before running the <InlineWaspCommand npm="npm run wasp -- db studio" global="wasp db studio" /> command:
 
 <WaspCommand npm={"DATABASE_URL=\"postgresql://user:password@host:port/dbname\" npm run wasp -- db studio"} global={"DATABASE_URL=\"postgresql://user:password@host:port/dbname\" wasp db studio"} />
 
 :::caution Be careful with the `DATABASE_URL` env variable
 
-Setting the `DATABASE_URL` env variable in the `.env.server` file to point to your production database also works, but then you might forget to remove it and you could accidentally make changes to the production database when you run `wasp start` in development.
+Setting the `DATABASE_URL` env variable in the `.env.server` file to point to your production database also works, but then you might forget to remove it and you could accidentally make changes to the production database when you run <InlineWaspCommand npm="npm run dev" global="wasp start" /> in development.
 
 That's why we recommend setting the `DATABASE_URL` env variable in the terminal to avoid this.
 

@@ -23,7 +23,7 @@ This gives you:
 
 You can add the `prerender` option to a Route spec to enable prerendering. The only [limitation](#limitations) is that the route must **not** have the `authRequired` property turned on.
 
-Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp build`. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
+Once `prerender` is enabled, Wasp will know to render this route's HTML on <InlineWaspCommand npm="npm run build" global="wasp build" />. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
 
 ### Static routes
 
@@ -98,7 +98,7 @@ export default app({
 
 ## How it works
 
-By default, `wasp build` generates a single `200.html` file that serves as the entry point for all routes. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
+By default, <InlineWaspCommand npm="npm run build" global="wasp build" /> generates a single `200.html` file that serves as the entry point for all routes. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
 
 But for prerendered routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is then written to a file placed in the build output alongside the SPA file.
 
