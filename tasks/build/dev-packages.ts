@@ -3,18 +3,19 @@
 /// <reference types="node" />
 // The unreleased Wasp isn't on npm, so the repo's Wasp apps depend on tarballs
 // of it instead (see `Wasp.Cli.DevWaspNpmPackages`). The dev `@wasp/cli` runs
-// the `wasp-cli` binary built in this repo (see `waspc/tools/devCliSubPackage.js`).
+// the `wasp-cli` binary built in this repo (see `waspc/tools/devCliSubPackage.ts`).
 //
 // TODO: Remove most of this once the repo's Wasp apps join the pnpm workspace
 // and depend on `@wasp/wasp` through `workspace:*`.
 
 import {
-  copyFileSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { stripTypeScriptTypes } from "node:module";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import {
@@ -43,14 +44,14 @@ import {
 } from "../../waspc/tools/utils.ts";
 
 const DEV_PACKAGES_DIR_NAME = ".dev-packages";
-// Keep in sync with `waspc/tools/devCliSubPackage.js` and
+// Keep in sync with `waspc/tools/devCliSubPackage.ts` and
 // `devWaspNpmPackagesManifestFile` in `Wasp.Cli.DevWaspNpmPackages`.
 const DEV_PACKAGES_MANIFEST_FILE_NAME = "dev-packages.json";
 const DEV_CLI_SUB_PACKAGE_FILE_NAME = "dev-sub-package.js";
 const DEV_CLI_SUB_PACKAGE_SOURCE_PATH = join(
   getWaspcDirPath(),
   "tools",
-  "devCliSubPackage.js",
+  "devCliSubPackage.ts",
 );
 
 // We pack `@wasp/cli` ourselves, with the dev CLI sub-package.
@@ -110,7 +111,7 @@ function packPackage(packageDir: string, destinationDir: string): string {
 }
 
 // What we packed, for `Wasp.Cli.DevWaspNpmPackages`, and what the dev
-// `@wasp/cli` runs, for `waspc/tools/devCliSubPackage.js`.
+// `@wasp/cli` runs, for `waspc/tools/devCliSubPackage.ts`.
 //
 // Next to the tarballs, not inside them, because the paths are of this
 // checkout. The tarballs still differ between platforms (see the `data.json`
@@ -146,9 +147,13 @@ function packDevCliPackage(devPackagesDir: string): string {
     // with the dev CLI sub-package next to the compiled CLI in place of the
     // platform packages.
     copyStaticFiles(CLI_PACKAGE_STATIC_FILES, CLI_PACKAGE_SOURCE_DIR, tmpDir);
-    copyFileSync(
-      DEV_CLI_SUB_PACKAGE_SOURCE_PATH,
+    // Node.js doesn't run TypeScript from `node_modules`, where the dev
+    // `@wasp/cli` ends up.
+    writeFileSync(
       join(tmpDir, "dist", DEV_CLI_SUB_PACKAGE_FILE_NAME),
+      stripTypeScriptTypes(
+        readFileSync(DEV_CLI_SUB_PACKAGE_SOURCE_PATH, "utf8"),
+      ),
     );
 
     const packageJson = {

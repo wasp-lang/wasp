@@ -295,9 +295,10 @@ waspCliStudio = return "$WASP_CLI_CMD studio"
 npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 npmInstall = return "npm install"
 
--- | Like `wasp new` does (see "Wasp.Cli.DevWaspNpmPackages"). Projects copied
--- from the repo, e.g. the examples, point at the tarballs relative to their
--- place in the repo.
+-- | Points the project at the dev Wasp npm package tarballs by their absolute
+-- paths. Projects copied from the repo, e.g. the examples, point at them
+-- relative to their place in the repo, which doesn't hold in the test dir.
+-- `wasp new` does the same for a new project (see "Wasp.Cli.DevWaspNpmPackages").
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
   return $ "eval \"npm pkg set $(jq -r '" ++ npmPkgSetArgsJqProgram ++ "' \"" ++ devPackagesDir ++ "/" ++ fromRelFile devWaspNpmPackagesManifestFile ++ "\")\""

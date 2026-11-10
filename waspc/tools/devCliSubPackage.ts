@@ -1,11 +1,11 @@
-// @ts-check
-
-// The dev stand-in for the platform packages of `@wasp/cli`. Its default
-// export must match `CliSubPackageAPI` in `packages/cli/src/package-data.ts`.
+// The dev stand-in for the platform packages of `@wasp/cli`.
+//
+// `tasks/build/dev-packages.ts` strips the types and puts the result into the
+// dev `@wasp/cli`, so this file can only import types and Node.js built-ins.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import type { CliSubPackageAPI } from "../../packages/cli/src/package-data.ts";
 
 // Keep in sync with `DEV_PACKAGES_MANIFEST_FILE_NAME` in `tasks/build/dev-packages.ts`.
 const DEV_PACKAGES_MANIFEST_FILE_NAME = "dev-packages.json";
@@ -16,25 +16,24 @@ const devPackagesDir = findDevPackagesDir();
 // packages only with this variable set (see `Wasp.Cli.DevWaspNpmPackages`).
 process.env.WASP_DEV_PACKAGES_DIR ??= devPackagesDir;
 
-/** @type {{ waspBinPath: string, dataDirPath: string }} */
-const { waspBinPath, dataDirPath } = JSON.parse(
+const { waspBinPath, dataDirPath }: CliSubPackageAPI = JSON.parse(
   readFileSync(join(devPackagesDir, DEV_PACKAGES_MANIFEST_FILE_NAME), "utf8"),
 );
 
-export default { waspBinPath, dataDirPath };
+export default { waspBinPath, dataDirPath } satisfies CliSubPackageAPI;
 
 /**
  * Reads it from the `@wasp/cli` override, which names the dev `@wasp/cli`
  * tarball whether `@wasp/wasp` is a regular or a dev dependency.
- *
- * @returns {string}
  */
-function findDevPackagesDir() {
-  let dir = dirname(fileURLToPath(import.meta.url));
+function findDevPackagesDir(): string {
+  let dir = import.meta.dirname;
   while (true) {
     const packageJsonPath = join(dir, "package.json");
     if (existsSync(packageJsonPath)) {
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      const packageJson: { overrides?: Record<string, unknown> } = JSON.parse(
+        readFileSync(packageJsonPath, "utf8"),
+      );
       const specifier = packageJson.overrides?.["@wasp/cli"];
       if (typeof specifier === "string" && specifier.startsWith("file:")) {
         return dirname(resolve(dir, specifier.slice("file:".length)));

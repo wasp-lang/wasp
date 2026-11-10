@@ -40,7 +40,7 @@ import Wasp.Util.Json (readJsonFile, updateJsonFile)
 {-
 Lets the Wasp apps in this repo run against the Wasp in this repo, before its
 npm packages are published. Only the dev Wasp CLI (@waspc/tools/wasp-cli-dev@
-and the dev \@wasp/cli, see @waspc/tools/devCliSubPackage.js@) sets
+and the dev \@wasp/cli, see @waspc/tools/devCliSubPackage.ts@) sets
 'devWaspNpmPackagesDirEnvVarName', so this does nothing for Wasp users.
 
 `mise run build:dev-packages` packs the packages into `waspc/.dev-packages/`

@@ -7,7 +7,6 @@ import { getPackageName, WASP_PACKAGE_DIR_NAMES } from "./packages/utils.ts";
 export const GENERATED_WASP_PATHS = [
   ".wasp/out",
   "node_modules/@wasp/generated-server",
-  "node_modules/@wasp.sh/generated-server",
   "node_modules/wasp",
 ];
 
@@ -20,8 +19,7 @@ type PackageLockEntry = { dependencies?: Record<string, string> };
 
 /**
  * Generated workspaces go stale once `.wasp/out` is gone, and the dev Wasp npm
- * packages whenever they're repacked. Apps from before Wasp 0.27 use the
- * `@wasp.sh` scope, so we match it too.
+ * packages whenever they're repacked.
  */
 export async function removeStaleWaspLockEntries(
   waspAppDir: string,
@@ -78,5 +76,5 @@ function withoutWaspLibDependencies(
 }
 
 function isWaspLibName(packageName: string): boolean {
-  return /^@wasp(\.sh)?\/lib-/.test(packageName);
+  return packageName.startsWith("@wasp/lib-");
 }
