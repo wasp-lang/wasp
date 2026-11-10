@@ -20,6 +20,7 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
+import System.Directory (createDirectoryIfMissing)
 import System.Exit (ExitCode (..))
 import System.IO (hClose)
 import System.IO.Temp (withTempFile)
@@ -73,7 +74,10 @@ data SpecResultFile
 -- time (e.g. `wasp show spec` next to `wasp start`) don't conflict. The file
 -- is deleted afterwards.
 withSpecResultFile :: CompileOptions -> (Path' Abs (File SpecResultFile) -> IO a) -> IO a
-withSpecResultFile compileOptions action =
+withSpecResultFile compileOptions action = do
+  -- `withTempFile` needs the .wasp dir, which a fresh project doesn't have
+  -- yet, e.g. right after `wasp new`.
+  createDirectoryIfMissing True (fromAbsDir dotWaspDir)
   withTempFile
     (fromAbsDir dotWaspDir)
     (fromRelFile specResultFileTemplate)

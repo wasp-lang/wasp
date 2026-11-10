@@ -1,6 +1,6 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliClean, waspCliCompile)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, npmInstall, waspCliClean, waspCliCompile)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -31,6 +31,18 @@ waspCleanTest =
                   waspCliClean,
                   return $ assertDirectoryDoesNotExist ".wasp",
                   return $ assertDirectoryDoesNotExist "node_modules"
+                ]
+            ]
+        ),
+      TestCase
+        "compile-succeeds-after-clean-and-npm-install"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ waspCliCompile,
+                  waspCliClean,
+                  npmInstall,
+                  waspCliCompile
                 ]
             ]
         )

@@ -39,10 +39,11 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
+import Wasp.Util.InstallMethod (getGlobalInstallationCommand, getProjectInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
-import Wasp.Version (waspVersion)
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
@@ -171,7 +172,6 @@ printUsage =
               "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.",
-        cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    compile               Compiles your Wasp project and reports any errors, without running it.",
@@ -199,15 +199,15 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = do
-  print waspVersion
+  getWaspCliNpmPackageVersion >>= print
   hPutStrLn stderr $
     unlines
       [ "",
-        "If you wish to install/switch to the latest version of Wasp, do:",
-        indent 2 $ getInstallationCommand Nothing,
+        "Each project runs the Wasp version of its `" ++ waspNpmPackageName ++ "` dependency. To switch a project to Wasp x.y.z, run this in the project directory:",
+        indent 2 $ getProjectInstallationCommand "x.y.z",
         "",
-        "If you want a specific x.y.z version of Wasp, do:",
-        indent 2 $ getInstallationCommand $ Just "x.y.z",
+        "To instead install the latest Wasp CLI globally, run:",
+        indent 2 $ getGlobalInstallationCommand Nothing,
         legacyVersionsNote,
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
