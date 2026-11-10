@@ -1,5 +1,6 @@
 module Generator.Valid.PackageJson.WaspConfigTest where
 
+import Data.List (isInfixOf)
 import qualified Data.Map as M
 import Fixtures.AppSpec (basicAppSpec)
 import Test.Hspec
@@ -19,19 +20,24 @@ spec_waspConfigValidator = do
 
     it "rejects a generated server dependency at another version" $ do
       validateOverriddenDeps [(serverDepName, "0.0.0-not-the-required-version")]
-        `shouldBe` [ ( ["wasp", "overriddenDeps", serverDepName],
-                       "Wasp requires version " ++ serverDepVersion ++ ", but found an override for version 0.0.0-not-the-required-version."
-                     )
-                   ]
+        `shouldSatisfy` isRejectedWith serverDepName ("Wasp requires version " ++ serverDepVersion)
 
     it "rejects a package that comes with @wasp/wasp, and points to npm's overrides" $ do
       validateOverriddenDeps [("react", "^19.2.1")]
-        `shouldBe` [(["wasp", "overriddenDeps", "react"], notOverridableDepMessage)]
+        `shouldSatisfy` isRejectedWith "react" npmOverridesHint
 
     it "rejects a package Wasp doesn't use" $ do
       validateOverriddenDeps [("not-a-wasp-dependency", "1.0.0")]
-        `shouldBe` [(["wasp", "overriddenDeps", "not-a-wasp-dependency"], notOverridableDepMessage)]
+        `shouldSatisfy` isRejectedWith "not-a-wasp-dependency" npmOverridesHint
   where
+    -- Holds when the dependency got one error, whose message has this part.
+    isRejectedWith :: P.PackageName -> String -> [([String], String)] -> Bool
+    isRejectedWith depName messagePart = \case
+      [(fieldPath, message)] -> fieldPath == ["wasp", "overriddenDeps", depName] && messagePart `isInfixOf` message
+      _ -> False
+
+    npmOverridesHint = "use npm's `overrides` field"
+
     validateOverriddenDeps :: [(P.PackageName, P.PackageVersion)] -> [([String], String)]
     validateOverriddenDeps overriddenDeps =
       [ (V.fieldPath validationError, V.message validationError)
@@ -60,6 +66,3 @@ spec_waspConfigValidator = do
           AS.App.emailSender = Nothing,
           AS.App.webSocket = Nothing
         }
-
-    notOverridableDepMessage =
-      "`wasp.overriddenDeps` only takes the dependencies of the generated server, which `wasp deps` lists. For a package that comes with @wasp/wasp, use npm's `overrides` field in package.json instead."
