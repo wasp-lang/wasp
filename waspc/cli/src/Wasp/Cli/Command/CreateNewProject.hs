@@ -31,6 +31,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (crea
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.DevWaspNpmPackages (checkDirectlyRunWaspCanCreateProjects)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
@@ -46,6 +47,8 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject = withArguments newProjectArgsParser $ \args -> do
   ValidNodeAndNpm <- require
+  liftIO checkDirectlyRunWaspCanCreateProjects
+    >>= either (throwError . CommandError "Can't create a project with this Wasp binary") return
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
   let absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
       needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
