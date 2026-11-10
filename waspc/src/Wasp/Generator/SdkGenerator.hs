@@ -27,21 +27,6 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions
-  ( expressTypesVersionRange,
-    expressVersionRange,
-    kyVersionRange,
-    prismaVersionRange,
-    reactDomTypesVersionRange,
-    reactDomVersionRange,
-    reactQueryVersionRange,
-    reactRouterVersionRange,
-    reactTypesVersionRange,
-    reactVersionRange,
-    superjsonVersionRange,
-    typescriptVersionRange,
-    viteVersionRange,
-  )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
@@ -182,29 +167,21 @@ genPackageJson spec = do
       ( object
           [ "sdkPackageName" .= C.sdkPackageName,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
           ]
       )
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
-    { N.dependencies =
-        Npm.Dependency.fromList
-          [ ("@prisma/client", show prismaVersionRange),
-            ("prisma", show prismaVersionRange),
-            ("express", show expressVersionRange),
-            ("ky", show kyVersionRange),
-            ("react", show reactVersionRange),
-            ("react-dom", show reactDomVersionRange),
-            ("@tanstack/react-query", show reactQueryVersionRange),
-            ("react-router", show reactRouterVersionRange),
-            ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersionRange),
-            ("@vitejs/plugin-react", "^6.0.3")
-          ]
-          ++ depsRequiredByOAuth spec
+    { -- TODO(#4824): The generated SDK stops being an npm workspace once it
+      -- lists no dependencies. For that, the optional ones (e.g. for email or
+      -- WebSockets) move to the user's project, and the rest to @wasp/wasp.
+      --
+      -- Only the dependencies that depend on the app. The core ones are peer
+      -- dependencies of @wasp/wasp.
+      N.dependencies =
+        depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
@@ -213,21 +190,9 @@ npmDepsForSdk spec =
           ++ waspLibsNpmDeps,
       N.devDependencies =
         Npm.Dependency.fromList
-          [ -- Should @types/* go into their package.json?
-            ("typescript", show typescriptVersionRange),
-            ("@types/express", show expressTypesVersionRange),
-            ("@types/express-serve-static-core", show expressTypesVersionRange),
-            ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
-            ("@types/react", show reactTypesVersionRange),
-            ("@types/react-dom", show reactDomTypesVersionRange)
+          [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
-          ++ devDepsRequiredByEmail spec,
-      -- The SDK imports `vite` at runtime, but it must be the same instance
-      -- the user's project uses, so the user's package.json provides it.
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("vite", show viteVersionRange)
-          ]
+          ++ devDepsRequiredByEmail spec
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs

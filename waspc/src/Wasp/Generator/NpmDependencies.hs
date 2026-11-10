@@ -4,7 +4,6 @@
 module Wasp.Generator.NpmDependencies
   ( getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
-    getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
     NpmDepsForPackage (..),
     NpmDepsFromWasp (..),
@@ -28,8 +27,7 @@ import Wasp.Util (zipMaps)
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
-    devDependencies :: [D.Dependency],
-    peerDependencies :: [D.Dependency]
+    devDependencies :: [D.Dependency]
   }
   deriving (Show, Generic, ToJSON, FromJSON)
 
@@ -52,8 +50,7 @@ mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
 mergeWaspAndUserDeps (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
   NpmDepsForPackage
     { dependencies = mergeDeps (dependencies waspPkg) allUserDependencies,
-      devDependencies = mergeDeps (devDependencies waspPkg) allUserDependencies,
-      peerDependencies = []
+      devDependencies = mergeDeps (devDependencies waspPkg) allUserDependencies
     }
   where
     allUserDependencies = dependencies userPkg ++ devDependencies userPkg
@@ -78,8 +75,7 @@ getUserNpmDepsForPackage spec =
     NpmDepsForPackage
       { dependencies = PJ.getDependencies $ AS.packageJson spec,
         -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-        devDependencies = PJ.getDevDependencies $ AS.packageJson spec,
-        peerDependencies = []
+        devDependencies = PJ.getDevDependencies $ AS.packageJson spec
       }
 
 -- NpmDepsForPackage are equal if their sorted dependencies
@@ -95,9 +91,6 @@ getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "depende
 
 getDevDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
-
-getPeerDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
-getPeerDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "peerDependencies" . peerDependencies
 
 getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
 getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"

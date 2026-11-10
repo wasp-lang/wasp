@@ -182,6 +182,7 @@ library
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
+    Wasp.Docs
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
@@ -202,7 +203,6 @@ library
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
-    Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.FileDraft
@@ -595,7 +595,9 @@ test-suite waspc-tests
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
+    Generator.Valid.PackageJson.WaspConfigTest
     Generator.VirtualUserModulesTest
+    Generator.WaspNpmPackageJsonTest
     Generator.WriteFileDraftsTest
     Job.CreateProcess.SearchPathTest
     Job.IO.PrefixedWriterTest
