@@ -92,7 +92,8 @@
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
     "vfile": "^6.0.3",
-    "wasp-sdk-api-docs": "workspace:*"
+    "wasp-sdk-api-docs": "workspace:*",
+    "yaml": "^2.9.1"
   },
   "browserslist": {
     "production": [
