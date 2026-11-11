@@ -14,6 +14,7 @@ import System.Exit (exitFailure)
 import System.IO.Error (tryIOError)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.TaskStatus (runTaskWithStatusReport)
@@ -34,6 +35,7 @@ deleteDirectoryIfExistsVerbosely dir = do
     then
       liftIO $
         runTaskWithStatusReport
+          cliSendMessage
           ("Deleting the " ++ dirName ++ " directory")
           ("Deleted the " ++ dirName ++ " directory")
           ("Failed to delete the " ++ dirName ++ " directory")
