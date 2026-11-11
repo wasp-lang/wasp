@@ -25,5 +25,5 @@ runTaskWithStatusReport runningMessage successMessage failureMessage task = do
         Nothing -> "✖ ERROR:"
   putStrLn $ case taskResult of
     Right _ -> style [Term.Green] "✔" ++ " " ++ successMessage
-    Left errorMessage -> errorLabel ++ " " ++ failureMessage ++ "\n" ++ indent 2 errorMessage
+    Left errorMessage -> errorLabel ++ " " ++ style [Term.Red] failureMessage ++ "\n" ++ indent 2 errorMessage
   return taskResult
