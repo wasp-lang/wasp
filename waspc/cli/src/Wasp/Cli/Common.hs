@@ -11,7 +11,7 @@ waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
 
 waspWarns :: String -> IO ()
-waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
+waspWarns = putStrLn
 
 waspScreams :: String -> IO ()
-waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what
+waspScreams = putStrLn
