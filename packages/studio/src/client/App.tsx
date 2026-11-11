@@ -1,13 +1,14 @@
 import "@xyflow/react/dist/style.css";
+import type { DevframeRpcClient } from "devframe/client";
 import { lazy, Suspense } from "react";
 
 import { Logo } from "./Logo";
-import { useSocket } from "./socket";
+import { useStudio } from "./studio";
 
 const Flow = lazy(() => import("./Flow"));
 
 export default function App() {
-  const { data, isConnected } = useSocket();
+  const { status, data } = useStudio();
 
   return (
     <div className="h-full">
@@ -18,17 +19,7 @@ export default function App() {
             <p className="ml-4 font-bold">{data?.app.name}</p>
           </div>
           <div className="w-35 p-2 text-sm">
-            {isConnected ? (
-              <span className="flex items-center">
-                Connected
-                <span className="ml-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
-              </span>
-            ) : (
-              <span className="flex items-center">
-                Connecting
-                <span className="ml-2 inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
-              </span>
-            )}
+            <ConnectionStatus status={status} />
           </div>
         </header>
       </nav>
@@ -38,6 +29,24 @@ export default function App() {
         </Suspense>
       </div>
     </div>
+  );
+}
+
+function ConnectionStatus({ status }: { status: DevframeRpcClient["status"] }) {
+  const [label, color] =
+    status === "connected"
+      ? ["Connected", "bg-green-500"]
+      : status === "connecting"
+        ? ["Connecting", "bg-yellow-500"]
+        : status === "unauthorized"
+          ? ["Not signed in", "bg-yellow-500"]
+          : ["Disconnected", "bg-red-500"];
+
+  return (
+    <span className="flex items-center">
+      {label}
+      <span className={`ml-2 inline-block h-2 w-2 rounded-full ${color}`} />
+    </span>
   );
 }
 

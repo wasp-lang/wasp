@@ -140,8 +140,6 @@ studio = do
     unlines
       [ "✨ Starting Wasp Studio ✨",
         "",
-        "➜ Open in your browser: http://localhost:4000",
-        "",
         "Wasp Studio visualises your app and lets you understand how different parts of your app are connected."
       ]
 

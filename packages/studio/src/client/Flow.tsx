@@ -13,7 +13,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Data } from "./types";
+import { Data } from "../shared/types.js";
 
 import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
 

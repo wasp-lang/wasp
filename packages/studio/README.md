@@ -1,48 +1,25 @@
 # Wasp Studio
 
-Wasp Studio has two components:
+Wasp Studio is a [devframe](https://devfra.me/) devtool that `wasp studio` runs.
 
-- the server
-- the client
+- `src/index.ts`: the node side. It serves the client and keeps the app data in devframe shared state, updating it when the data file changes.
+- `src/client/`: the React client, built into `dist/client`.
+- `src/shared/`: code both sides use.
 
-To develop the studio, you need to run both of them. First, run the server, then the client.
+## Development
 
-### Server
+Wasp CLI generates the `.wasp/out/.wasp-studio-data.json` file when you run `wasp studio`. Run it once in a Wasp app to get the file.
 
-Install dependencies:
-
-```bash
-pnpm install
-```
-
-Running the server for some data file:
+Build the client in watch mode:
 
 ```bash
-pnpm run dev -d <path_to_data_file>
+pnpm run dev:client
 ```
 
-For example, running the server with the data file from the `examples` directory:
+In another terminal, run the server for that data file:
 
 ```bash
-pnpm run dev -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
+pnpm run dev:server --data-file <path_to_data_file>
 ```
 
-Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.
-You can run the `wasp studio` once to get the file generated, and then run the studio in development mode.
-
-### Client
-
-Install dependencies:
-
-```bash
-cd client
-pnpm install
-```
-
-Running the client:
-
-```bash
-pnpm run dev
-```
-
-Then open `http://localhost:5173` in your browser.
+Then open the link the server prints. It signs your browser in, and the browser stays signed in after that.

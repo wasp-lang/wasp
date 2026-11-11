@@ -1,65 +1,68 @@
-import * as fs from "fs";
+import { readFileSync, watch } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 
-import { Command } from "commander";
-import cors from "cors";
-import express from "express";
-import { createServer } from "http";
-import morgan from "morgan";
-import { Server } from "socket.io";
+import { defineDevframe } from "devframe";
+import { createDevServer } from "devframe/adapters/dev";
+import { buildOtpAuthUrl } from "devframe/node/auth";
 
-function getUrlFromRelativePathToCwd(path: string) {
-  return new URL(path, `file://${process.cwd()}/`);
+import { STUDIO_NAMESPACE } from "./shared/studio.js";
+import type { Data } from "./shared/types.js";
+
+const { values: args } = parseArgs({
+  options: { "data-file": { type: "string", short: "d" } },
+});
+if (!args["data-file"]) {
+  throw new Error("Missing required option: --data-file <path>");
 }
+const dataFilePath = resolve(args["data-file"]);
 
-const program = new Command();
-program
-  .requiredOption("-d, --data-file <path>", "Path to data file")
-  .parse(process.argv);
+// Paths are relative to the package root so they work both from `src/` (in
+// development) and from `dist/`.
+const packageRoot = new URL("../", import.meta.url);
+const pkg = JSON.parse(
+  readFileSync(new URL("package.json", packageRoot), "utf8"),
+);
 
-const options = program.opts<{
-  dataFile: string;
-}>();
+const studio = defineDevframe({
+  id: STUDIO_NAMESPACE,
+  name: "Wasp Studio",
+  version: pkg.version,
+  packageName: pkg.name,
+  homepage: pkg.homepage,
+  description: pkg.description,
+  importMetaUrl: import.meta.url,
+  clientAssets: fileURLToPath(new URL("dist/client", packageRoot)),
+  cli: {
+    port: 4000,
+    portRange: [4000, 4100],
+  },
+  async setup(ctx) {
+    const dataState = await ctx
+      .scope(STUDIO_NAMESPACE)
+      .rpc.sharedState("data", { initialValue: { data: null } });
 
-const app = express();
-const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
+    async function loadData() {
+      let data: Data;
+      try {
+        data = JSON.parse(await readFile(dataFilePath, "utf8"));
+      } catch {
+        // The file can be caught mid-write, so we keep the last good data and
+        // wait for the next change.
+        return;
+      }
+      dataState.mutate(() => ({ data }));
+    }
+
+    await loadData();
+    watch(dataFilePath, () => void loadData());
   },
 });
 
-const requestLogger = morgan("dev");
-app.use(requestLogger);
-
-app.use(
-  cors({
-    origin: "*",
-  }),
-);
-
-const publicDirPath = new URL("./public", import.meta.url).pathname;
-app.use(express.static(publicDirPath));
-
-const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);
-function readFile() {
-  return fs.readFileSync(pathToDataFile, "utf8");
-}
-
-let data = readFile();
-fs.watch(pathToDataFile, () => {
-  data = readFile();
-  io.emit("data", data);
-});
-
-io.on("connection", (socket) => {
-  console.log("Client connected");
-  socket.emit("data", data);
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-});
-
-server.listen(4000, () => {
-  console.log("Server listening on port 4000");
+await createDevServer(studio, {
+  onReady({ origin }) {
+    console.log(`➜ Open in your browser: ${buildOtpAuthUrl(origin)}`);
+  },
 });

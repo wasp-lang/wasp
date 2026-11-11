@@ -22,26 +22,35 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm run build:client && pnpm run remove:dist && tsc && pnpm run copy:public",
-    "build:client": "pnpm --dir ./client run copy",
-    "copy:public": "node -e \"require('fs').cpSync('./public', './dist/public', { recursive: true });\"",
-    "dev": "tsx --watch ./src/index.ts",
+    "build": "pnpm run remove:dist && tsc && vite build --config src/client/vite.config.ts",
+    "dev:client": "vite build --watch --config src/client/vite.config.ts",
+    "dev:server": "tsx --watch ./src/index.ts",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\"",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
-    "commander": "^15.0.0",
-    "cors": "^2.8.6",
-    "express": "^5.3.0",
-    "morgan": "^1.12.1",
-    "socket.io": "^4.8.4"
+    "devframe": "^1.3.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/morgan": "^1.9.10",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.4",
     "@types/node": "catalog:",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react-swc": "^4.3.3",
+    "@xyflow/react": "^12.12.1",
+    "elkjs": "^0.12.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.4",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vite": "^8.3.5"
   }
 }
