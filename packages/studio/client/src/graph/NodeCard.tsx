@@ -43,7 +43,16 @@ export function Chip({ children }: { children: ReactNode }) {
   );
 }
 
-export function KindIcon({ d }: { d: string }) {
+// Outline icon from Heroicons, `d` is the path data.
+export function Icon({
+  d,
+  className = "h-3 w-3",
+  label,
+}: {
+  d: string;
+  className?: string;
+  label?: string;
+}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -51,8 +60,12 @@ export function KindIcon({ d }: { d: string }) {
       viewBox="0 0 24 24"
       strokeWidth={2}
       stroke="currentColor"
-      className="h-3 w-3"
+      className={className}
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
     >
+      {label && <title>{label}</title>}
       <path strokeLinecap="round" strokeLinejoin="round" d={d} />
     </svg>
   );
