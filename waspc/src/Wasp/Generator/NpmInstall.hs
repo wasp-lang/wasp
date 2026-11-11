@@ -64,7 +64,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir =
-  Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
+  Job.run (installNpmDependenciesAndReport projectDir)
     <&> checkExitSuccess "Project setup"
 
 {- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}
