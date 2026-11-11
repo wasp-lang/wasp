@@ -28,6 +28,12 @@ Wasp finds those files by analyzing the server's imports. Some packages load the
 
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
+### Instrumentation and a custom query client
+
+The `server` and `client` fields of the app spec have a new `instrumentation` field. Wasp calls it before any other server or client code loads, so you can set up tools like Sentry or OpenTelemetry before the code they observe.
+
+The client also has a new `createQueryClient` field, which creates _react-query_'s `QueryClient` and replaces `configureQueryClient`. The client `setupFn` is gone: use `instrumentation` for client setup code.
+
 ## How to migrate?
 
 ### 1. Switch to the new Wasp CLI package
@@ -454,6 +460,108 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 10. Enjoy your updated Wasp app
+### 10. Replace the client `setupFn`
+
+**If your app doesn't set `client.setupFn` or call `configureQueryClient`, you can skip this step.**
+
+The client `setupFn` field is gone. Move its code to the new [`client.instrumentation`](./advanced/client-customization/client-config.md#instrumentation) field, which runs before any other client code:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    import { mySetupFunction } from "./src/myClientSetupCode" with { type: "ref" }
+
+    export default app({
+      // ...
+      client: {
+        setupFn: mySetupFunction,
+      },
+    })
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    import { mySetupFunction } from "./src/myClientSetupCode" with { type: "ref" }
+
+    export default app({
+      // ...
+      client: {
+        instrumentation: mySetupFunction,
+      },
+    })
+    ```
+  </TabItem>
+</Tabs>
+
+Unlike the setup function, the instrumentation doesn't run while prerendering pages, so you can remove any `import.meta.env.SSR` checks you added for it.
+
+If your setup function called `configureQueryClient`, remove that call and create the `QueryClient` in a [`client.createQueryClient`](./advanced/client-customization/client-config.md#customizing-the-query-client) function instead:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/myClientSetupCode.ts"
+    import { configureQueryClient } from "wasp/client/operations"
+
+    export async function mySetupFunction(): Promise<void> {
+      configureQueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: Infinity,
+          },
+        },
+      })
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    import { createQueryClient } from "./src/queryClient" with { type: "ref" }
+
+    export default app({
+      // ...
+      client: {
+        createQueryClient,
+      },
+    })
+    ```
+
+    ```ts title="src/queryClient.ts"
+    import { QueryClient } from "@tanstack/react-query"
+    import type { CreateQueryClientFn } from "wasp/client/operations"
+
+    export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+      new QueryClient({
+        ...waspDefaults,
+        defaultOptions: {
+          ...waspDefaults.defaultOptions,
+          queries: {
+            ...waspDefaults.defaultOptions?.queries,
+            staleTime: Infinity,
+          },
+        },
+      })
+    ```
+  </TabItem>
+</Tabs>
+
+Pass `waspDefaults` to the `QueryClient` to keep Wasp's default retry behavior.
+
+### 11. Rename `db.prismaSetupFn`
+
+**If your app doesn't set `db.prismaSetupFn`, you can skip this step.**
+
+Rename the `db.prismaSetupFn` field to `db.createPrismaClient`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  db: {
+    // highlight-next-line
+    createPrismaClient: setUpPrisma,
+  },
+})
+```
+
+### 12. Enjoy your updated Wasp app
 
 That's it!

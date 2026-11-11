@@ -23,6 +23,7 @@ wasp-app/.wasp/out/sdk/wasp/client/operations/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/internal/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/queries/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/queries/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/operations/queryClient.ts
 wasp-app/.wasp/out/sdk/wasp/client/router/Link.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/NavLink.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/index.ts
@@ -32,6 +33,7 @@ wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualUserModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualWaspModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/wasp.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/waspConfig.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/client-app.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/client-entry.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/routes.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx
@@ -97,6 +99,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/Link.jsx
@@ -133,6 +139,7 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/client-app.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/client-entry.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/routes.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/ssr-entry.tsx
@@ -297,6 +304,7 @@ wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/startServer.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/src/Main.css
 wasp-app/.wasp/out/src/MainPage.tsx

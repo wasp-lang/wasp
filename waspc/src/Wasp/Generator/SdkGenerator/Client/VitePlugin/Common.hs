@@ -2,6 +2,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
   ( virtualFilesDirInViteDir,
     virtualFilesFilesDirInViteDir,
     clientEntryPointPath,
+    clientAppPath,
     routesEntryPointPath,
     ssrEntryPointPath,
     spaFallbackFile,
@@ -24,6 +25,10 @@ virtualFilesFilesDirInViteDir = virtualFilesDirInViteDir </> [reldir|files|]
 
 clientEntryPointPath :: String
 clientEntryPointPath = "/@wasp/client-entry.tsx"
+
+-- | The app code that the client entry point loads after the instrumentation.
+clientAppPath :: String
+clientAppPath = "/@wasp/client-app.tsx"
 
 routesEntryPointPath :: String
 routesEntryPointPath = "/@wasp/routes.tsx"

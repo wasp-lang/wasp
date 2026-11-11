@@ -13,8 +13,9 @@ import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Client = Client
-  { setupFn :: Maybe ExtImport,
+  { instrumentation :: Maybe ExtImport,
     rootComponent :: Maybe ExtImport,
+    createQueryClient :: Maybe ExtImport,
     -- We expect the base dir to start with a slash e.g. /client
     baseDir :: Maybe String,
     envValidationSchema :: Maybe ExtImport

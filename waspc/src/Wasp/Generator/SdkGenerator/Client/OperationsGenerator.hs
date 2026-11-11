@@ -7,8 +7,11 @@ import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -20,6 +23,7 @@ import Wasp.Generator.SdkGenerator.Common
     getRegisteredOperationTypeName,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.Util ((<++>))
@@ -28,10 +32,21 @@ genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ genFileCopyInClientOps [relfile|internal/index.ts|],
-      genFileCopyInClientOps [relfile|index.ts|]
+      genFileCopyInClientOps [relfile|index.ts|],
+      genQueryClient spec
     ]
     <++> genQueries spec
     <++> genActions spec
+
+genQueryClient :: AppSpec -> Generator FileDraft
+genQueryClient spec =
+  return $
+    mkTmplFdWithData
+      (clientOpsDirInSdkTemplatesDir </> [relfile|queryClient.ts|])
+      tmplData
+  where
+    tmplData = object ["createQueryClient" .= extImportToImportJson maybeCreateQueryClient]
+    maybeCreateQueryClient = AS.App.client (getApp spec) >>= AS.App.Client.createQueryClient
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =

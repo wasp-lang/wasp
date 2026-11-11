@@ -1,7 +1,5 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
 import { Outlet } from "react-router"
-
 
 
 
@@ -18,9 +16,6 @@ const routesMapping = {
     },
   },
 } as const;
-
-
-initializeQueryClient()
 
 const rootElement =
   // We don't really need to wrap the app in a div nor name it "root", but we

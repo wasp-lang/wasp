@@ -1,13 +1,15 @@
 import { app, page, route } from "@wasp/spec";
 
 import { App } from "./src/App" with { type: "ref" };
-import { clientSetup } from "./src/clientSetup" with { type: "ref" };
+import { clientInstrumentation } from "./src/clientInstrumentation" with { type: "ref" };
 import {
   clientEnvValidationSchema,
   serverEnvValidationSchema,
 } from "./src/env" with { type: "ref" };
 import { CatchAllPage } from "./src/pages/CatchAllPage" with { type: "ref" };
 import { HomePage } from "./src/pages/HomePage" with { type: "ref" };
+import { createQueryClient } from "./src/queryClient" with { type: "ref" };
+import { serverInstrumentation } from "./src/serverInstrumentation" with { type: "ref" };
 import {
   serverMiddlewareFn,
   serverSetup,
@@ -37,13 +39,15 @@ export default app({
   webSocket,
   auth: authConfig,
   server: {
+    instrumentation: serverInstrumentation,
     setupFn: serverSetup,
     middlewareConfigFn: serverMiddlewareFn,
     envValidationSchema: serverEnvValidationSchema,
   },
   client: {
+    instrumentation: clientInstrumentation,
     rootComponent: App,
-    setupFn: clientSetup,
+    createQueryClient,
     envValidationSchema: clientEnvValidationSchema,
   },
   db,

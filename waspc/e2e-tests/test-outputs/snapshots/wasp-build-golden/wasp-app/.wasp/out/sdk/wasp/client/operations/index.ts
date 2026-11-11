@@ -14,12 +14,11 @@ export {
 
 export {
     // PUBLIC API
-    configureQueryClient,
-    // PRIVATE API (framework code)
-    initializeQueryClient,
-    // PRIVATE API (framework code)
-    queryClientInitialized
+    type CreateQueryClientFn,
 } from '@wasp/lib-sdk-core/browser'
+
+// PRIVATE API (framework code)
+export { queryClient } from './queryClient'
 
 export type {
     // PUBLIC API

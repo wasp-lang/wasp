@@ -38,43 +38,56 @@ npm install @sentry/node @sentry/react
 
 ### 3. Configure your Wasp file
 
-Add both the server and client setup functions to your `main.wasp.ts`:
+Add the server and client instrumentation functions, and a server setup function, to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
-import { setupClient } from "./src/clientSetup" with { type: "ref" }
+import { registerClientSentry } from "./src/clientInstrumentation" with { type: "ref" }
+import { registerServerSentry } from "./src/serverInstrumentation" with { type: "ref" }
 import { setupServer } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.27.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
+    // highlight-next-line
+    instrumentation: registerServerSentry,
     // highlight-next-line
     setupFn: setupServer,
   },
   client: {
     // highlight-next-line
-    setupFn: setupClient,
+    instrumentation: registerClientSentry,
   },
   // ...
 })
 ```
 
+Wasp calls the [instrumentation functions](../../advanced/server-customization/server-config.md#instrumentation) before it loads any other code, so Sentry can observe your whole app.
+
 ### 4. Configure Server-Side Sentry
 
-Create the server setup file:
+Create the server instrumentation file:
+
+```ts title="src/serverInstrumentation.ts" auto-js
+import * as Sentry from "@sentry/node";
+
+export async function registerServerSentry(): Promise<void> {
+  Sentry.init({
+    dsn: process.env.SENTRY_SERVER_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: 1.0,
+  });
+}
+```
+
+Then add Sentry's error handler to the Express app in the server setup function:
 
 ```ts title="src/serverSetup.ts" auto-js
 import * as Sentry from "@sentry/node";
 import { ServerSetupFn } from "wasp/server";
-
-Sentry.init({
-  dsn: process.env.SENTRY_SERVER_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 1.0,
-});
 
 export const setupServer: ServerSetupFn = async ({ app }) => {
   Sentry.setupExpressErrorHandler(app);
@@ -87,26 +100,19 @@ Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
 
 ### 5. Configure Client-Side Sentry
 
-Create the client setup file:
+Create the client instrumentation file:
 
-```ts title="src/clientSetup.ts" auto-js
+```ts title="src/clientInstrumentation.ts" auto-js
 import * as Sentry from "@sentry/react";
 
-Sentry.init({
-  dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
-  environment: import.meta.env.MODE,
-  tracesSampleRate: 1.0,
-});
-
-export const setupClient = async () => {
-  // Sentry is initialized above, before the setup function runs.
-  // You can add additional client-side setup here if needed.
-};
+export async function registerClientSentry(): Promise<void> {
+  Sentry.init({
+    dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 1.0,
+  });
+}
 ```
-
-:::note
-The `setupFn` must be defined and exported even if it has no additional logic. Sentry's `init` call runs at module load time, which is before Wasp calls the setup function.
-:::
 
 ### 6. Set up environment variables
 

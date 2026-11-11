@@ -245,6 +245,7 @@ export type Ref<T extends DeclType> = {
 };
 
 export type Server = {
+  instrumentation: Optional<ExtImport>;
   setupFn: Optional<ExtImport>;
   middlewareConfigFn: Optional<ExtImport>;
   envValidationSchema: Optional<ExtImport>;
@@ -252,15 +253,16 @@ export type Server = {
 };
 
 export type Client = {
-  setupFn: Optional<ExtImport>;
+  instrumentation: Optional<ExtImport>;
   rootComponent: Optional<ExtImport>;
+  createQueryClient: Optional<ExtImport>;
   baseDir: Optional<`/${string}`>;
   envValidationSchema: Optional<ExtImport>;
 };
 
 export type Db = {
   seeds: Optional<ExtImport[]>;
-  prismaSetupFn: Optional<ExtImport>;
+  createPrismaClient: Optional<ExtImport>;
 };
 
 export type WebSocket = {

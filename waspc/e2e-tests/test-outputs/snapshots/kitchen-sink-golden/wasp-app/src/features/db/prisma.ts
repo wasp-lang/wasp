@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-export const setUpPrisma = () => {
+export const createPrismaClient = () => {
   const prisma = new PrismaClient({
     // Log SQL queries if needed
     // log: ['query'],
@@ -10,7 +10,7 @@ export const setUpPrisma = () => {
         async findMany({ args, query }) {
           args.where = {
             ...args.where,
-            description: { not: { contains: "hidden by setUpPrisma" } },
+            description: { not: { contains: "hidden by createPrismaClient" } },
           };
           return query(args);
         },

@@ -303,6 +303,7 @@ export function getServerConfig(scope: ConfigScope): Config<WaspSpec.Server> {
       return {} satisfies MinimalConfig<WaspSpec.Server>;
     case "full":
       return {
+        instrumentation: getRefObject("full", "named"),
         setupFn: getRefObject("full", "named"),
         middlewareConfigFn: getRefObject("full", "named"),
         envValidationSchema: getRefObject("full", "named"),
@@ -322,8 +323,9 @@ export function getClientConfig(scope: ConfigScope): Config<WaspSpec.Client> {
       return {} satisfies MinimalConfig<WaspSpec.Client>;
     case "full":
       return {
+        instrumentation: getRefObject("full", "named"),
         rootComponent: getRefObject("full", "named"),
-        setupFn: getRefObject("full", "named"),
+        createQueryClient: getRefObject("full", "named"),
         baseDir: "/src",
         envValidationSchema: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.Client>;
@@ -342,7 +344,7 @@ export function getDbConfig(scope: ConfigScope): Config<WaspSpec.Db> {
     case "full":
       return {
         seeds: [getRefObject("full", "named"), getRefObject("full", "default")],
-        prismaSetupFn: getRefObject("full", "named"),
+        createPrismaClient: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.Db>;
     default:
       assertUnreachable(scope);

@@ -1,13 +1,13 @@
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import type { FromRegister } from '../types/register'
-import { setUpPrisma as setUpPrisma_ext } from "virtual:wasp/user/features/db/prisma"
+import { createPrismaClient as createPrismaClient_ext } from "virtual:wasp/user/features/db/prisma"
 
 // PUBLIC API
-export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
+export type PrismaClient = ReturnType<RegisteredCreatePrismaClient>;
 
-export type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
+export type RegisteredCreatePrismaClient = FromRegister<'createPrismaClient', () => InternalPrismaClient>;
 
-const dbClient: PrismaClient =  setUpPrisma_ext();
+const dbClient: PrismaClient =  createPrismaClient_ext();
 
 // PUBLIC API
 export default dbClient;

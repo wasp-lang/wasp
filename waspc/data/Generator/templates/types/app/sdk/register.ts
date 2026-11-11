@@ -9,9 +9,9 @@ import "wasp/types"
 
 declare module "wasp/types" {
   interface Register {
-    {=# prismaSetupFn.isDefined =}
-    prismaSetupFn: typeof {=& prismaSetupFn.dynamicImportExpression =}
-    {=/ prismaSetupFn.isDefined =}
+    {=# createPrismaClient.isDefined =}
+    createPrismaClient: typeof {=& createPrismaClient.dynamicImportExpression =}
+    {=/ createPrismaClient.isDefined =}
     {=# serverEnvValidationSchema.isDefined =}
     serverEnvValidationSchema: typeof {=& serverEnvValidationSchema.dynamicImportExpression =}
     {=/ serverEnvValidationSchema.isDefined =}

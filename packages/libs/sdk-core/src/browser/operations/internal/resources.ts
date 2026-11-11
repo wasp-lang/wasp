@@ -1,6 +1,9 @@
-import { hashQueryKey, type QueryKey } from "@tanstack/react-query";
+import {
+  hashQueryKey,
+  type QueryClient,
+  type QueryKey,
+} from "@tanstack/react-query";
 import type { SpecificOptimisticUpdateDefinition } from "../hooks.js";
-import { queryClientInitialized } from "../queryClient.js";
 import { makeUpdateHandlersMap } from "./updateHandlersMap.js";
 
 // Map where key is resource name and value is Set
@@ -39,13 +42,14 @@ export function registerActionInProgress(
 }
 
 export async function registerActionDone(
+  queryClient: QueryClient,
   resources: string[],
   optimisticUpdateTuples: SpecificOptimisticUpdateDefinition<any>[],
 ): Promise<void> {
   optimisticUpdateTuples.forEach(({ queryKey }) =>
     updateHandlers.remove(queryKey),
   );
-  await invalidateQueriesUsing(resources);
+  await invalidateQueriesUsing(queryClient, resources);
 }
 
 export function getActiveOptimisticUpdates(
@@ -54,8 +58,7 @@ export function getActiveOptimisticUpdates(
   return updateHandlers.getUpdateHandlers(queryKey);
 }
 
-export async function invalidateAndRemoveQueries(): Promise<void> {
-  const queryClient = await queryClientInitialized;
+export function invalidateAndRemoveQueries(queryClient: QueryClient): void {
   // If we don't reset the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
   // logging out.
@@ -73,9 +76,10 @@ export async function invalidateAndRemoveQueries(): Promise<void> {
  * Invalidates all queries that are using specified resources.
  * @param resources - Names of resources.
  */
-async function invalidateQueriesUsing(resources: string[]) {
-  const queryClient = await queryClientInitialized;
-
+async function invalidateQueriesUsing(
+  queryClient: QueryClient,
+  resources: string[],
+) {
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources);
   await Promise.all(
     queryCacheKeysToInvalidate.map((queryCacheKey) =>

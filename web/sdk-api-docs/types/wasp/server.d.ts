@@ -297,7 +297,7 @@ export declare const prisma: PrismaClient;
  * The type of {@link prisma}.
  *
  * It's the type of the Prisma Client that Prisma generates from your Prisma
- * schema (or, if you customize it with `db.prismaSetupFn`, the type of the
+ * schema (or, if you customize it with `db.createPrismaClient`, the type of the
  * client your function returns). It has one property per model, named after
  * the model in camelCase (e.g. `prisma.task` for the `Task` model), plus
  * Prisma's `$`-prefixed methods like `$transaction` and `$queryRaw`.

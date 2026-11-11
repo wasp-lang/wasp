@@ -304,7 +304,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+            "createPrismaClient" .= extImportToImportJson maybeCreatePrismaClient
           ]
 
   return $
@@ -312,7 +312,7 @@ genServerDbClient spec = do
       [relfile|server/dbClient.ts|]
       tmplData
   where
-    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybeCreatePrismaClient = AS.App.db app >>= AS.Db.createPrismaClient
     app = getApp spec
 
 -- | Declares only those virtual user modules that are used by the SDK.

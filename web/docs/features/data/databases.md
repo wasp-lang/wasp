@@ -345,18 +345,18 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 ## Customising the Prisma Client
 
 Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client).
-To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance.
+To customize the client, define a function in the `db.createPrismaClient` field that returns a Prisma Client instance.
 This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
-import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+import { createPrismaClient } from "./src/prisma" with { type: "ref" }
 
 export default app({
   name: "MyApp",
   // ...
   db: {
-    prismaSetupFn: setUpPrisma,
+    createPrismaClient,
   },
 })
 ```
@@ -366,7 +366,7 @@ export default app({
     ```js title="src/prisma.js"
     import { PrismaClient } from "@prisma/client"
 
-    export const setUpPrisma = () => {
+    export const createPrismaClient = () => {
       const prisma = new PrismaClient({
         log: ["query"],
       }).$extends({
@@ -375,7 +375,7 @@ export default app({
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: "hidden by setUpPrisma" } },
+                description: { not: { contains: "hidden by createPrismaClient" } },
               }
               return query(args)
             },
@@ -393,7 +393,7 @@ export default app({
     ```ts title="src/prisma.ts"
     import { PrismaClient } from "@prisma/client"
 
-    export const setUpPrisma = () => {
+    export const createPrismaClient = () => {
       const prisma = new PrismaClient({
         log: ["query"],
       }).$extends({
@@ -402,7 +402,7 @@ export default app({
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: "hidden by setUpPrisma" } },
+                description: { not: { contains: "hidden by createPrismaClient" } },
               }
               return query(args)
             },

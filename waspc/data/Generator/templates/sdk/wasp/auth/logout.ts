@@ -1,5 +1,6 @@
 import { api, removeLocalUserData } from '../api/index.js'
 import { invalidateAndRemoveQueries } from '@wasp/lib-sdk-core/browser'
+import { queryClient } from '../client/operations/queryClient.js'
 
 // PUBLIC API
 export default async function logout(): Promise<void> {
@@ -13,6 +14,6 @@ export default async function logout(): Promise<void> {
 
     // TODO(filip): We are currently invalidating and removing  all the queries, but
     // we should remove only the non-public, user-dependent ones.
-    await invalidateAndRemoveQueries()
+    invalidateAndRemoveQueries(queryClient)
   }
 }

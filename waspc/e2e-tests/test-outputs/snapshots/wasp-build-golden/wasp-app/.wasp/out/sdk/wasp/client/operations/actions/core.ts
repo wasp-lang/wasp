@@ -10,6 +10,7 @@ import {
   type GenericBackendOperation,
 } from '@wasp/lib-sdk-core'
 import { callOperation } from '../internal/index.js'
+import { queryClient } from '../queryClient.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
@@ -29,7 +30,7 @@ export function createAction<BackendAction extends GenericBackendOperation>(
       // registering the action as done.
       return await callOperation(actionRoute, args)
     } finally {
-      await registerActionDone(entitiesUsed, specificOptimisticUpdateDefinitions)
+      await registerActionDone(queryClient, entitiesUsed, specificOptimisticUpdateDefinitions)
     }
   }
 

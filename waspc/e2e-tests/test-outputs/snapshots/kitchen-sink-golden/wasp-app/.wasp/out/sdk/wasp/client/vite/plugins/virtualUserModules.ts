@@ -10,6 +10,7 @@ import type { Plugin } from "vite";
  */
 const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
   "virtual:wasp/user/env": "./src/env",
+  "virtual:wasp/user/queryClient": "./src/queryClient",
   "virtual:wasp/user/features/auth/password": "./src/features/auth/password",
 };
 

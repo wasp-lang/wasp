@@ -9,10 +9,14 @@ import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientAppPath, clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -25,6 +29,7 @@ genVirtualWaspModulesPlugin spec =
     [ genVirtualWaspModulesTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
+      genVirtualClientAppTsx spec,
       genVirtualSsrEntryTsx spec,
       genVirtualRoutesTsx spec
     ]
@@ -45,6 +50,7 @@ genVirtualWaspModulesTs =
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
+          "clientAppPath" .= clientAppPath,
           "routesEntryPointPath" .= routesEntryPointPath,
           "ssrEntryPointPath" .= ssrEntryPointPath
         ]
@@ -55,6 +61,19 @@ genVirtualClientEntryTsx spec =
     C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-entry.tsx|]
+    tmplData =
+      object
+        [ "instrumentation" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeInstrumentation),
+          "clientAppPath" .= clientAppPath
+        ]
+    maybeInstrumentation = AS.App.Client.instrumentation =<< AS.App.client (getApp spec)
+
+genVirtualClientAppTsx :: AppSpec -> Generator FileDraft
+genVirtualClientAppTsx spec =
+  return $
+    C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-app.tsx|]
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,

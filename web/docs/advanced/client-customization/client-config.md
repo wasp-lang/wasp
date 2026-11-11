@@ -1,7 +1,7 @@
 ---
-title: "Client configuration: root component and setupFn"
+title: "Client configuration: root component, instrumentation and query client"
 sidebar_label: Client configuration
-description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, query defaults and a base directory."
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, an instrumentation function, a custom query client and a base directory."
 ---
 
 import BaseDirEnvNote from './_baseDirEnvNote.md'
@@ -16,13 +16,15 @@ You can configure the client using the `client` field inside the `app` spec:
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
-import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+import { register } from "./src/instrumentation" with { type: "ref" }
+import { createQueryClient } from "./src/queryClient" with { type: "ref" }
 
 export default app({
   name: "MyApp",
   client: {
     rootComponent: Root,
-    setupFn: mySetupFunction,
+    instrumentation: register,
+    createQueryClient,
   },
   // ...
 })
@@ -155,118 +157,116 @@ As long as you render the `Outlet` component, you can put what ever you want in 
 
 For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec.md#rootcomponent).
 
-## Setup Function
+## Instrumentation
 
-`setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp executes on the client before everything else.
+`instrumentation` declares an async <ShowForTs>TypeScript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp calls in the browser before it loads any other client code (your pages, the root component, React, etc.). Wasp waits for it to finish before loading the rest of the app.
 
-:::caution The setup function can also run on the server
-The setup function can also run during server-side rendering, like when [prerendering](../prerendering.md) pages, where browser APIs like `window` are not available. See [Running Code Only on the Client](#running-code-only-on-the-client).
-:::
+Use it to set up tools that must load before the code they observe, such as error-tracking or OpenTelemetry SDKs, or for any other one-time client-side setup.
 
-### Running Some Code
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { register } from "./src/instrumentation" with { type: "ref" }
 
-We can run any code we want in the setup function.
+export default app({
+  name: "MyApp",
+  client: {
+    instrumentation: register,
+  },
+  // ...
+})
+```
 
-For example, here's a setup function that logs a message every hour:
+For example, here's an instrumentation function that logs a message every hour:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/myClientSetupCode.js"
-    export default async function mySetupFunction() {
-      let count = 1
-      setInterval(
-        () => console.log(`You have been online for ${count++} hours.`),
-        1000 * 60 * 60
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/myClientSetupCode.ts"
-    export default async function mySetupFunction(): Promise<void> {
-      let count = 1
-      setInterval(
-        () => console.log(`You have been online for ${count++} hours.`),
-        1000 * 60 * 60
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### Running Code Only on the Client {#running-code-only-on-the-client}
-
-If your app uses [prerendering](../prerendering.md), Wasp also executes the setup function while rendering your pages on the server. There, browser APIs like `window`, `document`, or `localStorage` don't exist, so using them would crash the prerender. Side effects like timers or event listeners would also run in the Node.js process.
-
-To run some code only in the browser, check Vite's [`import.meta.env.SSR`](https://vite.dev/guide/env-and-mode.html#env-variables) flag, which is `true` during server-side rendering and `false` on the client:
-
-```ts title="src/myClientSetupCode.ts" auto-js
-export default async function mySetupFunction(): Promise<void> {
-  if (import.meta.env.SSR) {
-    // We're rendering on the server, skip the browser-only setup.
-    return
-  }
-
-  window.addEventListener("online", () => console.log("You are back online!"))
+```ts title="src/instrumentation.ts" auto-js
+export async function register(): Promise<void> {
+  let count = 1
+  setInterval(
+    () => console.log(`You have been online for ${count++} hours.`),
+    1000 * 60 * 60
+  )
 }
 ```
 
-### Overriding Default Behaviour for Queries
+Keep in mind:
+
+- Everything the instrumentation module imports also loads before the rest of the app, so only import what the instrumentation needs.
+- Wasp only calls the instrumentation in the browser, not while [prerendering](../prerendering.md) pages, so you can use browser APIs like `window` freely.
+- Since the app loads after the instrumentation, it may start after the page's `load` event.
+
+For the full description of the `instrumentation` field, check the [`Client` API Reference](../../api/@wasp/spec.md#instrumentation).
+
+## Customizing the Query Client
 
 :::info
 You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](../../api/wasp/client/operations.md#usequery).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried, except for `408` and `429` (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. Wasp adjusts the retry configuration so that Queries failing with a client error, like `401` or `404`, aren't retried, except for `408` and `429` (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
 
-If you do need to change the global defaults, you can do so inside the client setup function.
+If you need to change the global defaults, or configure other parts of `react-query`'s [`QueryClient`](https://tanstack.com/query/v4/docs/reference/QueryClient) (like its query cache or logger), you can create the `QueryClient` yourself with the `createQueryClient` field:
 
-Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_'s `QueryClient` object:
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { createQueryClient } from "./src/queryClient" with { type: "ref" }
+
+export default app({
+  name: "MyApp",
+  client: {
+    createQueryClient,
+  },
+  // ...
+})
+```
+
+Wasp calls the function once, with its default `QueryClient` config as the argument, and uses the `QueryClient` it returns:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```js title="src/myClientSetupCode.js"
-    import { configureQueryClient } from "wasp/client/operations"
+    ```js title="src/queryClient.js"
+    import { QueryClient } from "@tanstack/react-query"
 
-    export default async function mySetupFunction() {
-      // ... some setup
-      configureQueryClient({
+    export const createQueryClient = (waspDefaults) =>
+      new QueryClient({
+        ...waspDefaults,
         defaultOptions: {
+          ...waspDefaults.defaultOptions,
           queries: {
+            ...waspDefaults.defaultOptions?.queries,
             staleTime: Infinity,
           },
         },
       })
-      // ... some more setup
-    }
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="src/myClientSetupCode.ts"
-    import { configureQueryClient } from "wasp/client/operations"
+    ```ts title="src/queryClient.ts"
+    import { QueryClient } from "@tanstack/react-query"
+    import type { CreateQueryClientFn } from "wasp/client/operations"
 
-    export default async function mySetupFunction(): Promise<void> {
-      // ... some setup
-      configureQueryClient({
+    export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+      new QueryClient({
+        ...waspDefaults,
         defaultOptions: {
+          ...waspDefaults.defaultOptions,
           queries: {
+            ...waspDefaults.defaultOptions?.queries,
             staleTime: Infinity,
           },
         },
       })
-      // ... some more setup
-    }
     ```
   </TabItem>
 </Tabs>
 
-Make sure to pass in an object expected by the `QueryClient`'s constructor, as
-explained in
-[react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
+:::caution Keep Wasp's defaults
+Pass `waspDefaults` to the `QueryClient` to keep Wasp's default behavior. If you leave them out, Queries go back to `react-query`'s default retry behavior and retry client errors too.
+:::
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec.md#setupfn).
+The module that defines `createQueryClient` must not import values from `wasp/client/operations`, because that module needs the query client to load. Type-only imports, like `import type { CreateQueryClientFn }`, are fine.
+
+For the full description of the `createQueryClient` field, check the [`Client` API Reference](../../api/@wasp/spec.md#createqueryclient).
 
 ## Base Directory
 
@@ -300,8 +300,8 @@ router will work correctly, and all the assets will be served from
 />
 
 <CardLink
-  to="../../api/wasp/client/operations#configurequeryclient"
+  to="../../api/wasp/client/operations#createqueryclientfn"
   kind="api"
-  title="configureQueryClient"
-  description="Configure the default options of the QueryClient that Wasp's Queries use."
+  title="CreateQueryClientFn"
+  description="The type of your createQueryClient function."
 />

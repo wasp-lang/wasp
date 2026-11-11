@@ -81,6 +81,7 @@ wasp-app/.wasp/out/sdk/wasp/client/operations/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/internal/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/queries/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/queries/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/operations/queryClient.ts
 wasp-app/.wasp/out/sdk/wasp/client/router/Link.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/NavLink.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/index.ts
@@ -90,6 +91,7 @@ wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualUserModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualWaspModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/wasp.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/waspConfig.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/client-app.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/client-entry.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/routes.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx
@@ -324,6 +326,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/Link.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/Link.jsx
@@ -360,6 +366,7 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/client-app.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/client-entry.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/routes.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/ssr-entry.tsx
@@ -813,6 +820,7 @@ wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/startServer.ts
 wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
@@ -831,6 +839,7 @@ wasp-app/e2e-tests/tests/auth-hooks.spec.ts
 wasp-app/e2e-tests/tests/auth.spec.ts
 wasp-app/e2e-tests/tests/auth.ts
 wasp-app/e2e-tests/tests/catch-all-route.spec.ts
+wasp-app/e2e-tests/tests/create-prisma-client.spec.ts
 wasp-app/e2e-tests/tests/crud.spec.ts
 wasp-app/e2e-tests/tests/custom-apis-methods.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
@@ -843,7 +852,6 @@ wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/oauth-callback.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
-wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
 wasp-app/e2e-tests/tests/serialization.spec.ts
 wasp-app/e2e-tests/tests/server-errors.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
@@ -873,7 +881,7 @@ wasp-app/public/manifest.json
 wasp-app/schema.prisma
 wasp-app/src/App.tsx
 wasp-app/src/Main.css
-wasp-app/src/clientSetup.js
+wasp-app/src/clientInstrumentation.ts
 wasp-app/src/cn.ts
 wasp-app/src/components/Alert.tsx
 wasp-app/src/components/Button.tsx
@@ -945,6 +953,7 @@ wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/features/streaming/streaming.wasp.ts
 wasp-app/src/pages/CatchAllPage.tsx
 wasp-app/src/pages/HomePage.tsx
+wasp-app/src/queryClient.ts
 wasp-app/src/rpcTests/helpers.ts
 wasp-app/src/rpcTests/operations/client.ts
 wasp-app/src/rpcTests/operations/definitions.ts
@@ -952,6 +961,7 @@ wasp-app/src/rpcTests/operations/fixtures.ts
 wasp-app/src/rpcTests/operations/jsDefinitions.js
 wasp-app/src/rpcTests/operations/server.ts
 wasp-app/src/rpcTests/rpcTests.wasp.ts
+wasp-app/src/serverInstrumentation.ts
 wasp-app/src/serverSetup.ts
 wasp-app/src/test/setup.ts
 wasp-app/src/vite-env.d.ts

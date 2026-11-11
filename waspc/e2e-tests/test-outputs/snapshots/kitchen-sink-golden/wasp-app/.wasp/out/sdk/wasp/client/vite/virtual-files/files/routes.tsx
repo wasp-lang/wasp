@@ -1,12 +1,9 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
 import { Outlet } from "react-router"
 
 import { createAuthRequiredPage } from "wasp/client/app"
 
 import { App as App_ext } from "./src/App"
-
-import { clientSetup as clientSetup_ext } from "./src/clientSetup"
 
 import { EagerPage } from "./src/features/lazy-loading/pages/EagerPage"
 
@@ -245,10 +242,6 @@ const routesMapping = {
     },
   },
 } as const;
-
-await clientSetup_ext()
-
-initializeQueryClient()
 
 const rootElement =
   // We don't really need to wrap the app in a div nor name it "root", but we

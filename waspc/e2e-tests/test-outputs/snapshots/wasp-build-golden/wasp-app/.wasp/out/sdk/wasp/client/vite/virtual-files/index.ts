@@ -4,6 +4,10 @@ export function getClientEntryTsxContent(): string {
   return getFileContentFromRelativePath("./files/client-entry.tsx");
 }
 
+export function getClientAppTsxContent(): string {
+  return getFileContentFromRelativePath("./files/client-app.tsx");
+}
+
 export function getRoutesTsxContent(): string {
   return getFileContentFromRelativePath("./files/routes.tsx");
 }

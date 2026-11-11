@@ -1,17 +1,17 @@
 import { expect, test } from "@playwright/test";
 import { performLogin, setupTestUser } from "./auth";
 
-test.describe("prisma setup fn", () => {
+test.describe("createPrismaClient", () => {
   const credentials = setupTestUser();
 
-  test("prisma setup hook hides a specific task", async ({ page }) => {
+  test("custom Prisma client hides a specific task", async ({ page }) => {
     await performLogin(page, credentials);
     await expect(page).toHaveURL("/");
 
     await page.goto("/tasks");
 
-    // Create a new task that will be hidden by the Prisma setup function
-    const specificTask = "hidden by setUpPrisma";
+    // Create a new task that will be hidden by the custom Prisma client
+    const specificTask = "hidden by createPrismaClient";
     await page.locator("input[type='text']").fill(specificTask);
     await page.getByText("Create task").click();
 

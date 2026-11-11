@@ -403,13 +403,13 @@ spec_AppSpecFromJSON = do
       [trimming|
           {
             "seeds": [${extNamedImportJson}],
-            "prismaSetupFn": ${extNamedImportJson}
+            "createPrismaClient": ${extNamedImportJson}
           }
       |]
         `shouldDecodeTo` Just
           ( Db.Db
               { Db.seeds = Just [fromJust $ decodeJson extNamedImportJson],
-                Db.prismaSetupFn = decodeJson extNamedImportJson
+                Db.createPrismaClient = decodeJson extNamedImportJson
               }
           )
   where

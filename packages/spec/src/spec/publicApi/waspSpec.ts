@@ -503,10 +503,12 @@ export interface EmailFlowConfig {
  * ```ts
  * import { app } from "@wasp/spec"
  * import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+ * import { register } from "./src/instrumentation" with { type: "ref" }
  *
  * export default app({
  *   // ...
  *   server: {
+ *     instrumentation: register,
  *     setupFn: mySetupFunction,
  *     middlewareConfigFn: myMiddlewareConfigFn,
  *   },
@@ -514,6 +516,29 @@ export interface EmailFlowConfig {
  * ```
  */
 export interface Server {
+  /**
+   * Async function Wasp calls first when the server starts, before it loads
+   * any other server code (your operations, the Express app, the Prisma
+   * client, jobs, etc.). It receives no arguments, and its return value is
+   * ignored.
+   *
+   * Use it to set up tools that must load before the code they observe, such
+   * as OpenTelemetry or error-tracking SDKs. If you need the Express `app` or
+   * the `http.Server`, use {@link Server.setupFn} instead.
+   *
+   * Everything the instrumentation module imports also loads before the rest
+   * of the server, so keep its imports to what the instrumentation needs.
+   *
+   * @example
+   * ```ts
+   * import * as Sentry from "@sentry/node"
+   *
+   * export async function register(): Promise<void> {
+   *   Sentry.init({ dsn: process.env.SENTRY_DSN })
+   * }
+   * ```
+   */
+  instrumentation?: Reference<AnyFunction>;
   /**
    * Async function called once on server start. Wasp awaits it before the
    * server accepts requests. Receives a context containing the Express `app`
@@ -597,19 +622,45 @@ export interface Server {
  * ```ts
  * import { app } from "@wasp/spec"
  * import Root from "./src/Root" with { type: "ref" }
- * import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+ * import { register } from "./src/instrumentation" with { type: "ref" }
+ * import { createQueryClient } from "./src/queryClient" with { type: "ref" }
  *
  * export default app({
  *   // ...
  *   client: {
+ *     instrumentation: register,
  *     rootComponent: Root,
- *     setupFn: mySetupFunction,
+ *     createQueryClient,
  *     baseDir: "/my-app",
  *   },
  * })
  * ```
  */
 export interface Client {
+  /**
+   * Async function Wasp calls first when the client app loads in the browser,
+   * before it loads any other client code (your pages, the root component,
+   * React, etc.). It receives no arguments, and its return value is ignored.
+   *
+   * Use it to set up tools that must load before the code they observe, such
+   * as OpenTelemetry or error-tracking SDKs, or for any other one-time
+   * client-side setup.
+   *
+   * Wasp doesn't call it while prerendering pages.
+   *
+   * Everything the instrumentation module imports also loads before the rest
+   * of the client, so keep its imports to what the instrumentation needs.
+   *
+   * @example
+   * ```ts
+   * import * as Sentry from "@sentry/react"
+   *
+   * export async function register(): Promise<void> {
+   *   Sentry.init({ dsn: import.meta.env.REACT_APP_SENTRY_DSN })
+   * }
+   * ```
+   */
+  instrumentation?: Reference<AnyFunction>;
   /**
    * Wrapper React component rendered at the root of the client app. Must
    * render either `<Outlet>` from `react-router` or the `children` prop to show
@@ -651,19 +702,34 @@ export interface Client {
    */
   rootComponent?: Reference<AnyFunction>;
   /**
-   * Async function Wasp calls once while initializing the client app. Wasp
-   * awaits it before rendering the app. It receives no arguments, and its
-   * return value is ignored. Use it for one-time client-side setup, such as
-   * configuring the query client or starting client-side periodic jobs.
+   * Function that creates the app's [react-query](https://tanstack.com/query/v4/)
+   * `QueryClient`. Wasp calls it once when the client code loads.
+   *
+   * It receives Wasp's default `QueryClient` config. Pass it to the
+   * `QueryClient` to keep Wasp's default behavior, such as not retrying queries
+   * that fail with a client error. If you don't pass it, you lose that
+   * behavior.
+   *
+   * In TypeScript, you can type the function with the `CreateQueryClientFn`
+   * type from `wasp/client/operations`. The module defining it must not import
+   * values from `wasp/client/operations` (type-only imports are fine), because
+   * that module needs the query client to load.
+   *
+   * See [Customizing the Query Client](https://wasp.sh/docs/advanced/client-customization/client-config#customizing-the-query-client).
    *
    * @example
    * ```ts
-   * export default async function mySetupFunction(): Promise<void> {
-   *   // Run some code
-   * }
+   * import { QueryCache, QueryClient } from "@tanstack/react-query"
+   * import type { CreateQueryClientFn } from "wasp/client/operations"
+   *
+   * export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+   *   new QueryClient({
+   *     ...waspDefaults,
+   *     queryCache: new QueryCache({ onError: console.error }),
+   *   })
    * ```
    */
-  setupFn?: Reference<AnyFunction>;
+  createQueryClient?: Reference<AnyFunction>;
   /**
    *
    * If you need to serve the client from a subdirectory, you can use the
@@ -712,13 +778,13 @@ export interface Client {
  * ```ts
  * import { app } from "@wasp/spec"
  * import devSeed from "./src/dbSeeds" with { type: "ref" }
- * import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+ * import { createPrismaClient } from "./src/prisma" with { type: "ref" }
  *
  * export default app({
  *   // ...
  *   db: {
  *     seeds: [devSeed],
- *     prismaSetupFn: setUpPrisma,
+ *     createPrismaClient,
  *   },
  * })
  * ```
@@ -734,7 +800,7 @@ export interface Db {
    */
   seeds?: Reference<AnyFunction>[];
   /**
-   * Function that sets up and returns a configured Prisma Client instance.
+   * Function that creates and returns a configured Prisma Client instance.
    * Use this to add Prisma logging or client extensions.
    *
    * See Prisma's [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging)
@@ -745,7 +811,7 @@ export interface Db {
    * ```ts
    * import { PrismaClient } from "@prisma/client"
    *
-   * export const setUpPrisma = () => {
+   * export const createPrismaClient = () => {
    *   const prisma = new PrismaClient({
    *     log: ["query", "info", "warn", "error"],
    *   })
@@ -754,7 +820,7 @@ export interface Db {
    * }
    * ```
    */
-  prismaSetupFn?: Reference<AnyFunction>;
+  createPrismaClient?: Reference<AnyFunction>;
 }
 
 /**

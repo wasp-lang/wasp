@@ -1,7 +1,7 @@
 ---
-title: "Server config in Wasp: setupFn and middleware"
+title: "Server config in Wasp: instrumentation, setupFn and middleware"
 sidebar_label: Server config
-description: "Configure the Wasp server in the app spec: a setupFn runs on start, for example to add a custom route, and middlewareConfigFn changes global middleware."
+description: "Configure the Wasp server in the app spec: instrumentation runs before any other server code, a setupFn runs on start, for example to add a custom route, and middlewareConfigFn changes global middleware."
 ---
 
 import { CardLink } from "@site/src/components/CardLink";
@@ -14,16 +14,38 @@ You can configure the behavior of the server via the `server` field of `app` spe
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+import { register } from "./src/instrumentation" with { type: "ref" }
 
 export default app({
   name: "MyApp",
   server: {
+    instrumentation: register,
     setupFn: mySetupFunction,
     middlewareConfigFn: myMiddlewareConfigFn,
   },
   // ...
 })
 ```
+
+## Instrumentation
+
+`instrumentation` declares an async <ShowForTs>TypeScript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp calls when the server starts, before it loads any other server code (your Operations, the Express app, the Prisma Client, jobs, etc.). Wasp waits for it to finish before loading the rest of the server.
+
+Use it to set up tools that must load before the code they observe, such as error-tracking or OpenTelemetry SDKs:
+
+```ts title="src/instrumentation.ts" auto-js
+import * as Sentry from "@sentry/node"
+
+export async function register(): Promise<void> {
+  Sentry.init({ dsn: process.env.SENTRY_DSN })
+}
+```
+
+Everything the instrumentation module imports also loads before the rest of the server, so only import what the instrumentation needs.
+
+The instrumentation function doesn't receive any arguments. If you need access to the Express app or the HTTP server, use the [setup function](#setup-function) instead.
+
+For the full description of the `instrumentation` field, check the [`Server` API Reference](../../api/@wasp/spec.md#instrumentation-1).
 
 ## Setup Function
 
@@ -141,7 +163,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec.md#setupfn-1).
+For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec.md#setupfn).
 
 ## Middleware Config Function
 

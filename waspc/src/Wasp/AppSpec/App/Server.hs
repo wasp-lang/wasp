@@ -13,7 +13,8 @@ import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Server = Server
-  { setupFn :: Maybe ExtImport,
+  { instrumentation :: Maybe ExtImport,
+    setupFn :: Maybe ExtImport,
     middlewareConfigFn :: Maybe ExtImport,
     envValidationSchema :: Maybe ExtImport,
     traceDeps :: Maybe [String]

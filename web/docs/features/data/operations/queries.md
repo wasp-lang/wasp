@@ -458,7 +458,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.
-To change this, set `retry` for a [single Query](../../../api/wasp/client/operations.md#usequery) or [for all Queries](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
+To change this, set `retry` for a [single Query](../../../api/wasp/client/operations.md#usequery) or [for all Queries](../../../advanced/client-customization/client-config.md#customizing-the-query-client).
 
 ### Using Entities in Queries
 

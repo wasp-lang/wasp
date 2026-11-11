@@ -37,7 +37,7 @@ Your Wasp server runs as a [Vercel Function](https://vercel.com/docs/functions),
   - [Jobs](../../../features/jobs.md) are not supported.
   - [WebSockets](../../../features/websockets.md) are not supported.
   - Global state (e.g. singletons or top-level variables) will be reset periodically, so you should only use it for caching and not for storing important data or app logic.
-- If your app defines a [server `setupFn`](../../../advanced/server-customization/server-config.md#setup-function), it must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
+- If your app defines a [server `instrumentation`](../../../advanced/server-customization/server-config.md#instrumentation) or [`setupFn`](../../../advanced/server-customization/server-config.md#setup-function), they must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
 
 :::caution
 As Wasp does not yet have a way to detect where you're deploying your server to, we can't warn you if your app relies on any of the above features, so please double check before deploying to Vercel.

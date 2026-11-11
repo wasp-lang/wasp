@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, useLocation } from 'react-router'
 import { useAuth } from "../../auth";
 import { api } from "../../../api";
+import { queryClient } from "../../operations/queryClient";
 import {
   FullPageWrapper,
   initSession,
@@ -60,7 +61,7 @@ function useOAuthCallbackHandler() {
         setError("Unable to login with the OAuth provider.");
         return;
       }
-      await initSession(data.sessionId);
+      initSession(queryClient, data.sessionId);
     } catch (e: unknown) {
       console.error(e);
       setError("Unable to login with the OAuth provider.");

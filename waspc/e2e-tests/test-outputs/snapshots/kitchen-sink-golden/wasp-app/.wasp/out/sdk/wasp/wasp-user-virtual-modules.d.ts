@@ -15,7 +15,11 @@ declare module "virtual:wasp/user/env" {
 }
 
 declare module "virtual:wasp/user/features/db/prisma" {
-  export const setUpPrisma: import("./server/dbClient").RegisteredPrismaSetupFn;
+  export const createPrismaClient: import("./server/dbClient").RegisteredCreatePrismaClient;
+}
+
+declare module "virtual:wasp/user/queryClient" {
+  export const createQueryClient: import("./client/operations/queryClient").RegisteredCreateQueryClient;
 }
 
 declare module "virtual:wasp/user/features/auth/password" {

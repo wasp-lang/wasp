@@ -73,16 +73,18 @@ describe("RefObject input types", () => {
       clientRoute: "EmailRoute",
     });
     assertType<WaspSpec.Server>({
+      instrumentation: setup,
       setupFn: setup,
       middlewareConfigFn: middleware,
     });
     assertType<WaspSpec.Client>({
+      instrumentation: setup,
       rootComponent: component,
-      setupFn: setup,
+      createQueryClient: setup,
     });
     assertType<WaspSpec.Db>({
       seeds: [hook],
-      prismaSetupFn: setup,
+      createPrismaClient: setup,
     });
   });
 

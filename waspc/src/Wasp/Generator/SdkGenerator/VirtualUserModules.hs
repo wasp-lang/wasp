@@ -102,7 +102,8 @@ getVirtualUserModules spec =
   concat
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
-      maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
+      maybeToList $ mkCreatePrismaClientModule <$> maybeCreatePrismaClient,
+      maybeToList $ mkCreateQueryClientModule <$> maybeCreateQueryClient,
       maybeToList $ mkPasswordValidationSchemaModule ClientRuntime <$> maybePasswordValidationSchema,
       maybeToList $ mkPasswordValidationSchemaModule ServerRuntime <$> maybePasswordValidationSchema,
       map mkOperationModule (AS.getOperations spec)
@@ -129,12 +130,19 @@ getVirtualUserModules spec =
         [relfileP|./auth/validation|]
         "RegisteredPasswordValidationSchema"
 
-    mkPrismaSetupFnModule extImport' =
+    mkCreatePrismaClientModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/dbClient|]
-        "RegisteredPrismaSetupFn"
+        "RegisteredCreatePrismaClient"
+
+    mkCreateQueryClientModule extImport' =
+      VirtualUserModule
+        ClientRuntime
+        extImport'
+        [relfileP|./client/operations/queryClient|]
+        "RegisteredCreateQueryClient"
 
     mkOperationModule operation =
       VirtualUserModule
@@ -149,7 +157,8 @@ getVirtualUserModules spec =
 
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybeCreatePrismaClient = AS.App.db app >>= AS.Db.createPrismaClient
+    maybeCreateQueryClient = AS.App.client app >>= AS.App.Client.createQueryClient
     maybePasswordValidationSchema = AS.App.auth app >>= AS.Auth.getPasswordValidationSchema
     app = getApp spec
 

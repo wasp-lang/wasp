@@ -83,9 +83,8 @@ export {
   type QueryFor,
 } from "./operations/queries.js";
 export {
-  configureQueryClient,
-  initializeQueryClient,
-  queryClientInitialized,
+  getWaspQueryClientDefaults,
+  type CreateQueryClientFn,
 } from "./operations/queryClient.js";
 
 export { storage, type DataStore } from "./storage.js";

@@ -8,7 +8,7 @@ import "wasp/types"
 
 declare module "wasp/types" {
   interface Register {
-    prismaSetupFn: typeof import("../../../../../src/features/db/prisma").setUpPrisma
+    createPrismaClient: typeof import("../../../../../src/features/db/prisma").createPrismaClient
     serverEnvValidationSchema: typeof import("../../../../../src/env").serverEnvValidationSchema
     clientEnvValidationSchema: typeof import("../../../../../src/env").clientEnvValidationSchema
     webSocketFn: typeof import("../../../../../src/features/chat/webSocket").chatWebSocket

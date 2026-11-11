@@ -648,7 +648,7 @@ spec_AppSpecValid = do
             Just $
               AS.Db.Db
                 { AS.Db.seeds = Nothing,
-                  AS.Db.prismaSetupFn = Nothing
+                  AS.Db.createPrismaClient = Nothing
                 },
           AS.App.server = Nothing,
           AS.App.client = Nothing,

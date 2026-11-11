@@ -2743,7 +2743,7 @@ throw new HttpError(429, "Too many requests", undefined, {
 })
 ```
 
-When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt. To change this, set `retry` for a [single Query](https://wasp.sh/docs/api/wasp/client/operations#usequery) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
+When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt. To change this, set `retry` for a [single Query](https://wasp.sh/docs/api/wasp/client/operations#usequery) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#customizing-the-query-client).
 
 #### Using Entities in Queries
 
@@ -3866,17 +3866,17 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 
 ### Customising the Prisma Client
 
-Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client). To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance. This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
+Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client). To customize the client, define a function in the `db.createPrismaClient` field that returns a Prisma Client instance. This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
-import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+import { createPrismaClient } from "./src/prisma" with { type: "ref" }
 
 export default app({
   name: "MyApp",
   // ...
   db: {
-    prismaSetupFn: setUpPrisma,
+    createPrismaClient,
   },
 })
 ```
@@ -3884,7 +3884,7 @@ export default app({
 ```ts title="src/prisma.ts"
 import { PrismaClient } from "@prisma/client"
 
-export const setUpPrisma = () => {
+export const createPrismaClient = () => {
   const prisma = new PrismaClient({
     log: ["query"],
   }).$extends({
@@ -3893,7 +3893,7 @@ export const setUpPrisma = () => {
         async findMany({ args, query }) {
           args.where = {
             ...args.where,
-            description: { not: { contains: "hidden by setUpPrisma" } },
+            description: { not: { contains: "hidden by createPrismaClient" } },
           }
           return query(args)
         },
@@ -12194,13 +12194,15 @@ You can configure the client using the `client` field inside the `app` spec:
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
-import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+import { register } from "./src/instrumentation" with { type: "ref" }
+import { createQueryClient } from "./src/queryClient" with { type: "ref" }
 
 export default app({
   name: "MyApp",
   client: {
     rootComponent: Root,
-    setupFn: mySetupFunction,
+    instrumentation: register,
+    createQueryClient,
   },
   // ...
 })
@@ -12287,78 +12289,94 @@ As long as you render the `Outlet` component, you can put what ever you want in 
 
 For the full description of the `rootComponent` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#rootcomponent).
 
-### Setup Function
+### Instrumentation
 
-`setupFn` declares a Typescript function that Wasp executes on the client before everything else.
+`instrumentation` declares an async TypeScript function that Wasp calls in the browser before it loads any other client code (your pages, the root component, React, etc.). Wasp waits for it to finish before loading the rest of the app.
 
-:::caution[The setup function can also run on the server]
-The setup function can also run during server-side rendering, like when [prerendering](https://wasp.sh/docs/advanced/prerendering) pages, where browser APIs like `window` are not available. See [Running Code Only on the Client](#running-code-only-on-the-client).
-:::
+Use it to set up tools that must load before the code they observe, such as error-tracking or OpenTelemetry SDKs, or for any other one-time client-side setup.
 
-#### Running Some Code
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { register } from "./src/instrumentation" with { type: "ref" }
 
-We can run any code we want in the setup function.
+export default app({
+  name: "MyApp",
+  client: {
+    instrumentation: register,
+  },
+  // ...
+})
+```
 
-For example, here's a setup function that logs a message every hour:
+For example, here's an instrumentation function that logs a message every hour:
 
-```ts title="src/myClientSetupCode.ts"
-export default async function mySetupFunction(): Promise<void> {
-  let count = 1
+```ts title="src/instrumentation.ts"
+export async function register(): Promise<void> {
+  let count = 1;
   setInterval(
     () => console.log(`You have been online for ${count++} hours.`),
-    1000 * 60 * 60
-  )
+    1000 * 60 * 60,
+  );
 }
 ```
 
-#### Running Code Only on the Client
+Keep in mind:
 
-If your app uses [prerendering](https://wasp.sh/docs/advanced/prerendering), Wasp also executes the setup function while rendering your pages on the server. There, browser APIs like `window`, `document`, or `localStorage` don't exist, so using them would crash the prerender. Side effects like timers or event listeners would also run in the Node.js process.
+- Everything the instrumentation module imports also loads before the rest of the app, so only import what the instrumentation needs.
+- Wasp only calls the instrumentation in the browser, not while [prerendering](https://wasp.sh/docs/advanced/prerendering) pages, so you can use browser APIs like `window` freely.
+- Since the app loads after the instrumentation, it may start after the page's `load` event.
 
-To run some code only in the browser, check Vite's [`import.meta.env.SSR`](https://vite.dev/guide/env-and-mode.html#env-variables) flag, which is `true` during server-side rendering and `false` on the client:
+For the full description of the `instrumentation` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#instrumentation).
 
-```ts title="src/myClientSetupCode.ts"
-export default async function mySetupFunction(): Promise<void> {
-  if (import.meta.env.SSR) {
-    // We're rendering on the server, skip the browser-only setup.
-    return;
-  }
-
-  window.addEventListener("online", () => console.log("You are back online!"));
-}
-```
-
-#### Overriding Default Behaviour for Queries
+### Customizing the Query Client
 
 :::info
 You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](https://wasp.sh/docs/api/wasp/client/operations#usequery).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried, except for `408` and `429` (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)).
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. Wasp adjusts the retry configuration so that Queries failing with a client error, like `401` or `404`, aren't retried, except for `408` and `429` (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)).
 
-If you do need to change the global defaults, you can do so inside the client setup function.
+If you need to change the global defaults, or configure other parts of `react-query`'s [`QueryClient`](https://tanstack.com/query/v4/docs/reference/QueryClient) (like its query cache or logger), you can create the `QueryClient` yourself with the `createQueryClient` field:
 
-Wasp exposes a `configureQueryClient` hook that lets you configure *react-query*'s `QueryClient` object:
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { createQueryClient } from "./src/queryClient" with { type: "ref" }
 
-```ts title="src/myClientSetupCode.ts"
-import { configureQueryClient } from "wasp/client/operations"
+export default app({
+  name: "MyApp",
+  client: {
+    createQueryClient,
+  },
+  // ...
+})
+```
 
-export default async function mySetupFunction(): Promise<void> {
-  // ... some setup
-  configureQueryClient({
+Wasp calls the function once, with its default `QueryClient` config as the argument, and uses the `QueryClient` it returns:
+
+```ts title="src/queryClient.ts"
+import { QueryClient } from "@tanstack/react-query"
+import type { CreateQueryClientFn } from "wasp/client/operations"
+
+export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+  new QueryClient({
+    ...waspDefaults,
     defaultOptions: {
+      ...waspDefaults.defaultOptions,
       queries: {
+        ...waspDefaults.defaultOptions?.queries,
         staleTime: Infinity,
       },
     },
   })
-  // ... some more setup
-}
 ```
 
-Make sure to pass in an object expected by the `QueryClient`'s constructor, as explained in [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
+:::caution[Keep Wasp's defaults]
+Pass `waspDefaults` to the `QueryClient` to keep Wasp's default behavior. If you leave them out, Queries go back to `react-query`'s default retry behavior and retry client errors too.
+:::
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn).
+The module that defines `createQueryClient` must not import values from `wasp/client/operations`, because that module needs the query client to load. Type-only imports, like `import type { CreateQueryClientFn }`, are fine.
+
+For the full description of the `createQueryClient` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#createqueryclient).
 
 ### Base Directory
 
@@ -12392,11 +12410,11 @@ For example, if you are serving your app from `https://example.com/my-app`, the 
 
 [All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#client-1)
 
-[API reference](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
+[API reference](https://wasp.sh/docs/api/wasp/client/operations#createqueryclientfn)
 
-#### [configureQueryClient »](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
+#### [CreateQueryClientFn »](https://wasp.sh/docs/api/wasp/client/operations#createqueryclientfn)
 
-[Configure the default options of the QueryClient that Wasp's Queries use.](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
+[The type of your createQueryClient function.](https://wasp.sh/docs/api/wasp/client/operations#createqueryclientfn)
 
 
 ## Advanced / Client customization / Static assets
@@ -12591,16 +12609,38 @@ You can configure the behavior of the server via the `server` field of `app` spe
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+import { register } from "./src/instrumentation" with { type: "ref" }
 
 export default app({
   name: "MyApp",
   server: {
+    instrumentation: register,
     setupFn: mySetupFunction,
     middlewareConfigFn: myMiddlewareConfigFn,
   },
   // ...
 })
 ```
+
+### Instrumentation
+
+`instrumentation` declares an async TypeScript function that Wasp calls when the server starts, before it loads any other server code (your Operations, the Express app, the Prisma Client, jobs, etc.). Wasp waits for it to finish before loading the rest of the server.
+
+Use it to set up tools that must load before the code they observe, such as error-tracking or OpenTelemetry SDKs:
+
+```ts title="src/instrumentation.ts"
+import * as Sentry from "@sentry/node";
+
+export async function register(): Promise<void> {
+  Sentry.init({ dsn: process.env.SENTRY_DSN });
+}
+```
+
+Everything the instrumentation module imports also loads before the rest of the server, so only import what the instrumentation needs.
+
+The instrumentation function doesn't receive any arguments. If you need access to the Express app or the HTTP server, use the [setup function](#setup-function) instead.
+
+For the full description of the `instrumentation` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#instrumentation-1).
 
 ### Setup Function
 
@@ -12664,7 +12704,7 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn-1).
+For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn).
 
 ### Middleware Config Function
 
@@ -14857,6 +14897,12 @@ Wasp finds those files by analyzing the server's imports. Some packages load the
 
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
+#### Instrumentation and a custom query client
+
+The `server` and `client` fields of the app spec have a new `instrumentation` field. Wasp calls it before any other server or client code loads, so you can set up tools like Sentry or OpenTelemetry before the code they observe.
+
+The client also has a new `createQueryClient` field, which creates *react-query*'s `QueryClient` and replaces `configureQueryClient`. The client `setupFn` is gone: use `instrumentation` for client setup code.
+
 ### How to migrate?
 
 #### 1. Switch to the new Wasp CLI package
@@ -15243,7 +15289,106 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 10. Enjoy your updated Wasp app
+#### 10. Replace the client `setupFn`
+
+**If your app doesn't set `client.setupFn` or call `configureQueryClient`, you can skip this step.**
+
+The client `setupFn` field is gone. Move its code to the new [`client.instrumentation`](https://wasp.sh/docs/advanced/client-customization/client-config#instrumentation) field, which runs before any other client code:
+
+**Before**
+
+```ts title="main.wasp.ts"
+import { mySetupFunction } from "./src/myClientSetupCode" with { type: "ref" }
+
+export default app({
+  // ...
+  client: {
+    setupFn: mySetupFunction,
+  },
+})
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+import { mySetupFunction } from "./src/myClientSetupCode" with { type: "ref" }
+
+export default app({
+  // ...
+  client: {
+    instrumentation: mySetupFunction,
+  },
+})
+```
+
+Unlike the setup function, the instrumentation doesn't run while prerendering pages, so you can remove any `import.meta.env.SSR` checks you added for it.
+
+If your setup function called `configureQueryClient`, remove that call and create the `QueryClient` in a [`client.createQueryClient`](https://wasp.sh/docs/advanced/client-customization/client-config#customizing-the-query-client) function instead:
+
+**Before**
+
+```ts title="src/myClientSetupCode.ts"
+import { configureQueryClient } from "wasp/client/operations"
+
+export async function mySetupFunction(): Promise<void> {
+  configureQueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+      },
+    },
+  })
+}
+```
+
+**After**
+
+```ts title="main.wasp.ts"
+import { createQueryClient } from "./src/queryClient" with { type: "ref" }
+
+export default app({
+  // ...
+  client: {
+    createQueryClient,
+  },
+})
+```
+
+```ts title="src/queryClient.ts"
+import { QueryClient } from "@tanstack/react-query"
+import type { CreateQueryClientFn } from "wasp/client/operations"
+
+export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+  new QueryClient({
+    ...waspDefaults,
+    defaultOptions: {
+      ...waspDefaults.defaultOptions,
+      queries: {
+        ...waspDefaults.defaultOptions?.queries,
+        staleTime: Infinity,
+      },
+    },
+  })
+```
+
+Pass `waspDefaults` to the `QueryClient` to keep Wasp's default retry behavior.
+
+#### 11. Rename `db.prismaSetupFn`
+
+**If your app doesn't set `db.prismaSetupFn`, you can skip this step.**
+
+Rename the `db.prismaSetupFn` field to `db.createPrismaClient`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  db: {
+    createPrismaClient: setUpPrisma,
+  },
+})
+```
+
+#### 12. Enjoy your updated Wasp app
 
 That's it!
 
@@ -20744,7 +20889,7 @@ Your Wasp server runs as a [Vercel Function](https://vercel.com/docs/functions),
   - [WebSockets](https://wasp.sh/docs/features/websockets) are not supported.
   - Global state (e.g. singletons or top-level variables) will be reset periodically, so you should only use it for caching and not for storing important data or app logic.
 
-- If your app defines a [server `setupFn`](https://wasp.sh/docs/advanced/server-customization/server-config#setup-function), it must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
+- If your app defines a [server `instrumentation`](https://wasp.sh/docs/advanced/server-customization/server-config#instrumentation) or [`setupFn`](https://wasp.sh/docs/advanced/server-customization/server-config#setup-function), they must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
 
 :::caution
 As Wasp does not yet have a way to detect where you're deploying your server to, we can't warn you if your app relies on any of the above features, so please double check before deploying to Vercel.
@@ -22428,41 +22573,53 @@ npm install @sentry/node @sentry/react
 
 #### 3. Configure your Wasp file
 
-Add both the server and client setup functions to your `main.wasp.ts`:
+Add the server and client instrumentation functions, and a server setup function, to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
-import { setupClient } from "./src/clientSetup" with { type: "ref" }
+import { registerClientSentry } from "./src/clientInstrumentation" with { type: "ref" }
+import { registerServerSentry } from "./src/serverInstrumentation" with { type: "ref" }
 import { setupServer } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.27.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
+    instrumentation: registerServerSentry,
     setupFn: setupServer,
   },
   client: {
-    setupFn: setupClient,
+    instrumentation: registerClientSentry,
   },
   // ...
 })
 ```
 
+Wasp calls the [instrumentation functions](https://wasp.sh/docs/advanced/server-customization/server-config#instrumentation) before it loads any other code, so Sentry can observe your whole app.
+
 #### 4. Configure Server-Side Sentry
 
-Create the server setup file:
+Create the server instrumentation file:
+
+```ts title="src/serverInstrumentation.ts"
+import * as Sentry from "@sentry/node";
+
+export async function registerServerSentry(): Promise<void> {
+  Sentry.init({
+    dsn: process.env.SENTRY_SERVER_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: 1.0,
+  });
+}
+```
+
+Then add Sentry's error handler to the Express app in the server setup function:
 
 ```ts title="src/serverSetup.ts"
 import * as Sentry from "@sentry/node";
 import { ServerSetupFn } from "wasp/server";
-
-Sentry.init({
-  dsn: process.env.SENTRY_SERVER_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 1.0,
-});
 
 export const setupServer: ServerSetupFn = async ({ app }) => {
   Sentry.setupExpressErrorHandler(app);
@@ -22475,26 +22632,19 @@ Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
 
 #### 5. Configure Client-Side Sentry
 
-Create the client setup file:
+Create the client instrumentation file:
 
-```ts title="src/clientSetup.ts"
+```ts title="src/clientInstrumentation.ts"
 import * as Sentry from "@sentry/react";
 
-Sentry.init({
-  dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
-  environment: import.meta.env.MODE,
-  tracesSampleRate: 1.0,
-});
-
-export const setupClient = async () => {
-  // Sentry is initialized above, before the setup function runs.
-  // You can add additional client-side setup here if needed.
-};
+export async function registerClientSentry(): Promise<void> {
+  Sentry.init({
+    dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 1.0,
+  });
+}
 ```
-
-:::note
-The `setupFn` must be defined and exported even if it has no additional logic. Sentry's `init` call runs at module load time, which is before Wasp calls the setup function.
-:::
 
 #### 6. Set up environment variables
 
@@ -26642,13 +26792,15 @@ See [Client Config](https://wasp.sh/docs/advanced/client-customization/client-co
 ```ts
 import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
-import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+import { register } from "./src/instrumentation" with { type: "ref" }
+import { createQueryClient } from "./src/queryClient" with { type: "ref" }
 
 export default app({
   // ...
   client: {
+    instrumentation: register,
     rootComponent: Root,
-    setupFn: mySetupFunction,
+    createQueryClient,
     baseDir: "/my-app",
   },
 })
@@ -26668,6 +26820,31 @@ This means that if you serve your app from `https://example.com/my-app`, the rou
 
 Check the [Base directory docs](https://wasp.sh/docs/advanced/client-customization/client-config#base-directory) for important details.
 
+###### createQueryClient?
+
+> `optional` **createQueryClient?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function that creates the app's [react-query](https://tanstack.com/query/v4/) `QueryClient`. Wasp calls it once when the client code loads.
+
+It receives Wasp's default `QueryClient` config. Pass it to the `QueryClient` to keep Wasp's default behavior, such as not retrying queries that fail with a client error. If you don't pass it, you lose that behavior.
+
+In TypeScript, you can type the function with the `CreateQueryClientFn` type from `wasp/client/operations`. The module defining it must not import values from `wasp/client/operations` (type-only imports are fine), because that module needs the query client to load.
+
+See [Customizing the Query Client](https://wasp.sh/docs/advanced/client-customization/client-config#customizing-the-query-client).
+
+###### Example
+
+```ts
+import { QueryCache, QueryClient } from "@tanstack/react-query"
+import type { CreateQueryClientFn } from "wasp/client/operations"
+
+export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+  new QueryClient({
+    ...waspDefaults,
+    queryCache: new QueryCache({ onError: console.error }),
+  })
+```
+
 ###### envValidationSchema?
 
 > `optional` **envValidationSchema?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
@@ -26683,6 +26860,28 @@ import { clientEnvSchema } from './src/env' with { type: 'ref' }
 ```
 
 See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
+
+###### instrumentation?
+
+> `optional` **instrumentation?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Async function Wasp calls first when the client app loads in the browser, before it loads any other client code (your pages, the root component, React, etc.). It receives no arguments, and its return value is ignored.
+
+Use it to set up tools that must load before the code they observe, such as OpenTelemetry or error-tracking SDKs, or for any other one-time client-side setup.
+
+Wasp doesn't call it while prerendering pages.
+
+Everything the instrumentation module imports also loads before the rest of the client, so keep its imports to what the instrumentation needs.
+
+###### Example
+
+```ts
+import * as Sentry from "@sentry/react"
+
+export async function register(): Promise<void> {
+  Sentry.init({ dsn: import.meta.env.REACT_APP_SENTRY_DSN })
+}
+```
 
 ###### rootComponent?
 
@@ -26722,20 +26921,6 @@ function Layout() {
       </footer>
     </div>
   )
-}
-```
-
-###### setupFn?
-
-> `optional` **setupFn?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
-
-Async function Wasp calls once while initializing the client app. Wasp awaits it before rendering the app. It receives no arguments, and its return value is ignored. Use it for one-time client-side setup, such as configuring the query client or starting client-side periodic jobs.
-
-###### Example
-
-```ts
-export default async function mySetupFunction(): Promise<void> {
-  // Run some code
 }
 ```
 
@@ -26840,24 +27025,24 @@ See [Databases](https://wasp.sh/docs/features/data/databases) for seeding and Pr
 ```ts
 import { app } from "@wasp/spec"
 import devSeed from "./src/dbSeeds" with { type: "ref" }
-import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+import { createPrismaClient } from "./src/prisma" with { type: "ref" }
 
 export default app({
   // ...
   db: {
     seeds: [devSeed],
-    prismaSetupFn: setUpPrisma,
+    createPrismaClient,
   },
 })
 ```
 
 ##### Properties
 
-###### prismaSetupFn?
+###### createPrismaClient?
 
-> `optional` **prismaSetupFn?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+> `optional` **createPrismaClient?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
-Function that sets up and returns a configured Prisma Client instance. Use this to add Prisma logging or client extensions.
+Function that creates and returns a configured Prisma Client instance. Use this to add Prisma logging or client extensions.
 
 See Prisma's [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) and [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) docs.
 
@@ -26866,7 +27051,7 @@ See Prisma's [logging](https://www.prisma.io/docs/orm/prisma-client/observabilit
 ```ts
 import { PrismaClient } from "@prisma/client"
 
-export const setUpPrisma = () => {
+export const createPrismaClient = () => {
   const prisma = new PrismaClient({
     log: ["query", "info", "warn", "error"],
   })
@@ -27256,10 +27441,12 @@ See [Server Config](https://wasp.sh/docs/advanced/server-customization/server-co
 ```ts
 import { app } from "@wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+import { register } from "./src/instrumentation" with { type: "ref" }
 
 export default app({
   // ...
   server: {
+    instrumentation: register,
     setupFn: mySetupFunction,
     middlewareConfigFn: myMiddlewareConfigFn,
   },
@@ -27283,6 +27470,26 @@ import { serverEnvSchema } from './src/env' with { type: 'ref' }
 ```
 
 See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
+
+###### instrumentation?
+
+> `optional` **instrumentation?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Async function Wasp calls first when the server starts, before it loads any other server code (your operations, the Express app, the Prisma client, jobs, etc.). It receives no arguments, and its return value is ignored.
+
+Use it to set up tools that must load before the code they observe, such as OpenTelemetry or error-tracking SDKs. If you need the Express `app` or the `http.Server`, use [Server.setupFn](#setupfn) instead.
+
+Everything the instrumentation module imports also loads before the rest of the server, so keep its imports to what the instrumentation needs.
+
+###### Example
+
+```ts
+import * as Sentry from "@sentry/node"
+
+export async function register(): Promise<void> {
+  Sentry.init({ dsn: process.env.SENTRY_DSN })
+}
+```
 
 ###### middlewareConfigFn? {#middlewareconfigfn-2}
 
@@ -30510,6 +30717,59 @@ To call Queries and Actions from server code, use [`wasp/server/operations`](htt
 
 ### Type Aliases
 
+#### CreateQueryClientFn
+
+> **CreateQueryClientFn** = (`waspDefaults`) => `QueryClient`
+
+The type of the function you pass to the `client.createQueryClient` field of the app spec. It creates *react-query*'s `QueryClient`, which Wasp's [useQuery](#usequery) uses under the hood.
+
+You most likely won't have to change *react-query*'s default options for all Queries. Wasp adjusts the retry configuration (see [useQuery](#usequery)).
+
+Wasp calls the function once, when the client code loads, and passes its default `QueryClient` config as `waspDefaults`. Pass it to the `QueryClient` to keep Wasp's defaults. If you leave it out, Queries go back to *react-query*'s default retry behavior.
+
+The module that defines the function must not import values from `wasp/client/operations`, because that module needs the query client to load. Type-only imports are fine.
+
+To change the options for a **single** Query, pass them to [useQuery](#usequery) instead.
+
+##### Parameters
+
+###### waspDefaults
+
+`QueryClientConfig`
+
+Wasp's default config for the `QueryClient`'s constructor, as explained in [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
+
+##### Returns
+
+`QueryClient`
+
+The `QueryClient` Wasp uses for all Queries.
+
+##### Example
+
+```ts
+import { QueryClient } from "@tanstack/react-query";
+import type { CreateQueryClientFn } from "wasp/client/operations";
+
+export const createQueryClient: CreateQueryClientFn = (waspDefaults) =>
+  new QueryClient({
+    ...waspDefaults,
+    defaultOptions: {
+      ...waspDefaults.defaultOptions,
+      queries: {
+        ...waspDefaults.defaultOptions?.queries,
+        staleTime: Infinity,
+      },
+    },
+  });
+```
+
+##### See
+
+[Customizing the Query Client](https://wasp.sh/docs/advanced/client-customization/client-config#customizing-the-query-client)
+
+---
+
 #### OptimisticUpdateDefinition
 
 > **OptimisticUpdateDefinition**<`ActionInput`, `CachedData`> = `object`
@@ -30617,54 +30877,6 @@ const queryKey = getTasks.queryCacheKey;
 The HTTP route of the Query's API endpoint.
 
 ### Functions
-
-#### configureQueryClient()
-
-> **configureQueryClient**(`config`): `void`
-
-Configures *react-query*'s `QueryClient`, which Wasp's [useQuery](#usequery) uses under the hood.
-
-You most likely won't have to change *react-query*'s default options for all Queries. Wasp adjusts the retry configuration (see [useQuery](#usequery)). If you set `defaultOptions.queries.retry`, it replaces Wasp's default.
-
-Call it in your [client setup function](https://wasp.sh/docs/advanced/client-customization/client-config#setup-function), before Wasp creates the `QueryClient`. Calling it afterwards throws an error.
-
-To change the options for a **single** Query, pass them to [useQuery](#usequery) instead.
-
-##### Parameters
-
-###### config
-
-`QueryClientConfig`
-
-An object expected by the `QueryClient`'s constructor, as explained in [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
-
-##### Returns
-
-`void`
-
-##### Example
-
-```ts
-import { configureQueryClient } from "wasp/client/operations";
-
-export default async function mySetupFunction(): Promise<void> {
-  // ... some setup
-  configureQueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: Infinity,
-      },
-    },
-  });
-  // ... some more setup
-}
-```
-
-##### See
-
-[Overriding default behaviour for Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries)
-
----
 
 #### useAction()
 
@@ -30776,7 +30988,7 @@ Wasp's `useQuery` hook is a thin wrapper around the `useQuery` hook from [*react
 
 Wasp invalidates the Query's cache automatically when you call an Action that uses the same Entities (see [Cache Invalidation](https://wasp.sh/docs/features/data/operations/actions#cache-invalidation)).
 
-When a Query fails (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)), `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt. To change this, set `retry` in `options` for a single Query, or for all Queries with [configureQueryClient](#configurequeryclient).
+When a Query fails (see [Error Handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)), `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt. To change this, set `retry` in `options` for a single Query, or for all Queries with [CreateQueryClientFn](#createqueryclientfn).
 
 ##### Type Parameters
 
@@ -30806,7 +31018,7 @@ The payload you wish to pass into the Query.
 
 `any`
 
-A *react-query* `options` object. Use this to change [the default behavior](https://tanstack.com/query/v4/docs/framework/react/guides/important-defaults) for this particular Query. If you want to change the global defaults, use [configureQueryClient](#configurequeryclient).
+A *react-query* `options` object. Use this to change [the default behavior](https://tanstack.com/query/v4/docs/framework/react/guides/important-defaults) for this particular Query. If you want to change the global defaults, use [CreateQueryClientFn](#createqueryclientfn).
 
 ##### Returns
 
@@ -32290,7 +32502,7 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 
 The type of [prisma](#prisma).
 
-It's the type of the Prisma Client that Prisma generates from your Prisma schema (or, if you customize it with `db.prismaSetupFn`, the type of the client your function returns). It has one property per model, named after the model in camelCase (e.g. `prisma.task` for the `Task` model), plus Prisma's `$`-prefixed methods like `$transaction` and `$queryRaw`.
+It's the type of the Prisma Client that Prisma generates from your Prisma schema (or, if you customize it with `db.createPrismaClient`, the type of the client your function returns). It has one property per model, named after the model in camelCase (e.g. `prisma.task` for the `Task` model), plus Prisma's `$`-prefixed methods like `$transaction` and `$queryRaw`.
 
 Since it depends on your app's schema, this page only shows the minimal structure every Prisma Client has. See the [Prisma Client API reference](https://www.prisma.io/docs/orm/reference/prisma-client-reference) for the rest.
 

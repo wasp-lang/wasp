@@ -15,7 +15,7 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Db = Db
   { seeds :: Maybe [ExtImport],
-    prismaSetupFn :: Maybe ExtImport
+    createPrismaClient :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 

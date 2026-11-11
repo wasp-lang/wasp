@@ -869,6 +869,9 @@ describe("mapServer", () => {
     const result = AppSpecMapper.mapServer(server, ctx);
 
     expect(result).toStrictEqual({
+      instrumentation:
+        server.instrumentation &&
+        mapRefObjectForMockProjectDir(server.instrumentation),
       setupFn: server.setupFn && mapRefObjectForMockProjectDir(server.setupFn),
       middlewareConfigFn:
         server.middlewareConfigFn &&
@@ -895,10 +898,15 @@ describe("mapClient", () => {
     const result = AppSpecMapper.mapClient(client, ctx);
 
     expect(result).toStrictEqual({
+      instrumentation:
+        client.instrumentation &&
+        mapRefObjectForMockProjectDir(client.instrumentation),
       rootComponent:
         client.rootComponent &&
         mapRefObjectForMockProjectDir(client.rootComponent),
-      setupFn: client.setupFn && mapRefObjectForMockProjectDir(client.setupFn),
+      createQueryClient:
+        client.createQueryClient &&
+        mapRefObjectForMockProjectDir(client.createQueryClient),
       baseDir: client.baseDir,
       envValidationSchema:
         client.envValidationSchema &&
@@ -922,8 +930,9 @@ describe("mapDb", () => {
 
     expect(result).toStrictEqual({
       seeds: db.seeds?.map((seed) => mapRefObjectForMockProjectDir(seed)),
-      prismaSetupFn:
-        db.prismaSetupFn && mapRefObjectForMockProjectDir(db.prismaSetupFn),
+      createPrismaClient:
+        db.createPrismaClient &&
+        mapRefObjectForMockProjectDir(db.createPrismaClient),
     } satisfies AppSpec.Db);
   }
 });

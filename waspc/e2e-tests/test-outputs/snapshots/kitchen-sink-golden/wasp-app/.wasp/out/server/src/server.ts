@@ -1,68 +1,7 @@
-import http from 'http'
+import { serverInstrumentation } from "../../../../src/serverInstrumentation"
 
-import app from './app.js'
-import { config } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+// The instrumentation must run before any other server code, so we import the
+// rest of the server only after it finishes.
+await serverInstrumentation()
 
-import { serverSetup } from "../../../../src/serverSetup"
-import { ServerSetupFn } from 'wasp/server'
-import { ServerSetupFnContext } from 'wasp/server/types'
-
-import { init as initWebSocket } from './webSocket/initialization.js'
-
-const startServer = async () => {
-  // Importing these modules starts pg-boss and registers all the jobs with it.
-  // We import them dynamically so that it happens here, before the server
-  // setup and before it starts listening.
-  await import('wasp/server/jobs/core/pgBoss/pgBoss')
-  await import('./jobs/core/allJobs.js')
-
-  const port = normalizePort(config.port)
-  app.set('port', port)
-
-  const server = http.createServer(app)
-
-  const serverSetupFnContext: ServerSetupFnContext = { app, server }
-  await (serverSetup as ServerSetupFn)(serverSetupFnContext)
-
-  await initWebSocket(server)
-
-  server.listen(port)
-
-  server.on('error', (error: NodeJS.ErrnoException) => {
-    if (error.syscall !== 'listen') throw error
-    const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges')
-      process.exit(1)
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use')
-      process.exit(1)
-    default:
-      throw error
-    }
-  })
-
-  server.on('listening', () => {
-    const addr = server.address()
-    const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
-    console.log('Server listening on ' + bind)
-  })
-}
-
-startServer().catch((error: unknown) => {
-  reportUnexpectedServerError(error, { source: "startup" });
-  process.exit(1);
-});
-
-/**
- * Normalize a port into a number, string, or false.
- */
-function normalizePort (val) {
-  const port = parseInt(val, 10)
-  if (isNaN(port)) return val // named pipe
-  if (port >= 0) return port // port number
-  return false
-}
+await import('./startServer.js')

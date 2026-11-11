@@ -1,5 +1,17 @@
-import { QueryClient, type QueryClientConfig } from "@tanstack/react-query";
+import type { QueryClient, QueryClientConfig } from "@tanstack/react-query";
 import { WaspHttpError } from "../../WaspHttpError.js";
+
+/**
+ * A function that creates the app's `QueryClient`. You can pass it to the
+ * `client.createQueryClient` field of the app spec.
+ *
+ * @param waspDefaults Wasp's default `QueryClient` config. Pass it to the
+ * `QueryClient` constructor to keep Wasp's default behavior (e.g., not retrying
+ * queries that fail with a client error).
+ */
+export type CreateQueryClientFn = (
+  waspDefaults: QueryClientConfig,
+) => QueryClient;
 
 // Same as react-query's default.
 const MAX_QUERY_RETRIES = 3;
@@ -8,42 +20,11 @@ const MAX_QUERY_RETRIES = 3;
 // succeed on a later attempt, so we keep retrying them.
 const RETRYABLE_CLIENT_ERROR_STATUS_CODES = new Set([408, 429]);
 
-let queryClientConfig: QueryClientConfig | undefined,
-  resolveQueryClientInitialized: (...args: any[]) => any,
-  isQueryClientInitialized: boolean;
-
-export const queryClientInitialized: Promise<QueryClient> = new Promise(
-  (resolve) => {
-    resolveQueryClientInitialized = resolve;
-  },
-);
-
-export function configureQueryClient(config: QueryClientConfig): void {
-  if (isQueryClientInitialized) {
-    throw new Error(
-      "Attempted to configure the QueryClient after initialization",
-    );
-  }
-
-  queryClientConfig = config;
-}
-
-export function initializeQueryClient(): void {
-  const queryClient = new QueryClient(
-    withWaspQueryDefaults(queryClientConfig ?? {}),
-  );
-  isQueryClientInitialized = true;
-  resolveQueryClientInitialized(queryClient);
-}
-
-function withWaspQueryDefaults(config: QueryClientConfig): QueryClientConfig {
+export function getWaspQueryClientDefaults(): QueryClientConfig {
   return {
-    ...config,
     defaultOptions: {
-      ...config.defaultOptions,
       queries: {
         retry: shouldRetryQuery,
-        ...config.defaultOptions?.queries,
       },
     },
   };

@@ -166,9 +166,15 @@ export function mapServer(
   server: WaspSpec.Server,
   ctx: AppMapperContext,
 ): AppSpec.Server {
-  const { setupFn, middlewareConfigFn, envValidationSchema, traceDeps } =
-    server;
+  const {
+    instrumentation,
+    setupFn,
+    middlewareConfigFn,
+    envValidationSchema,
+    traceDeps,
+  } = server;
   return {
+    instrumentation: instrumentation && ctx.parseRefObject(instrumentation),
     setupFn: setupFn && ctx.parseRefObject(setupFn),
     middlewareConfigFn:
       middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
@@ -182,10 +188,18 @@ export function mapClient(
   client: WaspSpec.Client,
   ctx: AppMapperContext,
 ): AppSpec.Client {
-  const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
+  const {
+    instrumentation,
+    rootComponent,
+    createQueryClient,
+    baseDir,
+    envValidationSchema,
+  } = client;
   return {
+    instrumentation: instrumentation && ctx.parseRefObject(instrumentation),
     rootComponent: rootComponent && ctx.parseRefObject(rootComponent),
-    setupFn: setupFn && ctx.parseRefObject(setupFn),
+    createQueryClient:
+      createQueryClient && ctx.parseRefObject(createQueryClient),
     baseDir,
     envValidationSchema:
       envValidationSchema && ctx.parseRefObject(envValidationSchema),
@@ -193,10 +207,11 @@ export function mapClient(
 }
 
 export function mapDb(db: WaspSpec.Db, ctx: AppMapperContext): AppSpec.Db {
-  const { seeds, prismaSetupFn } = db;
+  const { seeds, createPrismaClient } = db;
   return {
     seeds: seeds?.map(ctx.parseRefObject),
-    prismaSetupFn: prismaSetupFn && ctx.parseRefObject(prismaSetupFn),
+    createPrismaClient:
+      createPrismaClient && ctx.parseRefObject(createPrismaClient),
   };
 }
 

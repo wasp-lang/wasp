@@ -4,14 +4,19 @@ test.describe("lazy loading routes", () => {
   test("eager page is loaded on unrelated pages", async ({ page }) => {
     await page.goto("/");
 
-    const eagerLoaded = await page.evaluate(
-      () => (window as any).__EAGER_PAGE_LOADED__,
-    );
-    expect(eagerLoaded).toBe(true);
+    // The client instrumentation delays loading the app until after the page's
+    // `load` event, so we wait for the eager page to load.
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__EAGER_PAGE_LOADED__))
+      .toBe(true);
   });
 
   test("lazy page is not loaded on unrelated pages", async ({ page }) => {
     await page.goto("/");
+    // Wait for the app to load, so the check below is meaningful.
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__EAGER_PAGE_LOADED__))
+      .toBe(true);
 
     const lazyLoaded = await page.evaluate(
       () => (window as any).__LAZY_PAGE_LOADED__,

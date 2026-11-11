@@ -93,7 +93,7 @@ explicitly typed (@: RegisteredType@, @as RegisteredType@, or
 form in the emitted declarations:
 
 > // Explicitly typed: emitted in its conditional form.
-> declare const dbClient: ReturnType<FromRegister<'prismaSetupFn', () => InternalPrismaClient>>;
+> declare const dbClient: ReturnType<FromRegister<'createPrismaClient', () => InternalPrismaClient>>;
 
 PR implementing the change: https://github.com/wasp-lang/wasp/pull/4049
 -}
@@ -111,7 +111,7 @@ genSdkTypeAugmentation spec =
         [ "serverEnvValidationSchema" .= extImportToImportJson (AS.App.server app >>= AS.App.Server.envValidationSchema),
           "clientEnvValidationSchema" .= extImportToImportJson (AS.App.client app >>= AS.App.Client.envValidationSchema),
           "webSocketFn" .= extImportToImportJson (AS.App.WS.fn <$> AS.App.webSocket app),
-          "prismaSetupFn" .= extImportToImportJson (AS.App.db app >>= AS.Db.prismaSetupFn),
+          "createPrismaClient" .= extImportToImportJson (AS.App.db app >>= AS.Db.createPrismaClient),
           "emailUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.email >>= AS.Auth.userSignupFieldsForEmailAuth),
           "passwordValidationSchema" .= extImportToImportJson (maybeAuth >>= AS.Auth.getPasswordValidationSchema),
           "usernameAndPasswordUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.usernameAndPassword >>= AS.Auth.userSignupFieldsForUsernameAuth),

@@ -74,9 +74,10 @@ export function handleApiError(error: unknown): unknown {
   }
 }
 
+import type { QueryClient } from "@tanstack/react-query";
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";
 
-export async function initSession(sessionId: string): Promise<void> {
+export function initSession(queryClient: QueryClient, sessionId: string): void {
   setSessionId(sessionId);
   // We need to invalidate queries after login in order to get the correct user
   // data in the React components (using `useAuth`).
@@ -85,5 +86,5 @@ export async function initSession(sessionId: string): Promise<void> {
   // TODO(filip): We are currently removing all the queries, but we should
   // remove only non-public, user-dependent queries - public queries are
   // expected not to change in respect to the currently logged in user.
-  await invalidateAndRemoveQueries();
+  invalidateAndRemoveQueries(queryClient);
 }

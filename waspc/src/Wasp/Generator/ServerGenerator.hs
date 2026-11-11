@@ -245,7 +245,8 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec
+      genServerTs spec,
+      genStartServerTs spec
     ]
     <++> genRoutesDir spec
     <++> genViewsDir spec
@@ -258,12 +259,29 @@ genSrcDir spec =
   where
     genFileCopy = return . C.mkSrcTmplFd
 
-genServerJs :: AppSpec -> Generator FileDraft
-genServerJs spec =
+genServerTs :: AppSpec -> Generator FileDraft
+genServerTs spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/server.ts|])
       (C.asServerFile [relfile|src/server.ts|])
+      ( Just $
+          object
+            [ "instrumentation" .= extImportToImportJson relPathToServerSrcDir maybeInstrumentation
+            ]
+      )
+  where
+    maybeInstrumentation = AS.App.Server.instrumentation =<< AS.App.server (getApp spec)
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
+
+genStartServerTs :: AppSpec -> Generator FileDraft
+genStartServerTs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/startServer.ts|])
+      (C.asServerFile [relfile|src/startServer.ts|])
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,

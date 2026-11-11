@@ -14,6 +14,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
+- Removed the client `setupFn` and `configureQueryClient`. Use the new `client.instrumentation` field for client setup code, and the new `client.createQueryClient` field to configure the query client. (FIXME PR LINK)
+- Renamed `db.prismaSetupFn` to `db.createPrismaClient`. (FIXME PR LINK)
 
 ### 🎉 New Features
 
@@ -23,6 +25,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
+- `server.instrumentation` and `client.instrumentation` run before any other server or client code loads, so you can set up tools like Sentry or OpenTelemetry before the code they observe. (FIXME PR LINK)
+- `client.createQueryClient` lets you create _react-query_'s `QueryClient` yourself, e.g. to set up its query cache. (FIXME PR LINK)
 
 ### 🐞 Bug fixes
 

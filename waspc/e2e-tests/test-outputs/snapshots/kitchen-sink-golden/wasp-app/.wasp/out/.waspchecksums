@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "f1fcccbe1c90eec56116281b7306a96bfb66778eec936956150be84aed0728b0"
+        "dcbb85341c11ae1b526d451ac021eac9522c40c2a92369d3eee4a236e3f00a64"
     ],
     [
         [
@@ -67,7 +67,7 @@
             "file",
             "sdk/wasp/auth/email/actions/login.ts"
         ],
-        "bd416e37d5457368a262476b9e6d5c4ac991fa753b47813dbfdc496c1794f024"
+        "52f9450a87184cffcd08ad61b8464566d8717a27e0391cb2036949b23fb59b8d"
     ],
     [
         [
@@ -235,7 +235,7 @@
             "file",
             "sdk/wasp/auth/logout.ts"
         ],
-        "b9c0944d3aa08cd071cf33e49275e5739416158b78c4a3515814f35667dec3eb"
+        "5cd3ef8a3dfd1d1d0d7748e987590f8491a2d6d3c9ef9b554caaa585a30f0a5f"
     ],
     [
         [
@@ -277,7 +277,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "3add5d6ad5a3290bb2a6ac13a463773e6a725fbc0383bd5c0cd4db5f8500662a"
+        "b1420d29b9ef1f21efebea2e0bc28c205844e9f04d6c2295e5062af453fd3025"
     ],
     [
         [
@@ -298,7 +298,7 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "eff479f145c13b35603968c2d9d2e0905c46accf38bfe28b81e1523e6ccc58d7"
+        "fa3cc797e40f9cd4865752520b1c2dc57ab2ff6a8343f1ba93a74c5caf41f61d"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "cbfa54fc151cb8357bc554dbb1c3b7bb50b1bd9cad5afa307373f3e6b1b600bf"
+        "d5466f7d3ca4391a21e9b88397f6b5089ee714d9e77be57184cd5dbe6b9f32fa"
     ],
     [
         [
@@ -438,7 +438,7 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "5f3a8475447ff24ffb2acbc74321658ce7fbad85be55689a7fb157e1673a2c01"
+        "d9dc94f3f5a9b37fb47e3ab611bfa524ead6fa6ccd6d2bcfc606ee62e25f1429"
     ],
     [
         [
@@ -460,6 +460,13 @@
             "sdk/wasp/client/operations/queries/index.ts"
         ],
         "e54ce3eb4d488b338fb30b10b15ca155abc3c90de29824f52bee95af47842753"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/operations/queryClient.ts"
+        ],
+        "0910927f85539acea046beedbea046ead1904655e09219a88409f660c4c2eb28"
     ],
     [
         [
@@ -501,14 +508,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
         ],
-        "004edfbc13d8a60497c2632392ff892a50805aab968b9ae061fe0026147fb738"
+        "aa4fef9971f542ea3c8e6dea0c81ac9c8f7b9bd377657f7fb71260fd6a3df023"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/virtualWaspModules.ts"
         ],
-        "c1372b2a51de73c5435f5104ce04ac7075be6d24024b346f52eace5b890c3df4"
+        "75bc5b9e02b7f6b60c32bd8c90f707ad8eeaa3401f30176722dc1fae570223e0"
     ],
     [
         [
@@ -527,16 +534,23 @@
     [
         [
             "file",
-            "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
+            "sdk/wasp/client/vite/virtual-files/files/client-app.tsx"
         ],
         "c1f5639079fdc9860463228e7a68b5a8b82db324cee5514eb5833a7226dbd343"
     ],
     [
         [
             "file",
+            "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
+        ],
+        "b0dbbad4f51bc4a17d100fb8698466b335f68323f854138812ae5634987d331a"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "19e69852a06e3c9d6478f3498c34709d500fd7735b9a3a1b9004e14f6ddd63d6"
+        "6ee085d1862f49f82973ef9f5893d614bfa09db7d7be9a12c04ff7fe3b287390"
     ],
     [
         [
@@ -550,7 +564,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/index.ts"
         ],
-        "9156d597969303910044a116be7ccdc43ad102be6bc3eac93b9c4d091c589c55"
+        "4ae1afad750744b76fed785112317b9494e1e2c0002759d3e6a4c2f8bd0d1cc5"
     ],
     [
         [
@@ -802,7 +816,7 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "51115709c0f33ba350f5e731bd72bea6f4e7dc3779c44122084fe46e3aa4eb94"
+        "3fa6237f697a4d24df257ba3d3bf116bb41228f26c9b51f6c1ba99b03466efda"
     ],
     [
         [
@@ -1054,7 +1068,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "1367db8497ccaff2fcd34dadc83f62e33f86d230737f184935e11d973ad90360"
+        "b8feae1071d62d8068e4e564e21c281e3cc7b30eed77540cfaf8eefadea240ae"
     ],
     [
         [
@@ -1845,6 +1859,13 @@
             "file",
             "server/src/server.ts"
         ],
+        "012433a60b35f9c4c421dfb8b17559742e8e84ca6f2a38ea9d747d2041e57716"
+    ],
+    [
+        [
+            "file",
+            "server/src/startServer.ts"
+        ],
         "46667a4bc2b157f15c9d40b6a77e6810b737b47a10c958fd825e4938720b0af9"
     ],
     [
@@ -1873,7 +1894,7 @@
             "file",
             "types/app/sdk/register.ts"
         ],
-        "eb75f504a70da99a13aa077b9708a2d53759382cbe13c1e8186ebb41a54d5ae4"
+        "d144fd5381a9f17af9540737165b70f934b4814ef850cf3cd039695fbd1f09b9"
     ],
     [
         [

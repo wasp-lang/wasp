@@ -2,21 +2,21 @@
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import type { FromRegister } from '../types/register'
-{=# prismaSetupFn.isDefined =}
-{=& prismaSetupFn.importStatement =}
-{=/ prismaSetupFn.isDefined =}
+{=# createPrismaClient.isDefined =}
+{=& createPrismaClient.importStatement =}
+{=/ createPrismaClient.isDefined =}
 
 // PUBLIC API
-export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
+export type PrismaClient = ReturnType<RegisteredCreatePrismaClient>;
 
-export type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
+export type RegisteredCreatePrismaClient = FromRegister<'createPrismaClient', () => InternalPrismaClient>;
 
-{=# prismaSetupFn.isDefined =}
-const dbClient: PrismaClient =  {= prismaSetupFn.importIdentifier =}();
-{=/ prismaSetupFn.isDefined =}
-{=^ prismaSetupFn.isDefined =}
+{=# createPrismaClient.isDefined =}
+const dbClient: PrismaClient =  {= createPrismaClient.importIdentifier =}();
+{=/ createPrismaClient.isDefined =}
+{=^ createPrismaClient.isDefined =}
 const dbClient: PrismaClient = new InternalPrismaClient();
-{=/ prismaSetupFn.isDefined =}
+{=/ createPrismaClient.isDefined =}
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
 export type PrismaClient = null;

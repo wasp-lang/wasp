@@ -1,6 +1,7 @@
 {{={= =}=}}
 import type { Plugin } from "vite";
 import {
+  getClientAppTsxContent,
   getClientEntryTsxContent,
   getRoutesTsxContent,
   getSsrEntryTsxContent,
@@ -9,6 +10,7 @@ import { makeVirtualFilesResolver, type VirtualFiles } from "@wasp/lib-sdk-core/
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
   { id: "{= clientEntryPointPath =}", load: getClientEntryTsxContent },
+  { id: "{= clientAppPath =}", load: getClientAppTsxContent },
   { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
   { id: "{= ssrEntryPointPath =}", load: getSsrEntryTsxContent },
 ]);
