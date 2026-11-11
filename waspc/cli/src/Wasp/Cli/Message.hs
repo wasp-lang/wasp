@@ -17,15 +17,24 @@ cliSendMessage (Msg.Success msg) = do
   check <- styleIfInteractive [Term.Green] "✔"
   waspSays $ check ++ " " ++ msg
 cliSendMessage (Msg.Failure title msg) = do
-  label <- styleIfInteractive [Term.Red, Term.Bold] "✖ Error:"
+  label <- messageLabel Term.Red "✖" "ERROR"
   waspScreams $ label ++ " " ++ withDetails title msg
 cliSendMessage (Msg.Warning title msg) = do
-  label <- styleIfInteractive [Term.Yellow, Term.Bold] "! Warning:"
+  label <- messageLabel Term.Yellow "!" "WARNING"
   waspWarns $ label ++ " " ++ withDetails title msg
 
 withDetails :: String -> String -> String
 withDetails title "" = title
 withDetails title details = title ++ "\n" ++ indent 2 details
+
+messageLabel :: Term.Style -> String -> String -> IO String
+messageLabel color symbol label =
+  Interactive.getInteractiveTerminal <&> \case
+    Just _ ->
+      Term.applyStyles [Term.Bold, color] symbol
+        ++ " "
+        ++ Term.applyStyles [Term.Bold, Term.Reverse, color] (" " ++ label ++ " ")
+    Nothing -> symbol ++ " " ++ label ++ ":"
 
 styleIfInteractive :: [Term.Style] -> String -> IO String
 styleIfInteractive styles text =

@@ -43,6 +43,7 @@ data Style
   | Bold
   | Underline
   | Blink
+  | Reverse
   deriving (Show, Eq)
 
 -- | Given a string, returns decorated string that when printed in terminal
@@ -75,6 +76,7 @@ getAnsiCodeFor WhiteBg = "[47m"
 getAnsiCodeFor Bold = "[1m"
 getAnsiCodeFor Underline = "[4m"
 getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
+getAnsiCodeFor Reverse = "[7m"
 
 ansiEscapeCode :: String
 ansiEscapeCode = "\ESC"
