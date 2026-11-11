@@ -6,7 +6,7 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode (..), exitFailure)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
@@ -20,6 +20,7 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
@@ -71,8 +72,8 @@ buildAndStartServerAndClient appSpec config = do
 
     runBuildStep :: String -> String -> String -> Job.Job ExitCode -> Command ()
     runBuildStep runningMessage successMessage failureMessage buildJob =
-      liftIO (runTaskWithStatusReport runningMessage successMessage failureMessage runBuildJob)
-        >>= either (throwError . CommandError failureMessage) return
+      liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage runBuildJob)
+        >>= either (const $ liftIO exitFailure) return
       where
         runBuildJob = do
           (exitCode, buildOutput) <- Job.run $ Job.captureOutput buildJob
