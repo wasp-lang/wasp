@@ -1,4 +1,4 @@
-#!/usr/bin/env npx tsx
+#!/usr/bin/env node
 
 /**
  * MDX Converter & Publisher
@@ -9,7 +9,7 @@
  * Chrome DevTools MCP (see SKILL.md).
  *
  * Usage:
- *   npx tsx convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]
+ *   node convert-mdx.mts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]
  *
  * Environment:
  *   DEVTO_API_KEY — required for --publish-devto and --update-devto
@@ -31,7 +31,7 @@ import { marked } from "marked";
 import { parseArgs } from "node:util";
 import { basename, dirname, resolve } from "path";
 import { parse as parseYaml } from "yaml";
-import { uploadVideo } from "./upload-youtube.js";
+import { uploadVideo } from "./upload-youtube.mts";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -128,7 +128,7 @@ function parseCli(argv: string[]) {
 
   if (!filePath) {
     console.error(
-      "Usage: npx tsx convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]",
+      "Usage: node convert-mdx.mts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]",
     );
     process.exit(1);
   }

@@ -1,17 +1,17 @@
 import { chalk, fs, spinner } from "zx";
 
-import type { Action } from "../../actions/actions";
+import type { Action } from "../../actions/actions.ts";
 import {
   applyPatchForAction,
   commitActionChanges,
   regeneratePatchForAction,
-} from "../../actions/git";
-import { initWaspAppWithGitRepo } from "../../actions/init";
-import { assertUnreachable } from "../../assert";
-import { mainBranchName } from "../../git";
-import { log } from "../../log";
-import type { TutorialApp } from "../../tutorialApp";
-import { waspDbMigrate, type WaspCliCommand } from "../../waspCli";
+} from "../../actions/git.ts";
+import { initWaspAppWithGitRepo } from "../../actions/init.ts";
+import { assertUnreachable } from "../../assert.ts";
+import { mainBranchName } from "../../git.ts";
+import { log } from "../../log.ts";
+import type { TutorialApp } from "../../tutorialApp.ts";
+import { waspDbMigrate, type WaspCliCommand } from "../../waspCli.ts";
 
 export async function executeActions({
   tutorialApp,

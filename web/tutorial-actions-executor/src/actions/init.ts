@@ -1,9 +1,13 @@
 import { fs } from "zx";
 
-import { initGitRepo } from "../git";
-import { log } from "../log";
-import { type AppDirPath, type AppName, type OutputDir } from "../tutorialApp";
-import { waspNew, type WaspCliCommand } from "../waspCli";
+import { initGitRepo } from "../git.ts";
+import { log } from "../log.ts";
+import {
+  type AppDirPath,
+  type AppName,
+  type OutputDir,
+} from "../tutorialApp.ts";
+import { waspNew, type WaspCliCommand } from "../waspCli.ts";
 
 export async function initWaspAppWithGitRepo({
   waspCliCommand,
