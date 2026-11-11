@@ -15,6 +15,7 @@ import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerific
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import qualified Wasp.AppSpec.App.Server as AS.Server
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
@@ -455,6 +456,26 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
 
+    describe "OpenAPI document route validation" $ do
+      let makeSpec openApi apiRoute =
+            basicAppSpec
+              { AS.decls =
+                  [ AS.Decl.makeDecl basicApp {AS.App.server = Just basicServer {AS.Server.openApi = openApi}},
+                    basicRouteDecl,
+                    makeBasicApiDecl "openApiApi" apiRoute
+                  ]
+              }
+
+      it "returns no error when OpenAPI is disabled and an api uses the OpenAPI path" $ do
+        ASV.validateAppSpec (makeSpec Nothing (AS.Api.GET, "/openapi.json")) `shouldBe` []
+      it "returns no error when OpenAPI is enabled and an api uses a non-GET method on the OpenAPI path" $ do
+        ASV.validateAppSpec (makeSpec (Just True) (AS.Api.POST, "/openapi.json")) `shouldBe` []
+      it "returns an error when OpenAPI is enabled and an api answers GET requests on the OpenAPI path" $ do
+        ASV.validateAppSpec (makeSpec (Just True) (AS.Api.ALL, "/openapi.json"))
+          `shouldBe` [ Valid.GenericValidationError
+                         "The api 'openApiApi' (ALL /openapi.json) conflicts with the OpenAPI document Wasp serves at that path when `app.server.openApi` is enabled. Move the api to a different path."
+                     ]
+
     describe "operation entities uniqueness validation" $ do
       let makeActionDeclWithEntities name entityNames =
             AS.Decl.makeDecl
@@ -659,6 +680,15 @@ spec_AppSpecValid = do
         }
 
     basicAppDecl = AS.Decl.makeDecl basicApp
+
+    basicServer =
+      AS.Server.Server
+        { AS.Server.setupFn = Nothing,
+          AS.Server.middlewareConfigFn = Nothing,
+          AS.Server.envValidationSchema = Nothing,
+          AS.Server.traceDeps = Nothing,
+          AS.Server.openApi = Nothing
+        }
 
     basicPage =
       AS.Page.Page

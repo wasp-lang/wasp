@@ -36,7 +36,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled, isOpenApiEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
@@ -62,6 +62,7 @@ import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
+import Wasp.Generator.ServerGenerator.OpenApiG (genOpenApi)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
@@ -91,6 +92,7 @@ genServer spec =
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genApis spec
+    <++> genOpenApi spec
     <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
@@ -300,6 +302,8 @@ genRoutesIndex spec =
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
+          "isOpenApiEnabled" .= isOpenApiEnabled spec,
+          "openApiDocumentPath" .= AS.App.Server.openApiDocumentPath,
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (app.name :: String)
         ]

@@ -4,6 +4,7 @@
 
 module Wasp.AppSpec.App.Server
   ( Server (..),
+    openApiDocumentPath,
   )
 where
 
@@ -16,6 +17,11 @@ data Server = Server
   { setupFn :: Maybe ExtImport,
     middlewareConfigFn :: Maybe ExtImport,
     envValidationSchema :: Maybe ExtImport,
-    traceDeps :: Maybe [String]
+    traceDeps :: Maybe [String],
+    openApi :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+-- | Path at which the server serves the OpenAPI document when `openApi` is enabled.
+openApiDocumentPath :: String
+openApiDocumentPath = "/openapi.json"

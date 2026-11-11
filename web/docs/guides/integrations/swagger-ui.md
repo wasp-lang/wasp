@@ -13,6 +13,10 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 This guide shows you how to add Swagger UI documentation to your Wasp APIs, making it easy to explore and test your endpoints.
 
+:::tip
+If you only need a list of your APIs' methods and paths, enable the built-in [OpenAPI document](../../features/apis.md#openapi-document) instead. This guide shows how to write a more detailed document by hand, with request and response schemas.
+:::
+
 ## Setting up Swagger UI
 
 ### 1. Install dependencies

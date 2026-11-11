@@ -10807,6 +10807,32 @@ We are returning the default middleware which enables CORS for all APIs under th
 
 For more information about middleware configuration, please see: [Middleware Configuration](https://wasp.sh/docs/advanced/server-customization/middleware)
 
+### OpenAPI Document
+
+Wasp can describe your APIs in an [OpenAPI](https://www.openapis.org/) document, which tools like Swagger UI, Postman, or client generators can read. Enable it in the `server` field of your app spec:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+
+export default app({
+  // ...
+  server: {
+    openApi: true,
+  },
+})
+```
+
+The server then serves the document at `/openapi.json` (e.g. `http://localhost:3001/openapi.json` in development). Wasp fills it in from your `api` declarations:
+
+- Each `api` becomes an operation with its method and path, using the `api`'s name as the `operationId`. An `api` with the `ALL` method appears once per HTTP method.
+- Path parameters such as `/tasks/:id` become `{id}` parameters. Optional parts such as `/tasks{/:id}` appear as a separate path for each combination.
+- An `api` that uses auth lists an optional `bearerAuth` security requirement, since the request can come with or without a logged-in user. Its token is the user's session ID.
+- The document's title is your app's `title`, its version is the `version` from your `package.json` (or `0.0.0` if it has none), and its server URL is the server's `WASP_SERVER_URL`.
+
+Wasp doesn't know the shape of your APIs' request and response bodies, so the document doesn't describe them.
+
+The document only covers `api` declarations. Operations, CRUD, and auth routes are not included.
+
 ### Using Entities in APIs
 
 In many cases, resources used in APIs will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your API, add it to the `api` spec in Wasp:
@@ -12691,6 +12717,12 @@ COPY src/data/ /app/src/data/
 The server's Docker image contains only the files Wasp finds by following the server's imports. If a package loads files in a non-standard way, for example static assets it serves from a folder, list it in `traceDeps` so Wasp copies those files too.
 
 Read more in the [deployment section](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image).
+
+### OpenAPI Document
+
+Set `openApi: true` to serve an OpenAPI document describing your app's `api` routes at `/openapi.json`.
+
+Read more in the [APIs section](https://wasp.sh/docs/features/apis#openapi-document).
 
 ### API Reference
 
@@ -22604,6 +22636,10 @@ This guide depends on external libraries or services, so it may become outdated 
 
 This guide shows you how to add Swagger UI documentation to your Wasp APIs, making it easy to explore and test your endpoints.
 
+:::tip
+If you only need a list of your APIs' methods and paths, enable the built-in [OpenAPI document](https://wasp.sh/docs/features/apis#openapi-document) instead. This guide shows how to write a more detailed document by hand, with request and response schemas.
+:::
+
 ### Setting up Swagger UI
 
 #### 1. Install dependencies
@@ -27291,6 +27327,24 @@ See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 Function that customizes the global Express middleware stack. Affects all operations and APIs.
 
 See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
+
+###### openApi?
+
+> `optional` **openApi?**: `boolean`
+
+Serves an [OpenAPI](https://www.openapis.org/) document describing the app's [api](#api-1) routes at `/openapi.json`.
+
+The document lists each api's method, path, path parameters, and whether it uses auth. Wasp doesn't know the shape of request and response bodies, so the document doesn't describe them.
+
+###### Default
+
+```ts
+false
+```
+
+###### See
+
+<https://wasp.sh/docs/features/apis#openapi-document>
 
 ###### setupFn?
 

@@ -1614,7 +1614,14 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "224192fffe14a33e29dd9c71767e484494c0faba11eda12f9cfca69a9d8568c5"
+        "503fe8bcb753160d351d0e12a19e63d3e18bd2ee0e0ea7dc7273531a433d3892"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/openapi.ts"
+        ],
+        "065a84a617bfd1ca1287b749def0ce61c4ff2738cb9044b9977629a99844fcf5"
     ],
     [
         [

@@ -169,6 +169,12 @@ The server's Docker image contains only the files Wasp finds by following the se
 
 Read more in the [deployment section](../../deployment/methods/overview#missing-files-in-the-docker-image).
 
+## OpenAPI Document
+
+Set `openApi: true` to serve an OpenAPI document describing your app's `api` routes at `/openapi.json`.
+
+Read more in the [APIs section](../../features/apis.md#openapi-document).
+
 ## API Reference
 
 <CardLink

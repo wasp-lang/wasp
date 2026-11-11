@@ -40,6 +40,7 @@ export default app({
     setupFn: serverSetup,
     middlewareConfigFn: serverMiddlewareFn,
     envValidationSchema: serverEnvValidationSchema,
+    openApi: true,
   },
   client: {
     rootComponent: App,

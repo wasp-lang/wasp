@@ -2331,6 +2331,24 @@ Function that customizes the global Express middleware stack. Affects all operat
 
 See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
 
+##### openApi?
+
+> `optional` **openApi?**: `boolean`
+
+Serves an [OpenAPI](https://www.openapis.org/) document describing the app's [api](#api-1) routes at `/openapi.json`.
+
+The document lists each api's method, path, path parameters, and whether it uses auth. Wasp doesn't know the shape of request and response bodies, so the document doesn't describe them.
+
+###### Default
+
+```ts
+false
+```
+
+###### See
+
+<https://wasp.sh/docs/features/apis#openapi-document>
+
 ##### setupFn?
 
 > `optional` **setupFn?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>

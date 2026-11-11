@@ -173,6 +173,33 @@ We are returning the default middleware which enables CORS for all APIs under th
 
 For more information about middleware configuration, please see: [Middleware Configuration](../advanced/server-customization/middleware)
 
+## OpenAPI Document
+
+Wasp can describe your APIs in an [OpenAPI](https://www.openapis.org/) document, which tools like Swagger UI, Postman, or client generators can read. Enable it in the `server` field of your app spec:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+
+export default app({
+  // ...
+  server: {
+    // highlight-next-line
+    openApi: true,
+  },
+})
+```
+
+The server then serves the document at `/openapi.json` (e.g. `http://localhost:3001/openapi.json` in development). Wasp fills it in from your `api` declarations:
+
+- Each `api` becomes an operation with its method and path, using the `api`'s name as the `operationId`. An `api` with the `ALL` method appears once per HTTP method.
+- Path parameters such as `/tasks/:id` become `{id}` parameters. Optional parts such as `/tasks{/:id}` appear as a separate path for each combination.
+- An `api` that uses auth lists an optional `bearerAuth` security requirement, since the request can come with or without a logged-in user. Its token is the user's session ID.
+- The document's title is your app's `title`, its version is the `version` from your `package.json` (or `0.0.0` if it has none), and its server URL is the server's `WASP_SERVER_URL`.
+
+Wasp doesn't know the shape of your APIs' request and response bodies, so the document doesn't describe them.
+
+The document only covers `api` declarations. Operations, CRUD, and auth routes are not included.
+
 ## Using Entities in APIs
 
 In many cases, resources used in APIs will be [Entities](./data/entities.md).

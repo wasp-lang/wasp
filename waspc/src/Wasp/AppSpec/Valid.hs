@@ -4,6 +4,7 @@ module Wasp.AppSpec.Valid
   ( validateAppSpec,
     getApp,
     isAuthEnabled,
+    isOpenApiEnabled,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -28,6 +29,8 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import Wasp.AppSpec.App.Server (openApiDocumentPath)
+import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declName))
@@ -70,6 +73,7 @@ validateAppSpec spec =
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
+          validateOpenApiRouteIsNotTakenByApi spec,
           validateCrudOperations spec,
           validateOperationEntitiesAreUnique spec,
           validateUniqueDeclarationNames spec,
@@ -217,6 +221,24 @@ validateApiRoutesAreUnique spec =
     routesHaveConflictingDefinitions :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Bool
     routesHaveConflictingDefinitions (lMethod, lPath) (rMethod, rPath) =
       lPath == rPath && (lMethod == rMethod || AS.Api.ALL `elem` [lMethod, rMethod])
+
+-- | Wasp serves the OpenAPI document before user-defined apis, so an api that
+-- answers GET requests on the same path would never be reached.
+validateOpenApiRouteIsNotTakenByApi :: AppSpec -> [ValidationError]
+validateOpenApiRouteIsNotTakenByApi spec =
+  [ GenericValidationError $
+      "The api '"
+        ++ AS.Api.name api
+        ++ "' ("
+        ++ show (AS.Api.method api)
+        ++ " "
+        ++ openApiDocumentPath
+        ++ ") conflicts with the OpenAPI document Wasp serves at that path when `app.server.openApi` is enabled. Move the api to a different path."
+  | isOpenApiEnabled spec,
+    api <- AS.getApis spec,
+    AS.Api.path api == openApiDocumentPath,
+    AS.Api.method api `elem` [AS.Api.GET, AS.Api.HEAD, AS.Api.ALL]
+  ]
 
 validateApiNamespacePathsAreUnique :: AppSpec -> [ValidationError]
 validateApiNamespacePathsAreUnique spec =
@@ -513,6 +535,10 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ getApp spec)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+isOpenApiEnabled :: AppSpec -> Bool
+isOpenApiEnabled spec = fromMaybe False $ App.server (getApp spec) >>= AS.App.Server.openApi
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

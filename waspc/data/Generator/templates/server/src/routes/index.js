@@ -8,6 +8,9 @@ import auth from './auth/index.js'
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
 {=/ areThereAnyCustomApiRoutes =}
+{=# isOpenApiEnabled =}
+import openApiDocument from './openapi.js'
+{=/ isOpenApiEnabled =}
 {=# areThereAnyCrudRoutes =}
 import { rootCrudRouter } from './crud/index.js'
 {=/ areThereAnyCrudRoutes =}
@@ -30,6 +33,11 @@ router.use('/{= crudRouteInRootRouter =}', middleware, rootCrudRouter)
 router.get('/{= upRouteInRootRouter =}', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
 })
+{=# isOpenApiEnabled =}
+router.get('{=& openApiDocumentPath =}', middleware, function (_req, res) {
+  res.status(200).json(openApiDocument)
+})
+{=/ isOpenApiEnabled =}
 
 {=# areThereAnyCustomApiRoutes =}
 // NOTE: Keep user-defined api routes last so they cannot override our routes.
