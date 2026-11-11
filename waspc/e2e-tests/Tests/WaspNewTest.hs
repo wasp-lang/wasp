@@ -73,7 +73,7 @@ waspNewTest =
             [ assertCommandOutputContainsAll
                 (withUnreachableNpmRegistry $ waspCliNew "wasp-app" minimalStarterTemplate)
                 [ "Dependencies failed to install",
-                  "Run " ++ styleCode "wasp install"
+                  styleCode "wasp install"
                 ],
               -- The project was created, so npm's output is not dumped on the user.
               assertCommandOutputDoesNotContain
