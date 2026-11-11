@@ -10,7 +10,7 @@ import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Show as Command.Show
 import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.Terminal (styleCode, styleLiteral)
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()
@@ -63,15 +63,15 @@ printBashCompletionInstruction =
       [ "Setting up Bash auto-completion for Wasp:",
         "",
         "1. Add the following line at the end of your shell configuration file:",
-        styleCode "     complete -o default -o nospace -C 'wasp completion:list' wasp",
+        styleLiteral "     complete -o default -o nospace -C 'wasp completion:list' wasp",
         "",
         "   Default shell configuration file locations:",
-        "   - Bash: " ++ styleCode "~/.bashrc",
-        "   - Zsh: " ++ styleCode "~/.zshrc",
+        "   - Bash: " ++ styleLiteral "~/.bashrc",
+        "   - Zsh: " ++ styleLiteral "~/.zshrc",
         "",
         "   Note for Zsh users: the " ++ styleCode "complete" ++ " builtin is provided by Bash, so you need",
         "   to enable Bash completion compatibility first by adding this line above it:",
-        styleCode "     autoload -Uz +X bashcompinit && bashcompinit",
+        styleLiteral "     autoload -Uz +X bashcompinit && bashcompinit",
         "   Frameworks like Oh My Zsh enable this by default, so you can skip this step.",
         "",
         "2. Save the file and restart your terminal.",
