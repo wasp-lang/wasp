@@ -24,9 +24,6 @@ runs:
       #   https://github.com/actions/toolkit/issues/634
       # - We install `zstd` so caches can use a better, faster compression
       #   method.
-      # - Since v25, Node.js's Linux binaries need `libatomic`, which bare
-      #   Ubuntu images lack:
-      #   https://github.com/nodejs/node/blob/main/BUILDING.md#official-binary-platforms-and-toolchains
       run: |
         tools="curl tar bash zstd"
 
@@ -41,7 +38,7 @@ runs:
           else
             export DEBIAN_FRONTEND=noninteractive
             apt-get update -y
-            apt-get install -y $tools libatomic1
+            apt-get install -y $tools
           fi
         fi
 
