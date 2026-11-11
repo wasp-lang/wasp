@@ -37,10 +37,8 @@ catalog:
 minimumReleaseAge: 10080
 
 # Install scripts we do not need: messages, or binaries that are optional
-# dependencies anyway. @heroui/shared-utils only swaps in a Next.js build when
-# Next.js is installed.
+# dependencies anyway.
 allowBuilds:
-  "@heroui/shared-utils": false
   "@swc/core": false
   core-js: false
   esbuild: false

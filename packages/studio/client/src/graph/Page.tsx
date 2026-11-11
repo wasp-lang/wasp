@@ -1,10 +1,11 @@
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, NodeProps, Position } from "@xyflow/react";
+import type { StudioNode } from "./factories";
 
 export const PageNode = ({
   data,
   isConnectable,
   targetPosition = Position.Right,
-}: NodeProps) => (
+}: NodeProps<StudioNode>) => (
   <div className="rounded-sm bg-sky-900 px-6 py-3 text-white">
     <Handle
       type="target"

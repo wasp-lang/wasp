@@ -2,10 +2,10 @@
 
 @source inline("{bg,text}-{pink,emerald}-{300,900}");
 
-/* Hero UI */
-@plugin "./hero.ts";
-@source "../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
-@custom-variant dark (&:is(.dark *));
+@theme {
+  --color-background: #000;
+  --color-foreground: #ecedee;
+}
 
 .flow-container {
   height: calc(100vh - 4rem);
