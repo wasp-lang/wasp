@@ -342,7 +342,6 @@ library
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.RunConfig
-    Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.Waspignore
@@ -503,7 +502,6 @@ library cli-lib
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
-    Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -746,7 +744,6 @@ test-suite waspc-e2e-tests
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
-    Tests.WaspStudioTest
     Tests.WaspTelemetryTest
     Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest

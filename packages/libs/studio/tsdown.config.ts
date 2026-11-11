@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: ["src/node.ts", "src/standalone.ts"],
+  entry: ["src/node.ts"],
   outDir: "dist",
   clean: true,
 

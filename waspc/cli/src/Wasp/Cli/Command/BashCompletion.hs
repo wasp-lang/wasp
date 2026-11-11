@@ -46,8 +46,7 @@ bashCompletion = do
         "telemetry",
         "deps",
         "dockerfile",
-        "show",
-        "studio"
+        "show"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
     showSubCommands = Command.Show.Subcommand.name <$> Command.Show.subcommands

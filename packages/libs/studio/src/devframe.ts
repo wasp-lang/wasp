@@ -1,7 +1,6 @@
 import { watch } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { defineDevframe } from "devframe";
 
@@ -32,7 +31,7 @@ export function createWaspStudioDevframe({ dataFile }: WaspStudioOptions) {
     homepage: pkg.homepage,
     description: pkg.description,
     icon: "ph:graph-duotone",
-    clientAssets: fileURLToPath(new URL("./client", import.meta.url)),
+    clientAssets: resolve(import.meta.dirname, "client"),
     async setup(ctx) {
       const studio = ctx.scope(STUDIO_ID);
       const dataFilePath = resolve(ctx.cwd, dataFile);

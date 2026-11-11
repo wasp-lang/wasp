@@ -81,8 +81,9 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
     content: (
       <>
         <p>
-          <InlineCode>wasp studio</InlineCode> shows a map of your app: its
-          pages, routes, operations, and entities.
+          Wasp Studio shows a map of your app: its pages, routes, operations,
+          and entities. Open it from the DevTools button at the bottom of your
+          app while <InlineCode>wasp start</InlineCode> is running.
         </p>
         <p>
           <InlineCode>wasp db studio</InlineCode> opens Prisma Studio, where you
@@ -95,10 +96,7 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
     media: (
       <CodeWindow
         title="terminal"
-        code={`# See how your app fits together
-$ wasp studio
-
-# Browse and edit your data
+        code={`# Browse and edit your data
 $ wasp db studio`}
       />
     ),

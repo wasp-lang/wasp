@@ -7,7 +7,7 @@ import { useStudioData } from "./studioData";
 const Flow = lazy(() => import("./Flow"));
 
 export default function App() {
-  const { data, isConnected } = useStudioData();
+  const { data, status } = useStudioData();
 
   return (
     <div className="h-full">
@@ -17,11 +17,16 @@ export default function App() {
             <Logo className="h-8 w-8" />
             <p className="ml-4 font-bold">{data?.app.name}</p>
           </div>
-          <div className="w-35 p-2 text-sm">
-            {isConnected ? (
+          <div className="p-2 text-sm">
+            {status === "connected" ? (
               <span className="flex items-center">
                 Connected
                 <span className="ml-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
+              </span>
+            ) : status === "unauthorized" ? (
+              <span className="flex items-center">
+                Open the link printed in your terminal
+                <span className="ml-2 inline-block h-2 w-2 rounded-full bg-red-500"></span>
               </span>
             ) : (
               <span className="flex items-center">

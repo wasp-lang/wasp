@@ -24,7 +24,6 @@ import ShellCommands
     waspCliShowSpec,
     waspCliStart,
     waspCliStartDb,
-    waspCliStudio,
     waspCliTelemetry,
     waspCliVersion,
   )
@@ -50,7 +49,6 @@ waspSpecAvailableTest =
                       waspCliShowSpec,
                       waspCliDeps,
                       waspCliDockerfile,
-                      waspCliStudio,
                       waspCliDbReset,
                       waspCliDeploy ["fly", "setup"],
                       waspCliStartDb,

@@ -141,6 +141,8 @@ Wasp now requires Vite 8.3. Update the `vite` version in your `package.json`:
   </TabItem>
 </Tabs>
 
+The `wasp studio` command is gone. Wasp Studio is now a panel in [Vite DevTools](./advanced/client-customization/custom-vite-config.md#vite-devtools) during `wasp start`, which you can optionally enable.
+
 ### 5. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.

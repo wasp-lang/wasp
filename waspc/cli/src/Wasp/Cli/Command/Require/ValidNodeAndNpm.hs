@@ -11,7 +11,7 @@ import qualified Wasp.Node.Version as NodeVersion
 
 -- | Require that the Node.js and npm installed on the user's machine meet
 -- Wasp's version requirements. Any command that runs Node.js (compilation,
--- running the generated app, npm install, Prisma, the deploy/studio packages,
+-- running the generated app, npm install, Prisma, the deploy package,
 -- ...) should require this so the user gets a clear error early on.
 data ValidNodeAndNpm = ValidNodeAndNpm deriving (Typeable)
 

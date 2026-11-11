@@ -12521,11 +12521,29 @@ export default defineConfig({
 
 ### Vite DevTools and Wasp Studio {#vite-devtools}
 
-During `wasp start`, the `wasp()` plugin adds [Vite DevTools](https://devtools.vite.dev/) to your app. Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal.
+[Vite DevTools](https://devtools.vite.dev/) adds a panel to your app during `wasp start`. New Wasp projects enable it with the `devtools` option, and `waspDevTools()` brands it as Wasp DevTools. To enable it in an existing project, install the `@vitejs/devtools` package:
 
-Wasp Studio is one of its panels. It draws your app as a graph of pages, routes, operations, APIs, jobs, and entities, and it updates as you change your Wasp config. You can also open it on its own with [`wasp studio`](https://wasp.sh/docs/advanced/cli#project-commands).
+```bash
+npm install -D @vitejs/devtools
+```
 
-Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). Don't set the `devtools` option in your Vite config, since `wasp()` already enables Vite DevTools.
+And set the option in your Vite config:
+
+```ts title="vite.config.ts"
+import { wasp, waspDevTools } from "wasp/client/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  devtools: waspDevTools(),
+  plugins: [wasp()],
+});
+```
+
+Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal.
+
+Wasp Studio is one of its panels. It draws your app as a graph of pages, routes, operations, APIs, jobs, and entities, and it updates as you change your Wasp config.
+
+Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
 
 ### Examples
 
@@ -12973,7 +12991,6 @@ COMMANDS
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
     show build [--json]   Prints information about your app's current build.
-    studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
 
 EXAMPLES
@@ -13077,7 +13094,6 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 - `wasp deps` lists the dependencies that Wasp uses in your project.
 - `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
 - `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
-- `wasp studio` shows you a graphical overview of your application in a graph: pages, queries, actions, data model etc. It is also a panel in [Vite DevTools](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#vite-devtools) while `wasp start` runs.
 
 #### Database Commands
 
@@ -14965,6 +14981,8 @@ Wasp now requires Vite 8.3. Update the `vite` version in your `package.json`:
   }
 }
 ```
+
+The `wasp studio` command is gone. Wasp Studio is now a panel in [Vite DevTools](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#vite-devtools) during `wasp start`, which you can optionally enable.
 
 #### 5. Update your Vitest setup
 

@@ -29,6 +29,10 @@
                     "version": "^19.2.3"
                 },
                 {
+                    "name": "@vitejs/devtools",
+                    "version": "^0.8.2"
+                },
+                {
                     "name": "@wasp/spec",
                     "version": "file:.wasp/spec/"
                 },

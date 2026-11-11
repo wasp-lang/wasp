@@ -93,11 +93,30 @@ export default defineConfig({
 
 ## Vite DevTools and Wasp Studio {#vite-devtools}
 
-During `wasp start`, the `wasp()` plugin adds [Vite DevTools](https://devtools.vite.dev/) to your app. Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal.
+[Vite DevTools](https://devtools.vite.dev/) adds a panel to your app during `wasp start`. New Wasp projects enable it with the `devtools` option, and `waspDevTools()` brands it as Wasp DevTools. To enable it in an existing project, install the `@vitejs/devtools` package:
 
-Wasp Studio is one of its panels. It draws your app as a graph of pages, routes, operations, APIs, jobs, and entities, and it updates as you change your Wasp config. You can also open it on its own with [`wasp studio`](../cli.md#project-commands).
+```bash
+npm install -D @vitejs/devtools
+```
 
-Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). Don't set the `devtools` option in your Vite config, since `wasp()` already enables Vite DevTools.
+And set the option in your Vite config:
+
+```ts title="vite.config.ts" auto-js
+import { wasp, waspDevTools } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  // highlight-next-line
+  devtools: waspDevTools(),
+  plugins: [wasp()],
+})
+```
+
+Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal.
+
+Wasp Studio is one of its panels. It draws your app as a graph of pages, routes, operations, APIs, jobs, and entities, and it updates as you change your Wasp config.
+
+Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
 
 ## Examples
 

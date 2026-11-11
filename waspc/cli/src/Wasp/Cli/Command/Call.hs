@@ -18,7 +18,6 @@ data Call
   | Dockerfile
   | Show Arguments
   | News
-  | Studio
   | PrintBashCompletionInstruction
   | BashCompletionListCommands
   | Deploy Arguments -- deploy cmd passthrough args

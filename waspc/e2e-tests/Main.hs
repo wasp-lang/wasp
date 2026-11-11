@@ -117,7 +117,6 @@ e2eTests = do
         waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,
-        -- FIXME: waspStudioTest,
         -- Wasp project db commands
         waspDbStartTest,
         -- FIXME: waspDbStudioTest,

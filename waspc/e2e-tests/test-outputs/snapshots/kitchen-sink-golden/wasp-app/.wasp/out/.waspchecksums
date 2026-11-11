@@ -53,7 +53,7 @@
             "file",
             "libs/studio/wasp-lib-studio-0.27.0.tgz"
         ],
-        "58a361c1c3bf8104bf8b16ca300d8f141c111b04a92f17ffa305bbb64b2d1269"
+        "67d0d847f412bf59f373217b93871b8b9bf92d3ac11b31c6ca9e69ffc6578548"
     ],
     [
         [
@@ -506,9 +506,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/vite/devtools.ts"
+        ],
+        "179f607948ecd039ed1e4e2a85372c2615fbf7650d6997607710e99cb14eb43d"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/index.ts"
         ],
-        "798863095032767223d0d0e9a08572c4208093fad41f7f50c189929e7d744476"
+        "bc32732bbc416122366173df8bafe5760a80c8a409b9a9d66b96a0f5976d05ee"
     ],
     [
         [
