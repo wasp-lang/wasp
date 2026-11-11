@@ -2,7 +2,7 @@ import { confirm } from "@inquirer/prompts";
 import parseGitDiff from "parse-git-diff";
 import { fs } from "zx";
 
-import { askToOpenTutorialAppInEditor } from "../editor";
+import { askToOpenTutorialAppInEditor } from "../editor.ts";
 import {
   applyPatch,
   commitAllChanges,
@@ -10,10 +10,10 @@ import {
   findCommitSHAForExactMessage,
   generatePatchFromAllChanges,
   generatePatchFromRevision,
-} from "../git";
-import { log } from "../log";
-import type { AppDirPath } from "../tutorialApp";
-import type { Action, ApplyPatchAction } from "./actions";
+} from "../git.ts";
+import { log } from "../log.ts";
+import type { AppDirPath } from "../tutorialApp.ts";
+import type { Action, ApplyPatchAction } from "./actions.ts";
 
 export function commitActionChanges({
   appDir,

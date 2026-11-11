@@ -5,10 +5,10 @@ import type {
   ActionId,
   MdxFilePath,
   PatchFilePath,
-} from "../../src/actions/actions";
-import type { TutorialActionNode } from "../../src/extract-actions/astTraversal";
-import { mapTutorialActionNodeToAction } from "../../src/extract-actions/nodeMapping";
-import type { PatchesDirPath } from "../../src/tutorialApp";
+} from "../../src/actions/actions.ts";
+import type { TutorialActionNode } from "../../src/extract-actions/astTraversal.ts";
+import { mapTutorialActionNodeToAction } from "../../src/extract-actions/nodeMapping.ts";
+import type { PatchesDirPath } from "../../src/tutorialApp.ts";
 
 describe("mapTutorialActionNodeToAction", () => {
   const testContext = {

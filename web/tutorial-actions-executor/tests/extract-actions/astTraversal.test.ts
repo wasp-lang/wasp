@@ -2,14 +2,14 @@ import type { Root } from "mdast";
 import type { MdxJsxAttribute, MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 import { describe, expect, it } from "vitest";
 
-import type { ActionId } from "../../src/actions/actions";
+import type { ActionId } from "../../src/actions/actions.ts";
 import {
   createTutorialActionNode,
   extractTutorialActionNodes,
   getAttributeValue,
   TUTORIAL_ACTION_NODE_NAME,
   type TutorialActionNode,
-} from "../../src/extract-actions/astTraversal";
+} from "../../src/extract-actions/astTraversal.ts";
 
 describe("getAttributeValue", () => {
   it("should return correct value when attributes exist", () => {

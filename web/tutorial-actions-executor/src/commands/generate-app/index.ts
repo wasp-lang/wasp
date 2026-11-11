@@ -1,11 +1,11 @@
-import type { Action } from "../../actions/actions";
-import { getActionsFromTutorialFiles } from "../../extract-actions";
-import { log } from "../../log";
-import { createTutorialApp, type TutorialApp } from "../../tutorialApp";
-import type { WaspCliCommand } from "../../waspCli";
-import { waspCliCommandOption } from "../commonOptions";
-import { createTacteCommand } from "../tacteCommand";
-import { executeActions } from "./execute-actions";
+import type { Action } from "../../actions/actions.ts";
+import { getActionsFromTutorialFiles } from "../../extract-actions/index.ts";
+import { log } from "../../log.ts";
+import { createTutorialApp, type TutorialApp } from "../../tutorialApp.ts";
+import type { WaspCliCommand } from "../../waspCli.ts";
+import { waspCliCommandOption } from "../commonOptions.ts";
+import { createTacteCommand } from "../tacteCommand.ts";
+import { executeActions } from "./execute-actions.ts";
 
 export const generateAppCommand = createTacteCommand("generate-app")
   .description("Generate a new Wasp app based on the tutorial actions")

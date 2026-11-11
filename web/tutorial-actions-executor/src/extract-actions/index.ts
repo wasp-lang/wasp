@@ -1,7 +1,7 @@
-import type { Action } from "../actions/actions.js";
-import type { TutorialApp } from "../tutorialApp.js";
-import { getTutorialFilePaths } from "./fileOperations.js";
-import { getActionsFromMdxFile } from "./mdxParsing.js";
+import type { Action } from "../actions/actions.ts";
+import type { TutorialApp } from "../tutorialApp.ts";
+import { getTutorialFilePaths } from "./fileOperations.ts";
+import { getActionsFromMdxFile } from "./mdxParsing.ts";
 
 export async function getActionsFromTutorialFiles(
   tutorialApp: TutorialApp,

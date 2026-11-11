@@ -24,7 +24,6 @@ catalog:
   "@types/node": ^24.0.1
   vitest: ^5.0.5
   "@vitest/coverage-v8": ^5.0.5
-  tsx: ^4.20.6
   zx: ^8.8.5
   commander: ^14.0.2
   execa: ^9.6.1

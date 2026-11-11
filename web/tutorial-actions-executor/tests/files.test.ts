@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getFileNameWithoutExtension } from "../src/files";
+import { getFileNameWithoutExtension } from "../src/files.ts";
 
 describe("getFileNameWithoutExtension", () => {
   testGettingFileNameWithoutExtension("test.txt", "test");

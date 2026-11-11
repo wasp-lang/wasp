@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { assertValidPatch } from "../../src/actions/git";
+import { assertValidPatch } from "../../src/actions/git.ts";
 import {
   additionPatch,
   binaryPatch,
@@ -8,7 +8,7 @@ import {
   multiFilePatch,
   noFilesPatch,
   singleFilePatch,
-} from "./git.fixtures";
+} from "./git.fixtures.ts";
 
 describe("assertValidPatch", () => {
   expectValidPatchNotToThrow(singleFilePatch);
