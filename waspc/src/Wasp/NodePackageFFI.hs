@@ -52,7 +52,6 @@ import qualified Wasp.Util.IO as IOUtil
 -- their global installation path.
 data RunnablePackage
   = DeployPackage
-  | WaspStudioPackage
 
 -- | These are globally installed packages waspc copies into a location inside
 -- the user's project and then installs using `npm`'s file specifiers. They are
@@ -71,7 +70,6 @@ packagesDirInDataDir = [reldir|packages|]
 runnablePackageDirInPackagesDir :: RunnablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
 runnablePackageDirInPackagesDir = \case
   DeployPackage -> [reldir|deploy|]
-  WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
 installablePackageDirInPackagesDir = \case

@@ -12519,6 +12519,14 @@ export default defineConfig({
 });
 ```
 
+### Vite DevTools and Wasp Studio {#vite-devtools}
+
+During `wasp start`, the `wasp()` plugin adds [Vite DevTools](https://devtools.vite.dev/) to your app. Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal.
+
+Wasp Studio is one of its panels. It draws your app as a graph of pages, routes, operations, APIs, jobs, and entities, and it updates as you change your Wasp config. You can also open it on its own with [`wasp studio`](https://wasp.sh/docs/advanced/cli#project-commands).
+
+Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). Don't set the `devtools` option in your Vite config, since `wasp()` already enables Vite DevTools.
+
 ### Examples
 
 Below are some examples of how you can customize the Vite config.
@@ -13069,7 +13077,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 - `wasp deps` lists the dependencies that Wasp uses in your project.
 - `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
 - `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
-- `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
+- `wasp studio` shows you a graphical overview of your application in a graph: pages, queries, actions, data model etc. It is also a panel in [Vite DevTools](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#vite-devtools) while `wasp start` runs.
 
 #### Database Commands
 

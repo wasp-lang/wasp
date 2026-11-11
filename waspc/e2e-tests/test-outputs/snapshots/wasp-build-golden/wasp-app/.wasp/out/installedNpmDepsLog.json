@@ -107,6 +107,10 @@
                 "version": "file:../../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
             },
             {
+                "name": "@wasp/lib-studio",
+                "version": "file:../../libs/studio/wasp-lib-studio-0.27.0.tgz"
+            },
+            {
                 "name": "@wasp/lib-test-utils",
                 "version": "file:../../libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
             },
@@ -157,6 +161,10 @@
             {
                 "name": "@wasp/lib-sdk-core",
                 "version": "file:../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
+            },
+            {
+                "name": "@wasp/lib-studio",
+                "version": "file:../libs/studio/wasp-lib-studio-0.27.0.tgz"
             },
             {
                 "name": "@wasp/lib-test-utils",

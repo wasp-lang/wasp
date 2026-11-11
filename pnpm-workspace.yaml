@@ -6,8 +6,6 @@ packages:
   - packages/cli
   - packages/deploy
   - packages/spec
-  - packages/studio
-  - packages/studio/client
   - packages/libs/*
   - packages/wasp-app-runner
   - web

@@ -1,0 +1,28 @@
+{
+    "apis": [],
+    "app": {
+        "auth": null,
+        "db": {
+            "system": "PostgreSQL"
+        },
+        "name": "waspApp"
+    },
+    "entities": [],
+    "jobs": [],
+    "operations": [],
+    "pages": [
+        {
+            "authRequired": null,
+            "name": "MainPage"
+        }
+    ],
+    "routes": [
+        {
+            "name": "RootRoute",
+            "path": "/",
+            "toPage": {
+                "name": "MainPage"
+            }
+        }
+    ]
+}

@@ -15,5 +15,4 @@ waspc/data/Generator/libs/
 pnpm-lock.yaml
 coverage/
 web/docs/api/
-packages/studio/public/
 web/tutorial-actions-executor/e2e-tests/.result/

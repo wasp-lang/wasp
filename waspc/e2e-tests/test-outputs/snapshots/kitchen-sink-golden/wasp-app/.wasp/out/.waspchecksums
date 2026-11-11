@@ -9,6 +9,13 @@
     [
         [
             "file",
+            ".wasp-studio-data.json"
+        ],
+        "87c89470bf33aea5e32df52d0fb72efa26eed01e30b463ebdbda85ebb89e1a86"
+    ],
+    [
+        [
+            "file",
             "Dockerfile"
         ],
         "77981e6f2802e0ba706d2f8fc0cacbb310159f270ade35f5dc1be9ebb9c85dd1"
@@ -40,6 +47,13 @@
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
         "c3ebe93a4d344129352768e257fc281bbd2b429a5fa2873c8543775c83cb5607"
+    ],
+    [
+        [
+            "file",
+            "libs/studio/wasp-lib-studio-0.27.0.tgz"
+        ],
+        "8cb5e4c5d7d45a4bcecd1d93a41f2b756a69707e5e7815e465f2db3200f8343c"
     ],
     [
         [
@@ -515,7 +529,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "7eacf3d5f7243d6427137debe4b87c99d2acdbfb6d291d904d2560aae0c4e031"
+        "f537a1fb34f390cf6d3dede331721e8336c921a814173529445883453963a46f"
     ],
     [
         [
@@ -599,7 +613,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "e6644f686c3c6e21ed701ec87fcfc0583e7a3f57c1257176c868295eed394096"
+        "9edc6b4793ea1400622841eaf137f9d6372ab7ba805274d5da7dc1dd3eadfa24"
     ],
     [
         [
@@ -1089,7 +1103,7 @@
             "file",
             "server/package.json"
         ],
-        "30a3413a9b7a08f6277b723b462f3e967b6e59e5230c4b1c11efe32a4c68814a"
+        "c31706348f58b0553971e43294e389b6e2d4d1edc0aae9600872dc50ba3b3a48"
     ],
     [
         [

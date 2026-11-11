@@ -12,6 +12,7 @@ waspLibs =
     -- `package.json` files of the libs in the <repo>/packages/libs directory.
     WaspLib.makeWaspLib "@wasp/lib-auth" [reldir|auth|],
     WaspLib.makeWaspLib "@wasp/lib-sdk-core" [reldir|sdk-core|],
+    WaspLib.makeWaspLib "@wasp/lib-studio" [reldir|studio|],
     WaspLib.makeWaspLib "@wasp/lib-test-utils" [reldir|test-utils|],
     WaspLib.makeWaspLib "@wasp/lib-vite-ssr" [reldir|vite-ssr|]
   ]
