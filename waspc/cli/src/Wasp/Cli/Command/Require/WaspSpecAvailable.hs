@@ -15,7 +15,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.Terminal (styleCode, styleLiteral)
 import qualified Wasp.Version as WV
 
 -- | Require that the @wasp/spec package is available in node_modules and that
@@ -42,15 +42,15 @@ instance Requirable WaspSpecAvailable where
         CommandError
           "Outdated Wasp spec package"
           $ "Wasp's spec package is now called "
-            ++ styleCode "@wasp/spec"
+            ++ styleLiteral "@wasp/spec"
             ++ ". In your "
-            ++ styleCode "package.json"
+            ++ styleLiteral "package.json"
             ++ ", rename the "
-            ++ styleCode legacyWaspSpecPackageName
+            ++ styleLiteral legacyWaspSpecPackageName
             ++ " dependency to "
-            ++ styleCode "@wasp/spec"
+            ++ styleLiteral "@wasp/spec"
             ++ " and update your imports from "
-            ++ styleCode legacyWaspSpecPackageName
+            ++ styleLiteral legacyWaspSpecPackageName
             ++ ". Then run "
             ++ styleCode "wasp install"
             ++ "."
