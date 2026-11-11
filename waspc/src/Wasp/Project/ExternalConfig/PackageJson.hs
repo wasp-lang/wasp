@@ -24,6 +24,7 @@ import Wasp.Project.Common
     findFileInWaspProjectDir,
     userPackageJsonInWaspProjectDir,
   )
+import Wasp.Util.Terminal (styleLiteral)
 import qualified Wasp.Validator as WaspV
 
 parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> TsConfigPaths -> IO (Validation [CompileError] PackageJson)
@@ -35,7 +36,7 @@ parseAndValidateUserPackageJson waspDir tsConfigPaths = fmap eitherToValidation 
     errors -> liftEither $ Left errors
   where
     userPackageJsonFileOrError = maybeToEither fileNotFoundMessage <$> findUserPackageJsonFile waspDir
-    fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspDir ++ " directory"
+    fileNotFoundMessage = "Couldn't find the " ++ styleLiteral "package.json" ++ " file in the " ++ styleLiteral (toFilePath waspDir) ++ " directory"
 
 findUserPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File UserPackageJsonFile)))
 findUserPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir userPackageJsonInWaspProjectDir

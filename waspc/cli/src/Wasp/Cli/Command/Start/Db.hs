@@ -37,6 +37,7 @@ import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (checkExitSuccess)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Docker as Docker
+import Wasp.Util.Terminal (styleCode, styleLiteral)
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
@@ -103,7 +104,7 @@ throwIfCustomDbAlreadyInUse spec = do
       when (isJust dbUrl) $
         throwCustomDbAlreadyInUseError
           ( "Wasp has detected existing "
-              <> databaseUrlEnvVarName
+              <> styleLiteral databaseUrlEnvVarName
               <> " var in your environment.\n"
               <> "To have Wasp run the dev database for you, make sure you remove that env var first."
           )
@@ -116,8 +117,8 @@ throwIfCustomDbAlreadyInUse spec = do
               ( "Wasp has detected that you have defined %s env var in your %s file.\n"
                   <> "To have Wasp run the dev database for you, make sure you remove that env var first."
               )
-              databaseUrlEnvVarName
-              (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
+              (styleLiteral databaseUrlEnvVarName)
+              (styleLiteral $ fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
           )
       where
         isThereDbUrlInServerDotEnv = any ((== databaseUrlEnvVarName) . fst) . AS.devEnvVarsServer
@@ -130,7 +131,7 @@ startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumb
 startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath = do
   throwIfExeIsNotAvailable
     "docker"
-    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+    $ "To run PostgreSQL dev database, Wasp needs " ++ styleCode "docker" ++ " installed and in PATH."
   throwIfDockerDaemonIsNotReachable
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
@@ -157,13 +158,13 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
         requestedDbPort
         defaultPostgresPort
         []
-        "Choose a different port with --db-port, or free up this one."
-        "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
+        ("Choose a different port with " ++ styleCode "--db-port" ++ ", or free up this one.")
+        ("Free at least one of those ports by exiting the program listening on it, or choose the port yourself with " ++ styleCode "--db-port" ++ ".")
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do
       cliSendMessageC . Msg.Info . unlines $
-        ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
+        ("Your PostgreSQL dev database is already running on port " ++ styleLiteral (show devDbSpec.port) ++ ".")
           : additionalInfoLines devDbSpec
       liftIO exitFailure
 
@@ -184,10 +185,10 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
       [ "",
         "Additional info:",
         " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> Dev.Postgres.getDevConnectionUrl devDbSpec,
+        "     " <> styleLiteral (Dev.Postgres.getDevConnectionUrl devDbSpec),
         " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
-        "     " <> devDbSpec.dockerVolumeName
+        "     " <> styleLiteral devDbSpec.dockerVolumeName
       ]
 
     -- These lines describe what `docker run` is about to use, so we print them
@@ -196,6 +197,6 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
     -- invocation's arguments.
     dockerRunInfoLines :: [String]
     dockerRunInfoLines =
-      [ " ℹ Using Docker image: " <> dbDockerImage,
-        "   with the data volume mounted at: " <> dbDockerVolumeMountPath
+      [ " ℹ Using Docker image: " <> styleLiteral dbDockerImage,
+        "   with the data volume mounted at: " <> styleLiteral dbDockerVolumeMountPath
       ]

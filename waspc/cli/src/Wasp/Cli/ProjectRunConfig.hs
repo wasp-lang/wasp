@@ -16,6 +16,7 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Project.RunConfig (ProjectRunConfig (..), makeLocalUrl)
 import Wasp.Util.Network.URI (showUri)
+import Wasp.Util.Terminal (styleLiteral)
 
 defaultDevClientPort :: PortNumber
 defaultDevClientPort = 3000
@@ -62,8 +63,8 @@ showRunConfigUrls appSpec config =
         [ " ℹ ",
           name,
           ": ",
-          showUrl url,
-          if url /= localUrl then " (local: " ++ showUrl localUrl ++ ")" else ""
+          styleLiteral (showUrl url),
+          if url /= localUrl then " (local: " ++ styleLiteral (showUrl localUrl) ++ ")" else ""
         ]
 
     -- The server and client URLs have different expectations for trailing
