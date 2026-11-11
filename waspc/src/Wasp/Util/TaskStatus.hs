@@ -3,17 +3,17 @@ module Wasp.Util.TaskStatus
   )
 where
 
+import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Interactive as Interactive
-import qualified Wasp.Util.Terminal as Term
 
-runTaskWithStatusReport :: String -> String -> String -> IO (Either e a) -> IO (Either e a)
-runTaskWithStatusReport spinnerMessage successMessage failureMessage task = do
+runTaskWithStatusReport :: Msg.SendMessage -> String -> String -> String -> IO (Either String a) -> IO (Either String a)
+runTaskWithStatusReport sendMessage spinnerMessage successMessage failureMessage task = do
   interactiveTerminal <- Interactive.getInteractiveTerminal
   taskResult <- case interactiveTerminal of
     Just terminal -> Interactive.runTaskWithSpinner terminal spinnerMessage task
-    Nothing -> putStrLn ("▶ " ++ spinnerMessage) >> task
+    Nothing -> sendMessage (Msg.Start spinnerMessage) >> task
 
-  putStrLn $ case taskResult of
-    Right _ -> Term.applyStyles [Term.Green] "✔" ++ " " ++ successMessage
-    Left _ -> Term.applyStyles [Term.Red] "▲ error" ++ " " ++ failureMessage
+  sendMessage $ case taskResult of
+    Right _ -> Msg.Success successMessage
+    Left errorMessage -> Msg.Failure failureMessage errorMessage
   return taskResult

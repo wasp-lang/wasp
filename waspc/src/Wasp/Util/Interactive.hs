@@ -211,7 +211,7 @@ runTaskWithSpinner terminal spinnerMessage action =
   where
     spinStatusLine = forever $
       forM_ spinnerFrames $ \frame -> do
-        putStrFlush terminal $ clearLine ++ frame ++ " " ++ spinnerMessage
+        putStrFlush terminal $ clearLine ++ Term.applyStyles [Term.Yellow] frame ++ " " ++ spinnerMessage
         threadDelay $ millisecondsToMicroSeconds 80
 
     spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
