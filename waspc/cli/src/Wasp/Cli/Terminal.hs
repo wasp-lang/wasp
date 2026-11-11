@@ -1,8 +1,6 @@
 module Wasp.Cli.Terminal
   ( title,
     asWaspMessage,
-    asWaspStartMessage,
-    asWaspSuccessMessage,
     asWaspFailureMessage,
     asWaspWarningMessage,
   )
@@ -15,12 +13,6 @@ title = Term.applyStyles [Term.Bold]
 
 asWaspMessage :: String -> String
 asWaspMessage = waspMessageWithEmoji ""
-
-asWaspStartMessage :: String -> String
-asWaspStartMessage = waspMessageWithEmoji "🐝"
-
-asWaspSuccessMessage :: String -> String
-asWaspSuccessMessage = waspMessageWithEmoji "✅"
 
 asWaspWarningMessage :: String -> String
 asWaspWarningMessage str = concat ["\n", waspMessageWithEmoji "👀" errorStr, "\n"]
