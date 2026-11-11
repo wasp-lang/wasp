@@ -30,15 +30,15 @@
     "start": "node ./dist/index.js"
   },
   "dependencies": {
-    "commander": "^14.0.0",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
+    "commander": "^15.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
     "morgan": "^1.12.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
+    "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "catalog:",
     "typescript": "^6.0.3"

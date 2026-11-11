@@ -1,18 +1,18 @@
 import {
+  Background,
+  Edge,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
+} from "@xyflow/react";
+import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useState,
 } from "react";
-import ReactFlow, {
-  Background,
-  Edge,
-  Node,
-  useEdgesState,
-  useNodesState,
-  useReactFlow,
-} from "reactflow";
 import { Data } from "./types";
 
 import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
@@ -34,11 +34,12 @@ import {
   createPageNode,
   createQueryNode,
   createRouteNode,
+  type StudioNode,
 } from "./graph/factories";
 
 const elk = new ELK();
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+const getLayoutedElements = (nodes: StudioNode[], edges: Edge[]) => {
   const graph = {
     id: "root",
     // Elk has a *huge* amount of options to configure. To see everything you can
@@ -61,7 +62,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
       // "elk.hierarchyHandling": "INCLUDE_CHILDREN",
       "elk.layered.crossingMinimization.semiInteractive": true,
     },
-    children: nodes.map((node: Node) => ({
+    children: nodes.map((node: StudioNode) => ({
       ...node,
       width: getNodeWidth(node),
       height: getNodeHeight(node),
@@ -78,7 +79,10 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
           return null;
         }
         return {
-          nodes: layoutedGraph.children.map((node) => ({
+          // React Flow treats `width` and `height` as fixed node dimensions,
+          // so we drop ELK's estimates and let nodes size to their content.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          nodes: layoutedGraph.children.map(({ width, height, ...node }) => ({
             ...node,
             position: { x: node.x, y: node.y },
           })),
@@ -92,10 +96,10 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 
 export default function Flow({ data }: { data: Data }) {
   // NOTE: This is not used. But it might be useful in the future.
-  const [selectedNode] = useState<Node | null>(null);
+  const [selectedNode] = useState<StudioNode | null>(null);
 
-  const [nodes, setNodes] = useNodesState([]);
-  const [edges, setEdges] = useEdgesState([]);
+  const [nodes, setNodes] = useNodesState<StudioNode>([]);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
   const { fitView } = useReactFlow();
   const nodeTypes = useMemo(
     () => ({
@@ -112,7 +116,7 @@ export default function Flow({ data }: { data: Data }) {
   );
 
   const onLayout = useCallback(() => {
-    const initialNodes: Node[] = [
+    const initialNodes: StudioNode[] = [
       // ASSUMPTION: The names are of everything is unique.
       createAppNode(
         generateId(data.app.name, "app"),
@@ -234,7 +238,7 @@ export default function Flow({ data }: { data: Data }) {
         return;
       }
       // Hack
-      setNodes(layoutedNodes as Node[]);
+      setNodes(layoutedNodes as StudioNode[]);
       // Hack
       setEdges(layoutedEdges as unknown as Edge[]);
 
@@ -262,7 +266,7 @@ export default function Flow({ data }: { data: Data }) {
       <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
         <Background
           style={{
-            backgroundColor: `hsl(var(--heroui-background)`,
+            backgroundColor: `var(--color-background)`,
           }}
           color={`#444`}
         />
@@ -271,7 +275,7 @@ export default function Flow({ data }: { data: Data }) {
   );
 }
 
-function getNodeHeight(node: Node) {
+function getNodeHeight(node: StudioNode) {
   if (node.type === "apiNode") {
     return 100;
   }
@@ -285,7 +289,7 @@ function getNodeHeight(node: Node) {
   return 50;
 }
 
-function getNodeWidth(node: Node) {
+function getNodeWidth(node: StudioNode) {
   const textCandidates = [
     node.data?.label,
     node.data?.name,
@@ -306,7 +310,7 @@ function generateId(name: string, type: string): string {
   return `${type}:${name}`;
 }
 
-function getAuthMethods(node: Node) {
+function getAuthMethods(node: StudioNode) {
   if (node.type !== "appNode") {
     return [];
   }

@@ -1,6 +1,5 @@
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
+import "@xyflow/react/dist/style.css";
 import { lazy, Suspense } from "react";
-import "reactflow/dist/style.css";
 
 import { Logo } from "./Logo";
 import { useSocket } from "./socket";
@@ -12,29 +11,27 @@ export default function App() {
 
   return (
     <div className="h-full">
-      <Navbar position="static">
-        <NavbarBrand>
-          <Logo className="h-8 w-8" />
-          <p className="ml-4 font-bold text-inherit">{data?.app.name}</p>
-        </NavbarBrand>
-        <NavbarContent justify="end">
-          <NavbarItem>
-            <div className="w-35 p-2 text-sm">
-              {isConnected ? (
-                <span className="flex items-center">
-                  Connected
-                  <span className="ml-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
-                </span>
-              ) : (
-                <span className="flex items-center">
-                  Connecting
-                  <span className="ml-2 inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
-                </span>
-              )}
-            </div>
-          </NavbarItem>
-        </NavbarContent>
-      </Navbar>
+      <nav className="flex w-full items-center justify-center">
+        <header className="flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-6">
+          <div className="flex items-center">
+            <Logo className="h-8 w-8" />
+            <p className="ml-4 font-bold">{data?.app.name}</p>
+          </div>
+          <div className="w-35 p-2 text-sm">
+            {isConnected ? (
+              <span className="flex items-center">
+                Connected
+                <span className="ml-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
+              </span>
+            ) : (
+              <span className="flex items-center">
+                Connecting
+                <span className="ml-2 inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
+              </span>
+            )}
+          </div>
+        </header>
+      </nav>
       <div className="flow-container">
         <Suspense fallback={<Loading />}>
           {data ? <Flow data={data} /> : <Loading />}
