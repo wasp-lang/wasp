@@ -1,5 +1,6 @@
 module Wasp.Util.Terminal
   ( Style (..),
+    styleLiteral,
     styleCode,
     applyStyles,
     getAnsiCodeFor,
@@ -11,10 +12,13 @@ where
 
 import Data.List (foldl')
 
--- | Applies the Wasp CLI standardized code styling to a string.
+styleLiteral :: String -> String
+styleLiteral "" = ""
+styleLiteral str = ansiEscapeCode ++ getAnsiCodeFor Yellow ++ str ++ ansiEscapeCode ++ ansiResetForegroundCode
+
 styleCode :: String -> String
 styleCode "" = ""
-styleCode str = ansiEscapeCode ++ getAnsiCodeFor Bold ++ str ++ ansiEscapeCode ++ ansiResetBoldDimCode
+styleCode code = styleLiteral $ "`" ++ code ++ "`"
 
 -- | Applies the Wasp CLI standardized text styling to a string. Currently, this
 -- is a no-op, but it exists for future-proofing. And to make consecutive calls
@@ -84,5 +88,5 @@ ansiEscapeCode = "\ESC"
 ansiResetAllCode :: String
 ansiResetAllCode = "[0m"
 
-ansiResetBoldDimCode :: String
-ansiResetBoldDimCode = "[22m"
+ansiResetForegroundCode :: String
+ansiResetForegroundCode = "[39m"
