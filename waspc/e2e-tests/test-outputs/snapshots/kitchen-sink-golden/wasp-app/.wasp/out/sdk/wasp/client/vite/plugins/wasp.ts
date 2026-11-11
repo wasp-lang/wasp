@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import {
   detectServerImports,
   envFile,
+  serverErrors,
   typescriptCheck,
   validateEnv,
   type WaspPluginOptions,
@@ -26,6 +27,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     virtualWaspModules(),
     envFile(".env.client"),
     detectServerImports("src/"),
+    serverErrors(),
     /**
      * Plugins running after core Vite plugins.
      */

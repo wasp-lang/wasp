@@ -51,6 +51,9 @@ export function waspConfig(): PluginOption {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
+          // Show the browser's errors and warnings in the terminal. Vite only
+          // turns this on by default when it detects a coding agent.
+          forwardConsole: useUserValue(config.server?.forwardConsole, true),
         },
         preview: {
           port: forcedOptions["preview.port"],

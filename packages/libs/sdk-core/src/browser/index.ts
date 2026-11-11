@@ -1,3 +1,4 @@
+export { logServerErrorsInConsole } from "../devServerErrors/browser.js";
 export { DefaultRootErrorBoundary } from "./app/DefaultRootErrorBoundary.js";
 export { FullPageWrapper } from "./app/FullPageWrapper.js";
 export { Loader } from "./app/Loader.js";

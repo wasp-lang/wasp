@@ -10,6 +10,7 @@ export {
   sanitizeAndSerializeProviderData,
 } from "./auth/utils.js";
 
+export { sendServerErrorToDevClient } from "../devServerErrors/node.js";
 export { ensurePasswordIsHashed } from "./auth/utils.js";
 export { formatFromField } from "./email/formatFromField.js";
 export {

@@ -29,7 +29,7 @@ async function main() {
 main()
   .then(async () => { await prisma.$disconnect() })
   .catch(async (error: unknown) => {
-    reportUnexpectedServerError(error, { source: "dbSeed" });
+    await reportUnexpectedServerError(error, { source: "dbSeed" });
     await prisma.$disconnect()
     process.exit(1)
   })

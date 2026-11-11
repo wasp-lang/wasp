@@ -41,8 +41,8 @@ const startServer = async () => {
   })
 }
 
-startServer().catch((error: unknown) => {
-  reportUnexpectedServerError(error, { source: "startup" });
+startServer().catch(async (error: unknown) => {
+  await reportUnexpectedServerError(error, { source: "startup" });
   process.exit(1);
 });
 

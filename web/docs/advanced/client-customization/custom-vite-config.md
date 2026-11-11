@@ -111,6 +111,22 @@ export default defineConfig({
 })
 ```
 
+### Browser Console in the Terminal {#forward-console}
+
+During `wasp start`, uncaught errors and `console.error`/`console.warn` calls from the browser show up in your terminal. Errors from the Wasp server also show up in the browser console. You can choose which browser messages reach the terminal with Vite's [`server.forwardConsole`](https://vite.dev/config/server-options#server-forwardconsole) option, or turn it off:
+
+```ts title="vite.config.ts" auto-js
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [wasp()],
+  server: {
+    forwardConsole: false,
+  },
+})
+```
+
 ### Custom Dev Server Port {#custom-dev-server-port}
 
 `wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.

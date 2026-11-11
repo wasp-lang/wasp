@@ -4,7 +4,7 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
-import { WaspApp } from "wasp/client/app";
+import { WaspApp, logServerErrorsInConsole } from "wasp/client/app";
 
 import { routeObjects } from "/@wasp/routes.tsx"
 
@@ -30,6 +30,8 @@ const fullAppTree = (
     </WaspApp>
   </Layout>
 )
+
+logServerErrorsInConsole()
 
 startTransition(() => {
   hydrateRoot(document, fullAppTree);
