@@ -26,6 +26,7 @@ import Wasp.Project.WaspFile.TypeScript (analyzeWaspTsFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.StrongPath (findAllFilesWithSuffix)
+import Wasp.Util.Terminal (styleLiteral)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs (File WaspTsFile)))
 findWaspFile projectDir =
@@ -35,11 +36,17 @@ findWaspFile projectDir =
       (False, Just waspTsFile) -> Right waspTsFile
       (False, Nothing) -> Left fileNotFoundMessage
   where
-    fileNotFoundMessage = "Couldn't find the `main.wasp.ts` file in the project directory."
+    fileNotFoundMessage = "Couldn't find the " ++ styleLiteral "main.wasp.ts" ++ " file in the project directory."
     dslNoLongerSupportedMessage =
-      "Defining your app with the Wasp DSL (`main.wasp`) is no longer supported. "
-        ++ "Please define your app in TypeScript using Wasp Spec (`main.wasp.ts`). "
-        ++ "See https://wasp.sh/docs/features/spec for more details."
+      "Defining your app with the Wasp DSL ("
+        ++ styleLiteral "main.wasp"
+        ++ ") is no longer supported. "
+        ++ "Please define your app in TypeScript using Wasp Spec ("
+        ++ styleLiteral "main.wasp.ts"
+        ++ "). "
+        ++ "See "
+        ++ styleLiteral "https://wasp.sh/docs/features/spec"
+        ++ " for more details."
 
 hasWaspLangFile :: Path' Abs (Dir WaspProjectDir) -> IO Bool
 hasWaspLangFile projectDir = do

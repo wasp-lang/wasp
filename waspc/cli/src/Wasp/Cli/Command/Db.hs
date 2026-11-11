@@ -20,6 +20,7 @@ import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConn
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Util.Terminal (styleCode)
 
 -- | Prepares what a db command needs before it runs: a compile,
 --   post-compile setup, and a reachable database. Gives the command the
@@ -55,5 +56,7 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
       CommandError
         "Can not connect to database"
         ( "The database needs to be running in order to execute this command."
-            ++ " You can easily start a managed dev database with `wasp start db`."
+            ++ " You can easily start a managed dev database with "
+            ++ styleCode "wasp start db"
+            ++ "."
         )
