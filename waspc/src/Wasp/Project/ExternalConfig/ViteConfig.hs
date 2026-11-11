@@ -16,6 +16,7 @@ import Wasp.Project.Common
     WaspProjectDir,
   )
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Terminal (styleLiteral)
 
 validateViteConfig :: Path' Abs (Dir WaspProjectDir) -> IO (Validation [CompileError] ())
 validateViteConfig waspDir =
@@ -47,8 +48,8 @@ validateViteConfig waspDir =
     fileNotFoundMessage =
       (`Msg.Entry` []) . T.unpack $
         [trimming|
-          Couldn't find `vite.config.ts` (or `vite.config.js`) in the project directory.
-          Wasp requires a Vite config file with the `wasp` plugin configured.
+          Couldn't find ${viteConfigTsFile} (or ${viteConfigJsFile}) in the project directory.
+          Wasp requires a Vite config file with the ${waspPluginName} plugin configured.
           Read more: ${viteConfigDocsUrl}
         |]
 
@@ -56,13 +57,17 @@ validateViteConfig waspDir =
     missingPluginImportMessage =
       (`Msg.Entry` []) . T.unpack $
         [trimming|
-          Your Vite config file doesn't seem to import the Wasp Vite plugin from "${waspPluginImportModule}".
-          The `wasp` plugin is required for Wasp to work correctly.
+          Your Vite config file doesn't seem to import the Wasp Vite plugin from ${styledWaspPluginImportModule}.
+          The ${waspPluginName} plugin is required for Wasp to work correctly.
           Read more: ${viteConfigDocsUrl}
         |]
 
     waspPluginImportModule :: T.Text
     waspPluginImportModule = "wasp/client/vite"
 
-    viteConfigDocsUrl :: T.Text
-    viteConfigDocsUrl = "https://wasp.sh/docs/advanced/client-customization/custom-vite-config#required-configuration"
+    viteConfigTsFile, viteConfigJsFile, waspPluginName, styledWaspPluginImportModule, viteConfigDocsUrl :: T.Text
+    viteConfigTsFile = T.pack $ styleLiteral "vite.config.ts"
+    viteConfigJsFile = T.pack $ styleLiteral "vite.config.js"
+    waspPluginName = T.pack $ styleLiteral "wasp"
+    styledWaspPluginImportModule = T.pack $ styleLiteral $ T.unpack waspPluginImportModule
+    viteConfigDocsUrl = T.pack $ styleLiteral "https://wasp.sh/docs/advanced/client-customization/custom-vite-config#required-configuration"

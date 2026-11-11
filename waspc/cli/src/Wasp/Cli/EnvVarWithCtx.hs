@@ -22,6 +22,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
 import Wasp.Cli.Util.PathArgument (getFilePath)
 import Wasp.Env (EnvVar, EnvVarName, addEnvVarsUnique, parseDotEnvFile)
+import Wasp.Util.Terminal (styleLiteral)
 
 type EnvVarWithCtx = (EnvVarCtx, EnvVar)
 
@@ -47,7 +48,7 @@ readEnvironment =
 
 showEnvVarWithCtx :: EnvVarWithCtx -> String
 showEnvVarWithCtx (EnvVarCtx {sourceDescription}, (envVarName, _)) =
-  envVarName ++ " (received from " ++ sourceDescription ++ ")"
+  styleLiteral envVarName ++ " (received from " ++ sourceDescription ++ ")"
 
 addEnvVarsUniqueC :: [EnvVarWithCtx] -> [EnvVar] -> Command [EnvVar]
 addEnvVarsUniqueC incomingEnvVarSources existing =

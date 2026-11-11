@@ -18,6 +18,7 @@ import Wasp.Cli.Command.Telemetry.Common (ensureTelemetryCacheDirExists)
 import qualified Wasp.Cli.Command.Telemetry.Project as TlmProject
 import qualified Wasp.Cli.Command.Telemetry.User as TlmUser
 import qualified Wasp.Message as Msg
+import Wasp.Util.Terminal (styleLiteral)
 
 isTelemetryDisabled :: IO Bool
 isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
@@ -46,7 +47,7 @@ telemetry = do
         for_ maybeTimeOfLastSendAttempt $ \timeOfLastSendAttempt -> do
           cliSendMessageC $ Msg.Info $ "Last time we attempted to send telemetry data for this project: " ++ show timeOfLastSendAttempt
 
-  cliSendMessageC $ Msg.Info "Our telemetry is anonymized and very limited in its scope: check https://wasp.sh/docs/telemetry for more details."
+  cliSendMessageC $ Msg.Info $ "Our telemetry is anonymized and very limited in its scope: check " ++ styleLiteral "https://wasp.sh/docs/telemetry" ++ " for more details."
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.

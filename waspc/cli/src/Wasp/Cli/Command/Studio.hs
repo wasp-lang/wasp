@@ -35,6 +35,7 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import qualified Wasp.Project.Studio
+import Wasp.Util.Terminal (styleLiteral)
 
 studio :: Command ()
 studio = do
@@ -142,7 +143,7 @@ studio = do
       "\n"
       [ "✨ Starting Wasp Studio ✨",
         "",
-        "➜ Open in your browser: http://localhost:4000",
+        "➜ Open in your browser: " ++ styleLiteral "http://localhost:4000",
         "",
         "Wasp Studio visualises your app and lets you understand how different parts of your app are connected."
       ]
