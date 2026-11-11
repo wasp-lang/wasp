@@ -25,7 +25,7 @@
     "build": "pnpm run build:client && pnpm run remove:dist && tsc && pnpm run copy:public",
     "build:client": "pnpm --dir ./client run copy",
     "copy:public": "node -e \"require('fs').cpSync('./public', './dist/public', { recursive: true });\"",
-    "dev": "tsx --watch ./src/index.ts",
+    "dev": "node --watch ./src/index.ts",
     "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\"",
     "start": "node ./dist/index.js"
   },
@@ -41,7 +41,6 @@
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "catalog:",
-    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   }
 }
