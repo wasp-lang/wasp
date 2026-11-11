@@ -204,7 +204,6 @@ makeJobMessagePrefix output =
     (jobName, jobStyles) = getJobNameAndStyles $ _outputJobType output
 
     getJobNameAndStyles = \case
-      J.Wasp -> ("Wasp", [Term.Yellow])
       J.Server -> ("Server", [Term.Magenta])
       J.WebApp -> ("Client", [Term.Cyan])
       J.Db -> ("Db", [Term.Blue])

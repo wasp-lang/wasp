@@ -103,7 +103,6 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   -- strips executable permissions from data files.
   runExitCode <-
     Job.run
-      $ Job.prefixWith Job.Wasp
       $ Job.fromProc
       $ Job.addEnvVarsOverride
         [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
