@@ -25,7 +25,7 @@ copy_env_server_example_if_needed() {
 }
 
 test_example() {
-  cd "$REPOSITORY_ROOT/$1" && copy_env_server_example_if_needed && "$WASP_CLI_CMD" install && npm run test
+  cd "$REPOSITORY_ROOT/$1" && copy_env_server_example_if_needed && node "$REPOSITORY_ROOT/tasks/reinstall-dev-wasp-app-deps.ts" && npm run test
 }
 
 for path in "${paths[@]}"; do

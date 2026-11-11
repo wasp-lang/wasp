@@ -6,11 +6,16 @@
     ".wasp/out/sdk/wasp"
   ],
   "scripts": {
+    "build": "wasp build",
+    "dev": "wasp start",
+    "preview": "wasp build start",
     "test": "npm run test:e2e",
     "test:e2e": "npm run test:e2e:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
-    "test:e2e:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}"
+    "test:e2e:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}",
+    "wasp": "wasp"
   },
   "dependencies": {
+    "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
     "ky": "^2.0.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
@@ -21,10 +26,16 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@wasp/spec": "file:.wasp/spec",
     "@wasp/wasp-app-runner": "^0.0.19",
     "prisma": "6.19.3",
     "typescript": "6.0.3",
     "vite": "^8.1.0"
-  }
+  },
+  "overrides": {
+    "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
+    "@wasp/deploy": "file:../../waspc/.dev-packages/wasp-deploy-0.27.0.tgz",
+    "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
+    "@wasp/studio": "file:../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
+  },
+  "//": "TODO(#2262): Depends on the unreleased Wasp in this repo through `file:` tarballs. Install with `mise run build:dev-packages` and then `mise run reinstall-dev-wasp-app-deps`, since plain `npm install` fails on the tarballs' stale lockfile entries. Switch to a plain version once the examples join the pnpm workspace."
 }

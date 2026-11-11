@@ -74,7 +74,12 @@ jobs:
 
       - name: Install app dependencies
         working-directory: ${{ matrix.app-dir }}
-        run: wasp install
+        env:
+          WASP_VERSION: ${{ inputs.version }}
+        # TODO(#2262): Remove once the examples join the pnpm workspace.
+        # The examples depend on the dev Wasp tarballs from this repo (see
+        # their package.json). We deploy with the released version instead.
+        run: mise run switch-dev-to-released-wasp-packages "$WASP_VERSION"
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}
@@ -130,7 +135,12 @@ jobs:
 
       - name: Install app dependencies
         working-directory: examples/ask-the-documents
-        run: wasp install
+        env:
+          WASP_VERSION: ${{ inputs.version }}
+        # TODO(#2262): Remove once the examples join the pnpm workspace.
+        # The examples depend on the dev Wasp tarballs from this repo (see
+        # their package.json). We deploy with the released version instead.
+        run: mise run switch-dev-to-released-wasp-packages "$WASP_VERSION"
 
       - name: Deploy to Railway
         working-directory: examples/ask-the-documents

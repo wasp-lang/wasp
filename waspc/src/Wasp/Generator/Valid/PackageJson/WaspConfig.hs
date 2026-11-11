@@ -4,7 +4,8 @@ import Data.Foldable (traverse_)
 import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getAllWaspDependencies)
+import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getGeneratedServerDeps)
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import qualified Wasp.Validator as V
 
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
@@ -22,14 +23,14 @@ overriddenDepsValidator spec =
     $ forEachDep getValidationForDep
   where
     overridableDeps :: M.Map P.PackageName P.PackageVersion
-    overridableDeps = getAllWaspDependencies spec
+    overridableDeps = getGeneratedServerDeps spec
 
     getValidationForDep (depName, actualVersion) =
       overridenVersionValidator
         (depName `M.lookup` overridableDeps)
         actualVersion
 
-    overridenVersionValidator Nothing _ = unrecognizedDepError
+    overridenVersionValidator Nothing _ = notOverridableDepError
     overridenVersionValidator (Just expectedVersion) actualVersion
       | actualVersion == expectedVersion = V.success
       | otherwise = incorrectDepVersionError expectedVersion actualVersion
@@ -42,9 +43,11 @@ overriddenDepsValidator spec =
           ++ actualVersion
           ++ "."
 
-    unrecognizedDepError =
-      V.failure
-        "Wasp doesn't require this dependency, so there's no need to override it."
+    notOverridableDepError =
+      V.failure $
+        "`wasp.overriddenDeps` only takes the dependencies of the generated server, which `wasp deps` lists. For a package that comes with "
+          ++ waspNpmPackageName
+          ++ ", use npm's `overrides` field in package.json instead."
 
 forEachDep :: V.Validator DependencySpecification -> V.Validator P.DependenciesMap
 forEachDep depValidator depMap =

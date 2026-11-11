@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Shadcn
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Shadcn: new Date("2026-05-28") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Shadcn: new Date("2026-11-04") }} />
 
 ## Setting up Shadcn in a Wasp project
 
@@ -47,9 +47,7 @@ Add a top-level `compilerOptions` block to your `tsconfig.json`:
 
 Go into your project directory and run:
 
-```bash
-npx shadcn@latest init -b radix -p luma
-```
+<PackageManagerCommand npm="npx shadcn@latest init -b radix -p luma" />
 
 This initializes Shadcn with the Radix component library and the Luma preset. You should see output like this:
 
@@ -114,13 +112,11 @@ In this example, we'll add the `Button` component.
 
 We'll add a button component with:
 
-```bash
-npx shadcn@latest add button
-```
+<PackageManagerCommand npm="npx shadcn@latest add button" />
 
-### 2. Adjust the `utils` import
+### 2. Adjust the `utils` import, if needed
 
-You'll notice that you now have a brand new `button.tsx` file in `src/components/ui`. We need to fix some import issues:
+You'll notice that you now have a brand new `button.tsx` file in `src/components/ui`. Recent versions of Shadcn import `cn` from the `cn` package, which works as is. If your component imports from `@/lib/utils` instead, change it to a relative path:
 
 ```diff title="src/components/ui/button.tsx"
  import * as React from "react"

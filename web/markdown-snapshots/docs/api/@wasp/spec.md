@@ -10,7 +10,6 @@ import { app } from "@wasp/spec";
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.26" },
   title: "ToDo App",
   spec: [],
 });
@@ -52,7 +51,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.24.0" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [],
@@ -130,14 +128,6 @@ Build entries with the dedicated constructors ([page](#page-2), [route](#route-1
 App title.
 
 Used as the browser tab title.
-
-##### wasp
-
-> **wasp**: [`Wasp`](#wasp-1)
-
-Wasp metadata.
-
-This will get checked against the Wasp CLI.
 
 ##### webSocket?
 
@@ -241,14 +231,6 @@ App title.
 
 Used as the browser tab title.
 
-###### wasp {#wasp}
-
-[`Wasp`](#wasp-1)
-
-Wasp metadata.
-
-This will get checked against the Wasp CLI.
-
 ###### webSocket? {#websocket}
 
 [`WebSocket`](#websocket-1)
@@ -267,7 +249,6 @@ import MainPage from './src/MainPage' with { type: 'ref' }
 
 export default app({
   name: 'todoApp',
-  wasp: { version: "^0.24.0" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -2527,20 +2508,6 @@ export const userSignupFields = defineUserSignupFields({
 ###### Inherited from
 
 [`LocalAuthMethodConfig`](#localauthmethodconfig).[`userSignupFields`](#usersignupfields-2)
-
----
-
-### Wasp {#wasp-1}
-
-Wasp compiler metadata used by the app.
-
-#### Properties
-
-##### version
-
-> **version**: `string`
-
-The Wasp version this app is built for, as an npm-compatible [SemVer range](https://github.com/npm/node-semver#ranges) (e.g. `"^0.24.0"`).
 
 ---
 

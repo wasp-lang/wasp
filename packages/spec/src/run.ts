@@ -1,31 +1,13 @@
-#!/usr/bin/env node
-
 import { writeFileSync } from "fs";
 import { Decl } from "./appSpec.js";
-import { parseProcessArgsOrThrow } from "./cli.js";
+import { makeCli } from "./cli.js";
 import { analyzeApp } from "./spec/appAnalyzer.js";
 import { WaspSpecUserError } from "./spec/waspSpecUserError.js";
 
-await main(process.argv);
-
-async function main(args: string[]): Promise<void> {
-  const {
-    waspTsSpecPath,
-    tsconfigPath,
-    projectRootDir,
-    specResultPath,
-    entityNames,
-  } = parseProcessArgsOrThrow(args);
-
-  const result = await analyze({
-    waspTsSpecPath,
-    tsconfigPath,
-    projectRootDir,
-    entityNames,
-  });
-
+await makeCli(async ({ specResultPath, ...analyzeArgs }) => {
+  const result = await analyze(analyzeArgs);
   writeFileSync(specResultPath, JSON.stringify(result));
-}
+}).parseAsync();
 
 async function analyze(args: {
   waspTsSpecPath: string;

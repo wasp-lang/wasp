@@ -99,8 +99,6 @@ Read more in the official Docker docs on [multi-stage builds](https://docs.docke
 
 To see what your project's (potentially combined) Dockerfile will look like, run:
 
-```shell
-wasp dockerfile
-```
+<WaspCommand npm="npm run wasp -- dockerfile" global="wasp dockerfile" />
 
 Join our [Discord](https://discord.gg/rzdnErX) if you have any questions, or if you need more customization than this hook provides.

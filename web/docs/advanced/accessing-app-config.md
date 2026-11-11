@@ -34,7 +34,7 @@ The server configuration object contains this field, among others:
 - `frontendUrl: String` - Set it with env var `WASP_WEB_CLIENT_URL`.
 
   The URL of your client (the app's frontend).<br />
-  Wasp automatically sets it during development when you run `wasp start`.<br />
+  Wasp automatically sets it during development when you run <InlineWaspCommand npm="npm run dev" global="wasp start" />.<br />
   In production, you should set it to your client's URL as the server sees it
   (i.e., with the DNS and proxies considered).
 
@@ -53,7 +53,7 @@ The client configuration object contains these fields:
 - `apiUrl: String` - Set it with env var `REACT_APP_API_URL`
 
   The URL of your server (the app's backend).<br />
-  Wasp automatically sets it during development when you run `wasp start`.<br />
+  Wasp automatically sets it during development when you run <InlineWaspCommand npm="npm run dev" global="wasp start" />.<br />
   In production, it should contain the value of your server's URL as the user's browser
   sees it (i.e., with the DNS and proxies considered).
 

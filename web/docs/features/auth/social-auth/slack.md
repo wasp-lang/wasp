@@ -46,7 +46,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -145,7 +144,7 @@ Yay, we've successfully set up Slack Auth! 🎉
 
 ![Slack Auth](/img/docs/features/auth/social-auth/slack/slack.png)
 
-Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
+Running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and <InlineWaspCommand npm="npm run dev" global="wasp start" /> should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).
 
 ## Developing with Slack auth and HTTPS {#slack-https}
@@ -178,9 +177,7 @@ what your IP is, you can find it by running `curl ifconfig.me` or going to [ifco
 
 Now that the tunnel exposes your server to the public, tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
 
-```bash
-wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
-```
+<WaspCommand npm="npm run dev -- --server-port 3001 --server-url https://<subdomain>.loca.lt" global="wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt" />
 
 </Collapse>
 
@@ -193,7 +190,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
@@ -269,7 +265,6 @@ import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
   name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

@@ -17,7 +17,6 @@ import Wasp.AppSpec.App.Deployment (Deployment)
 import qualified Wasp.AppSpec.App.Deployment as Deployment
 import Wasp.AppSpec.App.EmailSender (EmailSender)
 import Wasp.AppSpec.App.Server (Server)
-import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (refName)
@@ -25,7 +24,6 @@ import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data App = App
   { name :: String,
-    wasp :: Wasp,
     title :: String,
     deployment :: Maybe Deployment,
     head :: Maybe [String],
