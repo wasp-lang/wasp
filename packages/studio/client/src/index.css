@@ -1,13 +1,58 @@
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-700.css";
+@import "@fontsource/jetbrains-mono/latin-800.css";
 @import "tailwindcss";
 
-@source inline("{bg,text}-{pink,emerald}-{300,900}");
-
+/* Wasp brand tokens, kept in sync with wasp.sh (web/tailwind.config.js). */
 @theme {
-  --color-background: #000;
-  --color-foreground: #ecedee;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-wasp-yellow: #f5c842;
+  --color-wasp-yellow-quite-light: #fce59e;
+  --color-wasp-yellow-light: #fff3cc;
+  --color-wasp-yellow-dark: #d4a930;
+  --color-wasp-purple-quite-light: #c2a2fb;
+  --color-wasp-purple-light: #e0ccff;
+  --color-wasp-black: #111;
+  --color-wasp-bg: #f7f5f0;
+  --color-wasp-white: #fafafa;
+  --color-wasp-g1: #eee;
+  --color-wasp-g2: #ddd;
+  --color-wasp-g3: #bbb;
+  --color-wasp-g4: #999;
+  --color-wasp-g5: #777;
+  --color-wasp-g6: #555;
+  --color-wasp-g7: #333;
 }
 
 .flow-container {
   height: calc(100vh - 4rem);
   width: 100vw;
+}
+
+/* The graph is read-only, handles only anchor edges. */
+.react-flow__handle {
+  visibility: hidden;
+}
+
+.react-flow__edge-path {
+  stroke: var(--color-wasp-g6);
+  stroke-width: 1.25;
+}
+
+.react-flow__node.selected > div {
+  outline: 2px solid var(--color-wasp-yellow-dark);
+  outline-offset: 2px;
+}
+
+.react-flow__attribution {
+  background: transparent;
+  font-family: var(--font-mono);
+}
+
+.react-flow__attribution a {
+  color: var(--color-wasp-g5);
 }

@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
     "@xyflow/react": "^12.12.1",
     "elkjs": "^0.12.1",
     "react": "^19.3.1",
