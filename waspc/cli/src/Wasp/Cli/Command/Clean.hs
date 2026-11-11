@@ -3,15 +3,15 @@ module Wasp.Cli.Command.Clean
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
-import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
-import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
+import qualified Wasp.Util.Terminal as Term
 
 clean :: Command ()
 clean = ProjectLock.acquireExclusive $ do
@@ -25,6 +25,5 @@ clean = ProjectLock.acquireExclusive $ do
   -- it's gone, other Wasp commands can't start working on this project.
   deleteDirectoryIfExistsVerbosely dotWaspDir
 
-  cliSendMessageC
-    $ Msg.Info
-    $ "\nRun " ++ styleCode "wasp install" ++ " to reinstall dependencies."
+  liftIO . putStrLn . Term.applyStyles [Term.Bold] $
+    "! Run " ++ styleCode "wasp install" ++ " to reinstall dependencies"
