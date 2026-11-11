@@ -7,7 +7,7 @@ import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ReactFlowProvider>
-      <div className="bg-background text-foreground">
+      <div className="bg-wasp-bg text-wasp-black font-sans">
         <App />
       </div>
     </ReactFlowProvider>
