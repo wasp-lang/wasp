@@ -17,6 +17,7 @@ import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
+import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (checkExitSuccess)
 import qualified Wasp.Util.IO as IOUtil
@@ -28,8 +29,9 @@ import Wasp.Util.TaskStatus (runTaskWithStatusReport)
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
   Path' Abs (Dir GeneratedAppDir) ->
+  Msg.SendMessage ->
   IO (Either GeneratorError ())
-installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
+installNpmDependenciesWithInstallRecord spec dstDir sendMessage = runExceptT $ do
   let allNpmDeps = getAllNpmDeps spec
 
   shouldInstallNpmDeps <-
@@ -47,7 +49,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
-    liftIO (installProjectNpmDependencies HideInstallOutput waspProjectDirPath)
+    liftIO (installProjectNpmDependencies (HideInstallOutput sendMessage) waspProjectDirPath)
       >>= onLeftThrowError
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
@@ -58,7 +60,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
 -- | Whether npm's own output is shown to the user as it comes, or held back and
 -- reported only if the installation fails.
-data InstallOutputMode = ShowInstallOutput | HideInstallOutput
+data InstallOutputMode = ShowInstallOutput | HideInstallOutput Msg.SendMessage
 
 {- HLINT ignore installProjectNpmDependencies "Avoid npm and npx" -}
 
@@ -70,8 +72,8 @@ installProjectNpmDependencies ::
   InstallOutputMode -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies installOutputMode projectDir = case installOutputMode of
   ShowInstallOutput -> checkExitSuccess "npm install" <$> Job.run npmInstall
-  HideInstallOutput ->
-    runTaskWithStatusReport "Installing dependencies..." "Dependencies installed" "Dependencies failed to install" $ do
+  HideInstallOutput sendMessage ->
+    runTaskWithStatusReport sendMessage "Installing dependencies..." "Dependencies installed" "Dependencies failed to install" $ do
       (exitCode, npmOutput) <- Job.run $ Job.captureOutput npmInstall
       return $ case checkExitSuccess "npm install" exitCode of
         Left errorMessage -> Left $ errorMessage ++ "\n\nnpm output:\n" ++ T.unpack npmOutput

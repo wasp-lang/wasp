@@ -80,7 +80,7 @@ createProjectOnDisk
 -- | Returns whether the dependencies got installed.
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
 installDepsForNewProject absWaspProjectDir =
-  installIO HideInstallOutput absWaspProjectDir >>= \case
+  installIO (HideInstallOutput cliSendMessage) absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
       putStrLn $
