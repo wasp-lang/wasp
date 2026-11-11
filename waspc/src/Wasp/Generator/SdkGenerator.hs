@@ -85,7 +85,7 @@ import Wasp.Util (checkExitSuccess, (<++>))
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
-    Job.run . Job.prefixWith Job.Wasp $
+    Job.run $
       Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)
         `Job.andThen` Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.copySdkAssets)
 
