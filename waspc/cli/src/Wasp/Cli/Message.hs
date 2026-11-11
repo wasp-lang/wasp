@@ -1,9 +1,9 @@
 module Wasp.Cli.Message (cliSendMessage) where
 
 import Data.Functor ((<&>))
+import Data.List (intercalate)
 import Wasp.Cli.Common (waspSays, waspScreams, waspWarns)
 import qualified Wasp.Message as Msg
-import Wasp.Util (indent)
 import qualified Wasp.Util.Interactive as Interactive
 import qualified Wasp.Util.Terminal as Term
 
@@ -26,6 +26,7 @@ labeledMessage color symbol label title details =
   Interactive.getInteractiveTerminal <&> \case
     Just _ ->
       withDetails
+        (Term.applyStyles [color] "│")
         ( Term.applyStyles [Term.Bold, color] symbol
             ++ " "
             ++ Term.applyStyles [Term.Bold, Term.Reverse, color] (" " ++ label ++ " ")
@@ -33,11 +34,11 @@ labeledMessage color symbol label title details =
             ++ Term.applyStyles [color] title
         )
         details
-    Nothing -> withDetails (symbol ++ " " ++ label ++ ": " ++ title) details
+    Nothing -> withDetails "│" (symbol ++ " " ++ label ++ ": " ++ title) details
 
-withDetails :: String -> String -> String
-withDetails title "" = title
-withDetails title details = title ++ "\n" ++ indent 2 details
+withDetails :: String -> String -> String -> String
+withDetails _ title "" = title
+withDetails bar title details = intercalate "\n" $ title : map (("  " ++ bar ++ " ") ++) (lines details)
 
 styleIfInteractive :: [Term.Style] -> String -> IO String
 styleIfInteractive styles text =
