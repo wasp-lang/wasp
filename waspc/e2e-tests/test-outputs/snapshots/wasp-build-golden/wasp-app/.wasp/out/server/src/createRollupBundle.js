@@ -1,3 +1,4 @@
+import path from "node:path";
 import resolve from "@rollup/plugin-node-resolve";
 import esbuild from "rollup-plugin-esbuild";
 import { virtualUserModules } from "./plugins/virtualUserModules.js";
@@ -11,7 +12,13 @@ export function createRollupBundle(inputFilePath, outputFilePath) {
   return {
     input: inputFilePath,
     output: {
-      file: outputFilePath,
+      // We use `dir` instead of `file` because Rollup can't put dynamically
+      // imported modules in a single file without running them eagerly, and
+      // the server relies on dynamic imports to control when some modules
+      // (e.g., pg-boss) start.
+      dir: path.dirname(outputFilePath),
+      entryFileNames: path.basename(outputFilePath),
+      chunkFileNames: "chunks/[name]-[hash].js",
       format: "es",
       sourcemap: true,
     },

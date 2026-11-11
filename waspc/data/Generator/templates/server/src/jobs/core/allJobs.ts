@@ -1,7 +1,8 @@
 {{={= =}=}}
 
-// This module imports all jobs and is imported by the server to ensure
-// any schedules that are not referenced are still loaded by NodeJS.
+// This module imports all jobs, registering them with pg-boss. The server
+// imports it at startup, so that jobs not referenced anywhere else (e.g.,
+// scheduled ones) still run.
 
 {=# jobs =}
 import '../{= name =}.js'

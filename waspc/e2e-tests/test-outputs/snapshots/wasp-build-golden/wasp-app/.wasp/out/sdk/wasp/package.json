@@ -62,6 +62,7 @@
     "./server/errors": "./dist/server/errors/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    "./server/jobs/core/pgBoss/pgBoss": "./dist/server/jobs/core/pgBoss/pgBoss.js",
     "./server/middleware": "./dist/server/middleware/index.js",
     "./server/operations": "./dist/server/operations/index.js",
     "./server/types": "./dist/server/types/index.js",

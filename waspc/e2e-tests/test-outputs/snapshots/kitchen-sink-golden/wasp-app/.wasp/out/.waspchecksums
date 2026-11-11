@@ -599,7 +599,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "deca009b12d3e3e109f28f7d3660a12103b135a5f5d4c305b90e3bf8cc110374"
+        "9b76c527ac63c2ef206d7d976aa5224a59265db9574726c7592781746d9e3bc1"
     ],
     [
         [
@@ -886,21 +886,21 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/index.ts"
         ],
-        "1755f90efa9a3e2f6b4ed892a77aa60f68e51a57b424342c61e3c3d1f1de2f75"
+        "d13e70aa3de5bb82c27282a5358794cfd4832e9ca59ce60772cc15f573dac274"
     ],
     [
         [
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "44ea6eb19cb4e283e24b4d3da1105539ef81cd36dfeb71d9fa5695f0b0c15b34"
+        "74903638b09b8c93d9c56509ecbfacc17fb571d899c06d70f4a8affe608a2ba2"
     ],
     [
         [
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "eaa4719ec3b41931225660f0a660bca6ac40c33497a4378073efb64e55496778"
+        "3e1f6a6398ac34567cc80356612d637f09765a7e4e2c59326a8cd2948e8f3f84"
     ],
     [
         [
@@ -1390,7 +1390,7 @@
             "file",
             "server/src/createRollupBundle.js"
         ],
-        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
+        "b5a05234c334dd8524a40928c6b26803bfd6f31bd32aefc02dca0b7d7c96e802"
     ],
     [
         [
@@ -1418,28 +1418,28 @@
             "file",
             "server/src/jobs/core/allJobs.ts"
         ],
-        "b7f4360fe4b88dc2c8a41813a6f7e20e8c1285a6aaca96103f4666f1b571c4f3"
+        "c88d7fb088748fa3b3bc5029332c35f71e3bb3d66c4cdaa426dbf655a0238346"
     ],
     [
         [
             "file",
             "server/src/jobs/mySpecialJob.ts"
         ],
-        "1454b831ecc625a8973ad3ee6fae47925bac7692de0bb35ad2e39698bf72cde1"
+        "7197b20f1722c25e844052317c98289e541fd825777d8898bc6418fd679130ba"
     ],
     [
         [
             "file",
             "server/src/jobs/mySpecialScheduledJob.ts"
         ],
-        "a61e8ea5a2bb7927e68789d3eb7b6c9a20dcd7aa03928851ee619b05f1147dba"
+        "0318ecf3eb57b32b5e4fc718d7d7cd3870085601418126286a7fc19f4381dc16"
     ],
     [
         [
             "file",
             "server/src/jobs/uppercaseTextJob.ts"
         ],
-        "6374daab326cc812fab8a5e0605cfcfaacc5983a05d2b608b7d86eefed5610ff"
+        "7d2b09ad90d33755f29674522e7dd59094c06df35f648f47a0cd57c8a583dc41"
     ],
     [
         [
@@ -1845,7 +1845,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "49d12abf8119bf9e2e59b9e4999f356647d6bf135f5b5190046ace7c8ba65580"
+        "46667a4bc2b157f15c9d40b6a77e6810b737b47a10c958fd825e4938720b0af9"
     ],
     [
         [
