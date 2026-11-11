@@ -159,7 +159,7 @@ typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage = do
   exitCode <- liftIO $ do
     sendMessage $ Msg.Start "Type-checking user code..."
-    J.run $ J.prefixWith J.Wasp typeCheck
+    J.run typeCheck
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->
