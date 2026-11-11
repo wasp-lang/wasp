@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { MdxFilePath } from "../../src/actions/actions.ts";
-import { getActionsFromMdxContent } from "../../src/extract-actions/mdxParsing.ts";
+import {
+  getActionsFromMdxContent,
+  type MdxContent,
+} from "../../src/extract-actions/mdxParsing.ts";
 import type { PatchesDirPath } from "../../src/tutorialApp.ts";
 import {
   mdxWithApplyPatchAction,
@@ -29,7 +32,7 @@ describe("getActionsFromMdxContent", () => {
   ) {
     it(`should extract actions: ${testName}`, async () => {
       const actions = await getActionsFromMdxContent(
-        Buffer.from(mdxContent),
+        Buffer.from(mdxContent) as MdxContent,
         context.filePath,
         context.patchesPath,
       );
@@ -45,7 +48,7 @@ describe("getActionsFromMdxContent", () => {
     it(`should fail extracting actions: ${testName}`, async () => {
       await expect(
         getActionsFromMdxContent(
-          Buffer.from(mdxContent),
+          Buffer.from(mdxContent) as MdxContent,
           context.filePath,
           context.patchesPath,
         ),

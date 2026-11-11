@@ -12,7 +12,7 @@ import type { PatchesDirPath } from "../tutorialApp.ts";
 import { extractTutorialActionNodes } from "./astTraversal.ts";
 import { mapTutorialActionNodeToAction } from "./nodeMapping.ts";
 
-type MdxContent = Branded<Buffer<ArrayBufferLike>, "MdxContent">;
+export type MdxContent = Branded<Buffer<ArrayBufferLike>, "MdxContent">;
 
 export async function getActionsFromMdxFile(
   sourceTutorialFilePath: MdxFilePath,
