@@ -38,7 +38,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
-- The Wasp server now exits with an error when pg-boss fails to start, instead of running with jobs that never run. (FIXME PR LINK)
+- The Wasp server now exits with an error when pg-boss fails to start, instead of running with jobs that never run. ([#5319](https://github.com/wasp-lang/wasp/pull/5319))
 
 ### 🔧 Small improvements
 
