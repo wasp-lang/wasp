@@ -3,7 +3,7 @@ module Wasp.Util.TaskStatus
   )
 where
 
-import Wasp.Util (indent)
+import Data.List (intercalate)
 import qualified Wasp.Util.Interactive as Interactive
 import qualified Wasp.Util.Terminal as Term
 
@@ -25,5 +25,8 @@ runTaskWithStatusReport runningMessage successMessage failureMessage task = do
         Nothing -> "✖ ERROR:"
   putStrLn $ case taskResult of
     Right _ -> style [Term.Green] "✔" ++ " " ++ successMessage
-    Left errorMessage -> errorLabel ++ " " ++ style [Term.Red] failureMessage ++ "\n" ++ indent 2 errorMessage
+    Left errorMessage ->
+      intercalate "\n" $
+        (errorLabel ++ " " ++ style [Term.Red] failureMessage)
+          : map (("  " ++ style [Term.Red] "│" ++ " ") ++) (lines errorMessage)
   return taskResult
