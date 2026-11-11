@@ -1,4 +1,6 @@
 import { HttpError } from "@wasp/lib-sdk-core";
+import { sendServerErrorToDevClient } from "@wasp/lib-sdk-core/node";
+import { format } from "node:util";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
@@ -16,11 +18,24 @@ export type ServerErrorContext =
 
 // PRIVATE API (server)
 // TODO: Refactor this once Wasp has proper logging.
-export function reportUnexpectedServerError(
+/**
+ * Logs the error in the terminal and, in development, in the browser console.
+ *
+ * Await the returned promise before exiting the process, so that the error
+ * reaches the browser.
+ */
+export async function reportUnexpectedServerError(
   error: unknown,
   context: ServerErrorContext,
-): void {
-  console.error(`Unexpected error in ${formatContext(context)}:`, error);
+): Promise<void> {
+  const message = `Unexpected error in ${formatContext(context)}:`;
+  console.error(message, error);
+  if (config.isDevelopment) {
+    await sendServerErrorToDevClient(
+      config.frontendUrl,
+      format(message, error),
+    );
+  }
 }
 
 // PRIVATE API (server)
@@ -62,7 +77,7 @@ function toHttpError(error: unknown): HttpError {
     : unknownErrors.toWaspHttpError(error, options);
 
   if (httpError.statusCode >= 500) {
-    reportUnexpectedServerError(error, { source: "request" });
+    void reportUnexpectedServerError(error, { source: "request" });
   }
   return httpError;
 }
