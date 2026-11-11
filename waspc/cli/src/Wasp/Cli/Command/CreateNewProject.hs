@@ -39,7 +39,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.Terminal (styleLiteral)
 import qualified Wasp.Util.Terminal as Term
 
 -- | It receives all of the arguments that were passed to the `wasp new` command.
@@ -106,7 +106,7 @@ migrateDbForNewProject absWaspProjectDir =
         $ throwError
         $ CommandError
           "Migration skipped"
-          (databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
+          (styleLiteral databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
 
     -- Commands find the project they work on through the current directory, and
     -- `wasp new` runs from outside of the project.
@@ -141,4 +141,4 @@ printExtraInstructionsForProject steps =
   putStrLn
     $ Term.applyStyles [Term.Yellow]
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
-      ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps
+      ++ concatMap (\step -> indent 4 (styleLiteral step) ++ "\n") steps

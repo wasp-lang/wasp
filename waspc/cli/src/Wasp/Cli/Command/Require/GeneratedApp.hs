@@ -16,6 +16,7 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Project.Common as Project.Common
+import Wasp.Util.Terminal (styleCode)
 
 data GeneratedAppIsDevelopment
   = GeneratedAppIsDevelopment (Path' Abs (Dir GeneratedAppDir))
@@ -31,7 +32,7 @@ instance Requirable GeneratedAppIsDevelopment where
       noDevelopmentCodeError =
         CommandError
           "Built app does not exist"
-          "You can build the app with the `wasp start` or `wasp compile` commands."
+          $ "You can build the app with the " ++ styleCode "wasp start" ++ " or " ++ styleCode "wasp compile" ++ " commands."
 
 data GeneratedAppIsProduction
   = GeneratedAppIsProduction (Path' Abs (Dir GeneratedAppDir))
@@ -47,7 +48,7 @@ instance Requirable GeneratedAppIsProduction where
       noProductionCodeError =
         CommandError
           "Built app does not exist"
-          "You can build the app with the `wasp build` command."
+          $ "You can build the app with the " ++ styleCode "wasp build" ++ " command."
 
 isBuildTypeCompatibleWithGeneratedApp ::
   BuildType.BuildType ->

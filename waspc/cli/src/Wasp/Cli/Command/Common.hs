@@ -14,6 +14,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Terminal (styleCode)
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do
@@ -21,7 +22,7 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Just _ -> return ()
     Nothing ->
       E.throwError $
-        CommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
+        CommandError ("Couldn't find " <> styleCode exeName <> " executable") explanationMsg
 
 deleteDirectoryIfExistsVerbosely :: Path' Abs (Dir d) -> Command ()
 deleteDirectoryIfExistsVerbosely dir = do
