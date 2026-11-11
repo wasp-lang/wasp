@@ -17,8 +17,15 @@ export function waspStudio(options: WaspStudioOptions): PluginOption {
   }
 
   return [
-    DevTools().then(onlyInDev),
-    onlyInDev([createPluginFromDevframe(createWaspStudioDevframe(options))]),
+    // Vite's built-in panels offer to install more packages into the
+    // project, so only the panels Wasp and the user's plugins add show up.
+    DevTools({ builtinDevTools: false }).then(onlyInDev),
+    onlyInDev([
+      createPluginFromDevframe(createWaspStudioDevframe(options), {
+        // Listed first, with the framework's own tools.
+        dock: { category: "framework" },
+      }),
+    ]),
   ];
 }
 
