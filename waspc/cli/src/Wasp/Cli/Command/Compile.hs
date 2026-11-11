@@ -131,7 +131,7 @@ printErrorsIfAny errs = do
     $ formatErrorOrWarningMessages errs
 
 formatErrorOrWarningMessages :: [String] -> String
-formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
+formatErrorOrWarningMessages = intercalate "\n\n"
 
 compilationWarningsTitle :: String
 compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
