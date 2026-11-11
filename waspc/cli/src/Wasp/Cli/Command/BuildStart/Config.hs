@@ -28,7 +28,7 @@ import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Project.RunConfig (ProjectRunConfig)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.Terminal (styleCode, styleLiteral)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
@@ -89,7 +89,7 @@ makeBuildStartConfig appSpec args projectDir' = do
           ++ "To faithfully simulate the production environment, "
           ++ styleCode (commandName buildStartArgsParser)
           ++ " won't automatically read your "
-          ++ styleCode ".env"
+          ++ styleLiteral ".env"
           ++ " files unless you explicitly tell it.\n"
           ++ getParserHelpMessage buildStartArgsParser
 
