@@ -15,6 +15,7 @@ module Wasp.AppSpec
     getPages,
     getRoutes,
     getJobs,
+    getTasks,
     resolveRef,
     getApp,
     getApiNamespaces,
@@ -44,6 +45,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
+import Wasp.AppSpec.Task (Task)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -115,6 +117,9 @@ getRoutes = getDecls
 
 getJobs :: AppSpec -> [Job]
 getJobs = getDecls
+
+getTasks :: AppSpec -> [Task]
+getTasks = getDecls
 
 getApp :: [Decl] -> Maybe App
 getApp = listToMaybe . takeDecls @App

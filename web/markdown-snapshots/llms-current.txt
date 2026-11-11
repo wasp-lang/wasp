@@ -50,6 +50,7 @@
 - [Custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions.md)
 - [Email](https://wasp.sh/docs/features/email.md)
 - [Jobs](https://wasp.sh/docs/features/jobs.md)
+- [Tasks](https://wasp.sh/docs/features/tasks.md)
 - [WebSockets](https://wasp.sh/docs/features/websockets.md)
 - [API routes](https://wasp.sh/docs/features/apis.md)
 ### Advanced
@@ -165,5 +166,6 @@
 - [wasp/server/email](https://wasp.sh/docs/api/wasp/server/email.md)
 - [wasp/server/jobs](https://wasp.sh/docs/api/wasp/server/jobs.md)
 - [wasp/server/operations](https://wasp.sh/docs/api/wasp/server/operations.md)
+- [wasp/server/tasks](https://wasp.sh/docs/api/wasp/server/tasks.md)
 - [wasp/server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket.md)
 - [wasp/test](https://wasp.sh/docs/api/wasp/test.md)

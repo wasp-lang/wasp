@@ -35,6 +35,7 @@ import Tests.WaspShowTest (waspShowTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspStartTest (waspStartTest)
+import Tests.WaspTaskTest (waspTaskTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
@@ -122,6 +123,7 @@ e2eTests = do
         waspDbStartTest,
         -- FIXME: waspDbStudioTest,
         waspDbSeedTest,
+        waspTaskTest,
         waspDbResetTest,
         waspDbMigrateDevTest,
         waspSpecEntityTypesTest,

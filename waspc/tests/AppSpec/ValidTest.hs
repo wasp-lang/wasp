@@ -25,6 +25,7 @@ import qualified Wasp.AppSpec.Job as AS.Job
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
+import qualified Wasp.AppSpec.Task as AS.Task
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
@@ -441,6 +442,9 @@ spec_AppSpecValid = do
       -- Job
       let jobDecl = makeBasicJobDecl "testJob"
 
+      -- Task
+      let taskDecl = makeBasicTaskDecl "testTask"
+
       let testDuplicateDecls decls declTypeName expectedErrorMessage = it ("returns an error if there are duplicate " ++ declTypeName ++ " declarations") $ do
             ASV.validateAppSpec (basicAppSpec {AS.decls = decls ++ [basicRouteDecl]})
               `shouldBe` [Valid.GenericValidationError expectedErrorMessage]
@@ -454,6 +458,7 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, crudDecl, crudDecl, entityDecl] "crud" "There are duplicate crud declarations with name 'testCrud'."
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
+      testDuplicateDecls [basicAppDecl, taskDecl, taskDecl] "task" "There are duplicate task declarations with name 'testTask'."
 
     describe "operation entities uniqueness validation" $ do
       let makeActionDeclWithEntities name entityNames =
@@ -766,6 +771,15 @@ spec_AppSpecValid = do
                 },
             AS.Job.schedule = Nothing,
             AS.Job.entities = Nothing
+          }
+
+    makeBasicTaskDecl name =
+      AS.Decl.makeDecl
+        AS.Task.Task
+          { AS.Task.name = name,
+            AS.Task.fn = dummyExtImport,
+            AS.Task.entities = Nothing,
+            AS.Task.description = Nothing
           }
 
     dummyExtImport =

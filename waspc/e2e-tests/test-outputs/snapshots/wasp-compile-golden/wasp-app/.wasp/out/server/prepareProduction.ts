@@ -6,6 +6,8 @@
   - `bundle/server.js`: the bundled server. Rollup leaves the packages it
     imports out of the bundle, so following those imports finds the files the
     server needs at runtime.
+  - `bundle/tasks.js`: the bundled app tasks, run with the `task` script, when
+    the app has any.
   - `loadDotEnv.cjs`: preloaded with `node -r` in the `start` script.
   - The Prisma CLI, copied in full, but only when `start-production` runs
     migrations.
@@ -22,6 +24,8 @@ import path from "node:path";
 import { promisify } from "node:util";
 
 type TraceOptions = {
+  /** The bundled task runners, besides the server, e.g. `bundle/tasks.js`. */
+  taskRunnerBundles: string[];
   /** The packages the user listed in `app.server.traceDeps`. */
   traceDeps: string[];
   /** Whether `start-production` runs the migrations, which needs the Prisma CLI. */
@@ -49,11 +53,13 @@ const outDir = path.join(serverDir, "production");
 const requireFromServer = createRequire(path.join(serverDir, "package.json"));
 
 await prepareProduction({
+  taskRunnerBundles: [],
   traceDeps: [],
   runsMigrations: false,
 });
 
 async function prepareProduction({
+  taskRunnerBundles,
   traceDeps,
   runsMigrations,
 }: TraceOptions): Promise<void> {
@@ -66,6 +72,7 @@ async function prepareProduction({
   const layout = await traceNodeModules(
     [
       path.join(serverDir, "bundle/server.js"),
+      ...taskRunnerBundles.map((bundle) => path.join(serverDir, bundle)),
       path.join(serverDir, "loadDotEnv.cjs"),
     ],
     {

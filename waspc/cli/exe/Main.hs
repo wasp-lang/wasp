@@ -34,6 +34,7 @@ import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
+import qualified Wasp.Cli.Command.Task as Command.Task
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
@@ -66,6 +67,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
+        ("task" : taskArgs) -> Command.Call.Task taskArgs
         ("uninstall" : uninstallArgs) -> Command.Call.Uninstall uninstallArgs
         ["version"] -> Command.Call.Version
         ["doctor"] -> Command.Call.Doctor
@@ -94,6 +96,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compileCommand
     Command.Call.Db dbArgs -> dbCli dbArgs
+    Command.Call.Task taskArgs -> taskCli taskArgs
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
     Command.Call.Studio -> runCommand studio
@@ -171,6 +174,8 @@ printUsage =
               "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.",
+        cmd   "    task <task-cmd> [args]",
+              "                          Lists or runs your app's tasks. Run 'wasp task help' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
@@ -263,6 +268,34 @@ printDbUsage =
               "  wasp db migrate-dev --create-only",
               "  wasp db studio",
               "  wasp db start --db-port 8080"
+      ]
+{- ORMOLU_ENABLE -}
+
+taskCli :: [String] -> IO ()
+taskCli args = case args of
+  [helpArg] | isHelpArg helpArg -> printTaskUsage
+  ["list"] -> runCommand Command.Task.listTasks
+  -- Everything after the task name goes to the task, so that it can take its
+  -- own flags (e.g. `--dry-run`).
+  "run" : taskName : taskArgs | not (isHelpArg taskName) -> runCommand $ Command.Task.runTask taskName taskArgs
+  _unknownTaskCommand -> printTaskUsage >> exitFailure
+
+{- ORMOLU_DISABLE -}
+printTaskUsage :: IO ()
+printTaskUsage =
+  putStrLn $
+    unlines
+      [ title "USAGE",
+              "  wasp task <command> [command-args]",
+              "",
+        title "COMMANDS",
+        cmd   "  list                         Lists the tasks defined in your Wasp spec (via task()).",
+        cmd   "  run <name> [args...]         Runs the task with the given name in development.",
+              "                               Any arguments after the name are passed to the task.",
+              "",
+        title "EXAMPLES",
+              "  wasp task list",
+              "  wasp task run createAdmin admin@example.com --dry-run"
       ]
 {- ORMOLU_ENABLE -}
 

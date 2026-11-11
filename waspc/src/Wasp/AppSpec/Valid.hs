@@ -306,7 +306,8 @@ validateUniqueDeclarationNames spec =
       checkIfDeclarationsAreUnique "apiNamespace" (AS.getApiNamespaces spec),
       checkIfDeclarationsAreUnique "crud" (AS.getCruds spec),
       checkIfDeclarationsAreUnique "entity" (AS.getEntities spec),
-      checkIfDeclarationsAreUnique "job" (AS.getJobs spec)
+      checkIfDeclarationsAreUnique "job" (AS.getJobs spec),
+      checkIfDeclarationsAreUnique "task" (AS.getTasks spec)
     ]
   where
     checkIfDeclarationsAreUnique :: (IsDecl a) => String -> [a] -> [ValidationError]

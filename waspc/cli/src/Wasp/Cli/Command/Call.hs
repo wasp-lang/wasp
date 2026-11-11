@@ -9,6 +9,7 @@ data Call
   | Uninstall Arguments
   | Compile
   | Db Arguments -- db args
+  | Task Arguments -- task args
   | Build
   | BuildStart Arguments
   | Version

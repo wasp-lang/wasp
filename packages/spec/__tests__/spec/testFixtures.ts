@@ -16,6 +16,7 @@ import {
   page,
   query,
   route,
+  task,
 } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
@@ -49,6 +50,7 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
           getRoute("full"),
           getQuery("full"),
           getJob("full"),
+          getTask("full"),
           getCrud("full"),
           getEmailVerifyRoute(),
           getPasswordResetRoute(),
@@ -186,6 +188,23 @@ export function getJob(scope: ConfigScope): Config<WaspSpec.Job> {
         schedule: getSchedule("full"),
         entities: ["Task"],
         performExecutorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getTask<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.Task>;
+export function getTask(scope: ConfigScope): Config<WaspSpec.Task> {
+  switch (scope) {
+    case "minimal":
+      return task(getRefObject("minimal", "named"));
+    case "full":
+      return task(getRefObject("full", "named"), {
+        entities: ["Task"],
+        description: "Does some administrative work.",
       });
     default:
       assertUnreachable(scope);

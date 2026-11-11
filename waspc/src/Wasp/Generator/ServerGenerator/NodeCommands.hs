@@ -1,9 +1,9 @@
 module Wasp.Generator.ServerGenerator.NodeCommands
   ( typeCheckServer,
     bundleServer,
-    bundleDbSeed,
+    bundleTaskRunner,
     runServer,
-    runDbSeed,
+    runTaskRunner,
     loadDotEnvFileInServerRootDir,
     LoadDotEnvFile,
   )
@@ -14,6 +14,7 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.NodeCommand (NodeCommand (..))
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
+import Wasp.Generator.ServerGenerator.TaskRunner (TaskRunner, taskRunnerBundleInServerRootDir, taskRunnerRollupConfigInServerRootDir)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 
 -- | Through its project reference, `tsc --build` type-checks all of the user's
@@ -25,14 +26,17 @@ typeCheckServer = NodeCommand "tsc" ["--build"]
 bundleServer :: NodeCommand ServerRootDir
 bundleServer = NodeCommand "rollup" ["--config", "--silent"]
 
-bundleDbSeed :: NodeCommand ServerRootDir
-bundleDbSeed = NodeCommand "rollup" ["--config", "rollup.dbSeed.config.js", "--silent"]
+bundleTaskRunner :: TaskRunner -> NodeCommand ServerRootDir
+bundleTaskRunner runner =
+  NodeCommand "rollup" ["--config", SP.fromRelFile $ taskRunnerRollupConfigInServerRootDir runner, "--silent"]
 
 runServer :: NodeCommand WaspProjectDir
 runServer = nodeServerScript [relfile|bundle/server.js|]
 
-runDbSeed :: NodeCommand WaspProjectDir
-runDbSeed = nodeServerScript [relfile|bundle/dbSeed.js|]
+-- | Extra arguments (the task name and its arguments) go after the command,
+-- e.g. as npm appends them to an npm script.
+runTaskRunner :: TaskRunner -> NodeCommand WaspProjectDir
+runTaskRunner = nodeServerScript . taskRunnerBundleInServerRootDir
 
 -- | The server runs with the Wasp project dir as its working directory, so that
 -- relative paths in the user's code resolve from where the user expects them to.

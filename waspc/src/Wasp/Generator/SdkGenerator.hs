@@ -67,6 +67,7 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator
   )
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
+import qualified Wasp.Generator.SdkGenerator.Server.TasksG as ServerTasksG
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -136,6 +137,7 @@ genSdk spec =
     <++> genClientCrudApi spec
     <++> genEmailSenderApi spec
     <++> genJobsApi spec
+    <++> ServerTasksG.genTasks spec
     <++> genClientRouterApi spec
     <++> genEnvValidation spec
     <++> genClientApp spec

@@ -599,7 +599,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "deca009b12d3e3e109f28f7d3660a12103b135a5f5d4c305b90e3bf8cc110374"
+        "a5e83bc07cac6a5c18699ac7e5ca0c0cde6f4f0ca14af7f1980ff9c73dd7a920"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "09de485b7c71749db3980ffdcc2d6fce94ecaca23bf5e101520cf401e7284038"
+        "b0582b4a938fb931ec05370d8e104d7ad74cfc2f10105b53abdec2a895243d1f"
     ],
     [
         [
@@ -858,7 +858,7 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "afa8c3a0c3c4f65038dd2bc15c70ce25d002882633769266259ec1c250f907b6"
+        "13b39da89b7d11cfd212e244b16d2686b667d3577a41271d2736b08346ff6fb5"
     ],
     [
         [
@@ -989,6 +989,13 @@
     [
         [
             "file",
+            "sdk/wasp/server/tasks/index.ts"
+        ],
+        "47e4243235abb4978a8b237a5dcae4946c94cfa273b3cd92da8e238624131328"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/types/index.ts"
         ],
         "c1431a6c7c5aad05f31608d3d78c9cb097877baa3a966a36c7fbceb97b4b74b5"
@@ -1082,21 +1089,21 @@
             "file",
             "server/loadDotEnv.cjs"
         ],
-        "31a019e226b1c4c28ed560ae0efa6f840b63099f42a1d997508eaa277505f268"
+        "49300caf7be78451b5bde33f2581eab510875b43238217af5e1b75a895572225"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "30a3413a9b7a08f6277b723b462f3e967b6e59e5230c4b1c11efe32a4c68814a"
+        "54de26b0e668242c74ae7a2abe76674429efecaebde2b4e8c7d8f6f584ab3f43"
     ],
     [
         [
             "file",
             "server/prepareProduction.ts"
         ],
-        "021b65f62a50c8548f1399540132d86ea87bfe3390299da1c707fa13f29ffe64"
+        "2ec2b6621a9e54e61972bcfc1f66c497efbfc6a5b262f0a7176e55c33f4a12b2"
     ],
     [
         [
@@ -1111,6 +1118,13 @@
             "server/rollup.dbSeed.config.js"
         ],
         "318ed528c170df23b50e030aee92fc344c35b6e8a9e5f618202173f0256bba42"
+    ],
+    [
+        [
+            "file",
+            "server/rollup.tasks.config.js"
+        ],
+        "ab122f23a8160953dbdeb2b75de6d5aafdf238fb81b2b69035d626ffc022388c"
     ],
     [
         [
@@ -1411,7 +1425,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "fa1ab2adddbee4b0785116c1faea86abe3b2668d9c1094f98e28ac5c150237be"
+        "d6dd848b1d9b7e8e84bbd998eb13198b014cf8bda6c397d26ef3c001a1a1436f"
     ],
     [
         [
@@ -1843,9 +1857,23 @@
     [
         [
             "file",
+            "server/src/runTaskFromCli.ts"
+        ],
+        "77af15f9e6cf063f114047a023def63ae63831dba96a043e3a0e02888706dac2"
+    ],
+    [
+        [
+            "file",
             "server/src/server.ts"
         ],
         "49d12abf8119bf9e2e59b9e4999f356647d6bf135f5b5190046ace7c8ba65580"
+    ],
+    [
+        [
+            "file",
+            "server/src/tasks.ts"
+        ],
+        "6695df488250fa70f0242e229f1e820b18023c052d75e2c55f6541d0a74a3748"
     ],
     [
         [
@@ -1866,7 +1894,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "35e1a119e2e59dbf95d613db38e466fcd6611067b7ecf10b3aba9bcbfedf70a8"
+        "79cda8474b569afc06ee6c0bd2ff33d14a37b3509646670ddef72982ec45b661"
     ],
     [
         [

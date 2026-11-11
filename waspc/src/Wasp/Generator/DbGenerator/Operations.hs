@@ -7,7 +7,6 @@ module Wasp.Generator.DbGenerator.Operations
     writeDbSchemaChecksumToFile,
     areAllMigrationsAppliedToDb,
     dbReset,
-    dbSeed,
     testDbConnection,
     isDbConnectionPossible,
     prismaErrorContainsDbNotCreatedError,
@@ -130,14 +129,6 @@ dbReset envVars generatedAppDir resetArgs = do
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
   checkExitSuccess "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset envVars generatedAppDir resetArgs)
-
-dbSeed ::
-  [EnvVar] ->
-  Path' Abs (Dir GeneratedAppDir) ->
-  String ->
-  IO (Either String ())
-dbSeed envVars generatedAppDir seedName =
-  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed envVars generatedAppDir seedName)
 
 testDbConnection ::
   [EnvVar] ->

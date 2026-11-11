@@ -26,6 +26,8 @@ module ShellCommands
     waspCliDbSeed,
     waspCliDbSeedWithoutName,
     waspCliDbSeedWithoutNameFailsNonInteractively,
+    waspCliTaskList,
+    waspCliTaskRun,
     waspCliCompile,
     waspCliDbMigrateDev,
     waspCliBuild,
@@ -46,6 +48,7 @@ module ShellCommands
     assertCommandOutputContainsAll,
     skipIfDockerDisabled,
     createSeedFile,
+    createFileInWaspProject,
     replaceMainWaspTsFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
@@ -251,6 +254,12 @@ waspCliDbSeedWithoutNameFailsNonInteractively =
   assertCommandFailsWithoutInteractiveTerminal "wasp db seed" $
     (++ " < /dev/null") <$> waspCliDbSeedWithoutName
 
+waspCliTaskList :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliTaskList = return "$WASP_CLI_CMD task list"
+
+waspCliTaskRun :: String -> [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliTaskRun taskName taskArgs = return $ unwords ("$WASP_CLI_CMD task run" : taskName : taskArgs)
+
 -- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g. when
 -- the e2e tests are run from Claude Code), unless the consent env var is set.
 -- The test only resets its own throwaway database, so we always consent.
@@ -307,6 +316,11 @@ createSeedFile fileName content = do
       seedFile = seedDir </> seedsFileInSeedsDir fileName
 
   writeToFile seedFile content
+
+createFileInWaspProject :: Path' (Rel WaspProjectDir) (File a) -> T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+createFileInWaspProject fileInWaspProjectDir content = do
+  context <- ask
+  writeToFile (context.waspProjectDir </> fileInWaspProjectDir) content
 
 replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspTsFile content = do

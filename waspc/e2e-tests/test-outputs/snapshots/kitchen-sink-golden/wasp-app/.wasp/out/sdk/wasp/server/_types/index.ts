@@ -77,6 +77,11 @@ export type Api<
   context: Context<Entities>,
 ) => void
 
+export type TaskDefinition<Entities extends _Entity[]> = (
+  args: string[],
+  context: Context<Entities>,
+) => void | Promise<void>
+
 export type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
 }

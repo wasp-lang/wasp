@@ -115,6 +115,7 @@ const declTypeDisplayNames: Record<AppSpec.Decl["declType"], string> = {
   Api: "API",
   ApiNamespace: "API namespace",
   Job: "job",
+  Task: "task",
   Crud: "CRUD",
 };
 

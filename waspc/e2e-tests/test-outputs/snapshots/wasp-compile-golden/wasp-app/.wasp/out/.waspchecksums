@@ -270,7 +270,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ad24292ddb6692f36fddd161c5e649b87500fd2d926c63d08925bd2a03b8ad40"
+        "3b5e6a52e03397b06fed01cd553c5effe5f10901d8a951eafb3825850a5859fc"
     ],
     [
         [
@@ -298,7 +298,7 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "08ee82d98b866111c816c3f8199895bb4045b460422821e73fc9be34c1c69e00"
+        "da7301d8436dac60e25dabdaf5987c96d92c32be8939efd3f0e011f6a0c47ccb"
     ],
     [
         [
@@ -340,7 +340,7 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "afa8c3a0c3c4f65038dd2bc15c70ce25d002882633769266259ec1c250f907b6"
+        "13b39da89b7d11cfd212e244b16d2686b667d3577a41271d2736b08346ff6fb5"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "server/loadDotEnv.cjs"
         ],
-        "31a019e226b1c4c28ed560ae0efa6f840b63099f42a1d997508eaa277505f268"
+        "49300caf7be78451b5bde33f2581eab510875b43238217af5e1b75a895572225"
     ],
     [
         [
@@ -515,7 +515,7 @@
             "file",
             "server/prepareProduction.ts"
         ],
-        "94edd1ec099fac658c2bee8547aa4bb1ef304667aa9c61c9db3fcef7439dcad4"
+        "dea50df577c769c6bbde7e276c49050fa2fcf8fdcadb8f5d689f2e66a4645476"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "35e1a119e2e59dbf95d613db38e466fcd6611067b7ecf10b3aba9bcbfedf70a8"
+        "79cda8474b569afc06ee6c0bd2ff33d14a37b3509646670ddef72982ec45b661"
     ],
     [
         [

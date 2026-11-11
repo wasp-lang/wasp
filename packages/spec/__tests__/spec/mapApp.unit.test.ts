@@ -96,6 +96,7 @@ describe("convertWaspSpecToAppSpec", () => {
     const api = Fixtures.getApi("full");
     const apiNamespace = Fixtures.getApiNamespace("full");
     const job = Fixtures.getJob("full");
+    const task = Fixtures.getTask("full");
     const crud = Fixtures.getCrud("full");
     const emailVerifyRoute = Fixtures.getEmailVerifyRoute();
     const passwordResetRoute = Fixtures.getPasswordResetRoute();
@@ -127,6 +128,7 @@ describe("convertWaspSpecToAppSpec", () => {
         api,
         apiNamespace,
         job,
+        task,
         crud,
         emailVerifyRoute,
         passwordResetRoute,
@@ -165,6 +167,7 @@ describe("convertWaspSpecToAppSpec", () => {
       SpecElementMapper.mapApiSpec(api, ctx),
       SpecElementMapper.mapApiNamespaceSpec(apiNamespace, ctx),
       SpecElementMapper.mapJobSpec(job, ctx),
+      SpecElementMapper.mapTaskSpec(task, ctx),
       SpecElementMapper.mapCrudSpec(crud, ctx),
       SpecElementMapper.mapPageSpec(emailVerifyRoute.page, ctx),
       SpecElementMapper.mapRouteSpec(emailVerifyRoute, ctx),
@@ -1024,6 +1027,39 @@ describe("mapJob", () => {
         entities: job.entities?.map(ctx.resolveEntityRef),
       },
     } satisfies AppSpec.GetDeclForType<"Job">);
+  }
+});
+
+describe("mapTask", () => {
+  test("should map minimal config correctly", () => {
+    testMapTask(Fixtures.getTask("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapTask(Fixtures.getTask("full"));
+  });
+
+  test("should throw if entity ref is not provided", () => {
+    const task = Fixtures.getTask("full");
+    const ctx = makeMapperContext({ entityNames: [] });
+
+    expect(() => SpecElementMapper.mapTaskSpec(task, ctx)).toThrow();
+  });
+
+  function testMapTask(task: WaspSpec.Task): void {
+    const ctx = makeMapperContext({ entityNames: task.entities ?? [] });
+
+    const result = SpecElementMapper.mapTaskSpec(task, ctx);
+
+    expect(result).toStrictEqual({
+      declType: "Task",
+      declValue: {
+        name: getRefObjectDeclarationName(task.fn),
+        fn: mapRefObjectForMockProjectDir(task.fn),
+        entities: task.entities?.map(ctx.resolveEntityRef),
+        description: task.description,
+      },
+    } satisfies AppSpec.GetDeclForType<"Task">);
   }
 });
 

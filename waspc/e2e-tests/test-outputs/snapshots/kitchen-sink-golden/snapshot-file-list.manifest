@@ -607,6 +607,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/tasks/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/tasks/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/tasks/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/tasks/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/types/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/types/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/types/index.js
@@ -690,6 +694,7 @@ wasp-app/.wasp/out/sdk/wasp/server/operations/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/queries/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/wrappers.ts
+wasp-app/.wasp/out/sdk/wasp/server/tasks/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/webSocket/index.ts
@@ -708,6 +713,7 @@ wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/prepareProduction.ts
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/rollup.dbSeed.config.js
+wasp-app/.wasp/out/server/rollup.tasks.config.js
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToVoidAuth.ts
@@ -812,7 +818,9 @@ wasp-app/.wasp/out/server/src/routes/operations/unspecifiedToNumber.js
 wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
+wasp-app/.wasp/out/server/src/runTaskFromCli.ts
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/tasks.ts
 wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
@@ -907,6 +915,8 @@ wasp-app/src/features/auth/user.ts
 wasp-app/src/features/chat/chat.wasp.ts
 wasp-app/src/features/chat/pages/ChatPage.tsx
 wasp-app/src/features/chat/webSocket.ts
+wasp-app/src/features/cli-tasks/cliTasks.wasp.ts
+wasp-app/src/features/cli-tasks/deleteDoneTasks.ts
 wasp-app/src/features/crud/crud.ts
 wasp-app/src/features/crud/crud.wasp.ts
 wasp-app/src/features/crud/pages/DetailPage.tsx

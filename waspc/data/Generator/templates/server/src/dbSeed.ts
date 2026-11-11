@@ -1,38 +1,27 @@
 {{={= =}=}}
-
-// This is a script that is used to seed the database. It is present here in the server project in
-// order to have easy access to the server logic, like operations and the rest, since we often want
-// to use that logic in our seeding.
+// The script behind `wasp db seed`. It lives in the server project so seeds
+// can use the server logic, like operations and the rest.
 // TODO: Consider in the future moving it into a a separate project (maybe db/ ?), while still
 //   maintaining access to logic from the server/ .
 
-import { prisma, DbSeedFn } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { prisma, type DbSeedFn } from 'wasp/server'
+import { runTaskFromCli } from './runTaskFromCli.js'
 
 {=# dbSeeds =}
 {=& importStatement =}
 {=/ dbSeeds =}
 
-const seeds = {
-  {=# dbSeeds =}
-  {= importIdentifier =},
-  {=/ dbSeeds =}
-}
+await runTaskFromCli(
+  {
+    {=# dbSeeds =}
+    {= seedName =}: withPrisma({= importIdentifier =}),
+    {=/ dbSeeds =}
+  },
+  (seedName) => ({ source: "dbSeed", seedName }),
+)
 
-async function main() {
-  const nameOfSeedToRun = process.env.{= dbSeedNameEnvVarName =}
-  if (nameOfSeedToRun) {
-    console.log(`Running seed: ${nameOfSeedToRun}`)
-  } else {
-    console.error('Name of the seed to run not specified!')
-  }
-  await (seeds[nameOfSeedToRun] satisfies DbSeedFn)(prisma)
+// Typing `seed` as a parameter, instead of calling it directly, lets it take
+// fewer parameters than Wasp passes it.
+function withPrisma(seed: DbSeedFn) {
+  return () => seed(prisma)
 }
-
-main()
-  .then(async () => { await prisma.$disconnect() })
-  .catch(async (error: unknown) => {
-    reportUnexpectedServerError(error, { source: "dbSeed" });
-    await prisma.$disconnect()
-    process.exit(1)
-  })

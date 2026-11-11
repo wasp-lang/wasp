@@ -116,6 +116,7 @@ const sidebars: SidebarsConfig = {
         },
         "features/email",
         "features/jobs",
+        "features/tasks",
         "features/websockets",
         "features/apis",
       ],

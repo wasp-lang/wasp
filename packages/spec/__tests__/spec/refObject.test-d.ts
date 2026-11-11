@@ -57,6 +57,10 @@ describe("RefObject input types", () => {
       fn: operation,
       executor: "PgBoss",
     });
+    assertType<WaspSpec.Task>({
+      kind: "task",
+      fn: operation,
+    });
     assertType<WaspSpec.WebSocket>({ fn: operation });
     assertType<WaspSpec.Auth>({
       userEntity: "User",

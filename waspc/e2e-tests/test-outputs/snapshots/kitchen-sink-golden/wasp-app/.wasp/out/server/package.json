@@ -34,10 +34,11 @@
   "name": "@wasp/generated-server",
   "private": true,
   "scripts": {
-    "bundle": "tsc --build && rollup --config --silent",
+    "bundle": "tsc --build && rollup --config --silent && rollup --config rollup.tasks.config.js --silent",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start": "cd ../../../ && node --enable-source-maps -r ./.wasp/out/server/loadDotEnv.cjs .wasp/out/server/bundle/server.js",
-    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start"
+    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start",
+    "task": "cd ../../../ && node --enable-source-maps -r ./.wasp/out/server/loadDotEnv.cjs .wasp/out/server/bundle/tasks.js"
   },
   "type": "module",
   "version": "0.0.0"

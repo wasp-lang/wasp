@@ -41,6 +41,8 @@ COMMANDS
                           Optionally specify a custom port, Docker image, or Docker volume mount path.
                           If the port is not specified, Wasp picks the first free port when the default one is taken.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.
+    task <task-cmd> [args]
+                          Lists or runs your app's tasks. Run 'wasp task help' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
@@ -156,7 +158,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
 ```
 - `wasp deps` lists the dependencies that Wasp uses in your project.
-- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
+- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, jobs, and tasks. It also supports the `--json` flag.
 - `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
@@ -175,6 +177,12 @@ Although Wasp uses the `schema.prisma` file to define the database schema, you m
 Wasp adds some additional functionality on top of Prisma, and using `prisma` commands directly can lead to unexpected behavior e.g. missing auth models, incorrect database setup, etc.
 
 :::
+
+### Task Commands
+These commands work with your app's [Tasks](../features/tasks.md).
+
+- `wasp task list` lists the Tasks in your app, with their descriptions.
+- `wasp task run <name> [args...]` runs the Task with the given name in development. Wasp passes any arguments after the name to the Task.
 
 ### Bash Completion
 

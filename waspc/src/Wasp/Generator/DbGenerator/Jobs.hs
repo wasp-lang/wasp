@@ -4,7 +4,6 @@ module Wasp.Generator.DbGenerator.Jobs
     generatePrismaClient,
     runStudio,
     reset,
-    seed,
     dbExecuteTest,
     migrateStatus,
     formatSchema,
@@ -18,12 +17,8 @@ import System.Exit (ExitCode)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
-import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
-import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import qualified Wasp.Job as J
-import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 
 migrateDev :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> J.Job ExitCode
 migrateDev envVars generatedAppDir migrateArgs =
@@ -124,27 +119,6 @@ reset envVars generatedAppDir resetArgs =
       )
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
-
--- | Bundles the server's db seed script and runs the seed with the given name.
-seed :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job ExitCode
-seed envVars generatedAppDir seedName =
-  runInServerDir ServerNodeCommands.typeCheckServer
-    `J.andThen` runInServerDir ServerNodeCommands.bundleDbSeed
-    `J.andThen` runSeed
-  where
-    runInServerDir nodeCommand =
-      J.fromProc
-        . J.addEnvVarsOverride seedEnvVars
-        $ NodeCommand.proc serverDir nodeCommand
-    runSeed =
-      J.fromProc
-        . J.addEnvVarsOverride seedEnvVars
-        -- The user's seed function can ask for input.
-        . J.markInteractive
-        $ NodeCommand.proc waspProjectDir ServerNodeCommands.runDbSeed
-    seedEnvVars = (dbSeedNameEnvVarName, seedName) : envVars
-    serverDir = generatedAppDir </> serverRootDirInGeneratedAppDir
-    waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
 -- | Checks if the DB is running and connectable by running
 -- `prisma db execute --stdin --schema <path to db schema>`.

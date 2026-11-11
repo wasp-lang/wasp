@@ -895,6 +895,7 @@ export type SpecElement =
   | Api
   | ApiNamespace
   | Job
+  | Task
   | Crud;
 
 /**
@@ -1214,6 +1215,39 @@ export interface Schedule {
  */
 export interface ExecutorOptions {
   pgBoss: object;
+}
+
+/**
+ * An administrative task, run from the terminal with `wasp task run <name>`
+ * during development, or with `npm run task -- <name>` in the built server.
+ *
+ * Its name is the identifier of the imported {@link Task.fn}.
+ *
+ * Create one with the {@link task} constructor.
+ *
+ * See [Tasks](https://wasp.sh/docs/features/tasks).
+ *
+ * @category Specifications
+ */
+export interface Task extends BaseSpecElement<"task"> {
+  /**
+   * Reference to the task's NodeJS implementation. It receives the arguments
+   * passed after the task's name on the command line, and a context containing
+   * the declared entities.
+   *
+   * See [Implementing a task](https://wasp.sh/docs/features/tasks#implementing-a-task).
+   */
+  fn: Reference<AnyFunction>;
+  /**
+   * Entities the task operates on. Wasp injects a Prisma delegate for each
+   * one into the task's `context.entities`.
+   *
+   * This works like entity access in queries and actions. See
+   * [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
+   */
+  entities?: EntityName[];
+  /** Short description shown by `wasp task list`. */
+  description?: string;
 }
 
 /**

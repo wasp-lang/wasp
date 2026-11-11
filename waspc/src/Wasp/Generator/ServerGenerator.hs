@@ -16,6 +16,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
@@ -58,12 +59,12 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.Generator.ServerGenerator.TaskRunner (TaskRunner (AppTasks), genTaskRunners, hasTaskRunner, taskRunnerBundleInServerRootDir)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
@@ -92,6 +93,7 @@ genServer spec =
     <++> genJobs spec
     <++> genApis spec
     <++> genCrud spec
+    <++> genTaskRunners spec
   where
     genFileCopy = return . C.mkTmplFd
     npmDeps = npmDepsFromWasp spec
@@ -139,6 +141,7 @@ genPackageJson spec waspDependencies =
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "serverBundleCommand" .= serverBundleCommand,
               "devServerStartCommand" .= devServerStartCommand,
+              "taskCommand" .= taskCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
@@ -151,7 +154,16 @@ genPackageJson spec waspDependencies =
 
     -- npm scripts run from the server dir.
     serverBundleCommand =
-      NodeCommand.toShellCommand ServerNodeCommands.typeCheckServer <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.bundleServer
+      intercalate " && "
+        $ map NodeCommand.toShellCommand
+        $ [ServerNodeCommands.typeCheckServer, ServerNodeCommands.bundleServer]
+          ++ [ServerNodeCommands.bundleTaskRunner AppTasks | hasAppTasks]
+    -- Lets the built server run the app's tasks: `npm run task -- <name> [args...]`.
+    taskCommand =
+      if hasAppTasks
+        then Just $ NodeCommand.toShellCommandFrom waspProjectDirFromServerDir $ ServerNodeCommands.runTaskRunner AppTasks
+        else Nothing
+    hasAppTasks = hasTaskRunner spec AppTasks
     devServerStartCommand =
       NodeCommand.toShellCommandFrom waspProjectDirFromServerDir ServerNodeCommands.runServer
     waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
@@ -231,11 +243,13 @@ genPrepareProduction spec =
       ( Just $
           object
             [ "traceDeps" .= Aeson.Text.encodeToLazyText traceDeps,
-              "runsMigrations" .= Aeson.Text.encodeToLazyText (runsMigrationsOnStart spec)
+              "runsMigrations" .= Aeson.Text.encodeToLazyText (runsMigrationsOnStart spec),
+              "taskRunnerBundles" .= Aeson.Text.encodeToLazyText taskRunnerBundles
             ]
       )
   where
     traceDeps = fromMaybe [] $ AS.App.server (getApp spec) >>= AS.App.Server.traceDeps
+    taskRunnerBundles = [SP.fromRelFile $ taskRunnerBundleInServerRootDir AppTasks | hasTaskRunner spec AppTasks]
 
 -- | The server runs DB migrations on start when the app has entities.
 runsMigrationsOnStart :: AppSpec -> Bool
@@ -252,7 +266,6 @@ genSrcDir spec =
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
-    <++> genDbSeed spec
     <++> genMiddleware spec
     <++> genWebSockets spec
   where

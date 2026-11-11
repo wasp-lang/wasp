@@ -10,6 +10,7 @@ export {
   page,
   query,
   route,
+  task,
 } from "./constructors.js";
 export type {
   ActionConfig,
@@ -20,6 +21,7 @@ export type {
   PageConfig,
   QueryConfig,
   RouteConfig,
+  TaskConfig,
 } from "./constructors.js";
 export type { Register } from "./register.js";
 export type * from "./waspSpec.js";

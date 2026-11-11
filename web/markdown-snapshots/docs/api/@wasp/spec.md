@@ -799,6 +799,62 @@ import MainPage from './src/MainPage' with { type: 'ref' }
 route('MainRoute', '/', page(MainPage))
 ```
 
+---
+
+### task() {#task-1}
+
+> **task**(`fn`, `config?`): [`Task`](#task)
+
+Creates a [Task](#task) definition.
+
+Tasks are functions you run from the terminal for administrative work, such as backfilling data or creating an admin user. Run them with `wasp task run <name> [args...]` during development, or with `npm run task -- <name> [args...]` in the built server.
+
+See [Tasks](https://wasp.sh/docs/features/tasks).
+
+#### Parameters
+
+##### fn
+
+[`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+The function that performs the task. It receives the command-line arguments and a context containing the declared entities.
+
+Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) when passing values from your app into the Wasp spec. If a direct import is not practical, use [ref](#ref) as a fallback.
+
+##### config?
+
+Optional `entities` and `description`.
+
+###### description?
+
+`string`
+
+Short description shown by `wasp task list`.
+
+###### entities?
+
+`string`\[]
+
+Entities the task operates on. Wasp injects a Prisma delegate for each one into the task's `context.entities`.
+
+This works like entity access in queries and actions. See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
+
+#### Returns
+
+[`Task`](#task)
+
+#### Example
+
+```ts
+import { task } from '@wasp/spec'
+import { createAdmin } from './src/tasks' with { type: 'ref' }
+
+task(createAdmin, {
+  entities: ['User'],
+  description: 'Creates an admin user with the given email.',
+})
+```
+
 ## Specifications
 
 ### Action {#action}
@@ -1260,6 +1316,56 @@ export default app({
 
 ---
 
+### Task {#task}
+
+An administrative task, run from the terminal with `wasp task run <name>` during development, or with `npm run task -- <name>` in the built server.
+
+Its name is the identifier of the imported [Task.fn](#fn-4).
+
+Create one with the [task](#task-1) constructor.
+
+See [Tasks](https://wasp.sh/docs/features/tasks).
+
+#### Extends
+
+- [`BaseSpecElement`](#basespecelement)<`"task"`>
+
+#### Properties
+
+##### description? {#description}
+
+> `optional` **description?**: `string`
+
+Short description shown by `wasp task list`.
+
+##### entities? {#entities-4}
+
+> `optional` **entities?**: `string`\[]
+
+Entities the task operates on. Wasp injects a Prisma delegate for each one into the task's `context.entities`.
+
+This works like entity access in queries and actions. See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
+
+##### fn {#fn-4}
+
+> **fn**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Reference to the task's NodeJS implementation. It receives the arguments passed after the task's name on the command line, and a context containing the declared entities.
+
+See [Implementing a task](https://wasp.sh/docs/features/tasks#implementing-a-task).
+
+##### kind {#kind-10}
+
+> **kind**: `"task"`
+
+The internal Wasp type of a [SpecElement](#specelement). Used by the compiler. You should not set this field directly, instead use the dedicated constructors.
+
+###### Inherited from
+
+[`BaseSpecElement`](#basespecelement).[`kind`](#kind-4)
+
+---
+
 ### Spec {#spec-1}
 
 > **Spec** = [`SpecElement`](#specelement) | [`Spec`](#spec-1)\[]
@@ -1288,7 +1394,7 @@ export default app({
 
 ### SpecElement
 
-> **SpecElement** = [`Page`](#page) | [`Route`](#route) | [`Query`](#query) | [`Action`](#action) | [`Api`](#api) | [`ApiNamespace`](#apinamespace) | [`Job`](#job) | [`Crud`](#crud)
+> **SpecElement** = [`Page`](#page) | [`Route`](#route) | [`Query`](#query) | [`Action`](#action) | [`Api`](#api) | [`ApiNamespace`](#apinamespace) | [`Job`](#job) | [`Task`](#task) | [`Crud`](#crud)
 
 Union of every kind of specification element that can appear in [App.spec](#spec).
 
@@ -2579,7 +2685,7 @@ If `true` (the default), the client connects to the WebSocket server as soon as 
 true
 ```
 
-##### fn {#fn-4}
+##### fn {#fn-5}
 
 > **fn**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
@@ -2643,7 +2749,7 @@ Supported email sender providers.
 
 ### EntityName
 
-> **EntityName** = keyof [`Entities`](#entities-4) *extends* `never` ? `string` : `Extract`\<keyof [`Entities`](#entities-4), `string`>
+> **EntityName** = keyof [`Entities`](#entities-5) *extends* `never` ? `string` : `Extract`\<keyof [`Entities`](#entities-5), `string`>
 
 One of the app's entity names, matching a model in `schema.prisma`.
 
@@ -2700,6 +2806,14 @@ The optional configuration object accepted as the last argument of the [query](#
 > **RouteConfig** = `Omit`<[`Route`](#route), `"kind"` | `"name"` | `"path"` | `"page"`>
 
 The optional configuration object accepted as the last argument of the [route](#route-1) constructor.
+
+---
+
+### TaskConfig
+
+> **TaskConfig** = `Omit`<[`Task`](#task), `"kind"` | `"fn"`>
+
+The optional configuration object accepted as the last argument of the [task](#task-1) constructor.
 
 ## Referenced Types
 
@@ -2799,6 +2913,7 @@ export const userSignupFields = defineUserSignupFields({
 - [`Api`](#api)
 - [`ApiNamespace`](#apinamespace)
 - [`Job`](#job)
+- [`Task`](#task)
 - [`Crud`](#crud)
 
 #### Type Parameters
@@ -2924,7 +3039,7 @@ export const userSignupFields = defineUserSignupFields({
 
 ---
 
-### Entities {#entities-4}
+### Entities {#entities-5}
 
 > **Entities** = [`FromRegister`](#fromregister)<`"entities"`, { }>
 

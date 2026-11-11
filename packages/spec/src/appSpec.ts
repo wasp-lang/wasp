@@ -18,6 +18,7 @@ export type DeclTypeToValue = {
   Query: Query;
   Action: Action;
   Job: Job;
+  Task: Task;
   Api: Api;
   ApiNamespace: ApiNamespace;
   Crud: Crud;
@@ -79,6 +80,13 @@ export type Schedule = {
 export type Perform = {
   fn: ExtImport;
   executorOptions: Optional<ExecutorOptions>;
+};
+
+export type Task = {
+  name: string;
+  fn: ExtImport;
+  entities: Optional<Ref<"Entity">[]>;
+  description: Optional<string>;
 };
 
 export type Api = {

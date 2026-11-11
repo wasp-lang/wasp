@@ -16,6 +16,7 @@ import {
 import { apisSpec } from "./src/features/apis/apis.wasp";
 import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
 import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";
+import { cliTasksSpec } from "./src/features/cli-tasks/cliTasks.wasp";
 import { crudSpec } from "./src/features/crud/crud.wasp";
 import { db } from "./src/features/db/db.wasp";
 import { errorsSpec } from "./src/features/errors/errors.wasp";
@@ -59,6 +60,7 @@ export default app({
     authSpec,
     operationsSpec,
     jobsSpec,
+    cliTasksSpec,
     apisSpec,
     errorsSpec,
     crudSpec,

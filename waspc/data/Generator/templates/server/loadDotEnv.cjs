@@ -1,4 +1,4 @@
-// The server and the db seeds preload this file (`node -r`) and run from the
+// The server, the tasks, and the db seeds preload this file (`node -r`) and run from the
 // Wasp project dir. Requiring `dotenv` from here resolves it from the server
 // package, no matter where npm installed it.
 require("dotenv").config({ path: require("node:path").join(__dirname, ".env") });

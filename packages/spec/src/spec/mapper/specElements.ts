@@ -12,6 +12,7 @@ export const AppSpecDeclTypeForWaspSpecElementKind = {
   api: "Api",
   apiNamespace: "ApiNamespace",
   job: "Job",
+  task: "Task",
   crud: "Crud",
 } as const satisfies Record<
   WaspSpec.SpecElement["kind"],
@@ -49,6 +50,8 @@ export function mapSpecElement<T extends WaspSpec.SpecElement>(
       return mapApiNamespaceSpec(el, ctx);
     case "job":
       return mapJobSpec(el, ctx);
+    case "task":
+      return mapTaskSpec(el, ctx);
     case "crud":
       return mapCrudSpec(el, ctx);
     default:
@@ -170,6 +173,22 @@ export function mapJobSpec(
       },
       schedule: schedule && mapSchedule(schedule),
       entities: entities?.map(ctx.resolveEntityRef),
+    },
+  };
+}
+
+export function mapTaskSpec(
+  task: WaspSpec.Task,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Task"> {
+  const { fn, entities, description } = task;
+  return {
+    declType: "Task",
+    declValue: {
+      name: getRefObjectDeclarationName(fn),
+      fn: ctx.parseRefObject(fn),
+      entities: entities?.map(ctx.resolveEntityRef),
+      description,
     },
   };
 }

@@ -189,6 +189,7 @@ library
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query
     Wasp.AppSpec.Route
+    Wasp.AppSpec.Task
     Wasp.AppSpec.Util
     Wasp.AppSpec.Valid
     Wasp.CompileOptions
@@ -264,6 +265,7 @@ library
     Wasp.Generator.SdkGenerator.Server.JobGenerator
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
+    Wasp.Generator.SdkGenerator.Server.TasksG
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
@@ -275,7 +277,6 @@ library
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.CrudG
-    Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.NodeCommands
@@ -284,6 +285,8 @@ library
     Wasp.Generator.ServerGenerator.RunConfig
     Wasp.Generator.ServerGenerator.ServerEffect
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.TaskRunner
+    Wasp.Generator.ServerGenerator.TaskRunner.Jobs
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
@@ -508,6 +511,7 @@ library cli-lib
     Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
+    Wasp.Cli.Command.Task
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -751,6 +755,7 @@ test-suite waspc-e2e-tests
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
     Tests.WaspStudioTest
+    Tests.WaspTaskTest
     Tests.WaspTelemetryTest
     Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest

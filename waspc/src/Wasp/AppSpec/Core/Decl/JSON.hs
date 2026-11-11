@@ -16,6 +16,7 @@ import Wasp.AppSpec.Job ()
 import Wasp.AppSpec.Page ()
 import Wasp.AppSpec.Query ()
 import Wasp.AppSpec.Route ()
+import Wasp.AppSpec.Task ()
 
 -- This TH function assumes that all IsDecl instances are imported in this file.
 -- It needs this to be able to pick them up.

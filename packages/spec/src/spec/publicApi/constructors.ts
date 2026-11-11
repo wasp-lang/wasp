@@ -8,6 +8,7 @@ import type {
   Page,
   Query,
   Route,
+  Task,
 } from "./waspSpec.js";
 
 // Throughout this file, in order for the constructor's input type to be
@@ -371,6 +372,48 @@ export function job(fn: Job["fn"], config: JobConfig): Job {
  * @expandType Job
  */
 export type JobConfig = Omit<Job, "kind" | "fn">;
+
+/**
+ * Creates a {@link Task} definition.
+ *
+ * Tasks are functions you run from the terminal for administrative work, such
+ * as backfilling data or creating an admin user. Run them with
+ * `wasp task run <name> [args...]` during development, or with
+ * `npm run task -- <name> [args...]` in the built server.
+ *
+ * See [Tasks](https://wasp.sh/docs/features/tasks).
+ *
+ * @example
+ * ```ts
+ * import { task } from '@wasp/spec'
+ * import { createAdmin } from './src/tasks' with { type: 'ref' }
+ *
+ * task(createAdmin, {
+ *   entities: ['User'],
+ *   description: 'Creates an admin user with the given email.',
+ * })
+ * ```
+ *
+ * @param fn The function that performs the task. It receives the command-line
+ *   arguments and a context containing the declared entities.
+ *
+ * {@include ./referenceImports.md}
+ * @param config Optional `entities` and `description`.
+ *
+ * @category Constructors
+ */
+export function task(fn: Task["fn"], config?: TaskConfig): Task {
+  return { kind: "task", fn, ...config };
+}
+
+/**
+ * The optional configuration object accepted as the last argument of the
+ * {@link task} constructor.
+ *
+ * @inline
+ * @expandType Task
+ */
+export type TaskConfig = Omit<Task, "kind" | "fn">;
 
 /**
  * Creates a {@link Crud} definition.

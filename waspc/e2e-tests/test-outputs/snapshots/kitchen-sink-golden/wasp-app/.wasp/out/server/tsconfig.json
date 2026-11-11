@@ -28,6 +28,7 @@
     "src",
     "rollup.config.js",
     "rollup.dbSeed.config.js",
+    "rollup.tasks.config.js",
     "prepareProduction.ts"
   ],
   "references": [

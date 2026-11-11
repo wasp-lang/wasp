@@ -9,7 +9,8 @@
     "bundle": "{=& serverBundleCommand =}",
     "start": "{=& devServerStartCommand =}",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "start-production": "{=& startProductionScript =}"
+    "start-production": "{=& startProductionScript =}"{=# taskCommand =},
+    "task": "{=& taskCommand =}"{=/ taskCommand =}
   },
   "engineStrict": true,
   "engines": {
