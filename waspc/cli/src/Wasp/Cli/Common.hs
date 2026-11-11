@@ -5,10 +5,8 @@ module Wasp.Cli.Common
   )
 where
 
-import qualified Wasp.Util.Terminal as Term
-
 waspSays :: String -> IO ()
-waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
+waspSays = putStrLn
 
 waspWarns :: String -> IO ()
 waspWarns = putStrLn
