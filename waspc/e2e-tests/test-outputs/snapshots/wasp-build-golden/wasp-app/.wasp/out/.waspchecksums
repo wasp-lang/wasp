@@ -270,7 +270,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ad24292ddb6692f36fddd161c5e649b87500fd2d926c63d08925bd2a03b8ad40"
+        "6b9d65afbc2b0aa082233cacdbf94ee16f58109bb35916c98a29dd107cc30b9c"
     ],
     [
         [
@@ -536,7 +536,7 @@
             "file",
             "server/src/createRollupBundle.js"
         ],
-        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
+        "b5a05234c334dd8524a40928c6b26803bfd6f31bd32aefc02dca0b7d7c96e802"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "fb7d3e5b74d6e3dbf5544f7d03d9af02e4c2de97ff6747603c1a0297ddd669cd"
+        "211b581caa34fc156a0d8e0c63fbd490a31e7e7c6a00eb533033b095901c9265"
     ],
     [
         [

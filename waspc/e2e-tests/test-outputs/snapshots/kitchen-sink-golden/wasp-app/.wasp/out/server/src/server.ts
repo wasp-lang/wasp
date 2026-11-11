@@ -8,13 +8,14 @@ import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
-import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
-import './jobs/core/allJobs.js'
-
 import { init as initWebSocket } from './webSocket/initialization.js'
 
 const startServer = async () => {
-  await startPgBoss()
+  // Importing these modules starts pg-boss and registers all the jobs with it.
+  // We import them dynamically so that it happens here, before the server
+  // setup and before it starts listening.
+  await import('wasp/server/jobs/core/pgBoss/pgBoss')
+  await import('./jobs/core/allJobs.js')
 
   const port = normalizePort(config.port)
   app.set('port', port)
