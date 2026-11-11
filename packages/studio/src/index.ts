@@ -6,7 +6,6 @@ import { parseArgs } from "node:util";
 
 import { defineDevframe } from "devframe";
 import { createDevServer } from "devframe/adapters/dev";
-import { buildOtpAuthUrl } from "devframe/node/auth";
 
 import { STUDIO_NAMESPACE } from "./shared/studio.js";
 import type { Data } from "./shared/types.js";
@@ -38,6 +37,9 @@ const studio = defineDevframe({
   cli: {
     port: 4000,
     portRange: [4000, 4100],
+    // Studio only shows the app's structure and binds to localhost, so it
+    // skips devframe's sign-in.
+    auth: false,
   },
   async setup(ctx) {
     const dataState = await ctx
@@ -63,6 +65,6 @@ const studio = defineDevframe({
 
 await createDevServer(studio, {
   onReady({ origin }) {
-    console.log(`➜ Open in your browser: ${buildOtpAuthUrl(origin)}`);
+    console.log(`➜ Open in your browser: ${origin}`);
   },
 });

@@ -22,4 +22,4 @@ In another terminal, run the server for that data file:
 pnpm run dev:server --data-file <path_to_data_file>
 ```
 
-Then open the link the server prints. It signs your browser in, and the browser stays signed in after that.
+Then open the URL the server prints.
