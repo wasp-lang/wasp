@@ -1,6 +1,7 @@
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, NodeProps, Position } from "@xyflow/react";
+import type { StudioNode } from "./factories";
 
-export const QueryNode = (props: NodeProps) => (
+export const QueryNode = (props: NodeProps<StudioNode>) => (
   <OperationNode
     {...props}
     label={
@@ -26,7 +27,7 @@ export const QueryNode = (props: NodeProps) => (
   />
 );
 
-export const ActionNode = (props: NodeProps) => (
+export const ActionNode = (props: NodeProps<StudioNode>) => (
   <OperationNode
     {...props}
     label={
@@ -59,7 +60,7 @@ export const OperationNode = ({
   sourcePosition = Position.Bottom,
   label = "Operation",
   color = "emerald",
-}: NodeProps & {
+}: NodeProps<StudioNode> & {
   label?: React.ReactNode;
   color?: string;
 }) => (
