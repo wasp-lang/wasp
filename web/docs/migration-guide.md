@@ -114,7 +114,34 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 4. Update your Vitest setup
+### 4. Upgrade Vite
+
+Wasp now requires Vite 8.3. Update the `vite` version in your `package.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "vite": "^8.1.0"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "vite": "^8.3.5"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 5. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -165,7 +192,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
          "devDependencies": {
            // highlight-next-line
            "vitest": "^4.1.9",
-           "vite": "^8.1.0"
+           "vite": "^8.3.5"
          }
        }
        ```
@@ -174,7 +201,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
        ```json title="package.json"
        {
          "devDependencies": {
-           "vite": "^8.1.0"
+           "vite": "^8.3.5"
          }
        }
        ```
@@ -363,7 +390,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](./advanced/testing.md).
 
-### 5. Upgrade to Prisma 6
+### 6. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -407,13 +434,13 @@ wasp db migrate-dev
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 6. Check relative paths in your server code
+### 7. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-### 7. Check the packages your server loads at runtime
+### 8. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -432,7 +459,7 @@ export default app({
 })
 ```
 
-### 8. Install the system dependencies your app needs
+### 9. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -442,7 +469,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-### 9. Update your custom Dockerfile
+### 10. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -454,6 +481,6 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 10. Enjoy your updated Wasp app
+### 11. Enjoy your updated Wasp app
 
 That's it!

@@ -12,7 +12,7 @@ import type { PatchesDirPath } from "../tutorialApp.js";
 import { extractTutorialActionNodes } from "./astTraversal.js";
 import { mapTutorialActionNodeToAction } from "./nodeMapping.js";
 
-type MdxContent = Branded<Buffer<ArrayBufferLike>, "MdxContent">;
+export type MdxContent = Branded<Buffer<ArrayBufferLike>, "MdxContent">;
 
 export async function getActionsFromMdxFile(
   sourceTutorialFilePath: MdxFilePath,
