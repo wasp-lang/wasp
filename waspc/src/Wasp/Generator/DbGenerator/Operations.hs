@@ -2,7 +2,8 @@ module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
     formatSchema,
-    doesSchemaMatchDb,
+    checkIfSchemaMatchesDb,
+    SchemaDbMatch (..),
     writeDbSchemaChecksumToFile,
     areAllMigrationsAppliedToDb,
     dbReset,
@@ -180,25 +181,38 @@ formatSchema generatedAppDir = do
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "Prisma schema formatting failed with exit code " ++ show code ++ ":\n" ++ T.unpack output
 
--- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
--- different than the DB. Returns Nothing on error as we do not know the current state.
--- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
--- Nothing if the check itself failed (exe: if a connection to the DB could not be established).
+data SchemaDbMatch
+  = SchemaMatchesDb
+  | SchemaDiffersFromDb
+  | DbDoesNotExist
+  | SchemaDbMatchCheckFailed
+  deriving (Eq, Show)
+
+-- | Runs `prisma migrate diff` to determine if schema.prisma matches the DB.
 -- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
-doesSchemaMatchDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
-doesSchemaMatchDb envVars generatedAppDirAbs = do
-  dbExitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.migrateDiff envVars generatedAppDirAbs
-  -- Schema in sync: 0, Error: 1, Schema differs: 2
-  case dbExitCode of
-    ExitSuccess -> return $ Just True
-    ExitFailure 2 -> return $ Just False
-    ExitFailure _ -> return Nothing
+checkIfSchemaMatchesDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO SchemaDbMatch
+checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ Job.prefixWith Job.Db $ do
+  (exitCode, output) <- Job.captureOutput $ DbJobs.migrateDiff envVars generatedAppDirAbs
+  let schemaDbMatch = case exitCode of
+        ExitSuccess -> SchemaMatchesDb
+        ExitFailure 2 -> SchemaDiffersFromDb
+        ExitFailure _
+          | prismaErrorContainsDbNotCreatedError output -> DbDoesNotExist
+          | otherwise -> SchemaDbMatchCheckFailed
+  -- We print output when check failed to help with figuring out why,
+  -- while others are known and therefore handled upstream.
+  case schemaDbMatch of
+    SchemaMatchesDb -> return ()
+    SchemaDiffersFromDb -> return ()
+    DbDoesNotExist -> return ()
+    SchemaDbMatchCheckFailed -> Job.emitOutput Job.Stderr output
+  return schemaDbMatch
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
 -- matches the DB. Returns Nothing on error as we do not know the current state.
 -- Returns Just True if all migrations are applied. Due to the fact the command
 -- returns an error on connection or unapplied migrations, Just False is never returned.
--- It is recommended to call this after some check that confirms DB connectivity, like `doesSchemaMatchDb`.
+-- It is recommended to call this after some check that confirms DB connectivity, like `checkIfSchemaMatchesDb`.
 areAllMigrationsAppliedToDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
 areAllMigrationsAppliedToDb envVars generatedAppDirAbs = do
   dbExitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.migrateStatus envVars generatedAppDirAbs
