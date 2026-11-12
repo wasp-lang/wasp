@@ -163,29 +163,29 @@ curl -X POST http://localhost:3001/__wasp/mailbox/api/emails.waitFor \
   -d '{ "search": "user@example.com", "searchIn": ["to"] }'
 ```
 
-In a Playwright test, the same looks like this. `wasp/server/email/devMailbox` exports the API path and the email types, and it's safe to import from tests:
+In tests and scripts, use the typed client from `wasp/server/email/devMailbox` instead of building requests yourself. It has `list`, `get`, `waitFor`, `delete`, and `clear`, and it's safe to import outside the Wasp server. For example, in a Playwright test:
 
 ```ts title="e2e-tests/auth.spec.ts" auto-js
 import { expect, test } from "@playwright/test"
-import {
-  devMailboxApiPath,
-  type DevMailboxEmail,
-} from "wasp/server/email/devMailbox"
+import { createDevMailboxClient } from "wasp/server/email/devMailbox"
 
-test("can verify email", async ({ page, request }) => {
+const devMailbox = createDevMailboxClient("http://localhost:3001")
+
+test("can verify email", async ({ page }) => {
   const address = "user@example.com"
   // ... sign up with `address`
 
-  const response = await request.post(
-    `http://localhost:3001${devMailboxApiPath}/emails.waitFor`,
-    { data: { search: address, searchIn: ["to"] } },
-  )
-  const { email }: { email: DevMailboxEmail } = await response.json()
+  const email = await devMailbox.waitFor({ search: address, searchIn: ["to"] })
+  if (email === undefined) {
+    throw new Error("The verification email didn't arrive.")
+  }
 
   await page.goto(email.links[0])
   await expect(page.locator("body")).toContainText("Your email has been verified")
 })
 ```
+
+`waitFor` and `get` resolve with `undefined` when no email matches. Other errors reject with a `DevMailboxApiError`, which has the error's `code`.
 
 ### Using the SMTP Provider {#smtp}
 

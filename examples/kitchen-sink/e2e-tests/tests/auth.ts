@@ -81,7 +81,7 @@ async function submitSignupForm(page: Page, credentials: Credentials) {
 */
 export async function performEmailVerification(page: Page, email: string) {
   const link = isRunningInDevMode()
-    ? await getDevMailboxEmailVerificationLink(page, email)
+    ? await getDevMailboxEmailVerificationLink(email)
     : await getMailCrabEmailVerificationLinkAfterDelivery(page, email);
 
   await page.goto(link);

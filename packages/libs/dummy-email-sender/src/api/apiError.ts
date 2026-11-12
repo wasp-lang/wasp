@@ -1,5 +1,7 @@
 import type { Request, RequestHandler, Response } from "express";
 
+import type { ApiErrorResponse } from "./apiContract.js";
+
 export type ApiErrorCode =
   | "invalid_filter"
   | "invalid_limit"
@@ -29,9 +31,9 @@ export function withApiErrorResponses(
       if (!(error instanceof ApiError)) {
         return next(error);
       }
-      res
-        .status(error.status)
-        .json({ error: { code: error.code, message: error.message } });
+      res.status(error.status).json({
+        error: { code: error.code, message: error.message },
+      } satisfies ApiErrorResponse);
     }
   };
 }

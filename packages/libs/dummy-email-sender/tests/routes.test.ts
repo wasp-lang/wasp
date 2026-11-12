@@ -1,57 +1,23 @@
-import * as fs from "node:fs";
-import type { Server } from "node:http";
-import type { AddressInfo } from "node:net";
-import * as os from "node:os";
-import * as path from "node:path";
-
-import express from "express";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { createDevMailbox, type DevMailbox } from "../src/core/devMailbox";
-import type { NewDevMailboxEmail } from "../src/core/email";
-import { registerDevMailboxRoutes } from "../src/routes";
+import type { DevMailbox } from "../src/core/devMailbox";
+import {
+  MAILBOX_PATH,
+  makeEmail,
+  startMailboxServer,
+  type MailboxServer,
+} from "./mailboxServer";
 
-const BASE_PATH = "/__wasp/mailbox";
-
-let directoryPath: string;
+let mailboxServer: MailboxServer;
 let mailbox: DevMailbox;
-let server: Server;
 let apiUrl: string;
 
 beforeEach(async () => {
-  directoryPath = fs.mkdtempSync(path.join(os.tmpdir(), "wasp-dev-mailbox-"));
-  mailbox = createDevMailbox({ directoryPath, maxEmails: 500 });
-
-  const router = express.Router();
-  router.use(express.json());
-  registerDevMailboxRoutes(router, mailbox, { appName: "TestApp" });
-  const app = express().use(BASE_PATH, router);
-
-  server = await new Promise<Server>((resolve) => {
-    const listeningServer = app.listen(0, () => resolve(listeningServer));
-  });
-  const { port } = server.address() as AddressInfo;
-  apiUrl = `http://localhost:${port}${BASE_PATH}/api`;
+  mailboxServer = await startMailboxServer();
+  ({ mailbox, apiUrl } = mailboxServer);
 });
 
-afterEach(async () => {
-  server.closeAllConnections();
-  await new Promise((resolve) => server.close(resolve));
-  fs.rmSync(directoryPath, { recursive: true, force: true });
-});
-
-function makeEmail(
-  overrides: Partial<NewDevMailboxEmail> = {},
-): NewDevMailboxEmail {
-  return {
-    from: { email: "app@app.test" },
-    to: "user@app.test",
-    subject: "Verify your email",
-    text: "Verify at https://app.test/verify",
-    html: `<a href="https://app.test/verify">Verify</a>`,
-    ...overrides,
-  };
-}
+afterEach(() => mailboxServer.close());
 
 function callAction(action: string, body: unknown) {
   return fetch(`${apiUrl}/${action}`, {
@@ -67,7 +33,7 @@ describe("dev mailbox routes", () => {
 
     expect(response.headers.get("content-type")).toMatch(/text\/html/);
     const page = await response.text();
-    expect(page).toContain(`"${BASE_PATH}/api"`);
+    expect(page).toContain(`"${MAILBOX_PATH}/api"`);
     expect(page).toContain("TestApp");
   });
 
@@ -228,27 +194,22 @@ describe("dev mailbox routes", () => {
   });
 
   it("fails loudly when the router doesn't parse JSON bodies", async () => {
-    const routerWithoutJsonParser = express.Router();
-    registerDevMailboxRoutes(routerWithoutJsonParser, mailbox, {
-      appName: "TestApp",
+    const serverWithoutJsonParser = await startMailboxServer({
+      shouldParseJson: false,
     });
-    const app = express().use(BASE_PATH, routerWithoutJsonParser);
-    const otherServer = await new Promise<Server>((resolve) => {
-      const listeningServer = app.listen(0, () => resolve(listeningServer));
+    const actionUrl = (path: string) =>
+      `${serverWithoutJsonParser.apiUrl}/${path}`;
+
+    const clearResponse = await fetch(actionUrl("emails.clear"), {
+      method: "POST",
     });
-    const { port } = otherServer.address() as AddressInfo;
+    const waitResponse = await fetch(actionUrl("emails.waitFor"), {
+      method: "POST",
+      body: "{}",
+    });
+    await serverWithoutJsonParser.close();
 
-    const response = await fetch(
-      `http://localhost:${port}${BASE_PATH}/api/emails.clear`,
-      { method: "POST" },
-    );
-    const waitResponse = await fetch(
-      `http://localhost:${port}${BASE_PATH}/api/emails.waitFor`,
-      { method: "POST", body: "{}" },
-    );
-    otherServer.close();
-
-    expect(response.status).toBe(200);
+    expect(clearResponse.status).toBe(200);
     expect(waitResponse.status).toBe(500);
   });
 });

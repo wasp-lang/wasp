@@ -2,6 +2,11 @@ import type { Router } from "express";
 
 import type { DevMailbox } from "../core/devMailbox.js";
 import type { DevMailboxEmail } from "../core/email.js";
+import type {
+  ActionResponse,
+  EmailResponse,
+  ListEmailsResponse,
+} from "./apiContract.js";
 import { ApiError, withApiErrorResponses } from "./apiError.js";
 import { DEV_MAILBOX_API_BASE_PATH, devMailboxApiPaths } from "./apiPaths.js";
 import { streamMailboxEvents } from "./events.js";
@@ -24,7 +29,9 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
     withApiErrorResponses((req, res) => {
       const filter = parseFilter(req.query);
       const limit = parseLimit(req.query.limit);
-      res.json({ emails: mailbox.list(filter, limit) });
+      res.json({
+        emails: mailbox.list(filter, limit),
+      } satisfies ListEmailsResponse);
     }),
   );
 
@@ -37,7 +44,7 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
     withApiErrorResponses((req, res) => {
       res.json({
         email: getEmailOrThrow(mailbox, parseEmailId(req.params.id)),
-      });
+      } satisfies EmailResponse);
     }),
   );
 
@@ -75,7 +82,7 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
           "No matching email arrived before the timeout.",
         );
       }
-      res.json({ email });
+      res.json({ email } satisfies EmailResponse);
     }),
   );
 
@@ -86,13 +93,13 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
       if (!mailbox.delete(id)) {
         throw emailNotFound(id);
       }
-      res.json({ ok: true });
+      res.json({ ok: true } satisfies ActionResponse);
     }),
   );
 
   router.post(route(devMailboxApiPaths.clearEmails), (_req, res) => {
     mailbox.clear();
-    res.json({ ok: true });
+    res.json({ ok: true } satisfies ActionResponse);
   });
 }
 
