@@ -167,7 +167,7 @@ isDbConnectionPossible _ = False
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 generatePrismaClient generatedAppDir = runExceptT $ do
-  ExceptT $ checkExitSuccess "Prisma client generation" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.generatePrismaClient generatedAppDir)
+  ExceptT $ Job.captureFailure $ DbJobs.generatePrismaClient generatedAppDir
   liftIO updateDbSchemaChecksumOnLastGenerate
   where
     updateDbSchemaChecksumOnLastGenerate =

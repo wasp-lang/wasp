@@ -18,7 +18,7 @@ import Data.Either (fromLeft)
 import Data.List (nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -31,6 +31,7 @@ import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
+import Wasp.Util.TaskStatus (runTaskWithStatusReport)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
@@ -138,32 +139,20 @@ formatPrismaSchema generatedAppDir = do
     Nothing -> return ()
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-generatePrismaClient spec generatedAppDir sendMessage = do
-  result <- liftIO $ do
-    sendMessage $ Msg.Start "Generating Prisma client..."
-    DbGenerator.generatePrismaClient spec generatedAppDir
-  case result of
-    Just generatorError -> throwError [generatorError]
-    Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
+generatePrismaClient spec generatedAppDir sendMessage =
+  abortIfFailed $ DbGenerator.generatePrismaClient spec generatedAppDir sendMessage
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-buildSdk generatedAppDir sendMessage = do
-  result <- liftIO $ do
-    sendMessage $ Msg.Start "Building SDK..."
-    SdkGenerator.buildSdk generatedAppDir
-  case result of
-    Left errorMessage -> throwError [GenericGeneratorError errorMessage]
-    Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
+buildSdk generatedAppDir sendMessage =
+  abortIfFailed
+    $ runTaskWithStatusReport sendMessage "Building the SDK" "Built the SDK" "Failed to build the SDK"
+    $ SdkGenerator.buildSdk generatedAppDir
 
 typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
-typeCheckUserCode spec sendMessage = do
-  exitCode <- liftIO $ do
-    sendMessage $ Msg.Start "Type-checking user code..."
-    J.run typeCheck
-  case exitCode of
-    ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
-    ExitFailure code ->
-      throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
+typeCheckUserCode spec sendMessage =
+  abortIfFailed
+    $ runTaskWithStatusReport sendMessage "Type-checking user code" "Type-checked user code" "Failed to type-check user code"
+    $ J.captureFailure typeCheck
   where
     typeCheck :: J.Job ExitCode
     typeCheck =
@@ -171,3 +160,7 @@ typeCheckUserCode spec sendMessage = do
         NodeCommand.proc
           (AS.waspProjectDir spec)
           (NodeCommands.typeCheckUserCode $ AS.srcTsConfigPath spec)
+
+-- | The task reports its own failure, so the setup only has to stop.
+abortIfFailed :: IO (Either String ()) -> Setup ()
+abortIfFailed task = liftIO task >>= either (const $ throwError [GeneratorAborted]) return

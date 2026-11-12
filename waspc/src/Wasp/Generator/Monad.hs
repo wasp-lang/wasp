@@ -40,11 +40,15 @@ data GeneratorState = GeneratorState
     errors :: [GeneratorError]
   }
 
-data GeneratorError = GenericGeneratorError String
+data GeneratorError
+  = GenericGeneratorError String
+  | -- | The step has already reported its error and only has to fail.
+    GeneratorAborted
   deriving (Eq)
 
 instance Show GeneratorError where
   show (GenericGeneratorError e) = e
+  show GeneratorAborted = ""
 
 data GeneratorWarning
   = GenericGeneratorWarning String

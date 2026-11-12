@@ -121,10 +121,12 @@ printWarningsIfAny warns = do
 
 printErrorsIfAny :: [CompileError] -> IO ()
 printErrorsIfAny errs = do
-  unless (null errs)
+  unless (null unreportedErrs)
     $ cliSendMessage
     $ Msg.Failure "Your wasp project failed to compile"
-    $ formatErrorOrWarningMessages errs
+    $ formatErrorOrWarningMessages unreportedErrs
+  where
+    unreportedErrs = filter (not . null) errs
 
 formatErrorOrWarningMessages :: [String] -> String
 formatErrorOrWarningMessages = intercalate "\n\n"

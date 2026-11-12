@@ -11,6 +11,7 @@ module Wasp.Job
     OutputType (..),
     emitOutput,
     captureOutput,
+    captureFailure,
     observeOutput,
     fromProc,
     JobType (..),
@@ -57,6 +58,17 @@ captureOutput job = do
   result <- withSink (const capture) job
   chunks <- liftIO $ readIORef chunksRef
   return (result, T.concat $ reverse chunks)
+
+-- | Runs the job and, if it fails, returns what it printed, or the exit code
+-- when it printed nothing.
+captureFailure :: Job ExitCode -> IO (Either String ())
+captureFailure job = do
+  (exitCode, output) <- run $ captureOutput job
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code
+      | T.null output -> Left $ "Exited with code " ++ show code
+      | otherwise -> Left $ T.unpack output
 
 -- | Calls @onOutput@ with every output the job emits, and then passes the
 -- output on unchanged.

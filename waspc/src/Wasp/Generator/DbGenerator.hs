@@ -46,6 +46,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
+import qualified Wasp.Message as Msg
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
@@ -56,6 +57,7 @@ import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, indent, (<:>))
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.TaskStatus (runTaskWithStatusReport)
 import Wasp.Util.Terminal (styleCode)
 
 genDb :: AppSpec -> Generator [FileDraft]
@@ -228,12 +230,16 @@ warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
           <> " may fix this and will provide more info.\n"
           <> indent 2 prismaOutput
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
-generatePrismaClient spec generatedAppDir = do
+generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> IO (Either String ())
+generatePrismaClient spec generatedAppDir sendMessage = do
   isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
-  if not isGeneratedPrismaClientValid
-    then generatePrismaClientIfEntitiesExist
-    else return Nothing
+  if not isGeneratedPrismaClientValid && entitiesExist
+    then
+      runTaskWithStatusReport sendMessage "Generating the Prisma client" "Generated the Prisma client" "Failed to generate the Prisma client" $
+        DbOps.generatePrismaClient generatedAppDir
+    else do
+      sendMessage $ Msg.Success "The Prisma client is up to date"
+      return $ Right ()
   where
     isCurrentSchemaUpToDate :: IO Bool
     isCurrentSchemaUpToDate =
@@ -249,12 +255,6 @@ generatePrismaClient spec generatedAppDir = do
       checksumFileExistsAndMatchesSchema
         generatedAppDir
         Wasp.Generator.DbGenerator.Common.dbSchemaFileInNodeModulesDir
-
-    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
-    generatePrismaClientIfEntitiesExist
-      | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
-      | otherwise = return Nothing
 
     entitiesExist = hasEntities spec
 
