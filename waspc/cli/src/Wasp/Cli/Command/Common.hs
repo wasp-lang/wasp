@@ -10,7 +10,6 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import StrongPath.Operations
 import System.Directory (findExecutable)
-import System.Exit (exitFailure)
 import System.IO.Error (tryIOError)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -33,14 +32,15 @@ deleteDirectoryIfExistsVerbosely dir = do
   dirExists <- liftIO $ IOUtil.doesDirectoryExist dir
   if dirExists
     then
-      liftIO $
-        runTaskWithStatusReport
-          cliSendMessage
-          ("Deleting the " ++ dirName ++ " directory")
-          ("Deleted the " ++ dirName ++ " directory")
-          ("Failed to delete the " ++ dirName ++ " directory")
-          (either (Left . show) Right <$> tryIOError (IOUtil.removeDirectory dir))
-          >>= either (const exitFailure) return
+      liftIO
+        ( runTaskWithStatusReport
+            cliSendMessage
+            ("Deleting the " ++ dirName ++ " directory")
+            ("Deleted the " ++ dirName ++ " directory")
+            ("Failed to delete the " ++ dirName ++ " directory")
+            (either (Left . show) Right <$> tryIOError (IOUtil.removeDirectory dir))
+        )
+        >>= either (const $ E.throwError CommandAborted) return
     else cliSendMessageC $ Msg.Success $ "The " ++ dirName ++ " directory is already gone"
   where
     dirName = styleLiteral $ SP.toFilePath $ basename dir
