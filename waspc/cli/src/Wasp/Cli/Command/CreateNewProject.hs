@@ -118,14 +118,13 @@ migrateDbForNewProject absWaspProjectDir =
         action
 
     warnAboutFailedMigration commandError = do
-      liftIO
-        $ putStrLn
-        $ Term.applyStyles [Term.Yellow]
-        $ "Warning: The project was created, but its database wasn't migrated.\n"
-          ++ _errorTitle commandError
-          ++ ": "
-          ++ _errorMsg commandError
-          ++ "\n"
+      liftIO $
+        putStrLn $
+          Term.applyStyles [Term.Yellow] $
+            "Warning: The project was created, but its database wasn't migrated.\n"
+              ++ case commandError of
+                CommandError title msg -> title ++ ": " ++ msg ++ "\n"
+                CommandAborted -> ""
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
