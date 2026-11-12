@@ -1,4 +1,4 @@
-24.22.1
+26.13.1
 # This file sets the Node version for mise, and for Cloudflare Pages when it
 # builds the website (through the /web/.node-version symlink).
 #

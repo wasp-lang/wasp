@@ -1,6 +1,6 @@
 import path from "path";
 
-import type { Branded } from "./brandedTypes";
+import type { Branded } from "./brandedTypes.ts";
 
 export type AppName = Branded<string, "AppName">;
 export type AppDirPath = Branded<string, "AppDirPath">;

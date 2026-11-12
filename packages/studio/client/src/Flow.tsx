@@ -266,27 +266,33 @@ export default function Flow({ data }: { data: Data }) {
       <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
         <Background
           style={{
-            backgroundColor: `var(--color-background)`,
+            backgroundColor: `var(--color-wasp-bg)`,
           }}
-          color={`#444`}
+          color={`var(--color-wasp-g3)`}
+          gap={16}
         />
       </ReactFlow>
     </div>
   );
 }
 
+// Estimates for ELK, matching the `NodeCard` layout: header and name, plus a
+// row per chip.
+const NODE_BASE_HEIGHT = 70;
+const NODE_CHIP_HEIGHT = 30;
+
 function getNodeHeight(node: StudioNode) {
   if (node.type === "apiNode") {
-    return 100;
+    return NODE_BASE_HEIGHT + NODE_CHIP_HEIGHT;
   }
   if (node.type === "jobNode" && node.data.schedule) {
-    return 100;
+    return NODE_BASE_HEIGHT + NODE_CHIP_HEIGHT;
   }
   if (node.type === "appNode") {
     const authMethods = node.data.auth?.methods ?? [];
-    return 100 + authMethods.length * 50;
+    return NODE_BASE_HEIGHT + (1 + authMethods.length) * NODE_CHIP_HEIGHT;
   }
-  return 50;
+  return NODE_BASE_HEIGHT;
 }
 
 function getNodeWidth(node: StudioNode) {

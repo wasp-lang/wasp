@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { MdxFilePath } from "../../src/actions/actions";
+import type { MdxFilePath } from "../../src/actions/actions.ts";
 import {
   getActionsFromMdxContent,
   type MdxContent,
-} from "../../src/extract-actions/mdxParsing";
-import type { PatchesDirPath } from "../../src/tutorialApp";
+} from "../../src/extract-actions/mdxParsing.ts";
+import type { PatchesDirPath } from "../../src/tutorialApp.ts";
 import {
   mdxWithApplyPatchAction,
   mdxWithInitAppAction,
@@ -17,7 +17,7 @@ import {
   mdxWithNoActions,
   mdxWithNonTutorialActionComponents,
   mdxWithUnknownActionType,
-} from "./mdxFileFixtures";
+} from "./mdxFileFixtures.ts";
 
 describe("getActionsFromMdxContent", () => {
   const context = {

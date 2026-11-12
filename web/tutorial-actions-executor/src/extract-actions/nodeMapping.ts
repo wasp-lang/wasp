@@ -1,12 +1,12 @@
-import type { Action, BaseAction, MdxFilePath } from "../actions/actions.js";
+import type { Action, BaseAction, MdxFilePath } from "../actions/actions.ts";
 import {
   createApplyPatchAction,
   createInitAppAction,
   createMigrateDbAction,
-} from "../actions/index.js";
-import { assertUnreachable } from "../assert.js";
-import type { PatchesDirPath } from "../tutorialApp.js";
-import type { TutorialActionNode } from "./astTraversal.js";
+} from "../actions/index.ts";
+import { assertUnreachable } from "../assert.ts";
+import type { PatchesDirPath } from "../tutorialApp.ts";
+import type { TutorialActionNode } from "./astTraversal.ts";
 
 export function mapTutorialActionNodeToAction(
   node: TutorialActionNode,

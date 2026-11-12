@@ -21,10 +21,9 @@ packages:
 # `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:
   typescript: ~6.0.3
-  "@types/node": ^24.0.1
+  "@types/node": ^26.0.0
   vitest: ^5.0.5
   "@vitest/coverage-v8": ^5.0.5
-  tsx: ^4.20.6
   zx: ^8.8.5
   commander: ^14.0.2
   execa: ^9.6.1

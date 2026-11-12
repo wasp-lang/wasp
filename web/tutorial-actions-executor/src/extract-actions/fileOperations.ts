@@ -1,8 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 
-import type { MdxFilePath } from "../actions/actions.js";
-import type { TutorialDirPath } from "../tutorialApp.js";
+import type { MdxFilePath } from "../actions/actions.ts";
+import type { TutorialDirPath } from "../tutorialApp.ts";
 
 const SUPPORTED_TUTORIAL_FILE_EXTENSIONS = ["md", "mdx"] as const;
 
