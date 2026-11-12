@@ -1,13 +1,18 @@
 import type { PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import {
+  prismaStudio,
+  waspStudio,
+  waspTerminals,
+  waspToolbar,
+} from "@wasp/lib-devtools/node";
+import {
   detectServerImports,
   envFile,
   typescriptCheck,
   validateEnv,
   type WaspPluginOptions,
 } from "@wasp/lib-sdk-core/node/vite";
-import { waspStudio } from "@wasp/lib-studio/node";
 import ssr from "@wasp/lib-vite-ssr";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
@@ -39,6 +44,12 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       ssrPaths: [],
       spaFallbackFile: "200.html",
     }),
-    waspStudio({ dataFile: ".wasp/out/.wasp-studio-data.json" }),
+    waspStudio(),
+    prismaStudio({
+      schemaFile: ".wasp/out/db/schema.prisma",
+      cwd: ".wasp/out/server/",
+    }),
+    waspTerminals(),
+    waspToolbar(),
   ];
 }
