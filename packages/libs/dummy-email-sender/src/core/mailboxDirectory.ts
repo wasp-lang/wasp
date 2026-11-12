@@ -6,11 +6,26 @@ import { isMessageId } from "./messageId.js";
 
 const MESSAGE_FILE_EXTENSION = ".json";
 
+export interface MailboxDirectory {
+  readonly path: string;
+  /** Oldest first. */
+  listMessageIds(): string[];
+  /** Returns `undefined` for missing or unreadable files. */
+  readMessage(id: string): DevMailboxMessage | undefined;
+  writeMessage(message: DevMailboxMessage): void;
+  deleteMessage(id: string): void;
+  /**
+   * Calls `onChange` when files change. Returns a function that stops
+   * watching. The watcher doesn't keep the process alive.
+   */
+  watch(onChange: () => void): () => void;
+}
+
 /**
  * One `<id>.json` file per message. Writes go to a temporary file that is
  * then renamed, so readers never see half a message.
  */
-export class MailboxDirectory {
+export class JsonFileMailboxDirectory implements MailboxDirectory {
   readonly path: string;
 
   constructor(directoryPath: string) {
@@ -34,7 +49,6 @@ export class MailboxDirectory {
       .sort();
   }
 
-  /** Returns `undefined` for missing or unreadable files. */
   readMessage(id: string): DevMailboxMessage | undefined {
     try {
       const content = fs.readFileSync(this.getMessageFilePath(id), "utf8");
@@ -59,7 +73,6 @@ export class MailboxDirectory {
     fs.rmSync(this.getMessageFilePath(id), { force: true });
   }
 
-  /** The watcher doesn't keep the process alive. */
   watch(onChange: () => void): () => void {
     fs.mkdirSync(this.path, { recursive: true });
     const watcher = fs.watch(this.path, { persistent: false }, onChange);

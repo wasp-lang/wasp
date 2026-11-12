@@ -7,9 +7,9 @@ import * as path from "node:path";
 import express from "express";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { DevMailbox } from "../src/mailbox/devMailbox";
-import type { DevMailboxEmail } from "../src/mailbox/message";
-import { registerDevMailboxRoutes } from "../src/mailbox/routes";
+import { createDevMailbox, type DevMailbox } from "../src/core/devMailbox";
+import type { DevMailboxEmail } from "../src/core/message";
+import { registerDevMailboxRoutes } from "../src/routes";
 
 const BASE_PATH = "/__wasp/mailbox";
 
@@ -20,7 +20,7 @@ let apiUrl: string;
 
 beforeEach(async () => {
   directoryPath = fs.mkdtempSync(path.join(os.tmpdir(), "wasp-dev-mailbox-"));
-  mailbox = new DevMailbox({ directoryPath, maxMessages: 500 });
+  mailbox = createDevMailbox({ directoryPath, maxMessages: 500 });
 
   const router = express.Router();
   router.use(express.json());

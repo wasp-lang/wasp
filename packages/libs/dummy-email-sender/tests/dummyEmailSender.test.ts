@@ -4,8 +4,8 @@ import * as path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createDevMailbox } from "../src/core/devMailbox";
 import { createDummyEmailSender } from "../src/dummyEmailSender";
-import { DevMailbox } from "../src/mailbox/devMailbox";
 
 const MAILBOX_URL = "http://localhost:3001/__wasp/mailbox";
 const EMAIL = {
@@ -29,7 +29,7 @@ afterEach(() => {
 });
 
 function createSender(maxMessages = 500) {
-  const mailbox = new DevMailbox({ directoryPath, maxMessages });
+  const mailbox = createDevMailbox({ directoryPath, maxMessages });
   const sender = createDummyEmailSender({
     mailbox,
     defaultFrom: { name: "App", email: "app@app.test" },

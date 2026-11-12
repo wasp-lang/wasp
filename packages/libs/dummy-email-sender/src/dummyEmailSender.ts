@@ -1,4 +1,4 @@
-import type { DevMailbox } from "./mailbox/devMailbox.js";
+import type { DevMailbox } from "./core/devMailbox.js";
 import type { EmailFromField } from "./types.js";
 
 export type DummyEmail = {

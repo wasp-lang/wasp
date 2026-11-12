@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractLinks } from "../src/mailbox/message";
+import { extractLinks } from "../../src/core/message";
 
 describe("extractLinks", () => {
   it("finds links in the text body without trailing punctuation", () => {

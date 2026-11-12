@@ -2,7 +2,7 @@ import * as vm from "node:vm";
 
 import { describe, expect, it } from "vitest";
 
-import { makeInboxPage } from "../src/mailbox/inboxPage";
+import { makeInboxPage } from "../../src/view/inboxPage";
 
 function makePage(): string {
   return makeInboxPage({

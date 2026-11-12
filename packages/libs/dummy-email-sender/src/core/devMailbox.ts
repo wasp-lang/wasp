@@ -1,4 +1,7 @@
-import { MailboxDirectory } from "./mailboxDirectory.js";
+import {
+  JsonFileMailboxDirectory,
+  type MailboxDirectory,
+} from "./mailboxDirectory.js";
 import {
   createMessage,
   summarizeMessage,
@@ -43,7 +46,32 @@ const POLL_INTERVAL_MS = 500;
  * and other processes write to it too (e.g. `wasp db seed`), so every read
  * syncs with it first.
  */
-export class DevMailbox {
+export interface DevMailbox {
+  readonly directoryPath: string;
+  add(email: DevMailboxEmail): DevMailboxMessage | undefined;
+  list(
+    filter?: DevMailboxMessageFilter,
+    limit?: number,
+  ): DevMailboxMessageSummary[];
+  get(id: string): DevMailboxMessage | undefined;
+  delete(id: string): boolean;
+  clear(): void;
+  waitFor(
+    filter: DevMailboxMessageFilter,
+    options: WaitForMessageOptions,
+  ): Promise<DevMailboxMessage | undefined>;
+  /**
+   * Includes changes other processes make. Never calls the listener before
+   * returning. Returns a function that unsubscribes.
+   */
+  subscribe(listener: DevMailboxListener): () => void;
+}
+
+export function createDevMailbox(options: DevMailboxOptions): DevMailbox {
+  return new DirectorySyncedDevMailbox(options);
+}
+
+class DirectorySyncedDevMailbox implements DevMailbox {
   readonly directoryPath: string;
   readonly #maxMessages: number;
   readonly #directory: MailboxDirectory;
@@ -56,7 +84,7 @@ export class DevMailbox {
   constructor(options: DevMailboxOptions) {
     ensureValidMaxMessages(options.maxMessages);
     this.directoryPath = options.directoryPath;
-    this.#directory = new MailboxDirectory(options.directoryPath);
+    this.#directory = new JsonFileMailboxDirectory(options.directoryPath);
     this.#maxMessages = options.maxMessages;
     this.#getSentAt = createMonotonicClock(options.now);
   }
@@ -152,10 +180,6 @@ export class DevMailbox {
     });
   }
 
-  /**
-   * Includes changes other processes make. Never calls the listener before
-   * returning.
-   */
   subscribe(listener: DevMailboxListener): () => void {
     this.#listeners.add(listener);
     this.#startWatchingIfNeeded();

@@ -25,10 +25,7 @@ This project uses the Wasp framework.
 
 ### Emails in development
 
-- With `emailSender: { provider: "Dummy" }`, emails aren't sent. They are kept in the dev mailbox.
-- While `wasp start` runs, wait for an email and read its links with `curl -X POST http://localhost:3001/__wasp/mailbox/api/messages.waitFor -H "Content-Type: application/json" -d '{"search":"<recipient>"}'`. The response's `message.links` holds the URLs (e.g. the email verification link).
-- `GET http://localhost:3001/__wasp/mailbox/api/messages` lists emails. The inbox page is at `http://localhost:3001/__wasp/mailbox`.
-- Each email is also a JSON file in `.wasp/mailbox/`, readable when the server is down.
+- The `Dummy` email sender keeps emails in the dev mailbox instead of sending them. The "Dev mailbox" section of the email docs explains how to read them.
 
 ### Verification
 

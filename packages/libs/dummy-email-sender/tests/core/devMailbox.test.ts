@@ -4,9 +4,13 @@ import * as path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DevMailbox, type DevMailboxEvent } from "../src/mailbox/devMailbox";
-import { MailboxDirectory } from "../src/mailbox/mailboxDirectory";
-import type { DevMailboxEmail } from "../src/mailbox/message";
+import {
+  createDevMailbox,
+  type DevMailbox,
+  type DevMailboxEvent,
+} from "../../src/core/devMailbox";
+import { JsonFileMailboxDirectory } from "../../src/core/mailboxDirectory";
+import type { DevMailboxEmail } from "../../src/core/message";
 
 let directoryPath: string;
 
@@ -20,7 +24,7 @@ afterEach(() => {
 });
 
 function createMailbox(maxMessages = 500): DevMailbox {
-  return new DevMailbox({ directoryPath, maxMessages });
+  return createDevMailbox({ directoryPath, maxMessages });
 }
 
 function makeEmail(overrides: Partial<DevMailboxEmail> = {}): DevMailboxEmail {
@@ -254,10 +258,10 @@ describe("DevMailbox", () => {
       const message = createMailbox().add(makeEmail())!;
       // The first read misses the message, as if another process wrote it
       // right after the lookup.
-      const listMessageIds = MailboxDirectory.prototype.listMessageIds;
-      vi.spyOn(MailboxDirectory.prototype, "listMessageIds")
+      const listMessageIds = JsonFileMailboxDirectory.prototype.listMessageIds;
+      vi.spyOn(JsonFileMailboxDirectory.prototype, "listMessageIds")
         .mockImplementationOnce(() => [])
-        .mockImplementation(function (this: MailboxDirectory) {
+        .mockImplementation(function (this: JsonFileMailboxDirectory) {
           return listMessageIds.call(this);
         });
 
