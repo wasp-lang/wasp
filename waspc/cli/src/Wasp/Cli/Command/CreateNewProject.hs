@@ -7,6 +7,7 @@ import Control.Monad (when)
 import Control.Monad.Catch (bracket_)
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
+import Control.Arrow (left)
 import Data.Functor (($>))
 import Data.Maybe (isJust)
 import qualified StrongPath as SP
@@ -14,6 +15,7 @@ import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
@@ -30,7 +32,6 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Install (installIO)
-import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
@@ -69,13 +70,18 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
-  newProjectDescription@(NewProjectDescription {_template = template}) = do
-    cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
-    case template of
-      GhRepoReleaseArchiveTemplate {repo = ghRepoRef, archiveName = archiveName', archivePath = archivePath'} ->
-        createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef archiveName' archivePath'
-      BundledStarterTemplate {bundledPath = bundledPath'} ->
-        liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
+  newProjectDescription@(NewProjectDescription {_template = template}) =
+    runTaskOrAbort
+      ("Creating the " ++ projectDirName ++ " project from the " ++ styleLiteral (show template) ++ " template")
+      ("Created the " ++ projectDirName ++ " project")
+      ("Failed to create the " ++ projectDirName ++ " project")
+      $ case template of
+        GhRepoReleaseArchiveTemplate {repo = ghRepoRef, archiveName = archiveName', archivePath = archivePath'} ->
+          left ((: []) . Msg.Text) <$> createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef archiveName' archivePath'
+        BundledStarterTemplate {bundledPath = bundledPath'} ->
+          Right <$> createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
+    where
+      projectDirName = styleLiteral $ getProjectDirName newProjectDescription
 
 -- | Returns whether the dependencies got installed.
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
@@ -130,11 +136,12 @@ migrateDbForNewProject absWaspProjectDir =
 
 -- | This function assumes that the project dir was created inside the current working directory.
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
-printGettingStartedInstructionsForProject projectDescription = do
-  let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
-  let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  cliSendMessage $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
-  putStrLn instructions
+printGettingStartedInstructionsForProject projectDescription =
+  putStrLn $ getTemplateStartingInstructions (getProjectDirName projectDescription) $ _template projectDescription
+
+-- | The project dir is created inside the current working directory.
+getProjectDirName :: NewProjectDescription -> String
+getProjectDirName = init . SP.toFilePath . SP.basename . _absTemplateOutputDir
 
 printExtraInstructionsForProject :: [String] -> IO ()
 printExtraInstructionsForProject [] = return ()

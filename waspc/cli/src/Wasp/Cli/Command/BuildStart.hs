@@ -4,7 +4,6 @@ module Wasp.Cli.Command.BuildStart
 where
 
 import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
 import System.Exit (ExitCode)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
@@ -13,19 +12,18 @@ import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (GeneratedAppIsProduction))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Util (checkExitSuccess)
-import Wasp.Util.TaskStatus (runTaskWithStatusReport)
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments buildStartArgsParser $ \args -> do
@@ -71,8 +69,7 @@ buildAndStartServerAndClient appSpec config = do
 
     runBuildStep :: String -> String -> String -> String -> Job.Job ExitCode -> Command ()
     runBuildStep runningMessage successMessage failureMessage command buildJob =
-      liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage $ Job.captureFailure command buildJob)
-        >>= either (const $ throwError CommandAborted) return
+      runTaskOrAbort runningMessage successMessage failureMessage $ Job.captureFailure command buildJob
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
     throwOnExitFailure errorTitle failedStep =

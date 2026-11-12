@@ -12,9 +12,12 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
+import Control.Arrow (left)
 import Data.Either (isRight)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import System.IO.Error (tryIOError)
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -40,6 +43,7 @@ import Wasp.Project.Common
   )
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
+import Wasp.Util.Terminal (styleLiteral)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -57,14 +61,12 @@ build = ProjectLock.acquireExclusive $ do
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
-  when doesBuildDirExist $ do
-    cliSendMessageC
-      $ Msg.Start
-      $ "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
-    liftIO $ removeDirectory buildDir
-    cliSendMessageC
-      $ Msg.Success
-      $ "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  when doesBuildDirExist $
+    runTaskOrAbort
+      ("Clearing the " ++ buildDirName ++ " directory")
+      ("Cleared the " ++ buildDirName ++ " directory")
+      ("Failed to clear the " ++ buildDirName ++ " directory")
+      (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory buildDir))
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -72,14 +74,18 @@ build = ProjectLock.acquireExclusive $ do
   liftIO $ printCompilationResult compileResult
   unless (isRight $ _compileOutcome compileResult) $ throwError CommandAborted
 
-  liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-    Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
-    Right () -> return ()
+  runTaskOrAbort
+    "Preparing the build directory"
+    "Prepared the build directory"
+    "Failed to prepare the build directory"
+    (left ((: []) . Msg.Text) <$> prepareFilesNecessaryForDockerBuild waspProjectDir buildDir)
 
   cliSendMessageC
     $ Msg.Success
     $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
+    buildDirName = styleLiteral $ fromRelDir generatedAppDirInWaspProjectDir
+
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       let srcTsConfigPath = srcTsConfig tsConfigPaths
 

@@ -125,12 +125,12 @@ dbReset ::
   [EnvVar] ->
   Path' Abs (Dir GeneratedAppDir) ->
   ResetArgs ->
-  IO (Either String ())
+  IO (Either [Msg.Part] ())
 dbReset envVars generatedAppDir resetArgs = do
   -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
-  checkExitSuccess "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset envVars generatedAppDir resetArgs)
+  Job.captureFailure "prisma migrate reset" $ DbJobs.reset envVars generatedAppDir resetArgs
 
 dbSeed ::
   [EnvVar] ->
@@ -175,12 +175,8 @@ generatePrismaClient generatedAppDir = runExceptT $ do
       writeDbSchemaChecksumToFile generatedAppDir dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir
 
 -- | Formats schema.prisma in place, without printing Prisma's output unless it fails.
-formatSchema :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-formatSchema generatedAppDir = do
-  (exitCode, output) <- Job.run $ Job.captureOutput $ DbJobs.formatSchema generatedAppDir
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure code -> Left $ "Prisma schema formatting failed with exit code " ++ show code ++ ":\n" ++ T.unpack output
+formatSchema :: Path' Abs (Dir GeneratedAppDir) -> IO (Either [Msg.Part] ())
+formatSchema generatedAppDir = Job.captureFailure "prisma format" $ DbJobs.formatSchema generatedAppDir
 
 data SchemaDbMatch
   = SchemaMatchesDb

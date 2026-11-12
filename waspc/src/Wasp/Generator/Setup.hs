@@ -107,10 +107,10 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
   InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
-  FormatPrismaSchema -> formatPrismaSchema generatedAppDir
+  FormatPrismaSchema -> formatPrismaSchema generatedAppDir sendMessage
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir sendMessage
   GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
@@ -124,19 +124,16 @@ installDependencies spec generatedAppDir sendMessage = do
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> return ()
 
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir = do
+warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+warnIfDbNeedsMigration spec generatedAppDir sendMessage = do
   warning <- liftIO $ do
     envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
-    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
+    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir sendMessage
   tell $ maybeToList warning
 
-formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
-formatPrismaSchema generatedAppDir = do
-  result <- liftIO $ DbGenerator.formatPrismaSchema generatedAppDir
-  case result of
-    Just generatorError -> throwError [generatorError]
-    Nothing -> return ()
+formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+formatPrismaSchema generatedAppDir sendMessage =
+  abortIfFailed $ DbGenerator.formatPrismaSchema generatedAppDir sendMessage
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 generatePrismaClient spec generatedAppDir sendMessage =

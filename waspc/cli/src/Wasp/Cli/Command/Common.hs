@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.Common
   ( throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
+    runTaskOrAbort,
   )
 where
 
@@ -32,15 +33,17 @@ deleteDirectoryIfExistsVerbosely dir = do
   dirExists <- liftIO $ IOUtil.doesDirectoryExist dir
   if dirExists
     then
-      liftIO
-        ( runTaskWithStatusReport
-            cliSendMessage
-            ("Deleting the " ++ dirName ++ " directory")
-            ("Deleted the " ++ dirName ++ " directory")
-            ("Failed to delete the " ++ dirName ++ " directory")
-            (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (IOUtil.removeDirectory dir))
-        )
-        >>= either (const $ E.throwError CommandAborted) return
+      runTaskOrAbort
+        ("Deleting the " ++ dirName ++ " directory")
+        ("Deleted the " ++ dirName ++ " directory")
+        ("Failed to delete the " ++ dirName ++ " directory")
+        (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (IOUtil.removeDirectory dir))
     else cliSendMessageC $ Msg.Success $ "The " ++ dirName ++ " directory is already gone"
   where
     dirName = styleLiteral $ SP.toFilePath $ basename dir
+
+-- | The task reports its own failure, so the command only has to stop.
+runTaskOrAbort :: String -> String -> String -> IO (Either [Msg.Part] a) -> Command a
+runTaskOrAbort runningMessage successMessage failureMessage task =
+  liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage task)
+    >>= either (const $ E.throwError CommandAborted) return

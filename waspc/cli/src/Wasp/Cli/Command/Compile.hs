@@ -170,6 +170,7 @@ analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
   liftIO $ printWarningsIfAny warnings
   case appSpecOrErrors of
+    Left [] -> throwError CommandAborted
     Left errors -> do
       liftIO $ cliSendMessage $ Msg.Failure (analysisErrorsTitle errors) errors
       throwError CommandAborted
@@ -188,6 +189,7 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     $ printDiagnosticToStderr compilationWarningsTitle warnings
   case appSpecOrErrors of
     Right spec -> return spec
+    Left [] -> throwError CommandAborted
     Left errors -> do
       liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) errors
       throwError CommandAborted

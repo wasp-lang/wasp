@@ -6,13 +6,16 @@ module Wasp.Project.WaspFile.TypeScript
 where
 
 import Control.Arrow (left)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import qualified Data.Aeson as Aeson
+import Data.Functor ((<&>))
 import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
     File,
     Path',
     Rel,
+    basename,
     fromAbsDir,
     fromAbsFile,
     fromRelFile,
@@ -20,7 +23,6 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
-import System.Exit (ExitCode (..))
 import System.IO (hClose)
 import System.IO.Temp (withTempFile)
 import qualified Wasp.AppSpec as AS
@@ -47,6 +49,8 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.TaskStatus (runTaskWithStatusReport)
+import Wasp.Util.Terminal (styleLiteral)
 
 analyzeWaspTsFile ::
   CompileOptions ->
@@ -59,14 +63,9 @@ analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
       runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   return $ case specResultOrErrors of
     Left errs -> Left errs
-    Right (SpecAnalysisError specErrorMessage) ->
-      Left [Msg.Text $ formatSpecAnalysisError specErrorMessage]
-    Right (SpecAnalysisOk specDecls) -> Right $ Entity.makeEntityDecls prismaSchemaAst ++ specDecls
+    Right specDecls -> Right $ Entity.makeEntityDecls prismaSchemaAst ++ specDecls
   where
     waspTsConfigFile = fromJust tsConfigPaths.waspTsConfig
-
-    formatSpecAnalysisError specErrorMessage =
-      "Error while analyzing spec (*.wasp.ts) files:\n\n" ++ specErrorMessage
 
 data SpecResultFile
 
@@ -97,42 +96,60 @@ runWaspSpecAnalyzer ::
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
   Path' Abs (File SpecResultFile) ->
-  IO (Either [CompileError] SpecAnalysisResult)
+  IO (Either [CompileError] [AS.Decl])
 runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath absSpecResultFile = do
   -- We invoke the script directly via `node` instead of `npx` because
   -- `npx` requires the bin file to be executable, and `cabal install`
   -- strips executable permissions from data files.
-  runExitCode <-
-    Job.run
-      $ Job.fromProc
-      $ Job.addEnvVarsOverride
-        [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
-          -- Not related to `node` itself, so we have to set it manually.
-          -- It enables users to write environment specific code in the TS config.
-          -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
-          --       also provide the `NODE_ENV` values for the "configuration runtime".
-          --       Maybe consider using a different key, e.g. `WASP_MODE`?
-          ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
-        ]
-      $ Job.setCwd compileOptions.waspProjectDir
-      $ Job.proc
-        "node"
-        [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
-          "analyze",
-          fromAbsFile waspFilePath,
-          fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-          fromAbsDir compileOptions.waspProjectDir,
-          fromAbsFile absSpecResultFile,
-          -- When the user is coding main.wasp.ts, TypeScript must know about
-          -- all the available entities to warn the user if they use an
-          -- entity that doesn't exist.
-          encodeToString allowedEntityNames
-        ]
-
-  case runExitCode of
-    ExitFailure _status -> return $ Left [Msg.Text "Error while analyzing the *.wasp.ts file."]
-    ExitSuccess -> readSpecResultFile
+  analysisResult <-
+    runTaskWithStatusReport
+      (CompileOptions.sendMessage compileOptions)
+      ("Analyzing " ++ waspFileName)
+      ("Analyzed " ++ waspFileName)
+      ("Failed to analyze " ++ waspFileName)
+      $ runExceptT
+      $ do
+        ExceptT $ Job.captureFailure "@wasp/spec analyze" analyzerJob
+        ExceptT readSpecDecls
+  return $ left (const []) analysisResult
   where
+    analyzerJob =
+      Job.fromProc
+        $ Job.addEnvVarsOverride
+          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+            -- Not related to `node` itself, so we have to set it manually.
+            -- It enables users to write environment specific code in the TS config.
+            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+            --       also provide the `NODE_ENV` values for the "configuration runtime".
+            --       Maybe consider using a different key, e.g. `WASP_MODE`?
+            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+          ]
+        $ Job.setCwd compileOptions.waspProjectDir
+        $ Job.proc
+          "node"
+          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+            "analyze",
+            fromAbsFile waspFilePath,
+            fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+            fromAbsDir compileOptions.waspProjectDir,
+            fromAbsFile absSpecResultFile,
+            -- When the user is coding main.wasp.ts, TypeScript must know about
+            -- all the available entities to warn the user if they use an
+            -- entity that doesn't exist.
+            encodeToString allowedEntityNames
+          ]
+
+    waspFileName = styleLiteral $ fromRelFile $ basename waspFilePath
+
+    -- The analyzer reports an error in the spec by exiting successfully with
+    -- the error in the result file.
+    readSpecDecls :: IO (Either [Msg.Part] [AS.Decl])
+    readSpecDecls =
+      readSpecResultFile <&> \case
+        Left errs -> Left errs
+        Right (SpecAnalysisError specErrorMessage) -> Left [Msg.Text specErrorMessage]
+        Right (SpecAnalysisOk specDecls) -> Right specDecls
+
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String
