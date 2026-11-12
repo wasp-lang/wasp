@@ -30,6 +30,13 @@
     [
         [
             "file",
+            "libs/dummy-email-sender/wasp-lib-dummy-email-sender-0.27.0.tgz"
+        ],
+        "25633ddaefb566928056be7c3b7c9f75cc9a4b1b73c3c0eb964a9c2d06973ed2"
+    ],
+    [
+        [
+            "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
         "f1fcccbe1c90eec56116281b7306a96bfb66778eec936956150be84aed0728b0"
@@ -270,7 +277,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ad24292ddb6692f36fddd161c5e649b87500fd2d926c63d08925bd2a03b8ad40"
+        "5d8377af46441853360b49d07154af335e19c05ead1f05c129bf0fbd5f3c111b"
     ],
     [
         [
@@ -508,7 +515,7 @@
             "file",
             "server/package.json"
         ],
-        "4231be805e66ad49737d7bb36035b54dba50b1219ea13bcfe45f84524e8804c7"
+        "f544580ae5350c892f6cd217d207d1d1fc6f79684e77ad82df4272c0e3ca9f65"
     ],
     [
         [

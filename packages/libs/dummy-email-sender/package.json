@@ -1,0 +1,28 @@
+{
+  "name": "@wasp/lib-dummy-email-sender",
+  "version": "0.27.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./node": {
+      "types": "./dist/node.d.mts",
+      "default": "./dist/node.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "pnpm run test:types && pnpm run test:unit",
+    "test:types": "tsc --noEmit",
+    "test:unit": "vitest run"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
+    "@types/node": "catalog:",
+    "tsdown": "^0.21.5",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
