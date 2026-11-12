@@ -48,8 +48,8 @@ withDetails color title parts = intercalate "\n" $ title : renderParts Nothing p
         ["" | isText previous] ++ [indent 2 $ marker ++ " " ++ text]
       Msg.ToolOutput command output ->
         let toolIndent = maybe 2 (const 4) previous
-         in [ indent toolIndent $ "Output of " ++ Term.styleCode command ++ ":",
-              indent toolIndent $ intercalate "\n" $ map gutterLine $ lines output
+         in [ indent toolIndent $ marker ++ " Output of " ++ Term.styleCode command ++ ":",
+              indent (toolIndent + 2) $ intercalate "\n" $ map gutterLine $ lines output
             ]
 
     isText (Just (Msg.Text _)) = True
