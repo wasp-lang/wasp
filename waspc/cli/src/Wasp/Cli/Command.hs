@@ -54,6 +54,7 @@ runCommand cmd =
       -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
       putStrLn "Aborted."
       exitFailure
+    Right (Left CommandAborted) -> exitFailure
     Right (Left cmdError) -> do
       cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
       exitFailure
@@ -61,7 +62,10 @@ runCommand cmd =
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
-data CommandError = CommandError {_errorTitle :: !String, _errorMsg :: !String}
+data CommandError
+  = CommandError {_errorTitle :: !String, _errorMsg :: !String}
+  | -- | The command has already reported its error and only has to fail.
+    CommandAborted
 
 data Requirement where
   Requirement :: (Requirable r) => r -> Requirement
