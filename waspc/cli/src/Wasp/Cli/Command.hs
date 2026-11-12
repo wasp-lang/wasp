@@ -56,7 +56,7 @@ runCommand cmd =
       exitFailure
     Right (Left CommandAborted) -> exitFailure
     Right (Left cmdError) -> do
-      cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
+      cliSendMessage $ Msg.Failure (_errorTitle cmdError) (Msg.textDetails $ _errorMsg cmdError)
       exitFailure
     Right (Right _) -> return ()
 

@@ -8,7 +8,6 @@ where
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec (waspProjectDir))
@@ -54,7 +53,7 @@ installNpmDependenciesWithInstallRecord spec dstDir sendMessage = runExceptT $ d
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
   where
-    onLeftThrowError = either (throwError . GenericGeneratorError) pure
+    onLeftThrowError = either (const $ throwError GeneratorAborted) pure
 
     waspProjectDirPath = waspProjectDir spec
 
@@ -69,15 +68,12 @@ data InstallOutputMode = ShowInstallOutput | HideInstallOutput Msg.SendMessage
 -- own output is either printed as it comes, like when running npm by hand, or held back behind a
 -- status line and included in the error if the installation fails.
 installProjectNpmDependencies ::
-  InstallOutputMode -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+  InstallOutputMode -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either Msg.Details ())
 installProjectNpmDependencies installOutputMode projectDir = case installOutputMode of
-  ShowInstallOutput -> checkExitSuccess "npm install" <$> Job.run npmInstall
+  ShowInstallOutput -> either (Left . Msg.textDetails) Right . checkExitSuccess "npm install" <$> Job.run npmInstall
   HideInstallOutput sendMessage ->
-    runTaskWithStatusReport sendMessage "Installing dependencies..." "Dependencies installed" "Dependencies failed to install" $ do
-      (exitCode, npmOutput) <- Job.run $ Job.captureOutput npmInstall
-      return $ case checkExitSuccess "npm install" exitCode of
-        Left errorMessage -> Left $ errorMessage ++ "\n\nnpm output:\n" ++ T.unpack npmOutput
-        Right () -> Right ()
+    runTaskWithStatusReport sendMessage "Installing dependencies..." "Dependencies installed" "Dependencies failed to install" $
+      Job.captureFailure "npm install" npmInstall
   where
     npmInstall = Job.fromProc $ Job.setCwd projectDir $ Job.proc "npm" ["install"]
 

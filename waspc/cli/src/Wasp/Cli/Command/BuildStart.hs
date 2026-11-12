@@ -5,8 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Text as T
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
@@ -50,8 +49,8 @@ buildStart = withArguments buildStartArgsParser $ \args -> do
 
 buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
-  runBuildStep "Building the client" "Built the client" "Failed to build the client" $ buildClient config
-  runBuildStep "Building the server" "Built the server" "Failed to build the server" $ buildServer config
+  runBuildStep "Building the client" "Built the client" "Failed to build the client" "vite build" $ buildClient config
+  runBuildStep "Building the server" "Built the server" "Failed to build the server" "docker build" $ buildServer config
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
   cliSendMessageC
@@ -70,18 +69,10 @@ buildAndStartServerAndClient appSpec config = do
   where
     startErrorTitle = "Starting Wasp app failed."
 
-    runBuildStep :: String -> String -> String -> Job.Job ExitCode -> Command ()
-    runBuildStep runningMessage successMessage failureMessage buildJob =
-      liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage runBuildJob)
+    runBuildStep :: String -> String -> String -> String -> Job.Job ExitCode -> Command ()
+    runBuildStep runningMessage successMessage failureMessage command buildJob =
+      liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage $ Job.captureFailure command buildJob)
         >>= either (const $ throwError CommandAborted) return
-      where
-        runBuildJob = do
-          (exitCode, buildOutput) <- Job.run $ Job.captureOutput buildJob
-          return $ case exitCode of
-            ExitSuccess -> Right ()
-            ExitFailure code
-              | T.null buildOutput -> Left $ "Exited with code " ++ show code
-              | otherwise -> Left $ T.unpack buildOutput
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
     throwOnExitFailure errorTitle failedStep =

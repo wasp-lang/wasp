@@ -117,6 +117,7 @@ printWarningsIfAny warns = do
   unless (null warns)
     $ cliSendMessage
     $ Msg.Warning compilationWarningsTitle
+    $ Msg.textDetails
     $ formatErrorOrWarningMessages warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
@@ -124,6 +125,7 @@ printErrorsIfAny errs = do
   unless (null unreportedErrs)
     $ cliSendMessage
     $ Msg.Failure "Your wasp project failed to compile"
+    $ Msg.textDetails
     $ formatErrorOrWarningMessages unreportedErrs
   where
     unreportedErrs = filter (not . null) errs

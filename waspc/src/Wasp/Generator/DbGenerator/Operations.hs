@@ -42,6 +42,7 @@ import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import qualified Wasp.Job as Job
+import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
@@ -165,9 +166,9 @@ isDbConnectionPossible DbConnectionSuccess = True
 isDbConnectionPossible DbNotCreated = True
 isDbConnectionPossible _ = False
 
-generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either Msg.Details ())
 generatePrismaClient generatedAppDir = runExceptT $ do
-  ExceptT $ Job.captureFailure $ DbJobs.generatePrismaClient generatedAppDir
+  ExceptT $ Job.captureFailure "prisma generate" $ DbJobs.generatePrismaClient generatedAppDir
   liftIO updateDbSchemaChecksumOnLastGenerate
   where
     updateDbSchemaChecksumOnLastGenerate =

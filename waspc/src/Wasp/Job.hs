@@ -30,6 +30,7 @@ import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, wi
 import Wasp.Job.CreateProcess (CreateJobProcess, addEnvVarsOverride, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
+import qualified Wasp.Message as Msg
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.
@@ -59,16 +60,16 @@ captureOutput job = do
   chunks <- liftIO $ readIORef chunksRef
   return (result, T.concat $ reverse chunks)
 
--- | Runs the job and, if it fails, returns what it printed, or the exit code
--- when it printed nothing.
-captureFailure :: Job ExitCode -> IO (Either String ())
-captureFailure job = do
+-- | Runs the job and, if it fails, returns what it printed as the output of
+-- the given command, or the exit code when it printed nothing.
+captureFailure :: String -> Job ExitCode -> IO (Either Msg.Details ())
+captureFailure command job = do
   (exitCode, output) <- run $ captureOutput job
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code
-      | T.null output -> Left $ "Exited with code " ++ show code
-      | otherwise -> Left $ T.unpack output
+      | T.null output -> Left $ Msg.textDetails $ "Exited with code " ++ show code
+      | otherwise -> Left $ Msg.toolOutputDetails command $ T.unpack $ T.stripEnd output
 
 -- | Calls @onOutput@ with every output the job emits, and then passes the
 -- output on unchanged.

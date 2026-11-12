@@ -110,7 +110,7 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir sendMessage
   GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
@@ -124,11 +124,11 @@ installDependencies spec generatedAppDir sendMessage = do
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> return ()
 
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir = do
+warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+warnIfDbNeedsMigration spec generatedAppDir sendMessage = do
   warning <- liftIO $ do
     envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
-    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
+    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir sendMessage
   tell $ maybeToList warning
 
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
@@ -152,7 +152,7 @@ typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage =
   abortIfFailed
     $ runTaskWithStatusReport sendMessage "Type-checking user code" "Type-checked user code" "Failed to type-check user code"
-    $ J.captureFailure typeCheck
+    $ J.captureFailure "tsc" typeCheck
   where
     typeCheck :: J.Job ExitCode
     typeCheck =
@@ -162,5 +162,5 @@ typeCheckUserCode spec sendMessage =
           (NodeCommands.typeCheckUserCode $ AS.srcTsConfigPath spec)
 
 -- | The task reports its own failure, so the setup only has to stop.
-abortIfFailed :: IO (Either String ()) -> Setup ()
+abortIfFailed :: IO (Either Msg.Details ()) -> Setup ()
 abortIfFailed task = liftIO task >>= either (const $ throwError [GeneratorAborted]) return
