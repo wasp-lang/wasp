@@ -4,6 +4,10 @@ import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import {
+  getLatestDocCanonicalPath,
+  waspDslDocsVersions,
+} from "./src/lib/old-docs-versions";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import { docusaurusPluginLlmFiles } from "./src/plugins/llm-files/docusaurus-plugin";
 import autoImportTabs from "./src/remark/auto-import-tabs";
@@ -234,6 +238,13 @@ const config: Config = {
                 }
               : {}),
 
+            ...Object.fromEntries(
+              waspDslDocsVersions.map((version) => [
+                version,
+                { noIndex: true },
+              ]),
+            ),
+
             // Configuration example:
             // "0.11.1": {
             //   path: "0.11.1",  // default, but can be anything.
@@ -263,6 +274,24 @@ const config: Config = {
         },
         theme: {
           customCss: ["./src/css/custom.css"],
+        },
+        sitemap: {
+          // A sitemap should list only canonical URLs, so we leave out the old
+          // docs pages that point their canonical URL to the latest docs.
+          async createSitemapItems({ defaultCreateSitemapItems, ...params }) {
+            const items = await defaultCreateSitemapItems(params);
+            const getPath = (item: { url: string }) =>
+              new URL(item.url).pathname;
+            // The sitemap has every page of the latest docs, so we look up the
+            // latest pages in it.
+            const sitemapPaths = new Set(items.map(getPath));
+            return items.filter((item) => {
+              const keepsOwnCanonicalUrl =
+                getLatestDocCanonicalPath(getPath(item), sitemapPaths) ===
+                undefined;
+              return keepsOwnCanonicalUrl;
+            });
+          },
         },
       } as Preset.Options,
     ],
