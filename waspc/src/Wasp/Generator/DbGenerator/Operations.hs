@@ -185,28 +185,20 @@ data SchemaDbMatch
   = SchemaMatchesDb
   | SchemaDiffersFromDb
   | DbDoesNotExist
-  | SchemaDbMatchCheckFailed
+  | SchemaDbMatchCheckFailed String
   deriving (Eq, Show)
 
 -- | Runs `prisma migrate diff` to determine if schema.prisma matches the DB.
 -- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
 checkIfSchemaMatchesDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO SchemaDbMatch
-checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ Job.prefixWith Job.Db $ do
+checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ do
   (exitCode, output) <- Job.captureOutput $ DbJobs.migrateDiff envVars generatedAppDirAbs
-  let schemaDbMatch = case exitCode of
-        ExitSuccess -> SchemaMatchesDb
-        ExitFailure 2 -> SchemaDiffersFromDb
-        ExitFailure _
-          | prismaErrorContainsDbNotCreatedError output -> DbDoesNotExist
-          | otherwise -> SchemaDbMatchCheckFailed
-  -- We print output when check failed to help with figuring out why,
-  -- while others are known and therefore handled upstream.
-  case schemaDbMatch of
-    SchemaMatchesDb -> return ()
-    SchemaDiffersFromDb -> return ()
-    DbDoesNotExist -> return ()
-    SchemaDbMatchCheckFailed -> Job.emitOutput Job.Stderr output
-  return schemaDbMatch
+  return $ case exitCode of
+    ExitSuccess -> SchemaMatchesDb
+    ExitFailure 2 -> SchemaDiffersFromDb
+    ExitFailure _
+      | prismaErrorContainsDbNotCreatedError output -> DbDoesNotExist
+      | otherwise -> SchemaDbMatchCheckFailed $ T.unpack $ T.strip output
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
 -- matches the DB. Returns Nothing on error as we do not know the current state.
@@ -215,7 +207,7 @@ checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ Job.prefixWith Job
 -- It is recommended to call this after some check that confirms DB connectivity, like `checkIfSchemaMatchesDb`.
 areAllMigrationsAppliedToDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
 areAllMigrationsAppliedToDb envVars generatedAppDirAbs = do
-  dbExitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.migrateStatus envVars generatedAppDirAbs
+  (dbExitCode, _) <- Job.run $ Job.captureOutput $ DbJobs.migrateStatus envVars generatedAppDirAbs
   case dbExitCode of
     ExitSuccess -> return $ Just True
     ExitFailure _ -> return Nothing

@@ -54,7 +54,7 @@ import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Pls.Db
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
-import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
+import Wasp.Util (checksumFromFilePath, hexToString, ifM, indent, (<:>))
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Terminal (styleCode)
 
@@ -220,12 +220,13 @@ warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
         "Your database has not been created yet, please run " ++ styleCode "wasp db migrate-dev" ++ " to create it."
     -- If db match check failed we don't really know what is the issue so we
     -- suggest they call db migrate-dev and get more info.
-    DbOps.SchemaDbMatchCheckFailed ->
+    DbOps.SchemaDbMatchCheckFailed prismaOutput ->
       return . Just . GeneratorNeedsMigrationWarning $
         "Wasp was unable to verify your database is up to date."
           <> " Running "
           <> styleCode "wasp db migrate-dev"
-          <> " may fix this and will provide more info."
+          <> " may fix this and will provide more info.\n"
+          <> indent 2 prismaOutput
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
 generatePrismaClient spec generatedAppDir = do
