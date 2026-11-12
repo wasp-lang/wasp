@@ -342,7 +342,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
      "devDependencies": {
        // ...
        // highlight-next-line
-       "@types/node": "^24.0.0",
+       "@types/node": "^26.0.0",
        // highlight-next-line
        "@wasp/spec": "file:.wasp/spec"
      }

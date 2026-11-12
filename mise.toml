@@ -51,6 +51,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apt:libncurses-dev" = "latest"
 # Cabal dependencies
 "apt:zlib1g-dev" = "latest"
+# Node.js dependencies (https://github.com/nodejs/node/blob/main/BUILDING.md#official-binary-platforms-and-toolchains)
+"apt:libatomic1" = "latest"
 
 # Dependencies for Alpine
 # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-alpine)

@@ -314,7 +314,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           // ...
           "devDependencies": {
             // ...
-            "@types/node": "^24.0.0",
+            "@types/node": "^26.0.0",
             "@wasp/spec": "file:.wasp/spec"
           }
         }

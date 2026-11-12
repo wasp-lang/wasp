@@ -19,7 +19,7 @@
   "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
   "license": "MIT",
   "engines": {
-    "node": ">=24.22.1"
+    "node": ">=26.13.1"
   },
   "bin": {
     "__internal_wasp_spec__": "dist/src/run.js"
