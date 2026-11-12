@@ -4,6 +4,8 @@ Wasp Studio shows how the parts of a Wasp app connect: pages, routes, operations
 
 It reads the JSON file Wasp writes to `.wasp/out/.wasp-studio-data.json` on every compile, and pushes it to the open panels when it changes.
 
+The lib also has the Prisma Studio panel, `prismaStudio()`. Opening it starts `prisma studio` on a free port and embeds it once it responds. It runs Prisma from `.wasp/out/server`, like `wasp db studio`, and `wasp start` passes the dev database URL to the Vite process for it.
+
 ## Development
 
 The panel UI is the React app in `client/`, which the build bundles into `dist/client`. To try a change, run `mise run build:libs` and restart `wasp start` in a Wasp app (with `mise run bust-libs-cache` if npm keeps the previous build).

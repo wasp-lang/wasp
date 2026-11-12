@@ -2,7 +2,7 @@
   "name": "@wasp/lib-studio",
   "version": "0.27.0",
   "type": "module",
-  "description": "Wasp Studio, the Vite DevTools panel that shows how the parts of a Wasp app connect.",
+  "description": "Wasp's Vite DevTools panels: Wasp Studio, which shows how the parts of a Wasp app connect, and Prisma Studio.",
   "homepage": "https://wasp.sh/",
   "private": true,
   "exports": {

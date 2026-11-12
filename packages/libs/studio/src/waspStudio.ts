@@ -2,7 +2,9 @@ import { watch } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { createPluginFromDevframe } from "@vitejs/devtools-kit/node";
 import { defineDevframe } from "devframe";
+import type { Plugin } from "vite";
 
 import pkg from "../package.json" with { type: "json" };
 
@@ -21,7 +23,21 @@ export interface StudioState {
   data: unknown;
 }
 
-export function createWaspStudioDevframe({ dataFile }: WaspStudioOptions) {
+/**
+ * Adds Wasp Studio as a panel to Vite DevTools. The panel only shows up when
+ * the project enables Vite DevTools (`devtools` in its Vite config).
+ */
+export function waspStudio(options: WaspStudioOptions): Plugin {
+  return {
+    ...createPluginFromDevframe(createWaspStudioDevframe(options), {
+      // Listed first, with the framework's own tools.
+      dock: { category: "framework" },
+    }),
+    apply: "serve",
+  };
+}
+
+function createWaspStudioDevframe({ dataFile }: WaspStudioOptions) {
   return defineDevframe({
     id: STUDIO_ID,
     name: "Wasp Studio",

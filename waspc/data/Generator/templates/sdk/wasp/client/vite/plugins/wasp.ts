@@ -8,7 +8,7 @@ import {
   validateEnv,
   type WaspPluginOptions,
 } from "@wasp/lib-sdk-core/node/vite";
-import { waspStudio } from "@wasp/lib-studio/node";
+import { prismaStudio, waspStudio } from "@wasp/lib-studio/node";
 import ssr from "@wasp/lib-vite-ssr";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
@@ -41,5 +41,9 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       spaFallbackFile: "{= spaFallbackFile =}",
     }),
     waspStudio({ dataFile: "{= studioDataFilePath =}" }),
+    prismaStudio({
+      schemaFile: "{= prismaSchemaFilePath =}",
+      cwd: "{= prismaCwd =}",
+    }),
   ];
 }
