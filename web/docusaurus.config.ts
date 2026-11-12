@@ -1,5 +1,5 @@
 import type * as Preset from "@docusaurus/preset-classic";
-import type { Config, DocusaurusConfig } from "@docusaurus/types";
+import type { Config, DocusaurusConfig, RouteConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
@@ -280,15 +280,13 @@ const config: Config = {
           // docs pages that point their canonical URL to the latest docs.
           async createSitemapItems({ defaultCreateSitemapItems, ...params }) {
             const items = await defaultCreateSitemapItems(params);
-            const getPath = (item: { url: string }) =>
-              new URL(item.url).pathname;
-            // The sitemap has every page of the latest docs, so we look up the
-            // latest pages in it.
-            const sitemapPaths = new Set(items.map(getPath));
+            // The routes list every page, also the `noindex` ones that have no
+            // sitemap entry (e.g. the docs writing guide).
+            const sitePaths = new Set(getRoutePaths(params.routes));
             return items.filter((item) => {
+              const path = new URL(item.url).pathname;
               const keepsOwnCanonicalUrl =
-                getLatestDocCanonicalPath(getPath(item), sitemapPaths) ===
-                undefined;
+                getLatestDocCanonicalPath(path, sitePaths) === undefined;
               return keepsOwnCanonicalUrl;
             });
           },
@@ -433,6 +431,13 @@ function mapToDocusaurusScripts(
     // `src/components/CookieConsentBanner.tsx` component.
     ...(requiresConsent ? { type: SCRIPT_WITH_CONSENT_TYPE } : {}),
   }));
+}
+
+function getRoutePaths(routes: RouteConfig[]): string[] {
+  return routes.flatMap((route) => [
+    route.path,
+    ...getRoutePaths(route.routes ?? []),
+  ]);
 }
 
 export default config;
