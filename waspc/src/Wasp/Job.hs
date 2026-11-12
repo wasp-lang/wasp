@@ -62,14 +62,14 @@ captureOutput job = do
 
 -- | Runs the job and, if it fails, returns what it printed as the output of
 -- the given command, or the exit code when it printed nothing.
-captureFailure :: String -> Job ExitCode -> IO (Either Msg.Details ())
+captureFailure :: String -> Job ExitCode -> IO (Either [Msg.Part] ())
 captureFailure command job = do
   (exitCode, output) <- run $ captureOutput job
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code
-      | T.null output -> Left $ Msg.textDetails $ "Exited with code " ++ show code
-      | otherwise -> Left $ Msg.toolOutputDetails command $ T.unpack $ T.stripEnd output
+      | T.null output -> Left [Msg.Text $ "Exited with code " ++ show code]
+      | otherwise -> Left [Msg.ToolOutput command $ T.unpack $ T.stripEnd output]
 
 -- | Calls @onOutput@ with every output the job emits, and then passes the
 -- output on unchanged.

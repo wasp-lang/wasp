@@ -6,7 +6,7 @@ where
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Interactive as Interactive
 
-runTaskWithStatusReport :: Msg.SendMessage -> String -> String -> String -> IO (Either Msg.Details a) -> IO (Either Msg.Details a)
+runTaskWithStatusReport :: Msg.SendMessage -> String -> String -> String -> IO (Either [Msg.Part] a) -> IO (Either [Msg.Part] a)
 runTaskWithStatusReport sendMessage spinnerMessage successMessage failureMessage task = do
   interactiveTerminal <- Interactive.getInteractiveTerminal
   taskResult <- case interactiveTerminal of

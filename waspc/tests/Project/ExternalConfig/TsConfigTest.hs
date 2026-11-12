@@ -11,7 +11,7 @@ spec_TsConfig = do
   describe "validateTsConfig" $ do
     it "includes the given file name in error messages" $ do
       let alwaysFails = const $ V.failure "boom"
-      validateTsConfig alwaysFails "custom-name.json" anyTsConfig
+      map show (validateTsConfig alwaysFails "custom-name.json" anyTsConfig)
         `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
 
 anyTsConfig :: T.TsConfig

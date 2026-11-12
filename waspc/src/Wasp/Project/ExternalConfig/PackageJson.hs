@@ -15,6 +15,7 @@ import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   ( DependencyType (Development),
     makeRequiredDepValidator,
   )
+import qualified Wasp.Message as Msg
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
   ( CompileError,
@@ -29,8 +30,8 @@ import qualified Wasp.Validator as WaspV
 
 parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> TsConfigPaths -> IO (Validation [CompileError] PackageJson)
 parseAndValidateUserPackageJson waspDir tsConfigPaths = fmap eitherToValidation . runExceptT $ do
-  packageJsonFile <- withExceptT (: []) $ ExceptT userPackageJsonFileOrError
-  packageJson <- withExceptT (: []) $ ExceptT $ parsePackageJsonFile packageJsonFile
+  packageJsonFile <- withExceptT ((: []) . Msg.Text) $ ExceptT userPackageJsonFileOrError
+  packageJson <- withExceptT ((: []) . Msg.Text) $ ExceptT $ parsePackageJsonFile packageJsonFile
   case validatePackageJsonForProject tsConfigPaths packageJson of
     [] -> return packageJson
     errors -> liftEither $ Left errors
@@ -43,7 +44,7 @@ findUserPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir
 
 validatePackageJsonForProject :: TsConfigPaths -> PackageJson -> [CompileError]
 validatePackageJsonForProject tsConfigPaths packageJson =
-  show <$> WaspV.execValidator (packageJsonValidator tsConfigPaths) packageJson
+  Msg.Text . show <$> WaspV.execValidator (packageJsonValidator tsConfigPaths) packageJson
 
 packageJsonValidator :: TsConfigPaths -> WaspV.Validator PackageJson
 packageJsonValidator tsConfigPaths =

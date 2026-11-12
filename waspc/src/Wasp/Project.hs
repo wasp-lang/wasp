@@ -22,6 +22,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
+import Wasp.Generator.Monad (generatorErrorParts, generatorWarningParts)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
@@ -70,8 +71,8 @@ generateCode appSpec outDir options = do
     Generator.writeWebAppCode appSpec outDir (sendMessage options) (setupGoals options)
   return
     CompileResult
-      { _compileWarnings = show <$> generatorWarnings,
-        _compileOutcome = if null generatorErrors then Right appSpec else Left $ show <$> generatorErrors,
+      { _compileWarnings = concatMap generatorWarningParts generatorWarnings,
+        _compileOutcome = if null generatorErrors then Right appSpec else Left $ concatMap generatorErrorParts generatorErrors,
         _compileChangedGeneratedAppPaths = changedGeneratedAppPaths
       }
 
@@ -82,4 +83,4 @@ compileAndRenderDockerfile waspDir compileOptions = do
     Left errors -> return $ Left errors
     Right appSpec -> do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
-      return $ Control.Arrow.left (map show . toList) dockerfileOrGeneratorErrors
+      return $ Control.Arrow.left (concatMap generatorErrorParts . toList) dockerfileOrGeneratorErrors

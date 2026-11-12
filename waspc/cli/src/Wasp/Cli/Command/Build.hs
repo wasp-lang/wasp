@@ -12,6 +12,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
+import Data.Either (isRight)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -26,12 +27,10 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
-import Wasp.Project (compileResultWarningsAndErrors)
+import Wasp.Project (CompileResult (..))
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
-  ( CompileError,
-    CompileWarning,
-    WaspProjectDir,
+  ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -69,9 +68,9 @@ build = ProjectLock.acquireExclusive $ do
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
-  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
-  liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $ throwError CommandAborted
+  compileResult <- liftIO $ buildIO waspProjectDir buildDir
+  liftIO $ printCompilationResult compileResult
+  unless (isRight $ _compileOutcome compileResult) $ throwError CommandAborted
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
@@ -146,8 +145,8 @@ build = ProjectLock.acquireExclusive $ do
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
+  IO CompileResult
+buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions

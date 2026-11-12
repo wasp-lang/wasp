@@ -152,7 +152,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       compileResult <- compileIO waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-      printCompilationResult (warnings, errors)
+      printCompilationResult compileResult
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
           cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
@@ -166,9 +166,9 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
-          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ Msg.textDetails $ show (length errors) ++ " errors found")
+          cliSendMessage (Msg.Failure "Recompilation on file change failed." [Msg.Text $ show (length errors) ++ " errors found"])
           return FailedCompile
-      setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
+      setWatcherStatus projectLock $ either (const CompilationFailed) (const UpToDate) $ _compileOutcome compileResult
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
 

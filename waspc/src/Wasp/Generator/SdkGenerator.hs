@@ -83,7 +83,7 @@ import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
 import Wasp.Util ((<++>))
 
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either Msg.Details ())
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either [Msg.Part] ())
 buildSdk generatedAppDir =
   Job.captureFailure "tsc" $
     Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)

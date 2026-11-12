@@ -1,4 +1,4 @@
-module Wasp.Message (Message (..), Details (..), ToolOutput (..), SendMessage, textDetails, toolOutputDetails) where
+module Wasp.Message (Message (..), Part (..), SendMessage) where
 
 -- This module defines a simple protocol for sending progress messages to a
 -- UI (like the CLI).
@@ -9,24 +9,13 @@ module Wasp.Message (Message (..), Details (..), ToolOutput (..), SendMessage, t
 -- This protocol is for sending messages for display in a UI.
 -- If you need success or failure another purpose use return values.
 
-data Message = Info String | Start String | Success String | Failure String Details | Warning String Details
+data Message = Info String | Start String | Success String | Failure String [Part] | Warning String [Part]
 
--- | What a message says under its title: some text, and the output of a tool
--- Wasp ran, which the UI sets apart from the text.
-data Details = Details
-  { text :: String,
-    toolOutput :: Maybe ToolOutput
-  }
-
-data ToolOutput = ToolOutput
-  { command :: String,
-    output :: String
-  }
-
-textDetails :: String -> Details
-textDetails text' = Details text' Nothing
-
-toolOutputDetails :: String -> String -> Details
-toolOutputDetails command' output' = Details "" (Just $ ToolOutput command' output')
+-- | A piece of what a message says under its title.
+data Part
+  = Text String
+  | -- | The output of a command Wasp ran: the command, then what it printed.
+    ToolOutput String String
+  deriving (Show, Eq)
 
 type SendMessage = Message -> IO ()

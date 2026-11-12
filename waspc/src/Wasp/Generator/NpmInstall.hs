@@ -68,9 +68,9 @@ data InstallOutputMode = ShowInstallOutput | HideInstallOutput Msg.SendMessage
 -- own output is either printed as it comes, like when running npm by hand, or held back behind a
 -- status line and included in the error if the installation fails.
 installProjectNpmDependencies ::
-  InstallOutputMode -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either Msg.Details ())
+  InstallOutputMode -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either [Msg.Part] ())
 installProjectNpmDependencies installOutputMode projectDir = case installOutputMode of
-  ShowInstallOutput -> either (Left . Msg.textDetails) Right . checkExitSuccess "npm install" <$> Job.run npmInstall
+  ShowInstallOutput -> either (Left . (: []) . Msg.Text) Right . checkExitSuccess "npm install" <$> Job.run npmInstall
   HideInstallOutput sendMessage ->
     runTaskWithStatusReport sendMessage "Installing dependencies..." "Dependencies installed" "Dependencies failed to install" $
       Job.captureFailure "npm install" npmInstall

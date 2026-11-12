@@ -38,7 +38,7 @@ deleteDirectoryIfExistsVerbosely dir = do
             ("Deleting the " ++ dirName ++ " directory")
             ("Deleted the " ++ dirName ++ " directory")
             ("Failed to delete the " ++ dirName ++ " directory")
-            (either (Left . Msg.textDetails . show) Right <$> tryIOError (IOUtil.removeDirectory dir))
+            (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (IOUtil.removeDirectory dir))
         )
         >>= either (const $ E.throwError CommandAborted) return
     else cliSendMessageC $ Msg.Success $ "The " ++ dirName ++ " directory is already gone"

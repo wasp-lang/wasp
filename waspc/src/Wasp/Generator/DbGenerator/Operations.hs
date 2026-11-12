@@ -166,7 +166,7 @@ isDbConnectionPossible DbConnectionSuccess = True
 isDbConnectionPossible DbNotCreated = True
 isDbConnectionPossible _ = False
 
-generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either Msg.Details ())
+generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either [Msg.Part] ())
 generatePrismaClient generatedAppDir = runExceptT $ do
   ExceptT $ Job.captureFailure "prisma generate" $ DbJobs.generatePrismaClient generatedAppDir
   liftIO updateDbSchemaChecksumOnLastGenerate

@@ -22,7 +22,7 @@ cliSendMessage (Msg.Failure title details) =
 cliSendMessage (Msg.Warning title details) =
   waspWarns =<< labeledMessage Term.Yellow "!" "WARNING" title details
 
-labeledMessage :: Term.Style -> String -> String -> String -> Msg.Details -> IO String
+labeledMessage :: Term.Style -> String -> String -> String -> [Msg.Part] -> IO String
 labeledMessage color symbol label title details =
   Interactive.getInteractiveTerminal <&> \case
     Just _ ->
@@ -37,21 +37,29 @@ labeledMessage color symbol label title details =
         details
     Nothing -> withDetails Nothing (symbol ++ " " ++ label ++ ": " ++ title) details
 
-withDetails :: Maybe Term.Style -> String -> Msg.Details -> String
-withDetails gutterColor title (Msg.Details text' toolOutput') =
-  intercalate "\n" $ title : textLines ++ toolOutputLines
+withDetails :: Maybe Term.Style -> String -> [Msg.Part] -> String
+withDetails color title parts = intercalate "\n" $ title : renderParts Nothing parts
   where
-    textLines = [indent 2 text' | not (null text')]
-    toolOutputLines = case toolOutput' of
-      Nothing -> []
-      Just (Msg.ToolOutput command' output') ->
-        [ indent toolOutputIndent $ "Output of " ++ Term.styleCode command' ++ ":",
-          indent toolOutputIndent $ intercalate "\n" $ map gutterLine $ lines output'
-        ]
-    toolOutputIndent = if null text' then 2 else 4
+    renderParts _ [] = []
+    renderParts previous (part : rest) = renderPart previous part ++ renderParts (Just part) rest
+
+    renderPart previous = \case
+      Msg.Text text ->
+        ["" | isText previous] ++ [indent 2 $ marker ++ " " ++ text]
+      Msg.ToolOutput command output ->
+        let toolIndent = maybe 2 (const 4) previous
+         in [ indent toolIndent $ "Output of " ++ Term.styleCode command ++ ":",
+              indent toolIndent $ intercalate "\n" $ map gutterLine $ lines output
+            ]
+
+    isText (Just (Msg.Text _)) = True
+    isText _ = False
+
     gutterLine "" = gutter
     gutterLine line = gutter ++ " " ++ line
-    gutter = maybe id (\color -> Term.applyStyles [color]) gutterColor "│"
+    marker = colored ">"
+    gutter = colored "│"
+    colored = maybe id (\c -> Term.applyStyles [c]) color
 
 styleIfInteractive :: [Term.Style] -> String -> IO String
 styleIfInteractive styles text =

@@ -4,6 +4,7 @@ import Data.List (isInfixOf)
 import qualified Data.Map as M
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
+import qualified Wasp.Message as Msg
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
 import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
@@ -19,7 +20,7 @@ spec_PackageJson = do
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
-validate = validatePackageJsonForProject
+validate tsConfigPaths' = map partText . validatePackageJsonForProject tsConfigPaths'
 
 assertReturnsValidationErrorMentioningField :: String -> P.PackageJson -> Expectation
 assertReturnsValidationErrorMentioningField fieldName packageJson =
@@ -43,3 +44,7 @@ requiredNodeTypesDependency =
 withDevDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> P.PackageJson
 withDevDependency packageJson (name, version) =
   packageJson {P.devDependencies = M.insert name version (P.devDependencies packageJson)}
+
+partText :: Msg.Part -> String
+partText (Msg.Text text) = text
+partText part = show part

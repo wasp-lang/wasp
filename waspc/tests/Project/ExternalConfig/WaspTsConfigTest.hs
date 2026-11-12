@@ -3,6 +3,7 @@ module Project.ExternalConfig.WaspTsConfigTest (spec_WaspTsConfig) where
 import Data.List (isInfixOf)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
+import qualified Wasp.Message as Msg
 import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
 import Wasp.Project.ExternalConfig.WaspTsConfig (waspTsConfigValidator)
 
@@ -57,7 +58,7 @@ spec_WaspTsConfig = do
         `shouldBe` []
 
 validate :: T.TsConfig -> [String]
-validate = validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
+validate = map partText . validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
@@ -93,3 +94,7 @@ validCompilerOptions =
       T.outDir = Nothing,
       T.noEmit = Just True
     }
+
+partText :: Msg.Part -> String
+partText (Msg.Text text) = text
+partText part = show part
