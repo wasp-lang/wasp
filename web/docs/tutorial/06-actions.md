@@ -175,7 +175,7 @@ When you create a new task, the list of tasks is automatically updated to displa
 
 When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed and automatically updates it in the background. This means that **out of the box, Wasp keeps all your queries in sync with any changes made through Actions**.
 
-This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked [here](https://github.com/wasp-lang/wasp/issues/63).
+This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked in [GitHub issue #63](https://github.com/wasp-lang/wasp/issues/63).
 :::
 
 ## A Second Action

@@ -295,4 +295,4 @@ generator client {
 // ...
 ```
 
-Read more about preview features in the Prisma docs [here](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about using PostgreSQL extensions [here](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
+Read more about [Prisma preview features](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about [using PostgreSQL extensions in Prisma](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).

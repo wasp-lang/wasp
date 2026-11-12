@@ -32,7 +32,7 @@ Also, notice **that you can't and shouldn't provide client env vars to the clien
 :::info How it works
 What happens behind the scenes is that Wasp will replace all occurrences of `import.meta.env.REACT_APP_SOME_VAR_NAME` in your client code with the env var value you provided. This is done during the build process, so the value is injected into the static files produced from the client code.
 
-Read more about it in Vite's [docs](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
+Read more about it in [Vite's guide to env variables and modes](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
 :::
 
 ### Server Env Vars

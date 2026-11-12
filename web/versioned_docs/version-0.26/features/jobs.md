@@ -168,7 +168,7 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 #### Requirements
 
-`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](./data/databases.md#postgresql).
+`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider in [the Databases guide](./data/databases.md#postgresql).
 
 #### Limitations
 

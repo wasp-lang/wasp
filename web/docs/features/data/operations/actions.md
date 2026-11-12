@@ -451,7 +451,7 @@ export default app({
 ```
 
 Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API.
-Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
+Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about [Wasp's smart cache invalidation](#cache-invalidation).
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -700,7 +700,7 @@ The `updateQuery` function must be a pure function. It must return the desired c
 
 Also, make sure you only update the Query caches affected by your Action causing the optimistic update (Wasp cannot yet verify this).
 
-Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
+Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more in [the Advanced usage section](#advanced-usage)).
 :::
 
 Here's an example showing how to configure the Action `markTaskAsDone` that toggles a task's `isDone` status to perform an optimistic update:
