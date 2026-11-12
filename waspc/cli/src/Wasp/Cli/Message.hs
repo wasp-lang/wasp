@@ -49,7 +49,7 @@ withDetails color title parts = intercalate "\n" $ title : concatMap renderPart 
 
     gutterLine "" = gutter
     gutterLine line = gutter ++ " " ++ line
-    marker = colored ">"
+    marker = colored "●"
     gutter = colored "│"
     colored = maybe id (\c -> Term.applyStyles [c]) color
 
