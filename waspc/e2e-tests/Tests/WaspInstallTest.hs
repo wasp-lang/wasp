@@ -2,6 +2,7 @@ module Tests.WaspInstallTest (waspInstallTest) where
 
 import ShellCommands
   ( ShellCommand,
+    assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliClean,
@@ -29,6 +30,16 @@ waspInstallTest =
                   return $ assertSymlinkExists "node_modules/@wasp/spec",
                   waspCliCompile
                 ]
+            ]
+        ),
+      -- Unlike the other commands, `wasp install` shows npm's output as it comes.
+      TestCase
+        "shows-npm-output"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                -- npm's install summary, e.g. "up to date, audited 359 packages in 2s".
+                [assertCommandOutputContains waspCliInstall " packages"]
             ]
         )
     ]

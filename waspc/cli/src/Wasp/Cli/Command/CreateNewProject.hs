@@ -35,6 +35,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
+import Wasp.Generator.NpmInstall (InstallOutputMode (HideInstallOutput))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -79,7 +80,7 @@ createProjectOnDisk
 -- | Returns whether the dependencies got installed.
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
 installDepsForNewProject absWaspProjectDir =
-  installIO absWaspProjectDir >>= \case
+  installIO (HideInstallOutput cliSendMessage) absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
       putStrLn $
