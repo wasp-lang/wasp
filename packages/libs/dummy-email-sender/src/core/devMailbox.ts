@@ -20,6 +20,7 @@ export type DevMailboxOptions = {
 
 export type DevMailboxEvent =
   | { type: "added"; email: DevMailboxEmailSummary }
+  /** Also fires when an email falls outside the newest `maxEmails`. */
   | { type: "deleted"; id: string }
   | { type: "cleared" };
 
@@ -35,8 +36,7 @@ const POLL_INTERVAL_MS = 500;
 
 /**
  * Emails live in memory and in a directory. The directory survives restarts
- * and other processes write to it too (e.g. `wasp db seed`), so every read
- * syncs with it first.
+ * and other processes write to it too, so every read syncs with it first.
  */
 export interface DevMailbox {
   readonly directoryPath: string;
@@ -65,6 +65,7 @@ export interface DevMailbox {
   subscribe(listener: DevMailboxListener): () => void;
 }
 
+/** Deletes the oldest emails over `maxEmails` already in the directory. */
 export function createDevMailbox(options: DevMailboxOptions): DevMailbox {
   return new DirectorySyncedDevMailbox(options);
 }
@@ -85,6 +86,7 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     this.#directory = new JsonFileMailboxDirectory(options.directoryPath);
     this.#maxEmails = options.maxEmails;
     this.#getSentAt = createMonotonicClock();
+    this.#deleteOldestOverLimit();
   }
 
   add(newEmail: NewDevMailboxEmail): DevMailboxEmail | undefined {
@@ -94,6 +96,7 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     const sentAt = this.#getSentAt();
     const email = createEmail(newEmail, sentAt);
     this.#directory.writeEmail(email);
+    this.#deleteOldestOverLimit();
     this.#syncWithDirectory();
     return email;
   }
@@ -191,20 +194,22 @@ class DirectorySyncedDevMailbox implements DevMailbox {
       .sort((a, b) => b.id.localeCompare(a.id));
   }
 
-  /** Emits events only after the whole sync, so listeners see every new email. */
+  /**
+   * Never deletes files. Loads only the newest `maxEmails` emails. Emits events
+   * only after the whole sync, so listeners see every new email.
+   */
   #syncWithDirectory(): void {
-    const idsOnDisk = new Set(
-      this.#deleteOldestOverLimit(this.#directory.listEmailIds()),
-    );
+    const { withinLimit } = this.#splitAtLimit(this.#directory.listEmailIds());
+    const idsInMailbox = new Set(withinLimit);
 
     const deletedIds = [...this.#emails.keys()].filter(
-      (id) => !idsOnDisk.has(id),
+      (id) => !idsInMailbox.has(id),
     );
     for (const id of deletedIds) {
       this.#emails.delete(id);
     }
 
-    const addedEmails = [...idsOnDisk]
+    const addedEmails = [...idsInMailbox]
       .filter((id) => !this.#emails.has(id))
       .sort()
       .map((id) => this.#directory.readEmail(id))
@@ -221,12 +226,22 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     }
   }
 
-  #deleteOldestOverLimit(idsOldestFirst: string[]): string[] {
-    const excessCount = Math.max(idsOldestFirst.length - this.#maxEmails, 0);
-    for (const id of idsOldestFirst.slice(0, excessCount)) {
+  #deleteOldestOverLimit(): void {
+    const { overLimit } = this.#splitAtLimit(this.#directory.listEmailIds());
+    for (const id of overLimit) {
       this.#directory.deleteEmail(id);
     }
-    return idsOldestFirst.slice(excessCount);
+  }
+
+  #splitAtLimit(idsOldestFirst: string[]): {
+    overLimit: string[];
+    withinLimit: string[];
+  } {
+    const excessCount = Math.max(idsOldestFirst.length - this.#maxEmails, 0);
+    return {
+      overLimit: idsOldestFirst.slice(0, excessCount),
+      withinLimit: idsOldestFirst.slice(excessCount),
+    };
   }
 
   #emit(event: DevMailboxEvent): void {

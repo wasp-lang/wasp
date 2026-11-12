@@ -190,21 +190,31 @@ describe("DevMailbox", () => {
     expect(reader.get(email.id)).toEqual(email);
   });
 
-  it("applies a lowered maxEmails to emails already on disk", () => {
+  it("deletes the emails over a lowered maxEmails on creation", () => {
     const writer = createMailbox();
     writer.add(makeEmail({ subject: "1" }));
     writer.add(makeEmail({ subject: "2" }));
     writer.add(makeEmail({ subject: "3" }));
 
-    expect(
-      createMailbox(1)
-        .list()
-        .map((email) => email.subject),
-    ).toEqual(["3"]);
+    const mailbox = createMailbox(1);
+
+    expect(mailbox.list().map((email) => email.subject)).toEqual(["3"]);
     expect(fs.readdirSync(directoryPath)).toHaveLength(1);
 
-    expect(createMailbox(0).list()).toEqual([]);
+    createMailbox(0);
     expect(fs.readdirSync(directoryPath)).toEqual([]);
+  });
+
+  it("hides emails over its limit without deleting their files", () => {
+    const reader = createMailbox(1);
+    const writer = createMailbox();
+    const oldest = writer.add(makeEmail())!;
+    writer.add(makeEmail());
+
+    expect(reader.list()).toHaveLength(1);
+    expect(reader.get(oldest.id)).toBeUndefined();
+
+    expect(fs.readdirSync(directoryPath)).toHaveLength(2);
   });
 
   it("never calls a subscriber before subscribe returns", () => {
