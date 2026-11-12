@@ -4,9 +4,11 @@ module Wasp.Cli.Command.BuildStart
 where
 
 import Control.Monad.Except (throwError)
-import System.Exit (ExitCode)
+import Control.Monad.IO.Class (liftIO)
+import qualified Data.Text as T
+import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
@@ -18,11 +20,13 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Util (checkExitSuccess)
+import Wasp.Util.TaskStatus (runTaskWithStatusReport)
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments buildStartArgsParser $ \args -> do
@@ -46,15 +50,8 @@ buildStart = withArguments buildStartArgsParser $ \args -> do
 
 buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
-  cliSendMessageC $ Msg.Start "Building client..."
-  Job.run (Job.prefixWith Job.WebApp $ buildClient config)
-    >>= throwOnExitFailure "Building client failed." "Building the client"
-  cliSendMessageC $ Msg.Success "Client built."
-
-  cliSendMessageC $ Msg.Start "Building server..."
-  Job.run (Job.prefixWith Job.Server $ buildServer config)
-    >>= throwOnExitFailure "Building server failed." "Building the server"
-  cliSendMessageC $ Msg.Success "Server built."
+  runBuildStep "Building the client" "Built the client" "Failed to build the client" $ buildClient config
+  runBuildStep "Building the server" "Built the server" "Failed to build the server" $ buildServer config
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
   cliSendMessageC
@@ -72,6 +69,19 @@ buildAndStartServerAndClient appSpec config = do
     clientOrServerExitCode
   where
     startErrorTitle = "Starting Wasp app failed."
+
+    runBuildStep :: String -> String -> String -> Job.Job ExitCode -> Command ()
+    runBuildStep runningMessage successMessage failureMessage buildJob =
+      liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage runBuildJob)
+        >>= either (const $ throwError CommandAborted) return
+      where
+        runBuildJob = do
+          (exitCode, buildOutput) <- Job.run $ Job.captureOutput buildJob
+          return $ case exitCode of
+            ExitSuccess -> Right ()
+            ExitFailure code
+              | T.null buildOutput -> Left $ "Exited with code " ++ show code
+              | otherwise -> Left $ T.unpack buildOutput
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
     throwOnExitFailure errorTitle failedStep =

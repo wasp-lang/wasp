@@ -4,6 +4,7 @@ module Wasp.Util.Interactive
   ( InteractiveTerminal,
     getInteractiveTerminal,
     isPromptInputEOF,
+    runTaskWithSpinner,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -17,6 +18,10 @@ module Wasp.Util.Interactive
 where
 
 import Control.Applicative ((<|>))
+import Control.Concurrent (threadDelay)
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (finally)
+import Control.Monad (forM_, forever)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
@@ -30,6 +35,7 @@ import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrL
 import System.IO.Error (ioeGetHandle, isEOFError)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
+import Wasp.Util (millisecondsToMicroSeconds)
 import qualified Wasp.Util.Terminal as Term
 
 -- This is the only way to get an interactive terminal.
@@ -194,6 +200,25 @@ repeatUntil terminal predicate errorMessage action = do
       hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] errorMessage
       repeatUntil terminal predicate errorMessage action
     else return result
+
+-- | Runs the action while showing the message as a status line with a
+-- spinning glyph. The line is redrawn in place and erased once the action
+-- finishes, so nothing of it stays in the terminal.
+runTaskWithSpinner :: InteractiveTerminal -> String -> IO a -> IO a
+runTaskWithSpinner terminal spinnerMessage action =
+  Async.withAsync spinStatusLine (const action)
+    `finally` putStrFlush terminal clearLine
+  where
+    spinStatusLine = forever $
+      forM_ spinnerFrames $ \frame -> do
+        putStrFlush terminal $ clearLine ++ Term.applyStyles [Term.Yellow] frame ++ " " ++ spinnerMessage
+        threadDelay $ millisecondsToMicroSeconds 80
+
+    spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+
+-- | Moves the cursor to the start of the line and erases the line.
+clearLine :: String
+clearLine = "\r" ++ Term.ansiEscapeCode ++ Term.ansiClearLineCode
 
 -- | Prompts for the user's answer and reads it.. Reaching the end of input
 -- while waiting for an answer (Ctrl+D) throws an error 'isPromptInputEOF'
