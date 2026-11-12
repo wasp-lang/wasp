@@ -42,15 +42,16 @@ withDetails color title parts = intercalate "\n" $ title : concatMap renderPart 
   where
     renderPart = \case
       Msg.Text text -> [indent 2 $ marker ++ " " ++ text]
-      Msg.ToolOutput command output ->
-        [ indent 2 $ marker ++ " Output of " ++ Term.styleCode command ++ ":",
-          indent 2 $ intercalate "\n" $ map gutterLine $ lines output
-        ]
+      Msg.ToolOutput command exitCode output ->
+        [indent 2 $ marker ++ " Output of " ++ Term.styleCode command ++ ":"]
+          ++ [indent 2 $ intercalate "\n" $ map gutterLine $ lines output | not (null output)]
+          ++ [indent 2 $ corner ++ " exited with code " ++ show exitCode]
 
     gutterLine "" = gutter
     gutterLine line = gutter ++ " " ++ line
     marker = colored "●"
     gutter = colored "│"
+    corner = colored "└─"
     colored = maybe id (\c -> Term.applyStyles [c]) color
 
 styleIfInteractive :: [Term.Style] -> String -> IO String

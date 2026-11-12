@@ -224,14 +224,14 @@ warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
         [Msg.Text $ "Your database has not been created yet, please run " ++ styleCode "wasp db migrate-dev" ++ " to create it."]
     -- If db match check failed we don't really know what is the issue so we
     -- suggest they call db migrate-dev and get more info.
-    DbOps.SchemaDbMatchCheckFailed prismaOutput ->
+    DbOps.SchemaDbMatchCheckFailed exitCode prismaOutput ->
       return . Just . GeneratorNeedsMigrationWarning $
         [ Msg.Text $
             "Wasp was unable to verify your database is up to date."
               <> " Running "
               <> styleCode "wasp db migrate-dev"
               <> " may fix this and will provide more info.",
-          Msg.ToolOutput "prisma migrate diff" prismaOutput
+          Msg.ToolOutput "prisma migrate diff" exitCode prismaOutput
         ]
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> IO (Either [Msg.Part] ())

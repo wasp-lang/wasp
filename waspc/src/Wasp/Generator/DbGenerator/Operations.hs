@@ -186,7 +186,7 @@ data SchemaDbMatch
   = SchemaMatchesDb
   | SchemaDiffersFromDb
   | DbDoesNotExist
-  | SchemaDbMatchCheckFailed String
+  | SchemaDbMatchCheckFailed Int String
   deriving (Eq, Show)
 
 -- | Runs `prisma migrate diff` to determine if schema.prisma matches the DB.
@@ -197,9 +197,9 @@ checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ do
   return $ case exitCode of
     ExitSuccess -> SchemaMatchesDb
     ExitFailure 2 -> SchemaDiffersFromDb
-    ExitFailure _
+    ExitFailure code
       | prismaErrorContainsDbNotCreatedError output -> DbDoesNotExist
-      | otherwise -> SchemaDbMatchCheckFailed $ T.unpack $ T.strip output
+      | otherwise -> SchemaDbMatchCheckFailed code $ T.unpack $ T.strip output
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
 -- matches the DB. Returns Nothing on error as we do not know the current state.

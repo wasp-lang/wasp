@@ -14,8 +14,8 @@ data Message = Info String | Start String | Success String | Failure String [Par
 -- | A piece of what a message says under its title.
 data Part
   = Text String
-  | -- | The output of a command Wasp ran: the command, then what it printed.
-    ToolOutput String String
+  | -- | The output of a command Wasp ran: the command, its exit code, then what it printed.
+    ToolOutput String Int String
   deriving (Show, Eq)
 
 type SendMessage = Message -> IO ()

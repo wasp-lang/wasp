@@ -196,4 +196,4 @@ printDiagnosticToStderr :: String -> [Msg.Part] -> IO ()
 printDiagnosticToStderr diagnosticTitle parts = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> intercalate "\n\n" (map plainText parts)
   where
     plainText (Msg.Text text) = text
-    plainText (Msg.ToolOutput command output) = "Output of " <> command <> ":\n" <> output
+    plainText (Msg.ToolOutput command exitCode output) = "Output of " <> command <> " (exit code " <> show exitCode <> "):\n" <> output
