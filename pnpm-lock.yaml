@@ -308,9 +308,18 @@ importers:
 
   packages/libs/devtools:
     dependencies:
+      '@devframes/plugin-terminals':
+        specifier: ^1.3.2
+        version: 1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(@devframes/plugin-terminals--assets@1.3.2)(devframe@1.3.2)(vite@8.3.5)
+      '@devframes/plugin-terminals--assets':
+        specifier: ^1.3.2
+        version: 1.3.2
       '@vitejs/devtools-kit':
         specifier: ^0.8.2
         version: 0.8.2(@devframes/agentic@1.3.2)(cac@7.1.0)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
+      devframe:
+        specifier: ^1.3.2
+        version: 1.3.2(@devframes/agentic@1.3.2)(cac@7.1.0)(srvx@1.0.8)
     devDependencies:
       '@tsconfig/node-ts':
         specifier: ^23.6.4
@@ -2219,6 +2228,9 @@ packages:
         optional: true
       vite:
         optional: true
+
+  '@devframes/plugin-terminals--assets@1.3.2':
+    resolution: {integrity: sha512-FipRvkLJIfE4uZLiGZ45L2SNy54M2gHXjmFwsn/6aRmC68eeuIqSw+0Y5Q4EvfKO/Xel4BTleSFDoyeBVQacsQ==}
 
   '@devframes/plugin-terminals@1.3.2':
     resolution: {integrity: sha512-m5Y4TLj+yIzCUMc6j0NoUb4q+3sGybJd9HwCv1+0iYn0EqFgEMtnaEXZVjblLMh3MdyOx90EPaTMZZs9obguSA==}
@@ -12599,18 +12611,20 @@ snapshots:
       vite: 8.3.5(@types/node@24.19.2)(@vitejs/devtools@0.8.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
     optional: true
 
-  '@devframes/plugin-terminals@1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(devframe@1.3.2)(vite@8.3.5)':
+  '@devframes/plugin-terminals--assets@1.3.2': {}
+
+  '@devframes/plugin-terminals@1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(@devframes/plugin-terminals--assets@1.3.2)(devframe@1.3.2)(vite@8.3.5)':
     dependencies:
       '@devframes/vite': 1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(devframe@1.3.2)(vite@8.3.5)
       cac: 7.1.0
       devframe: 1.3.2(@devframes/agentic@1.3.2)(cac@7.1.0)(srvx@1.0.8)
       zigpty: 0.2.1
     optionalDependencies:
+      '@devframes/plugin-terminals--assets': 1.3.2
       vite: 8.3.5(@types/node@24.19.2)(@vitejs/devtools@0.8.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@devframes/hub'
       - '@devframes/hub-ui'
-    optional: true
 
   '@devframes/service-open@1.3.2(devframe@1.3.2)':
     dependencies:
@@ -12626,7 +12640,6 @@ snapshots:
       '@devframes/hub': 1.3.2(@devframes/agentic@1.3.2)(crossws@0.4.17)(devframe@1.3.2)
       '@devframes/hub-ui': 1.3.2(@devframes/hub@1.3.2)(@devframes/json-render@1.3.2)(devframe@1.3.2)
       vite: 8.3.5(@types/node@24.19.2)(@vitejs/devtools@0.8.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
-    optional: true
 
   '@discoveryjs/json-ext@0.5.7': {}
 
@@ -16299,7 +16312,7 @@ snapshots:
       - ocache
       - srvx
 
-  '@vitejs/devtools@0.8.2(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)':
+  '@vitejs/devtools@0.8.2(@devframes/plugin-terminals--assets@1.3.2)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)':
     dependencies:
       '@devframes/agentic': 1.3.2(crossws@0.4.17)(devframe@1.3.2)
       '@devframes/hub': 1.3.2(@devframes/agentic@1.3.2)(crossws@0.4.17)(devframe@1.3.2)
@@ -16308,7 +16321,7 @@ snapshots:
       '@devframes/json-render-ui': 1.3.2(@devframes/hub@1.3.2)(devframe@1.3.2)
       '@devframes/plugin-inspect': 1.3.2(devframe@1.3.2)(vite@8.3.5)
       '@devframes/plugin-messages': 1.3.2(@devframes/hub@1.3.2)(devframe@1.3.2)(vite@8.3.5)
-      '@devframes/plugin-terminals': 1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(devframe@1.3.2)(vite@8.3.5)
+      '@devframes/plugin-terminals': 1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(@devframes/plugin-terminals--assets@1.3.2)(devframe@1.3.2)(vite@8.3.5)
       '@vitejs/devtools-kit': 0.8.2(@devframes/agentic@1.3.2)(cac@7.1.0)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
       cac: 7.1.0
       devframe: 1.3.2(@devframes/agentic@1.3.2)(cac@7.1.0)(srvx@1.0.8)
@@ -22580,7 +22593,7 @@ snapshots:
     optionalDependencies:
       '@arethetypeswrong/core': 0.18.5
       '@tsdown/css': 0.21.10(jiti@2.7.0)(postcss@8.5.32)(tsdown@0.21.10)(tsx@4.23.15)(yaml@2.9.1)
-      '@vitejs/devtools': 0.8.2(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
+      '@vitejs/devtools': 0.8.2(@devframes/plugin-terminals--assets@1.3.2)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
       typescript: 6.0.3
     transitivePeerDependencies:
       - '@ts-macro/tsc'
@@ -22975,7 +22988,7 @@ snapshots:
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 24.19.2
-      '@vitejs/devtools': 0.8.2(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
+      '@vitejs/devtools': 0.8.2(@devframes/plugin-terminals--assets@1.3.2)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 1.21.7
@@ -22992,7 +23005,7 @@ snapshots:
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 24.19.2
-      '@vitejs/devtools': 0.8.2(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
+      '@vitejs/devtools': 0.8.2(@devframes/plugin-terminals--assets@1.3.2)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 2.7.0

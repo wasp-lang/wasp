@@ -1,11 +1,11 @@
-import { setTimeout as sleep } from "node:timers/promises";
-
 import type {
   DevToolsChildProcessTerminalSession,
   DevToolsDockUserEntry,
 } from "@vitejs/devtools-kit";
 import { createProcessLauncher } from "@vitejs/devtools-kit/node";
 import type { Plugin } from "vite";
+
+import { waitForServer } from "./waitForServer";
 
 const WASP_STUDIO_ID = "wasp-studio";
 
@@ -93,22 +93,4 @@ function withDockCategory<Context extends { docks: object }>(
     get: (target, property) =>
       property === "docks" ? docks : Reflect.get(target, property),
   });
-}
-
-async function waitForServer(
-  url: string,
-  isProcessRunning: () => boolean,
-): Promise<void> {
-  // The launcher reports the error if the process exits first.
-  while (isProcessRunning()) {
-    try {
-      const response = await fetch(url);
-      if (response.ok) {
-        return;
-      }
-    } catch {
-      // Not listening yet.
-    }
-    await sleep(250);
-  }
 }
