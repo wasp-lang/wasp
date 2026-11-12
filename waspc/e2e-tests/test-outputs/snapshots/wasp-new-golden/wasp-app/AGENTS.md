@@ -23,6 +23,13 @@ This project uses the Wasp framework.
 - Set up `.env.server` and `.env.client` from the example files or the project README.
 - Run `wasp db migrate-dev`. Check the project README to see whether you also need to run a seed.
 
+### Emails in development
+
+- With `emailSender: { provider: "Dummy" }`, emails aren't sent. They are kept in the dev mailbox.
+- While `wasp start` runs, wait for an email and read its links with `curl -X POST http://localhost:3001/__wasp/mailbox/api/messages.waitFor -H "Content-Type: application/json" -d '{"search":"<recipient>"}'`. The response's `message.links` holds the URLs (e.g. the email verification link).
+- `GET http://localhost:3001/__wasp/mailbox/api/messages` lists emails. The inbox page is at `http://localhost:3001/__wasp/mailbox`.
+- Each email is also a JSON file in `.wasp/mailbox/`, readable when the server is down.
+
 ### Verification
 
 - Run `wasp compile` to check if app is valid.

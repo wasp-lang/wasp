@@ -11,6 +11,9 @@ import apis from './apis/index.js'
 {=# areThereAnyCrudRoutes =}
 import { rootCrudRouter } from './crud/index.js'
 {=/ areThereAnyCrudRoutes =}
+{=# isDevMailboxEnabled =}
+import { devMailbox, devMailboxRoutePath, registerDevMailboxRoutes } from 'wasp/server/email/core/devMailbox'
+{=/ isDevMailboxEnabled =}
 {=# isDevelopment =}
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
@@ -31,6 +34,15 @@ router.get('/{= upRouteInRootRouter =}', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
 })
 
+{=# isDevMailboxEnabled =}
+// The inbox and API for emails sent with the Dummy email sender. Without the
+// global middleware, since it isn't part of the app's API.
+const devMailboxRouter = express.Router()
+devMailboxRouter.use(express.json())
+registerDevMailboxRoutes(devMailboxRouter, devMailbox, { appName: "{= appName =}" })
+router.use(devMailboxRoutePath, devMailboxRouter)
+
+{=/ isDevMailboxEnabled =}
 {=# areThereAnyCustomApiRoutes =}
 // NOTE: Keep user-defined api routes last so they cannot override our routes.
 // Additionally, do not add middleware to these routes here. Instead, we add

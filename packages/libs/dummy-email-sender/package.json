@@ -18,9 +18,19 @@
     "test:types": "tsc --noEmit",
     "test:unit": "vitest run"
   },
+  "peerDependencies": {
+    "@types/express": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/express": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
+    "@types/express": "^5.0.0",
     "@types/node": "catalog:",
+    "express": "catalog:",
     "tsdown": "^0.21.5",
     "typescript": "catalog:",
     "vitest": "catalog:"

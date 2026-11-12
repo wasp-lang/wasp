@@ -17,6 +17,7 @@ import Wasp.Generator.AuthProviders
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
@@ -106,7 +107,10 @@ genDummyEmailSenderNotice :: Bool -> Generator [FileDraft]
 genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled =
   genConditionally isDummyEmailSenderNoticeEnabled $
     sequence
-      [ genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.tsx|],
+      [ return $
+          mkTmplFdWithData
+            (authFormsInternalDirInSdkTemplatesDir </> [relfile|email/DummyEmailSenderNotice.tsx|])
+            (object ["devMailboxRoutePath" .= EmailSenders.devMailboxRoutePath]),
         genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.module.css|]
       ]
 

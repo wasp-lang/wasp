@@ -5,7 +5,6 @@ import {
   generateRandomEmail,
   generateRandomInternationalizedEmail,
   isRunningInDeployedMode,
-  isRunningInDevMode,
 } from "./helpers";
 
 test.describe("auth", () => {
@@ -70,7 +69,8 @@ test.describe("auth", () => {
   });
 
   test.describe("signup and login", () => {
-    // These tests require Mailcrab for email verification.
+    // These tests require reading the verification email, which the deployed
+    // app sends to a real inbox.
     test.skip(
       isRunningInDeployedMode(),
       "Skipped in deployed mode (no Mailcrab)",
@@ -110,11 +110,6 @@ test.describe("auth", () => {
     });
 
     test("unconfirmed email results in error message", async ({ page }) => {
-      if (isRunningInDevMode()) {
-        // Skip this test in dev mode, as email confirmation is not required.
-        test.skip();
-      }
-
       await performLogin(page, {
         email,
         password,
@@ -124,11 +119,6 @@ test.describe("auth", () => {
     });
 
     test("can verify email", async ({ page }) => {
-      if (isRunningInDevMode()) {
-        // Skip this test in dev mode, as email confirmation is not required.
-        test.skip();
-      }
-
       await performEmailVerification(page, email);
     });
 
@@ -174,11 +164,6 @@ test.describe("auth", () => {
     });
 
     test("can verify email", async ({ page }) => {
-      if (isRunningInDevMode()) {
-        // Skip this test in dev mode, as email confirmation is not required.
-        test.skip();
-      }
-
       await performEmailVerification(page, email);
     });
 

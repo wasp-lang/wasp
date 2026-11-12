@@ -5845,7 +5845,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 To support e-mail verification and password reset flows, we need an e-mail sender. Luckily, Wasp supports several email providers out of the box.
 
-We'll use the `Dummy` provider to speed up the setup. It just logs the emails to the console instead of sending them. You can use any of the [supported email providers](https://wasp.sh/docs/features/email#providers).
+We'll use the `Dummy` provider to speed up the setup. Instead of sending the emails, it logs them to the console and keeps them in the [dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox), where you can click the verification and password reset links. You can use any of the [supported email providers](https://wasp.sh/docs/features/email#providers).
 
 To set up the `Dummy` provider to send emails, add the following to the `main.wasp.ts` file:
 
@@ -10044,7 +10044,7 @@ We'll go over all of the available providers in the next section. For some of th
 The `Dummy` provider is not for production use. It is only meant to be used during development. If you try building your app with the `Dummy` provider, the build will fail.
 :::
 
-To speed up development, Wasp offers a `Dummy` email sender that `console.log`s the emails in the console. Since it doesn't send emails for real, it doesn't require any setup.
+To speed up development, Wasp offers a `Dummy` email sender. It doesn't send emails for real, so it doesn't require any setup. Instead, it logs the emails in the console and keeps them in the [dev mailbox](#dev-mailbox).
 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
@@ -10058,6 +10058,102 @@ export default app({
   },
   // ...
 })
+```
+
+Since Wasp sets `NODE_ENV` when it reads `main.wasp.ts`, you can use the `Dummy` provider in development and a real one in production:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: process.env.NODE_ENV === "production" ? "SMTP" : "Dummy",
+  },
+  // ...
+})
+```
+
+##### Dev mailbox
+
+The dev mailbox keeps the emails the `Dummy` provider sends, so you, your tests, and your AI agents can read them and follow their links (e.g., the email verification link).
+
+You can reach the emails in several ways:
+
+- **Inbox page**: open <http://localhost:3001/__wasp/mailbox> while `wasp start` is running. It updates live as emails arrive. The auth forms link to it too.
+- **HTTP API**: see [the API](#dev-mailbox-api) below. It's handy for end-to-end tests and AI agents.
+- **Files**: each email is a JSON file in `.wasp/mailbox/`, which you can read even when the server isn't running.
+- **Console**: every email logged in the `wasp start` console comes with links to its inbox page, its API URL, and its file.
+
+The emails survive server restarts. Wasp keeps the latest 500 emails by default, which you can change with `maxMessages`:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: "Dummy",
+    mailbox: {
+      // `Infinity` keeps all emails, `0` keeps none.
+      maxMessages: 1000,
+    },
+  },
+  // ...
+})
+```
+
+###### Dev mailbox API
+
+All routes are under `http://localhost:3001/__wasp/mailbox/api`. Reads are `GET` requests, while actions are `POST` requests with a JSON body.
+
+| Route                    | Description                                                                                                                                                                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /messages`          | Lists email summaries, newest first. Accepts the `search`, `searchIn`, `after`, and `limit` query parameters.                                                                                                                |
+| `GET /messages/:id`      | Returns one email.                                                                                                                                                                                                           |
+| `GET /messages/:id/html` | Returns the email's HTML body.                                                                                                                                                                                               |
+| `GET /events`            | Streams `added`, `deleted`, and `cleared` events ([server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)).                                                                                |
+| `POST /messages.waitFor` | Returns the newest email matching `search`, `searchIn`, and `after`. If there is none yet, waits for one for up to `timeoutMs` milliseconds (default 10 seconds, at most 5 minutes) and responds with `408` if none arrives. |
+| `POST /messages.delete`  | Deletes the email with the given `id`.                                                                                                                                                                                       |
+| `POST /messages.clear`   | Deletes all emails.                                                                                                                                                                                                          |
+
+The filters work like this:
+
+- `search` matches emails where any of the `searchIn` fields contains the text, ignoring case.
+- `searchIn` lists the fields `search` looks in: `from`, `to`, `subject`, and `body`. It defaults to all of them. In query parameters, separate them with commas (`searchIn=subject,body`).
+- `after` takes an email's `id` and matches only emails sent after it.
+- `limit` caps how many emails you get back.
+
+Each email has an `id`, `sentAt`, `from`, `to`, `subject`, `text`, `html`, and `links`. The `links` field lists the URLs found in the email, so you don't need to parse them yourself. Errors respond with a matching status code and an `{ error: { code, message } }` body.
+
+For example, this is how you get the verification link after signing up `user@example.com`:
+
+```sh
+curl -X POST http://localhost:3001/__wasp/mailbox/api/messages.waitFor \
+  -H "Content-Type: application/json" \
+  -d '{ "search": "user@example.com", "searchIn": ["to"] }'
+```
+
+In a Playwright test, the same looks like this:
+
+```ts title="e2e-tests/auth.spec.ts"
+import { expect, test } from "@playwright/test";
+
+test("can verify email", async ({ page, request }) => {
+  const email = "user@example.com";
+  // ... sign up as `email`
+
+  const response = await request.post(
+    "http://localhost:3001/__wasp/mailbox/api/messages.waitFor",
+    { data: { search: email, searchIn: ["to"] } },
+  );
+  const { message } = await response.json();
+
+  await page.goto(message.links[0]);
+  await expect(page.locator("body")).toContainText(
+    "Your email has been verified",
+  );
+});
 ```
 
 #### Using the SMTP Provider {#smtp}
@@ -26885,6 +26981,26 @@ See [Seeding the Database](https://wasp.sh/docs/features/data/databases#seeding-
 
 ---
 
+#### DeliveringEmailSender
+
+Email sender that delivers emails through a real provider.
+
+##### Properties
+
+###### defaultFrom?
+
+> `optional` **defaultFrom?**: [`EmailFromField`](#emailfromfield)
+
+The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
+
+###### provider
+
+> **provider**: `"SMTP"` | `"SendGrid"` | `"Mailgun"` | `"Resend"`
+
+Provider Wasp uses to deliver outgoing emails.
+
+---
+
 #### Deployment {#deployment-1}
 
 Deployment configuration for the app.
@@ -26902,6 +27018,50 @@ How the client and server are deployed.
 ```ts
 "split"
 ```
+
+---
+
+#### DevMailboxConfig
+
+Settings for the dev mailbox, which keeps emails sent with the Dummy email sender in `.wasp/mailbox/`.
+
+##### Properties
+
+###### maxMessages?
+
+> `optional` **maxMessages?**: `number`
+
+How many emails to keep. When there are more, the oldest ones are deleted. `Infinity` keeps all of them, `0` keeps none.
+
+###### Default Value
+
+`500`
+
+---
+
+#### DummyEmailSender
+
+Email sender that doesn't send emails. It logs them to the console and keeps them in the dev mailbox, where you, your tests, and your AI agents can read them. Only allowed in development.
+
+See [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
+
+##### Properties
+
+###### defaultFrom?
+
+> `optional` **defaultFrom?**: [`EmailFromField`](#emailfromfield)
+
+The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
+
+###### mailbox?
+
+> `optional` **mailbox?**: [`DevMailboxConfig`](#devmailboxconfig)
+
+Dev mailbox settings.
+
+###### provider
+
+> **provider**: `"Dummy"`
 
 ---
 
@@ -27073,47 +27233,6 @@ Email address the message is sent from.
 > `optional` **name?**: `string`
 
 Optional display name shown alongside the email address.
-
----
-
-#### EmailSender {#emailsender-1}
-
-Email sender configuration.
-
-Required for the email auth flows (verification, password reset) and available for sending arbitrary emails via `wasp/server/email`.
-
-See [Sending Emails](https://wasp.sh/docs/features/email).
-
-##### Example
-
-```ts
-import { app } from "@wasp/spec"
-
-export default app({
-  // ...
-  emailSender: {
-    provider: "SMTP",
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com",
-    },
-  },
-})
-```
-
-##### Properties
-
-###### defaultFrom?
-
-> `optional` **defaultFrom?**: [`EmailFromField`](#emailfromfield)
-
-The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
-
-###### provider
-
-> **provider**: [`EmailSenderProviderName`](#emailsenderprovidername)
-
-Provider Wasp uses to deliver outgoing emails.
 
 ---
 
@@ -27592,13 +27711,42 @@ Supported app deployment modes.
 
 ---
 
+#### EmailSender {#emailsender-1}
+
+> **EmailSender** = [`DeliveringEmailSender`](#deliveringemailsender) | [`DummyEmailSender`](#dummyemailsender)
+
+Email sender configuration.
+
+Required for the email auth flows (verification, password reset) and available for sending arbitrary emails via `wasp/server/email`.
+
+See [Sending Emails](https://wasp.sh/docs/features/email).
+
+##### Example
+
+```ts
+import { app } from "@wasp/spec"
+
+export default app({
+  // ...
+  emailSender: {
+    provider: "SMTP",
+    defaultFrom: {
+      name: "Example",
+      email: "hello@itsme.com",
+    },
+  },
+})
+```
+
+---
+
 #### EmailSenderProviderName
 
 > **EmailSenderProviderName** = `"SMTP"` | `"SendGrid"` | `"Mailgun"` | `"Resend"` | `"Dummy"`
 
 Supported email sender providers.
 
-`"Dummy"` logs emails to the console instead of sending them, which is convenient during development, but not allowed in production.
+`"Dummy"` logs emails to the console and keeps them in the dev mailbox instead of sending them, which is convenient during development, but not allowed in production.
 
 ---
 

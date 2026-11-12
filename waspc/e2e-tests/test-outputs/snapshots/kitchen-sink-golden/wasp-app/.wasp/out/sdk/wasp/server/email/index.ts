@@ -2,12 +2,8 @@ import { env } from '../env.js';
 import { initEmailSender } from "./core/index.js";
 import type { EmailSender } from "./core/types.js";
 
-const emailProvider = { 
-    type: "smtp",
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    username: env.SMTP_USERNAME,
-    password: env.SMTP_PASSWORD,
+const emailProvider = {
+  type: "dummy",
 } as const;
 
 // PUBLIC API

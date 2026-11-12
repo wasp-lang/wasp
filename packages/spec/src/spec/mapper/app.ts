@@ -1,5 +1,6 @@
 import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
+import { WaspSpecUserError } from "../waspSpecUserError.js";
 import { AppMapperContext } from "./context.js";
 
 export function mapAppSpec(
@@ -204,10 +205,36 @@ export function mapEmailSender(
   emailSender: WaspSpec.EmailSender,
 ): AppSpec.EmailSender {
   const { provider, defaultFrom } = emailSender;
+  const mailbox =
+    emailSender.provider === "Dummy" ? emailSender.mailbox : undefined;
   return {
     provider,
     defaultFrom: defaultFrom && mapEmailFromField(defaultFrom),
+    mailbox: mailbox && mapDevMailboxConfig(mailbox),
   };
+}
+
+export function mapDevMailboxConfig(
+  devMailboxConfig: WaspSpec.DevMailboxConfig,
+): AppSpec.DevMailboxConfig {
+  const { maxMessages } = devMailboxConfig;
+  return {
+    maxMessages:
+      maxMessages === undefined ? undefined : mapMaxMessages(maxMessages),
+  };
+}
+
+/** `Infinity` doesn't survive JSON serialization, so it's named explicitly. */
+function mapMaxMessages(maxMessages: number): number | "unlimited" {
+  if (maxMessages === Infinity) {
+    return "unlimited";
+  }
+  if (!Number.isInteger(maxMessages) || maxMessages < 0) {
+    throw new WaspSpecUserError(
+      `app.emailSender.mailbox.maxMessages must be a non-negative integer or Infinity, got ${maxMessages}.`,
+    );
+  }
+  return maxMessages;
 }
 
 export function mapEmailFromField(

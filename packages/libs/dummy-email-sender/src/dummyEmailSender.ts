@@ -1,3 +1,4 @@
+import type { DevMailbox } from "./mailbox/devMailbox.js";
 import type { EmailFromField } from "./types.js";
 
 export type DummyEmail = {
@@ -14,13 +15,21 @@ export type DummyEmailSender = {
 };
 
 export type DummyEmailSenderOptions = {
+  mailbox: DevMailbox;
   defaultFrom: EmailFromField;
+  /** URL of the inbox page, e.g. `http://localhost:3001/__wasp/mailbox`. */
+  mailboxUrl: string;
   log?: (line: string) => void;
 };
 
-/** Logs emails instead of sending them. */
+/**
+ * Doesn't send emails. It logs them and keeps them in the dev mailbox, where
+ * developers, tests, and agents can read them.
+ */
 export function createDummyEmailSender({
+  mailbox,
   defaultFrom,
+  mailboxUrl,
   log = console.log,
 }: DummyEmailSenderOptions): DummyEmailSender {
   return {
@@ -39,6 +48,14 @@ export function createDummyEmailSender({
       log(email.html);
       log(yellow("════════════════════════"));
 
+      const message = mailbox.add({ ...email, from });
+      if (message !== undefined) {
+        log(`Inbox:   ${mailboxUrl}#${message.id}`);
+        log(`API:     ${mailboxUrl}/api/messages/${message.id}`);
+        log(`File:    ${mailbox.directoryPath}/${message.id}.json`);
+        log(yellow("════════════════════════"));
+      }
+
       return { success: true };
     },
   };
@@ -49,7 +66,7 @@ function formatFromField({ name, email }: EmailFromField): string {
 }
 
 function yellow(text: string): string {
-  // https://no-color.org
+  // Respect https://no-color.org, like the rest of Wasp's console output.
   if ("NO_COLOR" in process.env) {
     return text;
   }

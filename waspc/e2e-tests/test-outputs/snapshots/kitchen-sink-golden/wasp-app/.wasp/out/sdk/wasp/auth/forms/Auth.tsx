@@ -14,6 +14,7 @@ import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
+import { DummyEmailSenderNotice } from './internal/email/DummyEmailSenderNotice'
 
 const logoStyle = {
   height: '3rem'
@@ -52,6 +53,7 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
         <h2 className={styles.headerText}>{title}</h2>
       </div>
 
+      {(state === 'signup' || state === 'forgot-password') && <DummyEmailSenderNotice />}
       {errorMessage && (
         <MessageError>
           {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}

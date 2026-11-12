@@ -47,8 +47,10 @@ export default app({
     envValidationSchema: clientEnvValidationSchema,
   },
   db,
+  // Wasp sets NODE_ENV when it reads this file. The Dummy provider is only
+  // allowed in development, so builds send real emails through SMTP.
   emailSender: {
-    provider: "SMTP",
+    provider: process.env.NODE_ENV === "production" ? "SMTP" : "Dummy",
     defaultFrom: {
       email: "kitchen-sink@wasp.sh",
     },

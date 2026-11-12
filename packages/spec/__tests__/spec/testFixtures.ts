@@ -362,8 +362,9 @@ export function getEmailSenderConfig(
       } satisfies MinimalConfig<WaspSpec.EmailSender>;
     case "full":
       return {
-        provider: "SMTP",
+        provider: "Dummy",
         defaultFrom: getEmailFromField("full"),
+        mailbox: { maxMessages: 100 },
       } satisfies FullConfig<WaspSpec.EmailSender>;
     default:
       assertUnreachable(scope);

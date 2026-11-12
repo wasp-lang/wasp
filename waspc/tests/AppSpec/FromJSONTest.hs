@@ -395,9 +395,38 @@ spec_AppSpecFromJSON = do
                     EmailSender.EmailFromField
                       { EmailSender.name = Just "John Doe",
                         EmailSender.email = "something"
+                      },
+                mailbox = Nothing
+              }
+          )
+    it "parses a valid EmailSender JSON with a mailbox" $ do
+      [trimming|
+          {
+            "provider": "Dummy",
+            "mailbox": { "maxMessages": 100 }
+          }
+      |]
+        `shouldDecodeTo` Just
+          ( EmailSender.EmailSender
+              { provider = EmailSender.Dummy,
+                defaultFrom = Nothing,
+                mailbox =
+                  Just $
+                    EmailSender.DevMailboxConfig
+                      { EmailSender.maxMessages = Just $ EmailSender.MaxMessagesLimit 100
                       }
               }
           )
+
+  describe "MaxMessages" $ do
+    it "parses a limit" $ do
+      "0" `shouldDecodeTo` Just (EmailSender.MaxMessagesLimit 0)
+    it "parses unlimited" $ do
+      "\"unlimited\"" `shouldDecodeTo` Just EmailSender.MaxMessagesUnlimited
+    it "fails to parse a negative limit" $ do
+      "-1" `shouldDecodeTo` (Nothing :: Maybe EmailSender.MaxMessages)
+    it "fails to parse a fractional limit" $ do
+      "1.5" `shouldDecodeTo` (Nothing :: Maybe EmailSender.MaxMessages)
   describe "Db" $ do
     it "parses a valid Db JSON" $ do
       [trimming|
