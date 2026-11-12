@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "62dad4d0c008d7901df9ba598543e1fb77164007f920eade1af49964e9095582"
+        "96365e90658414a9542955b9136e1974c3902fcabfd602954696ba4bec4bae8c"
     ],
     [
         [
@@ -25,28 +25,28 @@
             "file",
             "libs/auth/wasp-lib-auth-0.27.0.tgz"
         ],
-        "bec87999ce5bc31582e7f2435d7878afcd06965b5b3d74fbff79e5ed8445a0c3"
+        "3074a952f57ccad596b6a24ff9646ef2fbab39e22b313ae06b884324f47bcd92"
     ],
     [
         [
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "c3ebe93a4d344129352768e257fc281bbd2b429a5fa2873c8543775c83cb5607"
+        "c2bbdfd2962bd37906cdcc0306eb6221080c1fcb8e80a9c766283ba2d5b0adf5"
     ],
     [
         [
             "file",
             "libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
         ],
-        "ef440a29d3d296ed4617ebbfc85435d0b79d2733bdd45cf9654a275ca0029823"
+        "f34e265ab908f4780e6290882eb0a47b8f5025fa2eaf09b33c56a2bdf425ccdc"
     ],
     [
         [
             "file",
             "libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz"
         ],
-        "c9119040587f670aef129d9742b27aff30b80dde4267b6c8ce8050fa3cfa4072"
+        "ba0ecd7b244e45df0dcc90e407e519e58b8e2a1458a1d5669413d1d2d8f4ce9e"
     ],
     [
         [
@@ -270,7 +270,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "80fcc964a9db6bc637ea9dbb50b9530ed3c6a2e17fdc17b4b40beb0e1ae99dd7"
+        "77f0dcbcce062a6e368f5e680aa7a270672f6d066db9ca1a65e3a6a5318dbb86"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "server/package.json"
         ],
-        "4231be805e66ad49737d7bb36035b54dba50b1219ea13bcfe45f84524e8804c7"
+        "63d2497388fc58dfc51be578d6061b55d5489cee9277d01db25a0259ae85ea6a"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "35e1a119e2e59dbf95d613db38e466fcd6611067b7ecf10b3aba9bcbfedf70a8"
+        "25058d170dc4ad7b3f4c2b6f1a1482ef4f558e2495ea3446584a34d8db4cf3b0"
     ],
     [
         [
