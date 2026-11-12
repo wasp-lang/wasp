@@ -33,6 +33,7 @@ module ShellCommands
     waspCliStart,
     waspCliStartDb,
     waspCliClean,
+    waspCliStudio,
     waspCliDbStudio,
     waspCliShowSpec,
     waspCliShowSpecJson,
@@ -285,6 +286,9 @@ waspCliDeploy deployArgs = return $ unwords ("$WASP_CLI_CMD deploy" : deployArgs
 
 waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDockerfile = return "$WASP_CLI_CMD dockerfile"
+
+waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStudio = return "$WASP_CLI_CMD studio"
 
 waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInstall = return "$WASP_CLI_CMD install"

@@ -1,8 +1,8 @@
 {
-  "name": "@wasp/lib-studio",
+  "name": "@wasp/lib-devtools",
   "version": "0.27.0",
   "type": "module",
-  "description": "Wasp Studio, the Vite DevTools panel that shows how the parts of a Wasp app connect.",
+  "description": "Wasp's Vite DevTools panels, such as Wasp Studio.",
   "homepage": "https://wasp.sh/",
   "private": true,
   "exports": {
@@ -16,30 +16,20 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsdown && vite build client",
+    "build": "tsdown",
     "test": "pnpm run test:types",
-    "test:types": "tsc --noEmit && tsc --noEmit -p client"
+    "test:types": "tsc --noEmit"
   },
   "peerDependencies": {
     "vite": "^8.3.5"
   },
   "dependencies": {
-    "@vitejs/devtools-kit": "^0.8.2",
-    "devframe": "^1.3.2"
+    "@vitejs/devtools-kit": "^0.8.2"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.4",
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "catalog:",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react-swc": "^4.3.3",
-    "@xyflow/react": "^12.12.1",
-    "elkjs": "^0.12.1",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "tailwindcss": "^4.3.4",
     "tsdown": "^0.21.5",
     "typescript": "catalog:",
     "vite": "^8.3.5"

@@ -16,6 +16,7 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 export const WASPC_PACKAGES: WaspcPackage[] = [
   { name: "spec", kind: "installable" },
   { name: "deploy", kind: "runnable" },
+  { name: "studio", kind: "runnable" },
 ];
 
 export type WaspcPackage = {

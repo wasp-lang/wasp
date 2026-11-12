@@ -15,7 +15,6 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.StudioGenerator (studioDataFileInGeneratedAppDir)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
@@ -60,8 +59,7 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths,
-          "studioDataFilePath" .= SP.fromRelFile (generatedAppDirInWaspProjectDir </> studioDataFileInGeneratedAppDir)
+          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
         ]
     prerenderPaths =
       concatMap AS.Route.prerender (AS.getRoutes spec)

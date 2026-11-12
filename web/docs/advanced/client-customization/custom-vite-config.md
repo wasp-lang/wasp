@@ -114,7 +114,7 @@ export default defineConfig({
 
 Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal.
 
-Wasp Studio is one of its panels. It draws your app as a graph of pages, routes, operations, APIs, jobs, and entities, and it updates as you change your Wasp config.
+Wasp Studio is one of its panels. Open it and click **Start Wasp Studio** to see your app as a graph of pages, routes, operations, APIs, jobs, and entities, the same as running `wasp studio`.
 
 Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
 

@@ -1,6 +1,7 @@
 {{={= =}=}}
 import type { PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { waspStudio } from "@wasp/lib-devtools/node";
 import {
   detectServerImports,
   envFile,
@@ -8,7 +9,6 @@ import {
   validateEnv,
   type WaspPluginOptions,
 } from "@wasp/lib-sdk-core/node/vite";
-import { waspStudio } from "@wasp/lib-studio/node";
 import ssr from "@wasp/lib-vite-ssr";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
@@ -40,6 +40,6 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       ssrPaths: {=& ssrPaths =},
       spaFallbackFile: "{= spaFallbackFile =}",
     }),
-    waspStudio({ dataFile: "{= studioDataFilePath =}" }),
+    waspStudio(),
   ];
 }

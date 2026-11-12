@@ -27,7 +27,6 @@ import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (SetupGoal, runSetup, setUpGeneratedApp)
 import qualified Wasp.Generator.Start
-import Wasp.Generator.StudioGenerator (genStudio)
 import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -68,7 +67,6 @@ genApp spec = do
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTypeAugmentation spec
-    <++> genStudio spec
     <++> genWaspLibs
 
 warnOverriddenDeps :: AppSpec -> Generator ()

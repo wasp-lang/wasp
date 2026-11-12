@@ -33,6 +33,7 @@ import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
+import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
@@ -75,6 +76,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["dockerfile"] -> Command.Call.Dockerfile
         ("show" : showArgs) -> Command.Call.Show showArgs
         ["news"] -> Command.Call.News
+        ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
@@ -94,6 +96,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
+    Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall uninstallArgs -> runCommand $ uninstall uninstallArgs
     Command.Call.Build -> runCommand build
     Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
@@ -180,6 +183,7 @@ printUsage =
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
         cmd   "    show build [--json]   Prints information about your app's current build.",
+        cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
         cmd   "    news                  Read the latest Wasp-related news.",
               "",
         title "EXAMPLES",
