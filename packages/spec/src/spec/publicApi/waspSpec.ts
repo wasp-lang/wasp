@@ -781,9 +781,20 @@ export interface Db {
  * })
  * ```
  */
-export interface EmailSender {
-  /** Provider Wasp uses to deliver outgoing emails. */
-  provider: EmailSenderProviderName;
+export type EmailSender =
+  | SMTPEmailSender
+  | SendGridEmailSender
+  | MailgunEmailSender
+  | ResendEmailSender
+  | DummyEmailSender;
+
+/**
+ * Sends emails through an SMTP server.
+ *
+ * See [SMTP](https://wasp.sh/docs/features/email#smtp).
+ */
+export interface SMTPEmailSender {
+  provider: "SMTP";
   /**
    * The default sender's details. If you set this field, you don't need to
    * provide the `from` field when sending an email.
@@ -792,10 +803,82 @@ export interface EmailSender {
 }
 
 /**
+ * Sends emails through SendGrid.
+ *
+ * See [SendGrid](https://wasp.sh/docs/features/email#sendgrid).
+ */
+export interface SendGridEmailSender {
+  provider: "SendGrid";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+}
+
+/**
+ * Sends emails through Mailgun.
+ *
+ * See [Mailgun](https://wasp.sh/docs/features/email#mailgun).
+ */
+export interface MailgunEmailSender {
+  provider: "Mailgun";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+}
+
+/**
+ * Sends emails through Resend.
+ *
+ * See [Resend](https://wasp.sh/docs/features/email#resend).
+ */
+export interface ResendEmailSender {
+  provider: "Resend";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+}
+
+/**
+ * Logs emails and keeps them in the dev mailbox instead of sending them. Only
+ * allowed in development.
+ *
+ * See [Dummy](https://wasp.sh/docs/features/email#dummy) and
+ * [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
+ */
+export interface DummyEmailSender {
+  provider: "Dummy";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+  mailbox?: DevMailboxConfig;
+}
+
+/**
+ * The dev mailbox keeps emails in `.wasp/mailbox/`.
+ */
+export interface DevMailboxConfig {
+  /**
+   * Older emails over the limit get deleted. `Infinity` keeps all, `0` keeps
+   * none.
+   *
+   * @defaultValue `500`
+   */
+  maxEmails?: number;
+}
+
+/**
  * Supported email sender providers.
  *
- * `"Dummy"` logs emails to the console instead of sending them, which is
- * convenient during development, but not allowed in production.
+ * `"Dummy"` logs emails and keeps them in the dev mailbox instead of sending
+ * them. It's not allowed in production.
  */
 export type EmailSenderProviderName =
   | "SMTP"

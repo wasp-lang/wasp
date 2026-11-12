@@ -1,13 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
-import {
-  generateRandomEmail,
-  isRunningInDeployedMode,
-  isRunningInDevMode,
-} from "./helpers";
+import { generateRandomEmail, isRunningInDeployedMode } from "./helpers";
 
 test.describe("manual signup", () => {
-  // These tests require Mailcrab for email verification.
+  // These tests read emails. Dev mode uses the Dummy email sender, build mode
+  // uses Mailcrab over SMTP.
   test.skip(
     isRunningInDeployedMode(),
     "Skipped in deployed mode (no Mailcrab)",
@@ -36,11 +33,6 @@ test.describe("manual signup", () => {
 
   // Unlike custom sign up, manual still follows the standard Wasp flow.
   test("can verify email", async ({ page }) => {
-    if (isRunningInDevMode()) {
-      // Skip this test in dev mode, as email confirmation is not required.
-      test.skip();
-    }
-
     await performEmailVerification(page, email);
   });
 

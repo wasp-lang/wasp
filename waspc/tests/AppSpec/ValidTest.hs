@@ -196,7 +196,8 @@ spec_AppSpecValid = do
                               Just
                                 AS.EmailSender.EmailSender
                                   { AS.EmailSender.provider = AS.EmailSender.Mailgun,
-                                    AS.EmailSender.defaultFrom = Nothing
+                                    AS.EmailSender.defaultFrom = Nothing,
+                                    AS.EmailSender.mailbox = Nothing
                                   }
                           },
                       AS.Decl.makeDecl userEntity,
@@ -390,13 +391,15 @@ spec_AppSpecValid = do
         let mailgunEmailSender =
               AS.EmailSender.EmailSender
                 { AS.EmailSender.provider = AS.EmailSender.Mailgun,
-                  AS.EmailSender.defaultFrom = Nothing
+                  AS.EmailSender.defaultFrom = Nothing,
+                  AS.EmailSender.mailbox = Nothing
                 }
 
         let dummyEmailSender =
               AS.EmailSender.EmailSender
                 { AS.EmailSender.provider = AS.EmailSender.Dummy,
-                  AS.EmailSender.defaultFrom = Nothing
+                  AS.EmailSender.defaultFrom = Nothing,
+                  AS.EmailSender.mailbox = Nothing
                 }
 
         it "returns an error if no email sender is set but email auth is used" $ do

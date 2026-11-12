@@ -23,6 +23,10 @@ This project uses the Wasp framework.
 - Set up `.env.server` and `.env.client` from the example files or the project README.
 - Run `wasp db migrate-dev`. Check the project README to see whether you also need to run a seed.
 
+### Emails in development
+
+- The `Dummy` email sender keeps emails in the dev mailbox instead of sending them. The "Dev mailbox" section of the email docs explains how to read them.
+
 ### Verification
 
 - Run `wasp compile` to check if app is valid.

@@ -1,0 +1,16 @@
+{{={= =}=}}
+import * as path from "node:path";
+
+import { createDevMailbox } from "@wasp/lib-dummy-email-sender/node";
+
+export { registerDevMailboxRoutes } from "@wasp/lib-dummy-email-sender/node";
+
+// PRIVATE API
+export const devMailboxRoutePath = "{= devMailboxRoutePath =}";
+
+// PRIVATE API
+// The server and `db seed` both run from the project dir, so they share it.
+export const devMailbox = createDevMailbox({
+  directoryPath: path.resolve("{= devMailboxDirFromWaspProjectDir =}"),
+  maxEmails: {= maxEmails =},
+});

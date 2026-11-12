@@ -1,2 +1,2 @@
 // PRIVATE API
-export { initSmtpEmailSender as initEmailSender } from "./providers/smtp.js";
+export { initDummyEmailSender as initEmailSender } from "./providers/dummy.js";

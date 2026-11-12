@@ -1,10 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
-import {
-  generateRandomEmail,
-  isRunningInDeployedMode,
-  isRunningInDevMode,
-} from "./helpers";
+import { generateRandomEmail, isRunningInDeployedMode } from "./helpers";
 
 test.describe("auth hooks", () => {
   /*
@@ -62,25 +58,16 @@ test.describe("auth hooks", () => {
       page.getByTestId("hook-status-onAfterLogin").getByTestId("status"),
     ).toHaveText("Called");
 
-    const expectedEmailVerificationStatus = isRunningInDevMode()
-      ? {
-          callCount: 0,
-          statusName: "Not Called",
-        }
-      : {
-          callCount: 1,
-          statusName: "Called",
-        };
     await expect(
       page
         .getByTestId("hook-status-onAfterEmailVerified")
         .getByTestId("status"),
-    ).toHaveText(expectedEmailVerificationStatus.statusName);
+    ).toHaveText("Called");
     await expect(
       page
         .getByTestId("hook-status-onAfterEmailVerified")
         .getByTestId("call-count"),
-    ).toHaveText(expectedEmailVerificationStatus.callCount.toString());
+    ).toHaveText("1");
   });
 
   /*

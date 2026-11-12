@@ -348,7 +348,7 @@ We imported the generated Auth UI components and used them in our pages. Read mo
 
 To support e-mail verification and password reset flows, we need an e-mail sender. Luckily, Wasp supports several email providers out of the box.
 
-We'll use the `Dummy` provider to speed up the setup. It just logs the emails to the console instead of sending them. You can use any of the [supported email providers](../../email#providers).
+We'll use the `Dummy` provider to speed up the setup. Instead of sending the emails, it logs them to the console and keeps them in the [dev mailbox](../../email#dev-mailbox), where you can click the verification and password reset links. You can use any of the [supported email providers](../../email#providers).
 
 To set up the `Dummy` provider to send emails, add the following to the `main.wasp.ts` file:
 

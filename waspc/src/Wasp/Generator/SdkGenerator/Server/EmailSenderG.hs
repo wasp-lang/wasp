@@ -8,6 +8,8 @@ where
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, isJust, maybeToList)
 import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
+import qualified StrongPath as SP
+import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -30,7 +32,8 @@ genEmailSenderApi :: AppSpec -> Generator [FileDraft]
 genEmailSenderApi spec = case maybeEmailSender of
   Just emailSender ->
     sequence
-      [ genIndex emailSender
+      [ genIndex emailSender,
+        genDevMailboxPublicModule
       ]
       <++> genCore emailSender
   Nothing -> return []
@@ -46,6 +49,14 @@ genIndex emailSender =
   where
     tmplData = EmailSenders.getEnabledEmailProvidersJson emailSender
 
+-- | Generated for every provider, so tests can import it in any build mode.
+genDevMailboxPublicModule :: Generator FileDraft
+genDevMailboxPublicModule =
+  return $
+    mkTmplFdWithData
+      (serverEmailDirInSdkTemplatesDir </> [relfile|devMailbox.ts|])
+      (object ["devMailboxRoutePath" .= EmailSenders.devMailboxRoutePath])
+
 genCore :: EmailSender -> Generator [FileDraft]
 genCore emailSender =
   sequence
@@ -54,6 +65,29 @@ genCore emailSender =
       genCoreHelpers emailSender,
       genEmailSenderProviderSetupFn emailSender
     ]
+    <++> genDevMailboxInstance emailSender
+
+genDevMailboxInstance :: EmailSender -> Generator [FileDraft]
+genDevMailboxInstance emailSender
+  | AS.EmailSender.isDummyEmailSender emailSender =
+      return
+        [ mkTmplFdWithData
+            (serverEmailDirInSdkTemplatesDir </> [relfile|core/devMailboxInstance.ts|])
+            tmplData
+        ]
+  | otherwise = return []
+  where
+    tmplData =
+      object
+        [ "devMailboxRoutePath" .= EmailSenders.devMailboxRoutePath,
+          "devMailboxDirFromWaspProjectDir" .= devMailboxDirFromWaspProjectDir,
+          "maxEmails" .= toJsNumber (EmailSenders.getDevMailboxMaxEmails emailSender)
+        ]
+    devMailboxDirFromWaspProjectDir =
+      either (error . show) (FP.dropTrailingPathSeparator . SP.fromRelDirP) $
+        SP.relDirToPosix EmailSenders.devMailboxDirInWaspProjectDir
+    toJsNumber (AS.EmailSender.MaxEmailsLimit limit) = show limit
+    toJsNumber AS.EmailSender.MaxEmailsUnlimited = "Infinity"
 
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex emailSender =

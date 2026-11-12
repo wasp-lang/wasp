@@ -94,6 +94,8 @@
     "./server/auth": "./dist/server/auth/index.js",
     "./server/crud": "./dist/server/crud/index.js",
     "./server/email": "./dist/server/email/index.js",
+    {=! Users: dev mailbox API types and path, safe to import from tests. =}
+    "./server/email/devMailbox": "./dist/server/email/devMailbox.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/operations": "./dist/server/operations/index.js",
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
@@ -126,6 +128,7 @@
     "./server/errors": "./dist/server/errors/index.js",
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
+    "./server/email/core/devMailboxInstance": "./dist/server/email/core/devMailboxInstance.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     {=! FIXME: Reconsider during refactoring whether this is still needed. =}

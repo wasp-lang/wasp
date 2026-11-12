@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { getDevMailboxEmailVerificationLink } from "./devMailbox";
 import {
   generateRandomEmail,
   isRunningInDeployedMode,
@@ -69,25 +70,19 @@ async function submitSignupForm(page: Page, credentials: Credentials) {
 }
 
 /*
- When running the tests in **dev** mode, the email verification is done automatically.
+ When running the tests in **dev** mode, the app uses the Dummy email sender,
+ so we read the email from the dev mailbox API.
 
- When running the tests in **build** mode, the email verification is required:
+ When running the tests in **build** mode, the app sends emails through SMTP:
     * We rely on a Mailcrab SMTP dev server to receive emails locally when running the tests.
     * This is a local SMTP server that receives emails on port 1025 and exposes a REST API
     to fetch the emails.
     * `wasp-app-runner` starts a Mailcrab server on port 1080 by default.
 */
 export async function performEmailVerification(page: Page, email: string) {
-  if (isRunningInDevMode()) {
-    // This relies on having the SKIP_EMAIL_VERIFICATION_IN_DEV=true in the
-    // .env.server file. This is the default value in the `.env.server.example` file.
-    return;
-  }
-
-  // Wait for the email to be sent
-  await page.waitForTimeout(1000);
-
-  const link = await getMailCrabEmailVerificationLink(page, email);
+  const link = isRunningInDevMode()
+    ? await getDevMailboxEmailVerificationLink(page, email)
+    : await getMailCrabEmailVerificationLinkAfterDelivery(page, email);
 
   await page.goto(link);
   await page.waitForSelector("text=Your email has been verified");
@@ -110,4 +105,13 @@ async function submitLoginForm(page: Page, credentials: BaseEmailCredentials) {
   await page.locator("input[name='email']").fill(credentials.email);
   await page.locator("input[type='password']").fill(credentials.password);
   await page.getByRole("button", { name: "Log in" }).click();
+}
+
+async function getMailCrabEmailVerificationLinkAfterDelivery(
+  page: Page,
+  email: string,
+): Promise<string> {
+  // Wait for the email to be sent
+  await page.waitForTimeout(1000);
+  return getMailCrabEmailVerificationLink(page, email);
 }

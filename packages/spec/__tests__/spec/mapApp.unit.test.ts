@@ -20,6 +20,7 @@ import {
   getRefObjectDeclarationName,
   mapRefObject,
 } from "../../src/spec/refObject.js";
+import { WaspSpecUserError } from "../../src/spec/waspSpecUserError.js";
 import * as Fixtures from "./testFixtures.js";
 
 function mapRefObjectForMockProjectDir(refObject: unknown) {
@@ -937,6 +938,33 @@ describe("mapEmailSender", () => {
     testMapEmailSender(Fixtures.getEmailSenderConfig("full"));
   });
 
+  test("should map Infinity maxEmails to unlimited", () => {
+    const result = AppSpecMapper.mapEmailSender({
+      provider: "Dummy",
+      mailbox: { maxEmails: Infinity },
+    });
+
+    expect(result.mailbox).toStrictEqual({ maxEmails: "unlimited" });
+  });
+
+  test("should keep 0 maxEmails", () => {
+    const result = AppSpecMapper.mapEmailSender({
+      provider: "Dummy",
+      mailbox: { maxEmails: 0 },
+    });
+
+    expect(result.mailbox).toStrictEqual({ maxEmails: 0 });
+  });
+
+  test.each([-1, 1.5, NaN])("should reject %s maxEmails", (maxEmails) => {
+    expect(() =>
+      AppSpecMapper.mapEmailSender({
+        provider: "Dummy",
+        mailbox: { maxEmails },
+      }),
+    ).toThrow(WaspSpecUserError);
+  });
+
   function testMapEmailSender(emailSender: WaspSpec.EmailSender): void {
     const result = AppSpecMapper.mapEmailSender(emailSender);
 
@@ -945,6 +973,10 @@ describe("mapEmailSender", () => {
       defaultFrom:
         emailSender.defaultFrom &&
         AppSpecMapper.mapEmailFromField(emailSender.defaultFrom),
+      mailbox:
+        emailSender.provider === "Dummy" && emailSender.mailbox
+          ? AppSpecMapper.mapDevMailboxConfig(emailSender.mailbox)
+          : undefined,
     } satisfies AppSpec.EmailSender);
   }
 });

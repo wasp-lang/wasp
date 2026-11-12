@@ -1,6 +1,6 @@
 ---
 title: "Sending emails in Wasp: providers and setup"
-description: Send emails from a Wasp app with emailSender. Choose the Dummy, SMTP, Mailgun, SendGrid or Resend provider, set its env vars in .env.server and call send.
+description: Send emails from a Wasp app with emailSender. Choose the Dummy, SMTP, Mailgun, SendGrid or Resend provider, set its env vars in .env.server and call send. Read Dummy emails in the dev mailbox.
 sidebar_label: Email
 ---
 
@@ -73,7 +73,7 @@ We'll go over all of the available providers in the next section. For some of th
 The `Dummy` provider is not for production use. It is only meant to be used during development. If you try building your app with the `Dummy` provider, the build will fail.
 :::
 
-To speed up development, Wasp offers a `Dummy` email sender that `console.log`s the emails in the console. Since it doesn't send emails for real, it doesn't require any setup.
+To speed up development, Wasp offers a `Dummy` email sender. It doesn't send emails for real, so it doesn't require any setup. Instead, it logs the emails in the console and keeps them in the [dev mailbox](#dev-mailbox).
 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
@@ -86,6 +86,104 @@ export default app({
     provider: "Dummy",
   },
   // ...
+})
+```
+
+Since Wasp sets `NODE_ENV` when it reads `main.wasp.ts`, you can use the `Dummy` provider in development and a real one in production:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: process.env.NODE_ENV === "production" ? "SMTP" : "Dummy",
+  },
+  // ...
+})
+```
+
+#### Dev mailbox {#dev-mailbox}
+
+The dev mailbox keeps the emails the `Dummy` provider sends, so you, your tests, and your AI agents can read them and follow their links (e.g., the email verification link).
+
+You can reach the emails in several ways:
+
+- **Inbox page**: open [http://localhost:3001/\_\_wasp/mailbox](http://localhost:3001/__wasp/mailbox) while `wasp start` is running. It updates live as emails arrive. The auth forms link to it too.
+- **HTTP API**: see [the API](#dev-mailbox-api) below. It's handy for end-to-end tests and AI agents.
+- **Files**: each email is a JSON file in `.wasp/mailbox/`, which you can read even when the server isn't running.
+- **Console**: every email logged in the `wasp start` console comes with links to its inbox page, its API URL, and its file.
+
+The emails survive server restarts. Wasp keeps the latest 500 emails by default, which you can change with `maxEmails`:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: "Dummy",
+    mailbox: {
+      // `Infinity` keeps all emails, `0` keeps none.
+      maxEmails: 1000,
+    },
+  },
+  // ...
+})
+```
+
+##### Dev mailbox API {#dev-mailbox-api}
+
+All routes are under `http://localhost:3001/__wasp/mailbox/api`. Reads are `GET` requests, while actions are `POST` requests with a JSON body.
+
+| Route | Description |
+| --- | --- |
+| `GET /emails` | Lists email summaries, newest first. Accepts the `search`, `searchIn`, `after`, and `limit` query parameters. |
+| `GET /emails/:id` | Returns one email. |
+| `GET /emails/:id/html` | Returns the email's HTML body. |
+| `GET /events` | Streams `added`, `deleted`, and `cleared` events ([server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)). |
+| `POST /emails.waitFor` | Returns the newest email matching `search`, `searchIn`, and `after`. If there is none yet, waits for one for up to `timeoutMs` milliseconds (default 10 seconds, at most 5 minutes) and responds with `408` if none arrives. |
+| `POST /emails.delete` | Deletes the email with the given `id`. |
+| `POST /emails.clear` | Deletes all emails. |
+
+The filters work like this:
+
+- `search` matches emails where any of the `searchIn` fields contains the text, ignoring case.
+- `searchIn` lists the fields `search` looks in: `from`, `to`, `subject`, and `body`. It defaults to all of them. In query parameters, separate them with commas (`searchIn=subject,body`).
+- `after` takes an email's `id` and matches only emails sent after it.
+- `limit` caps how many emails you get back.
+
+Each email has an `id`, `sentAt`, `from`, `to`, `subject`, `text`, `html`, and `links`. The `links` field lists the URLs found in the email, so you don't need to parse them yourself. Errors respond with a matching status code and an `{ error: { code, message } }` body.
+
+For example, this is how you get the verification link after signing up `user@example.com`:
+
+```sh
+curl -X POST http://localhost:3001/__wasp/mailbox/api/emails.waitFor \
+  -H "Content-Type: application/json" \
+  -d '{ "search": "user@example.com", "searchIn": ["to"] }'
+```
+
+In a Playwright test, the same looks like this. `wasp/server/email/devMailbox` exports the API path and the email types, and it's safe to import from tests:
+
+```ts title="e2e-tests/auth.spec.ts" auto-js
+import { expect, test } from "@playwright/test"
+import {
+  devMailboxApiPath,
+  type DevMailboxEmail,
+} from "wasp/server/email/devMailbox"
+
+test("can verify email", async ({ page, request }) => {
+  const address = "user@example.com"
+  // ... sign up with `address`
+
+  const response = await request.post(
+    `http://localhost:3001${devMailboxApiPath}/emails.waitFor`,
+    { data: { search: address, searchIn: ["to"] } },
+  )
+  const { email }: { email: DevMailboxEmail } = await response.json()
+
+  await page.goto(email.links[0])
+  await expect(page.locator("body")).toContainText("Your email has been verified")
 })
 ```
 

@@ -1924,6 +1924,26 @@ See [Seeding the Database](https://wasp.sh/docs/features/data/databases#seeding-
 
 ---
 
+### DeliveringEmailSender
+
+Email sender that delivers emails through a real provider.
+
+#### Properties
+
+##### defaultFrom?
+
+> `optional` **defaultFrom?**: [`EmailFromField`](#emailfromfield)
+
+The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
+
+##### provider
+
+> **provider**: `"SMTP"` | `"SendGrid"` | `"Mailgun"` | `"Resend"`
+
+Provider Wasp uses to deliver outgoing emails.
+
+---
+
 ### Deployment {#deployment-1}
 
 Deployment configuration for the app.
@@ -1941,6 +1961,48 @@ How the client and server are deployed.
 ```ts
 "split"
 ```
+
+---
+
+### DevMailboxConfig
+
+The dev mailbox keeps emails in `.wasp/mailbox/`.
+
+#### Properties
+
+##### maxMessages?
+
+> `optional` **maxMessages?**: `number`
+
+Older emails over the limit get deleted. `Infinity` keeps all, `0` keeps none.
+
+###### Default Value
+
+`500`
+
+---
+
+### DummyEmailSender
+
+Logs emails and keeps them in the dev mailbox instead of sending them. Only allowed in development.
+
+See [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
+
+#### Properties
+
+##### defaultFrom?
+
+> `optional` **defaultFrom?**: [`EmailFromField`](#emailfromfield)
+
+The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
+
+##### mailbox?
+
+> `optional` **mailbox?**: [`DevMailboxConfig`](#devmailboxconfig)
+
+##### provider
+
+> **provider**: `"Dummy"`
 
 ---
 
@@ -2112,47 +2174,6 @@ Email address the message is sent from.
 > `optional` **name?**: `string`
 
 Optional display name shown alongside the email address.
-
----
-
-### EmailSender {#emailsender-1}
-
-Email sender configuration.
-
-Required for the email auth flows (verification, password reset) and available for sending arbitrary emails via `wasp/server/email`.
-
-See [Sending Emails](https://wasp.sh/docs/features/email).
-
-#### Example
-
-```ts
-import { app } from "@wasp/spec"
-
-export default app({
-  // ...
-  emailSender: {
-    provider: "SMTP",
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com",
-    },
-  },
-})
-```
-
-#### Properties
-
-##### defaultFrom?
-
-> `optional` **defaultFrom?**: [`EmailFromField`](#emailfromfield)
-
-The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
-
-##### provider
-
-> **provider**: [`EmailSenderProviderName`](#emailsenderprovidername)
-
-Provider Wasp uses to deliver outgoing emails.
 
 ---
 
@@ -2631,13 +2652,42 @@ Supported app deployment modes.
 
 ---
 
+### EmailSender {#emailsender-1}
+
+> **EmailSender** = [`DeliveringEmailSender`](#deliveringemailsender) | [`DummyEmailSender`](#dummyemailsender)
+
+Email sender configuration.
+
+Required for the email auth flows (verification, password reset) and available for sending arbitrary emails via `wasp/server/email`.
+
+See [Sending Emails](https://wasp.sh/docs/features/email).
+
+#### Example
+
+```ts
+import { app } from "@wasp/spec"
+
+export default app({
+  // ...
+  emailSender: {
+    provider: "SMTP",
+    defaultFrom: {
+      name: "Example",
+      email: "hello@itsme.com",
+    },
+  },
+})
+```
+
+---
+
 ### EmailSenderProviderName
 
 > **EmailSenderProviderName** = `"SMTP"` | `"SendGrid"` | `"Mailgun"` | `"Resend"` | `"Dummy"`
 
 Supported email sender providers.
 
-`"Dummy"` logs emails to the console instead of sending them, which is convenient during development, but not allowed in production.
+`"Dummy"` logs emails and keeps them in the dev mailbox instead of sending them. It's not allowed in production.
 
 ---
 

@@ -215,6 +215,11 @@ export type EmailAuthConfig = {
 export type EmailSender = {
   provider: EmailProvider;
   defaultFrom: Optional<EmailFromField>;
+  mailbox: Optional<DevMailboxConfig>;
+};
+
+export type DevMailboxConfig = {
+  maxEmails: Optional<number | "unlimited">;
 };
 
 export type EmailProvider =

@@ -48,7 +48,7 @@ export default app({
   },
   db,
   emailSender: {
-    provider: "SMTP",
+    provider: process.env.NODE_ENV === "production" ? "SMTP" : "Dummy",
     defaultFrom: {
       email: "kitchen-sink@wasp.sh",
     },

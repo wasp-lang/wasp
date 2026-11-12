@@ -4,6 +4,7 @@ import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 import auth from './auth/index.js'
 import apis from './apis/index.js'
 import { rootCrudRouter } from './crud/index.js'
+import { devMailbox, devMailboxRoutePath, registerDevMailboxRoutes } from 'wasp/server/email/core/devMailbox'
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
 
@@ -17,6 +18,12 @@ router.use('/crud', middleware, rootCrudRouter)
 router.get('/up', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
 })
+
+// Without the global middleware, since it isn't part of the app's API.
+const devMailboxRouter = express.Router()
+devMailboxRouter.use(express.json())
+registerDevMailboxRoutes(devMailboxRouter, devMailbox, { appName: "KitchenSink" })
+router.use(devMailboxRoutePath, devMailboxRouter)
 
 // NOTE: Keep user-defined api routes last so they cannot override our routes.
 // Additionally, do not add middleware to these routes here. Instead, we add

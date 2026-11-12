@@ -39,7 +39,7 @@
             "file",
             "libs/dummy-email-sender/wasp-lib-dummy-email-sender-0.27.0.tgz"
         ],
-        "99ef06b994c50daf8c9e24cf1fa95e26b591991fda0fd850fc125fa369a6a6c6"
+        "b520b49af1415c9ebf02b362c21b4f5bd6306317298053750d2be96e7ab9ec2f"
     ],
     [
         [
@@ -109,7 +109,7 @@
             "file",
             "sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "a52e44588cfae3e8fbc22d33daa3722896d00164796cc7860a44b94d3fabd3a8"
+        "da6eade01feeb9b90c057c0419ca7d0af14369cfc14a5a00b51b42ae5d0b25cb"
     ],
     [
         [
@@ -159,6 +159,20 @@
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
         "82d31f1f796032a1c63eebe2a2ff8d6d3ec1986ec1716fa83c4859a672da4218"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/forms/internal/email/DummyEmailSenderNotice.module.css"
+        ],
+        "cd8c6891e079cf87b74c7db588c89230e86eb5532af822f218667e489497ffe2"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/forms/internal/email/DummyEmailSenderNotice.tsx"
+        ],
+        "c0142bb584ae1157df7d0b704693d07911c6ad8bf97b526c366c224d89560641"
     ],
     [
         [
@@ -606,7 +620,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "bbdbcf9d022395eec5af4a444529af6e278198cd3438e8f0ee1f1c95775f9911"
+        "5b159d64339ab0f5beb72c7a9e3fd245e3bbfde7c9c8cfbc9866808479b9c2c5"
     ],
     [
         [
@@ -814,6 +828,13 @@
     [
         [
             "file",
+            "sdk/wasp/server/email/core/devMailbox.ts"
+        ],
+        "0129f5e272ae174be5298b3b41e18b66d5a264c059120a37ca20c9e8e9f2abd9"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/email/core/helpers.ts"
         ],
         "b8687269fa044a85a6c4d21e25e3d4d85d2cff45c62b664f35f6ffc51fbaec85"
@@ -823,14 +844,14 @@
             "file",
             "sdk/wasp/server/email/core/index.ts"
         ],
-        "8d0b793a65306ee3aeca117c1fb8cc1f29d6759ac65fe76231b5fdaa1fbfb71a"
+        "5ff7c6396f526f62625a8b0b117c158919b04e17f2e882e8e43f5455f5a74a1f"
     ],
     [
         [
             "file",
-            "sdk/wasp/server/email/core/providers/smtp.ts"
+            "sdk/wasp/server/email/core/providers/dummy.ts"
         ],
-        "999f2bb1ae12d76610a16a839217f673b817a2f8203ba0ccd03cfccd5dba9fe3"
+        "7347c42641f715011c04ae7bd47be561feaa7ebc9b776d9381861e8fa0c0539f"
     ],
     [
         [
@@ -842,16 +863,23 @@
     [
         [
             "file",
+            "sdk/wasp/server/email/devMailbox.ts"
+        ],
+        "f5fc9fc896af375bc2cf06d571ca47e6f2e13a435b6253aa7de0c3dc3cdaf96b"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/email/index.ts"
         ],
-        "7256d9a0a432e173f2614dfd30c6b166b5f3cc907e5efb3c660f5d6f5575fcd3"
+        "3eab76500508deb98f077a51a40e72e0be1799312f371f7e7a1a6b84098d6c1d"
     ],
     [
         [
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "d1daa44692caafe1bec7944d5cf29eb69add0366e4bbac2b9496efe3b513c693"
+        "5ed07cb88b6b84809aca6452cf102712f057de7d1fbbf2471ac7a994740223d3"
     ],
     [
         [
@@ -1068,7 +1096,7 @@
             "file",
             "server/.env"
         ],
-        "b1a6be6e91e7b5d10652479a6ed732628ef1378f3831acb0fe8fcf6329794c04"
+        "4e8bc104f2b6f4bf9dc302732a52ed9c60267d275266a1305ce2d526c13ccdd4"
     ],
     [
         [
@@ -1621,7 +1649,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "224192fffe14a33e29dd9c71767e484494c0faba11eda12f9cfca69a9d8568c5"
+        "7ed9f3e39bff59b4ab1e306958a7660cbf1736c5a741b7af50330b6dad7b4040"
     ],
     [
         [
