@@ -23,7 +23,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
@@ -94,10 +93,7 @@ compileWithOptions options = do
   liftIO $ printCompilationResult (warnings, errors)
   case _compileOutcome compileResult of
     Right appSpec -> return (warnings, appSpec)
-    Left compileErrors ->
-      throwError
-        $ CommandError "Compilation of wasp project failed"
-        $ show (length compileErrors) ++ " errors found"
+    Left _ -> throwError CommandAborted
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,
@@ -198,10 +194,9 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
   case appSpecOrErrors of
     Right spec -> return spec
-    Left errors ->
-      liftIO $ do
-        printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
-        exitFailure
+    Left errors -> do
+      liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+      throwError CommandAborted
 
 printDiagnosticToStderr :: String -> String -> IO ()
 printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
