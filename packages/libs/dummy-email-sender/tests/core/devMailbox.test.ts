@@ -153,6 +153,21 @@ describe("DevMailbox", () => {
     expect(mailbox.delete(email.id)).toBe(false);
   });
 
+  it("skips malformed email files", () => {
+    const mailbox = createMailbox();
+    const email = mailbox.add(makeEmail())!;
+    fs.writeFileSync(
+      path.join(directoryPath, "2026-01-01T00-00-00-000Z-abcdef.json"),
+      JSON.stringify({ id: "2026-01-01T00-00-00-000Z-abcdef", subject: 1 }),
+    );
+
+    expect(
+      createMailbox()
+        .list()
+        .map((summary) => summary.id),
+    ).toEqual([email.id]);
+  });
+
   it("refuses ids that aren't email ids", () => {
     expect(createMailbox().delete("../../etc/passwd")).toBe(false);
   });

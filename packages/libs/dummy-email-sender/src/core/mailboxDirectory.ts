@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { DevMailboxEmail } from "./email.js";
+import { isDevMailboxEmail, type DevMailboxEmail } from "./email.js";
 import { isEmailId } from "./emailId.js";
 
 const EMAIL_FILE_EXTENSION = ".json";
@@ -10,7 +10,7 @@ export interface MailboxDirectory {
   readonly path: string;
   /** Oldest first. */
   listEmailIds(): string[];
-  /** Returns `undefined` for missing or unreadable files. */
+  /** Returns `undefined` for missing, unreadable, or malformed files. */
   readEmail(id: string): DevMailboxEmail | undefined;
   writeEmail(email: DevMailboxEmail): void;
   deleteEmail(id: string): void;
@@ -23,7 +23,7 @@ export interface MailboxDirectory {
 
 /**
  * One `<id>.json` file per email. Writes go to a temporary file that is
- * then renamed, so readers never see half a email.
+ * then renamed, so readers never see half an email.
  */
 export class JsonFileMailboxDirectory implements MailboxDirectory {
   readonly path: string;
@@ -52,7 +52,8 @@ export class JsonFileMailboxDirectory implements MailboxDirectory {
   readEmail(id: string): DevMailboxEmail | undefined {
     try {
       const content = fs.readFileSync(this.getEmailFilePath(id), "utf8");
-      return JSON.parse(content) as DevMailboxEmail;
+      const email: unknown = JSON.parse(content);
+      return isDevMailboxEmail(email) ? email : undefined;
     } catch {
       return undefined;
     }

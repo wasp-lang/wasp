@@ -18,10 +18,10 @@ export function generateEmailId(sentAt: Date): string {
 }
 
 /** Emails sent in the same millisecond still get increasing times. */
-export function createMonotonicClock(now: () => Date = () => new Date()) {
+export function createMonotonicClock(): () => Date {
   let lastTime = 0;
   return (): Date => {
-    lastTime = Math.max(now().getTime(), lastTime + 1);
+    lastTime = Math.max(Date.now(), lastTime + 1);
     return new Date(lastTime);
   };
 }

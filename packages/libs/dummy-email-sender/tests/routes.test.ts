@@ -226,4 +226,29 @@ describe("dev mailbox routes", () => {
     expect(decoder.decode(value)).toContain(`event: added\ndata: `);
     expect(decoder.decode(value)).toContain(email.id);
   });
+
+  it("fails loudly when the router doesn't parse JSON bodies", async () => {
+    const routerWithoutJsonParser = express.Router();
+    registerDevMailboxRoutes(routerWithoutJsonParser, mailbox, {
+      appName: "TestApp",
+    });
+    const app = express().use(BASE_PATH, routerWithoutJsonParser);
+    const otherServer = await new Promise<Server>((resolve) => {
+      const listeningServer = app.listen(0, () => resolve(listeningServer));
+    });
+    const { port } = otherServer.address() as AddressInfo;
+
+    const response = await fetch(
+      `http://localhost:${port}${BASE_PATH}/api/emails.clear`,
+      { method: "POST" },
+    );
+    const waitResponse = await fetch(
+      `http://localhost:${port}${BASE_PATH}/api/emails.waitFor`,
+      { method: "POST", body: "{}" },
+    );
+    otherServer.close();
+
+    expect(response.status).toBe(200);
+    expect(waitResponse.status).toBe(500);
+  });
 });

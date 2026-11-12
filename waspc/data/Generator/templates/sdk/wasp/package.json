@@ -128,7 +128,7 @@
     "./server/errors": "./dist/server/errors/index.js",
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
-    "./server/email/core/devMailbox": "./dist/server/email/core/devMailbox.js",
+    "./server/email/core/devMailboxInstance": "./dist/server/email/core/devMailboxInstance.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     {=! FIXME: Reconsider during refactoring whether this is still needed. =}

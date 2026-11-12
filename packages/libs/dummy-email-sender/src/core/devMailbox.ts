@@ -6,7 +6,7 @@ import {
   type NewDevMailboxEmail,
 } from "./email.js";
 import { matchesFilter, type DevMailboxEmailFilter } from "./emailFilter.js";
-import { createMonotonicClock, generateEmailId, isEmailId } from "./emailId.js";
+import { createMonotonicClock, isEmailId } from "./emailId.js";
 import {
   JsonFileMailboxDirectory,
   type MailboxDirectory,
@@ -16,7 +16,6 @@ export type DevMailboxOptions = {
   directoryPath: string;
   /** `Infinity` keeps all emails. */
   maxEmails: number;
-  now?: () => Date;
 };
 
 export type DevMailboxEvent =
@@ -42,13 +41,19 @@ const POLL_INTERVAL_MS = 500;
 export interface DevMailbox {
   readonly directoryPath: string;
   add(newEmail: NewDevMailboxEmail): DevMailboxEmail | undefined;
+  /** Newest first. */
   list(
     filter?: DevMailboxEmailFilter,
     limit?: number,
   ): DevMailboxEmailSummary[];
   get(id: string): DevMailboxEmail | undefined;
+  /** Returns whether the email existed. */
   delete(id: string): boolean;
   clear(): void;
+  /**
+   * Resolves with the newest match, waiting for one if there is none yet.
+   * Resolves with `undefined` on timeout or abort.
+   */
   waitFor(
     filter: DevMailboxEmailFilter,
     options: WaitForEmailOptions,
@@ -79,22 +84,20 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     this.directoryPath = options.directoryPath;
     this.#directory = new JsonFileMailboxDirectory(options.directoryPath);
     this.#maxEmails = options.maxEmails;
-    this.#getSentAt = createMonotonicClock(options.now);
+    this.#getSentAt = createMonotonicClock();
   }
 
-  /** Returns `undefined` when `maxEmails` is `0`. */
   add(newEmail: NewDevMailboxEmail): DevMailboxEmail | undefined {
     if (this.#maxEmails === 0) {
       return undefined;
     }
     const sentAt = this.#getSentAt();
-    const email = createEmail(newEmail, generateEmailId(sentAt), sentAt);
+    const email = createEmail(newEmail, sentAt);
     this.#directory.writeEmail(email);
     this.#syncWithDirectory();
     return email;
   }
 
-  /** Newest first. */
   list(
     filter: DevMailboxEmailFilter = {},
     limit: number = Infinity,
@@ -109,7 +112,6 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     return this.#emails.get(id);
   }
 
-  /** Returns whether the email existed. */
   delete(id: string): boolean {
     if (!isEmailId(id) || this.get(id) === undefined) {
       return false;
@@ -127,10 +129,6 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     this.#emit({ type: "cleared" });
   }
 
-  /**
-   * Resolves with the newest match, waiting for one if there is none yet.
-   * Resolves with `undefined` on timeout or abort.
-   */
   waitFor(
     filter: DevMailboxEmailFilter,
     options: WaitForEmailOptions,
@@ -156,7 +154,7 @@ class DirectorySyncedDevMailbox implements DevMailbox {
         return;
       }
 
-      // Subscribing first means a email arriving before the lookup isn't missed.
+      // Subscribing first means an email arriving before the lookup isn't missed.
       unsubscribe = this.subscribe((event) => {
         if (event.type === "added") {
           finishWithNewestMatch(this.#findLoadedNewestFirst(filter));

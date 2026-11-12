@@ -1,16 +1,17 @@
+import {
+  DEV_MAILBOX_API_BASE_PATH,
+  devMailboxApiPaths,
+} from "./api/apiPaths.js";
 import type { DevMailbox } from "./core/devMailbox.js";
-import type { EmailFromField } from "./types.js";
+import type { NewDevMailboxEmail } from "./core/email.js";
+import type { EmailFromField } from "./emailFromField.js";
 
-export type DummyEmail = {
+export type DummyEmail = Omit<NewDevMailboxEmail, "from"> & {
   /** Falls back to the sender's `defaultFrom`. */
   from?: EmailFromField;
-  to: string;
-  subject: string;
-  text: string;
-  html: string;
 };
 
-export type DummyEmailSender = {
+type DummyEmailSender = {
   send: (email: DummyEmail) => Promise<{ success: true }>;
 };
 
@@ -48,7 +49,9 @@ export function createDummyEmailSender({
       const storedEmail = mailbox.add({ ...email, from });
       if (storedEmail !== undefined) {
         log(`Inbox:   ${mailboxUrl}#${storedEmail.id}`);
-        log(`API:     ${mailboxUrl}/api/emails/${storedEmail.id}`);
+        log(
+          `API:     ${mailboxUrl}${DEV_MAILBOX_API_BASE_PATH}${devMailboxApiPaths.email(storedEmail.id)}`,
+        );
         log(`File:    ${mailbox.directoryPath}/${storedEmail.id}.json`);
         log(yellow("════════════════════════"));
       }

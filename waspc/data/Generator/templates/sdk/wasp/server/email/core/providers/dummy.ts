@@ -1,7 +1,7 @@
 import { createDummyEmailSender } from "@wasp/lib-dummy-email-sender/node";
 
 import config from "../../../config.js";
-import { devMailbox, devMailboxRoutePath } from "../devMailbox.js";
+import { devMailbox, devMailboxRoutePath } from "../devMailboxInstance.js";
 import { getDefaultFromField } from "../helpers.js";
 import type { DummyEmailProvider, EmailSender } from "../types";
 

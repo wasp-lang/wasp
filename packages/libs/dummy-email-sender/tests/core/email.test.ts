@@ -1,6 +1,24 @@
 import { describe, expect, it } from "vitest";
 
-import { extractLinks } from "../../src/core/email";
+import { createEmail, extractLinks } from "../../src/core/email";
+
+describe("createEmail", () => {
+  it("derives the id from the send time", () => {
+    const email = createEmail(
+      {
+        from: { email: "a@app.test" },
+        to: "b@app.test",
+        subject: "",
+        text: "",
+        html: "",
+      },
+      new Date("2026-11-11T10:20:30.123Z"),
+    );
+
+    expect(email.id).toMatch(/^2026-11-11T10-20-30-123Z-[0-9a-f]+$/);
+    expect(email.sentAt).toBe("2026-11-11T10:20:30.123Z");
+  });
+});
 
 describe("extractLinks", () => {
   it("finds links in the text body without trailing punctuation", () => {

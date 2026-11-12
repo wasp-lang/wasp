@@ -20,6 +20,12 @@ describe("makeInboxPage", () => {
     expect(() => new vm.Script(script!)).not.toThrow();
   });
 
+  it("has a toggle for each search field", () => {
+    for (const field of ["from", "to", "subject", "body"]) {
+      expect(makePage()).toContain(`data-field="${field}"`);
+    }
+  });
+
   it("escapes the app name", () => {
     expect(makePage()).toContain("My &lt;App&gt;");
   });

@@ -33,7 +33,7 @@ genEmailSenderApi spec = case maybeEmailSender of
   Just emailSender ->
     sequence
       [ genIndex emailSender,
-        genDevMailboxApi
+        genDevMailboxPublicModule
       ]
       <++> genCore emailSender
   Nothing -> return []
@@ -50,8 +50,8 @@ genIndex emailSender =
     tmplData = EmailSenders.getEnabledEmailProvidersJson emailSender
 
 -- | Generated for every provider, so tests can import it in any build mode.
-genDevMailboxApi :: Generator FileDraft
-genDevMailboxApi =
+genDevMailboxPublicModule :: Generator FileDraft
+genDevMailboxPublicModule =
   return $
     mkTmplFdWithData
       (serverEmailDirInSdkTemplatesDir </> [relfile|devMailbox.ts|])
@@ -65,14 +65,14 @@ genCore emailSender =
       genCoreHelpers emailSender,
       genEmailSenderProviderSetupFn emailSender
     ]
-    <++> genDevMailbox emailSender
+    <++> genDevMailboxInstance emailSender
 
-genDevMailbox :: EmailSender -> Generator [FileDraft]
-genDevMailbox emailSender
+genDevMailboxInstance :: EmailSender -> Generator [FileDraft]
+genDevMailboxInstance emailSender
   | AS.EmailSender.isDummyEmailSender emailSender =
       return
         [ mkTmplFdWithData
-            (serverEmailDirInSdkTemplatesDir </> [relfile|core/devMailbox.ts|])
+            (serverEmailDirInSdkTemplatesDir </> [relfile|core/devMailboxInstance.ts|])
             tmplData
         ]
   | otherwise = return []

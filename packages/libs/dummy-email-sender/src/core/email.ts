@@ -1,4 +1,5 @@
-import type { EmailFromField } from "../types.js";
+import type { EmailFromField } from "../emailFromField.js";
+import { generateEmailId } from "./emailId.js";
 
 export type NewDevMailboxEmail = {
   from: EmailFromField;
@@ -24,11 +25,10 @@ export type DevMailboxEmailSummary = Pick<
 
 export function createEmail(
   newEmail: NewDevMailboxEmail,
-  id: string,
   sentAt: Date,
 ): DevMailboxEmail {
   return {
-    id,
+    id: generateEmailId(sentAt),
     sentAt: sentAt.toISOString(),
     from: newEmail.from,
     to: newEmail.to,
@@ -49,11 +49,32 @@ export function summarizeEmail(email: DevMailboxEmail): DevMailboxEmailSummary {
   };
 }
 
+/** Guards against hand-edited or truncated files. */
+export function isDevMailboxEmail(value: unknown): value is DevMailboxEmail {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const email = value as Record<string, unknown>;
+  const from = email.from as Record<string, unknown> | null | undefined;
+  return (
+    ["id", "sentAt", "to", "subject", "text", "html"].every(
+      (key) => typeof email[key] === "string",
+    ) &&
+    typeof from === "object" &&
+    from !== null &&
+    typeof from.email === "string" &&
+    Array.isArray(email.links) &&
+    email.links.every((link) => typeof link === "string")
+  );
+}
+
 const HREF_PATTERN = /href\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/gi;
 const TRAILING_PUNCTUATION_PATTERN = /[.,;:!?)\]]+$/;
 
-export function extractLinks(body: Pick<NewDevMailboxEmail, "text" | "html">) {
+export function extractLinks(
+  body: Pick<NewDevMailboxEmail, "text" | "html">,
+): string[] {
   const hrefLinks = [...body.html.matchAll(HREF_PATTERN)]
     .map((match) => decodeHtmlEntities(match[1] ?? match[2] ?? ""))
     .filter(isHttpUrl);

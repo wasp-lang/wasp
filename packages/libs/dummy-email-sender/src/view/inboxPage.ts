@@ -1,4 +1,9 @@
-import { inboxScript } from "./inboxScript.js";
+import { devMailboxApiPaths } from "../api/apiPaths.js";
+import {
+  DEV_MAILBOX_SEARCH_FIELDS,
+  type DevMailboxSearchField,
+} from "../core/emailFilter.js";
+import { runInboxScript, type InboxScriptConfig } from "./inboxScript.js";
 import { inboxStyles } from "./inboxStyles.js";
 import { waspLogo } from "./waspLogo.js";
 
@@ -65,18 +70,7 @@ export const makeInboxPage = ({
               role="group"
               aria-label="Search in"
             >
-              <button type="button" data-field="from" aria-pressed="true">
-                From
-              </button>
-              <button type="button" data-field="to" aria-pressed="true">
-                To
-              </button>
-              <button type="button" data-field="subject" aria-pressed="true">
-                Subject
-              </button>
-              <button type="button" data-field="body" aria-pressed="true">
-                Body
-              </button>
+              ${DEV_MAILBOX_SEARCH_FIELDS.map(makeSearchFieldButton).join("")}
             </div>
             <div class="list-actions">
               <span id="count" class="label"></span>
@@ -103,8 +97,9 @@ export const makeInboxPage = ({
       </footer>
       <div id="announcer" class="visually-hidden" aria-live="polite"></div>
       <script>
-        const API_BASE_PATH = ${toInlineScriptJson(apiBasePath)};
-        ${inboxScript};
+        (${toInlineScript(runInboxScript)})(
+          ${toInlineScriptJson(makeInboxScriptConfig(apiBasePath))},
+        );
       </script>
     </body>
   </html>
@@ -116,6 +111,40 @@ function escapeHtml(value: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+const SEARCH_FIELD_LABELS: Record<DevMailboxSearchField, string> = {
+  from: "From",
+  to: "To",
+  subject: "Subject",
+  body: "Body",
+};
+
+function makeSearchFieldButton(field: DevMailboxSearchField): string {
+  return /* HTML */ `<button
+    type="button"
+    data-field="${field}"
+    aria-pressed="true"
+  >
+    ${SEARCH_FIELD_LABELS[field]}
+  </button>`;
+}
+
+function makeInboxScriptConfig(apiBasePath: string): InboxScriptConfig {
+  return {
+    apiBasePath,
+    apiPaths: {
+      emails: devMailboxApiPaths.emails,
+      emailPrefix: devMailboxApiPaths.email(""),
+      events: devMailboxApiPaths.events,
+      deleteEmail: devMailboxApiPaths.deleteEmail,
+      clearEmails: devMailboxApiPaths.clearEmails,
+    },
+  };
+}
+
+function toInlineScript(fn: (...args: never[]) => void): string {
+  return fn.toString().replace(/<\/script/gi, "<\\/script");
 }
 
 function toInlineScriptJson(value: unknown): string {

@@ -12,7 +12,7 @@ import apis from './apis/index.js'
 import { rootCrudRouter } from './crud/index.js'
 {=/ areThereAnyCrudRoutes =}
 {=# isDevMailboxEnabled =}
-import { devMailbox, devMailboxRoutePath, registerDevMailboxRoutes } from 'wasp/server/email/core/devMailbox'
+import { devMailbox, devMailboxRoutePath, registerDevMailboxRoutes } from 'wasp/server/email/core/devMailboxInstance'
 {=/ isDevMailboxEnabled =}
 {=# isDevelopment =}
 import { config } from 'wasp/server'
