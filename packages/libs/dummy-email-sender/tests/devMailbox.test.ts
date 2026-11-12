@@ -2,9 +2,10 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DevMailbox, type DevMailboxEvent } from "../src/mailbox/devMailbox";
+import { MailboxDirectory } from "../src/mailbox/mailboxDirectory";
 import type { DevMailboxEmail } from "../src/mailbox/message";
 
 let directoryPath: string;
@@ -14,6 +15,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.restoreAllMocks();
   fs.rmSync(directoryPath, { recursive: true, force: true });
 });
 
@@ -172,6 +174,34 @@ describe("DevMailbox", () => {
     expect(reader.get(message.id)).toEqual(message);
   });
 
+  it("applies a lowered maxMessages to messages already on disk", () => {
+    const writer = createMailbox();
+    writer.add(makeEmail({ subject: "1" }));
+    writer.add(makeEmail({ subject: "2" }));
+    writer.add(makeEmail({ subject: "3" }));
+
+    expect(
+      createMailbox(1)
+        .list()
+        .map((message) => message.subject),
+    ).toEqual(["3"]);
+    expect(fs.readdirSync(directoryPath)).toHaveLength(1);
+
+    expect(createMailbox(0).list()).toEqual([]);
+    expect(fs.readdirSync(directoryPath)).toEqual([]);
+  });
+
+  it("never calls a subscriber before subscribe returns", () => {
+    createMailbox().add(makeEmail());
+    const reader = createMailbox();
+    const events: DevMailboxEvent[] = [];
+
+    const unsubscribe = reader.subscribe((event) => events.push(event));
+    unsubscribe();
+
+    expect(events).toEqual([]);
+  });
+
   it("notifies subscribers about changes", () => {
     const mailbox = createMailbox();
     const events: DevMailboxEvent[] = [];
@@ -218,6 +248,44 @@ describe("DevMailbox", () => {
       const message = createMailbox().add(makeEmail())!;
 
       await expect(waiting).resolves.toEqual(message);
+    });
+
+    it("resolves when a message appears while the wait is set up", async () => {
+      const message = createMailbox().add(makeEmail())!;
+      // The first directory read misses the message, as if another process
+      // wrote it right after the wait looked for existing messages.
+      const listMessageIds = MailboxDirectory.prototype.listMessageIds;
+      vi.spyOn(MailboxDirectory.prototype, "listMessageIds")
+        .mockImplementationOnce(() => [])
+        .mockImplementation(function (this: MailboxDirectory) {
+          return listMessageIds.call(this);
+        });
+
+      await expect(
+        createMailbox().waitFor({}, { timeoutMs: 2000 }),
+      ).resolves.toEqual(message);
+    });
+
+    it("resolves with the newest of several messages found at once", async () => {
+      const reader = createMailbox();
+      const waiting = reader.waitFor({}, { timeoutMs: 2000 });
+      const writer = createMailbox();
+      writer.add(makeEmail({ subject: "Older" }));
+      const newest = writer.add(makeEmail({ subject: "Newer" }))!;
+
+      await expect(waiting).resolves.toEqual(newest);
+    });
+
+    it("resolves with undefined when the signal is already aborted", async () => {
+      const abortController = new AbortController();
+      abortController.abort();
+
+      await expect(
+        createMailbox().waitFor(
+          {},
+          { timeoutMs: 1000, signal: abortController.signal },
+        ),
+      ).resolves.toBeUndefined();
     });
 
     it("resolves with undefined on timeout", async () => {

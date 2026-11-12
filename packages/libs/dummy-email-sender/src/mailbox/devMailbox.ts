@@ -75,7 +75,6 @@ export class DevMailbox {
     const sentAt = this.#getSentAt();
     const message = createMessage(email, generateMessageId(sentAt), sentAt);
     this.#directory.writeMessage(message);
-    this.#deleteMessagesOverLimit();
     this.#syncWithDirectory();
     return message;
   }
@@ -119,37 +118,49 @@ export class DevMailbox {
     filter: DevMailboxMessageFilter,
     options: WaitForMessageOptions,
   ): Promise<DevMailboxMessage | undefined> {
-    const existingMessage = this.#findMessages(filter)[0];
-    if (existingMessage !== undefined) {
-      return Promise.resolve(existingMessage);
-    }
-
     return new Promise((resolve) => {
+      let isSettled = false;
+      let unsubscribe: (() => void) | undefined;
       const finish = (message: DevMailboxMessage | undefined) => {
+        if (isSettled) {
+          return;
+        }
+        isSettled = true;
         clearTimeout(timeout);
         options.signal?.removeEventListener("abort", onAbort);
-        unsubscribe();
+        unsubscribe?.();
         resolve(message);
       };
       const onAbort = () => finish(undefined);
-
       const timeout = setTimeout(() => finish(undefined), options.timeoutMs);
       options.signal?.addEventListener("abort", onAbort);
-      const unsubscribe = this.subscribe((event) => {
-        if (event.type !== "added") {
-          return;
-        }
-        const message = this.#messages.get(event.message.id);
-        if (message !== undefined && matchesFilter(message, filter)) {
-          finish(message);
+      if (options.signal?.aborted) {
+        finish(undefined);
+        return;
+      }
+
+      // Subscribe before looking for an existing match, so a message that
+      // arrives in between still resolves the wait.
+      unsubscribe = this.subscribe((event) => {
+        if (event.type === "added") {
+          finishWithNewestMatch(this.#findLoadedMessages(filter));
         }
       });
+      finishWithNewestMatch(this.#findMessages(filter));
+
+      function finishWithNewestMatch(matches: DevMailboxMessage[]) {
+        const newestMatch = matches[0];
+        if (newestMatch !== undefined) {
+          finish(newestMatch);
+        }
+      }
     });
   }
 
   /**
    * Calls the listener on every change, including changes other processes
-   * make on disk. Returns a function that unsubscribes.
+   * make on disk. Returns a function that unsubscribes. Never calls the
+   * listener before returning.
    */
   subscribe(listener: DevMailboxListener): () => void {
     this.#listeners.add(listener);
@@ -160,41 +171,60 @@ export class DevMailbox {
     };
   }
 
+  /** Newest first, after picking up changes on disk. */
   #findMessages(filter: DevMailboxMessageFilter): DevMailboxMessage[] {
     this.#syncWithDirectory();
+    return this.#findLoadedMessages(filter);
+  }
+
+  /** Newest first, without reading the directory. */
+  #findLoadedMessages(filter: DevMailboxMessageFilter): DevMailboxMessage[] {
     return [...this.#messages.values()]
       .filter((message) => matchesFilter(message, filter))
       .sort((a, b) => b.id.localeCompare(a.id));
   }
 
-  #deleteMessagesOverLimit(): void {
-    const ids = this.#directory.listMessageIds();
-    const excessCount = ids.length - this.#maxMessages;
-    for (const id of ids.slice(0, Math.max(excessCount, 0))) {
-      this.#directory.deleteMessage(id);
+  /**
+   * Applies `maxMessages` to the files on disk, then updates the messages in
+   * memory to match them. Emits events only once the state is complete, so
+   * listeners always see every message the sync found.
+   */
+  #syncWithDirectory(): void {
+    const idsOnDisk = new Set(
+      this.#deleteMessagesOverLimit(this.#directory.listMessageIds()),
+    );
+
+    const deletedIds = [...this.#messages.keys()].filter(
+      (id) => !idsOnDisk.has(id),
+    );
+    for (const id of deletedIds) {
+      this.#messages.delete(id);
+    }
+
+    const addedMessages = [...idsOnDisk]
+      .filter((id) => !this.#messages.has(id))
+      .sort()
+      .map((id) => this.#directory.readMessage(id))
+      .filter((message) => message !== undefined);
+    for (const message of addedMessages) {
+      this.#messages.set(message.id, message);
+    }
+
+    for (const id of deletedIds) {
+      this.#emit({ type: "deleted", id });
+    }
+    for (const message of addedMessages) {
+      this.#emit({ type: "added", message: summarizeMessage(message) });
     }
   }
 
-  #syncWithDirectory(): void {
-    const idsOnDisk = new Set(this.#directory.listMessageIds());
-
-    for (const id of this.#messages.keys()) {
-      if (!idsOnDisk.has(id)) {
-        this.#messages.delete(id);
-        this.#emit({ type: "deleted", id });
-      }
+  /** Takes ids sorted oldest first and returns the ones it kept. */
+  #deleteMessagesOverLimit(ids: string[]): string[] {
+    const excessCount = Math.max(ids.length - this.#maxMessages, 0);
+    for (const id of ids.slice(0, excessCount)) {
+      this.#directory.deleteMessage(id);
     }
-
-    for (const id of [...idsOnDisk].sort()) {
-      if (this.#messages.has(id)) {
-        continue;
-      }
-      const message = this.#directory.readMessage(id);
-      if (message !== undefined) {
-        this.#messages.set(id, message);
-        this.#emit({ type: "added", message: summarizeMessage(message) });
-      }
-    }
+    return ids.slice(excessCount);
   }
 
   #emit(event: DevMailboxEvent): void {
@@ -207,7 +237,6 @@ export class DevMailbox {
     if (this.#stopWatching !== undefined) {
       return;
     }
-    this.#syncWithDirectory();
     const stopWatchingDirectory = this.#directory.watch(() =>
       this.#scheduleSync(),
     );
