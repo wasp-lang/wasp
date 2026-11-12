@@ -38,22 +38,14 @@ labeledMessage color symbol label title details =
     Nothing -> withDetails Nothing (symbol ++ " " ++ label ++ ": " ++ title) details
 
 withDetails :: Maybe Term.Style -> String -> [Msg.Part] -> String
-withDetails color title parts = intercalate "\n" $ title : renderParts Nothing parts
+withDetails color title parts = intercalate "\n" $ title : concatMap renderPart parts
   where
-    renderParts _ [] = []
-    renderParts previous (part : rest) = renderPart previous part ++ renderParts (Just part) rest
-
-    renderPart previous = \case
-      Msg.Text text ->
-        ["" | isText previous] ++ [indent 2 $ marker ++ " " ++ text]
+    renderPart = \case
+      Msg.Text text -> [indent 2 $ marker ++ " " ++ text]
       Msg.ToolOutput command output ->
-        let toolIndent = maybe 2 (const 4) previous
-         in [ indent toolIndent $ marker ++ " Output of " ++ Term.styleCode command ++ ":",
-              indent (toolIndent + 2) $ intercalate "\n" $ map gutterLine $ lines output
-            ]
-
-    isText (Just (Msg.Text _)) = True
-    isText _ = False
+        [ indent 2 $ marker ++ " Output of " ++ Term.styleCode command ++ ":",
+          indent 2 $ intercalate "\n" $ map gutterLine $ lines output
+        ]
 
     gutterLine "" = gutter
     gutterLine line = gutter ++ " " ++ line
