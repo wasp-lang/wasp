@@ -679,7 +679,6 @@ test-suite wasp-cli-tests
 
   other-modules:
     Paths_waspc
-    TerminalTest
     Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
