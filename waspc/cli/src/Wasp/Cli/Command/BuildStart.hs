@@ -6,9 +6,9 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
-import System.Exit (ExitCode (..), exitFailure)
+import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
@@ -73,7 +73,7 @@ buildAndStartServerAndClient appSpec config = do
     runBuildStep :: String -> String -> String -> Job.Job ExitCode -> Command ()
     runBuildStep runningMessage successMessage failureMessage buildJob =
       liftIO (runTaskWithStatusReport cliSendMessage runningMessage successMessage failureMessage runBuildJob)
-        >>= either (const $ liftIO exitFailure) return
+        >>= either (const $ throwError CommandAborted) return
       where
         runBuildJob = do
           (exitCode, buildOutput) <- Job.run $ Job.captureOutput buildJob
