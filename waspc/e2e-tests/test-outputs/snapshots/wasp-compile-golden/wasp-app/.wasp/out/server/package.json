@@ -16,11 +16,11 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.0",
-    "@tsconfig/node24": "latest",
+    "@tsconfig/node26": "latest",
     "@types/cors": "^2.8.5",
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.0.0",
     "nf3": "0.4.2",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
@@ -28,7 +28,7 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=24.22.1"
+    "node": ">=26.13.1"
   },
   "name": "@wasp/generated-server",
   "private": true,

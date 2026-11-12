@@ -313,7 +313,7 @@ If you get stuck with a weird error while developing with Wasp, try running `was
 
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
 
-A version of Node.js must be >= 24.22.1.
+A version of Node.js must be >= 26.13.1.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -13149,8 +13149,8 @@ Running Wasp doctor...
 
 [✓] Wasp: 0.14.0 (git v0.23.0-136-g874e208c13)
 [✓] System: darwin 25.5.0 aarch64
-[✓] Node.js: 24.22.1
-[✓] npm: 11.16.0
+[✓] Node.js: 26.13.1
+[✓] npm: 11.20.0
 [✓] Docker: running
 ```
 
@@ -14372,7 +14372,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.22.1"
+          node-version: "26.13.1"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
@@ -14416,7 +14416,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.22.1"
+          node-version: "26.13.1"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
@@ -14863,6 +14863,10 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 ### What's new in 0.27?
 
+#### Node.js 26
+
+Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com/nodejs/release#release-schedule). It enables the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) by default and removes some long-deprecated APIs. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) for the full list of changes.
+
 #### New npm organization
 
 Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
@@ -14887,7 +14891,43 @@ The build steps are also ordered so that a code change reuses the installed depe
 
 ### How to migrate?
 
-#### 1. Switch to the new Wasp CLI package
+#### 1. Upgrade Node.js to 26.13.1 or later {#upgrade-nodejs}
+
+Wasp 0.27 requires Node.js >= 26.13.1 (previously >= 24.22.1). The new Wasp CLI refuses to run on older versions, so upgrade before continuing:
+
+```shell
+node -v
+# If below 26.13.1, upgrade:
+nvm install 26
+```
+
+If you deploy with the Dockerfile Wasp generates, your server image moves to `node:26.13.1-alpine3.23` when you rebuild it. If you use a custom Dockerfile, a CI workflow, or a platform that picks its own Node.js version, make sure it runs 26.13.1 or newer.
+
+Wasp also requires `@types/node` to match the Node.js major version. Update it in your `package.json`:
+
+**Before**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}
+```
+
+**After**
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "@types/node": "^26.0.0"
+  }
+}
+```
+
+Node.js 26 is a new major version with breaking changes. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) to see if any of them affect your app.
+
+#### 2. Switch to the new Wasp CLI package
 
 The Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
 
@@ -14896,7 +14936,7 @@ npm uninstall -g @wasp.sh/wasp-cli
 npm i -g @wasp/cli@0.27
 ```
 
-#### 2. Rename `@wasp.sh/spec` to `@wasp/spec`
+#### 3. Rename `@wasp.sh/spec` to `@wasp/spec`
 
 Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp Spec dependency in your `package.json`:
 
@@ -14934,7 +14974,7 @@ import { app, page, route } from "@wasp.sh/spec";
 import { app, page, route } from "@wasp/spec";
 ```
 
-#### 3. Bump the Wasp version
+#### 4. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.27.0`.
 
@@ -14962,7 +15002,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-#### 4. Upgrade Vite
+#### 5. Upgrade Vite
 
 Wasp now requires Vite 8.3. Update the `vite` version in your `package.json`:
 
@@ -14986,7 +15026,7 @@ Wasp now requires Vite 8.3. Update the `vite` version in your `package.json`:
 }
 ```
 
-#### 5. Update your Vitest setup
+#### 6. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -15209,7 +15249,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
-#### 6. Upgrade to Prisma 6
+#### 7. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -15248,13 +15288,13 @@ wasp db migrate-dev
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 7. Check relative paths in your server code
+#### 8. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-#### 8. Check the packages your server loads at runtime
+#### 9. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -15273,7 +15313,7 @@ export default app({
 })
 ```
 
-#### 9. Install the system dependencies your app needs
+#### 10. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -15283,7 +15323,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 10. Update your custom Dockerfile
+#### 11. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -15295,7 +15335,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 11. Enjoy your updated Wasp app
+#### 12. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19977,7 +20017,7 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v5
         with:
-          node-version: "24.22.1"
+          node-version: "26.13.1"
 
       - name: Install Wasp
         run: npm i -g @wasp/cli@^0.26 # Change to your Wasp version
@@ -20348,7 +20388,7 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v5
         with:
-          node-version: "24.22.1"
+          node-version: "26.13.1"
 
       - name: Install Wasp
         run: npm i -g @wasp/cli@^0.26 # Change to your Wasp version
@@ -20660,7 +20700,7 @@ services:
       - key: WASP_WEB_CLIENT_URL
         sync: false # you'll fill this in after the first deploy
       - key: NODE_VERSION
-        value: "24"
+        value: "26"
 
   # React client -- static site built with Vite
   - type: web
@@ -20678,7 +20718,7 @@ services:
       - key: REACT_APP_API_URL
         sync: false # you'll fill this in after the first deploy
       - key: NODE_VERSION
-        value: "24"
+        value: "26"
     routes:
       - type: rewrite
         source: /*
@@ -21365,7 +21405,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.22.1"
+          node-version: "26.13.1"
 
       - name: Install Wasp
         shell: bash
@@ -21606,7 +21646,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24.22.1"
+          node-version: "26.13.1"
 
       - name: Install Wasp
         shell: bash
@@ -21801,7 +21841,7 @@ Install Node.js using nvm:
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 source ~/.bashrc
-nvm install 24.22.1
+nvm install 26.13.1
 ```
 
 #### Step 8: Install Wasp CLI
@@ -23636,7 +23676,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
      // ...
      "devDependencies": {
        // ...
-       "@types/node": "^24.0.0",
+       "@types/node": "^26.0.0",
        "@wasp/spec": "file:.wasp/spec"
      }
    }
@@ -23997,7 +24037,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
      // ...
      "devDependencies": {
        // ...
-       "@types/node": "^24.0.0",
+       "@types/node": "^26.0.0",
        "@wasp/spec": "file:.wasp/spec"
      }
    }
