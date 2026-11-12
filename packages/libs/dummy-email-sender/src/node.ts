@@ -4,17 +4,17 @@ export {
   type DevMailboxEvent,
   type DevMailboxListener,
   type DevMailboxOptions,
-  type WaitForMessageOptions,
+  type WaitForEmailOptions,
 } from "./core/devMailbox.js";
 export {
   type DevMailboxEmail,
-  type DevMailboxMessage,
-  type DevMailboxMessageSummary,
-} from "./core/message.js";
+  type DevMailboxEmailSummary,
+  type NewDevMailboxEmail,
+} from "./core/email.js";
 export {
-  type DevMailboxMessageFilter,
+  type DevMailboxEmailFilter,
   type DevMailboxSearchField,
-} from "./core/messageFilter.js";
+} from "./core/emailFilter.js";
 export {
   createDummyEmailSender,
   type DummyEmail,

@@ -8,7 +8,7 @@ module Wasp.AppSpec.App.EmailSender
     EmailProvider (..),
     EmailFromField (..),
     DevMailboxConfig (..),
-    MaxMessages (..),
+    MaxEmails (..),
     isDummyEmailSender,
   )
 where
@@ -38,23 +38,23 @@ data EmailFromField = EmailFromField
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data DevMailboxConfig = DevMailboxConfig
-  { maxMessages :: Maybe MaxMessages
+  { maxEmails :: Maybe MaxEmails
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 -- | The spec package encodes `Infinity` as "unlimited".
-data MaxMessages = MaxMessagesLimit Int | MaxMessagesUnlimited
+data MaxEmails = MaxEmailsLimit Int | MaxEmailsUnlimited
   deriving (Show, Eq, Data, Generic)
 
-instance FromJSON MaxMessages where
-  parseJSON (String "unlimited") = pure MaxMessagesUnlimited
+instance FromJSON MaxEmails where
+  parseJSON (String "unlimited") = pure MaxEmailsUnlimited
   parseJSON value@(Number _) = do
     limit <- parseJSON value
     if limit >= 0
-      then pure $ MaxMessagesLimit limit
-      else fail "maxMessages must not be negative"
-  parseJSON _ = fail "maxMessages must be an integer or \"unlimited\""
+      then pure $ MaxEmailsLimit limit
+      else fail "maxEmails must not be negative"
+  parseJSON _ = fail "maxEmails must be an integer or \"unlimited\""
 
-instance ToJSON MaxMessages where
-  toJSON (MaxMessagesLimit limit) = toJSON limit
-  toJSON MaxMessagesUnlimited = String "unlimited"
+instance ToJSON MaxEmails where
+  toJSON (MaxEmailsLimit limit) = toJSON limit
+  toJSON MaxEmailsUnlimited = String "unlimited"

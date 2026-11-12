@@ -6,7 +6,7 @@ import { waspLogo } from "./waspLogo.js";
   Self-contained, since the server doesn't serve static files, and built on
   the same JSON API tests and agents use. Styled like wasp.sh and Wasp Studio.
 
-  Message content only goes through `textContent` and the sandboxed iframe's
+  Email content only goes through `textContent` and the sandboxed iframe's
   `srcdoc`, never `innerHTML`.
 */
 
@@ -85,7 +85,7 @@ export const makeInboxPage = ({
               </button>
             </div>
           </div>
-          <ul id="messages" aria-labelledby="list-heading"></ul>
+          <ul id="emails" aria-labelledby="list-heading"></ul>
           <p id="list-empty" class="empty" hidden></p>
         </section>
         <section
@@ -97,7 +97,7 @@ export const makeInboxPage = ({
       <footer>
         <span> Stored in <code>${escapeHtml(directoryPath)}</code>. </span>
         <span class="footer-links">
-          <a href="${escapeHtml(apiBasePath)}/messages">JSON API</a>
+          <a href="${escapeHtml(apiBasePath)}/emails">JSON API</a>
           <a href="https://wasp.sh/docs/features/email#dev-mailbox">Docs</a>
         </span>
       </footer>

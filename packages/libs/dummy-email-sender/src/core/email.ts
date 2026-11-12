@@ -1,6 +1,6 @@
 import type { EmailFromField } from "../types.js";
 
-export type DevMailboxEmail = {
+export type NewDevMailboxEmail = {
   from: EmailFromField;
   to: string;
   subject: string;
@@ -9,7 +9,7 @@ export type DevMailboxEmail = {
 };
 
 /** Also the shape of the stored files and the API responses. */
-export type DevMailboxMessage = DevMailboxEmail & {
+export type DevMailboxEmail = NewDevMailboxEmail & {
   id: string;
   /** ISO 8601 timestamp. */
   sentAt: string;
@@ -17,37 +17,35 @@ export type DevMailboxMessage = DevMailboxEmail & {
   links: string[];
 };
 
-export type DevMailboxMessageSummary = Pick<
-  DevMailboxMessage,
+export type DevMailboxEmailSummary = Pick<
+  DevMailboxEmail,
   "id" | "sentAt" | "from" | "to" | "subject"
 >;
 
-export function createMessage(
-  email: DevMailboxEmail,
+export function createEmail(
+  newEmail: NewDevMailboxEmail,
   id: string,
   sentAt: Date,
-): DevMailboxMessage {
+): DevMailboxEmail {
   return {
     id,
     sentAt: sentAt.toISOString(),
-    from: email.from,
-    to: email.to,
-    subject: email.subject,
-    text: email.text,
-    html: email.html,
-    links: extractLinks(email),
+    from: newEmail.from,
+    to: newEmail.to,
+    subject: newEmail.subject,
+    text: newEmail.text,
+    html: newEmail.html,
+    links: extractLinks(newEmail),
   };
 }
 
-export function summarizeMessage(
-  message: DevMailboxMessage,
-): DevMailboxMessageSummary {
+export function summarizeEmail(email: DevMailboxEmail): DevMailboxEmailSummary {
   return {
-    id: message.id,
-    sentAt: message.sentAt,
-    from: message.from,
-    to: message.to,
-    subject: message.subject,
+    id: email.id,
+    sentAt: email.sentAt,
+    from: email.from,
+    to: email.to,
+    subject: email.subject,
   };
 }
 
@@ -55,11 +53,11 @@ const HREF_PATTERN = /href\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/gi;
 const TRAILING_PUNCTUATION_PATTERN = /[.,;:!?)\]]+$/;
 
-export function extractLinks(email: Pick<DevMailboxEmail, "text" | "html">) {
-  const hrefLinks = [...email.html.matchAll(HREF_PATTERN)]
+export function extractLinks(body: Pick<NewDevMailboxEmail, "text" | "html">) {
+  const hrefLinks = [...body.html.matchAll(HREF_PATTERN)]
     .map((match) => decodeHtmlEntities(match[1] ?? match[2] ?? ""))
     .filter(isHttpUrl);
-  const textLinks = [...email.text.matchAll(URL_PATTERN)].map((match) =>
+  const textLinks = [...body.text.matchAll(URL_PATTERN)].map((match) =>
     match[0].replace(TRAILING_PUNCTUATION_PATTERN, ""),
   );
   return [...new Set([...textLinks, ...hrefLinks])];

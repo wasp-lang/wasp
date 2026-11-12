@@ -190,7 +190,7 @@ export const inboxStyles = /* CSS */ `
     gap: 0.75rem;
   }
   ul { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
-  #messages a {
+  #emails a {
     display: block;
     padding: 0.625rem 0.875rem;
     border-bottom: 1px solid var(--g2);
@@ -198,9 +198,9 @@ export const inboxStyles = /* CSS */ `
     color: inherit;
     text-decoration: none;
   }
-  #messages a:focus-visible { outline-offset: -4px; }
-  #messages a:hover { background: var(--cream); }
-  #messages a[aria-current="true"] {
+  #emails a:focus-visible { outline-offset: -4px; }
+  #emails a:hover { background: var(--cream); }
+  #emails a[aria-current="true"] {
     background: var(--yellow-light);
     border-left-color: var(--yellow);
   }

@@ -2,9 +2,9 @@ import type { Request } from "express";
 
 import {
   DEV_MAILBOX_SEARCH_FIELDS,
-  type DevMailboxMessageFilter,
+  type DevMailboxEmailFilter,
   type DevMailboxSearchField,
-} from "../core/messageFilter.js";
+} from "../core/emailFilter.js";
 
 const DEFAULT_WAIT_TIMEOUT_MS = 10_000;
 const MAX_WAIT_TIMEOUT_MS = 5 * 60_000;
@@ -19,8 +19,8 @@ export function getBody(req: Request): Input {
 
 export function parseFilter(
   input: Input,
-): DevMailboxMessageFilter | InvalidInputError {
-  const filter: DevMailboxMessageFilter = {};
+): DevMailboxEmailFilter | InvalidInputError {
+  const filter: DevMailboxEmailFilter = {};
   for (const key of ["after", "search"] as const) {
     const value = input[key];
     if (value === undefined || value === "") {

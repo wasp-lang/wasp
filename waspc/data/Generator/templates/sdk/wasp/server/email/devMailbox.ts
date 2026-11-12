@@ -1,8 +1,8 @@
 {{={= =}=}}
 // PUBLIC API
 export type {
-  DevMailboxMessage,
-  DevMailboxMessageSummary,
+  DevMailboxEmail,
+  DevMailboxEmailSummary,
 } from "@wasp/lib-dummy-email-sender/node";
 
 // PUBLIC API

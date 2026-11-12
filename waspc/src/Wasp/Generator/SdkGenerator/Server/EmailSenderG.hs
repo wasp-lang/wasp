@@ -81,13 +81,13 @@ genDevMailbox emailSender
       object
         [ "devMailboxRoutePath" .= EmailSenders.devMailboxRoutePath,
           "devMailboxDirFromWaspProjectDir" .= devMailboxDirFromWaspProjectDir,
-          "maxMessages" .= toJsNumber (EmailSenders.getDevMailboxMaxMessages emailSender)
+          "maxEmails" .= toJsNumber (EmailSenders.getDevMailboxMaxEmails emailSender)
         ]
     devMailboxDirFromWaspProjectDir =
       either (error . show) (FP.dropTrailingPathSeparator . SP.fromRelDirP) $
         SP.relDirToPosix EmailSenders.devMailboxDirInWaspProjectDir
-    toJsNumber (AS.EmailSender.MaxMessagesLimit limit) = show limit
-    toJsNumber AS.EmailSender.MaxMessagesUnlimited = "Infinity"
+    toJsNumber (AS.EmailSender.MaxEmailsLimit limit) = show limit
+    toJsNumber AS.EmailSender.MaxEmailsUnlimited = "Infinity"
 
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex emailSender =

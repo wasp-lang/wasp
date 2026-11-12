@@ -1,7 +1,7 @@
-import type { DevMailboxMessage } from "./message.js";
+import type { DevMailboxEmail } from "./email.js";
 
-export type DevMailboxMessageFilter = {
-  /** Only messages sent after the one with this id. */
+export type DevMailboxEmailFilter = {
+  /** Only emails sent after the one with this id. */
   after?: string;
   /** Matched case-insensitively. */
   search?: string;
@@ -19,15 +19,15 @@ export const DEV_MAILBOX_SEARCH_FIELDS = [
 export type DevMailboxSearchField = (typeof DEV_MAILBOX_SEARCH_FIELDS)[number];
 
 export function matchesFilter(
-  message: DevMailboxMessage,
-  filter: DevMailboxMessageFilter,
+  email: DevMailboxEmail,
+  filter: DevMailboxEmailFilter,
 ): boolean {
-  if (filter.after !== undefined && message.id <= filter.after) {
+  if (filter.after !== undefined && email.id <= filter.after) {
     return false;
   }
   if (
     filter.search !== undefined &&
-    !matchesSearch(message, filter.search, filter.searchIn)
+    !matchesSearch(email, filter.search, filter.searchIn)
   ) {
     return false;
   }
@@ -35,28 +35,28 @@ export function matchesFilter(
 }
 
 function matchesSearch(
-  message: DevMailboxMessage,
+  email: DevMailboxEmail,
   search: string,
   searchIn: readonly DevMailboxSearchField[] = DEV_MAILBOX_SEARCH_FIELDS,
 ): boolean {
   return searchIn.some((field) =>
-    containsIgnoringCase(getSearchableText(message, field), search),
+    containsIgnoringCase(getSearchableText(email, field), search),
   );
 }
 
 function getSearchableText(
-  message: DevMailboxMessage,
+  email: DevMailboxEmail,
   field: DevMailboxSearchField,
 ): string {
   switch (field) {
     case "from":
-      return `${message.from.name ?? ""} ${message.from.email}`;
+      return `${email.from.name ?? ""} ${email.from.email}`;
     case "to":
-      return message.to;
+      return email.to;
     case "subject":
-      return message.subject;
+      return email.subject;
     case "body":
-      return `${message.text} ${stripHtmlTags(message.html)}`;
+      return `${email.text} ${stripHtmlTags(email.html)}`;
   }
 }
 

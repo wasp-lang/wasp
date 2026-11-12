@@ -219,7 +219,7 @@ export type EmailSender = {
 };
 
 export type DevMailboxConfig = {
-  maxMessages: Optional<number | "unlimited">;
+  maxEmails: Optional<number | "unlimited">;
 };
 
 export type EmailProvider =

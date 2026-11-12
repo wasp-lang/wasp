@@ -1,7 +1,7 @@
 // Runs in the browser. `API_BASE_PATH` is defined by the page.
 export const inboxScript = /* JS */ `
   const layout = document.getElementById("layout");
-  const messagesList = document.getElementById("messages");
+  const emailsList = document.getElementById("emails");
   const listEmpty = document.getElementById("list-empty");
   const countLabel = document.getElementById("count");
   const connection = document.getElementById("connection");
@@ -15,15 +15,15 @@ export const inboxScript = /* JS */ `
   const TABS = [
     { id: "html", label: () => "HTML" },
     { id: "text", label: () => "Text" },
-    { id: "links", label: (message) => "Links (" + message.links.length + ")" },
+    { id: "links", label: (email) => "Links (" + email.links.length + ")" },
     { id: "json", label: () => "JSON" },
   ];
 
-  let allMessages = [];
-  let matchingMessages = [];
+  let allEmails = [];
+  let matchingEmails = [];
   let listRequestId = 0;
   let selectedTab = "html";
-  let currentMessage;
+  let currentEmail;
 
   async function callApi(path, init) {
     const response = await fetch(API_BASE_PATH + path, init);
@@ -56,7 +56,7 @@ export const inboxScript = /* JS */ `
     return decodeURIComponent(location.hash.slice(1)) || undefined;
   }
 
-  function selectMessage(id) {
+  function selectEmail(id) {
     if (id === undefined) {
       history.pushState(null, "", location.pathname + location.search);
     } else {
@@ -94,45 +94,45 @@ export const inboxScript = /* JS */ `
     const requestId = ++listRequestId;
     const searchQuery = getSearchQuery();
     const [all, matching] = await Promise.all([
-      callApi("/messages"),
-      searchQuery === "" ? undefined : callApi("/messages?" + searchQuery),
+      callApi("/emails"),
+      searchQuery === "" ? undefined : callApi("/emails?" + searchQuery),
     ]);
     if (requestId !== listRequestId) {
       return;
     }
-    allMessages = all?.messages ?? [];
-    matchingMessages = searchQuery === "" ? allMessages : (matching?.messages ?? []);
+    allEmails = all?.emails ?? [];
+    matchingEmails = searchQuery === "" ? allEmails : (matching?.emails ?? []);
     renderList();
   }
 
   function renderList() {
-    clearButton.disabled = allMessages.length === 0;
-    const total = allMessages.length + (allMessages.length === 1 ? " email" : " emails");
+    clearButton.disabled = allEmails.length === 0;
+    const total = allEmails.length + (allEmails.length === 1 ? " email" : " emails");
     countLabel.textContent =
-      matchingMessages === allMessages ? total : matchingMessages.length + " of " + total;
+      matchingEmails === allEmails ? total : matchingEmails.length + " of " + total;
 
-    listEmpty.hidden = matchingMessages.length > 0;
+    listEmpty.hidden = matchingEmails.length > 0;
     listEmpty.textContent =
-      allMessages.length === 0
+      allEmails.length === 0
         ? "No emails yet. Emails sent with the Dummy email sender show up here."
         : "No emails match your search.";
 
     const selectedId = getSelectedId();
-    messagesList.replaceChildren(
-      ...matchingMessages.map((message) => {
-        const link = element("a", { href: "#" + encodeURIComponent(message.id) }, [
-          element("span", { className: "subject", textContent: message.subject || "(no subject)" }),
+    emailsList.replaceChildren(
+      ...matchingEmails.map((email) => {
+        const link = element("a", { href: "#" + encodeURIComponent(email.id) }, [
+          element("span", { className: "subject", textContent: email.subject || "(no subject)" }),
           element("span", { className: "meta" }, [
-            element("span", { textContent: message.to }),
-            element("time", { dateTime: message.sentAt, textContent: formatTime(message.sentAt) }),
+            element("span", { textContent: email.to }),
+            element("time", { dateTime: email.sentAt, textContent: formatTime(email.sentAt) }),
           ]),
         ]);
-        if (message.id === selectedId) {
+        if (email.id === selectedId) {
           link.setAttribute("aria-current", "true");
         }
         link.addEventListener("click", (event) => {
           event.preventDefault();
-          selectMessage(message.id);
+          selectEmail(email.id);
         });
         return element("li", {}, [link]);
       }),
@@ -142,16 +142,16 @@ export const inboxScript = /* JS */ `
   async function renderDetail() {
     const id = getSelectedId();
     if (id === undefined) {
-      currentMessage = undefined;
+      currentEmail = undefined;
       detail.replaceChildren(element("p", { className: "empty", textContent: "No email selected." }));
       return;
     }
-    const data = await callApi("/messages/" + encodeURIComponent(id));
+    const data = await callApi("/emails/" + encodeURIComponent(id));
     if (id !== getSelectedId()) {
       return;
     }
-    currentMessage = data?.message;
-    if (currentMessage === undefined) {
+    currentEmail = data?.email;
+    if (currentEmail === undefined) {
       detail.replaceChildren(
         element("div", { className: "headers back-only" }, [backButton()]),
         element("p", { className: "empty", textContent: "This email no longer exists." }),
@@ -159,14 +159,14 @@ export const inboxScript = /* JS */ `
       return;
     }
 
-    const message = currentMessage;
-    const from = message.from.name ? message.from.name + " <" + message.from.email + ">" : message.from.email;
+    const email = currentEmail;
+    const from = email.from.name ? email.from.name + " <" + email.from.email + ">" : email.from.email;
     const tabButtons = TABS.map((tab) => {
       const button = element("button", {
         type: "button",
         role: "tab",
         id: "tab-" + tab.id,
-        textContent: tab.label(message),
+        textContent: tab.label(email),
       });
       button.setAttribute("aria-controls", "tabpanel");
       button.addEventListener("click", () => selectTab(tab.id));
@@ -180,24 +180,24 @@ export const inboxScript = /* JS */ `
     detail.replaceChildren(
       element("div", { className: "headers" }, [
         backButton(),
-        element("h2", { textContent: message.subject || "(no subject)", tabIndex: -1 }),
+        element("h2", { textContent: email.subject || "(no subject)", tabIndex: -1 }),
         element("button", {
           type: "button",
           className: "button secondary delete",
           textContent: "Delete",
-          onclick: () => deleteMessage(message.id),
+          onclick: () => deleteEmail(email.id),
         }),
         element("dl", {}, [
           element("dt", { textContent: "From" }),
           element("dd", { textContent: from }),
           element("dt", { textContent: "To" }),
-          element("dd", { textContent: message.to }),
+          element("dd", { textContent: email.to }),
           element("dt", { textContent: "Sent" }),
           element("dd", {}, [
-            element("time", { dateTime: message.sentAt, textContent: new Date(message.sentAt).toLocaleString() }),
+            element("time", { dateTime: email.sentAt, textContent: new Date(email.sentAt).toLocaleString() }),
           ]),
           element("dt", { textContent: "Id" }),
-          element("dd", { textContent: message.id }),
+          element("dd", { textContent: email.id }),
         ]),
       ]),
       tabList,
@@ -211,7 +211,7 @@ export const inboxScript = /* JS */ `
       type: "button",
       className: "button secondary back",
       textContent: "← Emails",
-      onclick: () => selectMessage(undefined),
+      onclick: () => selectEmail(undefined),
     });
   }
 
@@ -239,7 +239,7 @@ export const inboxScript = /* JS */ `
   }
 
   function renderTabPanel() {
-    const message = currentMessage;
+    const email = currentEmail;
     for (const tab of TABS) {
       const button = document.getElementById("tab-" + tab.id);
       const isSelected = tab.id === selectedTab;
@@ -253,24 +253,24 @@ export const inboxScript = /* JS */ `
       const iframe = element("iframe", { title: "Email HTML body" });
       // Without allow-scripts, email scripts never run.
       iframe.setAttribute("sandbox", "allow-popups allow-popups-to-escape-sandbox");
-      iframe.srcdoc = '<base target="_blank">' + message.html;
+      iframe.srcdoc = '<base target="_blank">' + email.html;
       tabPanel.replaceChildren(iframe);
     } else if (selectedTab === "text") {
-      tabPanel.replaceChildren(element("pre", { textContent: message.text }));
+      tabPanel.replaceChildren(element("pre", { textContent: email.text }));
     } else if (selectedTab === "links") {
       tabPanel.replaceChildren(
-        message.links.length === 0
+        email.links.length === 0
           ? element("p", { className: "empty", textContent: "No links in this email." })
           : element(
               "ul",
               { className: "links" },
-              message.links.map((link) =>
+              email.links.map((link) =>
                 element("li", {}, [element("a", { href: link, target: "_blank", rel: "noreferrer", textContent: link })]),
               ),
             ),
       );
     } else {
-      const json = JSON.stringify(message, null, 2);
+      const json = JSON.stringify(email, null, 2);
       const copyButton = element("button", {
         type: "button",
         className: "button secondary small",
@@ -289,13 +289,13 @@ export const inboxScript = /* JS */ `
     }
   }
 
-  async function deleteMessage(id) {
-    const index = matchingMessages.findIndex((message) => message.id === id);
-    const nextMessage = matchingMessages[index + 1] ?? matchingMessages[index - 1];
-    await callAction("messages.delete", { id });
+  async function deleteEmail(id) {
+    const index = matchingEmails.findIndex((email) => email.id === id);
+    const nextEmail = matchingEmails[index + 1] ?? matchingEmails[index - 1];
+    await callAction("emails.delete", { id });
     announce("Email deleted.");
     await refreshList();
-    selectMessage(nextMessage?.id);
+    selectEmail(nextEmail?.id);
   }
 
   function formatTime(isoTimestamp) {
@@ -317,15 +317,15 @@ export const inboxScript = /* JS */ `
     });
     events.addEventListener("error", () => setConnectionStatus(false));
     events.addEventListener("added", async (event) => {
-      const { message } = JSON.parse(event.data);
+      const { email } = JSON.parse(event.data);
       await refreshList();
-      announce("New email: " + (message.subject || "(no subject)") + ", to " + message.to + ".");
+      announce("New email: " + (email.subject || "(no subject)") + ", to " + email.to + ".");
     });
     for (const type of ["deleted", "cleared"]) {
       events.addEventListener(type, async () => {
         await refreshList();
-        if (getSelectedId() !== undefined && currentMessage !== undefined) {
-          const isStillThere = allMessages.some((message) => message.id === currentMessage.id);
+        if (getSelectedId() !== undefined && currentEmail !== undefined) {
+          const isStillThere = allEmails.some((email) => email.id === currentEmail.id);
           if (!isStillThere) {
             renderDetail();
           }
@@ -336,11 +336,11 @@ export const inboxScript = /* JS */ `
 
   clearButton.addEventListener("click", async () => {
     if (confirm("Delete all emails?")) {
-      await callAction("messages.clear", {});
+      await callAction("emails.clear", {});
       announce("All emails deleted.");
-      allMessages = [];
-      matchingMessages = [];
-      selectMessage(undefined);
+      allEmails = [];
+      matchingEmails = [];
+      selectEmail(undefined);
     }
   });
 

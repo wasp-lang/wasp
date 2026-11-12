@@ -781,14 +781,62 @@ export interface Db {
  * })
  * ```
  */
-export type EmailSender = DeliveringEmailSender | DummyEmailSender;
+export type EmailSender =
+  | SMTPEmailSender
+  | SendGridEmailSender
+  | MailgunEmailSender
+  | ResendEmailSender
+  | DummyEmailSender;
 
 /**
- * Email sender that delivers emails through a real provider.
+ * Sends emails through an SMTP server.
+ *
+ * See [SMTP](https://wasp.sh/docs/features/email#smtp).
  */
-export interface DeliveringEmailSender {
-  /** Provider Wasp uses to deliver outgoing emails. */
-  provider: Exclude<EmailSenderProviderName, "Dummy">;
+export interface SMTPEmailSender {
+  provider: "SMTP";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+}
+
+/**
+ * Sends emails through SendGrid.
+ *
+ * See [SendGrid](https://wasp.sh/docs/features/email#sendgrid).
+ */
+export interface SendGridEmailSender {
+  provider: "SendGrid";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+}
+
+/**
+ * Sends emails through Mailgun.
+ *
+ * See [Mailgun](https://wasp.sh/docs/features/email#mailgun).
+ */
+export interface MailgunEmailSender {
+  provider: "Mailgun";
+  /**
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
+   */
+  defaultFrom?: EmailFromField;
+}
+
+/**
+ * Sends emails through Resend.
+ *
+ * See [Resend](https://wasp.sh/docs/features/email#resend).
+ */
+export interface ResendEmailSender {
+  provider: "Resend";
   /**
    * The default sender's details. If you set this field, you don't need to
    * provide the `from` field when sending an email.
@@ -800,7 +848,8 @@ export interface DeliveringEmailSender {
  * Logs emails and keeps them in the dev mailbox instead of sending them. Only
  * allowed in development.
  *
- * See [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
+ * See [Dummy](https://wasp.sh/docs/features/email#dummy) and
+ * [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
  */
 export interface DummyEmailSender {
   provider: "Dummy";
@@ -822,7 +871,7 @@ export interface DevMailboxConfig {
    *
    * @defaultValue `500`
    */
-  maxMessages?: number;
+  maxEmails?: number;
 }
 
 /**

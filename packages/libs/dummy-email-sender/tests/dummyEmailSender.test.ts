@@ -28,8 +28,8 @@ afterEach(() => {
   fs.rmSync(directoryPath, { recursive: true, force: true });
 });
 
-function createSender(maxMessages = 500) {
-  const mailbox = createDevMailbox({ directoryPath, maxMessages });
+function createSender(maxEmails = 500) {
+  const mailbox = createDevMailbox({ directoryPath, maxEmails });
   const sender = createDummyEmailSender({
     mailbox,
     defaultFrom: { name: "App", email: "app@app.test" },
@@ -50,7 +50,7 @@ describe("createDummyEmailSender", () => {
     expect(lines).toContain("To:      user@app.test");
     expect(lines).toContain(`Inbox:   ${MAILBOX_URL}#${summary!.id}`);
     expect(lines).toContain(
-      `API:     ${MAILBOX_URL}/api/messages/${summary!.id}`,
+      `API:     ${MAILBOX_URL}/api/emails/${summary!.id}`,
     );
     expect(lines).toContain(`File:    ${directoryPath}/${summary!.id}.json`);
   });

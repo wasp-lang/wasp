@@ -217,24 +217,23 @@ export function mapEmailSender(
 export function mapDevMailboxConfig(
   devMailboxConfig: WaspSpec.DevMailboxConfig,
 ): AppSpec.DevMailboxConfig {
-  const { maxMessages } = devMailboxConfig;
+  const { maxEmails } = devMailboxConfig;
   return {
-    maxMessages:
-      maxMessages === undefined ? undefined : mapMaxMessages(maxMessages),
+    maxEmails: maxEmails === undefined ? undefined : mapMaxEmails(maxEmails),
   };
 }
 
 /** JSON has no `Infinity`. */
-function mapMaxMessages(maxMessages: number): number | "unlimited" {
-  if (maxMessages === Infinity) {
+function mapMaxEmails(maxEmails: number): number | "unlimited" {
+  if (maxEmails === Infinity) {
     return "unlimited";
   }
-  if (!Number.isInteger(maxMessages) || maxMessages < 0) {
+  if (!Number.isInteger(maxEmails) || maxEmails < 0) {
     throw new WaspSpecUserError(
-      `app.emailSender.mailbox.maxMessages must be a non-negative integer or Infinity, got ${maxMessages}.`,
+      `app.emailSender.mailbox.maxEmails must be a non-negative integer or Infinity, got ${maxEmails}.`,
     );
   }
-  return maxMessages;
+  return maxEmails;
 }
 
 export function mapEmailFromField(

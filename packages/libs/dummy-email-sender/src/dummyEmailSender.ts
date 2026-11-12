@@ -45,11 +45,11 @@ export function createDummyEmailSender({
       log(email.html);
       log(yellow("════════════════════════"));
 
-      const message = mailbox.add({ ...email, from });
-      if (message !== undefined) {
-        log(`Inbox:   ${mailboxUrl}#${message.id}`);
-        log(`API:     ${mailboxUrl}/api/messages/${message.id}`);
-        log(`File:    ${mailbox.directoryPath}/${message.id}.json`);
+      const storedEmail = mailbox.add({ ...email, from });
+      if (storedEmail !== undefined) {
+        log(`Inbox:   ${mailboxUrl}#${storedEmail.id}`);
+        log(`API:     ${mailboxUrl}/api/emails/${storedEmail.id}`);
+        log(`File:    ${mailbox.directoryPath}/${storedEmail.id}.json`);
         log(yellow("════════════════════════"));
       }
 

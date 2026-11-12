@@ -1,7 +1,7 @@
 import { type Page } from "@playwright/test";
 import {
   devMailboxApiPath,
-  type DevMailboxMessage,
+  type DevMailboxEmail,
 } from "wasp/server/email/devMailbox";
 import { WASP_SERVER_URL } from "../playwright.config";
 
@@ -10,7 +10,7 @@ export async function getDevMailboxEmailVerificationLink(
   email: string,
 ): Promise<string> {
   const response = await page.request.post(
-    `${WASP_SERVER_URL}${devMailboxApiPath}/messages.waitFor`,
+    `${WASP_SERVER_URL}${devMailboxApiPath}/emails.waitFor`,
     { data: { search: email, searchIn: ["to"], timeoutMs: 10_000 } },
   );
   if (!response.ok()) {
@@ -19,10 +19,10 @@ export async function getDevMailboxEmailVerificationLink(
     );
   }
 
-  const { message } = (await response.json()) as {
-    message: DevMailboxMessage;
+  const { email: verificationEmail } = (await response.json()) as {
+    email: DevMailboxEmail;
   };
-  const link = message.links.at(0);
+  const link = verificationEmail.links.at(0);
   if (link === undefined) {
     throw new Error(
       `No email verification link found inside of dev mailbox message for email '${email}'`,

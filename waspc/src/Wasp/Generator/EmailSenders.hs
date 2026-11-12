@@ -3,7 +3,7 @@ module Wasp.Generator.EmailSenders
     isDevMailboxEnabled,
     devMailboxRoutePath,
     devMailboxDirInWaspProjectDir,
-    getDevMailboxMaxMessages,
+    getDevMailboxMaxEmails,
   )
 where
 
@@ -45,9 +45,9 @@ devMailboxRoutePath = "/__wasp/mailbox"
 devMailboxDirInWaspProjectDir :: Path' (Rel WaspProjectDir) Dir'
 devMailboxDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> [reldir|mailbox|]
 
-getDevMailboxMaxMessages :: AS.App.EmailSender.EmailSender -> AS.App.EmailSender.MaxMessages
-getDevMailboxMaxMessages emailSender =
-  fromMaybe defaultMaxMessages $
-    AS.App.EmailSender.mailbox emailSender >>= AS.App.EmailSender.maxMessages
+getDevMailboxMaxEmails :: AS.App.EmailSender.EmailSender -> AS.App.EmailSender.MaxEmails
+getDevMailboxMaxEmails emailSender =
+  fromMaybe defaultMaxEmails $
+    AS.App.EmailSender.mailbox emailSender >>= AS.App.EmailSender.maxEmails
   where
-    defaultMaxMessages = AS.App.EmailSender.MaxMessagesLimit 500
+    defaultMaxEmails = AS.App.EmailSender.MaxEmailsLimit 500

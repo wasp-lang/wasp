@@ -114,7 +114,7 @@ You can reach the emails in several ways:
 - **Files**: each email is a JSON file in `.wasp/mailbox/`, which you can read even when the server isn't running.
 - **Console**: every email logged in the `wasp start` console comes with links to its inbox page, its API URL, and its file.
 
-The emails survive server restarts. Wasp keeps the latest 500 emails by default, which you can change with `maxMessages`:
+The emails survive server restarts. Wasp keeps the latest 500 emails by default, which you can change with `maxEmails`:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -125,7 +125,7 @@ export default app({
     provider: "Dummy",
     mailbox: {
       // `Infinity` keeps all emails, `0` keeps none.
-      maxMessages: 1000,
+      maxEmails: 1000,
     },
   },
   // ...
@@ -138,13 +138,13 @@ All routes are under `http://localhost:3001/__wasp/mailbox/api`. Reads are `GET`
 
 | Route | Description |
 | --- | --- |
-| `GET /messages` | Lists email summaries, newest first. Accepts the `search`, `searchIn`, `after`, and `limit` query parameters. |
-| `GET /messages/:id` | Returns one email. |
-| `GET /messages/:id/html` | Returns the email's HTML body. |
+| `GET /emails` | Lists email summaries, newest first. Accepts the `search`, `searchIn`, `after`, and `limit` query parameters. |
+| `GET /emails/:id` | Returns one email. |
+| `GET /emails/:id/html` | Returns the email's HTML body. |
 | `GET /events` | Streams `added`, `deleted`, and `cleared` events ([server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)). |
-| `POST /messages.waitFor` | Returns the newest email matching `search`, `searchIn`, and `after`. If there is none yet, waits for one for up to `timeoutMs` milliseconds (default 10 seconds, at most 5 minutes) and responds with `408` if none arrives. |
-| `POST /messages.delete` | Deletes the email with the given `id`. |
-| `POST /messages.clear` | Deletes all emails. |
+| `POST /emails.waitFor` | Returns the newest email matching `search`, `searchIn`, and `after`. If there is none yet, waits for one for up to `timeoutMs` milliseconds (default 10 seconds, at most 5 minutes) and responds with `408` if none arrives. |
+| `POST /emails.delete` | Deletes the email with the given `id`. |
+| `POST /emails.clear` | Deletes all emails. |
 
 The filters work like this:
 
@@ -158,31 +158,31 @@ Each email has an `id`, `sentAt`, `from`, `to`, `subject`, `text`, `html`, and `
 For example, this is how you get the verification link after signing up `user@example.com`:
 
 ```sh
-curl -X POST http://localhost:3001/__wasp/mailbox/api/messages.waitFor \
+curl -X POST http://localhost:3001/__wasp/mailbox/api/emails.waitFor \
   -H "Content-Type: application/json" \
   -d '{ "search": "user@example.com", "searchIn": ["to"] }'
 ```
 
-In a Playwright test, the same looks like this. `wasp/server/email/devMailbox` exports the API path and the message types, and it's safe to import from tests:
+In a Playwright test, the same looks like this. `wasp/server/email/devMailbox` exports the API path and the email types, and it's safe to import from tests:
 
 ```ts title="e2e-tests/auth.spec.ts" auto-js
 import { expect, test } from "@playwright/test"
 import {
   devMailboxApiPath,
-  type DevMailboxMessage,
+  type DevMailboxEmail,
 } from "wasp/server/email/devMailbox"
 
 test("can verify email", async ({ page, request }) => {
-  const email = "user@example.com"
-  // ... sign up as `email`
+  const address = "user@example.com"
+  // ... sign up with `address`
 
   const response = await request.post(
-    `http://localhost:3001${devMailboxApiPath}/messages.waitFor`,
-    { data: { search: email, searchIn: ["to"] } },
+    `http://localhost:3001${devMailboxApiPath}/emails.waitFor`,
+    { data: { search: address, searchIn: ["to"] } },
   )
-  const { message }: { message: DevMailboxMessage } = await response.json()
+  const { email }: { email: DevMailboxEmail } = await response.json()
 
-  await page.goto(message.links[0])
+  await page.goto(email.links[0])
   await expect(page.locator("body")).toContainText("Your email has been verified")
 })
 ```

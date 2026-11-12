@@ -938,29 +938,29 @@ describe("mapEmailSender", () => {
     testMapEmailSender(Fixtures.getEmailSenderConfig("full"));
   });
 
-  test("should map Infinity maxMessages to unlimited", () => {
+  test("should map Infinity maxEmails to unlimited", () => {
     const result = AppSpecMapper.mapEmailSender({
       provider: "Dummy",
-      mailbox: { maxMessages: Infinity },
+      mailbox: { maxEmails: Infinity },
     });
 
-    expect(result.mailbox).toStrictEqual({ maxMessages: "unlimited" });
+    expect(result.mailbox).toStrictEqual({ maxEmails: "unlimited" });
   });
 
-  test("should keep 0 maxMessages", () => {
+  test("should keep 0 maxEmails", () => {
     const result = AppSpecMapper.mapEmailSender({
       provider: "Dummy",
-      mailbox: { maxMessages: 0 },
+      mailbox: { maxEmails: 0 },
     });
 
-    expect(result.mailbox).toStrictEqual({ maxMessages: 0 });
+    expect(result.mailbox).toStrictEqual({ maxEmails: 0 });
   });
 
-  test.each([-1, 1.5, NaN])("should reject %s maxMessages", (maxMessages) => {
+  test.each([-1, 1.5, NaN])("should reject %s maxEmails", (maxEmails) => {
     expect(() =>
       AppSpecMapper.mapEmailSender({
         provider: "Dummy",
-        mailbox: { maxMessages },
+        mailbox: { maxEmails },
       }),
     ).toThrow(WaspSpecUserError);
   });

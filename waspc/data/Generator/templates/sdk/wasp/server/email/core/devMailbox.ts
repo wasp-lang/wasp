@@ -12,5 +12,5 @@ export const devMailboxRoutePath = "{= devMailboxRoutePath =}";
 // The server and `db seed` both run from the project dir, so they share it.
 export const devMailbox = createDevMailbox({
   directoryPath: path.resolve("{= devMailboxDirFromWaspProjectDir =}"),
-  maxMessages: {= maxMessages =},
+  maxEmails: {= maxEmails =},
 });

@@ -1,39 +1,32 @@
 import {
+  createEmail,
+  summarizeEmail,
+  type DevMailboxEmail,
+  type DevMailboxEmailSummary,
+  type NewDevMailboxEmail,
+} from "./email.js";
+import { matchesFilter, type DevMailboxEmailFilter } from "./emailFilter.js";
+import { createMonotonicClock, generateEmailId, isEmailId } from "./emailId.js";
+import {
   JsonFileMailboxDirectory,
   type MailboxDirectory,
 } from "./mailboxDirectory.js";
-import {
-  createMessage,
-  summarizeMessage,
-  type DevMailboxEmail,
-  type DevMailboxMessage,
-  type DevMailboxMessageSummary,
-} from "./message.js";
-import {
-  matchesFilter,
-  type DevMailboxMessageFilter,
-} from "./messageFilter.js";
-import {
-  createMonotonicClock,
-  generateMessageId,
-  isMessageId,
-} from "./messageId.js";
 
 export type DevMailboxOptions = {
   directoryPath: string;
-  /** `Infinity` keeps all messages. */
-  maxMessages: number;
+  /** `Infinity` keeps all emails. */
+  maxEmails: number;
   now?: () => Date;
 };
 
 export type DevMailboxEvent =
-  | { type: "added"; message: DevMailboxMessageSummary }
+  | { type: "added"; email: DevMailboxEmailSummary }
   | { type: "deleted"; id: string }
   | { type: "cleared" };
 
 export type DevMailboxListener = (event: DevMailboxEvent) => void;
 
-export type WaitForMessageOptions = {
+export type WaitForEmailOptions = {
   timeoutMs: number;
   signal?: AbortSignal;
 };
@@ -42,24 +35,24 @@ const WATCH_DEBOUNCE_MS = 20;
 const POLL_INTERVAL_MS = 500;
 
 /**
- * Messages live in memory and in a directory. The directory survives restarts
+ * Emails live in memory and in a directory. The directory survives restarts
  * and other processes write to it too (e.g. `wasp db seed`), so every read
  * syncs with it first.
  */
 export interface DevMailbox {
   readonly directoryPath: string;
-  add(email: DevMailboxEmail): DevMailboxMessage | undefined;
+  add(newEmail: NewDevMailboxEmail): DevMailboxEmail | undefined;
   list(
-    filter?: DevMailboxMessageFilter,
+    filter?: DevMailboxEmailFilter,
     limit?: number,
-  ): DevMailboxMessageSummary[];
-  get(id: string): DevMailboxMessage | undefined;
+  ): DevMailboxEmailSummary[];
+  get(id: string): DevMailboxEmail | undefined;
   delete(id: string): boolean;
   clear(): void;
   waitFor(
-    filter: DevMailboxMessageFilter,
-    options: WaitForMessageOptions,
-  ): Promise<DevMailboxMessage | undefined>;
+    filter: DevMailboxEmailFilter,
+    options: WaitForEmailOptions,
+  ): Promise<DevMailboxEmail | undefined>;
   /**
    * Includes changes other processes make. Never calls the listener before
    * returning. Returns a function that unsubscribes.
@@ -73,64 +66,64 @@ export function createDevMailbox(options: DevMailboxOptions): DevMailbox {
 
 class DirectorySyncedDevMailbox implements DevMailbox {
   readonly directoryPath: string;
-  readonly #maxMessages: number;
+  readonly #maxEmails: number;
   readonly #directory: MailboxDirectory;
   readonly #getSentAt: () => Date;
-  readonly #messages = new Map<string, DevMailboxMessage>();
+  readonly #emails = new Map<string, DevMailboxEmail>();
   readonly #listeners = new Set<DevMailboxListener>();
   #stopWatching: (() => void) | undefined;
   #pendingSync: ReturnType<typeof setTimeout> | undefined;
 
   constructor(options: DevMailboxOptions) {
-    ensureValidMaxMessages(options.maxMessages);
+    ensureValidMaxEmails(options.maxEmails);
     this.directoryPath = options.directoryPath;
     this.#directory = new JsonFileMailboxDirectory(options.directoryPath);
-    this.#maxMessages = options.maxMessages;
+    this.#maxEmails = options.maxEmails;
     this.#getSentAt = createMonotonicClock(options.now);
   }
 
-  /** Returns `undefined` when `maxMessages` is `0`. */
-  add(email: DevMailboxEmail): DevMailboxMessage | undefined {
-    if (this.#maxMessages === 0) {
+  /** Returns `undefined` when `maxEmails` is `0`. */
+  add(newEmail: NewDevMailboxEmail): DevMailboxEmail | undefined {
+    if (this.#maxEmails === 0) {
       return undefined;
     }
     const sentAt = this.#getSentAt();
-    const message = createMessage(email, generateMessageId(sentAt), sentAt);
-    this.#directory.writeMessage(message);
+    const email = createEmail(newEmail, generateEmailId(sentAt), sentAt);
+    this.#directory.writeEmail(email);
     this.#syncWithDirectory();
-    return message;
+    return email;
   }
 
   /** Newest first. */
   list(
-    filter: DevMailboxMessageFilter = {},
+    filter: DevMailboxEmailFilter = {},
     limit: number = Infinity,
-  ): DevMailboxMessageSummary[] {
+  ): DevMailboxEmailSummary[] {
     return this.#syncAndFindNewestFirst(filter)
       .slice(0, limit)
-      .map(summarizeMessage);
+      .map(summarizeEmail);
   }
 
-  get(id: string): DevMailboxMessage | undefined {
+  get(id: string): DevMailboxEmail | undefined {
     this.#syncWithDirectory();
-    return this.#messages.get(id);
+    return this.#emails.get(id);
   }
 
-  /** Returns whether the message existed. */
+  /** Returns whether the email existed. */
   delete(id: string): boolean {
-    if (!isMessageId(id) || this.get(id) === undefined) {
+    if (!isEmailId(id) || this.get(id) === undefined) {
       return false;
     }
-    this.#directory.deleteMessage(id);
+    this.#directory.deleteEmail(id);
     this.#syncWithDirectory();
     return true;
   }
 
   clear(): void {
-    for (const id of this.#directory.listMessageIds()) {
-      this.#directory.deleteMessage(id);
+    for (const id of this.#directory.listEmailIds()) {
+      this.#directory.deleteEmail(id);
     }
-    this.#messages.clear();
+    this.#emails.clear();
     this.#emit({ type: "cleared" });
   }
 
@@ -139,13 +132,13 @@ class DirectorySyncedDevMailbox implements DevMailbox {
    * Resolves with `undefined` on timeout or abort.
    */
   waitFor(
-    filter: DevMailboxMessageFilter,
-    options: WaitForMessageOptions,
-  ): Promise<DevMailboxMessage | undefined> {
+    filter: DevMailboxEmailFilter,
+    options: WaitForEmailOptions,
+  ): Promise<DevMailboxEmail | undefined> {
     return new Promise((resolve) => {
       let isSettled = false;
       let unsubscribe: (() => void) | undefined;
-      const finish = (message: DevMailboxMessage | undefined) => {
+      const finish = (email: DevMailboxEmail | undefined) => {
         if (isSettled) {
           return;
         }
@@ -153,7 +146,7 @@ class DirectorySyncedDevMailbox implements DevMailbox {
         clearTimeout(timeout);
         options.signal?.removeEventListener("abort", onAbort);
         unsubscribe?.();
-        resolve(message);
+        resolve(email);
       };
       const onAbort = () => finish(undefined);
       const timeout = setTimeout(() => finish(undefined), options.timeoutMs);
@@ -163,7 +156,7 @@ class DirectorySyncedDevMailbox implements DevMailbox {
         return;
       }
 
-      // Subscribing first means a message arriving before the lookup isn't missed.
+      // Subscribing first means a email arriving before the lookup isn't missed.
       unsubscribe = this.subscribe((event) => {
         if (event.type === "added") {
           finishWithNewestMatch(this.#findLoadedNewestFirst(filter));
@@ -171,7 +164,7 @@ class DirectorySyncedDevMailbox implements DevMailbox {
       });
       finishWithNewestMatch(this.#syncAndFindNewestFirst(filter));
 
-      function finishWithNewestMatch(matches: DevMailboxMessage[]) {
+      function finishWithNewestMatch(matches: DevMailboxEmail[]) {
         const newestMatch = matches[0];
         if (newestMatch !== undefined) {
           finish(newestMatch);
@@ -189,53 +182,51 @@ class DirectorySyncedDevMailbox implements DevMailbox {
     };
   }
 
-  #syncAndFindNewestFirst(
-    filter: DevMailboxMessageFilter,
-  ): DevMailboxMessage[] {
+  #syncAndFindNewestFirst(filter: DevMailboxEmailFilter): DevMailboxEmail[] {
     this.#syncWithDirectory();
     return this.#findLoadedNewestFirst(filter);
   }
 
-  #findLoadedNewestFirst(filter: DevMailboxMessageFilter): DevMailboxMessage[] {
-    return [...this.#messages.values()]
-      .filter((message) => matchesFilter(message, filter))
+  #findLoadedNewestFirst(filter: DevMailboxEmailFilter): DevMailboxEmail[] {
+    return [...this.#emails.values()]
+      .filter((email) => matchesFilter(email, filter))
       .sort((a, b) => b.id.localeCompare(a.id));
   }
 
-  /** Emits events only after the whole sync, so listeners see every new message. */
+  /** Emits events only after the whole sync, so listeners see every new email. */
   #syncWithDirectory(): void {
     const idsOnDisk = new Set(
-      this.#deleteOldestOverLimit(this.#directory.listMessageIds()),
+      this.#deleteOldestOverLimit(this.#directory.listEmailIds()),
     );
 
-    const deletedIds = [...this.#messages.keys()].filter(
+    const deletedIds = [...this.#emails.keys()].filter(
       (id) => !idsOnDisk.has(id),
     );
     for (const id of deletedIds) {
-      this.#messages.delete(id);
+      this.#emails.delete(id);
     }
 
-    const addedMessages = [...idsOnDisk]
-      .filter((id) => !this.#messages.has(id))
+    const addedEmails = [...idsOnDisk]
+      .filter((id) => !this.#emails.has(id))
       .sort()
-      .map((id) => this.#directory.readMessage(id))
-      .filter((message) => message !== undefined);
-    for (const message of addedMessages) {
-      this.#messages.set(message.id, message);
+      .map((id) => this.#directory.readEmail(id))
+      .filter((email) => email !== undefined);
+    for (const email of addedEmails) {
+      this.#emails.set(email.id, email);
     }
 
     for (const id of deletedIds) {
       this.#emit({ type: "deleted", id });
     }
-    for (const message of addedMessages) {
-      this.#emit({ type: "added", message: summarizeMessage(message) });
+    for (const email of addedEmails) {
+      this.#emit({ type: "added", email: summarizeEmail(email) });
     }
   }
 
   #deleteOldestOverLimit(idsOldestFirst: string[]): string[] {
-    const excessCount = Math.max(idsOldestFirst.length - this.#maxMessages, 0);
+    const excessCount = Math.max(idsOldestFirst.length - this.#maxEmails, 0);
     for (const id of idsOldestFirst.slice(0, excessCount)) {
-      this.#directory.deleteMessage(id);
+      this.#directory.deleteEmail(id);
     }
     return idsOldestFirst.slice(excessCount);
   }
@@ -281,13 +272,12 @@ class DirectorySyncedDevMailbox implements DevMailbox {
   }
 }
 
-function ensureValidMaxMessages(maxMessages: number): void {
+function ensureValidMaxEmails(maxEmails: number): void {
   const isValid =
-    maxMessages === Infinity ||
-    (Number.isInteger(maxMessages) && maxMessages >= 0);
+    maxEmails === Infinity || (Number.isInteger(maxEmails) && maxEmails >= 0);
   if (!isValid) {
     throw new Error(
-      `Dev mailbox maxMessages must be a non-negative integer or Infinity, got ${maxMessages}.`,
+      `Dev mailbox maxEmails must be a non-negative integer or Infinity, got ${maxEmails}.`,
     );
   }
 }

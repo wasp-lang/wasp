@@ -9,8 +9,8 @@ import {
   type DevMailbox,
   type DevMailboxEvent,
 } from "../../src/core/devMailbox";
+import type { NewDevMailboxEmail } from "../../src/core/email";
 import { JsonFileMailboxDirectory } from "../../src/core/mailboxDirectory";
-import type { DevMailboxEmail } from "../../src/core/message";
 
 let directoryPath: string;
 
@@ -23,11 +23,13 @@ afterEach(() => {
   fs.rmSync(directoryPath, { recursive: true, force: true });
 });
 
-function createMailbox(maxMessages = 500): DevMailbox {
-  return createDevMailbox({ directoryPath, maxMessages });
+function createMailbox(maxEmails = 500): DevMailbox {
+  return createDevMailbox({ directoryPath, maxEmails });
 }
 
-function makeEmail(overrides: Partial<DevMailboxEmail> = {}): DevMailboxEmail {
+function makeEmail(
+  overrides: Partial<NewDevMailboxEmail> = {},
+): NewDevMailboxEmail {
   return {
     from: { name: "App", email: "app@app.test" },
     to: "user@app.test",
@@ -39,12 +41,12 @@ function makeEmail(overrides: Partial<DevMailboxEmail> = {}): DevMailboxEmail {
 }
 
 describe("DevMailbox", () => {
-  it("stores messages and lists them newest first", () => {
+  it("stores emails and lists them newest first", () => {
     const mailbox = createMailbox();
     const first = mailbox.add(makeEmail({ subject: "First" }))!;
     const second = mailbox.add(makeEmail({ subject: "Second" }))!;
 
-    expect(mailbox.list().map((message) => message.id)).toEqual([
+    expect(mailbox.list().map((email) => email.id)).toEqual([
       second.id,
       first.id,
     ]);
@@ -54,23 +56,23 @@ describe("DevMailbox", () => {
     });
   });
 
-  it("writes one JSON file per message", () => {
-    const message = createMailbox().add(makeEmail())!;
+  it("writes one JSON file per email", () => {
+    const email = createMailbox().add(makeEmail())!;
 
     const content = fs.readFileSync(
-      path.join(directoryPath, `${message.id}.json`),
+      path.join(directoryPath, `${email.id}.json`),
       "utf8",
     );
-    expect(JSON.parse(content)).toEqual(message);
+    expect(JSON.parse(content)).toEqual(email);
   });
 
-  it("keeps messages across instances", () => {
-    const message = createMailbox().add(makeEmail())!;
+  it("keeps emails across instances", () => {
+    const email = createMailbox().add(makeEmail())!;
 
-    expect(createMailbox().get(message.id)).toEqual(message);
+    expect(createMailbox().get(email.id)).toEqual(email);
   });
 
-  it("filters to messages sent after a previous one", () => {
+  it("filters to emails sent after a previous one", () => {
     const mailbox = createMailbox();
     const first = mailbox.add(makeEmail())!;
     const second = mailbox.add(makeEmail())!;
@@ -92,7 +94,7 @@ describe("DevMailbox", () => {
       }),
     );
     const subjects = (filter: Parameters<DevMailbox["list"]>[0]) =>
-      mailbox.list(filter).map((message) => message.subject);
+      mailbox.list(filter).map((email) => email.subject);
 
     expect(subjects({ search: "billing" })).toEqual(["Your invoice"]);
     expect(subjects({ search: "MARIA" })).toEqual(["Your invoice"]);
@@ -104,37 +106,32 @@ describe("DevMailbox", () => {
     expect(subjects({ search: "class", searchIn: ["body"] })).toEqual([]);
   });
 
-  it("limits the listed messages", () => {
+  it("limits the listed emails", () => {
     const mailbox = createMailbox();
     mailbox.add(makeEmail());
     const newest = mailbox.add(makeEmail())!;
 
-    expect(mailbox.list({}, 1).map((message) => message.id)).toEqual([
-      newest.id,
-    ]);
+    expect(mailbox.list({}, 1).map((email) => email.id)).toEqual([newest.id]);
   });
 
-  it("deletes the oldest messages over maxMessages", () => {
+  it("deletes the oldest emails over maxEmails", () => {
     const mailbox = createMailbox(2);
     mailbox.add(makeEmail({ subject: "1" }));
     mailbox.add(makeEmail({ subject: "2" }));
     mailbox.add(makeEmail({ subject: "3" }));
 
-    expect(mailbox.list().map((message) => message.subject)).toEqual([
-      "3",
-      "2",
-    ]);
+    expect(mailbox.list().map((email) => email.subject)).toEqual(["3", "2"]);
     expect(fs.readdirSync(directoryPath)).toHaveLength(2);
   });
 
-  it("keeps nothing when maxMessages is 0", () => {
+  it("keeps nothing when maxEmails is 0", () => {
     const mailbox = createMailbox(0);
 
     expect(mailbox.add(makeEmail())).toBeUndefined();
     expect(mailbox.list()).toEqual([]);
   });
 
-  it("keeps everything when maxMessages is Infinity", () => {
+  it("keeps everything when maxEmails is Infinity", () => {
     const mailbox = createMailbox(Infinity);
     for (let i = 0; i < 5; i++) {
       mailbox.add(makeEmail());
@@ -143,24 +140,24 @@ describe("DevMailbox", () => {
     expect(mailbox.list()).toHaveLength(5);
   });
 
-  it.each([-1, 1.5, NaN])("rejects maxMessages %s", (maxMessages) => {
-    expect(() => createMailbox(maxMessages)).toThrow(/maxMessages/);
+  it.each([-1, 1.5, NaN])("rejects maxEmails %s", (maxEmails) => {
+    expect(() => createMailbox(maxEmails)).toThrow(/maxEmails/);
   });
 
-  it("deletes a message", () => {
+  it("deletes a email", () => {
     const mailbox = createMailbox();
-    const message = mailbox.add(makeEmail())!;
+    const email = mailbox.add(makeEmail())!;
 
-    expect(mailbox.delete(message.id)).toBe(true);
-    expect(mailbox.get(message.id)).toBeUndefined();
-    expect(mailbox.delete(message.id)).toBe(false);
+    expect(mailbox.delete(email.id)).toBe(true);
+    expect(mailbox.get(email.id)).toBeUndefined();
+    expect(mailbox.delete(email.id)).toBe(false);
   });
 
-  it("refuses ids that aren't message ids", () => {
+  it("refuses ids that aren't email ids", () => {
     expect(createMailbox().delete("../../etc/passwd")).toBe(false);
   });
 
-  it("clears all messages", () => {
+  it("clears all emails", () => {
     const mailbox = createMailbox();
     mailbox.add(makeEmail());
     mailbox.add(makeEmail());
@@ -171,14 +168,14 @@ describe("DevMailbox", () => {
     expect(fs.readdirSync(directoryPath)).toEqual([]);
   });
 
-  it("sees messages other processes write", () => {
+  it("sees emails other processes write", () => {
     const reader = createMailbox();
-    const message = createMailbox().add(makeEmail())!;
+    const email = createMailbox().add(makeEmail())!;
 
-    expect(reader.get(message.id)).toEqual(message);
+    expect(reader.get(email.id)).toEqual(email);
   });
 
-  it("applies a lowered maxMessages to messages already on disk", () => {
+  it("applies a lowered maxEmails to emails already on disk", () => {
     const writer = createMailbox();
     writer.add(makeEmail({ subject: "1" }));
     writer.add(makeEmail({ subject: "2" }));
@@ -187,7 +184,7 @@ describe("DevMailbox", () => {
     expect(
       createMailbox(1)
         .list()
-        .map((message) => message.subject),
+        .map((email) => email.subject),
     ).toEqual(["3"]);
     expect(fs.readdirSync(directoryPath)).toHaveLength(1);
 
@@ -211,8 +208,8 @@ describe("DevMailbox", () => {
     const events: DevMailboxEvent[] = [];
     const unsubscribe = mailbox.subscribe((event) => events.push(event));
 
-    const message = mailbox.add(makeEmail())!;
-    mailbox.delete(message.id);
+    const email = mailbox.add(makeEmail())!;
+    mailbox.delete(email.id);
     mailbox.clear();
     unsubscribe();
     mailbox.add(makeEmail());
@@ -225,52 +222,52 @@ describe("DevMailbox", () => {
   });
 
   describe("waitFor", () => {
-    it("resolves with an existing matching message", async () => {
+    it("resolves with an existing matching email", async () => {
       const mailbox = createMailbox();
-      const message = mailbox.add(makeEmail())!;
+      const email = mailbox.add(makeEmail())!;
 
       await expect(
         mailbox.waitFor({ search: "user@app.test" }, { timeoutMs: 1000 }),
-      ).resolves.toEqual(message);
+      ).resolves.toEqual(email);
     });
 
-    it("waits for a matching message", async () => {
+    it("waits for a matching email", async () => {
       const mailbox = createMailbox();
       const waiting = mailbox.waitFor(
         { search: "late@app.test" },
         { timeoutMs: 1000 },
       );
       mailbox.add(makeEmail({ to: "other@app.test" }));
-      const message = mailbox.add(makeEmail({ to: "late@app.test" }))!;
+      const email = mailbox.add(makeEmail({ to: "late@app.test" }))!;
 
-      await expect(waiting).resolves.toEqual(message);
+      await expect(waiting).resolves.toEqual(email);
     });
 
-    it("waits for a message another process writes", async () => {
+    it("waits for a email another process writes", async () => {
       const mailbox = createMailbox();
       const waiting = mailbox.waitFor({}, { timeoutMs: 2000 });
-      const message = createMailbox().add(makeEmail())!;
+      const email = createMailbox().add(makeEmail())!;
 
-      await expect(waiting).resolves.toEqual(message);
+      await expect(waiting).resolves.toEqual(email);
     });
 
-    it("resolves when a message appears while the wait is set up", async () => {
-      const message = createMailbox().add(makeEmail())!;
-      // The first read misses the message, as if another process wrote it
+    it("resolves when a email appears while the wait is set up", async () => {
+      const email = createMailbox().add(makeEmail())!;
+      // The first read misses the email, as if another process wrote it
       // right after the lookup.
-      const listMessageIds = JsonFileMailboxDirectory.prototype.listMessageIds;
-      vi.spyOn(JsonFileMailboxDirectory.prototype, "listMessageIds")
+      const listEmailIds = JsonFileMailboxDirectory.prototype.listEmailIds;
+      vi.spyOn(JsonFileMailboxDirectory.prototype, "listEmailIds")
         .mockImplementationOnce(() => [])
         .mockImplementation(function (this: JsonFileMailboxDirectory) {
-          return listMessageIds.call(this);
+          return listEmailIds.call(this);
         });
 
       await expect(
         createMailbox().waitFor({}, { timeoutMs: 2000 }),
-      ).resolves.toEqual(message);
+      ).resolves.toEqual(email);
     });
 
-    it("resolves with the newest of several messages found at once", async () => {
+    it("resolves with the newest of several emails found at once", async () => {
       const reader = createMailbox();
       const waiting = reader.waitFor({}, { timeoutMs: 2000 });
       const writer = createMailbox();

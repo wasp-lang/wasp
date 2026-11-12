@@ -1,19 +1,19 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { DevMailboxMessage } from "./message.js";
-import { isMessageId } from "./messageId.js";
+import type { DevMailboxEmail } from "./email.js";
+import { isEmailId } from "./emailId.js";
 
-const MESSAGE_FILE_EXTENSION = ".json";
+const EMAIL_FILE_EXTENSION = ".json";
 
 export interface MailboxDirectory {
   readonly path: string;
   /** Oldest first. */
-  listMessageIds(): string[];
+  listEmailIds(): string[];
   /** Returns `undefined` for missing or unreadable files. */
-  readMessage(id: string): DevMailboxMessage | undefined;
-  writeMessage(message: DevMailboxMessage): void;
-  deleteMessage(id: string): void;
+  readEmail(id: string): DevMailboxEmail | undefined;
+  writeEmail(email: DevMailboxEmail): void;
+  deleteEmail(id: string): void;
   /**
    * Calls `onChange` when files change. Returns a function that stops
    * watching. The watcher doesn't keep the process alive.
@@ -22,8 +22,8 @@ export interface MailboxDirectory {
 }
 
 /**
- * One `<id>.json` file per message. Writes go to a temporary file that is
- * then renamed, so readers never see half a message.
+ * One `<id>.json` file per email. Writes go to a temporary file that is
+ * then renamed, so readers never see half a email.
  */
 export class JsonFileMailboxDirectory implements MailboxDirectory {
   readonly path: string;
@@ -32,7 +32,7 @@ export class JsonFileMailboxDirectory implements MailboxDirectory {
     this.path = directoryPath;
   }
 
-  listMessageIds(): string[] {
+  listEmailIds(): string[] {
     let fileNames: string[];
     try {
       fileNames = fs.readdirSync(this.path);
@@ -43,34 +43,34 @@ export class JsonFileMailboxDirectory implements MailboxDirectory {
       throw error;
     }
     return fileNames
-      .filter((fileName) => fileName.endsWith(MESSAGE_FILE_EXTENSION))
-      .map((fileName) => fileName.slice(0, -MESSAGE_FILE_EXTENSION.length))
-      .filter(isMessageId)
+      .filter((fileName) => fileName.endsWith(EMAIL_FILE_EXTENSION))
+      .map((fileName) => fileName.slice(0, -EMAIL_FILE_EXTENSION.length))
+      .filter(isEmailId)
       .sort();
   }
 
-  readMessage(id: string): DevMailboxMessage | undefined {
+  readEmail(id: string): DevMailboxEmail | undefined {
     try {
-      const content = fs.readFileSync(this.getMessageFilePath(id), "utf8");
-      return JSON.parse(content) as DevMailboxMessage;
+      const content = fs.readFileSync(this.getEmailFilePath(id), "utf8");
+      return JSON.parse(content) as DevMailboxEmail;
     } catch {
       return undefined;
     }
   }
 
-  writeMessage(message: DevMailboxMessage): void {
+  writeEmail(email: DevMailboxEmail): void {
     fs.mkdirSync(this.path, { recursive: true });
-    const filePath = this.getMessageFilePath(message.id);
+    const filePath = this.getEmailFilePath(email.id);
     const temporaryFilePath = path.join(
       this.path,
-      `.${message.id}${MESSAGE_FILE_EXTENSION}.tmp`,
+      `.${email.id}${EMAIL_FILE_EXTENSION}.tmp`,
     );
-    fs.writeFileSync(temporaryFilePath, JSON.stringify(message, null, 2));
+    fs.writeFileSync(temporaryFilePath, JSON.stringify(email, null, 2));
     fs.renameSync(temporaryFilePath, filePath);
   }
 
-  deleteMessage(id: string): void {
-    fs.rmSync(this.getMessageFilePath(id), { force: true });
+  deleteEmail(id: string): void {
+    fs.rmSync(this.getEmailFilePath(id), { force: true });
   }
 
   watch(onChange: () => void): () => void {
@@ -80,11 +80,11 @@ export class JsonFileMailboxDirectory implements MailboxDirectory {
     return () => watcher.close();
   }
 
-  private getMessageFilePath(id: string): string {
-    if (!isMessageId(id)) {
-      throw new Error(`Invalid dev mailbox message id: ${id}`);
+  private getEmailFilePath(id: string): string {
+    if (!isEmailId(id)) {
+      throw new Error(`Invalid dev mailbox email id: ${id}`);
     }
-    return path.join(this.path, `${id}${MESSAGE_FILE_EXTENSION}`);
+    return path.join(this.path, `${id}${EMAIL_FILE_EXTENSION}`);
   }
 }
 

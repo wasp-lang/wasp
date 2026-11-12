@@ -15,7 +15,7 @@ import {
  * The router must parse JSON bodies.
  */
 export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
-  router.get("/api/messages", (req, res) => {
+  router.get("/api/emails", (req, res) => {
     const filter = parseFilter(req.query);
     const limit = parseOptionalPositiveInteger(req.query.limit);
     if (filter instanceof InvalidInputError) {
@@ -24,33 +24,33 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
     if (limit instanceof InvalidInputError) {
       return sendError(res, 400, "invalid_limit", limit.message);
     }
-    res.json({ messages: mailbox.list(filter, limit) });
+    res.json({ emails: mailbox.list(filter, limit) });
   });
 
   router.get("/api/events", (req, res) => {
     streamMailboxEvents(req, res, mailbox);
   });
 
-  router.get("/api/messages/:id", (req, res) => {
-    const message = mailbox.get(req.params.id);
-    if (message === undefined) {
-      return sendMessageNotFound(res, req.params.id);
+  router.get("/api/emails/:id", (req, res) => {
+    const email = mailbox.get(req.params.id);
+    if (email === undefined) {
+      return sendEmailNotFound(res, req.params.id);
     }
-    res.json({ message });
+    res.json({ email });
   });
 
-  router.get("/api/messages/:id/html", (req, res) => {
-    const message = mailbox.get(req.params.id);
-    if (message === undefined) {
-      return sendMessageNotFound(res, req.params.id);
+  router.get("/api/emails/:id/html", (req, res) => {
+    const email = mailbox.get(req.params.id);
+    if (email === undefined) {
+      return sendEmailNotFound(res, req.params.id);
     }
     res
       .setHeader("Content-Security-Policy", "script-src 'none'")
       .type("html")
-      .send(message.html);
+      .send(email.html);
   });
 
-  router.post("/api/messages.waitFor", async (req, res) => {
+  router.post("/api/emails.waitFor", async (req, res) => {
     const body = getBody(req);
     const filter = parseFilter(body);
     const timeoutMs = parseTimeoutMs(body.timeoutMs);
@@ -63,43 +63,43 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
 
     const abortController = new AbortController();
     res.on("close", () => abortController.abort());
-    const message = await mailbox.waitFor(filter, {
+    const email = await mailbox.waitFor(filter, {
       timeoutMs,
       signal: abortController.signal,
     });
     if (res.writableEnded || abortController.signal.aborted) {
       return;
     }
-    if (message === undefined) {
+    if (email === undefined) {
       return sendError(
         res,
         408,
         "timeout",
-        "No matching message arrived before the timeout.",
+        "No matching email arrived before the timeout.",
       );
     }
-    res.json({ message });
+    res.json({ email });
   });
 
-  router.post("/api/messages.delete", (req, res) => {
+  router.post("/api/emails.delete", (req, res) => {
     const { id } = getBody(req);
     if (typeof id !== "string") {
       return sendError(res, 400, "invalid_id", "`id` must be a string.");
     }
     if (!mailbox.delete(id)) {
-      return sendMessageNotFound(res, id);
+      return sendEmailNotFound(res, id);
     }
     res.json({ ok: true });
   });
 
-  router.post("/api/messages.clear", (_req, res) => {
+  router.post("/api/emails.clear", (_req, res) => {
     mailbox.clear();
     res.json({ ok: true });
   });
 }
 
-function sendMessageNotFound(res: Response, id: string) {
-  return sendError(res, 404, "message_not_found", `No message with id ${id}.`);
+function sendEmailNotFound(res: Response, id: string) {
+  return sendError(res, 404, "email_not_found", `No email with id ${id}.`);
 }
 
 function sendError(
