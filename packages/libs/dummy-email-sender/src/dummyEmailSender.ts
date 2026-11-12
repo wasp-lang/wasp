@@ -18,9 +18,7 @@ export type DummyEmailSenderOptions = {
   log?: (line: string) => void;
 };
 
-/**
- * Doesn't send emails, it only logs them. Meant for development.
- */
+/** Logs emails instead of sending them. */
 export function createDummyEmailSender({
   defaultFrom,
   log = console.log,
@@ -51,7 +49,7 @@ function formatFromField({ name, email }: EmailFromField): string {
 }
 
 function yellow(text: string): string {
-  // Respect https://no-color.org, like the rest of Wasp's console output.
+  // https://no-color.org
   if ("NO_COLOR" in process.env) {
     return text;
   }
