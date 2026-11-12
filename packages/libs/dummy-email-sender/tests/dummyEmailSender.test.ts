@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDummyEmailSender } from "../src/dummyEmailSender";
 
@@ -13,6 +13,10 @@ let lines: string[];
 
 beforeEach(() => {
   lines = [];
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 function createSender() {
@@ -44,5 +48,21 @@ describe("createDummyEmailSender", () => {
     await createSender().send({ ...EMAIL, from: { email: "other@app.test" } });
 
     expect(lines).toContain("From:    other@app.test");
+  });
+
+  it("colors the banner", async () => {
+    vi.stubEnv("NO_COLOR", undefined);
+
+    await createSender().send(EMAIL);
+
+    expect(lines[0]).toMatch(/^\x1b\[33m/);
+  });
+
+  it("doesn't color anything when NO_COLOR is set", async () => {
+    vi.stubEnv("NO_COLOR", "1");
+
+    await createSender().send(EMAIL);
+
+    expect(lines.some((line) => line.includes("\x1b["))).toBe(false);
   });
 });
