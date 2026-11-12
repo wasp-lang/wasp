@@ -61,6 +61,7 @@
     "./server/email": "./dist/server/email/index.js",
     "./server/email/core/devMailbox": "./dist/server/email/core/devMailbox.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
+    "./server/email/devMailbox": "./dist/server/email/devMailbox.js",
     "./server/errors": "./dist/server/errors/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",

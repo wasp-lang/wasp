@@ -163,20 +163,24 @@ curl -X POST http://localhost:3001/__wasp/mailbox/api/messages.waitFor \
   -d '{ "search": "user@example.com", "searchIn": ["to"] }'
 ```
 
-In a Playwright test, the same looks like this:
+In a Playwright test, the same looks like this. `wasp/server/email/devMailbox` exports the API path and the message types, and it's safe to import from tests:
 
 ```ts title="e2e-tests/auth.spec.ts" auto-js
 import { expect, test } from "@playwright/test"
+import {
+  devMailboxApiPath,
+  type DevMailboxMessage,
+} from "wasp/server/email/devMailbox"
 
 test("can verify email", async ({ page, request }) => {
   const email = "user@example.com"
   // ... sign up as `email`
 
   const response = await request.post(
-    "http://localhost:3001/__wasp/mailbox/api/messages.waitFor",
+    `http://localhost:3001${devMailboxApiPath}/messages.waitFor`,
     { data: { search: email, searchIn: ["to"] } },
   )
-  const { message } = await response.json()
+  const { message }: { message: DevMailboxMessage } = await response.json()
 
   await page.goto(message.links[0])
   await expect(page.locator("body")).toContainText("Your email has been verified")

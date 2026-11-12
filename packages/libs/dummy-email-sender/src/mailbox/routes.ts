@@ -15,9 +15,8 @@ const MAX_WAIT_TIMEOUT_MS = 5 * 60_000;
 const SSE_HEARTBEAT_INTERVAL_MS = 15_000;
 
 /**
- * Registers the dev mailbox UI and API on the router. Reads are resource
- * style `GET`s, actions are RPC style `POST /api/<noun>.<verb>` calls with a
- * JSON body. Expects the router to parse JSON bodies.
+ * Reads are `GET`s, actions are `POST /api/<noun>.<verb>` with a JSON body.
+ * The router must parse JSON bodies.
  */
 export function registerDevMailboxRoutes(
   router: Router,
@@ -29,7 +28,7 @@ export function registerDevMailboxRoutes(
       makeInboxPage({
         appName,
         apiBasePath: `${req.baseUrl}/api`,
-        directoryPath: getDisplayPath(mailbox.directoryPath),
+        directoryPath: getPathRelativeToCwd(mailbox.directoryPath),
       }),
     );
   });
@@ -140,8 +139,7 @@ function streamEvents(req: Request, res: Response, mailbox: DevMailbox) {
   });
 }
 
-/** Relative to the Wasp project dir, where the server runs. */
-function getDisplayPath(directoryPath: string): string {
+function getPathRelativeToCwd(directoryPath: string): string {
   const relativePath = path.relative(process.cwd(), directoryPath);
   return relativePath.startsWith("..") ? directoryPath : `${relativePath}/`;
 }
@@ -179,7 +177,7 @@ function parseFilter(
   return filter;
 }
 
-/** Accepts an array, or a comma-separated string in query parameters. */
+/** An array, or a comma-separated string in query parameters. */
 function parseSearchIn(
   value: unknown,
 ): DevMailboxSearchField[] | undefined | InvalidInputError {

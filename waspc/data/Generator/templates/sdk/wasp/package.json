@@ -94,6 +94,8 @@
     "./server/auth": "./dist/server/auth/index.js",
     "./server/crud": "./dist/server/crud/index.js",
     "./server/email": "./dist/server/email/index.js",
+    {=! Users: dev mailbox API types and path, safe to import from tests. =}
+    "./server/email/devMailbox": "./dist/server/email/devMailbox.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/operations": "./dist/server/operations/index.js",
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}

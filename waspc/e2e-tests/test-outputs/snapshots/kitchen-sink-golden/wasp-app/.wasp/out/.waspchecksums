@@ -39,7 +39,7 @@
             "file",
             "libs/dummy-email-sender/wasp-lib-dummy-email-sender-0.27.0.tgz"
         ],
-        "cb785e4c2ff96ef0ebf6b016610fd8dd81582b31abc76cce6688afdc56ee31c8"
+        "b520b49af1415c9ebf02b362c21b4f5bd6306317298053750d2be96e7ab9ec2f"
     ],
     [
         [
@@ -620,7 +620,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "e0db9faf62324cc6e0dfcd0c0ef2254d1225b79231cf6178278c42b4b3bc9ff5"
+        "5b159d64339ab0f5beb72c7a9e3fd245e3bbfde7c9c8cfbc9866808479b9c2c5"
     ],
     [
         [
@@ -830,7 +830,7 @@
             "file",
             "sdk/wasp/server/email/core/devMailbox.ts"
         ],
-        "b63228b7d8dc4c51c8fbe1c1d5583c8118528f6bf21e9842234654a89228967a"
+        "0129f5e272ae174be5298b3b41e18b66d5a264c059120a37ca20c9e8e9f2abd9"
     ],
     [
         [
@@ -859,6 +859,13 @@
             "sdk/wasp/server/email/core/types.ts"
         ],
         "1753e4acf11453c16e5b931a753a924e02e99b0918561923b7d0b29c7f93c6e3"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/email/devMailbox.ts"
+        ],
+        "f5fc9fc896af375bc2cf06d571ca47e6f2e13a435b6253aa7de0c3dc3cdaf96b"
     ],
     [
         [
@@ -1642,7 +1649,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "db3519f943a0b39a3a06615c7f711d3f2aefdfb26896f463e2d9a56f0328295e"
+        "7ed9f3e39bff59b4ab1e306958a7660cbf1736c5a741b7af50330b6dad7b4040"
     ],
     [
         [

@@ -34,8 +34,6 @@ getEnabledEmailProvidersJson emailSender =
     makeProviderJson (key, name) = key .= (enabledEmailSenderName == name)
     enabledEmailSenderName = AS.App.EmailSender.provider emailSender
 
--- | The dev mailbox keeps emails sent with the Dummy email sender, which is
--- only allowed in development.
 isDevMailboxEnabled :: AppSpec -> Bool
 isDevMailboxEnabled spec =
   AS.isDevelopment spec

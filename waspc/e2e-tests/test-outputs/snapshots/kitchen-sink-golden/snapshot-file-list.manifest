@@ -530,6 +530,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/email/core/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/email/core/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/email/core/types.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/email/core/types.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/email/devMailbox.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/email/devMailbox.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/email/devMailbox.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/email/devMailbox.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/email/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/email/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/email/index.js
@@ -680,6 +684,7 @@ wasp-app/.wasp/out/sdk/wasp/server/email/core/helpers.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/core/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/core/providers/dummy.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/core/types.ts
+wasp-app/.wasp/out/sdk/wasp/server/email/devMailbox.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/env.ts
 wasp-app/.wasp/out/sdk/wasp/server/errors/httpErrors.ts

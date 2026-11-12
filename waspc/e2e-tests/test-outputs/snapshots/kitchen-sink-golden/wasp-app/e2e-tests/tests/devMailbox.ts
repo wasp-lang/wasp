@@ -1,23 +1,16 @@
 import { type Page } from "@playwright/test";
+import {
+  devMailboxApiPath,
+  type DevMailboxMessage,
+} from "wasp/server/email/devMailbox";
 import { WASP_SERVER_URL } from "../playwright.config";
-
-// The dev mailbox keeps emails sent with the Dummy email sender. See the
-// "Dev mailbox" section of the Wasp docs on sending emails.
-const DEV_MAILBOX_API_URL = `${WASP_SERVER_URL}/__wasp/mailbox/api`;
-
-interface DevMailboxMessage {
-  id: string;
-  to: string;
-  subject: string;
-  links: string[];
-}
 
 export async function getDevMailboxEmailVerificationLink(
   page: Page,
   email: string,
 ): Promise<string> {
   const response = await page.request.post(
-    `${DEV_MAILBOX_API_URL}/messages.waitFor`,
+    `${WASP_SERVER_URL}${devMailboxApiPath}/messages.waitFor`,
     { data: { search: email, searchIn: ["to"], timeoutMs: 10_000 } },
   );
   if (!response.ok()) {

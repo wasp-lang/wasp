@@ -17,15 +17,12 @@ export type DummyEmailSender = {
 export type DummyEmailSenderOptions = {
   mailbox: DevMailbox;
   defaultFrom: EmailFromField;
-  /** URL of the inbox page, e.g. `http://localhost:3001/__wasp/mailbox`. */
+  /** e.g. `http://localhost:3001/__wasp/mailbox` */
   mailboxUrl: string;
   log?: (line: string) => void;
 };
 
-/**
- * Doesn't send emails. It logs them and keeps them in the dev mailbox, where
- * developers, tests, and agents can read them.
- */
+/** Logs emails and keeps them in the mailbox instead of sending them. */
 export function createDummyEmailSender({
   mailbox,
   defaultFrom,
@@ -66,7 +63,7 @@ function formatFromField({ name, email }: EmailFromField): string {
 }
 
 function yellow(text: string): string {
-  // Respect https://no-color.org, like the rest of Wasp's console output.
+  // https://no-color.org
   if ("NO_COLOR" in process.env) {
     return text;
   }

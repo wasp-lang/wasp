@@ -18,7 +18,7 @@ import {
 
 export type DevMailboxOptions = {
   directoryPath: string;
-  /** How many messages to keep. `Infinity` keeps all of them. */
+  /** `Infinity` keeps all messages. */
   maxMessages: number;
   now?: () => Date;
 };
@@ -39,12 +39,9 @@ const WATCH_DEBOUNCE_MS = 20;
 const POLL_INTERVAL_MS = 500;
 
 /**
- * Keeps the emails sent with the Dummy email sender, so developers, tests, and
- * agents can read them.
- *
- * Messages live in memory and on disk. The disk copy survives server restarts
- * and is shared with other processes that send emails (e.g. `wasp db seed`).
- * Every read first picks up changes other processes made on disk.
+ * Messages live in memory and in a directory. The directory survives restarts
+ * and other processes write to it too (e.g. `wasp db seed`), so every read
+ * syncs with it first.
  */
 export class DevMailbox {
   readonly directoryPath: string;
@@ -64,10 +61,7 @@ export class DevMailbox {
     this.#getSentAt = createMonotonicClock(options.now);
   }
 
-  /**
-   * Stores the email and returns the stored message, or `undefined` when
-   * `maxMessages` is `0`.
-   */
+  /** Returns `undefined` when `maxMessages` is `0`. */
   add(email: DevMailboxEmail): DevMailboxMessage | undefined {
     if (this.#maxMessages === 0) {
       return undefined;
@@ -84,7 +78,9 @@ export class DevMailbox {
     filter: DevMailboxMessageFilter = {},
     limit: number = Infinity,
   ): DevMailboxMessageSummary[] {
-    return this.#findMessages(filter).slice(0, limit).map(summarizeMessage);
+    return this.#syncAndFindNewestFirst(filter)
+      .slice(0, limit)
+      .map(summarizeMessage);
   }
 
   get(id: string): DevMailboxMessage | undefined {
@@ -111,8 +107,8 @@ export class DevMailbox {
   }
 
   /**
-   * Resolves with the newest message matching the filter. If there is none
-   * yet, waits for one. Resolves with `undefined` on timeout or abort.
+   * Resolves with the newest match, waiting for one if there is none yet.
+   * Resolves with `undefined` on timeout or abort.
    */
   waitFor(
     filter: DevMailboxMessageFilter,
@@ -139,14 +135,13 @@ export class DevMailbox {
         return;
       }
 
-      // Subscribe before looking for an existing match, so a message that
-      // arrives in between still resolves the wait.
+      // Subscribing first means a message arriving before the lookup isn't missed.
       unsubscribe = this.subscribe((event) => {
         if (event.type === "added") {
-          finishWithNewestMatch(this.#findLoadedMessages(filter));
+          finishWithNewestMatch(this.#findLoadedNewestFirst(filter));
         }
       });
-      finishWithNewestMatch(this.#findMessages(filter));
+      finishWithNewestMatch(this.#syncAndFindNewestFirst(filter));
 
       function finishWithNewestMatch(matches: DevMailboxMessage[]) {
         const newestMatch = matches[0];
@@ -158,9 +153,8 @@ export class DevMailbox {
   }
 
   /**
-   * Calls the listener on every change, including changes other processes
-   * make on disk. Returns a function that unsubscribes. Never calls the
-   * listener before returning.
+   * Includes changes other processes make. Never calls the listener before
+   * returning.
    */
   subscribe(listener: DevMailboxListener): () => void {
     this.#listeners.add(listener);
@@ -171,27 +165,23 @@ export class DevMailbox {
     };
   }
 
-  /** Newest first, after picking up changes on disk. */
-  #findMessages(filter: DevMailboxMessageFilter): DevMailboxMessage[] {
+  #syncAndFindNewestFirst(
+    filter: DevMailboxMessageFilter,
+  ): DevMailboxMessage[] {
     this.#syncWithDirectory();
-    return this.#findLoadedMessages(filter);
+    return this.#findLoadedNewestFirst(filter);
   }
 
-  /** Newest first, without reading the directory. */
-  #findLoadedMessages(filter: DevMailboxMessageFilter): DevMailboxMessage[] {
+  #findLoadedNewestFirst(filter: DevMailboxMessageFilter): DevMailboxMessage[] {
     return [...this.#messages.values()]
       .filter((message) => matchesFilter(message, filter))
       .sort((a, b) => b.id.localeCompare(a.id));
   }
 
-  /**
-   * Applies `maxMessages` to the files on disk, then updates the messages in
-   * memory to match them. Emits events only once the state is complete, so
-   * listeners always see every message the sync found.
-   */
+  /** Emits events only after the whole sync, so listeners see every new message. */
   #syncWithDirectory(): void {
     const idsOnDisk = new Set(
-      this.#deleteMessagesOverLimit(this.#directory.listMessageIds()),
+      this.#deleteOldestOverLimit(this.#directory.listMessageIds()),
     );
 
     const deletedIds = [...this.#messages.keys()].filter(
@@ -218,13 +208,12 @@ export class DevMailbox {
     }
   }
 
-  /** Takes ids sorted oldest first and returns the ones it kept. */
-  #deleteMessagesOverLimit(ids: string[]): string[] {
-    const excessCount = Math.max(ids.length - this.#maxMessages, 0);
-    for (const id of ids.slice(0, excessCount)) {
+  #deleteOldestOverLimit(idsOldestFirst: string[]): string[] {
+    const excessCount = Math.max(idsOldestFirst.length - this.#maxMessages, 0);
+    for (const id of idsOldestFirst.slice(0, excessCount)) {
       this.#directory.deleteMessage(id);
     }
-    return ids.slice(excessCount);
+    return idsOldestFirst.slice(excessCount);
   }
 
   #emit(event: DevMailboxEvent): void {
@@ -240,8 +229,7 @@ export class DevMailbox {
     const stopWatchingDirectory = this.#directory.watch(() =>
       this.#scheduleSync(),
     );
-    // File watchers can miss events (e.g. right after they start on macOS),
-    // so also check the directory periodically.
+    // File watchers can miss events, e.g. right after they start on macOS.
     const poll = setInterval(() => this.#syncWithDirectory(), POLL_INTERVAL_MS);
     poll.unref();
     this.#stopWatching = () => {

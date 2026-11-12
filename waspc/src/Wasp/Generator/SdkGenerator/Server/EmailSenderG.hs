@@ -32,7 +32,8 @@ genEmailSenderApi :: AppSpec -> Generator [FileDraft]
 genEmailSenderApi spec = case maybeEmailSender of
   Just emailSender ->
     sequence
-      [ genIndex emailSender
+      [ genIndex emailSender,
+        genDevMailboxApi
       ]
       <++> genCore emailSender
   Nothing -> return []
@@ -47,6 +48,14 @@ genIndex emailSender =
       tmplData
   where
     tmplData = EmailSenders.getEnabledEmailProvidersJson emailSender
+
+-- | Generated for every provider, so tests can import it in any build mode.
+genDevMailboxApi :: Generator FileDraft
+genDevMailboxApi =
+  return $
+    mkTmplFdWithData
+      (serverEmailDirInSdkTemplatesDir </> [relfile|devMailbox.ts|])
+      (object ["devMailboxRoutePath" .= EmailSenders.devMailboxRoutePath])
 
 genCore :: EmailSender -> Generator [FileDraft]
 genCore emailSender =

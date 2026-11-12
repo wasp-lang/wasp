@@ -42,8 +42,7 @@ data DevMailboxConfig = DevMailboxConfig
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
--- | How many emails the dev mailbox keeps. The spec package encodes
--- `Infinity` as "unlimited", since JSON has no infinity.
+-- | The spec package encodes `Infinity` as "unlimited".
 data MaxMessages = MaxMessagesLimit Int | MaxMessagesUnlimited
   deriving (Show, Eq, Data, Generic)
 

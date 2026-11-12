@@ -1,13 +1,11 @@
 import type { DevMailboxMessage } from "./message.js";
 
 export type DevMailboxMessageFilter = {
-  /** A message id. Only messages sent after it match. */
+  /** Only messages sent after the one with this id. */
   after?: string;
-  /**
-   * Text one of the `searchIn` fields contains, matched case-insensitively.
-   */
+  /** Matched case-insensitively. */
   search?: string;
-  /** Fields `search` looks in. Defaults to all of them. */
+  /** Defaults to all fields. */
   searchIn?: DevMailboxSearchField[];
 };
 
@@ -58,9 +56,12 @@ function getSearchableText(
     case "subject":
       return message.subject;
     case "body":
-      // Tags and attributes aren't part of what the reader sees.
-      return `${message.text} ${message.html.replace(/<[^>]*>/g, " ")}`;
+      return `${message.text} ${stripHtmlTags(message.html)}`;
   }
+}
+
+function stripHtmlTags(html: string): string {
+  return html.replace(/<[^>]*>/g, " ");
 }
 
 function containsIgnoringCase(text: string, part: string): boolean {

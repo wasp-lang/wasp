@@ -69,8 +69,8 @@ test.describe("auth", () => {
   });
 
   test.describe("signup and login", () => {
-    // These tests require reading the verification email, which the deployed
-    // app sends to a real inbox.
+    // These tests read emails. Dev mode uses the Dummy email sender, build mode
+    // uses Mailcrab over SMTP.
     test.skip(
       isRunningInDeployedMode(),
       "Skipped in deployed mode (no Mailcrab)",

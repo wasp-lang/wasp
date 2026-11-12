@@ -1966,7 +1966,7 @@ How the client and server are deployed.
 
 ### DevMailboxConfig
 
-Settings for the dev mailbox, which keeps emails sent with the Dummy email sender in `.wasp/mailbox/`.
+The dev mailbox keeps emails in `.wasp/mailbox/`.
 
 #### Properties
 
@@ -1974,7 +1974,7 @@ Settings for the dev mailbox, which keeps emails sent with the Dummy email sende
 
 > `optional` **maxMessages?**: `number`
 
-How many emails to keep. When there are more, the oldest ones are deleted. `Infinity` keeps all of them, `0` keeps none.
+Older emails over the limit get deleted. `Infinity` keeps all, `0` keeps none.
 
 ###### Default Value
 
@@ -1984,7 +1984,7 @@ How many emails to keep. When there are more, the oldest ones are deleted. `Infi
 
 ### DummyEmailSender
 
-Email sender that doesn't send emails. It logs them to the console and keeps them in the dev mailbox, where you, your tests, and your AI agents can read them. Only allowed in development.
+Logs emails and keeps them in the dev mailbox instead of sending them. Only allowed in development.
 
 See [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
 
@@ -1999,8 +1999,6 @@ The default sender's details. If you set this field, you don't need to provide t
 ##### mailbox?
 
 > `optional` **mailbox?**: [`DevMailboxConfig`](#devmailboxconfig)
-
-Dev mailbox settings.
 
 ##### provider
 
@@ -2689,7 +2687,7 @@ export default app({
 
 Supported email sender providers.
 
-`"Dummy"` logs emails to the console and keeps them in the dev mailbox instead of sending them, which is convenient during development, but not allowed in production.
+`"Dummy"` logs emails and keeps them in the dev mailbox instead of sending them. It's not allowed in production.
 
 ---
 

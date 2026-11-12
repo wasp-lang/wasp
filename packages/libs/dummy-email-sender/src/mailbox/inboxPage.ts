@@ -1,15 +1,9 @@
 /*
-  The inbox UI. It's a single self-contained page that uses the same JSON API
-  tests and agents use, and listens to the events stream for live updates.
+  Self-contained, since the server doesn't serve static files, and built on
+  the same JSON API tests and agents use. Styled like wasp.sh and Wasp Studio.
 
-  It follows the wasp.sh style, like the server's root page in development
-  (`server/src/views/wrong-port.ts`) and Wasp Studio. The server doesn't serve
-  static files, so the styles and the logo are inlined.
-
-  On narrow screens, the list and the selected email are separate views.
-
-  The page renders message content only through `textContent` and the
-  sandboxed iframe's `srcdoc`, never through `innerHTML`.
+  Message content only goes through `textContent` and the sandboxed iframe's
+  `srcdoc`, never `innerHTML`.
 */
 
 // The /* HTML */ comment is a hint to `prettier` to format this string as HTML.
@@ -20,7 +14,6 @@ export const makeInboxPage = ({
 }: {
   appName: string;
   apiBasePath: string;
-  /** Shown to the user, so prefer a path relative to the project. */
   directoryPath: string;
 }): string => /* HTML */ `
   <!doctype html>
@@ -106,7 +99,7 @@ export const makeInboxPage = ({
       </footer>
       <div id="announcer" class="visually-hidden" aria-live="polite"></div>
       <script>
-        const API_BASE_PATH = ${toScriptJson(apiBasePath)};
+        const API_BASE_PATH = ${toInlineScriptJson(apiBasePath)};
         ${script};
       </script>
     </body>
@@ -127,7 +120,7 @@ const logo = /* HTML */ `
 `;
 
 // Wasp brand tokens, kept in sync with wasp.sh (web/tailwind.config.js).
-// Small text uses --g6 at least, which keeps a 4.5:1 contrast ratio.
+// Small text uses --g6 or darker for a 4.5:1 contrast ratio.
 const styles = /* CSS */ `
   :root {
     --yellow: #f5c842;
@@ -189,8 +182,7 @@ const styles = /* CSS */ `
     letter-spacing: -0.025em;
     line-height: 1;
   }
-  /* Uppercase text has no descenders, so with the page line height it looks
-     like it sits too high. Boxes around it center it with line-height: 1. */
+  /* Uppercase text has no descenders, so line-height: 1 centers it. */
   .badge,
   .button,
   [role="tab"] {
@@ -476,11 +468,9 @@ const styles = /* CSS */ `
     main { grid-template-columns: minmax(240px, 1fr) 1.75fr; }
   }
 
-  /* Phone: the list and the selected email are separate views. */
+  /* Phone: the list and the email are separate views. */
   @media (max-width: 720px) {
     :root { --gutter: 0.75rem; }
-    /* The toolbar moves to its own line when it doesn't fit, e.g. while
-       reconnecting or with a long app name. */
     header {
       flex-wrap: wrap;
       row-gap: 0.5rem;
@@ -525,9 +515,8 @@ const script = /* JS */ `
     { id: "json", label: () => "JSON" },
   ];
 
-  // All emails, for the total count, and the ones the search matches.
-  let messages = [];
-  let visibleMessages = [];
+  let allMessages = [];
+  let matchingMessages = [];
   let listRequestId = 0;
   let selectedTab = "html";
   let currentMessage;
@@ -558,8 +547,7 @@ const script = /* JS */ `
     setTimeout(() => (announcer.textContent = text), 50);
   }
 
-  // Selection lives in the URL hash, so links to an email and the browser's
-  // back and forward buttons work.
+  // The URL hash holds the selection, so links and back/forward work.
   function getSelectedId() {
     return decodeURIComponent(location.hash.slice(1)) || undefined;
   }
@@ -608,26 +596,26 @@ const script = /* JS */ `
     if (requestId !== listRequestId) {
       return;
     }
-    messages = all?.messages ?? [];
-    visibleMessages = searchQuery === "" ? messages : (matching?.messages ?? []);
+    allMessages = all?.messages ?? [];
+    matchingMessages = searchQuery === "" ? allMessages : (matching?.messages ?? []);
     renderList();
   }
 
   function renderList() {
-    clearButton.disabled = messages.length === 0;
-    const total = messages.length + (messages.length === 1 ? " email" : " emails");
+    clearButton.disabled = allMessages.length === 0;
+    const total = allMessages.length + (allMessages.length === 1 ? " email" : " emails");
     countLabel.textContent =
-      visibleMessages === messages ? total : visibleMessages.length + " of " + total;
+      matchingMessages === allMessages ? total : matchingMessages.length + " of " + total;
 
-    listEmpty.hidden = visibleMessages.length > 0;
+    listEmpty.hidden = matchingMessages.length > 0;
     listEmpty.textContent =
-      messages.length === 0
+      allMessages.length === 0
         ? "No emails yet. Emails sent with the Dummy email sender show up here."
         : "No emails match your search.";
 
     const selectedId = getSelectedId();
     messagesList.replaceChildren(
-      ...visibleMessages.map((message) => {
+      ...matchingMessages.map((message) => {
         const link = element("a", { href: "#" + encodeURIComponent(message.id) }, [
           element("span", { className: "subject", textContent: message.subject || "(no subject)" }),
           element("span", { className: "meta" }, [
@@ -728,7 +716,7 @@ const script = /* JS */ `
     renderTabPanel();
   }
 
-  // Arrow keys, Home, and End move between tabs, as in the ARIA tabs pattern.
+  // ARIA tabs pattern
   function onTabKeyDown(event) {
     const index = TABS.findIndex((tab) => tab.id === selectedTab);
     const nextIndexByKey = {
@@ -759,7 +747,7 @@ const script = /* JS */ `
 
     if (selectedTab === "html") {
       const iframe = element("iframe", { title: "Email HTML body" });
-      // No allow-scripts: email scripts never run. Links open in a new tab.
+      // Without allow-scripts, email scripts never run.
       iframe.setAttribute("sandbox", "allow-popups allow-popups-to-escape-sandbox");
       iframe.srcdoc = '<base target="_blank">' + message.html;
       tabPanel.replaceChildren(iframe);
@@ -798,9 +786,8 @@ const script = /* JS */ `
   }
 
   async function deleteMessage(id) {
-    // Select the next email in the list, so you can keep going through them.
-    const index = visibleMessages.findIndex((message) => message.id === id);
-    const nextMessage = visibleMessages[index + 1] ?? visibleMessages[index - 1];
+    const index = matchingMessages.findIndex((message) => message.id === id);
+    const nextMessage = matchingMessages[index + 1] ?? matchingMessages[index - 1];
     await callAction("messages.delete", { id });
     announce("Email deleted.");
     await refreshList();
@@ -834,7 +821,7 @@ const script = /* JS */ `
       events.addEventListener(type, async () => {
         await refreshList();
         if (getSelectedId() !== undefined && currentMessage !== undefined) {
-          const isStillThere = messages.some((message) => message.id === currentMessage.id);
+          const isStillThere = allMessages.some((message) => message.id === currentMessage.id);
           if (!isStillThere) {
             renderDetail();
           }
@@ -847,8 +834,8 @@ const script = /* JS */ `
     if (confirm("Delete all emails?")) {
       await callAction("messages.clear", {});
       announce("All emails deleted.");
-      messages = [];
-      visibleMessages = [];
+      allMessages = [];
+      matchingMessages = [];
       selectMessage(undefined);
     }
   });
@@ -864,7 +851,7 @@ const script = /* JS */ `
       const pressedCount = searchFieldButtons.filter(
         (other) => other.getAttribute("aria-pressed") === "true",
       ).length;
-      // Searching in no fields would never match, so keep at least one.
+      // Nothing matches with no fields.
       if (isPressed && pressedCount === 1) {
         announce("Search needs at least one field.");
         return;
@@ -889,7 +876,6 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Serializes a value for inlining into a `<script>` tag. */
-function toScriptJson(value: unknown): string {
+function toInlineScriptJson(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }

@@ -1,6 +1,5 @@
 import type { EmailFromField } from "../types.js";
 
-/** An email as the Dummy email sender hands it to the dev mailbox. */
 export type DevMailboxEmail = {
   from: EmailFromField;
   to: string;
@@ -9,15 +8,12 @@ export type DevMailboxEmail = {
   html: string;
 };
 
-/**
- * An email stored in the dev mailbox. This is also the shape of the files in
- * `.wasp/mailbox/` and of the API responses, so tests and agents rely on it.
- */
+/** Also the shape of the stored files and the API responses. */
 export type DevMailboxMessage = DevMailboxEmail & {
   id: string;
   /** ISO 8601 timestamp. */
   sentAt: string;
-  /** URLs found in the text and HTML bodies, in order of appearance. */
+  /** URLs in the text and HTML bodies, in order. */
   links: string[];
 };
 

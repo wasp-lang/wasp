@@ -224,7 +224,7 @@ export function mapDevMailboxConfig(
   };
 }
 
-/** `Infinity` doesn't survive JSON serialization, so it's named explicitly. */
+/** JSON has no `Infinity`. */
 function mapMaxMessages(maxMessages: number): number | "unlimited" {
   if (maxMessages === Infinity) {
     return "unlimited";

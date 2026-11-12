@@ -19,8 +19,7 @@ router.get('/up', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
 })
 
-// The inbox and API for emails sent with the Dummy email sender. Without the
-// global middleware, since it isn't part of the app's API.
+// Without the global middleware, since it isn't part of the app's API.
 const devMailboxRouter = express.Router()
 devMailboxRouter.use(express.json())
 registerDevMailboxRoutes(devMailboxRouter, devMailbox, { appName: "KitchenSink" })

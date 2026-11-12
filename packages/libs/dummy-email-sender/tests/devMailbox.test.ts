@@ -252,8 +252,8 @@ describe("DevMailbox", () => {
 
     it("resolves when a message appears while the wait is set up", async () => {
       const message = createMailbox().add(makeEmail())!;
-      // The first directory read misses the message, as if another process
-      // wrote it right after the wait looked for existing messages.
+      // The first read misses the message, as if another process wrote it
+      // right after the lookup.
       const listMessageIds = MailboxDirectory.prototype.listMessageIds;
       vi.spyOn(MailboxDirectory.prototype, "listMessageIds")
         .mockImplementationOnce(() => [])

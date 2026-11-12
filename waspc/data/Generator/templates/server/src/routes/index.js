@@ -35,8 +35,7 @@ router.get('/{= upRouteInRootRouter =}', middleware, function (_req, res) {
 })
 
 {=# isDevMailboxEnabled =}
-// The inbox and API for emails sent with the Dummy email sender. Without the
-// global middleware, since it isn't part of the app's API.
+// Without the global middleware, since it isn't part of the app's API.
 const devMailboxRouter = express.Router()
 devMailboxRouter.use(express.json())
 registerDevMailboxRoutes(devMailboxRouter, devMailbox, { appName: "{= appName =}" })

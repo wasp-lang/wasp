@@ -9,8 +9,7 @@ export { registerDevMailboxRoutes } from "@wasp/lib-dummy-email-sender/node";
 export const devMailboxRoutePath = "{= devMailboxRoutePath =}";
 
 // PRIVATE API
-// Wasp runs the server and `db seed` from the Wasp project dir, so both share
-// this directory.
+// The server and `db seed` both run from the project dir, so they share it.
 export const devMailbox = new DevMailbox({
   directoryPath: path.resolve("{= devMailboxDirFromWaspProjectDir =}"),
   maxMessages: {= maxMessages =},

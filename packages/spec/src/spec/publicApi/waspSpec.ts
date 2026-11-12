@@ -797,9 +797,8 @@ export interface DeliveringEmailSender {
 }
 
 /**
- * Email sender that doesn't send emails. It logs them to the console and
- * keeps them in the dev mailbox, where you, your tests, and your AI agents
- * can read them. Only allowed in development.
+ * Logs emails and keeps them in the dev mailbox instead of sending them. Only
+ * allowed in development.
  *
  * See [Dev mailbox](https://wasp.sh/docs/features/email#dev-mailbox).
  */
@@ -810,18 +809,16 @@ export interface DummyEmailSender {
    * provide the `from` field when sending an email.
    */
   defaultFrom?: EmailFromField;
-  /** Dev mailbox settings. */
   mailbox?: DevMailboxConfig;
 }
 
 /**
- * Settings for the dev mailbox, which keeps emails sent with the Dummy email
- * sender in `.wasp/mailbox/`.
+ * The dev mailbox keeps emails in `.wasp/mailbox/`.
  */
 export interface DevMailboxConfig {
   /**
-   * How many emails to keep. When there are more, the oldest ones are
-   * deleted. `Infinity` keeps all of them, `0` keeps none.
+   * Older emails over the limit get deleted. `Infinity` keeps all, `0` keeps
+   * none.
    *
    * @defaultValue `500`
    */
@@ -831,9 +828,8 @@ export interface DevMailboxConfig {
 /**
  * Supported email sender providers.
  *
- * `"Dummy"` logs emails to the console and keeps them in the dev mailbox
- * instead of sending them, which is convenient during development, but not
- * allowed in production.
+ * `"Dummy"` logs emails and keeps them in the dev mailbox instead of sending
+ * them. It's not allowed in production.
  */
 export type EmailSenderProviderName =
   | "SMTP"

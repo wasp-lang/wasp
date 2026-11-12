@@ -7,11 +7,8 @@ import { isMessageId } from "./messageId.js";
 const MESSAGE_FILE_EXTENSION = ".json";
 
 /**
- * Stores each message as `<id>.json`. Writes go to a temporary dotfile first
- * and are renamed into place, so readers never see a half written message.
- *
- * Several processes (the server, `wasp db seed`) can write to the same
- * directory, so the directory is the source of truth.
+ * One `<id>.json` file per message. Writes go to a temporary file that is
+ * then renamed, so readers never see half a message.
  */
 export class MailboxDirectory {
   readonly path: string;
@@ -62,10 +59,7 @@ export class MailboxDirectory {
     fs.rmSync(this.getMessageFilePath(id), { force: true });
   }
 
-  /**
-   * Calls `onChange` whenever files in the directory change. The watcher
-   * doesn't keep the process alive.
-   */
+  /** The watcher doesn't keep the process alive. */
   watch(onChange: () => void): () => void {
     fs.mkdirSync(this.path, { recursive: true });
     const watcher = fs.watch(this.path, { persistent: false }, onChange);
