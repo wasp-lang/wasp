@@ -71,10 +71,7 @@ build = ProjectLock.acquireExclusive $ do
 
   (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
   liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors)
-    $ throwError
-    $ CommandError "Building of wasp project failed"
-    $ show (length errors) ++ " errors found."
+  unless (null errors) $ throwError CommandAborted
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
