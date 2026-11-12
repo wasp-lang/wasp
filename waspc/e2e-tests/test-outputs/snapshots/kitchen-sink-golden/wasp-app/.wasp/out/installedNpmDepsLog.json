@@ -74,7 +74,7 @@
             "devDependencies": [
                 {
                     "name": "@playwright/test",
-                    "version": "1.55.1"
+                    "version": "1.64.1"
                 },
                 {
                     "name": "@tailwindcss/forms",
