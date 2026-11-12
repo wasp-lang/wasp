@@ -89,7 +89,9 @@ openSaasStarterTemplate =
             { _name = "saas",
               _description =
                 "Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more."
-                  <> " Check out https://opensaas.sh/ for more details.",
+                  <> " Check out "
+                  <> styleLiteral "https://opensaas.sh/"
+                  <> " for more details.",
               _migratesDbOnCreation = False,
               _buildStartingInstructions = \projectDirName ->
                 unlines

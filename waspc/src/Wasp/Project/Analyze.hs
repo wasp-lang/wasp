@@ -38,6 +38,7 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import qualified Wasp.Psl.Valid as PslV
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Terminal (styleLiteral)
 import Wasp.Valid (ValidationError)
 import qualified Wasp.Valid as Valid
 
@@ -111,12 +112,12 @@ analyzePrismaSchema waspProjectDir = do
         Right parsedPrismaSchema -> return $ runValidation PslV.validatePrismaSchema parsedPrismaSchema
     Nothing -> return (Left [couldntFindPrismaSchemaMessage], [])
   where
-    couldntParsePrismaSchemaMessage = "Wasp couldn't parse your schema.prisma file, please check if you have any errors in it."
+    couldntParsePrismaSchemaMessage = "Wasp couldn't parse your " ++ styleLiteral "schema.prisma" ++ " file, please check if you have any errors in it."
 
     -- NOTE: linking here to migration docs because I think it's the most common reason why schema.prisma file is missing.
     -- After people mostly start using 0.14.0+ they will have schema.prisma file, so this message will be less relevant.
     -- If we see that this message is still relevant, we can change it to be more general.
-    couldntFindPrismaSchemaMessage = "Couldn't find the schema.prisma file in the " ++ fromAbsDir waspProjectDir ++ " directory. \nRead more: https://wasp.sh/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
+    couldntFindPrismaSchemaMessage = "Couldn't find the " ++ styleLiteral "schema.prisma" ++ " file in the " ++ styleLiteral (fromAbsDir waspProjectDir) ++ " directory. \nRead more: " ++ styleLiteral "https://wasp.sh/docs/migrate-from-0-13-to-0-14#migrate-to-the-new-schemaprisma-file"
 
 runValidation :: (result -> [ValidationError]) -> result -> (Either [CompileError] result, [CompileWarning])
 runValidation getErrorsAndWarnings result =

@@ -18,6 +18,7 @@ import System.Process (readProcessWithExitCode)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (indent)
+import Wasp.Util.Terminal (styleCode)
 
 -- | Wasp supports any node version equal or greater to this version.
 -- | We usually keep this one equal to the latest LTS.
@@ -95,14 +96,14 @@ readCommandOutput commandName commandArgs = do
     Right (ExitSuccess, stdout, _) -> Right stdout
   where
     makeIOErrorMessage ioErr
-      | isDoesNotExistError ioErr = "`" ++ fullCommand ++ "` command not found!"
+      | isDoesNotExistError ioErr = styleCode fullCommand ++ " command not found!"
       | otherwise = show ioErr
 
     wrapCommandIOErrorMessage innerErr =
       unlines
-        [ "Running `" ++ fullCommand ++ "` failed.",
+        [ "Running " ++ styleCode fullCommand ++ " failed.",
           indent 2 innerErr,
-          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
+          "Make sure you have " ++ styleCode commandName ++ " installed and in your PATH."
         ]
 
     wrapCommandExitCodeErrorMessage exitCode commandErr =
