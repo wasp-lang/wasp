@@ -42,7 +42,8 @@ createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef 
 
     throwOutdatedTagError =
       throwProjectCreationError $
-        unlines
+        intercalate
+          "\n"
           [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
             "You can try again with an older Wasp version, or choose a different template.",
             "",

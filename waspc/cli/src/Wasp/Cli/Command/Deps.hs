@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
@@ -36,7 +37,7 @@ deps = do
 
 depsMessage :: AppSpec -> String
 depsMessage appSpec =
-  unlines $
+  intercalate "\n" $
     [ "",
       title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
       ""

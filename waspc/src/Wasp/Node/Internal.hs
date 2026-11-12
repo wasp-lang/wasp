@@ -3,6 +3,7 @@ module Wasp.Node.Internal
   )
 where
 
+import Data.List (intercalate)
 import qualified Text.Parsec as P
 import qualified Wasp.SemanticVersion as SV
 
@@ -19,7 +20,8 @@ parseVersionFromCommandOutput commandOutput =
     skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
 
     makeFailedToParseVersionErrorMessage parseError =
-      unlines
+      intercalate
+        "\n"
         [ "Wasp failed to parse version from string '" ++ commandOutput ++ "'.",
           show parseError,
           "This is most likely a bug in Wasp, please file an issue at https://github.com/wasp-lang/wasp/issues."

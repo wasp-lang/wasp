@@ -6,6 +6,7 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import Data.Maybe (isJust)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
@@ -162,7 +163,7 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do
-      cliSendMessageC . Msg.Info . unlines $
+      cliSendMessageC . Msg.Info . intercalate "\n" $
         ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
           : additionalInfoLines devDbSpec
       liftIO exitFailure
@@ -170,7 +171,7 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
       let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
-      cliSendMessageC . Msg.Info . unlines $
+      cliSendMessageC . Msg.Info . intercalate "\n" $
         "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
           : additionalInfoLines devDbSpec
             <> dockerRunInfoLines

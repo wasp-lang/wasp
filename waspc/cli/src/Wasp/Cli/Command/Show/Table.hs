@@ -17,7 +17,7 @@ import qualified Wasp.Util.Terminal as Term
 -- their heading, and each group becomes a table with one row per entry.
 renderEntriesAsTables :: [InspectionEntry] -> String
 renderEntriesAsTables entries =
-  intercalate "\n" (renderCategory . fmap sortEntriesByFirstColumnValue <$> categoryPairs)
+  intercalate "\n\n" (renderCategory . fmap sortEntriesByFirstColumnValue <$> categoryPairs)
   where
     categoryPairs = orderedGroupWith heading datapoints entries
 
@@ -27,7 +27,7 @@ renderEntriesAsTables entries =
       ((_, firstColumnValue) : _) -> firstColumnValue
 
     renderCategory (title', datapointLists) =
-      unlines $
+      intercalate "\n" $
         title title'
           : ( ("  " ++)
                 <$>

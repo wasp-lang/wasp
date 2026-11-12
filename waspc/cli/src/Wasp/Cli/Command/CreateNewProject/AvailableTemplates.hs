@@ -9,6 +9,7 @@ module Wasp.Cli.Command.CreateNewProject.AvailableTemplates
   )
 where
 
+import Data.List (intercalate)
 import StrongPath (reldir)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate (..), TemplateMetadata (..))
@@ -39,7 +40,8 @@ minimalStarterTemplate =
             _description = "A minimal starter template that features just a single page.",
             _migratesDbOnCreation = False,
             _buildStartingInstructions = \projectDirName ->
-              unlines
+              intercalate
+                "\n"
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
                   styleCode $ "    wasp start"
@@ -59,7 +61,8 @@ basicStarterTemplate =
             _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
             _migratesDbOnCreation = True,
             _buildStartingInstructions = \projectDirName ->
-              unlines
+              intercalate
+                "\n"
                 [ styleText $ "To run your new app, do:",
                   styleCode $ "    cd " <> projectDirName,
                   styleCode $ "    wasp start",
@@ -92,7 +95,8 @@ openSaasStarterTemplate =
                   <> " Check out https://opensaas.sh/ for more details.",
               _migratesDbOnCreation = False,
               _buildStartingInstructions = \projectDirName ->
-                unlines
+                intercalate
+                  "\n"
                   [ styleText $
                       "To run your new app, follow the instructions below:",
                     styleText $ "",

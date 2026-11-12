@@ -9,6 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy as BSL
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
@@ -137,7 +138,8 @@ studio = do
     BSL.writeFile (SP.fromAbsFile waspStudioDataJsonFilePath) (encodePretty appInfoJson)
 
   cliSendMessageC . Msg.Info $
-    unlines
+    intercalate
+      "\n"
       [ "✨ Starting Wasp Studio ✨",
         "",
         "➜ Open in your browser: http://localhost:4000",

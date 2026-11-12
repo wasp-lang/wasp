@@ -13,6 +13,7 @@ where
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.Functor ((<&>))
+import Data.List (intercalate)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Process (readProcessWithExitCode)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
@@ -64,7 +65,8 @@ checkUserToolVersion commandName commandArgs oldestSupportedToolVersion =
       | otherwise = Left $ makeVersionMismatchErrorMessage userVersion
 
     makeVersionMismatchErrorMessage version =
-      unlines
+      intercalate
+        "\n"
         [ "Your " ++ commandName ++ " version does not meet Wasp's requirements!",
           "You are running " ++ commandName ++ " " ++ show version ++ ".",
           "Wasp requires " ++ commandName ++ " version " ++ show oldestSupportedToolVersion ++ " or higher."
@@ -99,14 +101,16 @@ readCommandOutput commandName commandArgs = do
       | otherwise = show ioErr
 
     wrapCommandIOErrorMessage innerErr =
-      unlines
+      intercalate
+        "\n"
         [ "Running `" ++ fullCommand ++ "` failed.",
           indent 2 innerErr,
           "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
         ]
 
     wrapCommandExitCodeErrorMessage exitCode commandErr =
-      unlines
+      intercalate
+        "\n"
         [ "Running `" ++ fullCommand ++ "` failed (exit code " ++ show exitCode ++ "):",
           indent 2 commandErr
         ]
