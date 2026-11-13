@@ -198,13 +198,9 @@ checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ do
       | otherwise -> SchemaDbMatchCheckFailed code $ T.unpack $ T.strip output
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
--- matches the DB. Returns Nothing on error as we do not know the current state.
--- Returns Just True if all migrations are applied. Due to the fact the command
--- returns an error on connection or unapplied migrations, Just False is never returned.
+-- matches the DB. Returns its output on error as we do not know the current state:
+-- the command returns an error on connection problems as well as on unapplied migrations.
 -- It is recommended to call this after some check that confirms DB connectivity, like `checkIfSchemaMatchesDb`.
-areAllMigrationsAppliedToDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
-areAllMigrationsAppliedToDb envVars generatedAppDirAbs = do
-  (dbExitCode, _) <- Job.run $ Job.captureOutput $ DbJobs.migrateStatus envVars generatedAppDirAbs
-  case dbExitCode of
-    ExitSuccess -> return $ Just True
-    ExitFailure _ -> return Nothing
+areAllMigrationsAppliedToDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Either [Msg.Part] ())
+areAllMigrationsAppliedToDb envVars generatedAppDirAbs =
+  Job.captureFailure "prisma migrate status" $ DbJobs.migrateStatus envVars generatedAppDirAbs
