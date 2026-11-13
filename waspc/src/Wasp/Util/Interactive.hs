@@ -5,6 +5,9 @@ module Wasp.Util.Interactive
     getInteractiveTerminal,
     isPromptInputEOF,
     runTaskWithSpinner,
+    StatusLine,
+    withStatusLine,
+    printAboveStatusLine,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -20,12 +23,14 @@ where
 import Control.Applicative ((<|>))
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
+import Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, readMVar, withMVar)
 import Control.Exception (finally)
 import Control.Monad (forM_, forever)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
@@ -33,6 +38,7 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrLn, stdin, stdout)
 import System.IO.Error (ioeGetHandle, isEOFError)
+import System.IO.Unsafe (unsafePerformIO)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
 import Wasp.Util (millisecondsToMicroSeconds)
@@ -98,7 +104,9 @@ instance IsOption (Option o) where
 
 data InteractiveTerminal = InteractiveTerminal
   { inputHandle :: Handle,
-    outputHandle :: Handle
+    outputHandle :: Handle,
+    -- | The status line currently shown, if any. A terminal shows at most one.
+    statusLineRef :: IORef (Maybe StatusLine)
   }
 
 askForRequiredInput :: InteractiveTerminal -> String -> IO String
@@ -203,18 +211,52 @@ repeatUntil terminal predicate errorMessage action = do
 
 -- | Runs the action while showing the message as a status line with a
 -- spinning glyph. The line is redrawn in place and erased once the action
--- finishes, so nothing of it stays in the terminal.
+-- finishes, so nothing of it stays in the terminal. While a status line is
+-- already shown, the message takes its place for the action's duration
+-- instead, so steps inside a bigger step share its line.
 runTaskWithSpinner :: InteractiveTerminal -> String -> IO a -> IO a
 runTaskWithSpinner terminal spinnerMessage action =
-  Async.withAsync spinStatusLine (const action)
-    `finally` putStrFlush terminal clearLine
+  readIORef terminal.statusLineRef >>= \case
+    Just statusLine -> withStatusLineText statusLine spinnerMessage action
+    Nothing -> withStatusLine terminal spinnerMessage (const action)
+
+-- | The line at the bottom of the terminal that is redrawn in place: a
+-- spinning glyph and a text the running action can change. Anything printed
+-- while it is shown goes above it, through 'printAboveStatusLine'.
+data StatusLine = StatusLine
+  { statusLineTerminal :: InteractiveTerminal,
+    -- | Holding the text also serializes drawing the line and printing above it.
+    statusLineText :: MVar String
+  }
+
+withStatusLine :: InteractiveTerminal -> String -> (StatusLine -> IO a) -> IO a
+withStatusLine terminal text action = do
+  statusLine <- StatusLine terminal <$> newMVar text
+  writeIORef terminal.statusLineRef (Just statusLine)
+  Async.withAsync (spin statusLine) (const $ action statusLine)
+    `finally` (writeIORef terminal.statusLineRef Nothing >> putStrFlush terminal clearLine)
   where
-    spinStatusLine = forever $
+    spin statusLine = forever $
       forM_ spinnerFrames $ \frame -> do
-        putStrFlush terminal $ clearLine ++ Term.applyStyles [Term.Yellow] frame ++ " " ++ spinnerMessage
+        withMVar statusLine.statusLineText $ \currentText ->
+          putStrFlush terminal $ clearLine ++ Term.applyStyles [Term.Yellow] frame ++ " " ++ currentText
         threadDelay $ millisecondsToMicroSeconds 80
 
     spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+
+-- | Shows the text while the action runs, then the previous text again.
+withStatusLineText :: StatusLine -> String -> IO a -> IO a
+withStatusLineText statusLine text action = do
+  previousText <- readMVar statusLine.statusLineText
+  setText text
+  action `finally` setText previousText
+  where
+    setText newText = modifyMVar_ statusLine.statusLineText (const $ return newText)
+
+printAboveStatusLine :: StatusLine -> IO () -> IO ()
+printAboveStatusLine statusLine printing =
+  withMVar statusLine.statusLineText $ \_ ->
+    putStrFlush statusLine.statusLineTerminal clearLine >> printing
 
 -- | Moves the cursor to the start of the line and erases the line.
 clearLine :: String
@@ -235,4 +277,10 @@ putStrFlush terminal msg = do
   hFlush terminal.outputHandle
 
 stdioTerminal :: InteractiveTerminal
-stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
+stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout, statusLineRef = stdioStatusLineRef}
+
+-- The one status line of the one terminal, so that steps started anywhere in
+-- the process find the line a bigger step is showing.
+{-# NOINLINE stdioStatusLineRef #-}
+stdioStatusLineRef :: IORef (Maybe StatusLine)
+stdioStatusLineRef = unsafePerformIO $ newIORef Nothing

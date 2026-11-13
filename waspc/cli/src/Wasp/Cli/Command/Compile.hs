@@ -28,11 +28,10 @@ import System.IO.Error (tryIOError)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Common (runTaskOrAbort)
-import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Message (cliSendMessage, runStepGroup)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -88,22 +87,19 @@ compileWithOptions options = do
       ("Failed to clear the " ++ outDirName ++ " directory")
       (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory outDir))
 
-  cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  compileResult <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
+    compileIOWithOptions options {sendMessage = groupSendMessage} waspProjectDir outDir
 
-  liftIO $ printCompilationResult compileResult
+  liftIO $ printCompilationResult "Compiled the project" compileResult
   case _compileOutcome compileResult of
     Right appSpec -> return (_compileWarnings compileResult, appSpec)
     Left _ -> throwError CommandAborted
 
--- | Given any compile warnings and errors, prints information about how compilation went:
--- reports it as success if there was no errors, or if a failure if there were errors,
--- also shows any warnings (and errors), ... .
--- Normally you will want to call this function after compile step is done and you want
--- to report to user how it went.
-printCompilationResult :: CompileResult -> IO ()
-printCompilationResult compileResult = do
-  either printErrorsIfAny (const $ return ()) $ _compileOutcome compileResult
+-- | Reports how the compile went: the success message if there were no
+-- errors, the errors otherwise, then any warnings.
+printCompilationResult :: String -> CompileResult -> IO ()
+printCompilationResult successMessage compileResult = do
+  either printErrorsIfAny (const $ cliSendMessage $ Msg.Success successMessage) $ _compileOutcome compileResult
   printWarningsIfAny $ _compileWarnings compileResult
 
 printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()

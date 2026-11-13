@@ -16,13 +16,13 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIOWithOptions, defaultCompileOptions, printCompilationResult)
+import Wasp.Cli.Message (runStepGroup)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
+import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
-import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
@@ -148,11 +148,11 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
 
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
-      cliSendMessage $ Msg.Start "File change detected, recompiling"
-      compileResult <- compileIO waspProjectDir outDir
+      compileResult <- runStepGroup "File change detected, recompiling" $ \groupSendMessage ->
+        compileIOWithOptions (defaultCompileOptions waspProjectDir) {sendMessage = groupSendMessage} waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-      printCompilationResult compileResult
+      printCompilationResult "Recompiled the project" compileResult
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
           projectRunConfig <- makeProjectRunConfig appSpec
