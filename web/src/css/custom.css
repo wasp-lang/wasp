@@ -138,6 +138,11 @@ html.blog-wrapper[data-theme="dark"] {
   --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
+/* Infima sets `vertical-align: middle`, which pushes inline code off the text's baseline. */
+code {
+  vertical-align: baseline;
+}
+
 /* Override Prism's internal 0.9em scaling and tight line-height on code blocks. */
 .docs-wrapper code[class*="language-"],
 .docs-wrapper pre[class*="language-"],
