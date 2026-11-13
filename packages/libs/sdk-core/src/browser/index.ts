@@ -63,7 +63,9 @@ export {
 export {
   handleClientError,
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
   type ClientErrorContext,
+  type ClientOnErrorFn,
 } from "./errors.js";
 export { useEffectOnce } from "./hooks.js";
 export { type ActionFor } from "./operations/actions.js";

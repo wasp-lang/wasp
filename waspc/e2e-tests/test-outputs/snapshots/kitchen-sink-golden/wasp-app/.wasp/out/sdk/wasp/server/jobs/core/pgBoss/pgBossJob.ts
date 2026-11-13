@@ -196,7 +196,7 @@ function pgBossCallbackWrapper<
     try {
       return await jobFn(args.data, context);
     } catch (error: unknown) {
-      reportUnexpectedServerError(error, { source: "job", jobName });
+      await reportUnexpectedServerError(error, { source: "job", jobName });
       // pg-boss marks the job as failed and retries it if configured to.
       throw error;
     }

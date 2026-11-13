@@ -4,8 +4,7 @@ import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
 import * as unknownErrors from "./unknownErrors.js";
 
-// PRIVATE API (server)
-// TODO: Refactor this once Wasp has proper logging.
+// PUBLIC API
 export type ServerErrorContext =
   | { source: "request" }
   | { source: "job"; jobName: string }
@@ -14,13 +13,35 @@ export type ServerErrorContext =
   | { source: "startup" }
   | { source: "dbSeed" };
 
-// PRIVATE API (server)
-// TODO: Refactor this once Wasp has proper logging.
-export function reportUnexpectedServerError(
+// PUBLIC API
+export type ServerOnErrorFn = (
   error: unknown,
   context: ServerErrorContext,
-): void {
+) => void | Promise<void>;
+
+let serverOnErrorFn: ServerOnErrorFn | undefined;
+
+// PRIVATE API (server)
+export function registerServerOnErrorFn(onErrorFn: ServerOnErrorFn): void {
+  serverOnErrorFn = onErrorFn;
+}
+
+// PRIVATE API (server)
+/**
+ * Logs the error and passes it to the user's `server.onError` function.
+ * It never rejects, so callers that can't wait for it can ignore the promise.
+ */
+// TODO: Refactor this once Wasp has proper logging.
+export async function reportUnexpectedServerError(
+  error: unknown,
+  context: ServerErrorContext,
+): Promise<void> {
   console.error(`Unexpected error in ${formatContext(context)}:`, error);
+  try {
+    await serverOnErrorFn?.(error, context);
+  } catch (onErrorFnError: unknown) {
+    console.error("The `server.onError` function failed:", onErrorFnError);
+  }
 }
 
 // PRIVATE API (server)
@@ -60,7 +81,7 @@ function toHttpError(error: unknown): HttpError {
     : unknownErrors.toWaspHttpError(error, options);
 
   if (httpError.statusCode >= 500) {
-    reportUnexpectedServerError(error, { source: "request" });
+    void reportUnexpectedServerError(error, { source: "request" });
   }
   return httpError;
 }

@@ -1,7 +1,7 @@
 ---
-title: "Client configuration: root component and setupFn"
+title: "Client configuration: root component, setupFn and onError"
 sidebar_label: Client configuration
-description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, query defaults and a base directory."
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, an error function, query defaults and a base directory."
 ---
 
 import BaseDirEnvNote from './_baseDirEnvNote.md'
@@ -268,6 +268,53 @@ explained in
 
 For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec.md#setupfn).
 
+## Handling Unexpected Errors {#handling-unexpected-errors}
+
+`onError` declares a function that Wasp calls with every unexpected error on the client. Wasp logs the error to the browser console first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { onClientError } from "./src/clientErrors" with { type: "ref" }
+
+export default app({
+  // ...
+  client: {
+    onError: onClientError,
+  },
+})
+```
+
+The function receives the error and a context whose `source` says where the error surfaced:
+
+```ts title="src/clientErrors.ts" auto-js
+import { type ClientOnErrorFn } from "wasp/client"
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  // Let's pretend errorTracker is implemented below or imported from another file.
+  errorTracker.capture(error, { source: context.source })
+}
+```
+
+| `source`             | The error surfaced...                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| `"render"`           | while rendering a page or the root component.                                                           |
+| `"query"`            | in a failed Query.                                                                                      |
+| `"action"`           | in a failed Action.                                                                                     |
+| `"window"`           | in an event handler, or as a rejected promise nobody caught (the browser's `error` and `unhandledrejection` events). |
+| `"oauthCallback"`    | while finishing an OAuth login.                                                                         |
+| `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                           |
+| `"optimisticUpdate"` | in the `updateQuery` function of an optimistic update.                                                  |
+
+A few things to keep in mind:
+
+- An [`HttpError`](../../features/data/operations/queries.md#error-handling) is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for it. Failed Queries and Actions reach the function only for other errors, like a network failure.
+- Wasp calls the function once per error, even if the error surfaces in more than one place.
+- Wasp doesn't call the function for render errors that your own error boundary catches.
+- Wasp doesn't call the function while [prerendering](../prerendering.md) pages.
+- If the function itself throws, Wasp logs that error and carries on.
+
+For the full description of the `onError` field, check the [`Client` API Reference](../../api/@wasp/spec.md#onerror).
+
 ## Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
@@ -297,6 +344,13 @@ router will work correctly, and all the assets will be served from
   kind="api"
   title="Client"
   description="All the options for the client field of the app spec."
+/>
+
+<CardLink
+  to="../../api/wasp/client#clientonerrorfn"
+  kind="api"
+  title="ClientOnErrorFn"
+  description="The type of your onError function."
 />
 
 <CardLink

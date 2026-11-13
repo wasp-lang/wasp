@@ -534,6 +534,31 @@ export interface Server {
    */
   setupFn?: Reference<AnyFunction>;
   /**
+   * Function Wasp calls with every unexpected error on the server, e.g. to
+   * send it to an error tracking service. Wasp logs the error first.
+   *
+   * It receives the error and a context whose `source` says where the error
+   * happened: `"request"`, `"job"` (with `jobName`), `"webSocket"`,
+   * `"oauth"`, `"startup"`, or `"dbSeed"`. An `HttpError` you throw from a
+   * request is not unexpected, so Wasp doesn't call the function for it.
+   *
+   * The function can be async. Wasp waits for it before the server exits
+   * because of a startup error.
+   *
+   * In TypeScript, you can type the function with the `ServerOnErrorFn` type
+   * from `wasp/server`.
+   *
+   * @example
+   * ```ts
+   * import { type ServerOnErrorFn } from "wasp/server"
+   *
+   * export const onServerError: ServerOnErrorFn = (error, context) => {
+   *   errorTracker.capture(error, { source: context.source })
+   * }
+   * ```
+   */
+  onError?: Reference<AnyFunction>;
+  /**
    * Function that customizes the global Express middleware stack. Affects
    * all operations and APIs.
    *
@@ -664,6 +689,29 @@ export interface Client {
    * ```
    */
   setupFn?: Reference<AnyFunction>;
+  /**
+   * Function Wasp calls with every unexpected error on the client, e.g. to
+   * send it to an error tracking service. Wasp logs the error first.
+   *
+   * It receives the error and a context whose `source` says where the error
+   * surfaced: `"render"`, `"query"`, `"action"`, `"window"` (event handlers
+   * and unhandled promise rejections), `"oauthCallback"`, `"authForm"`, or
+   * `"optimisticUpdate"`. An `HttpError` from the server is not unexpected,
+   * so Wasp doesn't call the function for it.
+   *
+   * In TypeScript, you can type the function with the `ClientOnErrorFn` type
+   * from `wasp/client`.
+   *
+   * @example
+   * ```ts
+   * import { type ClientOnErrorFn } from "wasp/client"
+   *
+   * export const onClientError: ClientOnErrorFn = (error, context) => {
+   *   errorTracker.capture(error, { source: context.source })
+   * }
+   * ```
+   */
+  onError?: Reference<AnyFunction>;
   /**
    *
    * If you need to serve the client from a subdirectory, you can use the

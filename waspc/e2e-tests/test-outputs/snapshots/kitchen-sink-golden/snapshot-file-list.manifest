@@ -924,10 +924,12 @@ wasp-app/src/features/db/db.wasp.ts
 wasp-app/src/features/db/prisma.ts
 wasp-app/src/features/db/seeds.ts
 wasp-app/src/features/errors/apis.ts
+wasp-app/src/features/errors/clientOnError.ts
 wasp-app/src/features/errors/errors.wasp.ts
 wasp-app/src/features/errors/pages/ClientErrorsPage.tsx
 wasp-app/src/features/errors/pages/ErrorsPage.tsx
 wasp-app/src/features/errors/queries.ts
+wasp-app/src/features/errors/serverOnError.ts
 wasp-app/src/features/jobs/bar.js
 wasp-app/src/features/jobs/jobs.wasp.ts
 wasp-app/src/features/jobs/pages/JobsPage.tsx

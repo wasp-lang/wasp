@@ -24,6 +24,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
 - The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
+- `server.onError` and `client.onError` in the app spec receive every unexpected error, e.g. to send it to an error tracking service like Sentry. ([#PRNUM](https://github.com/wasp-lang/wasp/pull/PRNUM))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))

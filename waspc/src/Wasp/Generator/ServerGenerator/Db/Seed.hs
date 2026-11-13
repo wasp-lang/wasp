@@ -11,6 +11,7 @@ import StrongPath (Dir, File, Path, Path', Posix, Rel, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.Server as AS.Server
 import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -20,12 +21,14 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
-  return $ case dbSeedsToTemplateData (getDbSeeds spec) of
+  return $ case dbSeedsToTemplateData (getDbSeeds spec) maybeOnErrorJsFunction of
     Nothing -> []
     Just tmplData ->
       [ C.mkTmplFdWithData (C.srcDirInServerTemplatesDir </> dbSeedScriptInServerTmplSrcDir) (Just tmplData),
         C.mkTmplFd [relfile|rollup.dbSeed.config.js|]
       ]
+  where
+    maybeOnErrorJsFunction = AS.Server.onError =<< AS.App.server (getApp spec)
 
 dbSeedScriptInServerTmplSrcDir :: Path' (Rel C.ServerTemplatesSrcDir) (File ())
 dbSeedScriptInServerTmplSrcDir = [relfile|dbSeed.ts|]
@@ -36,13 +39,14 @@ pathFromDbSeedScriptToServerSrc = [reldirP|./|]
 getDbSeeds :: AppSpec -> Maybe [ExtImport]
 getDbSeeds spec = AS.Db.seeds =<< AS.App.db (getApp spec)
 
-dbSeedsToTemplateData :: Maybe [ExtImport] -> Maybe Aeson.Value
-dbSeedsToTemplateData Nothing = Nothing
-dbSeedsToTemplateData (Just []) = Nothing
-dbSeedsToTemplateData (Just seeds) =
+dbSeedsToTemplateData :: Maybe [ExtImport] -> Maybe ExtImport -> Maybe Aeson.Value
+dbSeedsToTemplateData Nothing _ = Nothing
+dbSeedsToTemplateData (Just []) _ = Nothing
+dbSeedsToTemplateData (Just seeds) maybeOnErrorJsFunction =
   Just $
     object
       [ "dbSeeds" .= (dbSeedToTemplateData <$> seeds),
+        "onErrorFn" .= extImportToImportJson pathFromDbSeedScriptToServerSrc maybeOnErrorJsFunction,
         "dbSeedNameEnvVarName" .= dbSeedNameEnvVarName
       ]
   where

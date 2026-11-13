@@ -295,6 +295,60 @@ export type PrismaClient = {
 export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
 
 /**
+ * The type of the function you pass to the `server.onError` field of the app
+ * spec. Wasp calls it with every unexpected error on the server, after logging
+ * the error. Use it to send errors to an error tracking service.
+ *
+ * It receives:
+ *
+ * - `error`: The thrown value.
+ * - `context`: A {@link ServerErrorContext} that says where the error happened.
+ *
+ * An {@linkcode "errors"!HttpError | HttpError} you throw while handling a
+ * request is not unexpected, so Wasp doesn't call the function for it.
+ *
+ * The function can be async. Wasp waits for it before the server exits because
+ * of a `"startup"` or `"dbSeed"` error, and doesn't wait for it before
+ * answering a request. If the function itself throws, Wasp logs that error and
+ * carries on.
+ *
+ * @example
+ * ```ts
+ * import type { ServerOnErrorFn } from "wasp/server";
+ *
+ * export const onServerError: ServerOnErrorFn = (error, context) => {
+ *   errorTracker.capture(error, { source: context.source });
+ * };
+ * ```
+ *
+ * @see [Handling unexpected errors](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors)
+ */
+export type ServerOnErrorFn = (
+  error: unknown,
+  context: ServerErrorContext,
+) => void | Promise<void>;
+
+/**
+ * Where an unexpected server error happened. A {@link ServerOnErrorFn}
+ * receives it next to the error.
+ *
+ * - `"request"`: While handling a request to an Operation, API, or auth route.
+ * - `"job"`: In a Job. `jobName` is the name of the Job.
+ * - `"webSocket"`: While authenticating a WebSocket connection.
+ * - `"oauth"`: During an OAuth login.
+ * - `"startup"`: While starting the server, e.g. in `server.setupFn`. The
+ *   server exits after it.
+ * - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
+ */
+export type ServerErrorContext =
+  | { source: "request" }
+  | { source: "job"; jobName: string }
+  | { source: "webSocket" }
+  | { source: "oauth" }
+  | { source: "startup" }
+  | { source: "dbSeed" };
+
+/**
  * The type of a function that customizes Express middleware. You can pass it
  * to:
  *

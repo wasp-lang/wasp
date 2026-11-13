@@ -187,6 +187,22 @@ export type ThrowUpstreamError<
     ReqQuery,
     Locals
   >
+export type GetReportedServerErrors<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
 export type StreamingText<
   P extends ExpressParams = ExpressParams,
   ResBody = any,

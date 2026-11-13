@@ -12397,6 +12397,53 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as e
 
 For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn).
 
+### Handling Unexpected Errors
+
+`onError` declares a function that Wasp calls with every unexpected error on the client. Wasp logs the error to the browser console first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { onClientError } from "./src/clientErrors" with { type: "ref" }
+
+export default app({
+  // ...
+  client: {
+    onError: onClientError,
+  },
+})
+```
+
+The function receives the error and a context whose `source` says where the error surfaced:
+
+```ts title="src/clientErrors.ts"
+import { type ClientOnErrorFn } from "wasp/client";
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  // Let's pretend errorTracker is implemented below or imported from another file.
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+| `source`             | The error surfaced...                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `"render"`           | while rendering a page or the root component.                                                                        |
+| `"query"`            | in a failed Query.                                                                                                   |
+| `"action"`           | in a failed Action.                                                                                                  |
+| `"window"`           | in an event handler, or as a rejected promise nobody caught (the browser's `error` and `unhandledrejection` events). |
+| `"oauthCallback"`    | while finishing an OAuth login.                                                                                      |
+| `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                                        |
+| `"optimisticUpdate"` | in the `updateQuery` function of an optimistic update.                                                               |
+
+A few things to keep in mind:
+
+- An [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling) is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for it. Failed Queries and Actions reach the function only for other errors, like a network failure.
+- Wasp calls the function once per error, even if the error surfaces in more than one place.
+- Wasp doesn't call the function for render errors that your own error boundary catches.
+- Wasp doesn't call the function while [prerendering](https://wasp.sh/docs/advanced/prerendering) pages.
+- If the function itself throws, Wasp logs that error and carries on.
+
+For the full description of the `onError` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#onerror).
+
 ### Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
@@ -12428,6 +12475,12 @@ For example, if you are serving your app from `https://example.com/my-app`, the 
 #### [Client »](https://wasp.sh/docs/api/@wasp/spec#client-1)
 
 [All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#client-1)
+
+[API reference](https://wasp.sh/docs/api/wasp/client#clientonerrorfn)
+
+#### [ClientOnErrorFn »](https://wasp.sh/docs/api/wasp/client#clientonerrorfn)
+
+[The type of your onError function.](https://wasp.sh/docs/api/wasp/client#clientonerrorfn)
 
 [API reference](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
 
@@ -12703,6 +12756,53 @@ This effectively turns your module into a singleton whose construction is perfor
 
 For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn-1).
 
+### Handling Unexpected Errors
+
+`onError` declares a function that Wasp calls with every unexpected error on the server. Wasp logs the error first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { onServerError } from "./src/serverErrors" with { type: "ref" }
+
+export default app({
+  // ...
+  server: {
+    onError: onServerError,
+  },
+})
+```
+
+The function receives the error and a context whose `source` says where the error happened:
+
+```ts title="src/serverErrors.ts"
+import { type ServerOnErrorFn } from "wasp/server";
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  if (context.source === "job") {
+    console.log(`The ${context.jobName} job failed.`);
+  }
+  // Let's pretend errorTracker is implemented below or imported from another file.
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+| `source`      | The error happened...                                                           |
+| ------------- | ------------------------------------------------------------------------------- |
+| `"request"`   | while handling a request to an Operation, API, or auth route.                   |
+| `"job"`       | in a [Job](https://wasp.sh/docs/features/jobs). The context also has `jobName`. |
+| `"webSocket"` | while authenticating a WebSocket connection.                                    |
+| `"oauth"`     | during an OAuth login.                                                          |
+| `"startup"`   | while starting the server, e.g. in `setupFn`.                                   |
+| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                       |
+
+A few things to keep in mind:
+
+- An [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
+- The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and Wasp waits for the function to finish before that. Wasp doesn't wait for it before answering a request.
+- If the function itself throws, Wasp logs that error and carries on.
+
+For the full description of the `onError` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#onerror-1).
+
 ### Middleware Config Function
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
@@ -12742,6 +12842,12 @@ Read more in the [deployment section](https://wasp.sh/docs/deployment/methods/ov
 #### [ServerSetupFn »](https://wasp.sh/docs/api/wasp/server#serversetupfn)
 
 [The type of your setupFn function.](https://wasp.sh/docs/api/wasp/server#serversetupfn)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#serveronerrorfn)
+
+#### [ServerOnErrorFn »](https://wasp.sh/docs/api/wasp/server#serveronerrorfn)
+
+[The type of your onError function.](https://wasp.sh/docs/api/wasp/server#serveronerrorfn)
 
 [API reference](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
 
@@ -22520,7 +22626,7 @@ For more options, see the [Multer documentation](https://github.com/expressjs/mu
 ## Integrations / Sentry
 
 :::note
-Last checked with Wasp 0.24, @sentry/node 8, and @sentry/react 8.
+Last checked with Wasp 0.27, @sentry/node 11, and @sentry/react 11.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -22553,23 +22659,23 @@ npm install @sentry/node @sentry/react
 
 #### 3. Configure your Wasp file
 
-Add both the server and client setup functions to your `main.wasp.ts`:
+Wasp calls the `onError` functions with every unexpected error on the [server](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors) and the [client](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors). Add both to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
-import { setupClient } from "./src/clientSetup" with { type: "ref" }
-import { setupServer } from "./src/serverSetup" with { type: "ref" }
+import { onClientError } from "./src/clientSentry" with { type: "ref" }
+import { onServerError } from "./src/serverSentry" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.27.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
-    setupFn: setupServer,
+    onError: onServerError,
   },
   client: {
-    setupFn: setupClient,
+    onError: onClientError,
   },
   // ...
 })
@@ -22577,11 +22683,11 @@ export default app({
 
 #### 4. Configure Server-Side Sentry
 
-Create the server setup file:
+Create the server file:
 
-```ts title="src/serverSetup.ts"
+```ts title="src/serverSentry.ts"
 import * as Sentry from "@sentry/node";
-import { ServerSetupFn } from "wasp/server";
+import { type ServerOnErrorFn } from "wasp/server";
 
 Sentry.init({
   dsn: process.env.SENTRY_SERVER_DSN,
@@ -22589,21 +22695,33 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export const setupServer: ServerSetupFn = async ({ app }) => {
-  Sentry.setupExpressErrorHandler(app);
+export const onServerError: ServerOnErrorFn = async (error, context) => {
+  Sentry.captureException(error, { tags: { source: context.source } });
+
+  // The server exits after these errors, so we wait for Sentry to send them.
+  if (context.source === "startup" || context.source === "dbSeed") {
+    await Sentry.flush(2000);
+  }
 };
 ```
+
+Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds. It doesn't call it for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
 :::
 
+:::caution[Don't use Sentry.setupExpressErrorHandler]
+Sentry's Express error handler never runs in a Wasp app, because Wasp answers failed requests itself. Use `onError` instead.
+:::
+
 #### 5. Configure Client-Side Sentry
 
-Create the client setup file:
+Create the client file:
 
-```ts title="src/clientSetup.ts"
+```ts title="src/clientSentry.ts"
 import * as Sentry from "@sentry/react";
+import { type ClientOnErrorFn } from "wasp/client";
 
 Sentry.init({
   dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
@@ -22611,15 +22729,16 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export const setupClient = async () => {
-  // Sentry is initialized above, before the setup function runs.
-  // You can add additional client-side setup here if needed.
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  // Sentry already listens for these errors itself.
+  if (context.source === "window") {
+    return;
+  }
+  Sentry.captureException(error, { tags: { source: context.source } });
 };
 ```
 
-:::note
-The `setupFn` must be defined and exported even if it has no additional logic. Sentry's `init` call runs at module load time, which is before Wasp calls the setup function.
-:::
+Sentry catches errors in event handlers and unhandled promise rejections on its own. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
 
 #### 6. Set up environment variables
 
@@ -22641,31 +22760,51 @@ REACT_APP_SENTRY_CLIENT_DSN=https://your-client-dsn@sentry.io/your-project-id
 
 Create an API endpoint that throws an error:
 
+```ts title="main.wasp.ts"
+import { api, app } from "@wasp/spec"
+import { testError } from "./src/apis" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    api("GET", "/test-error", testError, { auth: false }),
+  ],
+})
+```
+
 ```ts title="src/apis.ts"
-import { TestError } from "wasp/server/api";
+import { type TestError } from "wasp/server/api";
 
 export const testError: TestError = async (req, res) => {
   throw new Error("Test server error for Sentry");
 };
 ```
 
+Open `http://localhost:3001/test-error` and check that the error shows up in your Sentry server project with the `source: request` tag.
+
 #### Test Client Errors
 
-Add a button that triggers an error:
+Add a button that throws while rendering:
 
 ```tsx title="src/MainPage.tsx"
+import { useState } from "react";
+
 export const MainPage = () => {
-  const handleError = () => {
+  const [shouldThrow, setShouldThrow] = useState(false);
+
+  if (shouldThrow) {
     throw new Error("Test client error for Sentry");
-  };
+  }
 
   return (
     <div>
-      <button onClick={handleError}>Test Sentry Error</button>
+      <button onClick={() => setShouldThrow(true)}>Test Sentry Error</button>
     </div>
   );
 };
 ```
+
+Click the button and check that the error shows up in your Sentry client project with the `source: render` tag.
 
 ### Advanced Configuration
 
@@ -22673,7 +22812,7 @@ export const MainPage = () => {
 
 Track which user encountered an error:
 
-```ts title="src/serverSetup.ts"
+```ts title="src/operations.ts"
 import * as Sentry from "@sentry/node";
 
 // In your API handlers or operations
@@ -26809,6 +26948,26 @@ import { clientEnvSchema } from './src/env' with { type: 'ref' }
 
 See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 
+###### onError?
+
+> `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function Wasp calls with every unexpected error on the client, e.g. to send it to an error tracking service. Wasp logs the error first.
+
+It receives the error and a context whose `source` says where the error surfaced: `"render"`, `"query"`, `"action"`, `"window"` (event handlers and unhandled promise rejections), `"oauthCallback"`, `"authForm"`, or `"optimisticUpdate"`. An `HttpError` from the server is not unexpected, so Wasp doesn't call the function for it.
+
+In TypeScript, you can type the function with the `ClientOnErrorFn` type from `wasp/client`.
+
+###### Example
+
+```ts
+import { type ClientOnErrorFn } from "wasp/client"
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source })
+}
+```
+
 ###### rootComponent?
 
 > `optional` **rootComponent?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
@@ -27416,6 +27575,28 @@ See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 Function that customizes the global Express middleware stack. Affects all operations and APIs.
 
 See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
+
+###### onError?
+
+> `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function Wasp calls with every unexpected error on the server, e.g. to send it to an error tracking service. Wasp logs the error first.
+
+It receives the error and a context whose `source` says where the error happened: `"request"`, `"job"` (with `jobName`), `"webSocket"`, `"oauth"`, `"startup"`, or `"dbSeed"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
+
+The function can be async. Wasp waits for it before the server exits because of a startup error.
+
+In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`.
+
+###### Example
+
+```ts
+import { type ServerOnErrorFn } from "wasp/server"
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source })
+}
+```
 
 ###### setupFn?
 
@@ -28679,6 +28860,67 @@ The type of the [config](#config) object.
 > **apiUrl**: `string`
 
 The URL of your server (the app's backend), without a trailing slash, from the [`REACT_APP_API_URL`](#react_app_api_url) env var.
+
+---
+
+#### ClientErrorContext
+
+> **ClientErrorContext** = { `source`: `"render"`; } | { `source`: `"query"`; } | { `source`: `"action"`; } | { `source`: `"window"`; } | { `source`: `"oauthCallback"`; } | { `source`: `"authForm"`; } | { `source`: `"optimisticUpdate"`; }
+
+Where an unexpected client error surfaced. A [ClientOnErrorFn](#clientonerrorfn) receives it next to the error.
+
+- `"render"`: While rendering a page or the root component.
+- `"query"`: In a failed Query.
+- `"action"`: In a failed Action.
+- `"window"`: In the browser's `error` and `unhandledrejection` events, e.g. an error thrown in an event handler or a rejected promise nobody caught.
+- `"oauthCallback"`: While finishing an OAuth login.
+- `"authForm"`: While submitting one of Wasp's Auth UI forms.
+- `"optimisticUpdate"`: In the `updateQuery` function of an optimistic update.
+
+---
+
+#### ClientOnErrorFn
+
+> **ClientOnErrorFn** = (`error`, `context`) => `void` | `Promise`<`void`>
+
+The type of the function you pass to the `client.onError` field of the app spec. Wasp calls it with every unexpected error on the client, after logging the error. Use it to send errors to an error tracking service.
+
+It receives:
+
+- `error`: The thrown value.
+- `context`: A [ClientErrorContext](#clienterrorcontext) that says where the error surfaced.
+
+An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for it. Wasp calls the function once per error, even if the error surfaces in more than one place.
+
+The function can be async, but Wasp doesn't wait for it. If the function itself throws, Wasp logs that error and carries on.
+
+##### Parameters
+
+###### error
+
+`unknown`
+
+###### context
+
+[`ClientErrorContext`](#clienterrorcontext)
+
+##### Returns
+
+`void` | `Promise`<`void`>
+
+##### Example
+
+```ts
+import type { ClientOnErrorFn } from "wasp/client";
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+##### See
+
+[Handling unexpected errors](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors)
 
 ---
 
@@ -32411,6 +32653,66 @@ Disconnects from the database.
 ###### Returns
 
 `Promise`<`void`>
+
+---
+
+#### ServerErrorContext
+
+> **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; }
+
+Where an unexpected server error happened. A [ServerOnErrorFn](#serveronerrorfn) receives it next to the error.
+
+- `"request"`: While handling a request to an Operation, API, or auth route.
+- `"job"`: In a Job. `jobName` is the name of the Job.
+- `"webSocket"`: While authenticating a WebSocket connection.
+- `"oauth"`: During an OAuth login.
+- `"startup"`: While starting the server, e.g. in `server.setupFn`. The server exits after it.
+- `"dbSeed"`: In a database seed function, when running `wasp db seed`.
+
+---
+
+#### ServerOnErrorFn
+
+> **ServerOnErrorFn** = (`error`, `context`) => `void` | `Promise`<`void`>
+
+The type of the function you pass to the `server.onError` field of the app spec. Wasp calls it with every unexpected error on the server, after logging the error. Use it to send errors to an error tracking service.
+
+It receives:
+
+- `error`: The thrown value.
+- `context`: A [ServerErrorContext](#servererrorcontext) that says where the error happened.
+
+An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
+
+The function can be async. Wasp waits for it before the server exits because of a `"startup"` or `"dbSeed"` error, and doesn't wait for it before answering a request. If the function itself throws, Wasp logs that error and carries on.
+
+##### Parameters
+
+###### error
+
+`unknown`
+
+###### context
+
+[`ServerErrorContext`](#servererrorcontext)
+
+##### Returns
+
+`void` | `Promise`<`void`>
+
+##### Example
+
+```ts
+import type { ServerOnErrorFn } from "wasp/server";
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+##### See
+
+[Handling unexpected errors](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors)
 
 ---
 

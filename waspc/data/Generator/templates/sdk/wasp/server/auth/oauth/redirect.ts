@@ -27,7 +27,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
       : error.message;
     return getRedirectUriForError(errorMessage)
   }
-  reportUnexpectedServerError(error, { source: "oauth" });
+  void reportUnexpectedServerError(error, { source: "oauth" });
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 

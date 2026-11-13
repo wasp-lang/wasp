@@ -7,8 +7,10 @@ import { Layout } from "wasp/client/app/layout";
 import {
   handleClientError,
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
   WaspApp,
 } from "wasp/client/app";
+
 
 import { routeObjects } from "/@wasp/routes.tsx"
 

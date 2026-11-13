@@ -246,6 +246,7 @@ export type Ref<T extends DeclType> = {
 
 export type Server = {
   setupFn: Optional<ExtImport>;
+  onError: Optional<ExtImport>;
   middlewareConfigFn: Optional<ExtImport>;
   envValidationSchema: Optional<ExtImport>;
   traceDeps: Optional<string[]>;
@@ -253,6 +254,7 @@ export type Server = {
 
 export type Client = {
   setupFn: Optional<ExtImport>;
+  onError: Optional<ExtImport>;
   rootComponent: Optional<ExtImport>;
   baseDir: Optional<`/${string}`>;
   envValidationSchema: Optional<ExtImport>;

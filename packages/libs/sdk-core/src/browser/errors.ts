@@ -9,6 +9,17 @@ export type ClientErrorContext =
   | { source: "authForm" }
   | { source: "optimisticUpdate" };
 
+export type ClientOnErrorFn = (
+  error: unknown,
+  context: ClientErrorContext,
+) => void | Promise<void>;
+
+let clientOnErrorFn: ClientOnErrorFn | undefined;
+
+export function registerClientOnErrorFn(onErrorFn: ClientOnErrorFn): void {
+  clientOnErrorFn = onErrorFn;
+}
+
 // The same error can surface in more than one place, e.g. an action error
 // reaches TanStack Query's cache and, if nobody catches it, the window.
 const handledErrors = new WeakSet<object>();
@@ -62,4 +73,18 @@ function reportUnexpectedClientError(
   context: ClientErrorContext,
 ): void {
   console.error(`Unexpected error in ${context.source}:`, error);
+  void callClientOnErrorFn(error, context);
+}
+
+// An error that escaped from here would reach the window and come back to
+// the client error handler.
+async function callClientOnErrorFn(
+  error: unknown,
+  context: ClientErrorContext,
+): Promise<void> {
+  try {
+    await clientOnErrorFn?.(error, context);
+  } catch (onErrorFnError: unknown) {
+    console.error("The `client.onError` function failed:", onErrorFnError);
+  }
 }

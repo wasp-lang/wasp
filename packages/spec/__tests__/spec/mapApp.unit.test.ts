@@ -870,6 +870,7 @@ describe("mapServer", () => {
 
     expect(result).toStrictEqual({
       setupFn: server.setupFn && mapRefObjectForMockProjectDir(server.setupFn),
+      onError: server.onError && mapRefObjectForMockProjectDir(server.onError),
       middlewareConfigFn:
         server.middlewareConfigFn &&
         mapRefObjectForMockProjectDir(server.middlewareConfigFn),
@@ -899,6 +900,7 @@ describe("mapClient", () => {
         client.rootComponent &&
         mapRefObjectForMockProjectDir(client.rootComponent),
       setupFn: client.setupFn && mapRefObjectForMockProjectDir(client.setupFn),
+      onError: client.onError && mapRefObjectForMockProjectDir(client.onError),
       baseDir: client.baseDir,
       envValidationSchema:
         client.envValidationSchema &&

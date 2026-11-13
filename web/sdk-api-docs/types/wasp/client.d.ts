@@ -28,6 +28,64 @@ export type ClientConfig = {
 };
 
 /**
+ * The type of the function you pass to the `client.onError` field of the app
+ * spec. Wasp calls it with every unexpected error on the client, after logging
+ * the error. Use it to send errors to an error tracking service.
+ *
+ * It receives:
+ *
+ * - `error`: The thrown value.
+ * - `context`: A {@link ClientErrorContext} that says where the error surfaced.
+ *
+ * An {@linkcode "errors"!HttpError | HttpError} is not unexpected, since the
+ * server sent it on purpose, so Wasp doesn't call the function for it. Wasp
+ * calls the function once per error, even if the error surfaces in more than
+ * one place.
+ *
+ * The function can be async, but Wasp doesn't wait for it. If the function
+ * itself throws, Wasp logs that error and carries on.
+ *
+ * @example
+ * ```ts
+ * import type { ClientOnErrorFn } from "wasp/client";
+ *
+ * export const onClientError: ClientOnErrorFn = (error, context) => {
+ *   errorTracker.capture(error, { source: context.source });
+ * };
+ * ```
+ *
+ * @see [Handling unexpected errors](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors)
+ */
+export type ClientOnErrorFn = (
+  error: unknown,
+  context: ClientErrorContext,
+) => void | Promise<void>;
+
+/**
+ * Where an unexpected client error surfaced. A {@link ClientOnErrorFn}
+ * receives it next to the error.
+ *
+ * - `"render"`: While rendering a page or the root component.
+ * - `"query"`: In a failed Query.
+ * - `"action"`: In a failed Action.
+ * - `"window"`: In the browser's `error` and `unhandledrejection` events,
+ *   e.g. an error thrown in an event handler or a rejected promise nobody
+ *   caught.
+ * - `"oauthCallback"`: While finishing an OAuth login.
+ * - `"authForm"`: While submitting one of Wasp's Auth UI forms.
+ * - `"optimisticUpdate"`: In the `updateQuery` function of an optimistic
+ *   update.
+ */
+export type ClientErrorContext =
+  | { source: "render" }
+  | { source: "query" }
+  | { source: "action" }
+  | { source: "window" }
+  | { source: "oauthCallback" }
+  | { source: "authForm" }
+  | { source: "optimisticUpdate" };
+
+/**
  * The client's validated environment variables.
  *
  * It contains the env vars that Wasp defines (like `REACT_APP_API_URL`) and the
