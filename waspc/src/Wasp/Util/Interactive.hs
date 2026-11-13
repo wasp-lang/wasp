@@ -7,7 +7,7 @@ module Wasp.Util.Interactive
     runTaskWithSpinner,
     StatusLine,
     withStatusLine,
-    printAboveStatusLine,
+    writeOutput,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -25,7 +25,7 @@ import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, readMVar, withMVar)
 import Control.Exception (finally)
-import Control.Monad (forM_, forever)
+import Control.Monad (forM_, forever, unless)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
@@ -36,6 +36,7 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrLn, stdin, stdout)
 import System.IO.Error (ioeGetHandle, isEOFError)
 import System.IO.Unsafe (unsafePerformIO)
@@ -220,47 +221,99 @@ runTaskWithSpinner terminal spinnerMessage action =
     Just statusLine -> withStatusLineText statusLine spinnerMessage action
     Nothing -> withStatusLine terminal spinnerMessage (const action)
 
+-- | Writes output where everything else is written. While a status line is
+-- shown, the output goes above it and the line is redrawn underneath, so
+-- the two never share a row. Every writer of the process goes through here.
+writeOutput :: Handle -> T.Text -> IO ()
+writeOutput handle output =
+  readIORef stdioStatusLineRef >>= \case
+    Nothing -> T.IO.hPutStr handle output >> hFlush handle
+    Just statusLine -> modifyMVar_ statusLine.statusLineState $ \state -> do
+      clearStatusLine statusLine state
+      -- A line the writer has not finished yet stays just above the status
+      -- line, and is redrawn with it, until the rest of it arrives.
+      let (completed, unfinished) = T.breakOnEnd "\n" $ state.unfinishedLine <> output
+      T.IO.hPutStr handle completed >> hFlush handle
+      let state' = state {unfinishedLine = unfinished}
+      drawStatusLine statusLine state'
+      return state'
+
 -- | The line at the bottom of the terminal that is redrawn in place: a
--- spinning glyph and a text the running action can change. Anything printed
--- while it is shown goes above it, through 'printAboveStatusLine'.
+-- spinning glyph and a text the running action can change. Anything written
+-- while it is shown goes above it, through 'writeOutput'.
 data StatusLine = StatusLine
   { statusLineTerminal :: InteractiveTerminal,
-    -- | Holding the text also serializes drawing the line and printing above it.
-    statusLineText :: MVar String
+    -- | Holding the state also serializes drawing the line and writing above it.
+    statusLineState :: MVar StatusLineState
+  }
+
+data StatusLineState = StatusLineState
+  { text :: String,
+    frame :: String,
+    -- | Output written above the line that has no line break yet.
+    unfinishedLine :: T.Text
   }
 
 withStatusLine :: InteractiveTerminal -> String -> (StatusLine -> IO a) -> IO a
-withStatusLine terminal text action = do
-  statusLine <- StatusLine terminal <$> newMVar text
+withStatusLine terminal initialText action = do
+  statusLine <- StatusLine terminal <$> newMVar (StatusLineState initialText (head spinnerFrames) "")
   writeIORef terminal.statusLineRef (Just statusLine)
   Async.withAsync (spin statusLine) (const $ action statusLine)
-    `finally` (writeIORef terminal.statusLineRef Nothing >> putStrFlush terminal clearLine)
+    `finally` (writeIORef terminal.statusLineRef Nothing >> removeStatusLine statusLine)
   where
     spin statusLine = forever $
-      forM_ spinnerFrames $ \frame -> do
-        withMVar statusLine.statusLineText $ \currentText ->
-          putStrFlush terminal $ clearLine ++ Term.applyStyles [Term.Yellow] frame ++ " " ++ currentText
+      forM_ spinnerFrames $ \nextFrame -> do
+        modifyMVar_ statusLine.statusLineState $ \state -> do
+          let state' = state {frame = nextFrame}
+          drawSpinnerRow statusLine state'
+          return state'
         threadDelay $ millisecondsToMicroSeconds 80
 
     spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
 -- | Shows the text while the action runs, then the previous text again.
 withStatusLineText :: StatusLine -> String -> IO a -> IO a
-withStatusLineText statusLine text action = do
-  previousText <- readMVar statusLine.statusLineText
-  setText text
+withStatusLineText statusLine newText action = do
+  previousText <- (.text) <$> readMVar statusLine.statusLineState
+  setText newText
   action `finally` setText previousText
   where
-    setText newText = modifyMVar_ statusLine.statusLineText (const $ return newText)
+    setText t = modifyMVar_ statusLine.statusLineState $ \state -> return state {text = t}
 
-printAboveStatusLine :: StatusLine -> IO () -> IO ()
-printAboveStatusLine statusLine printing =
-  withMVar statusLine.statusLineText $ \_ ->
-    putStrFlush statusLine.statusLineTerminal clearLine >> printing
+-- | Draws the status line from the current row: the unfinished output line,
+-- if any, then the spinner row below it.
+drawStatusLine :: StatusLine -> StatusLineState -> IO ()
+drawStatusLine statusLine state = do
+  unless (T.null state.unfinishedLine)
+    $ putStrFlush statusLine.statusLineTerminal
+    $ T.unpack state.unfinishedLine ++ "\n"
+  drawSpinnerRow statusLine state
+
+-- | Redraws the spinner row in place.
+drawSpinnerRow :: StatusLine -> StatusLineState -> IO ()
+drawSpinnerRow statusLine state =
+  putStrFlush statusLine.statusLineTerminal $
+    clearLine ++ Term.applyStyles [Term.Yellow] state.frame ++ " " ++ state.text
+
+-- | Erases what 'drawStatusLine' drew, leaving the cursor where it started.
+clearStatusLine :: StatusLine -> StatusLineState -> IO ()
+clearStatusLine statusLine state =
+  putStrFlush statusLine.statusLineTerminal $
+    clearLine ++ (if T.null state.unfinishedLine then "" else cursorUp ++ clearLine)
+
+-- | Erases the status line for good, leaving any unfinished output line in
+-- place for its writer to continue.
+removeStatusLine :: StatusLine -> IO ()
+removeStatusLine statusLine = withMVar statusLine.statusLineState $ \state -> do
+  clearStatusLine statusLine state
+  putStrFlush statusLine.statusLineTerminal $ T.unpack state.unfinishedLine
 
 -- | Moves the cursor to the start of the line and erases the line.
 clearLine :: String
 clearLine = "\r" ++ Term.ansiEscapeCode ++ Term.ansiClearLineCode
+
+cursorUp :: String
+cursorUp = Term.ansiEscapeCode ++ "[1A"
 
 -- | Prompts for the user's answer and reads it.. Reaching the end of input
 -- while waiting for an answer (Ctrl+D) throws an error 'isPromptInputEOF'

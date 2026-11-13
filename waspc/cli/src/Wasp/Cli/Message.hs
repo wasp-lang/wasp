@@ -24,17 +24,16 @@ cliSendMessage (Msg.Warning entries) =
   waspWarns =<< labeledMessage Term.Yellow "!" "WARNING" entries
 
 -- | Runs the steps of a bigger step as one. In a terminal they share one
--- status line that follows the running step, their success lines are not
--- printed, and anything else they report goes above the line. Elsewhere the
--- group announces itself and the steps print their lines as usual. The
--- caller reports how the group ended.
+-- status line that follows the running step and their success lines are not
+-- printed. Elsewhere the group announces itself and the steps print their
+-- lines as usual. The caller reports how the group ended.
 runStepGroup :: String -> (Msg.SendMessage -> IO a) -> IO a
 runStepGroup runningMessage steps =
   Interactive.getInteractiveTerminal >>= \case
-    Just terminal -> Interactive.withStatusLine terminal runningMessage $ \statusLine ->
+    Just terminal -> Interactive.withStatusLine terminal runningMessage $ \_ ->
       steps $ \case
         Msg.Success _ -> return ()
-        message -> Interactive.printAboveStatusLine statusLine $ cliSendMessage message
+        message -> cliSendMessage message
     Nothing -> cliSendMessage (Msg.Start runningMessage) >> steps cliSendMessage
 
 -- | Every entry starts with the label and everything else it says hangs

@@ -18,10 +18,10 @@ import Control.Monad.State (get, put)
 import Control.Monad.State.Strict (MonadState, StateT, execStateT)
 import qualified Data.Set as S
 import qualified Data.Text as T
-import qualified Data.Text.IO as T.IO
 import Data.Time (defaultTimeLocale, formatTime, getZonedTime)
-import System.IO (Handle, hFlush, stderr, stdout)
+import System.IO (Handle, stderr, stdout)
 import qualified Wasp.Job.Common as J
+import qualified Wasp.Util.Interactive as Interactive
 import qualified Wasp.Util.Terminal as Term
 
 -- | Prints job output to Wasp's own stdout and stderr. Jobs can print from
@@ -187,9 +187,7 @@ makeJobMessagePrefix time output =
       J.Db -> ("db", [Term.Blue])
 
 printMessageContent :: J.OutputType -> T.Text -> IO ()
-printMessageContent outputType content = T.IO.hPutStr outHandle content >> hFlush outHandle
-  where
-    outHandle = getOutputTypeHandle outputType
+printMessageContent outputType = Interactive.writeOutput (getOutputTypeHandle outputType)
 
 getOutputTypeHandle :: J.OutputType -> Handle
 getOutputTypeHandle J.Stdout = stdout
