@@ -653,7 +653,7 @@ Wasp's `useQuery` hook accepts three arguments:
 
   A _react-query_ `options` object. Use this to change
   [the default
-  behavior](https://react-query.tanstack.com/guides/important-defaults) for
+  behavior](https://tanstack.com/query/v4/docs/framework/react/guides/important-defaults) for
   this particular Query. If you want to change the global defaults, you can do
   so in the [client setup function](../../../advanced/client-customization/client-config.md#overriding-default-behaviour-for-queries).
 

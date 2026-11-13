@@ -21,7 +21,7 @@ Sounds simple, but it is really not!
 
 Let’s take a look at a couple of examples.
 
-# Example #1
+## Example #1
 
 ```js
 // Given first and last name of a person, returns the
@@ -69,7 +69,7 @@ What did we do?
 
 Finally, notice how there is no comment above the function anymore. The thing is, **the comment is not needed anymore**: it is all clear from the function name and arguments!
 
-# Example #2
+## Example #2
 
 ```js
 // Find a free machine and use it, or create a new machine
@@ -120,7 +120,7 @@ async function setUpDockerWorker (machineId, dockerImage, setupCmd) { ... }
 async function startExecutingJob (workerId, jobDescription) { ... }
 ```
 
-# What is a good name?
+## What is a good name?
 
 But let’s take a step back - what is a bad name, and what is a good name? What does that mean, how do we recognize them?
 
@@ -130,7 +130,7 @@ A good name should give you a good idea about what the variable contains or func
 
 Also, **context is king:** you can’t evaluate the name without the context in which it is read. `verifyOrganizationChainCredentials` could be a terrible name or a great name. `a` could be a great name or a terrible name. It depends on the story, the surroundings, on the problem the code is solving. Names tell a story, and they need to fit together like a story.
 
-# Examples of famous bad names
+## Examples of famous bad names
 
 - **JavaScript**
   - I was the victim of this bad naming myself: my parents bought me a book about JavaScript while I wanted to learn Java.
@@ -139,15 +139,15 @@ Also, **context is king:** you can’t evaluate the name without the context in 
 - **Wasp-lang**:
   - This one is my fault: [Wasp](https://github.com/wasp-lang/wasp) is a full-stack JS web framework that uses a custom config language as only a small part of its codebase, but I put `-lang` in the name and scared a lot of people away because they thought it was a whole new general programming language!
 
-# How to come up with a good name
+## How to come up with a good name
 
-## Don’t give a name, find it
+### Don’t give a name, find it
 
 The best advice is maybe not to give a name, but instead to **find out** a name. You shouldn’t be making up an original name, as if you are naming a pet or a child; **you are instead looking for the essence of the thing you are naming, and the name should present itself based on it**. If you don’t like the name you discovered, it means you don’t like the thing you are naming, and you should change that thing by improving the design of your code (as we did in the example #2).
 
 <ImgWithCaption alt="You shouldn't name your variables the same way you name your pets, and vice versa" source="img/blog/2023-10-12-on-importance-of-naming-in-programming/variables-naming-pet-white.png" />
 
-## Things to look out for when figuring out a name
+### Things to look out for when figuring out a name
 
 1. **First, make sure it is not a bad name :)**. Remember: don’t misdirect, don’t omit, don’t assume.
 2. **Make it reflect what it represents.** Find the essence of it, capture it in the name. Name is still ugly? Improve the code. You have also other things to help you here → type signature, and comments. But those come secondary.
@@ -158,7 +158,7 @@ The best advice is maybe not to give a name, but instead to **find out** a name.
    - prefix `is` when the variable is Bool (e.g. `isAuthEnabled`)
    - prefix `ensure` for the functions that are idempotent, that will do something (e.g allocate a resource) only if it hasn’t been set up so far (e.g. `ensureServerIsRunning`).
 
-## The simple technique for figuring out a name every time
+### The simple technique for figuring out a name every time
 
 If you are ever having trouble coming up with a name, do the following:
 
@@ -171,7 +171,7 @@ If you are ever having trouble coming up with a name, do the following:
 
 Don’t get overly stuck on always figuring out the perfect name at the get-go → it is okay to do multiple iterations of your code, with both your code and name improving with each iteration.
 
-# Reviewing code with naming in mind
+## Reviewing code with naming in mind
 
 Once you start thinking a lot about naming, you will see how it will change your code review process: focus shifts from looking at implementation details to looking at names first.
 
@@ -179,7 +179,7 @@ Once you start thinking a lot about naming, you will see how it will change your
 
 Inspecting a name is a single point of pressure, that untangles the whole mess behind it. Search for bad names, and you will sooner or later uncover the bad code if there is some.
 
-# Further reading
+## Further reading
 
 If you haven’t yet read it, I would recommend reading the book **Clean Code by Robert Martin**. It has a great chapter on naming and also goes much further on how to write code that you and others will enjoy reading and maintaining.
 
