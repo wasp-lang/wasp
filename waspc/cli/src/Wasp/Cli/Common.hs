@@ -5,11 +5,15 @@ module Wasp.Cli.Common
   )
 where
 
+import qualified Data.Text as T
+import System.IO (stdout)
+import qualified Wasp.Util.Interactive as Interactive
+
 waspSays :: String -> IO ()
-waspSays = putStrLn
+waspSays = Interactive.writeOutput stdout . T.pack . (++ "\n")
 
 waspWarns :: String -> IO ()
-waspWarns = putStrLn
+waspWarns = waspSays
 
 waspScreams :: String -> IO ()
-waspScreams = putStrLn
+waspScreams = waspSays
