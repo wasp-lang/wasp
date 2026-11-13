@@ -42,7 +42,7 @@ Two things to keep in mind:
 
 1. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for _Dallas, Texas (US)_). Read more about Fly.io regions [here](#flyio-regions).
+The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for _Dallas, Texas (US)_). Read more about [Fly.io regions](#flyio-regions).
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -178,7 +178,7 @@ Then you can run `npm run deploy` to deploy your app.
 > Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
 
 <small>
-  Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+  Read more on [Fly.io regions in the Fly docs](https://fly.io/docs/reference/regions/).
 </small>
 
 You can find the list of all available Fly regions by running:
@@ -236,7 +236,7 @@ It accepts the following arguments:
 
 - `<region>`  <Required />
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 Running `wasp deploy fly launch` is the same as running the following commands:
 
@@ -287,7 +287,7 @@ It accepts the following arguments:
 
 - `<region>` <Required />
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
 You should include these files in your version control.
@@ -312,7 +312,7 @@ It accepts the following arguments:
 
 - `<region>` <Required />
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 #### Database options
 

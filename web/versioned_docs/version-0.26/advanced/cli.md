@@ -142,7 +142,7 @@ $ wasp clean
 
 Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
 
-Read more about automatic deployment [here](../deployment/methods/wasp-deploy/overview.md).
+Read more about [automatic deployment](../deployment/methods/wasp-deploy/overview.md).
 
 - `wasp telemetry` displays the status of [telemetry](../telemetry.md).
 
