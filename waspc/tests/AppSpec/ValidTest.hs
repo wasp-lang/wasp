@@ -462,7 +462,8 @@ spec_AppSpecValid = do
                 { AS.Action.name = name,
                   AS.Action.auth = Nothing,
                   AS.Action.entities = Just $ AS.Core.Ref.Ref <$> entityNames,
-                  AS.Action.fn = dummyExtImport
+                  AS.Action.fn = dummyExtImport,
+                  AS.Action.expose = Nothing
                 }
       let makeQueryDeclWithEntities name entityNames =
             AS.Decl.makeDecl
@@ -470,7 +471,8 @@ spec_AppSpecValid = do
                 { AS.Query.name = name,
                   AS.Query.auth = Nothing,
                   AS.Query.entities = Just $ AS.Core.Ref.Ref <$> entityNames,
-                  AS.Query.fn = dummyExtImport
+                  AS.Query.fn = dummyExtImport,
+                  AS.Query.expose = Nothing
                 }
       let makeSpecWithDecls extraDecls =
             basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl] ++ extraDecls}
@@ -697,7 +699,8 @@ spec_AppSpecValid = do
           { AS.Action.name = name,
             AS.Action.auth = Nothing,
             AS.Action.entities = Nothing,
-            AS.Action.fn = dummyExtImport
+            AS.Action.fn = dummyExtImport,
+            AS.Action.expose = Nothing
           }
 
     makeBasicQueryDecl name =
@@ -706,7 +709,8 @@ spec_AppSpecValid = do
           { AS.Query.name = name,
             AS.Query.auth = Nothing,
             AS.Query.entities = Nothing,
-            AS.Query.fn = dummyExtImport
+            AS.Query.fn = dummyExtImport,
+            AS.Query.expose = Nothing
           }
 
     makeBasicApiDecl name route =

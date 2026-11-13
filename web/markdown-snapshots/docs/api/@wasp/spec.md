@@ -318,6 +318,12 @@ A list of entities you wish to use inside your Action.
 
 See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/actions#using-entities-in-actions).
 
+###### expose?
+
+[`Expose`](#expose-1)
+
+Where the Action is available. By default it gets an HTTP route and a `wasp/client/operations` export.
+
 #### Returns
 
 [`Action`](#action)
@@ -679,6 +685,12 @@ A list of entities you wish to use inside your Query.
 
 See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
 
+###### expose?
+
+[`Expose`](#expose-1)
+
+Where the Query is available. By default it gets an HTTP route and a `wasp/client/operations` export.
+
 #### Returns
 
 [`Query`](#query)
@@ -830,6 +842,12 @@ Only available if your app has auth enabled.
 A list of entities you wish to use inside your Action.
 
 See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/actions#using-entities-in-actions).
+
+##### expose? {#expose}
+
+> `optional` **expose?**: [`Expose`](#expose-1)
+
+Where the Action is available. By default it gets an HTTP route and a `wasp/client/operations` export.
 
 ##### fn {#fn}
 
@@ -1142,6 +1160,12 @@ Only available if your app has auth enabled.
 A list of entities you wish to use inside your Query.
 
 See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
+
+##### expose? {#expose-2}
+
+> `optional` **expose?**: [`Expose`](#expose-1)
+
+Where the Query is available. By default it gets an HTTP route and a `wasp/client/operations` export.
 
 ##### fn {#fn-3}
 
@@ -2167,6 +2191,26 @@ The `pgBoss` field is forwarded as-is to the matching pg-boss API. See the [pg-b
 ##### pgBoss
 
 > **pgBoss**: `object`
+
+---
+
+### Expose {#expose-1}
+
+Where an operation is available.
+
+#### Properties
+
+##### client? {#client-2}
+
+> `optional` **client?**: `boolean`
+
+Whether the operation gets an HTTP route and a `wasp/client/operations` export. Set it to `false` for operations only server code calls: the client can't call them, and there's no route to reach them over HTTP.
+
+###### Default
+
+```ts
+true
+```
 
 ---
 

@@ -394,6 +394,7 @@ describe("mapQuery", () => {
         fn: mapRefObjectForMockProjectDir(query.fn),
         entities: query.entities?.map(ctx.resolveEntityRef),
         auth: query.auth,
+        expose: query.expose && SpecElementMapper.mapExpose(query.expose),
       },
     } satisfies AppSpec.GetDeclForType<"Query">);
   }
@@ -427,6 +428,7 @@ describe("mapAction", () => {
         fn: mapRefObjectForMockProjectDir(action.fn),
         entities: action.entities?.map(ctx.resolveEntityRef),
         auth: action.auth,
+        expose: action.expose && SpecElementMapper.mapExpose(action.expose),
       },
     } satisfies AppSpec.GetDeclForType<"Action">);
   }
@@ -968,6 +970,20 @@ describe("mapEmailFromField", () => {
       email: emailFromField.email,
     } satisfies AppSpec.EmailFromField);
   }
+});
+
+describe("mapExpose", () => {
+  test("should map minimal config correctly", () => {
+    expect(
+      SpecElementMapper.mapExpose(Fixtures.getExposeConfig("minimal")),
+    ).toStrictEqual({ client: undefined } satisfies AppSpec.Expose);
+  });
+
+  test("should map full config correctly", () => {
+    expect(
+      SpecElementMapper.mapExpose(Fixtures.getExposeConfig("full")),
+    ).toStrictEqual({ client: false } satisfies AppSpec.Expose);
+  });
 });
 
 describe("mapWebSocket", () => {

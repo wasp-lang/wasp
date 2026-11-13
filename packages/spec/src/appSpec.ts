@@ -54,6 +54,7 @@ export type Action = {
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
   auth: Optional<boolean>;
+  expose: Optional<Expose>;
 };
 
 export type Query = {
@@ -61,6 +62,11 @@ export type Query = {
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
   auth: Optional<boolean>;
+  expose: Optional<Expose>;
+};
+
+export type Expose = {
+  client: Optional<boolean>;
 };
 
 export type Job = {
