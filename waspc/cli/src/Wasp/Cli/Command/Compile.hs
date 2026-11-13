@@ -24,8 +24,10 @@ import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.IO (hPutStrLn, stderr)
+import System.IO.Error (tryIOError)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -42,6 +44,7 @@ import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+import Wasp.Util.Terminal (styleLiteral)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
@@ -71,20 +74,19 @@ compileWithOptions options = do
   InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
+      outDirName = styleLiteral $ SP.fromRelDir generatedAppDirInWaspProjectDir
 
   generatedAppIsCompatible <-
     liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
   outDirExists <- liftIO $ doesDirectoryExist outDir
 
-  when (outDirExists && not generatedAppIsCompatible) $ do
-    cliSendMessageC
-      $ Msg.Start
-      $ "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
-    liftIO $ removeDirectory outDir
-    cliSendMessageC
-      $ Msg.Success
-      $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  when (outDirExists && not generatedAppIsCompatible) $
+    runTaskOrAbort
+      ("Clearing the " ++ outDirName ++ " directory")
+      ("Cleared the " ++ outDirName ++ " directory")
+      ("Failed to clear the " ++ outDirName ++ " directory")
+      (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory outDir))
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
