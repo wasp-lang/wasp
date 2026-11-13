@@ -148,7 +148,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
 
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
-      compileResult <- runStepGroup "File change detected, recompiling" $ \groupSendMessage ->
+      compileResult <- runStepGroup "Recompiling on file change" $ \groupSendMessage ->
         compileIOWithOptions (defaultCompileOptions waspProjectDir) {sendMessage = groupSendMessage} waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 

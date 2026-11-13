@@ -218,7 +218,7 @@ repeatUntil terminal predicate errorMessage action = do
 runTaskWithSpinner :: InteractiveTerminal -> String -> IO a -> IO a
 runTaskWithSpinner terminal spinnerMessage action =
   readIORef terminal.statusLineRef >>= \case
-    Just statusLine -> withStatusLineText statusLine spinnerMessage action
+    Just statusLine -> withStatusLineText statusLine (\groupText -> groupText ++ ": " ++ spinnerMessage) action
     Nothing -> withStatusLine terminal spinnerMessage (const action)
 
 -- | Writes output where everything else is written. While a status line is
@@ -271,11 +271,12 @@ withStatusLine terminal initialText action = do
 
     spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
--- | Shows the text while the action runs, then the previous text again.
-withStatusLineText :: StatusLine -> String -> IO a -> IO a
-withStatusLineText statusLine newText action = do
+-- | Shows the text derived from the current one while the action runs, then
+-- the current text again.
+withStatusLineText :: StatusLine -> (String -> String) -> IO a -> IO a
+withStatusLineText statusLine deriveText action = do
   previousText <- (.text) <$> readMVar statusLine.statusLineState
-  setText newText
+  setText $ deriveText previousText
   action `finally` setText previousText
   where
     setText t = modifyMVar_ statusLine.statusLineState $ \state -> return state {text = t}
