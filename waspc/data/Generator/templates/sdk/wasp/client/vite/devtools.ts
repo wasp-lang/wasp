@@ -25,15 +25,6 @@ export function waspDevTools(options: DevToolsOptions = {}): DevToolsOptions {
     // too, but there is no page to show DevTools on.
     apply: "serve",
     enabled: !process.env["VITEST"],
-    // `wasp()` adds its own toolbar to the page, which replaces the floating
-    // dock of Vite DevTools. The dock still opens with its keyboard shortcut.
-    embeddedVisibility: "hidden",
-    // Vite's built-in panels offer to install more packages into the project.
-    // `wasp()` adds the Terminals panel back on its own.
-    builtinDevTools: false,
-    // Skip the sign-in code. Vite DevTools still only accepts connections
-    // from pages on localhost, unless `allowedOrigins` adds more.
-    clientAuth: false,
     ...options,
     branding: {
       productName: "Wasp DevTools",

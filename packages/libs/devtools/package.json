@@ -24,10 +24,7 @@
     "vite": "^8.3.5"
   },
   "dependencies": {
-    "@devframes/plugin-terminals": "^1.3.2",
-    "@devframes/plugin-terminals--assets": "^1.3.2",
-    "@vitejs/devtools-kit": "^0.8.2",
-    "devframe": "^1.3.2"
+    "@vitejs/devtools-kit": "^0.8.2"
   },
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",

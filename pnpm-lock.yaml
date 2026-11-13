@@ -305,18 +305,9 @@ importers:
 
   packages/libs/devtools:
     dependencies:
-      '@devframes/plugin-terminals':
-        specifier: ^1.3.2
-        version: 1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(@devframes/plugin-terminals--assets@1.3.2)(devframe@1.3.2)(vite@8.3.5)
-      '@devframes/plugin-terminals--assets':
-        specifier: ^1.3.2
-        version: 1.3.2
       '@vitejs/devtools-kit':
         specifier: ^0.8.2
         version: 0.8.2(@devframes/agentic@1.3.2)(cac@7.1.0)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
-      devframe:
-        specifier: ^1.3.2
-        version: 1.3.2(@devframes/agentic@1.3.2)(cac@7.1.0)(srvx@1.0.8)
     devDependencies:
       '@tsconfig/node-ts':
         specifier: ^23.6.4
@@ -12612,7 +12603,8 @@ snapshots:
       vite: 8.3.5(@types/node@26.6.6)(@vitejs/devtools@0.8.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
     optional: true
 
-  '@devframes/plugin-terminals--assets@1.3.2': {}
+  '@devframes/plugin-terminals--assets@1.3.2':
+    optional: true
 
   '@devframes/plugin-terminals@1.3.2(@devframes/hub-ui@1.3.2)(@devframes/hub@1.3.2)(@devframes/plugin-terminals--assets@1.3.2)(devframe@1.3.2)(vite@8.3.5)':
     dependencies:
@@ -12626,6 +12618,7 @@ snapshots:
     transitivePeerDependencies:
       - '@devframes/hub'
       - '@devframes/hub-ui'
+    optional: true
 
   '@devframes/service-open@1.3.2(devframe@1.3.2)':
     dependencies:
@@ -12641,6 +12634,7 @@ snapshots:
       '@devframes/hub': 1.3.2(@devframes/agentic@1.3.2)(crossws@0.4.17)(devframe@1.3.2)
       '@devframes/hub-ui': 1.3.2(@devframes/hub@1.3.2)(@devframes/json-render@1.3.2)(devframe@1.3.2)
       vite: 8.3.5(@types/node@26.6.6)(@vitejs/devtools@0.8.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
+    optional: true
 
   '@discoveryjs/json-ext@0.5.7': {}
 
