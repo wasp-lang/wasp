@@ -22,8 +22,7 @@ const testimonials = [
     text: "With Next.js App Router, I was constantly fighting the LLM to get the syntax right. With Wasp, you can ask Claude... and it actually knows.",
     name: "TK Garrett",
     role: "Founder @ PlotTree",
-    img: "https://plottree.ai/hand-with-quill.svg",
-    url: "https://plottree.ai",
+    url: "/blog/2026/04/23/14k-stars-open-saas-ai-era",
     aiTools: ["Claude", "Cursor"],
   },
   {

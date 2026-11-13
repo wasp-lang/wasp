@@ -88,7 +88,7 @@ There is also `TypeApplications` extension which interacts with `forall` and in 
 
 Since `forall` is useful only when used with extensions, let's take a look at how it is used in each one of those!
 
-## `forall` and extension [ScopedTypeVariables](https://ghc.readthedocs.io/en/latest/glasgow_exts.html#lexically-scoped-type-variables)
+## `forall` and extension [ScopedTypeVariables](https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/scoped_type_variables.html)
 
 `ScopedTypeVariables` enables lexical scoping of type variables by explicitly introducing them with `forall`.
 
@@ -124,7 +124,7 @@ of the accompanying value declaration (in this case definition of `f`).
 This means that any mention of type `a` in the definition of `f` now refers to that `a` from the type signature of `f`,
 which is exactly what we needed, and the code example above now compiles.
 
-## `forall` and extension [RankNTypes](https://ghc.readthedocs.io/en/latest/glasgow_exts.html#arbitrary-rank-polymorphism)
+## `forall` and extension [RankNTypes](https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/rank_polymorphism.html)
 
 Basically, what `RankNTypes` does is enable you to use `forall` nested in type signatures, so that it does not apply to the whole type signature but just the part of it.
 
@@ -161,7 +161,7 @@ liftPair func (y, z) = (func y, func z)
 `liftPair` takes polymorphic function and applies it to both values in the pair.
 There would be no way to write its type signature without using `RankNTypes`.
 
-## `forall` and extension [ExistentialQuantification](https://ghc.readthedocs.io/en/latest/glasgow_exts.html#existentially-quantified-data-constructors)
+## `forall` and extension [ExistentialQuantification](https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/existential_quantification.html)
 
 `ExistentialQuantification` enables us to use `forall` in the type signature of data constructors.
 
@@ -202,7 +202,7 @@ data Showable where
 
 In this case `forall` is not needed, as it is implicit.
 
-## `forall` and extension [TypeApplications](https://ghc.readthedocs.io/en/latest/glasgow_exts.html#visible-type-application)
+## `forall` and extension [TypeApplications](https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/type_applications.html)
 
 `TypeApplications` does not change how `forall` works like the extensions above do, but it does have an interesting interaction with `forall`, so we will mention it here.
 
@@ -225,8 +225,8 @@ This document should give a fair idea of how `forall` is used and what can be do
 For more in-detail explanations and further investigation, here is a couple of useful resources:
 
 - Great SO question/answers: https://stackoverflow.com/questions/3071136/what-does-the-forall-keyword-in-haskell-ghc-do .
-- Docs on extensions, which in details describe how each of them works: https://ghc.readthedocs.io/en/latest/glasgow\_exts.html .
-- https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/explicit\_forall.html .
+- Docs on extensions, which in details describe how each of them works: https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/table.html .
+- https://downloads.haskell.org/ghc/latest/docs/users_guide/exts/explicit_forall.html .
 - Article about `ST` monad that also explains a lot about `forall`: https://dl.acm.org/doi/10.1145/178243.178246 .
 
 This blog post originated from the [notes I wrote in wasp-lang/haskell-handbook](https://github.com/wasp-lang/haskell-handbook/blob/35f14951b17f2174cbc269628bea157b6698a9e4/forall.md).

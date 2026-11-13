@@ -26,7 +26,7 @@ Besides, I liked the idea of referential transparency when writing pure function
 
 **Second, Haskell is lazy.** While there are pros and cons to this, it feels undeniably different. Most languages are strict, in that all function arguments are evaluated before invoking a function. This is required because of side effects; to have some expectations regarding the order in which things will run. Haskell does the opposite: it delays evaluation until it’s actually needed.
 
-One contrived yet helpful example of laziness is infinite data structures. Below, we define `fibs` as an infinite `List` of `Integer` values, by using references to _itself_! (You can find a runnable example [here](https://replit.com/@ShayneCzyzewsk1/LazyHaskellExample?v=1#Main.hs).)
+One contrived yet helpful example of laziness is infinite data structures. Below, we define `fibs` as an infinite `List` of `Integer` values, by using references to _itself_! (You can find a runnable example here.)
 
 ```haskell
 fibs :: [Integer]
@@ -41,7 +41,7 @@ To sum up: Haskell is functional, lazy, and strongly statically typed. Just the 
 
 ## Hello Haskell!
 
-I started by reading the canonical Haskell newbie resource, “_[Learn You a Haskell for Great Good!](http://learnyouahaskell.com/),_” often abbreviated LYAH. It was very entertaining, and I learned a lot from it. At times, I wanted it to get to the point more quickly. Still, despite the amusing images and often lengthy examples, it provided me with a great conceptual foundation. I highly recommend it as your first read — it is a really well-written resource for beginners.
+I started by reading the canonical Haskell newbie resource, “_[Learn You a Haskell for Great Good!](https://learnyouahaskell.github.io/),_” often abbreviated LYAH. It was very entertaining, and I learned a lot from it. At times, I wanted it to get to the point more quickly. Still, despite the amusing images and often lengthy examples, it provided me with a great conceptual foundation. I highly recommend it as your first read — it is a really well-written resource for beginners.
 
 After I was about 80% done with LYAH, I switched to a more recent but still popular book: “_[Haskell Programming from First Principles](https://haskellbook.com/)_.” I liked that it started with fundamentals and then moved to more complex topics, slowly but steadily developing my understanding. It was pretty long, though, and sometimes went too far into the weeds. It also had a tinge of intellectual flexing at certain points. Still, it was a good read. I’d read it again if I were starting over.
 
