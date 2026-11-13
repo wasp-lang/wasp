@@ -67,7 +67,7 @@ genApp spec = do
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTypeAugmentation spec
-    <++> genWaspLibs
+    <++> genWaspLibs spec
 
 warnOverriddenDeps :: AppSpec -> Generator ()
 warnOverriddenDeps spec =

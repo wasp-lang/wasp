@@ -3,17 +3,18 @@ module Wasp.Generator.WaspLibs
   )
 where
 
+import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft, createCopyLibFileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.AvailableLibs (getWaspLibsForApp)
 import Wasp.Generator.WaspLibs.WaspLib
   ( WaspLib,
     getTarballPathInGeneratedAppDir,
     getTarballPathInLibsSourceDir,
   )
 
-genWaspLibs :: Generator [FileDraft]
-genWaspLibs = return $ mkLibCopyDraft <$> waspLibs
+genWaspLibs :: AppSpec -> Generator [FileDraft]
+genWaspLibs spec = return $ mkLibCopyDraft <$> getWaspLibsForApp spec
   where
     mkLibCopyDraft :: WaspLib -> FileDraft
     mkLibCopyDraft waspLib =
