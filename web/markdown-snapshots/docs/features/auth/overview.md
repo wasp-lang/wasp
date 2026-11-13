@@ -1,14 +1,14 @@
 > Fetch the complete documentation index at: https://wasp.sh/llms.txt
 ---
 
-# Overview
+# Auth overview
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -114,7 +114,7 @@ When declaring a page, you can set the `authRequired` property.
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
@@ -181,7 +181,7 @@ There are two ways to access the `user` object on the client:
 If the page's spec sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
@@ -276,7 +276,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 };
 ```
 
-To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
+To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `null` inside a private operation, the user's access should be denied.
 
 When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](https://wasp.sh/docs/features/websockets#websocketfn).
 
@@ -293,7 +293,7 @@ When users log in, Wasp creates a session for them and stores it in the database
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -311,6 +311,7 @@ import {
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
 } from "wasp/server/auth";
+import { HttpError } from "wasp/errors";
 import type { UpdatePassword } from "wasp/server/operations";
 
 export const updatePassword: UpdatePassword<
@@ -347,7 +348,7 @@ Default validations depend on the auth method you use.
 If you use [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) authentication, the default validations are:
 
 - The `username` must not be empty
-- The `password` must not be empty, have at least 8 characters, and contain a number
+- The `password` must not be empty, have at least 8 characters, and contain a number. You can [change the password rules](#custom-password-rules).
 
 Note that `username`s are stored in a **case-insensitive** manner.
 
@@ -356,11 +357,71 @@ Note that `username`s are stored in a **case-insensitive** manner.
 If you use [Email](https://wasp.sh/docs/features/auth/email/overview) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address (HTML5 format widened to support Unicode)
-- The `password` must not be empty, have at least 8 characters, and contain a number
+- The `password` must not be empty, have at least 8 characters, and contain a number. You can [change the password rules](#custom-password-rules).
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
 Since Wasp's definition of valid email addresses is wider than the HTML5 grammar (we also support Unicode!), you won't want to use the usual `type="email"` attribute on the `input` element (which follows HTML5 grammar and doesn't accept Unicode). Instead use `type="text"` with `inputMode="email"` and `autoComplete="email"`.
+
+#### Custom Password Rules
+
+You can replace the default password rules with your own [Zod](https://zod.dev) schema. Set the `passwordValidationSchema` field on the `email` or `usernameAndPassword` auth method:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec"
+import { passwordValidationSchema } from "./src/auth/password" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  // ...
+  auth: {
+    userEntity: "User",
+    methods: {
+      email: {
+        passwordValidationSchema,
+        // ...
+      },
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+  // ...
+})
+```
+
+Then define the schema in the `src/auth/password.ts` file:
+
+```ts title="src/auth/password.ts"
+import { definePasswordValidationSchema } from "wasp/auth";
+import * as z from "zod";
+
+export const passwordValidationSchema = definePasswordValidationSchema(
+  z
+    .string()
+    .min(12, "Password must be at least 12 characters")
+    .regex(/\p{Lu}/u, "Password must contain an uppercase letter"),
+);
+```
+
+Wasp checks new passwords against your schema on signup and password reset, on the server and in the [Auth UI](https://wasp.sh/docs/features/auth/ui) forms before they submit. `ensureValidPassword` uses it too, so your [custom auth actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions) follow the same rules. Logging in doesn't check the schema, so changing the rules doesn't lock out existing users.
+
+To check passwords in your own forms, import the schema from `wasp/client/auth`:
+
+```ts title="src/auth/SignupPage.tsx"
+import { passwordValidationSchema } from "wasp/client/auth"
+
+const result = passwordValidationSchema.safeParse(password)
+```
+
+It's your schema, or Wasp's default rules when you didn't set one.
+
+When a password fails, Wasp responds with the schema's first error message.
+
+Keep in mind:
+
+- The schema must validate a string. `definePasswordValidationSchema` type-checks that for you.
+- The schema file runs in the browser too, so don't import server-only code in it.
+- Wasp only checks the password with the schema. It ignores the parsed value, so transforms like `.trim()` don't change the password Wasp saves.
+- Async refinements aren't supported. Use the [`onBeforeSignup` hook](https://wasp.sh/docs/features/auth/hooks#executing-code-before-the-user-signs-up) for checks that need to call other services.
 
 ## Customizing the Signup Process
 
@@ -388,7 +449,7 @@ First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `mai
 For example, if you are using [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -433,7 +494,7 @@ export const userSignupFields = defineUserSignupFields({
 });
 ```
 
-Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
+Read more about the `userSignupFields` object in the [API Reference](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields).
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp.ts` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
 
@@ -452,8 +513,10 @@ export const userSignupFields = defineUserSignupFields({
   address: (data) => {
     const AddressSchema = z
       .string({
-        required_error: "Address is required",
-        invalid_type_error: "Address must be a string",
+        error: (issue) =>
+          issue.input === undefined
+            ? "Address is required"
+            : "Address must be a string",
       })
       .min(10, "Address must be at least 10 characters long");
     const result = AddressSchema.safeParse(data.address);
@@ -575,151 +638,44 @@ Read more about the render function in the [API Reference](#signupform-customiza
 
 ### Auth Fields
 
-[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-### [Auth »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+### [Auth »](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
-[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
+[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#auth-3)
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
+[API reference](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields)
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+### [defineUserSignupFields »](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields)
 
-export default app({
-  name: "myApp",
-  // ...
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {
-        userSignupFields,
-      },
-    },
-    onAuthFailedRedirectTo: "/login",
-  },
-  // ...
-})
-```
-
-Then we'll export the `userSignupFields` object from the `src/auth/signup.ts` file:
-
-```ts title="src/auth/signup.ts"
-import { defineUserSignupFields } from "wasp/server/auth";
-
-export const userSignupFields = defineUserSignupFields({
-  address: async (data) => {
-    const address = data.address;
-    if (typeof address !== "string") {
-      throw new Error("Address is required");
-    }
-    if (address.length < 5) {
-      throw new Error("Address must be at least 5 characters long");
-    }
-    return address;
-  },
-});
-```
-
-The `userSignupFields` object is an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
-
-If the value that the function received is invalid, the function should throw an error.
-
-\* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
+[Define the extra fields Wasp saves on the user entity when a user signs up.](https://wasp.sh/docs/api/wasp/server/auth#defineusersignupfields)
 
 ### `SignupForm` Customization
 
-To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
+[API reference](https://wasp.sh/docs/api/wasp/client/auth#signupform)
 
-```tsx title="src/SignupPage.tsx"
-import {
-  SignupForm,
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from "wasp/client/auth";
+### [SignupForm »](https://wasp.sh/docs/api/wasp/client/auth#signupform)
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: "address",
-          label: "Address",
-          type: "input",
-          validations: {
-            required: "Address is required",
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register("phoneNumber", {
-                  required: "Phone number is required",
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          );
-        },
-      ]}
-    />
-  );
-};
-```
+[The signup form component, including its additionalFields prop.](https://wasp.sh/docs/api/wasp/client/auth#signupform)
 
-The extra fields can be either **objects** or **render functions** (you can combine them):
+### Auth APIs
 
-1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
+[API reference](https://wasp.sh/docs/api/wasp/auth)
 
-   The objects have the following properties:
+### [wasp/auth »](https://wasp.sh/docs/api/wasp/auth)
 
-   - `name` required
+[The AuthUser type and helpers for reading a user's auth data, on the client and the server.](https://wasp.sh/docs/api/wasp/auth)
 
-     - the name of the field
+[API reference](https://wasp.sh/docs/api/wasp/client/auth)
 
-   - `label` required
+### [wasp/client/auth »](https://wasp.sh/docs/api/wasp/client/auth)
 
-     - the label of the field (used in the UI)
+[Client-side auth APIs, like useAuth, logout, and the Auth UI components.](https://wasp.sh/docs/api/wasp/client/auth)
 
-   - `type` required
+[API reference](https://wasp.sh/docs/api/wasp/server/auth)
 
-     - the type of the field, which can be `input` or `textarea`
+### [wasp/server/auth »](https://wasp.sh/docs/api/wasp/server/auth)
 
-   - `validations`
-
-     - an object with the validation rules for the field. The keys are the validation names, and the values are the validation error messages. Read more about the available validation rules in the [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
-
-2. Render functions receive the `react-hook-form` object and the form state as arguments, and they can use them to render arbitrary UI elements.
-
-   The render function has the following signature:
-
-   ```ts
-   type AdditionalSignupFieldRenderFn = (
-      hookForm: UseFormReturn,
-      formState: FormState
-    ) => React.ReactNode
-   ```
-
-   - `form` required
-
-     The `react-hook-form` object, read more about it in the [react-hook-form docs](https://react-hook-form.com/api/useform). You need to use the `form.register` function to register your fields
-
-   - `state` required
-
-     The form state object, which has the following properties:
-
-     - `isLoading: boolean`
-
-       Whether the form is currently submitting
+[Server-side auth APIs, like the auth hook types and helpers for working with auth identities.](https://wasp.sh/docs/api/wasp/server/auth)

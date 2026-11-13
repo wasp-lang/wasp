@@ -1,3 +1,9 @@
+---
+title: Username and password auth in Wasp
+sidebar_label: Overview
+description: "Add username and password login to a Wasp app: enable it in main.wasp.ts, add the User entity, then build login and signup pages with Auth UI forms."
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 import MultipleIdentitiesWarning from '../_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
@@ -5,7 +11,7 @@ import UsernameData from '../entities/_username-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
 
-# Overview
+# Username and password auth
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client side.
 
@@ -21,7 +27,7 @@ To set up username authentication we need to:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -46,7 +52,7 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts" {12}
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -66,7 +72,7 @@ export default app({
 })
 ```
 
-Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig.md).
+Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../../../api/@wasp/spec.md#usernameandpasswordconfig).
 
 ### 2. Add the User Entity
 
@@ -107,7 +113,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -240,17 +246,22 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/Auth"
+  to="../../../api/@wasp/spec#auth-3"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec, including userEntity."
 />
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig"
+  to="../../../api/@wasp/spec#usernameandpasswordconfig"
   kind="api"
   title="UsernameAndPasswordConfig"
   description="All the options for the usernameAndPassword auth method."
 />
 
-Read more about the `userSignupFields` function in the [Auth Overview docs](../overview.md#signup-fields-customization).
+<CardLink
+  to="../../../api/wasp/server/auth#defineusersignupfields"
+  kind="api"
+  title="defineUserSignupFields"
+  description="Define the extra fields Wasp saves on the user entity when a user signs up."
+/>

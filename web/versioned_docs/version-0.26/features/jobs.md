@@ -1,3 +1,9 @@
+---
+title: "Jobs: background and recurring tasks in Wasp"
+sidebar_label: Jobs
+description: Run background jobs in Wasp that persist between restarts, retry on failure, start after a delay or run on a cron schedule. Wasp runs them with pg-boss.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'

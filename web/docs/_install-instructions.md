@@ -1,13 +1,22 @@
 import CodeBlock from '@theme/CodeBlock'
+import Trackable from '@site/src/components/Trackable'
 
 To install the latest Wasp version, open your terminal and run:
 
+<Trackable event="Install Command: Copy">
+
 ```sh
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
+
+</Trackable>
 
 You can install Wasp {props.version} specifically by passing the version to the install script:
 
+<Trackable event="Install Command: Copy">
+
 <CodeBlock language="sh">{
-`npm i -g @wasp.sh/wasp-cli@${props.version}`
+`npm i -g @wasp/cli@${props.version}`
 }</CodeBlock>
+
+</Trackable>

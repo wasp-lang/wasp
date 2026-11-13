@@ -1,11 +1,17 @@
-import { Required } from '@site/src/components/Tag'
+---
+title: Create your own UI for username and password auth
+sidebar_label: Create your own UI
+description: Build your own sign-up and login forms for username and password auth in Wasp, and call the signup() and login() functions from wasp/client/auth.
+---
+
+import { CardLink } from '@site/src/components/CardLink'
 
 # Create your own UI
 
 The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
 
 :::tip
-Read more about the default email and password validation rules in the [auth overview docs](../overview.md#default-validations).
+Read more about the default username and password validation rules in the [auth overview docs](../overview.md#default-validations).
 :::
 
 Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times where you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions on your own code, similar to how Auth UI does it under the hood.
@@ -160,7 +166,7 @@ Below you can find a starting point for making your own UI in the client code. Y
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
           />
-          <button type="submit">Sign Up</button>
+          <button type="submit">Log In</button>
         </form>
       )
     }
@@ -208,7 +214,7 @@ Below you can find a starting point for making your own UI in the client code. Y
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
           />
-          <button type="submit">Sign Up</button>
+          <button type="submit">Log In</button>
         </form>
       )
     }
@@ -222,36 +228,18 @@ You can import the following functions from `wasp/client/auth`:
 
 ### `login()`
 
-An action for logging in the user.
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `username: string` <Required />
-
-  - `password: string` <Required />
-
-:::note
-When using the exposed `login()` function, make sure to implement your redirect on success login logic (e.g. redirecting to home).
-:::
+<CardLink
+  to="../../../api/wasp/client/auth#login"
+  kind="api"
+  title="login"
+  description="Log the user in with their username and password."
+/>
 
 ### `signup()`
 
-An action for signing up the user. This action does not log in the user, you still need to call `login()`.
-
-It takes one argument:
-
-- `data: object` <Required />
-
-  It has the following fields:
-
-  - `username: string` <Required />
-
-  - `password: string` <Required />
-
-:::info
-By default, Wasp will only save the `username` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../overview.md#customizing-the-signup-process).
-:::
+<CardLink
+  to="../../../api/wasp/client/auth#signup"
+  kind="api"
+  title="signup"
+  description="Sign the user up with a username and password."
+/>

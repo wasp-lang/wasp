@@ -3,13 +3,17 @@ import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import BlogPostItem from "@theme-original/BlogPostItem";
 
 import SubscribeForm from "../../components/SubscribeForm";
+import { trackPlacementAttributes } from "../../lib/analytics";
 
 export default function BlogPostItemWrapper(props) {
   return (
     <>
       <BlogPostItem {...props} />
 
-      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div
+        className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2"
+        {...trackPlacementAttributes("post_card")}
+      >
         <JoinOurCommunityCard />
         <JoinNewsletterCard />
       </div>

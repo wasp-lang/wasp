@@ -1,8 +1,11 @@
 ---
+title: What's Wasp? A spec-driven full-stack framework
+sidebar_label: What's Wasp?
+description: Wasp is a spec-driven framework for full-stack web apps with React, Node.js and Prisma. Read a code example and find out when to use Wasp.
 slug: /
 ---
 
-import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
+import HowItWorksDiagram from '@site/src/components/HowItWorksDiagram'
 
 # What's Wasp?
 
@@ -27,9 +30,9 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 At the core is the Wasp compiler which takes the Wasp Spec and your Javascript code and outputs the client app, server app and deployment code.
 
-<!-- ![Wasp compilation diagram](/img/lp/wasp-compilation-diagram.png) -->
-
-<ImgWithCaption source="/img/lp/wasp-compilation-diagram.png" caption="How the magic happens 🌈" />
+<div className="figure-container">
+  <HowItWorksDiagram />
+</div>
 
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
@@ -54,7 +57,7 @@ Let's start with the `main.wasp.ts` file: it is the central spec file of your ap
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "RecipeApp",
@@ -98,7 +101,7 @@ which are in their essence Node.js functions that execute on the server and can,
 First, we define these Operations in our `main.wasp.ts` file, so Wasp knows about them and can "beef them up":
 
 ```ts title="main.wasp.ts"
-import { action, app, query } from "@wasp.sh/spec"
+import { action, app, query } from "@wasp/spec"
 import { getRecipes, addRecipe } from "./src/recipe/operations" with { type: "ref" }
 
 export default app({
@@ -136,7 +139,7 @@ For the end, let's create a home page of our app.
 First, we define it in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { HomePage } from "./src/pages/HomePage" with { type: "ref" }
 
 export default app({

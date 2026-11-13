@@ -1,3 +1,10 @@
+---
+title: "Entities: Prisma models and types in Wasp"
+sidebar_label: Entities
+description: Each Prisma model in schema.prisma is a Wasp Entity. Define your models there, run wasp db migrate-dev for migrations and use them in Queries and Actions.
+---
+
+import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
 # Entities
@@ -138,8 +145,10 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
     import { prisma } from "wasp/server"
 
     prisma.task.create({
+      data: {
         description: "Read the Entities doc",
         isDone: true // almost :)
+      }
     })
     ```
   </TabItem>
@@ -149,8 +158,10 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
     import { prisma } from "wasp/server"
 
     prisma.task.create({
+      data: {
         description: "Read the Entities doc",
         isDone: true // almost :)
+      }
     })
     ```
   </TabItem>
@@ -168,3 +179,12 @@ You can see more information in the overview of [supported Prisma Schema feature
 ### Next steps
 
 Now that we've seen how to define Entities that represent Wasp's core data model, we'll see how to make the most of them in other parts of Wasp. Keep reading to learn all about Wasp Operations!
+
+## API Reference
+
+<CardLink
+  to="../../api/wasp/entities"
+  kind="api"
+  title="wasp/entities"
+  description="The types Wasp generates for your Entities."
+/>

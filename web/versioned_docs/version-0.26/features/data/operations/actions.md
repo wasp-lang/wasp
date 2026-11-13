@@ -1,3 +1,9 @@
+---
+title: "Actions: create and update data in Wasp"
+sidebar_label: Actions
+description: Actions create and update data in Wasp. Declare one in the spec, implement it in Node.js and call it from client or server code.
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';

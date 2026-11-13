@@ -1,3 +1,9 @@
+---
+title: "Email auth in Wasp: verification and password reset"
+sidebar_label: Overview
+description: "Add email auth with verification and password reset to a Wasp app: enable it in main.wasp.ts, add the User entity, the auth pages and an email sender."
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 import MultipleIdentitiesWarning from '../_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
@@ -5,11 +11,11 @@ import EmailData from '../entities/_email-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
 
-# Overview
+# Email auth
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
-![Auth UI](/img/authui/all_screens.gif)
+![Auth UI](/img/docs/features/auth/all_screens.gif)
 
 <MultipleIdentitiesWarning />
 
@@ -26,7 +32,7 @@ We'll need to take the following steps to set up email authentication:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -54,7 +60,7 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -88,7 +94,7 @@ export default app({
 })
 ```
 
-Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/EmailAuthConfig.md).
+Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../../../api/@wasp/spec.md#emailauthconfig).
 
 ### 2. Add the User Entity
 
@@ -129,7 +135,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import {
   LoginPage,
   SignupPage,
@@ -366,11 +372,11 @@ Running `wasp db migrate-dev` and then `wasp start` should give you a working ap
 
 ### Login
 
-![Auth UI](/img/authui/login.png)
+![Auth UI](/img/docs/features/auth/login.webp)
 
 ### Signup
 
-![Auth UI](/img/authui/signup.png)
+![Auth UI](/img/docs/features/auth/signup.webp)
 
 Some of the behavior you get out of the box:
 
@@ -417,13 +423,13 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec.md#getemailcontentfn).
 
 ### Email Verification Page
 
 We defined our email verification page in the `auth.{jsx,tsx}` file.
 
-![Auth UI](/img/authui/email_verification.png)
+![Auth UI](/img/docs/features/auth/email_verification.png)
 
 ## Password Reset Flow
 
@@ -433,7 +439,7 @@ Some of the behavior you get out of the box:
 
 1. Rate limiting
 
-We are limiting the rate of sign-up requests to **1 request per minute** per email address. This is done to prevent spamming.
+We are limiting the rate of password reset requests to **1 request per minute** per email address. This is done to prevent spamming.
 
 2. Preventing user email leaks
 
@@ -453,27 +459,17 @@ passwordReset: {
 
 Users request their password to be reset by going to the `/request-password-reset` route. We defined our request password reset page in the `auth.{jsx,tsx}` file.
 
-![Request password reset page](/img/authui/forgot_password_after.png)
+![Request password reset page](/img/docs/features/auth/email/overview/forgot_password_after.png)
 
 ### Password Reset Page
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `PasswordResetRoute` route we defined in the `main.wasp.ts` file.
 
-![Request password reset page](/img/authui/reset_password_after.png)
+![Request password reset page](/img/docs/features/auth/email/overview/reset_password_after.png)
 
 Users can enter their new password there.
 
-The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
-
-#### Password
-
-- `ensurePasswordIsPresent(args)`
-
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview#default-validations).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../../../api/@wasp/spec.md#getemailcontentfn).
 
 ## Using Auth
 
@@ -488,17 +484,22 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/Auth"
+  to="../../../api/@wasp/spec#auth-3"
   kind="api"
   title="Auth"
   description="All the options for the auth field of the app spec, including userEntity."
 />
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/EmailAuthConfig"
+  to="../../../api/@wasp/spec#emailauthconfig"
   kind="api"
   title="EmailAuthConfig"
   description="All the options for the email auth method."
 />
 
-Read more about the `userSignupFields` function in the [Auth Overview docs](../overview.md#signup-fields-customization).
+<CardLink
+  to="../../../api/wasp/server/auth#defineusersignupfields"
+  kind="api"
+  title="defineUserSignupFields"
+  description="Define the extra fields Wasp saves on the user entity when a user signs up."
+/>

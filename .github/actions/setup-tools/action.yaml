@@ -56,17 +56,21 @@ runs:
     - name: Install Mise
       uses: jdx/mise-action@v5
       with:
-        version: 2026.10.17
+        version: 2026.11.5
         bootstrap: true
         bootstrap_args: --update --yes
 
-    - name: Cache npm dependencies
-      uses: actions/setup-node@v6
+    - name: Probe pnpm store path
+      id: probe-pnpm-store
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pnpm store
+      uses: actions/cache@v5
       with:
-        # We don't specify a node-version here because we already have it
-        # installed. We use this step to setup the npm cache.
-        cache: npm
-        package-manager-cache: true
+        path: ${{ steps.probe-pnpm-store.outputs.STORE_PATH }}
+        key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-store-${{ runner.os }}-${{ runner.arch }}-
 
     # We can't have the following steps in a different action because of a
     # GitHub Actions bug with how caches interact with nested composite actions:
@@ -126,11 +130,12 @@ runs:
       run: |
         set -euxo pipefail
         # Detect the libc so the Cabal cache key keeps glibc and musl builds
-        # apart.
+        # apart. We include the glibc version because libraries built against
+        # a newer glibc fail to load on runners with an older one.
         ldd_version="$(ldd --version 2>&1 || true)"
         case "$ldd_version" in
           *musl*) libc=musl ;;
-          *) libc=default ;;
+          *) libc="glibc-$(getconf GNU_LIBC_VERSION | cut -d' ' -f2)" ;;
         esac
         echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
 

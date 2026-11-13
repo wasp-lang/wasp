@@ -1,5 +1,10 @@
+---
+title: "Automatic CRUD in Wasp: generated operations"
+sidebar_label: Automatic CRUD
+description: From one crud spec, Wasp generates Queries and Actions to create, read, update and delete an Entity. You can override each one.
+---
+
 import { CardLink } from '@site/src/components/CardLink';
-import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 # Automatic CRUD
@@ -31,7 +36,7 @@ We can then define a new `crud` called `Tasks`.
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
+import { app, crud } from "@wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -53,11 +58,11 @@ export default app({
 
 1. It uses default implementation for `getAll`, `get`, and `update`,
 2. ... while specifying a custom implementation for `create`.
-3. `getAll` will be public (no auth needed), while the rest of the operations will be private.
+3. `getAll` will be public (no auth needed), while `get` and `update` will be private. Wasp doesn't check auth for custom implementations, so `createTask` must do it itself.
 
 Here's what it looks like when visualized:
 
-<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud_diagram.png" caption="Visualization of the Tasks crud spec" />
+<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/docs/features/data/crud/crud_diagram.png" caption="Visualization of the Tasks crud spec" />
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
@@ -67,14 +72,14 @@ Keep reading for an example of Automatic CRUD in action, or skip ahead for the [
 
 Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](../auth/username-and-pass/overview) based auth.
 
-<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud-guide.gif" caption="We are building a simple tasks app with username based auth" />
+<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/docs/features/data/crud/crud-guide.gif" caption="We are building a simple tasks app with username based auth" />
 
 ### Creating the App
 
 We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -127,7 +132,7 @@ We can then run `wasp db migrate-dev` to create the database and run the migrati
 Let's add the following `crud` spec to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
+import { app, crud } from "@wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -151,7 +156,7 @@ We also overrode the `create` operation with a custom implementation. This means
 
 We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
 Automatic CRUD doesn't yet support this by default.
-Read more about the default implementations in the [`CrudOperations` API Reference](../../api/@wasp.sh/spec/interfaces/CrudOperations.md).
+Read more about the default implementations in the [`CrudOperations` API Reference](../../api/@wasp/spec.md#crudoperations-1).
 
 Here's the `src/tasks.{js,ts}` file:
 
@@ -447,90 +452,26 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 ### Specifying CRUD Operations
 
 <CardLink
-  to="../../api/@wasp.sh/spec/functions/crud"
+  to="../../api/@wasp/spec#crud-1"
   kind="api"
   title="crud"
-  description="All the options for declaring CRUD operations in the Wasp spec."
+  description="All the options for declaring CRUD operations in the Wasp Spec."
 />
 
 ### Defining the overrides
 
-Like with actions and queries, you can define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
-
-- `args`
-
-  The arguments of the operation i.e. the data sent from the client.
-
-- `context`
-
-  Context contains the `user` making the request and the `entities` object with the entity that's being operated on.
-
-<ShowForTs>
-  You can also import types for each of the functions you want to override by importing the `{crud name}` from `wasp/server/crud`. The available types are:
-
-  - `{crud name}.GetAllQuery`
-  - `{crud name}.GetQuery`
-  - `{crud name}.CreateAction`
-  - `{crud name}.UpdateAction`
-  - `{crud name}.DeleteAction`
-
-  If you have a CRUD named `Tasks`, you would import the types like this:
-
-  ```ts
-  import { type Tasks } from "wasp/server/crud"
-
-  // Each of the types is a generic type, so you can use it like this:
-  export const getAllOverride: Tasks.GetAllQuery<Input, Output> = async (
-    args,
-    context
-  ) => {
-    // ...
-  }
-  ```
-</ShowForTs>
-
-For a usage example, check the [example guide](./crud#adding-crud-to-the-task-entity-).
+<CardLink
+  to="../../api/wasp/server/crud"
+  kind="api"
+  title="wasp/server/crud"
+  description="The arguments of the CRUD overrides, and the types Wasp generates for typing them."
+/>
 
 ### Using the CRUD operations in client code
 
-On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="SomePage.jsx"
-    import { Tasks } from "wasp/client/crud"
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="SomePage.tsx"
-    import { Tasks } from "wasp/client/crud"
-    ```
-  </TabItem>
-</Tabs>
-
-You can then access the operations like this:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="SomePage.jsx"
-    const { data } = Tasks.getAll.useQuery()
-    const { data } = Tasks.get.useQuery({ id: 1 })
-    const createAction = Tasks.create.useAction()
-    const updateAction = Tasks.update.useAction()
-    const deleteAction = Tasks.delete.useAction()
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="SomePage.tsx"
-    const { data } = Tasks.getAll.useQuery()
-    const { data } = Tasks.get.useQuery({ id: 1 })
-    const createAction = Tasks.create.useAction()
-    const updateAction = Tasks.update.useAction()
-    const deleteAction = Tasks.delete.useAction()
-    ```
-  </TabItem>
-</Tabs>
-
-All CRUD operations are implemented with [Queries and Actions](./operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
+<CardLink
+  to="../../api/wasp/client/crud#crud"
+  kind="api"
+  title="Crud"
+  description="The client-side object Wasp generates for each crud spec, with its Queries and Actions."
+/>

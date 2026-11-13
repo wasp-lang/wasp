@@ -68,16 +68,13 @@ wasp start
 
 ### Development
 
-To run the application with the development version of Wasp, please use the `./run wasp-cli` script located in the `waspc/` directory.
+To run the application with the development version of Wasp, please use `mise run wasp-cli`.
 
 For example:
 
 ```sh
 # From inside the kitchen-sink directory:
-../../waspc/run wasp-cli start db
-
-# Or use an alias with the absolute path to the script:
-wrun wasp-cli start db
+mise run wasp-cli start db
 
 # Or if you installed the development `waspc` binary globally:
 wasp-cli start db
@@ -91,5 +88,7 @@ We use `playwright` for e2e tests.
 Run the e2e tests with:
 
 ```sh
-npm run test
+npm run test:e2e
 ```
+
+`npm run test` runs both the unit tests and the e2e tests.

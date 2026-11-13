@@ -27,7 +27,7 @@ What we call a "Wasp app" consists of three different parts:
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-<ImgWithCaption source="/img/deploying/wasp-app-flow.gif" alt="Wasp app structure" caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately" />
+<ImgWithCaption source="/img/docs/deployment/overview/wasp-app-flow.gif" alt="Wasp app structure" caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately" />
 
 The thing to take away from this: the client app and server app are separate applications that communicate with each other over HTTP. This means you can deploy them on the same or different servers, depending on your needs.
 

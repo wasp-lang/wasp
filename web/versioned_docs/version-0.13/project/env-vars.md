@@ -65,7 +65,7 @@ During development, there are two ways to provide env vars to your Wasp project:
 
 ### 1. Using .env (dotenv) Files
 
-![Env vars usage in development](/img/env/prod_dev_fade.svg)
+![Env vars usage in development](/img/docs/advanced/env-vars/prod_dev_fade.svg)
 
 This is the recommended method for providing env vars to your Wasp project during development.
 
@@ -110,7 +110,7 @@ Defining environment variables in this way can be cumbersome even for a single p
 
 While in development, we had the option of using `.env` files which made it easy to define and manage env vars. However, in production, we need to provide env vars differently.
 
-![Env vars usage in development and production](/img/env/prod_dev_fade_2.svg)
+![Env vars usage in development and production](/img/docs/deployment/env-vars/prod_dev_fade_2.svg)
 
 ### Client Env Vars
 

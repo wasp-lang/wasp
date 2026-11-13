@@ -1,4 +1,4 @@
-import { api, page, query, route, type Spec } from "@wasp.sh/spec";
+import { api, page, query, route, type Spec } from "@wasp/spec";
 
 import {
   throwConcealedError,
@@ -6,6 +6,7 @@ import {
   throwRateLimitError,
   throwUnavailableError,
   throwUnexpectedError,
+  throwUpstreamError,
 } from "./apis" with { type: "ref" };
 import { ClientErrorsPage } from "./pages/ClientErrorsPage" with { type: "ref" };
 import { ErrorsPage } from "./pages/ErrorsPage" with { type: "ref" };
@@ -17,6 +18,7 @@ export const errorsSpec: Spec = [
   api("GET", "/errors/concealed", throwConcealedError, { auth: false }),
   api("GET", "/errors/unavailable", throwUnavailableError, { auth: false }),
   api("GET", "/errors/rate-limit", throwRateLimitError, { auth: false }),
+  api("GET", "/errors/upstream", throwUpstreamError, { auth: false }),
   query(getTeapot, { auth: false }),
   route("ErrorsRoute", "/errors", page(ErrorsPage)),
   route("ClientErrorsRoute", "/errors/client", page(ClientErrorsPage)),

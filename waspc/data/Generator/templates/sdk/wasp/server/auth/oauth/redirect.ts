@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { HttpError } from '@wasp.sh/lib-sdk-core'
+import { HttpError } from '@wasp/lib-sdk-core'
 import { config } from '../../index.js'
 import { reportUnexpectedServerError } from "../../errors/index.js";
 

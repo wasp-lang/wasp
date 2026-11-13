@@ -1,3 +1,9 @@
+---
+title: "WebSockets: Socket.IO on client and server in Wasp"
+sidebar_label: WebSockets
+description: "Add WebSockets to a Wasp app with Socket.IO: enable webSocket in the spec, write an events handler and use the useSocket and useSocketListener hooks."
+---
+
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';

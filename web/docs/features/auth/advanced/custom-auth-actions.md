@@ -1,3 +1,11 @@
+---
+title: Custom sign-up actions for Wasp auth
+sidebar_label: Custom sign-up actions
+description: Write your own sign-up action in Wasp to add validation or store more data, with email and username examples. Wasp advises auth hooks or custom UI first.
+---
+
+import { CardLink } from '@site/src/components/CardLink'
+
 # Custom sign-up actions
 
 If you need to deeply hook into the sign-up process, you can create your own sign-up action and customize the code to, for example, add extra validation, store more data, or otherwise call custom code at registration time.
@@ -20,7 +28,7 @@ Below you will find a starting point for creating your own actions. The given im
 ### Email
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -162,7 +170,7 @@ export const customSignup: CustomSignup<
 ### Username and password
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -247,22 +255,34 @@ We suggest using the built-in field validators for your authentication flow. You
 
 #### Username
 
-- `ensureValidUsername(args)`
-
-  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+<CardLink
+  to="../../../api/wasp/server/auth#ensurevalidusername"
+  kind="api"
+  title="ensureValidUsername"
+  description="Check that the username is present."
+/>
 
 #### Email
 
-- `ensureValidEmail(args)`
-
-  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+<CardLink
+  to="../../../api/wasp/server/auth#ensurevalidemail"
+  kind="api"
+  title="ensureValidEmail"
+  description="Check that the email is present and valid."
+/>
 
 #### Password
 
-- `ensurePasswordIsPresent(args)`
+<CardLink
+  to="../../../api/wasp/server/auth#ensurepasswordispresent"
+  kind="api"
+  title="ensurePasswordIsPresent"
+  description="Check that the password is present."
+/>
 
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+<CardLink
+  to="../../../api/wasp/server/auth#ensurevalidpassword"
+  kind="api"
+  title="ensureValidPassword"
+  description="Check that the password is valid."
+/>

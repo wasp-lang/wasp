@@ -1,3 +1,9 @@
+---
+title: "Databases: PostgreSQL, SQLite and seeding in Wasp"
+sidebar_label: Databases
+description: Wasp uses SQLite by default and needs PostgreSQL in production. Run a dev database with wasp start db, move from SQLite to PostgreSQL and seed your data.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
 
 # Databases
@@ -197,7 +203,7 @@ Seeding is most commonly used for:
 You can define as many **seed functions** as you want in an array under the `db.seeds` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
 export default app({
@@ -343,7 +349,7 @@ To customize the client, define a function in the `db.prismaSetupFn` field that 
 This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
 export default app({
@@ -414,10 +420,24 @@ export default app({
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Db"
+  to="../../api/@wasp/spec#db-1"
   kind="api"
   title="Db"
   description="All the options for the db field of the app spec."
+/>
+
+<CardLink
+  to="../../api/wasp/server#dbseedfn"
+  kind="api"
+  title="DbSeedFn"
+  description="The type of your seed functions."
+/>
+
+<CardLink
+  to="../../api/wasp/server#prisma"
+  kind="api"
+  title="prisma"
+  description="The Prisma Client instance Wasp uses to access the database."
 />
 
 ### CLI Commands for Seeding the Database
@@ -434,7 +454,7 @@ Use one of the following commands to run the seed functions:
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
   ```ts title="main.wasp.ts"
-  import { app } from "@wasp.sh/spec"
+  import { app } from "@wasp/spec"
   import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
   export default app({

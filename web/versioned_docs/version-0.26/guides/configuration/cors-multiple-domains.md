@@ -1,10 +1,13 @@
 ---
+title: "Multiple domains CORS: allow extra origins in Wasp"
+sidebar_label: Multiple Domains CORS
+description: By default, Wasp allows CORS only from your client URL. Add more domains with custom global middleware, an env var or a function that checks each origin.
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# Multiple Domains CORS
+# Multiple domains CORS
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 

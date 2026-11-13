@@ -30,7 +30,7 @@ jobs:
 
   create-release:
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
@@ -56,7 +56,7 @@ jobs:
 
   publish-npm:
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -70,7 +70,8 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
-          path: packages/
+          # Not `packages/`, which is where the repo's package sources live.
+          path: npm-packages/
 
       - name: Stage Wasp npm packages for publishing
         # Staged publishing uploads the packages to npm's staging queue instead
@@ -92,6 +93,6 @@ jobs:
             *) DIST_TAG="latest" ;;
           esac
 
-          for pkg in ./packages/*; do
-            npx npm@^11.15.0 stage publish --tag "$DIST_TAG" "$pkg"
+          for pkg in ./npm-packages/*; do
+            (cd "$pkg" && npx npm@^11.15.0 stage publish --tag "$DIST_TAG")
           done

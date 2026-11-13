@@ -171,6 +171,22 @@ export type ThrowRateLimitError<
     ReqQuery,
     Locals
   >
+export type ThrowUpstreamError<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
 export type StreamingText<
   P extends ExpressParams = ExpressParams,
   ResBody = any,

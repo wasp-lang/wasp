@@ -1,4 +1,6 @@
 ---
+title: "Sentry: error tracking in a Wasp app"
+sidebar_label: Sentry
 comments: true
 ---
 

@@ -1,4 +1,10 @@
-# Extras
+---
+title: "Deployment extras: custom domain, CDN and DDoS"
+sidebar_label: Extras
+description: Set up a custom domain for a Wasp client and server, add a CDN and DDoS protection such as Cloudflare, and read how production ready Wasp apps are.
+---
+
+# Deployment extras
 
 In this section, we will cover some additional topics that are important for deploying Wasp apps in production.
 

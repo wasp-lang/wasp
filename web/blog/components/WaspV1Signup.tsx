@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 
-export const WaspV1Signup = () => {
+export const WaspV1Signup = ({ source }: { source: string }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
@@ -18,7 +18,7 @@ export const WaspV1Signup = () => {
           body: new URLSearchParams({
             email,
             mailingLists: "cmvfc4mns050y0kzb72vw51px",
-            source: "Blog: Wasp 1.0 is coming",
+            source,
           }).toString(),
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         },
@@ -34,7 +34,10 @@ export const WaspV1Signup = () => {
   };
 
   return (
-    <div className="mb-6 flex flex-col items-start space-y-3 rounded-lg border border-yellow-500/25 bg-yellow-500/20 p-8">
+    <div
+      id="signup"
+      className="mb-6 flex flex-col items-start space-y-3 rounded-lg border border-yellow-500/25 bg-yellow-500/20 p-8"
+    >
       <p className="text-xl font-semibold">Get an email when Wasp 1.0 lands!</p>
       {message ? (
         <p className="border-2 border-wasp-black bg-wasp-yellow-light px-4 py-3 font-mono text-sm font-bold text-wasp-black">

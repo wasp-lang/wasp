@@ -4,16 +4,14 @@ import { TaskList } from "./components/TaskList";
 
 export const TasksPage = ({ user }: { user: AuthUser }) => {
   return (
-    <div className="flex flex-col items-center gap-8 px-8 py-12">
-      <h1 className="text-4xl font-bold">{`${user.username}'s tasks`}</h1>
-      <div className="flex w-full flex-col items-center gap-6">
-        <section className="card flex w-full max-w-3xl flex-col gap-6 p-4 lg:p-6">
-          <CreateTaskForm />
-        </section>
-        <section className="card flex w-full max-w-3xl flex-col gap-6 p-4 lg:p-6">
-          <TaskList />
-        </section>
-      </div>
-    </div>
+    <main className="w-[min(48rem,100%-2rem)] gap-8 self-start">
+      <h2 className="font-bold">{`${user.username}'s tasks`}</h2>
+      <section className="card p-4 lg:p-6">
+        <CreateTaskForm />
+      </section>
+      <section id="tasks">
+        <TaskList />
+      </section>
+    </main>
   );
 };

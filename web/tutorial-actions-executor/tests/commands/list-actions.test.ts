@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { Action, ActionId, MdxFilePath } from "../../src/actions/actions";
-import { groupActionsBySourceFile } from "../../src/commands/list-actions/index";
+import type {
+  Action,
+  ActionId,
+  MdxFilePath,
+} from "../../src/actions/actions.ts";
+import { groupActionsBySourceFile } from "../../src/commands/list-actions/index.ts";
 
 describe("groupActionsBySourceFile", () => {
   it("should group actions by source file basename", () => {

@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import useBrokenLinks from "@docusaurus/useBrokenLinks";
-import { ReactNode, useEffect, useState } from "react";
+import { ComponentProps, ReactNode, useEffect, useState } from "react";
 import { Minus, Plus } from "react-feather";
 
 import InlineCode from "./InlineCode";
@@ -12,10 +12,8 @@ const DISCORD_URL = "https://discord.gg/rzdnErX";
 const CAREERS_URL =
   "https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672";
 
-const FaqLink = ({ to, children }: { to: string; children: ReactNode }) => (
-  <Link to={to} className="font-bold text-wasp-black underline">
-    {children}
-  </Link>
+const FaqLink = (props: ComponentProps<typeof Link> & { to: string }) => (
+  <Link {...props} className="font-bold text-wasp-black underline" />
 );
 
 const slugify = (text: string) =>

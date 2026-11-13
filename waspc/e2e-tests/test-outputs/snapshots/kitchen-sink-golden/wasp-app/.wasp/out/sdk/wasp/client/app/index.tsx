@@ -5,7 +5,7 @@ export { WaspApp } from './components/WaspApp'
 export {
   handleClientError,
   listenForUncaughtClientErrors,
-} from '@wasp.sh/lib-sdk-core/browser'
+} from '@wasp/lib-sdk-core/browser'
 
 // PRIVATE API (web-app)
 export { createAuthRequiredPage } from './pages/createAuthRequiredPage'

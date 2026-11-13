@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node24/tsconfig.json",
+  "extends": "@tsconfig/node26/tsconfig.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
@@ -27,7 +27,8 @@
   "include": [
     "src",
     "rollup.config.js",
-    "rollup.dbSeed.config.js"
+    "rollup.dbSeed.config.js",
+    "prepareProduction.ts"
   ],
   "references": [
     { "path": "../../../tsconfig.src.json" }

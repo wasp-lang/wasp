@@ -1,4 +1,7 @@
 ---
+title: "Netlify: deploy a Wasp app's client as a static site"
+sidebar_label: Netlify
+description: Deploy Wasp to Netlify, a static host that is free for many use cases, with the Netlify CLI and a netlify.toml, or from GitHub Actions.
 comments: true
 ---
 

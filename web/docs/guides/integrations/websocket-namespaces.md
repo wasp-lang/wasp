@@ -1,10 +1,13 @@
 ---
+title: WebSocket namespaces in Wasp with Socket.IO
+sidebar_label: WebSocket Namespaces
+description: "Use Socket.IO namespaces in a Wasp app to split real-time events into channels: create them with io.of on the server and connect with socket.io-client."
 comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# WebSocket Namespaces
+# WebSocket namespaces
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
@@ -20,10 +23,10 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 
 ### 1. Configure WebSocket in main.wasp.ts
 
-Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
+Enable WebSocket in your Wasp Spec with `autoConnect: false` since you'll manage connections manually:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import Main from "./src/MainPage" with { type: "ref" }
 import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 

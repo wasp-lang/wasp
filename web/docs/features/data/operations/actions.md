@@ -1,6 +1,10 @@
+---
+title: "Actions: create and update data in Wasp"
+sidebar_label: Actions
+description: Actions create and update data in Wasp. Declare one in the spec, implement it in Node.js and call it from client or server code.
+---
+
 import { CardLink } from '@site/src/components/CardLink';
-import { Required } from '@site/src/components/Tag';
-import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './_superjson-note.md';
 import ReferencingCodeFromSrcNote from '../../../_referencing-code-from-src-note.md';
 
@@ -38,7 +42,7 @@ Once these two steps are completed, you can use the Action from anywhere in your
 To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -69,8 +73,8 @@ Two important things then happen:
 - Wasp **generates a server-side NodeJS function** with the Action's name.
 
 - Wasp **generates a client-side JavaScript function** with the Action's name (e.g., `markTaskAsDone`).
-  This function takes a single optional argument - an object containing any serializable data you wish to use inside the Action.
-  Wasp will send this object over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
+  This function takes at most one argument: any serializable data you wish to use inside the Action (usually an object).
+  Wasp will send this data over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Action's NodeJS implementation under the hood.
 
 Generating these two functions ensures a similar calling interface across the entire app (both client and server).
@@ -193,7 +197,7 @@ Here's how you might implement the previously declared Actions `createTask` and 
       On the other hand, the Action `markTaskAsDone` expects an object of type `Pick<Task, 'id'>`. This type is derived from the `Task` entity type.
 
       If you don't care about typing the Action's inputs and outputs, you can omit both type arguments.
-      TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
+      TypeScript will then infer the most general types (`never` for the input and `Payload`, any serializable value, for the output).
 
       Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
 
@@ -205,11 +209,11 @@ Here's how you might implement the previously declared Actions `createTask` and 
 
     :::tip Inferring the return type
 
-    If don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
+    If you don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
 
     ```typescript
     const createFoo = (async (_args, context) => {
-      const foo = await context.entities.Foo.create()
+      const foo = await context.entities.Foo.create({ data: {} })
       return {
         newFoo: foo,
         message: "Here's your foo!",
@@ -345,7 +349,7 @@ When using Actions on the client, you'll most likely want to use them inside a c
   </TabItem>
 </Tabs>
 
-Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
+Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp comes with the `useAction` hook you can use to enhance Actions. Read all about it in the [API Reference](#the-useaction-hook-and-optimistic-updates).
 
 #### Using Actions on the server
 
@@ -447,13 +451,21 @@ async function handleSubmit(description: string) {
 }
 ```
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 ### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](../entities.md).
 To use an Entity in your Action, add it to the `action` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -542,7 +554,7 @@ In practice, this means that Wasp keeps the Queries "fresh" without requiring yo
 
 On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
-If you wish to optimistically set cache values after performing an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook-and-optimistic-updates). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
+If you wish to optimistically set cache values after performing an Action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook-and-optimistic-updates). This is currently the only manual cache invalidation mechanism Wasp supports natively. For everything else, you can always rely on _react-query_.
 
 ## Differences Between Queries and Actions
 
@@ -559,297 +571,61 @@ Here are the key differences between Queries and Actions:
 ### Specifying Actions in Wasp Spec
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/functions/action"
+  to="../../../api/@wasp/spec#action-1"
   kind="api"
   title="action"
-  description="All the options for declaring an action in the Wasp spec."
+  description="All the options for declaring an action in the Wasp Spec."
 />
 
-Declaring an Action enables you to import and use it anywhere in your code (on the server or the client). For example, for an Action that we declared as `createFoo`, Wasp generates two functions with the same name that you can import and use:
+<CardLink
+  to="../../../api/wasp/client/operations"
+  kind="api"
+  title="wasp/client/operations"
+  description="The functions Wasp generates for calling your Actions on the client."
+/>
 
-```ts
-// Use it on the client
-import { createFoo } from "wasp/client/operations"
-
-// Use it on the server
-import { createFoo } from "wasp/server/operations"
-```
-
-<ShowForTs>
-  It also creates a type you can import on the server:
-
-  ```ts
-  import { type CreateFoo } from "wasp/server/operations"
-  ```
-</ShowForTs>
+<CardLink
+  to="../../../api/wasp/server/operations"
+  kind="api"
+  title="wasp/server/operations"
+  description="The functions Wasp generates for calling your Actions on the server, and the types for implementing them."
+/>
 
 ### Implementing Actions
 
-The Action's implementation is a NodeJS function that takes two arguments (it can be an `async` function if you need to use the `await` keyword).
-Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
+<CardLink
+  to="../../../api/wasp/server/operations#authenticatedactiondefinition"
+  kind="api"
+  title="AuthenticatedActionDefinition"
+  description="The arguments and return value of an Action's implementation, and the generic type Wasp generates for typing it."
+/>
 
-1. `args` (type depends on the Action)
+<CardLink
+  to="../../../api/wasp/server/operations#unauthenticatedactiondefinition"
+  kind="api"
+  title="UnauthenticatedActionDefinition"
+  description="The same, for Actions that don't use auth."
+/>
 
-   An object containing the data **passed in when calling the Action** (e.g., filtering conditions).
-   Check [the usage examples](#using-actions) to see how to pass this object to the Action.
-
-2. `context` (type depends on the Action)
-
-   An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
-
-<ShowForTs>
-  After you [declare the Action](#specifying-actions), Wasp generates a generic type you can use when defining its implementation.
-  For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
-
-  ```ts
-  import { type CreateSomething } from "wasp/server/operations"
-  ```
-
-  It expects two (optional) type arguments:
-
-  1. `Input`
-
-     The type of the `args` object (the Action's input payload). The default value is `never`.
-
-  2. `Output`
-
-     The type of the Action's return value (the Action's output payload). The default value is `unknown`.
-
-  The defaults were chosen to make the type signature as permissive as possible. If don't want your Action to take/return anything, use `void` as a type argument.
-</ShowForTs>
-
-#### Example
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    The following Action:
-
-    ```ts
-    import { action, app } from "@wasp.sh/spec"
-    import { createFoo } from "./src/actions" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        action(createFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Expects to find a named export `createFoo` from the file `src/actions.js`
-
-    ```js title="src/actions.js"
-    export const createFoo = (args, context) => {
-      // implementation
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    The following Action:
-
-    ```ts
-    import { action, app } from "@wasp.sh/spec"
-    import { createFoo } from "./src/actions" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        action(createFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Expects to find a named export `createFoo` from the file `src/actions.ts`
-
-    You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
-
-    ```ts title="src/actions.ts"
-    import { type CreateFoo } from "wasp/server/operations"
-
-    type Foo = // ...
-
-    export const createFoo: CreateFoo<{ bar: string }, Foo> = (args, context) => {
-      // implementation
-    };
-    ```
-
-    In this case, the Action expects to receive an object with a `bar` field of type `string` (this is the type of `args`), and return a value of type `Foo` (this must match the type of the Action's return value).
-  </TabItem>
-</Tabs>
+<CardLink
+  to="../../../api/wasp/errors#httperror"
+  kind="api"
+  title="HttpError"
+  description="The error you throw to send an HTTP error response to the client."
+/>
 
 ### The `useAction` Hook and Optimistic Updates
 
-Make sure you understand how [Queries](./queries.md) and [Cache Invalidation](#cache-invalidation) work before reading this chapter.
+<CardLink
+  to="../../../api/wasp/client/operations#useaction"
+  kind="api"
+  title="useAction"
+  description="All the arguments of the useAction hook, and how to use react-query's lower-level API directly."
+/>
 
-When using Actions in components, you can enhance them with the help of the `useAction` hook. This hook comes bundled with Wasp, and is used for decorating Wasp Actions.
-In other words, the hook returns a function whose API matches the original Action while also doing something extra under the hood (depending on how you configure it).
-
-The `useAction` hook accepts two arguments:
-
-- `actionFn` <Required />
-
-  The Wasp Action (the client-side Action function generated by Wasp based on an Action spec) you wish to enhance.
-
-- `actionOptions`
-
-  An object configuring the extra features you want to add to the given Action. While this argument is technically optional, there is no point in using the `useAction` hook without providing it (it would be the same as using the Action directly). The Action options object supports the following fields:
-
-  - `optimisticUpdates`
-
-    An array of objects where each object defines an [optimistic update](https://stackoverflow.com/a/33009713) to perform on the Query cache. To define an optimistic update, you must specify the following properties:
-
-    - `getQuerySpecifier` <Required />
-
-    A function returning the Query specifier (a value used to address the Query you want to update). A Query specifier is an array specifying the query function and arguments. For example, to optimistically update the Query used with `useQuery(fetchFilteredTasks, {isDone: true }]`, your `getQuerySpecifier` function would have to return the array `[fetchFilteredTasks, { isDone: true}]`. Wasp will forward the argument you pass into the decorated Action to this function (you can use the properties of the added/changed item to address the Query).
-
-    - `updateQuery` <Required />
-
-    The function used to perform the optimistic update. It should return the desired state of the cache. Wasp will call it with the following arguments:
-
-    - `item` - The argument you pass into the decorated Action.
-    - `oldData` - The currently cached value for the Query identified by the specifier.
-
-:::caution
-The `updateQuery` function must be a pure function. It must return the desired cache value identified by the `getQuerySpecifier` function and _must not_ perform any side effects.
-
-Also, make sure you only update the Query caches affected by your Action causing the optimistic update (Wasp cannot yet verify this).
-
-Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
-:::
-
-Here's an example showing how to configure the Action `markTaskAsDone` that toggles a task's `isDone` status to perform an optimistic update:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/pages/Task.jsx"
-    import React from "react"
-    import {
-      useQuery,
-      useAction,
-      getTask,
-      markTaskAsDone,
-    } from "wasp/client/operations"
-
-    const TaskPage = ({ id }) => {
-      const { data: task } = useQuery(getTask, { id })
-      // highlight-start
-      const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
-        optimisticUpdates: [
-          {
-            getQuerySpecifier: ({ id }) => [getTask, { id }],
-            updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
-          },
-        ],
-      })
-      // highlight-end
-
-      if (!task) {
-        return <h1>"Loading"</h1>
-      }
-
-      const { description, isDone } = task
-      return (
-        <div>
-          <p>
-            <strong>Description: </strong>
-            {description}
-          </p>
-          <p>
-            <strong>Is done: </strong>
-            {isDone ? "Yes" : "No"}
-          </p>
-          {isDone || (
-            <button onClick={() => markTaskAsDoneOptimistically({ id })}>
-              Mark as done.
-            </button>
-          )}
-        </div>
-      )
-    }
-
-    export default TaskPage
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/pages/Task.tsx"
-    import React from "react"
-    import {
-      useQuery,
-      useAction,
-      type OptimisticUpdateDefinition,
-      getTask,
-      markTaskAsDone,
-    } from "wasp/client/operations"
-
-    type TaskPayload = Pick<Task, "id">;
-
-    const TaskPage = ({ id }: { id: number }) => {
-      const { data: task } = useQuery(getTask, { id });
-      // Typescript automatically type-checks the payload type.
-      // highlight-start
-      const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
-        optimisticUpdates: [
-          {
-            getQuerySpecifier: ({ id }) => [getTask, { id }],
-            updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
-          } as OptimisticUpdateDefinition<TaskPayload, Task>,
-        ],
-      });
-      // highlight-end
-
-      if (!task) {
-        return <h1>"Loading"</h1>;
-      }
-
-      const { description, isDone } = task;
-      return (
-        <div>
-          <p>
-            <strong>Description: </strong>
-            {description}
-          </p>
-          <p>
-            <strong>Is done: </strong>
-            {isDone ? "Yes" : "No"}
-          </p>
-          {isDone || (
-            <button onClick={() => markTaskAsDoneOptimistically({ id })}>
-              Mark as done.
-            </button>
-          )}
-        </div>
-      );
-    };
-
-    export default TaskPage;
-    ```
-  </TabItem>
-</Tabs>
-
-#### Advanced usage
-
-The `useAction` hook currently only supports specifying optimistic updates. You can expect more features in future versions of Wasp.
-
-Wasp's optimistic update API is deliberately small and focuses exclusively on updating Query caches (as that's the most common use case). You might need an API that offers more options or a higher level of control. If that's the case, instead of using Wasp's `useAction` hook, you can use _react-query_'s `useMutation` hook and directly work with [their low-level API](https://tanstack.com/query/v4/docs/framework/react/guides/optimistic-updates).
-
-If you decide to use _react-query_'s API directly, you will need access to Query cache key. Wasp internally uses this key but abstracts it from the programmer. Still, you can easily obtain it by accessing the `queryCacheKey` property on any Query:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js
-    import { getTasks } from "wasp/client/operations"
-
-    const queryKey = getTasks.queryCacheKey
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts
-    import { getTasks } from "wasp/client/operations"
-
-    const queryKey = getTasks.queryCacheKey
-    ```
-  </TabItem>
-</Tabs>
+<CardLink
+  to="../../../api/wasp/client/operations#optimisticupdatedefinition"
+  kind="api"
+  title="OptimisticUpdateDefinition"
+  description="How to define an optimistic update, and the rules it must follow."
+/>

@@ -1,3 +1,9 @@
+---
+title: Continuous deployment with Wasp Deploy
+sidebar_label: Continuous deployment
+description: You can use CI/CD platforms like GitHub Actions to re-deploy your application automatically on each push to your repository.
+---
+
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
 
 # Continuous deployment
@@ -59,7 +65,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/cli@$WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -104,7 +110,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
+        run: npm i -g @wasp/cli@$WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
