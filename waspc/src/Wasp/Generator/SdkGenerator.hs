@@ -73,7 +73,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.AvailableLibs (getWaspLibsForApp)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as Job
@@ -230,7 +230,7 @@ npmDepsForSdk spec =
           ]
     }
   where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) (getWaspLibsForApp spec)
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
