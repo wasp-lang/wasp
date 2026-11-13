@@ -10,6 +10,10 @@ const LIST_PAGE_HEADINGS = {
   "/resources": "Wasp Resources",
 };
 
+// Each card shows the post title next to its cover image, so the image is
+// decorative (`alt=""`). The link that covers the card has no text of its own,
+// so it gets the title as its accessible name (`aria-label`).
+
 const getReadingTimeStatement = (readingTimeFloat) =>
   Math.ceil(readingTimeFloat) + " min read";
 
@@ -75,11 +79,13 @@ export default function BlogPostItems({
             <img
               loading="lazy"
               src={coverImgSrc}
+              alt=""
               className={`mb-6 hidden rounded-2xl object-cover lg:flex`}
             />
 
             <Link
               to={featuredItem.content.metadata.permalink}
+              aria-label={featuredItem.content.frontMatter.title}
               className="absolute inset-0 opacity-0"
             />
           </article>
@@ -105,6 +111,7 @@ export default function BlogPostItems({
                 <img
                   loading="lazy"
                   src={coverImgSrc}
+                  alt=""
                   className={`mb-6 h-64 rounded-xl object-cover md:-mx-6 md:-mt-6 md:max-w-none`}
                 />
 
@@ -132,6 +139,7 @@ export default function BlogPostItems({
 
                 <Link
                   to={item.content.metadata.permalink}
+                  aria-label={item.content.frontMatter.title}
                   className="absolute inset-0 opacity-0"
                 />
               </article>

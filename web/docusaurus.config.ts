@@ -105,21 +105,6 @@ const config: Config = {
           label: "Blog",
           position: "left",
         },
-        {
-          href: "https://github.com/wasp-lang/wasp",
-          className: "navbar-item-github",
-          position: "right",
-        },
-        {
-          href: "https://twitter.com/WaspLang",
-          className: "navbar-item-twitter",
-          position: "right",
-        },
-        {
-          href: "https://discord.gg/rzdnErX",
-          className: "navbar-item-discord",
-          position: "right",
-        },
       ],
     },
     prism: {
