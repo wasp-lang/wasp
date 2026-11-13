@@ -1,10 +1,7 @@
 module Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest) where
 
-import ShellCommands (createSnapshotWaspProjectFromMinimalStarter)
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import E2E
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspNewSnapshotTest :: SnapshotTest
-waspNewSnapshotTest =
-  makeSnapshotTest
-    "wasp-new"
-    [createSnapshotWaspProjectFromMinimalStarter]
+waspNewSnapshotTest :: E2ETest
+waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarterTemplate

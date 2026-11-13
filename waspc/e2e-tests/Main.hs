@@ -1,13 +1,18 @@
 import Control.Concurrent (getNumCapabilities)
-import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
+import Control.Monad (mfilter, when)
+import E2E.Heartbeat (heartbeatReporter)
+import E2E.Signals (stopOnFirstCtrlC)
+import E2E.Test (toTestTree)
 import SnapshotTest (testTreeFromSnapshotTest)
-import StrongPath ((</>))
-import qualified StrongPath as SP
+import System.Directory (findExecutable)
 import System.Environment (lookupEnv, setEnv)
+import System.Exit (ExitCode (..))
 import System.Info (os)
-import System.Process (callCommand)
+import System.Process (readProcessWithExitCode)
 import Test (testTreeFromTest)
-import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
+import Test.Tasty.Ingredients (composeReporters)
+import Test.Tasty.Runners (NumThreads (..), consoleTestReporter, listingTests)
 import Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
@@ -46,23 +51,28 @@ main = do
   if os == "mingw32"
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
-      ensureE2eTestsEnvironment
+      stopOnFirstCtrlC
+      setWaspCliCmd
       warmUpWaspCli
-      e2eTests >>= defaultMain
+      maxJobs <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS" :: IO (Maybe Int)
+      tests <- e2eTests
+      defaultMainWithIngredients
+        [listingTests, composeReporters heartbeatReporter consoleTestReporter]
+        (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) tests)
 
-ensureE2eTestsEnvironment :: IO ()
-ensureE2eTestsEnvironment = do
-  existing <- lookupEnv "WASP_CLI_CMD"
-  case existing of
-    Just _ -> return ()
-    Nothing -> do
-      -- Runs the tests using the current state of the `waspc` project.
-      waspcDir <- getWaspcDirPath
-      let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
-      setEnv "WASP_CLI_CMD" devWaspCliCmd
+-- | The tests run the Wasp CLI from @WASP_CLI_CMD@ (e.g. @tools/wasp-cli-dev@
+-- from the mise tasks). When it's not set, we use the @wasp-cli@ that Cabal builds
+-- and puts on the PATH for this test suite.
+setWaspCliCmd :: IO ()
+setWaspCliCmd =
+  lookupEnv "WASP_CLI_CMD" >>= \case
+    Just waspCliCmd | not (null waspCliCmd) -> return ()
+    _ ->
+      findExecutable "wasp-cli"
+        >>= maybe (fail "Couldn't find the wasp-cli executable. Set WASP_CLI_CMD.") (setEnv "WASP_CLI_CMD")
 
--- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
--- invoking it concurrently (via 'pooledMapConcurrentlyN' in 'e2eTests').
+-- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
+-- concurrently.
 --
 -- The dev CLI runs through `cabal run`, and Cabal does not support several
 -- concurrent invocations sharing a single `dist-newstyle`: if the first build
@@ -71,10 +81,13 @@ ensureE2eTestsEnvironment = do
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: IO ()
-warmUpWaspCli = callCommand "$WASP_CLI_CMD version >/dev/null 2>&1" -- We don't need any output.
+warmUpWaspCli = do
+  waspCliCmd <- maybe (fail "WASP_CLI_CMD is not set.") return =<< lookupEnv "WASP_CLI_CMD"
+  (exitCode, _, err) <- readProcessWithExitCode waspCliCmd ["version"] ""
+  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliCmd ++ " version` failed:\n" ++ err
 
 -- TODO: Investigate automatically discovering the tests.
--- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
+-- TODO: Port the remaining tests from the shell commands DSL to the 'E2E' one.
 --       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: IO TestTree
 e2eTests = do
@@ -84,8 +97,7 @@ e2eTests = do
     pooledMapConcurrentlyN
       maxConcurrentSnapshotBuilds
       testTreeFromSnapshotTest
-      [ waspNewSnapshotTest,
-        waspCompileSnapshotTest,
+      [ waspCompileSnapshotTest,
         waspBuildSnapshotTest,
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
@@ -97,10 +109,7 @@ e2eTests = do
         waspNewTest,
         waspTelemetryTest,
         waspCompletionTest,
-        waspVersionTest,
         -- Wasp project commands
-        waspCompileTest,
-        waspStartTest,
         -- NOTE(Franjo): The following tests have the `FIXME` comment because they
         -- are long running processes, which we haven't implmemented support for yet.
         -- These will be fixed as part of the refactor to pure Haskell tests.
@@ -119,7 +128,6 @@ e2eTests = do
         waspDockerfileTest,
         -- FIXME: waspStudioTest,
         -- Wasp project db commands
-        waspDbStartTest,
         -- FIXME: waspDbStudioTest,
         waspDbSeedTest,
         waspDbResetTest,
@@ -132,9 +140,19 @@ e2eTests = do
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTestTrees,
+      [ testGroup "Snapshot Tests" (toTestTree waspNewSnapshotTest : snapshotTestTrees),
         testGroup "Shell tests" shellTestTrees,
-        testGroup "Tests" [sdkPackageExportsTestTree]
+        testGroup
+          "Tests"
+          ( sdkPackageExportsTestTree
+              : map
+                toTestTree
+                [ waspVersionTest,
+                  waspCompileTest,
+                  waspStartTest,
+                  waspDbStartTest
+                ]
+          )
       ]
 
 -- | How many snapshot tests we prepare concurrently.

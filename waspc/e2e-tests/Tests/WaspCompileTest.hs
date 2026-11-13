@@ -1,117 +1,55 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import Control.Monad.Reader (ask)
+import Control.Monad (void)
 import qualified Data.Text as T
+import E2E
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext (..),
-    appendToFile,
-    assertCommandOutputContains,
-    createTestWaspProject,
-    inTestWaspProjectDir,
-    replaceMainWaspTsFile,
-    waspCliCompile,
-    writeToFile,
-  )
-import StrongPath (relfile, (</>))
-import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
-waspCompileTest :: Test
+waspCompileTest :: E2ETest
 waspCompileTest =
-  Test
+  testGroup
     "wasp-compile"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliCompileFails]),
-      TestCase
-        "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-compiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  waspCliCompile,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
-            ]
-        ),
+    [ test "fail-outside-project" $ waspFails ["compile"],
+      test "succeed-uncompiled-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          wasp ["compile"]
+          assertDirectoryExists ".wasp"
+          assertDirectoryExists "node_modules",
+      test "succeed-compiled-project" $
+        withNewWaspProject minimalStarterTemplate $ do
+          wasp ["compile"]
+          wasp ["compile"]
+          assertDirectoryExists ".wasp"
+          assertDirectoryExists "node_modules",
       -- Regression test for https://github.com/wasp-lang/wasp/issues/2001
-      TestCase
-        "fail-missing-side-effect-import"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ appendToFile "src/MainPage.tsx" "import './missing-side-effect-import'",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliCompile)
-                    "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'."
-                ]
-            ]
-        ),
-      TestCase
-        "fail-type-error"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ writeUtilsFile "export const shouldBeNumber: number = 'wrong'",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliCompile)
-                    "src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'."
-                ]
-            ]
-        ),
+      test "fail-missing-side-effect-import" $
+        withNewWaspProject minimalStarterTemplate $ do
+          appendToFile "src/MainPage.tsx" "import './missing-side-effect-import'"
+          waspFails ["compile"]
+            >>= assertOutputContains "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'.",
+      test "fail-type-error" $
+        withNewWaspProject minimalStarterTemplate $ do
+          writeToFile "src/utils.ts" "export const shouldBeNumber: number = 'wrong'"
+          waspFails ["compile"]
+            >>= assertOutputContains "src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'.",
       -- Regression test for https://github.com/wasp-lang/wasp/pull/4942
-      TestCase
-        "fail-and-recover-with-updated-operation-types"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ replaceMainWaspTsFile mainWaspTsWithQuery,
-                  writeQuery "[{ id: 1 }]",
-                  writeMainPageUsingQuery,
-                  waspCliCompile,
-                  writeQuery "[]",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliCompile)
-                    "Property 'id' does not exist on type 'never'.",
-                  writeQuery "[{ id: 1 }]",
-                  waspCliCompile
-                ]
-            ]
-        )
+      test "fail-and-recover-with-updated-operation-types" $
+        withNewWaspProject minimalStarterTemplate $ do
+          writeToFile "main.wasp.ts" mainWaspTsWithQuery
+          writeQuery "[{ id: 1 }]"
+          writeMainPageUsingQuery
+          wasp ["compile"]
+          writeQuery "[]"
+          waspFails ["compile"] >>= assertOutputContains "Property 'id' does not exist on type 'never'."
+          writeQuery "[{ id: 1 }]"
+          void $ wasp ["compile"]
     ]
   where
-    waspCliCompileFails :: ShellCommand
-    waspCliCompileFails = "! $WASP_CLI_CMD compile"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"
-
-    writeUtilsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
-    writeUtilsFile contents = do
-      context <- ask
-      writeToFile (context.waspProjectDir </> [relfile|src/utils.ts|]) contents
-
-    writeQuery :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
-    writeQuery result = do
-      context <- ask
+    writeQuery :: T.Text -> TestM ()
+    writeQuery result =
       writeToFile
-        (context.waspProjectDir </> [relfile|src/queries.ts|])
+        "src/queries.ts"
         [trimming|
           import type { GetTasks } from "wasp/server/operations";
 
@@ -120,11 +58,10 @@ waspCompileTest =
           }) satisfies GetTasks<void>;
         |]
 
-    writeMainPageUsingQuery :: ShellCommandBuilder WaspProjectContext ShellCommand
-    writeMainPageUsingQuery = do
-      context <- ask
+    writeMainPageUsingQuery :: TestM ()
+    writeMainPageUsingQuery =
       writeToFile
-        (context.waspProjectDir </> [relfile|src/MainPage.tsx|])
+        "src/MainPage.tsx"
         [trimming|
           import { getTasks, useQuery } from "wasp/client/operations";
 
@@ -151,6 +88,3 @@ waspCompileTest =
           ],
         });
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
