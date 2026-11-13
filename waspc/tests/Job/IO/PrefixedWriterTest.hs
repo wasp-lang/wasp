@@ -29,6 +29,14 @@ spec_prefixedOutput = do
       ]
       `shouldBe` "\n" <> dbPrefix <> "first\n" <> serverPrefix <> "second\n" <> dbPrefix <> "third\n"
 
+  it "labels a leading empty line when the previous job's line is complete" $
+    formatMessages [(Output J.Server J.Stdout, "first\n"), dbOutput "\nsecond\n"]
+      `shouldBe` "\n" <> serverPrefix <> "first\n" <> dbPrefix <> "\n" <> dbPrefix <> "second\n"
+
+  it "lets a leading newline finish the previous job's partial line" $
+    formatMessages [(Output J.Server J.Stdout, "partial"), dbOutput "\nsecond\n"]
+      `shouldBe` "\n" <> serverPrefix <> "partial" <> "\n" <> dbPrefix <> "second\n"
+
   it "preserves carriage-return labeling across separate writes" $
     formatMessages [dbOutput "one\r", dbOutput "\ntwo\n"]
       `shouldBe` "\n" <> dbPrefix <> "one\r" <> dbPrefix <> "\n" <> dbPrefix <> "two\n"
