@@ -15,6 +15,7 @@ import qualified Wasp.AppSpec.App.Deployment as Deployment
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
+import qualified Wasp.AppSpec.Expose as Expose
 import qualified Wasp.AppSpec.ExtImport as ExtImport
 import qualified Wasp.AppSpec.Job as Job
 import Wasp.AppSpec.Page (Page)
@@ -216,7 +217,8 @@ spec_AppSpecFromJSON = do
               { name = "foo",
                 fn = fromJust $ decodeJson extNamedImportJson,
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef],
-                auth = Just True
+                auth = Just True,
+                expose = Nothing
               }
           )
     it "parses a valid Query JSON without auth and entities" $ do
@@ -231,7 +233,31 @@ spec_AppSpecFromJSON = do
               { name = "foo",
                 fn = fromJust $ decodeJson extNamedImportJson,
                 entities = Nothing,
-                auth = Nothing
+                auth = Nothing,
+                expose = Nothing
+              }
+          )
+    it "parses a Query JSON with expose" $ do
+      [trimming|
+        {
+          "name": "foo",
+          "fn": ${extNamedImportJson},
+          "expose": {
+            "client": false
+          }
+        }
+      |]
+        `shouldDecodeTo` Just
+          ( Query.Query
+              { name = "foo",
+                fn = fromJust $ decodeJson extNamedImportJson,
+                entities = Nothing,
+                auth = Nothing,
+                expose =
+                  Just
+                    Expose.Expose
+                      { Expose.client = Just False
+                      }
               }
           )
   describe "Action" $ do
@@ -249,7 +275,8 @@ spec_AppSpecFromJSON = do
               { name = "foo",
                 fn = fromJust $ decodeJson extNamedImportJson,
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef],
-                auth = Just True
+                auth = Just True,
+                expose = Nothing
               }
           )
     it "parses a valid Action JSON without auth and entities" $ do
@@ -264,7 +291,8 @@ spec_AppSpecFromJSON = do
               { name = "foo",
                 fn = fromJust $ decodeJson extNamedImportJson,
                 entities = Nothing,
-                auth = Nothing
+                auth = Nothing,
+                expose = Nothing
               }
           )
   describe "ExecutorOptions" $ do
