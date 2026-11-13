@@ -186,6 +186,8 @@ export default function Flow({ data }: { data: Data }) {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        // The graph mirrors the app's spec, so it's read-only.
+        deleteKeyCode={null}
         fitView
         nodeTypes={nodeTypes}
       >
