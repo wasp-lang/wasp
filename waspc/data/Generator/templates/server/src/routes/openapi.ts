@@ -1,9 +1,14 @@
 {{={= =}=}}
+import { makeOpenApiDocument } from '@wasp/lib-sdk-core/node'
 import { config } from 'wasp/server'
 
-const openApiDocument = {=& openApiDocument =}
-
-export default {
-  ...openApiDocument,
-  servers: [{ url: config.serverUrl }],
-}
+export default makeOpenApiDocument({
+  title: {=& title =},
+  version: {=& version =},
+  serverUrl: config.serverUrl,
+  apis: [
+    {=# apis =}
+    {=& . =},
+    {=/ apis =}
+  ],
+})

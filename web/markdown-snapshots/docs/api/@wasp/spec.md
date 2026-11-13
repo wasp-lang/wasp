@@ -2337,7 +2337,7 @@ See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/
 
 Serves an [OpenAPI](https://www.openapis.org/) document describing the app's [api](#api-1) routes at `/openapi.json`.
 
-The document lists each api's method, path, path parameters, and whether it uses auth. Wasp doesn't know the shape of request and response bodies, so the document doesn't describe them.
+The document lists each `api`'s method, path, path parameters, and whether it uses auth.
 
 ###### Default
 

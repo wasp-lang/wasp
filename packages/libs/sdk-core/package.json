@@ -55,7 +55,9 @@
   "dependencies": {
     "dotenv": "^16.6.1",
     "dotenv-expand": "^12.0.3",
-    "mitt": "3.0.1"
+    "mitt": "3.0.1",
+    "openapi-types": "^12.1.3",
+    "path-to-regexp": "^8.0.0"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",

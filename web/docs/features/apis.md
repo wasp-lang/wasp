@@ -175,7 +175,7 @@ For more information about middleware configuration, please see: [Middleware Con
 
 ## OpenAPI Document
 
-Wasp can describe your APIs in an [OpenAPI](https://www.openapis.org/) document, which tools like Swagger UI, Postman, or client generators can read. Enable it in the `server` field of your app spec:
+Wasp can describe your APIs in an [OpenAPI](https://www.openapis.org/) document, which tools like Swagger UI, Postman, or client generators can read. Enable it in the `server` field of your app spec. For example, to serve it only during development:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
@@ -184,21 +184,12 @@ export default app({
   // ...
   server: {
     // highlight-next-line
-    openApi: true,
+    openApi: process.env.NODE_ENV === "development",
   },
 })
 ```
 
-The server then serves the document at `/openapi.json` (e.g. `http://localhost:3001/openapi.json` in development). Wasp fills it in from your `api` declarations:
-
-- Each `api` becomes an operation with its method and path, using the `api`'s name as the `operationId`. An `api` with the `ALL` method appears once per HTTP method.
-- Path parameters such as `/tasks/:id` become `{id}` parameters. Optional parts such as `/tasks{/:id}` appear as a separate path for each combination.
-- An `api` that uses auth lists an optional `bearerAuth` security requirement, since the request can come with or without a logged-in user. Its token is the user's session ID.
-- The document's title is your app's `title`, its version is the `version` from your `package.json` (or `0.0.0` if it has none), and its server URL is the server's `WASP_SERVER_URL`.
-
-Wasp doesn't know the shape of your APIs' request and response bodies, so the document doesn't describe them.
-
-The document only covers `api` declarations. Operations, CRUD, and auth routes are not included.
+The server then serves the document at `/openapi.json`, e.g. `http://localhost:3001/openapi.json`. Wasp fills it in from your `api` declarations, with each `api`'s method, path, path parameters, and whether it uses auth. Read more about `NODE_ENV` in [Detecting production mode](./spec.md#detecting-production-mode).
 
 ## Using Entities in APIs
 

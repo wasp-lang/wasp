@@ -29,4 +29,10 @@ export {
   type MiddlewareConfigFn,
 } from "./middleware.js";
 
+export {
+  makeOpenApiDocument,
+  type OpenApiDocumentApi,
+  type OpenApiDocumentConfig,
+  type OpenApiHttpMethod,
+} from "./openApi.js";
 export { type ServerSetupFn, type ServerSetupFnContext } from "./server.js";

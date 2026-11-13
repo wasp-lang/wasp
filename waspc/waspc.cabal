@@ -603,7 +603,6 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
-    Generator.ServerGenerator.OpenApiGTest
     Generator.ServerGenerator.ServerEffectTest
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
