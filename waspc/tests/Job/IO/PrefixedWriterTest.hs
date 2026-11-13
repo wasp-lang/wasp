@@ -34,13 +34,13 @@ spec_prefixedOutput = do
       `shouldBe` "\n" <> dbPrefix <> "one\r" <> dbPrefix <> "\n" <> dbPrefix <> "two\n"
 
 formatMessages :: [(Output, T.Text)] -> T.Text
-formatMessages = T.concat . snd . mapAccumL (uncurry . formatOutput) initialPrefixedWriterState
+formatMessages = T.concat . snd . mapAccumL (uncurry . formatOutput "15:18:42") initialPrefixedWriterState
 
 dbOutput :: T.Text -> (Output, T.Text)
 dbOutput text = (Output J.Db J.Stdout, text)
 
 dbPrefix :: T.Text
-dbPrefix = T.pack $ Term.applyStyles [Term.Blue] "[" <> "   " <> Term.applyStyles [Term.Blue] "Db" <> "   " <> Term.applyStyles [Term.Blue] "]" <> " "
+dbPrefix = T.pack $ Term.applyStyles [Term.Grey] "15:18:42" <> " " <> Term.applyStyles [Term.Blue] "[db]" <> " "
 
 serverPrefix :: T.Text
-serverPrefix = T.pack $ Term.applyStyles [Term.Magenta] "[" <> " " <> Term.applyStyles [Term.Magenta] "Server" <> " " <> Term.applyStyles [Term.Magenta] "]" <> " "
+serverPrefix = T.pack $ Term.applyStyles [Term.Grey] "15:18:42" <> " " <> Term.applyStyles [Term.Magenta] "[server]" <> " "
