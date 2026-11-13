@@ -111,19 +111,25 @@ formatOutput time (PrefixedWriterState outputsWithPendingPrefix lastOutput) outp
         addPrefixAfterSubstr :: T.Text -> T.Text -> T.Text
         addPrefixAfterSubstr substr = T.intercalate (substr <> prefix) . T.splitOn substr
 
+        -- A message that starts with a line break and then the prefix counts as
+        -- prefixed only while that line break is needed to finish another
+        -- output's line; after a complete line it is an empty line of this
+        -- output and gets its own prefix.
         ensurePrefixAtStartIfNotContinuingOnSameOutput :: T.Text -> T.Text
         ensurePrefixAtStartIfNotContinuingOnSameOutput text =
           let continuingOnSameOutput = lastOutput == Just output
               prefixAtStart =
-                or [(delimiter <> prefix) `T.isPrefixOf` text | delimiter <- ["\r", "\n", ""]]
+                prefix `T.isPrefixOf` text
+                  || (not previousLineComplete && or [(delimiter <> prefix) `T.isPrefixOf` text | delimiter <- ["\r", "\n"]])
            in if not continuingOnSameOutput && not prefixAtStart then prefix <> text else text
 
         ensureNewlineAtStartIfInterruptingAnotherOutput :: T.Text -> T.Text
         ensureNewlineAtStartIfInterruptingAnotherOutput text =
           let interruptingAnotherOutput = lastOutput /= Just output
               newlineAtStart = "\n" `T.isPrefixOf` text
-              previousLineComplete = maybe False (`S.member` outputsWithPendingPrefix) lastOutput
            in if interruptingAnotherOutput && not newlineAtStart && not previousLineComplete then "\n" <> text else text
+
+        previousLineComplete = maybe False (`S.member` outputsWithPendingPrefix) lastOutput
 
 newtype PrefixedWriterM a = PrefixedWriterM {_runPrefixedWriterM :: StateT PrefixedWriterState IO a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadState PrefixedWriterState)
