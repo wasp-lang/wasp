@@ -1,6 +1,7 @@
-module Wasp.Cli.Message (cliSendMessage, runStepGroup) where
+module Wasp.Cli.Message (cliSendMessage, cliSendFailedLine, runStepGroup) where
 
 import Data.Functor ((<&>))
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.List (intercalate)
 import Data.List.Extra (replace)
 import Wasp.Cli.Common (waspSays, waspScreams, waspWarns)
@@ -23,18 +24,33 @@ cliSendMessage (Msg.Failure entries) =
 cliSendMessage (Msg.Warning entries) =
   waspWarns =<< labeledMessage Term.Yellow "!" "WARNING" entries
 
+-- | The line that ends a group of steps in failure, before the entries that
+-- say why. The counterpart of the 'Msg.Success' line that ends it well.
+cliSendFailedLine :: String -> IO ()
+cliSendFailedLine msg = do
+  cross <- styleIfInteractive [Term.Bold, Term.Red] "✖"
+  waspScreams $ cross ++ " " ++ msg
+
 -- | Runs the steps of a bigger step as one. In a terminal they share one
 -- status line that follows the running step and their success lines are not
 -- printed. Elsewhere the group announces itself and the steps print their
--- lines as usual. The caller reports how the group ended.
-runStepGroup :: String -> (Msg.SendMessage -> IO a) -> IO a
-runStepGroup runningMessage steps =
-  Interactive.getInteractiveTerminal >>= \case
-    Just terminal -> Interactive.withStatusLine terminal runningMessage $ \_ ->
-      steps $ \case
-        Msg.Success _ -> return ()
-        message -> cliSendMessage message
-    Nothing -> cliSendMessage (Msg.Start runningMessage) >> steps cliSendMessage
+-- lines as usual. Failures the steps report are collected and returned, so
+-- the caller can report how the group ended before saying why.
+runStepGroup :: String -> (Msg.SendMessage -> IO a) -> IO (a, [Msg.Entry])
+runStepGroup runningMessage steps = do
+  failuresRef <- newIORef []
+  let collectFailures message = case message of
+        Msg.Failure entries -> modifyIORef' failuresRef (++ entries)
+        _ -> cliSendMessage message
+  result <-
+    Interactive.getInteractiveTerminal >>= \case
+      Just terminal -> Interactive.withStatusLine terminal runningMessage $ \_ ->
+        steps $ \case
+          Msg.Success _ -> return ()
+          message -> collectFailures message
+      Nothing -> cliSendMessage (Msg.Start runningMessage) >> steps collectFailures
+  failures <- readIORef failuresRef
+  return (result, failures)
 
 -- | Every entry starts with the label and everything else it says hangs
 -- indented under that line. A short part continues the line instead: a

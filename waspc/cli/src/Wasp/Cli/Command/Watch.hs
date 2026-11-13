@@ -150,11 +150,11 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
       Interactive.endOutputBlock
-      compileResult <- runStepGroup "Recompiling on file change" $ \groupSendMessage ->
+      (compileResult, stepFailures) <- runStepGroup "Recompiling on file change" $ \groupSendMessage ->
         compileIOWithOptions (defaultCompileOptions waspProjectDir) {sendMessage = groupSendMessage} waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-      printCompilationResult "Recompiled the project" compileResult
+      printCompilationResult "Recompiled the project" stepFailures compileResult
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
           projectRunConfig <- makeProjectRunConfig appSpec

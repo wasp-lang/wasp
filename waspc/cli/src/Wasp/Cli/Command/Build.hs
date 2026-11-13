@@ -68,9 +68,9 @@ build = ProjectLock.acquireExclusive $ do
       ("Failed to clear the " ++ buildDirName ++ " directory")
       (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory buildDir))
 
-  compileResult <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
+  (compileResult, stepFailures) <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
     buildIO groupSendMessage waspProjectDir buildDir
-  liftIO $ printCompilationResult "Compiled the project" compileResult
+  liftIO $ printCompilationResult "Compiled the project" stepFailures compileResult
   unless (isRight $ _compileOutcome compileResult) $ throwError CommandAborted
 
   runTaskOrAbort
