@@ -21,6 +21,7 @@ import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions, withDevDbOptions)
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
@@ -30,8 +31,8 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Util.Interactive as Interactive
 
 -- | Seed functions import the SDK.
-seed :: SeedArgs -> Command ()
-seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec projectRunConfig -> do
+seed :: (SeedArgs, DevDbOptions) -> Command ()
+seed (SeedArgs {_seedName = maybeUserProvidedSeedName}, devDbOptions) = makeDbCommand devDbOptions [PrismaCliReady, SdkReady] $ \appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -48,10 +49,11 @@ newtype SeedArgs = SeedArgs
   { _seedName :: Maybe String
   }
 
-seedArgsParser :: ArgsParser SeedArgs
+seedArgsParser :: ArgsParser (SeedArgs, DevDbOptions)
 seedArgsParser =
-  ArgsParser "wasp db seed" $
-    SeedArgs
+  withDevDbOptions
+    $ ArgsParser "wasp db seed"
+    $ SeedArgs
       <$> Opt.optional
         ( Opt.strArgument $
             Opt.metavar "SEED_NAME"

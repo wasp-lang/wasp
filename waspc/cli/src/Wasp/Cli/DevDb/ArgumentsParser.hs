@@ -1,11 +1,13 @@
 module Wasp.Cli.DevDb.ArgumentsParser
   ( DevDbOptions (..),
     devDbOptionsParser,
+    withDevDbOptions,
   )
 where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
+import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
@@ -35,3 +37,7 @@ devDbOptionsParser =
           <> Opt.showDefault
           <> Opt.value (snd defaultPostgresDockerImageSpec)
       )
+
+withDevDbOptions :: ArgsParser a -> ArgsParser (a, DevDbOptions)
+withDevDbOptions argsParser =
+  argsParser {optParser = (,) <$> argsParser.optParser <*> devDbOptionsParser}
