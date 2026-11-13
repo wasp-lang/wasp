@@ -79,7 +79,7 @@ startServer initialProjectRunConfig generatedAppDir inbox = do
     -- No server runs until the next successful compile, which bundles and
     -- starts it.
     waitForChanges :: J.Job (J.Job Void)
-    waitForChanges = return $ printWaitingForChanges >> runUntilReplaced noServer False
+    waitForChanges = return $ runUntilReplaced noServer False
 
     restartServer :: ProjectRunConfig -> J.Job (J.Job Void)
     restartServer projectRunConfig = printUpdatingServer >> runServer projectRunConfig
@@ -120,15 +120,10 @@ startServer initialProjectRunConfig generatedAppDir inbox = do
     runServerProcess projectRunConfig =
       J.fromProc (serverProcess projectRunConfig)
         >>= reportServerExit
-        >> printWaitingForChanges
 
     printUpdatingServer :: J.Job ()
     printUpdatingServer =
       J.emitOutput J.Stdout "Updating server...\n"
-
-    printWaitingForChanges :: J.Job ()
-    printWaitingForChanges =
-      J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
 
     bundle :: J.Job ExitCode
     bundle =
