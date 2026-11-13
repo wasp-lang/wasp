@@ -95,12 +95,18 @@ compileWithOptions options = do
     Right appSpec -> return (_compileWarnings compileResult, appSpec)
     Left _ -> throwError CommandAborted
 
--- | Reports how the compile went: the success message if there were no
--- errors, the errors otherwise, then any warnings.
+-- | Reports how the compile went: the success message with the number of
+-- warnings if there were no errors, the errors otherwise, then any warnings.
 printCompilationResult :: String -> CompileResult -> IO ()
 printCompilationResult successMessage compileResult = do
-  either printErrorsIfAny (const $ cliSendMessage $ Msg.Success successMessage) $ _compileOutcome compileResult
-  printWarningsIfAny $ _compileWarnings compileResult
+  either printErrorsIfAny (const $ cliSendMessage $ Msg.Success $ successMessage ++ ": " ++ issuesFound) $ _compileOutcome compileResult
+  printWarningsIfAny warnings
+  where
+    warnings = _compileWarnings compileResult
+    issuesFound = case length warnings of
+      0 -> "No issues found"
+      1 -> "1 issue found"
+      n -> show n ++ " issues found"
 
 printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()
 printWarningsAndErrorsIfAny (warns, errs) = do
