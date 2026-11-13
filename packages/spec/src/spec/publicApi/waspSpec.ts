@@ -538,15 +538,14 @@ export interface Server {
    * send it to an error tracking service. Wasp logs the error first.
    *
    * It receives the error and a context whose `source` says where the error
-   * happened: `"request"`, `"job"` (with `jobName`), `"webSocket"`,
-   * `"oauth"`, `"startup"`, or `"dbSeed"`. An `HttpError` you throw from a
+   * happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a
    * request is not unexpected, so Wasp doesn't call the function for it.
    *
    * The function can be async. Wasp waits for it before the server exits
    * because of a startup error.
    *
    * In TypeScript, you can type the function with the `ServerOnErrorFn` type
-   * from `wasp/server`.
+   * from `wasp/server`, which lists every `source`.
    *
    * @example
    * ```ts
@@ -694,13 +693,11 @@ export interface Client {
    * send it to an error tracking service. Wasp logs the error first.
    *
    * It receives the error and a context whose `source` says where the error
-   * surfaced: `"render"`, `"query"`, `"action"`, `"window"` (event handlers
-   * and unhandled promise rejections), `"oauthCallback"`, `"authForm"`, or
-   * `"optimisticUpdate"`. An `HttpError` from the server is not unexpected,
-   * so Wasp doesn't call the function for it.
+   * surfaced, e.g. `"render"` or `"query"`. An HTTP error response from the
+   * server is not unexpected, so Wasp doesn't call the function for it.
    *
    * In TypeScript, you can type the function with the `ClientOnErrorFn` type
-   * from `wasp/client`.
+   * from `wasp/client`, which lists every `source`.
    *
    * @example
    * ```ts

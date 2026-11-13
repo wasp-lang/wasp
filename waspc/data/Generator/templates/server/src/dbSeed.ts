@@ -14,7 +14,7 @@ import {
 
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
-import { ServerOnErrorFn } from 'wasp/server'
+import type { ServerOnErrorFn } from 'wasp/server'
 {=/ onErrorFn.isDefined =}
 
 {=# dbSeeds =}

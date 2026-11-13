@@ -11,11 +11,9 @@ import {
   registerClientOnErrorFn,
   WaspApp,
 } from "wasp/client/app";
-{=# onErrorFn.isDefined =}
-import type { ClientOnErrorFn } from "wasp/client";
-{=/ onErrorFn.isDefined =}
 
 {=# onErrorFn.isDefined =}
+import type { ClientOnErrorFn } from "wasp/client";
 {=& onErrorFn.importStatement =}
 {=/ onErrorFn.isDefined =}
 

@@ -12,7 +12,7 @@ import {
 } from "wasp/server/errors";
 
 import { onServerError } from "../../../../src/features/errors/serverOnError"
-import { ServerOnErrorFn } from 'wasp/server'
+import type { ServerOnErrorFn } from 'wasp/server'
 
 import { devSeedSimple } from "../../../../src/features/db/seeds"
 import { prodSeed } from "../../../../src/features/db/seeds"

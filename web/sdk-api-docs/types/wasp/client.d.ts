@@ -37,10 +37,11 @@ export type ClientConfig = {
  * - `error`: The thrown value.
  * - `context`: A {@link ClientErrorContext} that says where the error surfaced.
  *
- * An {@linkcode "errors"!HttpError | HttpError} is not unexpected, since the
- * server sent it on purpose, so Wasp doesn't call the function for it. Wasp
- * calls the function once per error, even if the error surfaces in more than
- * one place.
+ * An HTTP error response is not unexpected, since the server sent it on
+ * purpose, so Wasp doesn't call the function for an
+ * {@linkcode "errors"!HttpError | HttpError} or for the error the `api` client
+ * throws. Wasp calls the function once per error, even if the error surfaces
+ * in more than one place.
  *
  * The function can be async, but Wasp doesn't wait for it. If the function
  * itself throws, Wasp logs that error and carries on.

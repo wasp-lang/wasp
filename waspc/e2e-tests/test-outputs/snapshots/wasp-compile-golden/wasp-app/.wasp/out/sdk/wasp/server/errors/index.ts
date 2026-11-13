@@ -27,11 +27,11 @@ export function registerServerOnErrorFn(onErrorFn: ServerOnErrorFn): void {
 }
 
 // PRIVATE API (server)
+// TODO: Refactor this once Wasp has proper logging.
 /**
  * Logs the error and passes it to the user's `server.onError` function.
  * It never rejects, so callers that can't wait for it can ignore the promise.
  */
-// TODO: Refactor this once Wasp has proper logging.
 export async function reportUnexpectedServerError(
   error: unknown,
   context: ServerErrorContext,

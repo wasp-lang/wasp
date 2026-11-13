@@ -1,3 +1,4 @@
+import { isHTTPError } from "ky";
 import { HttpError } from "../HttpError.js";
 
 export type ClientErrorContext =
@@ -29,14 +30,15 @@ const handledErrors = new WeakSet<object>();
  * surface: the root error boundary, React's root, TanStack Query's caches,
  * the browser's global error events, and Wasp's own `catch` blocks.
  *
- * An `HttpError` is sent by the server on purpose, and the server already
- * reports its own unexpected errors, so we only report everything else.
+ * An HTTP error response is sent by the server on purpose, and the server
+ * already reports its own unexpected errors, so we only report everything
+ * else.
  */
 export function handleClientError(
   error: unknown,
   context: ClientErrorContext,
 ): void {
-  if (error instanceof HttpError) {
+  if (isHttpErrorResponse(error)) {
     return;
   }
   if (typeof error === "object" && error !== null) {
@@ -46,6 +48,12 @@ export function handleClientError(
     handledErrors.add(error);
   }
   reportUnexpectedClientError(error, context);
+}
+
+// Users who call `api` without `handleApiError` get ky's error instead of
+// our `HttpError`.
+function isHttpErrorResponse(error: unknown): boolean {
+  return error instanceof HttpError || isHTTPError(error);
 }
 
 /**

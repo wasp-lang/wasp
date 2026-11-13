@@ -16,7 +16,7 @@ import { ServerSetupFnContext } from 'wasp/server/types'
 
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
-import { ServerOnErrorFn } from 'wasp/server'
+import type { ServerOnErrorFn } from 'wasp/server'
 {=/ onErrorFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}

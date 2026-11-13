@@ -21,7 +21,7 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
-  return $ case dbSeedsToTemplateData (getDbSeeds spec) maybeOnErrorJsFunction of
+  return $ case dbSeedScriptTemplateData (getDbSeeds spec) maybeOnErrorJsFunction of
     Nothing -> []
     Just tmplData ->
       [ C.mkTmplFdWithData (C.srcDirInServerTemplatesDir </> dbSeedScriptInServerTmplSrcDir) (Just tmplData),
@@ -39,10 +39,10 @@ pathFromDbSeedScriptToServerSrc = [reldirP|./|]
 getDbSeeds :: AppSpec -> Maybe [ExtImport]
 getDbSeeds spec = AS.Db.seeds =<< AS.App.db (getApp spec)
 
-dbSeedsToTemplateData :: Maybe [ExtImport] -> Maybe ExtImport -> Maybe Aeson.Value
-dbSeedsToTemplateData Nothing _ = Nothing
-dbSeedsToTemplateData (Just []) _ = Nothing
-dbSeedsToTemplateData (Just seeds) maybeOnErrorJsFunction =
+dbSeedScriptTemplateData :: Maybe [ExtImport] -> Maybe ExtImport -> Maybe Aeson.Value
+dbSeedScriptTemplateData Nothing _ = Nothing
+dbSeedScriptTemplateData (Just []) _ = Nothing
+dbSeedScriptTemplateData (Just seeds) maybeOnErrorJsFunction =
   Just $
     object
       [ "dbSeeds" .= (dbSeedToTemplateData <$> seeds),

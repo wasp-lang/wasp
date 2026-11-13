@@ -307,7 +307,7 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 
 A few things to keep in mind:
 
-- An [`HttpError`](../../features/data/operations/queries.md#error-handling) is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for it. Failed Queries and Actions reach the function only for other errors, like a network failure.
+- An HTTP error response is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for an [`HttpError`](../../features/data/operations/queries.md#error-handling) or for the error the `api` client throws. Failed Queries and Actions reach the function only for other errors, like a network failure.
 - Wasp calls the function once per error, even if the error surfaces in more than one place.
 - Wasp doesn't call the function for render errors that your own error boundary catches.
 - Wasp doesn't call the function while [prerendering](../prerendering.md) pages.

@@ -10,8 +10,8 @@ import {
   registerClientOnErrorFn,
   WaspApp,
 } from "wasp/client/app";
-import type { ClientOnErrorFn } from "wasp/client";
 
+import type { ClientOnErrorFn } from "wasp/client";
 import { onClientError as onClientError_ext } from "./src/features/errors/clientOnError"
 
 import { routeObjects } from "/@wasp/routes.tsx"

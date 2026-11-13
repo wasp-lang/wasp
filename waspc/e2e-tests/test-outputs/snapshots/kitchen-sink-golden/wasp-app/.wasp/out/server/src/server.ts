@@ -12,7 +12,7 @@ import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
 import { onServerError } from "../../../../src/features/errors/serverOnError"
-import { ServerOnErrorFn } from 'wasp/server'
+import type { ServerOnErrorFn } from 'wasp/server'
 
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'

@@ -5,9 +5,9 @@ import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider, isCancelledError } from "@tanstack/react-query";
+import ky, { isHTTPError } from "ky";
 import mitt from "mitt";
 import * as z from "zod";
-import ky from "ky";
 import "superjson";
 // \0vite/modulepreload-polyfill.js
 (function polyfill() {
@@ -99,16 +99,20 @@ var handledErrors = /* @__PURE__ */ new WeakSet();
 * surface: the root error boundary, React's root, TanStack Query's caches,
 * the browser's global error events, and Wasp's own `catch` blocks.
 *
-* An `HttpError` is sent by the server on purpose, and the server already
-* reports its own unexpected errors, so we only report everything else.
+* An HTTP error response is sent by the server on purpose, and the server
+* already reports its own unexpected errors, so we only report everything
+* else.
 */
 function handleClientError(error, context) {
-	if (error instanceof HttpError) return;
+	if (isHttpErrorResponse(error)) return;
 	if (typeof error === "object" && error !== null) {
 		if (handledErrors.has(error)) return;
 		handledErrors.add(error);
 	}
 	reportUnexpectedClientError(error, context);
+}
+function isHttpErrorResponse(error) {
+	return error instanceof HttpError || isHTTPError(error);
 }
 /**
 * Catches errors that nothing else caught, e.g. errors thrown in event
@@ -220,10 +224,10 @@ var queryClientInitialized = new Promise((resolve) => {
 });
 function initializeQueryClient() {
 	const queryClient = new QueryClient(withWaspQueryDefaults({}));
-	reportQueryClientErrors(queryClient);
+	listenForQueryClientErrors(queryClient);
 	resolveQueryClientInitialized(queryClient);
 }
-function reportQueryClientErrors(queryClient) {
+function listenForQueryClientErrors(queryClient) {
 	queryClient.getQueryCache().subscribe((event) => {
 		if (event.type === "updated" && event.action.type === "error") reportUnlessCancelled(event.action.error, { source: "query" });
 	});
