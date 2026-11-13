@@ -12535,10 +12535,11 @@ export default defineConfig({
 });
 ```
 
-Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal. Wasp adds these panels:
+Wasp adds a toolbar at the bottom of your app's pages with the DevTools panels. You can also open the full DevTools at `/__devtools/` on your client URL.
 
 - **Wasp Studio**: click **Start Wasp Studio** to see your app as a graph of pages, routes, operations, APIs, jobs, and entities, the same as running `wasp studio`.
 - **Prisma Studio**: click **Start Prisma Studio** to browse and edit the data in your database, the same as running `wasp db studio`.
+- **Terminals**: the output of the processes the other panels start.
 
 Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
 
