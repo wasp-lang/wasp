@@ -321,7 +321,7 @@ function WaspApp({ children }) {
 		children
 	});
 }
-// .wasp/out/sdk/wasp/dist/client/router/index.js
+// .wasp/out/sdk/wasp/dist/client/router/routes.js
 var routes = { RootRoute: {
 	to: "/",
 	build: (options) => interpolatePath("/", void 0, options?.search, options?.hash)

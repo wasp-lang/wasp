@@ -1,27 +1,8 @@
-import {
-  interpolatePath,
-  type RouteDefinitionsToRoutes,
-  type OptionalRouteOptions,
-  type ParamValue,
-  type ExpandRouteOnOptionalStaticSegments,
-} from '@wasp/lib-sdk-core'
+import { type RouteDefinitionsToRoutes } from '@wasp/lib-sdk-core'
+import { routes } from './routes'
 
 // PUBLIC API
-export const routes = {
-  RootRoute: {
-    to: "/",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
-} as const;
+export { routes }
 
 // PRIVATE API
 export type Routes = RouteDefinitionsToRoutes<typeof routes>

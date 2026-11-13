@@ -480,7 +480,14 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "0dd26163f8a4503a89f5c8170c3cffb13f2862449029ef28e4c1c84f52f069e5"
+        "bc46d3d971c94f7de523298e697ec655b90b844400b43423d9946bd3fbbe5833"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/router/routes.ts"
+        ],
+        "693814e2f267356b17a65181d6fb425e2271c76241f84e9a41c89628e8285c4c"
     ],
     [
         [
