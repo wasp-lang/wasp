@@ -1,0 +1,37 @@
+{
+  "name": "@wasp/lib-devtools",
+  "version": "0.27.0",
+  "type": "module",
+  "description": "Wasp's Vite DevTools panels, such as Wasp Studio.",
+  "homepage": "https://wasp.sh/",
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    "./node": {
+      "types": "./dist/node.d.mts",
+      "default": "./dist/node.mjs"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "pnpm run test:types",
+    "test:types": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "@vitejs/devtools-kit": "^0.8.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node-ts": "^23.6.4",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/node": "catalog:",
+    "tsdown": "^0.21.5",
+    "typescript": "catalog:",
+    "vite": "^8.3.5"
+  }
+}

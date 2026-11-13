@@ -12515,6 +12515,33 @@ export default defineConfig({
 });
 ```
 
+### Vite DevTools, Wasp Studio, and Prisma Studio {#vite-devtools}
+
+[Vite DevTools](https://devtools.vite.dev/) adds a panel to your app during `wasp start`. New Wasp projects enable it with the `devtools` option, and `waspDevTools()` brands it as Wasp DevTools. To enable it in an existing project, install the `@vitejs/devtools` package:
+
+```bash
+npm install -D @vitejs/devtools
+```
+
+And set the option in your Vite config:
+
+```ts title="vite.config.ts"
+import { wasp, waspDevTools } from "wasp/client/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  devtools: waspDevTools(),
+  plugins: [wasp()],
+});
+```
+
+Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal. Wasp adds these panels:
+
+- **Wasp Studio**: click **Start Wasp Studio** to see your app as a graph of pages, routes, operations, APIs, jobs, and entities, the same as running `wasp studio`.
+- **Prisma Studio**: click **Start Prisma Studio** to browse and edit the data in your database, the same as running `wasp db studio`.
+
+Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
+
 ### Examples
 
 Below are some examples of how you can customize the Vite config.
