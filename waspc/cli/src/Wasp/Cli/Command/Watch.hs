@@ -26,6 +26,7 @@ import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import qualified Wasp.Util.Interactive as Interactive
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -148,6 +149,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
 
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
+      Interactive.endOutputBlock
       compileResult <- runStepGroup "Recompiling on file change" $ \groupSendMessage ->
         compileIOWithOptions (defaultCompileOptions waspProjectDir) {sendMessage = groupSendMessage} waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult

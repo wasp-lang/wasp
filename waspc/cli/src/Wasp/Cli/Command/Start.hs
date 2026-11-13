@@ -64,6 +64,7 @@ start = withArguments startArgsParser $ \args ->
 
     throwIfDbConnectionNotEstablished projectRunConfig
 
+    cliSendMessageC $ Msg.Info ""
     cliSendMessageC $ Msg.Start "Starting the app..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
 

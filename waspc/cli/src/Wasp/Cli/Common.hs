@@ -10,7 +10,7 @@ import System.IO (stdout)
 import qualified Wasp.Util.Interactive as Interactive
 
 waspSays :: String -> IO ()
-waspSays = Interactive.writeOutput stdout . T.pack . (++ "\n")
+waspSays = Interactive.writeOutput Interactive.WaspMessage stdout . T.pack . (++ "\n")
 
 waspWarns :: String -> IO ()
 waspWarns = waspSays
