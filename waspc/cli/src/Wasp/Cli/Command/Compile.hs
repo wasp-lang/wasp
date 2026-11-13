@@ -31,7 +31,7 @@ import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Message (cliSendMessage, runStepGroup)
+import Wasp.Cli.Message (cliSendFailedLine, cliSendMessage, runStepGroup)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -87,26 +87,32 @@ compileWithOptions options = do
       ("Failed to clear the " ++ outDirName ++ " directory")
       (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory outDir))
 
-  compileResult <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
+  (compileResult, stepFailures) <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
     compileIOWithOptions options {sendMessage = groupSendMessage} waspProjectDir outDir
 
-  liftIO $ printCompilationResult "Compiled the project" compileResult
+  liftIO $ printCompilationResult "Compiled the project" stepFailures compileResult
   case _compileOutcome compileResult of
     Right appSpec -> return (_compileWarnings compileResult, appSpec)
     Left _ -> throwError CommandAborted
 
--- | Reports how the compile went: the success message with the number of
--- warnings if there were no errors, the errors otherwise, then any warnings.
-printCompilationResult :: String -> CompileResult -> IO ()
-printCompilationResult successMessage compileResult = do
-  either printErrorsIfAny (const $ cliSendMessage $ Msg.Success $ successMessage ++ ": " ++ issuesFound) $ _compileOutcome compileResult
+-- | Reports how the compile went, counting the errors and warnings on the
+-- result line: the success message if there were no errors, "Compilation
+-- failed" otherwise. The errors come next (those its steps reported first),
+-- then the warnings.
+printCompilationResult :: String -> [CompileError] -> CompileResult -> IO ()
+printCompilationResult successMessage stepFailures compileResult = do
+  case _compileOutcome compileResult of
+    Right _ -> cliSendMessage $ Msg.Success $ successMessage ++ ": " ++ issues
+    Left _ -> cliSendFailedLine ("Compilation failed: " ++ issues) >> printErrorsIfAny errors
   printWarningsIfAny warnings
   where
+    errors = stepFailures ++ either id (const []) (_compileOutcome compileResult)
     warnings = _compileWarnings compileResult
-    issuesFound = case length warnings of
-      0 -> "No issues found"
-      1 -> "1 issue found"
-      n -> show n ++ " issues found"
+    issues = case [counted n name | (n, name) <- [(length errors, "error"), (length warnings, "warning")], n > 0] of
+      [] -> "No issues"
+      counts -> intercalate ", " counts
+    counted 1 name = "1 " ++ name
+    counted n name = show n ++ " " ++ name ++ "s"
 
 printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()
 printWarningsAndErrorsIfAny (warns, errs) = do
