@@ -23,7 +23,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Message (runStepGroup)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -68,10 +68,9 @@ build = ProjectLock.acquireExclusive $ do
       ("Failed to clear the " ++ buildDirName ++ " directory")
       (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory buildDir))
 
-  cliSendMessageC $ Msg.Start "Building wasp project..."
-
-  compileResult <- liftIO $ buildIO waspProjectDir buildDir
-  liftIO $ printCompilationResult compileResult
+  compileResult <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
+    buildIO groupSendMessage waspProjectDir buildDir
+  liftIO $ printCompilationResult "Compiled the project" compileResult
   unless (isRight $ _compileOutcome compileResult) $ throwError CommandAborted
 
   runTaskOrAbort
@@ -147,15 +146,16 @@ build = ProjectLock.acquireExclusive $ do
     waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
+  Msg.SendMessage ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO CompileResult
-buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
+buildIO sendMessage waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
-          sendMessage = cliSendMessage,
+          sendMessage,
           setupGoals = allSetupGoals
         }
