@@ -3,6 +3,7 @@ import operations from './operations/index.js'
 import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
+import { studioData } from './studioData.js'
 
 
 const router = express.Router()
@@ -11,6 +12,12 @@ const middleware = globalMiddlewareConfigForExpress()
 router.use('/operations', middleware, operations)
 router.get('/up', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
+})
+
+// The data that Wasp Studio shows, from the app's Wasp config. Only in
+// development, since it describes the app's internals.
+router.get('/__wasp/studio-data', middleware, function (_req, res) {
+  res.status(200).json(studioData)
 })
 
 
