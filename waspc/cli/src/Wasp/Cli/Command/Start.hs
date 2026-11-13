@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (checkDbMigrations, compile, printWarningsAndErrorsIfAny, printWarningsIfAny)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
@@ -32,7 +32,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Project.RunConfig (ProjectRunConfig (..))
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -66,6 +66,9 @@ start = withArguments startArgsParser $ \args ->
 
     throwIfDbConnectionNotEstablished projectRunConfig
 
+    dbMigrationWarnings <- liftIO $ checkDbMigrations appSpec projectRunConfig.databaseUrl
+    liftIO $ printWarningsIfAny dbMigrationWarnings
+
     cliSendMessageC $ Msg.Start "Listening for file changes..."
     cliSendMessageC $ Msg.Start "Starting up generated project..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
@@ -76,7 +79,7 @@ start = withArguments startArgsParser $ \args ->
       -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
       -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
       -- 'watch') once jobs from 'start' quiet down a bit.
-      ongoingCompilationResultMVar <- newMVar (warnings, [])
+      ongoingCompilationResultMVar <- newMVar (warnings ++ dbMigrationWarnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
       let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
       let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)

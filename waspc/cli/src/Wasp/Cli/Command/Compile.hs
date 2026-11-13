@@ -11,6 +11,8 @@ module Wasp.Cli.Command.Compile
     withSetupGoals,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
+    printWarningsIfAny,
+    checkDbMigrations,
     analyze,
     analyzeWithOptions,
     analyzeWithDiagnosticsOnStderr,
@@ -21,6 +23,7 @@ import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (exitFailure)
@@ -35,6 +38,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
+import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
@@ -42,12 +46,17 @@ import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProje
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
 compileCommand :: Command ([CompileWarning], AS.AppSpec)
-compileCommand = ProjectLock.acquireExclusive compile
+compileCommand = ProjectLock.acquireExclusive $ do
+  (warnings, appSpec) <- compile
+  dbMigrationWarnings <- liftIO $ findDevDatabaseUrl appSpec >>= checkDbMigrations appSpec
+  liftIO $ printWarningsIfAny dbMigrationWarnings
+  return (warnings ++ dbMigrationWarnings, appSpec)
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
@@ -155,6 +164,14 @@ compileIOWithOptions ::
   IO CompileResult
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
+
+-- | Warns if the database at the given URL is behind the app's Prisma schema.
+checkDbMigrations :: AS.AppSpec -> Maybe String -> IO [CompileWarning]
+checkDbMigrations appSpec databaseUrl =
+  map show . maybeToList
+    <$> DbGenerator.warnIfDbNeedsMigration (devDatabaseEnvVars databaseUrl) appSpec outDir
+  where
+    outDir = AS.waspProjectDir appSpec </> generatedAppDirInWaspProjectDir
 
 defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =

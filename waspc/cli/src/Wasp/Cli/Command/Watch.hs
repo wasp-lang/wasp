@@ -16,7 +16,7 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
+import Wasp.Cli.Command.Compile (CompileResult (..), checkDbMigrations, compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
@@ -25,7 +25,7 @@ import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
-import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Project.RunConfig (ProjectRunConfig (..))
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -150,13 +150,14 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
       compileResult <- compileIO waspProjectDir outDir
-      let (warnings, errors) = compileResultWarningsAndErrors compileResult
+      compiledApp <- traverse prepareRun $ _compileOutcome compileResult
+      let (compileWarnings, errors) = compileResultWarningsAndErrors compileResult
+          warnings = compileWarnings ++ foldMap snd compiledApp
 
       printCompilationResult (warnings, errors)
-      compileOutcome <- case _compileOutcome compileResult of
-        Right appSpec -> do
+      compileOutcome <- case compiledApp of
+        Right (projectRunConfig, _) -> do
           cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
-          projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
               projectRunConfig
@@ -171,6 +172,12 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
+
+    prepareRun :: AppSpec -> IO (ProjectRunConfig, [CompileWarning])
+    prepareRun appSpec = do
+      projectRunConfig <- makeProjectRunConfig appSpec
+      dbMigrationWarnings <- checkDbMigrations appSpec projectRunConfig.databaseUrl
+      return (projectRunConfig, dbMigrationWarnings)
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
