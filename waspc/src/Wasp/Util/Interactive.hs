@@ -30,7 +30,7 @@ import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, readMVar, withMVar)
 import Control.Exception (finally)
-import Control.Monad (forM_, forever, unless)
+import Control.Monad (forM_, forever, unless, when)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
@@ -247,9 +247,7 @@ writeOutput source handle output = do
       -- line, and is redrawn with it, until the rest of it arrives.
       let (completed, unfinished) = T.breakOnEnd "\n" $ state.unfinishedLine <> separated
       T.IO.hPutStr handle completed >> hFlush handle
-      let state' = state {unfinishedLine = unfinished}
-      drawStatusLine statusLine state'
-      return state'
+      drawStatusLine statusLine state {unfinishedLine = unfinished}
 
 -- | What the output written so far ends with: who wrote last, how many line
 -- breaks are at the end, and whether Wasp's next output starts a new block.
@@ -304,12 +302,16 @@ data StatusLineState = StatusLineState
   { text :: String,
     frame :: String,
     -- | Output written above the line that has no line break yet.
-    unfinishedLine :: T.Text
+    unfinishedLine :: T.Text,
+    -- | Whether an empty line was drawn above the spinner row, as 'separate'
+    -- would put one before Wasp's output at this point.
+    separatedAbove :: Bool
   }
 
 withStatusLine :: InteractiveTerminal -> String -> (StatusLine -> IO a) -> IO a
 withStatusLine terminal initialText action = do
-  statusLine <- StatusLine terminal <$> newMVar (StatusLineState initialText (head spinnerFrames) "")
+  statusLine <- StatusLine terminal <$> newMVar (StatusLineState initialText (head spinnerFrames) "" False)
+  modifyMVar_ statusLine.statusLineState $ drawStatusLine statusLine
   writeIORef terminal.statusLineRef (Just statusLine)
   Async.withAsync (spin statusLine) (const $ action statusLine)
     `finally` (writeIORef terminal.statusLineRef Nothing >> removeStatusLine statusLine)
@@ -335,13 +337,18 @@ withStatusLineText statusLine deriveText action = do
     setText t = modifyMVar_ statusLine.statusLineState $ \state -> return state {text = t}
 
 -- | Draws the status line from the current row: the unfinished output line,
--- if any, then the spinner row below it.
-drawStatusLine :: StatusLine -> StatusLineState -> IO ()
+-- if any, the empty line that sets the spinner apart from job logs, if one
+-- is due, then the spinner row.
+drawStatusLine :: StatusLine -> StatusLineState -> IO StatusLineState
 drawStatusLine statusLine state = do
+  trail <- readIORef stdioOutputTrailRef
+  let separated = "\n" `T.isPrefixOf` snd (separate trail WaspMessage "the status line")
   unless (T.null state.unfinishedLine)
     $ putStrFlush statusLine.statusLineTerminal
     $ T.unpack state.unfinishedLine ++ "\n"
+  when separated $ putStrFlush statusLine.statusLineTerminal "\n"
   drawSpinnerRow statusLine state
+  return state {separatedAbove = separated}
 
 -- | Redraws the spinner row in place.
 drawSpinnerRow :: StatusLine -> StatusLineState -> IO ()
@@ -353,7 +360,9 @@ drawSpinnerRow statusLine state =
 clearStatusLine :: StatusLine -> StatusLineState -> IO ()
 clearStatusLine statusLine state =
   putStrFlush statusLine.statusLineTerminal $
-    clearLine ++ (if T.null state.unfinishedLine then "" else cursorUp ++ clearLine)
+    clearLine
+      ++ (if state.separatedAbove then cursorUp ++ clearLine else "")
+      ++ (if T.null state.unfinishedLine then "" else cursorUp ++ clearLine)
 
 -- | Erases the status line for good, leaving any unfinished output line in
 -- place for its writer to continue.
