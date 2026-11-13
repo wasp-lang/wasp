@@ -1,0 +1,16 @@
+/*
+  Using !important with some of the components is a workaround for Tailwind
+  CSS's having too much precedence.
+  https://github.com/wasp-lang/wasp/issues/1764
+*/
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerText {
+  font-size: 1.875rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+}

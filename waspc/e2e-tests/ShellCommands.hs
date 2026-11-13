@@ -46,6 +46,7 @@ module ShellCommands
     assertCommandOutputContainsAll,
     skipIfDockerDisabled,
     createSeedFile,
+    createFileInWaspProjectDir,
     replaceMainWaspTsFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
@@ -65,7 +66,7 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
@@ -307,6 +308,12 @@ createSeedFile fileName content = do
       seedFile = seedDir </> seedsFileInSeedsDir fileName
 
   writeToFile seedFile content
+
+-- | Writes a file at a path in the Wasp project, creating directories as needed.
+createFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File' -> T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+createFileInWaspProjectDir file content = do
+  context <- ask
+  writeToFile (context.waspProjectDir </> file) content
 
 replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspTsFile content = do

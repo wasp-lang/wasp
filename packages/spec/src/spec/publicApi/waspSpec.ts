@@ -72,6 +72,14 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
+   * Turns on the app's MCP server, so users can connect AI clients (Claude,
+   * ChatGPT, ...) to their own account. Operations become tools with
+   * {@link Expose.mcp}.
+   *
+   * Experimental. Requires {@link App.auth}.
+   */
+  mcp?: Mcp;
+  /**
    * The specification ({@link Spec}) of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
@@ -79,6 +87,214 @@ export interface App {
    * {@link job}, {@link crud}).
    */
   spec: Spec;
+}
+
+/**
+ * Configuration for the app's MCP server: the `/mcp` endpoint, and the OAuth
+ * server MCP clients use to connect to a user's account.
+ *
+ * Experimental.
+ *
+ * @example
+ * ```ts
+ * import { app, page, route } from "@wasp/spec"
+ * import { ConnectPage } from "./src/mcp/ConnectPage" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   auth: { userEntity: "User", methods: { usernameAndPassword: {} }, onAuthFailedRedirectTo: "/login" },
+ *   mcp: {
+ *     instructions:
+ *       "Linkly shortens links and counts their clicks. Start with list_links to find a link by its slug.",
+ *     consentRoute: "McpConsentRoute",
+ *   },
+ *   spec: [
+ *     route("McpConsentRoute", "/connect", page(ConnectPage, { authRequired: true })),
+ *   ],
+ * })
+ * ```
+ */
+export interface Mcp {
+  /**
+   * Given to the model when a client connects. Write it for the model: what
+   * the app is, how the tools fit together, and which tool to start with.
+   */
+  instructions: string;
+  /**
+   * Name of the route where the app shows `<McpConsentForm />` (from
+   * `wasp/client/mcp`). It is also the OAuth authorization endpoint, so its
+   * page must have `authRequired: true`.
+   */
+  consentRoute: string;
+  /**
+   * Name of the route where the app shows `<McpConfirmAction />` (from
+   * `wasp/client/mcp`), the page where users approve or deny a destructive
+   * tool call. Its page must have `authRequired: true`. Required when any
+   * tool is {@link McpTool.destructive}.
+   */
+  confirmRoute?: string;
+  /**
+   * Adds the built-in `whoami` tool, which tells the model whose account it
+   * is acting for.
+   *
+   * @default true
+   */
+  whoami?: boolean;
+  /**
+   * Permissions users can grant a client, one checkbox each on the consent
+   * screen. A tool that names one with {@link McpTool.scope} can only be
+   * called by clients that were granted it (see {@link Mcp.insufficientScope}).
+   * Tools without a scope are available to every connection.
+   *
+   * Scopes only apply to MCP clients: your web app's calls keep the user's
+   * full access.
+   *
+   * @example
+   * ```ts
+   * scopes: {
+   *   "tasks:read": { label: "View your tasks" },
+   *   "tasks:write": { label: "Create and edit your tasks", implies: ["tasks:read"] },
+   * }
+   * ```
+   */
+  scopes?: Record<string, McpScope>;
+  /**
+   * The scopes clients ask for when they first connect. Defaults to every
+   * scope. Start with read scopes, and with `insufficientScope: "stepUp"`
+   * clients ask for more when they first need it.
+   */
+  initialScopes?: string[];
+  /**
+   * What clients see of tools whose scope they weren't granted.
+   * - `"stepUp"`: the tool is listed, and calling it sends the user back to
+   *   the consent screen to allow its scope (MCP step-up authorization).
+   * - `"hide"`: the tool isn't listed for that client at all.
+   *
+   * A tool can override it with {@link McpTool.insufficientScope}.
+   *
+   * @default "stepUp"
+   */
+  insufficientScope?: McpInsufficientScope;
+  /**
+   * Limits each connection's requests, so one runaway agent can't overload
+   * the app. The counts are kept in the database, so they're shared across
+   * server instances. `false` turns it off.
+   *
+   * @default { windowMs: 60000, max: 120 }
+   */
+  rateLimit?: { windowMs?: number; max?: number } | false;
+}
+
+/**
+ * What clients see of a tool whose scope they weren't granted. See
+ * {@link Mcp.insufficientScope}.
+ */
+export type McpInsufficientScope = "stepUp" | "hide";
+
+/**
+ * A permission users can grant an MCP client. The key it's declared under is
+ * its name, like `tasks:read`: no spaces, quotes or backslashes.
+ *
+ * Experimental.
+ */
+export interface McpScope {
+  /** What the consent screen shows, e.g. "View your tasks". */
+  label: string;
+  /** More detail for the consent screen. */
+  description?: string;
+  /**
+   * Scopes granted along with this one, e.g. a write scope implies its read
+   * scope, since changing something shows it too.
+   */
+  implies?: readonly string[];
+}
+
+/**
+ * Where an operation is available, keyed by surface.
+ *
+ * Experimental.
+ */
+export interface Expose {
+  /**
+   * Whether the operation gets an HTTP route and a `wasp/client/operations`
+   * export. Set it to `false` for operations only MCP or server code calls.
+   *
+   * @default true
+   */
+  client?: boolean;
+  /** Makes the operation an MCP tool. Requires {@link App.mcp}. */
+  mcp?: McpTool;
+}
+
+/**
+ * How an operation appears as an MCP tool. The tool runs the operation's own
+ * handler as the connected user, with `context.mcp` set. A query's tool is
+ * marked read-only, an action's isn't.
+ *
+ * Experimental.
+ */
+export interface McpTool {
+  /**
+   * The tool's name, part of the contract with models. Unique across the app.
+   *
+   * @default the operation's name in `snake_case`, e.g. `getLinks` becomes
+   * `get_links`
+   */
+  name?: string;
+  /** A human-readable name clients may show. */
+  title?: string;
+  /**
+   * The scope (declared in {@link Mcp.scopes}) a client needs to call this
+   * tool. What clients without it see depends on {@link Mcp.insufficientScope}.
+   * Omit it for tools every connection can call.
+   */
+  scope?: string;
+  /** Overrides {@link Mcp.insufficientScope} for this tool. */
+  insufficientScope?: McpInsufficientScope;
+  /**
+   * Written for the model: what the tool does, what it returns, and which
+   * tool to use next.
+   */
+  description: string;
+  /**
+   * A `z.object()` the tool's arguments are validated against. Use JSON types
+   * only, e.g. `z.iso.datetime()` instead of `z.date()`.
+   */
+  input: Reference<ZodSchema>;
+  /**
+   * Describes the result in `tools/list`. Wasp doesn't validate or filter the
+   * result with it, so return only what the model should see.
+   */
+  output?: Reference<ZodSchema>;
+  /**
+   * Hint that calling the tool twice with the same arguments has no extra
+   * effect.
+   *
+   * @default false
+   */
+  idempotent?: boolean;
+  /**
+   * Hint that the tool talks to the outside world (other services, the web).
+   *
+   * @default false
+   */
+  openWorld?: boolean;
+  /**
+   * The tool can't be undone, so a call waits for the user to approve it in
+   * your app (on {@link Mcp.confirmRoute}), unless they turned confirmations
+   * off for that connection. Clients that can open web pages show the
+   * approval page themselves; others get a link to share. Only for actions:
+   * queries are always read-only. Your web app's calls to the operation
+   * never wait.
+   *
+   * `{ describe }` writes what the approval page shows: a function
+   * `(args, context) => ({ title, details? })` (`McpDescribeFn` from
+   * `wasp/server/mcp`), e.g. "Delete the short link summer-sale". Without it,
+   * the page shows the tool and its arguments.
+   *
+   * @default false
+   */
+  destructive?: boolean | { describe: Reference<AnyFunction> };
 }
 
 /**
@@ -989,20 +1205,6 @@ export interface Route extends BaseSpecElement<"route"> {
 }
 
 /**
- * Where an operation is available.
- */
-export interface Expose {
-  /**
-   * Whether the operation gets an HTTP route and a `wasp/client/operations`
-   * export. Set it to `false` for operations only server code calls: the
-   * client can't call them, and there's no route to reach them over HTTP.
-   *
-   * @default true
-   */
-  client?: boolean;
-}
-
-/**
  * A server-side read-only operation, callable from the client and the server.
  *
  * Create one with the {@link query} constructor.
@@ -1034,8 +1236,8 @@ export interface Query extends BaseSpecElement<"query"> {
    */
   auth?: boolean;
   /**
-   * Where the Query is available. By default it gets an HTTP route and a
-   * `wasp/client/operations` export.
+   * Where the Query is available: the client (default) and, with
+   * {@link Expose.mcp}, MCP clients.
    */
   expose?: Expose;
 }
@@ -1072,8 +1274,8 @@ export interface Action extends BaseSpecElement<"action"> {
    */
   auth?: boolean;
   /**
-   * Where the Action is available. By default it gets an HTTP route and a
-   * `wasp/client/operations` export.
+   * Where the Action is available: the client (default) and, with
+   * {@link Expose.mcp}, MCP clients.
    */
   expose?: Expose;
 }

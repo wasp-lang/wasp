@@ -5,7 +5,10 @@ module Wasp.AppSpec.Operation
     getEntities,
     getAuth,
     getExpose,
+    getMcpTool,
+    getMcpToolName,
     isExposedToClient,
+    isQuery,
   )
 where
 
@@ -13,7 +16,7 @@ import Wasp.AppSpec.Action (Action)
 import qualified Wasp.AppSpec.Action as Action
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
-import Wasp.AppSpec.Expose (Expose)
+import Wasp.AppSpec.Expose (Expose, McpTool)
 import qualified Wasp.AppSpec.Expose as Expose
 import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Query (Query)
@@ -45,6 +48,17 @@ getExpose :: Operation -> Maybe Expose
 getExpose (QueryOp query) = query.expose
 getExpose (ActionOp action) = action.expose
 
+isQuery :: Operation -> Bool
+isQuery (QueryOp _) = True
+isQuery (ActionOp _) = False
+
+getMcpTool :: Operation -> Maybe McpTool
+getMcpTool = Expose.getMcpTool . getExpose
+
 -- | Whether the operation gets an HTTP route and a client export (`expose.client`, default true).
 isExposedToClient :: Operation -> Bool
 isExposedToClient = Expose.isExposedToClient . getExpose
+
+-- | See 'Expose.getMcpToolName'.
+getMcpToolName :: Operation -> McpTool -> String
+getMcpToolName op = Expose.getMcpToolName (getName op)

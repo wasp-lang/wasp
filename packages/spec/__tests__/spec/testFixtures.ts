@@ -44,6 +44,7 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
         db: getDbConfig("full"),
         emailSender: getEmailSenderConfig("full"),
         webSocket: getWebSocketConfig("full"),
+        mcp: getMcpConfig("full"),
         spec: [
           getPage("full"),
           getRoute("full"),
@@ -143,7 +144,76 @@ export function getExposeConfig(scope: ConfigScope): Config<WaspSpec.Expose> {
     case "minimal":
       return {} satisfies MinimalConfig<WaspSpec.Expose>;
     case "full":
-      return { client: false } satisfies FullConfig<WaspSpec.Expose>;
+      return {
+        client: false,
+        mcp: getMcpToolConfig("full"),
+      } satisfies FullConfig<WaspSpec.Expose>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getMcpToolConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.McpTool>;
+export function getMcpToolConfig(scope: ConfigScope): Config<WaspSpec.McpTool> {
+  switch (scope) {
+    case "minimal":
+      return {
+        description: "Lists the user's tasks.",
+        input: getRefObject("minimal", "named"),
+      } satisfies MinimalConfig<WaspSpec.McpTool>;
+    case "full":
+      return {
+        name: "list_tasks",
+        title: "List tasks",
+        scope: "tasks:read",
+        insufficientScope: "hide",
+        description: "Lists the user's tasks.",
+        input: getRefObject("minimal", "named"),
+        output: getRefObject("full", "named"),
+        idempotent: true,
+        openWorld: false,
+        destructive: { describe: getRefObject("full", "named") },
+      } satisfies FullConfig<WaspSpec.McpTool>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+/** Points `consentRoute` and `confirmRoute` at the full route fixture. */
+export function getMcpConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.Mcp>;
+export function getMcpConfig(scope: ConfigScope): Config<WaspSpec.Mcp> {
+  switch (scope) {
+    case "minimal":
+      return {
+        instructions: "Tasks keeps a to-do list. Start with list_tasks.",
+        consentRoute: getRoute("full").name,
+      } satisfies MinimalConfig<WaspSpec.Mcp>;
+    case "full":
+      return {
+        instructions: "Tasks keeps a to-do list. Start with list_tasks.",
+        consentRoute: getRoute("full").name,
+        confirmRoute: getRoute("full").name,
+        whoami: false,
+        scopes: {
+          "tasks:read": {
+            label: "View your tasks",
+            description: "Titles and statuses.",
+            implies: [],
+          },
+          "tasks:write": {
+            label: "Edit your tasks",
+            description: "Add, change and complete tasks.",
+            implies: ["tasks:read"],
+          },
+        },
+        initialScopes: ["tasks:read"],
+        insufficientScope: "stepUp",
+        rateLimit: { windowMs: 60_000, max: 30 },
+      } satisfies FullConfig<WaspSpec.Mcp>;
     default:
       assertUnreachable(scope);
   }
@@ -665,7 +735,7 @@ export type MinimalConfig<T> =
     ? T
     : T extends AnyFunction
       ? T
-      : T extends Array<infer Item>
+      : T extends ReadonlyArray<infer Item>
         ? Array<MinimalConfig<Item>>
         : T extends object
           ? keyof T extends never
@@ -703,7 +773,7 @@ export type FullConfig<T> =
     ? T
     : T extends AnyFunction
       ? T
-      : T extends Array<infer Item>
+      : T extends ReadonlyArray<infer Item>
         ? Array<FullConfig<Item>>
         : T extends object
           ? FullConfigObject<T>

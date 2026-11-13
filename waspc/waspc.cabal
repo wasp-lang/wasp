@@ -170,6 +170,7 @@ library
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.Deployment
     Wasp.AppSpec.App.EmailSender
+    Wasp.AppSpec.App.Mcp
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
@@ -192,6 +193,7 @@ library
     Wasp.AppSpec.Route
     Wasp.AppSpec.Util
     Wasp.AppSpec.Valid
+    Wasp.AppSpec.Valid.Mcp
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
@@ -214,6 +216,7 @@ library
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
+    Wasp.Generator.DbGenerator.Mcp
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
@@ -258,6 +261,7 @@ library
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
+    Wasp.Generator.SdkGenerator.McpG
     Wasp.Generator.SdkGenerator.NodeCommands
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
@@ -279,6 +283,7 @@ library
     Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.JsImport
+    Wasp.Generator.ServerGenerator.McpG
     Wasp.Generator.ServerGenerator.NodeCommands
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
@@ -586,6 +591,7 @@ test-suite waspc-tests
   other-modules:
     AppSpec.EntityTest
     AppSpec.FromJSONTest
+    AppSpec.Valid.McpTest
     AppSpec.ValidTest
     EnvTest
     ExternalConfig.Npm.NpmDependenciesTest
@@ -594,6 +600,7 @@ test-suite waspc-tests
     Fixtures.AppSpec
     Fixtures.Paths
     Generator.AuthInjectionTest
+    Generator.McpInjectionTest
     Generator.CommonTest
     Generator.CrudTest
     Generator.DbGeneratorTest
@@ -727,6 +734,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
+    Tests.SnapshotTests.WaspMcpSnapshotTest
     Tests.SnapshotTests.WaspMigrateSnapshotTest
     Tests.SnapshotTests.WaspNewSnapshotTest
     Tests.ViteBuildTest

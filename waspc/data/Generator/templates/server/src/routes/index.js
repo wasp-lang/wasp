@@ -11,6 +11,9 @@ import apis from './apis/index.js'
 {=# areThereAnyCrudRoutes =}
 import { rootCrudRouter } from './crud/index.js'
 {=/ areThereAnyCrudRoutes =}
+{=# isMcpEnabled =}
+import { mcpRouter, mcpAppRouter } from '../mcp/router.js'
+{=/ isMcpEnabled =}
 {=# isDevelopment =}
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
@@ -23,6 +26,10 @@ const middleware = globalMiddlewareConfigForExpress()
 {=# isAuthEnabled =}
 router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
+{=# isMcpEnabled =}
+router.use(mcpRouter)
+router.use('/{= mcpAppRouteInRootRouter =}', middleware, mcpAppRouter)
+{=/ isMcpEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
 {=# areThereAnyCrudRoutes =}
 router.use('/{= crudRouteInRootRouter =}', middleware, rootCrudRouter)

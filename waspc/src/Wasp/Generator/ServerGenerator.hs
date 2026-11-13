@@ -36,7 +36,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled, isMcpEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
@@ -61,6 +61,7 @@ import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.McpG (genMcp, mcpAppRouteInRootRouter)
 import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeCommands
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
@@ -255,6 +256,7 @@ genSrcDir spec =
     <++> genDbSeed spec
     <++> genMiddleware spec
     <++> genWebSockets spec
+    <++> genMcp spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -301,7 +303,9 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (app.name :: String)
+          "appName" .= (app.name :: String),
+          "isMcpEnabled" .= isMcpEnabled spec,
+          "mcpAppRouteInRootRouter" .= mcpAppRouteInRootRouter
         ]
     app = getApp spec
 

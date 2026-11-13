@@ -1,0 +1,96 @@
+{
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "@tanstack/react-query": "~4.42.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@wasp/lib-auth": "file:../../libs/auth/wasp-lib-auth-0.27.0.tgz",
+    "@wasp/lib-mcp": "file:../../libs/mcp/wasp-lib-mcp-0.27.0.tgz",
+    "@wasp/lib-sdk-core": "file:../../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz",
+    "@wasp/lib-test-utils": "file:../../libs/test-utils/wasp-lib-test-utils-0.27.0.tgz",
+    "@wasp/lib-vite-ssr": "file:../../libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz",
+    "express": "~5.1.0",
+    "ky": "^2.0.0",
+    "lucia": "^3.0.1",
+    "prisma": "6.19.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-hook-form": "^7.45.4",
+    "react-router": "^8.0.1",
+    "superjson": "^2.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/express-serve-static-core": "^5.0.0",
+    "@types/node": "^26.0.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "6.0.3"
+  },
+  "exports": {
+    "./auth": "./dist/auth/index.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
+    "./auth/providers/types": "./dist/auth/providers/types.js",
+    "./auth/user": "./dist/auth/user.js",
+    "./auth/validation": "./dist/auth/validation.js",
+    "./client": "./dist/client/index.js",
+    "./client/api": "./dist/api/index.js",
+    "./client/app": "./dist/client/app/index.jsx",
+    "./client/app/layout": "./dist/client/app/layout.jsx",
+    "./client/app/router": "./dist/client/app/router.jsx",
+    "./client/auth": "./dist/client/auth/index.js",
+    "./client/crud": "./dist/client/crud/index.js",
+    "./client/mcp": "./dist/client/mcp/index.js",
+    "./client/operations": "./dist/client/operations/index.js",
+    "./client/router": "./dist/client/router/index.js",
+    "./client/test": "./dist/client/test/index.js",
+    "./client/vite": "./dist/client/vite/index.js",
+    "./client/webSocket": "./dist/client/webSocket/index.js",
+    "./core/serialization": "./dist/core/serialization/index.js",
+    "./entities": "./dist/entities/index.js",
+    "./env": "./dist/env/index.js",
+    "./serialization": "./dist/serialization/index.js",
+    "./server": "./dist/server/index.js",
+    "./server/api": "./dist/server/api/index.js",
+    "./server/auth": "./dist/server/auth/index.js",
+    "./server/auth/jwt": "./dist/server/auth/jwt.js",
+    "./server/auth/password": "./dist/server/auth/password.js",
+    "./server/auth/session": "./dist/server/auth/session.js",
+    "./server/auth/utils": "./dist/server/auth/utils.js",
+    "./server/core/auth": "./dist/server/core/auth.js",
+    "./server/crud": "./dist/server/crud/index.js",
+    "./server/crud/*": "./dist/server/crud/*.js",
+    "./server/email": "./dist/server/email/index.js",
+    "./server/email/core/types": "./dist/server/email/core/types.js",
+    "./server/errors": "./dist/server/errors/index.js",
+    "./server/jobs": "./dist/server/jobs/index.js",
+    "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    "./server/mcp": "./dist/server/mcp/index.js",
+    "./server/middleware": "./dist/server/middleware/index.js",
+    "./server/operations": "./dist/server/operations/index.js",
+    "./server/types": "./dist/server/types/index.js",
+    "./server/utils": "./dist/server/utils.js",
+    "./server/webSocket": "./dist/server/webSocket/index.js",
+    "./test": "./dist/test/index.js",
+    "./types": "./dist/types/index.js"
+  },
+  "license": "ISC",
+  "name": "wasp",
+  "peerDependencies": {
+    "vite": "^8.1.0"
+  },
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
+  },
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "client/api": [
+        "api/index.ts"
+      ]
+    }
+  },
+  "version": "1.0.0"
+}

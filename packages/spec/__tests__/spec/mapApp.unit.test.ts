@@ -82,6 +82,7 @@ describe("convertWaspSpecToAppSpec", () => {
           db: undefined,
           emailSender: undefined,
           webSocket: undefined,
+          mcp: undefined,
         },
       },
     ] satisfies AppSpec.Decl[]);
@@ -105,6 +106,7 @@ describe("convertWaspSpecToAppSpec", () => {
     const db = Fixtures.getDbConfig("full");
     const emailSender = Fixtures.getEmailSenderConfig("full");
     const webSocket = Fixtures.getWebSocketConfig("full");
+    const mcp = Fixtures.getMcpConfig("full");
     const deployment = {};
     const entityNames = Fixtures.getEntities("full");
 
@@ -120,6 +122,7 @@ describe("convertWaspSpecToAppSpec", () => {
       db,
       emailSender,
       webSocket,
+      mcp,
       spec: [
         page,
         route,
@@ -137,7 +140,7 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const ctx = makeMapperContext({
       entityNames,
-      routeNames: [emailVerifyRoute.name, passwordResetRoute.name],
+      routeNames: [emailVerifyRoute.name, passwordResetRoute.name, route.name],
     });
 
     // Decls come out in registration order: each `spec` element in listing
@@ -157,6 +160,7 @@ describe("convertWaspSpecToAppSpec", () => {
           db: AppSpecMapper.mapDb(db, ctx),
           emailSender: AppSpecMapper.mapEmailSender(emailSender),
           webSocket: AppSpecMapper.mapWebSocket(webSocket, ctx),
+          mcp: AppSpecMapper.mapMcp(mcp, ctx),
         },
       },
       SpecElementMapper.mapPageSpec(page, ctx),
@@ -394,7 +398,7 @@ describe("mapQuery", () => {
         fn: mapRefObjectForMockProjectDir(query.fn),
         entities: query.entities?.map(ctx.resolveEntityRef),
         auth: query.auth,
-        expose: query.expose && SpecElementMapper.mapExpose(query.expose),
+        expose: query.expose && SpecElementMapper.mapExpose(query.expose, ctx),
       },
     } satisfies AppSpec.GetDeclForType<"Query">);
   }
@@ -428,7 +432,8 @@ describe("mapAction", () => {
         fn: mapRefObjectForMockProjectDir(action.fn),
         entities: action.entities?.map(ctx.resolveEntityRef),
         auth: action.auth,
-        expose: action.expose && SpecElementMapper.mapExpose(action.expose),
+        expose:
+          action.expose && SpecElementMapper.mapExpose(action.expose, ctx),
       },
     } satisfies AppSpec.GetDeclForType<"Action">);
   }
@@ -972,20 +977,6 @@ describe("mapEmailFromField", () => {
   }
 });
 
-describe("mapExpose", () => {
-  test("should map minimal config correctly", () => {
-    expect(
-      SpecElementMapper.mapExpose(Fixtures.getExposeConfig("minimal")),
-    ).toStrictEqual({ client: undefined } satisfies AppSpec.Expose);
-  });
-
-  test("should map full config correctly", () => {
-    expect(
-      SpecElementMapper.mapExpose(Fixtures.getExposeConfig("full")),
-    ).toStrictEqual({ client: false } satisfies AppSpec.Expose);
-  });
-});
-
 describe("mapWebSocket", () => {
   test("should map minimal config correctly", () => {
     testMapWebSocket(Fixtures.getWebSocketConfig("minimal"));
@@ -1003,6 +994,154 @@ describe("mapWebSocket", () => {
       fn: mapRefObjectForMockProjectDir(webSocket.fn),
       autoConnect: webSocket.autoConnect,
     } satisfies AppSpec.WebSocket);
+  }
+});
+
+describe("mapExpose", () => {
+  test("should map minimal config correctly", () => {
+    const ctx = makeMapperContext();
+    expect(SpecElementMapper.mapExpose({}, ctx)).toStrictEqual({
+      client: undefined,
+      mcp: undefined,
+    } satisfies AppSpec.Expose);
+  });
+
+  test("should map full config correctly", () => {
+    const ctx = makeMapperContext();
+    const expose = Fixtures.getExposeConfig("full");
+    expect(SpecElementMapper.mapExpose(expose, ctx)).toStrictEqual({
+      client: false,
+      mcp: SpecElementMapper.mapMcpTool(expose.mcp, ctx),
+    } satisfies AppSpec.Expose);
+  });
+});
+
+describe("mapMcpTool", () => {
+  test("should map minimal config correctly", () => {
+    const tool = Fixtures.getMcpToolConfig("minimal");
+    expect(
+      SpecElementMapper.mapMcpTool(tool, makeMapperContext()),
+    ).toStrictEqual({
+      name: undefined,
+      title: undefined,
+      scope: undefined,
+      insufficientScope: undefined,
+      description: tool.description,
+      input: mapRefObjectForMockProjectDir(tool.input),
+      output: undefined,
+      idempotent: undefined,
+      openWorld: undefined,
+      destructive: undefined,
+      describe: undefined,
+    } satisfies AppSpec.McpTool);
+  });
+
+  test("should map full config correctly", () => {
+    const tool = Fixtures.getMcpToolConfig("full");
+    expect(
+      SpecElementMapper.mapMcpTool(tool, makeMapperContext()),
+    ).toStrictEqual({
+      name: tool.name,
+      title: tool.title,
+      scope: "tasks:read",
+      insufficientScope: "hide",
+      description: tool.description,
+      input: mapRefObjectForMockProjectDir(tool.input),
+      output: mapRefObjectForMockProjectDir(tool.output),
+      idempotent: true,
+      openWorld: false,
+      destructive: true,
+      describe: mapRefObjectForMockProjectDir(
+        (tool.destructive as { describe: WaspSpec.McpTool["input"] }).describe,
+      ),
+    } satisfies AppSpec.McpTool);
+  });
+
+  test("maps destructive: true without a describe function", () => {
+    const tool = { ...Fixtures.getMcpToolConfig("minimal"), destructive: true };
+    const mapped = SpecElementMapper.mapMcpTool(tool, makeMapperContext());
+    expect(mapped.destructive).toBe(true);
+    expect(mapped.describe).toBeUndefined();
+  });
+});
+
+describe("mapMcpScopes", () => {
+  test("maps every scope in declaration order", () => {
+    expect(
+      AppSpecMapper.mapMcpScopes({
+        "tasks:write": { label: "Edit", implies: ["tasks:read"] },
+        "tasks:read": { label: "View your tasks" },
+      }),
+    ).toStrictEqual([
+      {
+        name: "tasks:write",
+        label: "Edit",
+        description: undefined,
+        implies: ["tasks:read"],
+      },
+      {
+        name: "tasks:read",
+        label: "View your tasks",
+        description: undefined,
+        implies: undefined,
+      },
+    ] satisfies AppSpec.McpScope[]);
+  });
+});
+
+describe("mapMcp", () => {
+  test("should map minimal config correctly", () => {
+    testMapMcp(Fixtures.getMcpConfig("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapMcp(Fixtures.getMcpConfig("full"));
+  });
+
+  test("should throw if the consent route isn't declared", () => {
+    const ctx = makeMapperContext();
+    expect(() =>
+      AppSpecMapper.mapMcp(Fixtures.getMcpConfig("full"), ctx),
+    ).toThrow();
+  });
+
+  test("maps rateLimit: false to a disabled rate limit", () => {
+    const mcp = {
+      ...Fixtures.getMcpConfig("minimal"),
+      rateLimit: false as const,
+    };
+    const ctx = makeMapperContext({ routeNames: [mcp.consentRoute] });
+    expect(AppSpecMapper.mapMcp(mcp, ctx).rateLimit).toStrictEqual({
+      enabled: false,
+      windowMs: undefined,
+      max: undefined,
+    });
+  });
+
+  function testMapMcp(mcp: WaspSpec.Mcp): void {
+    const ctx = makeMapperContext({ routeNames: [mcp.consentRoute] });
+    expect(AppSpecMapper.mapMcp(mcp, ctx)).toStrictEqual({
+      instructions: mcp.instructions,
+      consentRoute: ctx.resolveRouteRef(mcp.consentRoute),
+      confirmRoute:
+        mcp.confirmRoute === undefined
+          ? undefined
+          : ctx.resolveRouteRef(mcp.confirmRoute),
+      whoami: mcp.whoami,
+      scopes: mcp.scopes && AppSpecMapper.mapMcpScopes(mcp.scopes),
+      initialScopes: mcp.initialScopes,
+      insufficientScope: mcp.insufficientScope,
+      rateLimit:
+        mcp.rateLimit === undefined
+          ? undefined
+          : mcp.rateLimit === false
+            ? { enabled: false, windowMs: undefined, max: undefined }
+            : {
+                enabled: true,
+                windowMs: mcp.rateLimit.windowMs,
+                max: mcp.rateLimit.max,
+              },
+    } satisfies AppSpec.Mcp);
   }
 });
 

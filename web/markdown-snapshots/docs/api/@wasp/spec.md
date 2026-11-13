@@ -101,6 +101,14 @@ Each entry is rendered inside a React component, so the strings must be valid JS
 
 Due to a [React bug](https://github.com/facebook/react/issues/36169), avoid `defer` on `<script>` tags because it can cause hydration warnings. Use `async` instead.
 
+##### mcp?
+
+> `optional` **mcp?**: [`Mcp`](#mcp-2)
+
+Turns on the app's MCP server, so users can connect AI clients (Claude, ChatGPT, ...) to their own account. Operations become tools with [Expose.mcp](#mcp-1).
+
+Experimental. Requires [App.auth](#auth-2).
+
 ##### name
 
 > **name**: `string`
@@ -210,6 +218,14 @@ Extra tags injected into the HTML `<head>`.
 Each entry is rendered inside a React component, so the strings must be valid JSX: self-closing tags must end with `/>` (e.g. `<meta ... />`), and attributes must be camelCased (e.g. `httpEquiv` instead of `http-equiv`).
 
 Due to a [React bug](https://github.com/facebook/react/issues/36169), avoid `defer` on `<script>` tags because it can cause hydration warnings. Use `async` instead.
+
+###### mcp? {#mcp}
+
+[`Mcp`](#mcp-2)
+
+Turns on the app's MCP server, so users can connect AI clients (Claude, ChatGPT, ...) to their own account. Operations become tools with [Expose.mcp](#mcp-1).
+
+Experimental. Requires [App.auth](#auth-2).
 
 ###### name {#name}
 
@@ -322,7 +338,7 @@ See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/ac
 
 [`Expose`](#expose-1)
 
-Where the Action is available. By default it gets an HTTP route and a `wasp/client/operations` export.
+Where the Action is available: the client (default) and, with [Expose.mcp](#mcp-1), MCP clients.
 
 #### Returns
 
@@ -689,7 +705,7 @@ See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/qu
 
 [`Expose`](#expose-1)
 
-Where the Query is available. By default it gets an HTTP route and a `wasp/client/operations` export.
+Where the Query is available: the client (default) and, with [Expose.mcp](#mcp-1), MCP clients.
 
 #### Returns
 
@@ -847,7 +863,7 @@ See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/ac
 
 > `optional` **expose?**: [`Expose`](#expose-1)
 
-Where the Action is available. By default it gets an HTTP route and a `wasp/client/operations` export.
+Where the Action is available: the client (default) and, with [Expose.mcp](#mcp-1), MCP clients.
 
 ##### fn {#fn}
 
@@ -1165,7 +1181,7 @@ See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/qu
 
 > `optional` **expose?**: [`Expose`](#expose-1)
 
-Where the Query is available. By default it gets an HTTP route and a `wasp/client/operations` export.
+Where the Query is available: the client (default) and, with [Expose.mcp](#mcp-1), MCP clients.
 
 ##### fn {#fn-3}
 
@@ -1225,7 +1241,7 @@ Set to `false` to include the page in the initial client bundle, which avoids th
 true
 ```
 
-##### name {#name-3}
+##### name {#name-4}
 
 > **name**: `string`
 
@@ -2196,7 +2212,9 @@ The `pgBoss` field is forwarded as-is to the matching pg-boss API. See the [pg-b
 
 ### Expose {#expose-1}
 
-Where an operation is available.
+Where an operation is available, keyed by surface.
+
+Experimental.
 
 #### Properties
 
@@ -2204,13 +2222,19 @@ Where an operation is available.
 
 > `optional` **client?**: `boolean`
 
-Whether the operation gets an HTTP route and a `wasp/client/operations` export. Set it to `false` for operations only server code calls: the client can't call them, and there's no route to reach them over HTTP.
+Whether the operation gets an HTTP route and a `wasp/client/operations` export. Set it to `false` for operations only MCP or server code calls.
 
 ###### Default
 
 ```ts
 true
 ```
+
+##### mcp? {#mcp-1}
+
+> `optional` **mcp?**: [`McpTool`](#mcptool)
+
+Makes the operation an MCP tool. Requires [App.mcp](#mcp).
 
 ---
 
@@ -2295,6 +2319,240 @@ Enables email and password auth with email verification and password reset flows
 > **usernameAndPassword**: [`UsernameAndPasswordConfig`](#usernameandpasswordconfig)
 
 Enables username and password auth.
+
+---
+
+### Mcp {#mcp-2}
+
+Configuration for the app's MCP server: the `/mcp` endpoint, and the OAuth server MCP clients use to connect to a user's account.
+
+Experimental.
+
+#### Example
+
+```ts
+import { app, page, route } from "@wasp/spec"
+import { ConnectPage } from "./src/mcp/ConnectPage" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: { userEntity: "User", methods: { usernameAndPassword: {} }, onAuthFailedRedirectTo: "/login" },
+  mcp: {
+    instructions:
+      "Linkly shortens links and counts their clicks. Start with list_links to find a link by its slug.",
+    consentRoute: "McpConsentRoute",
+  },
+  spec: [
+    route("McpConsentRoute", "/connect", page(ConnectPage, { authRequired: true })),
+  ],
+})
+```
+
+#### Properties
+
+##### confirmRoute?
+
+> `optional` **confirmRoute?**: `string`
+
+Name of the route where the app shows `<McpConfirmAction />` (from `wasp/client/mcp`), the page where users approve or deny a destructive tool call. Its page must have `authRequired: true`. Required when any tool is [McpTool.destructive](#destructive).
+
+##### consentRoute
+
+> **consentRoute**: `string`
+
+Name of the route where the app shows `<McpConsentForm />` (from `wasp/client/mcp`). It is also the OAuth authorization endpoint, so its page must have `authRequired: true`.
+
+##### initialScopes?
+
+> `optional` **initialScopes?**: `string`\[]
+
+The scopes clients ask for when they first connect. Defaults to every scope. Start with read scopes, and with `insufficientScope: "stepUp"` clients ask for more when they first need it.
+
+##### instructions
+
+> **instructions**: `string`
+
+Given to the model when a client connects. Write it for the model: what the app is, how the tools fit together, and which tool to start with.
+
+##### insufficientScope?
+
+> `optional` **insufficientScope?**: [`McpInsufficientScope`](#mcpinsufficientscope-1)
+
+What clients see of tools whose scope they weren't granted.
+
+- `"stepUp"`: the tool is listed, and calling it sends the user back to the consent screen to allow its scope (MCP step-up authorization).
+- `"hide"`: the tool isn't listed for that client at all.
+
+A tool can override it with [McpTool.insufficientScope](#insufficientscope-1).
+
+###### Default
+
+```ts
+"stepUp"
+```
+
+##### rateLimit?
+
+> `optional` **rateLimit?**: `false` | { `max?`: `number`; `windowMs?`: `number`; }
+
+Limits each connection's requests, so one runaway agent can't overload the app. The counts are kept in the database, so they're shared across server instances. `false` turns it off.
+
+###### Default
+
+```ts
+{ windowMs: 60000, max: 120 }
+```
+
+##### scopes?
+
+> `optional` **scopes?**: `Record`<`string`, [`McpScope`](#mcpscope)>
+
+Permissions users can grant a client, one checkbox each on the consent screen. A tool that names one with [McpTool.scope](#scope) can only be called by clients that were granted it (see [Mcp.insufficientScope](#insufficientscope)). Tools without a scope are available to every connection.
+
+Scopes only apply to MCP clients: your web app's calls keep the user's full access.
+
+###### Example
+
+```ts
+scopes: {
+  "tasks:read": { label: "View your tasks" },
+  "tasks:write": { label: "Create and edit your tasks", implies: ["tasks:read"] },
+}
+```
+
+##### whoami?
+
+> `optional` **whoami?**: `boolean`
+
+Adds the built-in `whoami` tool, which tells the model whose account it is acting for.
+
+###### Default
+
+```ts
+true
+```
+
+---
+
+### McpScope
+
+A permission users can grant an MCP client. The key it's declared under is its name, like `tasks:read`: no spaces, quotes or backslashes.
+
+Experimental.
+
+#### Properties
+
+##### description?
+
+> `optional` **description?**: `string`
+
+More detail for the consent screen.
+
+##### implies?
+
+> `optional` **implies?**: readonly `string`\[]
+
+Scopes granted along with this one, e.g. a write scope implies its read scope, since changing something shows it too.
+
+##### label
+
+> **label**: `string`
+
+What the consent screen shows, e.g. "View your tasks".
+
+---
+
+### McpTool
+
+How an operation appears as an MCP tool. The tool runs the operation's own handler as the connected user, with `context.mcp` set. A query's tool is marked read-only, an action's isn't.
+
+Experimental.
+
+#### Properties
+
+##### description
+
+> **description**: `string`
+
+Written for the model: what the tool does, what it returns, and which tool to use next.
+
+##### destructive?
+
+> `optional` **destructive?**: `boolean` | { `describe`: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>; }
+
+The tool can't be undone, so a call waits for the user to approve it in your app (on [Mcp.confirmRoute](#confirmroute)), unless they turned confirmations off for that connection. Clients that can open web pages show the approval page themselves; others get a link to share. Only for actions: queries are always read-only. Your web app's calls to the operation never wait.
+
+`{ describe }` writes what the approval page shows: a function `(args, context) => ({ title, details? })` (`McpDescribeFn` from `wasp/server/mcp`), e.g. "Delete the short link summer-sale". Without it, the page shows the tool and its arguments.
+
+###### Default
+
+```ts
+false
+```
+
+##### idempotent?
+
+> `optional` **idempotent?**: `boolean`
+
+Hint that calling the tool twice with the same arguments has no extra effect.
+
+###### Default
+
+```ts
+false
+```
+
+##### input
+
+> **input**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+A `z.object()` the tool's arguments are validated against. Use JSON types only, e.g. `z.iso.datetime()` instead of `z.date()`.
+
+##### insufficientScope?
+
+> `optional` **insufficientScope?**: [`McpInsufficientScope`](#mcpinsufficientscope-1)
+
+Overrides [Mcp.insufficientScope](#insufficientscope) for this tool.
+
+##### name? {#name-3}
+
+> `optional` **name?**: `string`
+
+The tool's name, part of the contract with models. Unique across the app.
+
+###### Default
+
+the operation's name in `snake_case`, e.g. `getLinks` becomes `get_links`
+
+##### openWorld?
+
+> `optional` **openWorld?**: `boolean`
+
+Hint that the tool talks to the outside world (other services, the web).
+
+###### Default
+
+```ts
+false
+```
+
+##### output?
+
+> `optional` **output?**: [`Reference`](#reference)<{ `_zod`: { `def`: `object`; }; }>
+
+Describes the result in `tools/list`. Wasp doesn't validate or filter the result with it, so return only what the model should see.
+
+##### scope?
+
+> `optional` **scope?**: `string`
+
+The scope (declared in [Mcp.scopes](#scopes)) a client needs to call this tool. What clients without it see depends on [Mcp.insufficientScope](#insufficientscope). Omit it for tools every connection can call.
+
+##### title? {#title-1}
+
+> `optional` **title?**: `string`
+
+A human-readable name clients may show.
 
 ---
 
@@ -2720,6 +2978,14 @@ The configuration object accepted as the last argument of the [job](#job-1) cons
 Supported job executors.
 
 Currently only `"PgBoss"` is available, which stores jobs in the app's PostgreSQL database via [pg-boss](https://github.com/timgit/pg-boss).
+
+---
+
+### McpInsufficientScope {#mcpinsufficientscope-1}
+
+> **McpInsufficientScope** = `"stepUp"` | `"hide"`
+
+What clients see of a tool whose scope they weren't granted. See [Mcp.insufficientScope](#insufficientscope).
 
 ---
 

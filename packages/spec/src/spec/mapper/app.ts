@@ -18,6 +18,7 @@ export function mapAppSpec(
     db,
     emailSender,
     webSocket,
+    mcp,
   } = app;
 
   return {
@@ -34,8 +35,58 @@ export function mapAppSpec(
       db: db && mapDb(db, ctx),
       emailSender: emailSender && mapEmailSender(emailSender),
       webSocket: webSocket && mapWebSocket(webSocket, ctx),
+      mcp: mcp && mapMcp(mcp, ctx),
     },
   };
+}
+
+export function mapMcp(mcp: WaspSpec.Mcp, ctx: AppMapperContext): AppSpec.Mcp {
+  const {
+    instructions,
+    consentRoute,
+    confirmRoute,
+    whoami,
+    scopes,
+    initialScopes,
+    insufficientScope,
+    rateLimit,
+  } = mcp;
+  return {
+    instructions,
+    consentRoute: ctx.resolveRouteRef(consentRoute),
+    confirmRoute:
+      confirmRoute === undefined
+        ? undefined
+        : ctx.resolveRouteRef(confirmRoute),
+    whoami,
+    scopes: scopes && mapMcpScopes(scopes),
+    initialScopes,
+    insufficientScope,
+    rateLimit:
+      rateLimit === undefined
+        ? undefined
+        : rateLimit === false
+          ? { enabled: false, windowMs: undefined, max: undefined }
+          : {
+              enabled: true,
+              windowMs: rateLimit.windowMs,
+              max: rateLimit.max,
+            },
+  };
+}
+
+export function mapMcpScopes(
+  scopes: Record<string, WaspSpec.McpScope>,
+): AppSpec.McpScope[] {
+  // In declaration order: it's the order of the consent screen's checkboxes.
+  return Object.entries(scopes).map(
+    ([name, { label, description, implies }]) => ({
+      name,
+      label,
+      description,
+      implies: implies && [...implies],
+    }),
+  );
 }
 
 export function mapDeployment(
