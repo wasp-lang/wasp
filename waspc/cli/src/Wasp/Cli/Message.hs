@@ -2,6 +2,7 @@ module Wasp.Cli.Message (cliSendMessage) where
 
 import Data.Functor ((<&>))
 import Data.List (intercalate)
+import Data.List.Extra (replace)
 import Wasp.Cli.Common (waspSays, waspScreams, waspWarns)
 import qualified Wasp.Message as Msg
 import Wasp.Util (indent)
@@ -36,7 +37,11 @@ labeledMessage color symbol label entries =
       where
         renderEntry (Msg.Entry text parts) = case foldl addPart (lines text) parts of
           [] -> [labelText]
-          (firstLine : rest) -> (labelText ++ " " ++ firstLine) : map (indent 2) rest
+          (firstLine : rest) -> (labelText ++ " " ++ emphasized firstLine) : map (indent 2) rest
+
+        emphasized = maybe id (const bold) gutterColor
+        -- Styled words in the line end with a reset, so bold is re-applied after each one.
+        bold line = Term.applyStyles [Term.Bold] $ replace "\ESC[0m" "\ESC[0m\ESC[1m" line
 
         addPart entryLines = \case
           Msg.Text text -> case (entryLines, lines text) of
