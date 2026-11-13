@@ -10,7 +10,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isMcpEnabled)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -46,7 +46,7 @@ genAuth spec =
           [ genFileCopyInAuth [relfile|logout.ts|],
             genUseAuth auth
           ]
-        <++> genAuthForms auth maybeEmailSender
+        <++> genAuthForms auth maybeEmailSender (isMcpEnabled spec)
         <++> genUsernameAndPasswordAuth auth
         <++> genOAuthAuth auth
         <++> genEmailAuth auth

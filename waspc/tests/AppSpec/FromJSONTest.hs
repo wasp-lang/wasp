@@ -13,6 +13,7 @@ import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Deployment as Deployment
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
+import qualified Wasp.AppSpec.App.Mcp as Mcp
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Expose as Expose
@@ -243,7 +244,15 @@ spec_AppSpecFromJSON = do
           "name": "foo",
           "fn": ${extNamedImportJson},
           "expose": {
-            "client": false
+            "client": false,
+            "mcp": {
+              "name": "list_foos",
+              "description": "Lists foos.",
+              "input": ${extNamedImportJson},
+              "scope": "foos:read",
+              "insufficientScope": "hide",
+              "idempotent": true
+            }
           }
         }
       |]
@@ -256,7 +265,22 @@ spec_AppSpecFromJSON = do
                 expose =
                   Just
                     Expose.Expose
-                      { Expose.client = Just False
+                      { Expose.client = Just False,
+                        Expose.mcp =
+                          Just
+                            Expose.McpTool
+                              { Expose.name = Just "list_foos",
+                                Expose.title = Nothing,
+                                Expose.scope = Just "foos:read",
+                                Expose.insufficientScope = Just Mcp.Hide,
+                                Expose.description = "Lists foos.",
+                                Expose.input = fromJust $ decodeJson extNamedImportJson,
+                                Expose.output = Nothing,
+                                Expose.idempotent = Just True,
+                                Expose.openWorld = Nothing,
+                                Expose.destructive = Nothing,
+                                Expose.describe = Nothing
+                              }
                       }
               }
           )

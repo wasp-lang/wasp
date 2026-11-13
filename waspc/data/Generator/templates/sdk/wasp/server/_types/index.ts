@@ -9,6 +9,9 @@ import { prisma } from '../index.js'
 {=# isAuthEnabled =}
 import type { AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
+{=# isMcpEnabled =}
+import type { McpCallContext } from '../mcp/index.js'
+{=/ isMcpEnabled =}
 import type { _Entity } from './taggedEntities'
 import type { Payload } from '../../core/serialization/index.js'
 
@@ -46,7 +49,12 @@ export type AuthenticatedOperationDefinition<
   Output extends Payload
 > = (
   args: Input,
+  {=# isMcpEnabled =}
+  context: OperationContextWithUser<Entities>
+  {=/ isMcpEnabled =}
+  {=^ isMcpEnabled =}
   context: ContextWithUser<Entities>
+  {=/ isMcpEnabled =}
 ) => Output | Promise<Output>
 
 export type AuthenticatedApi<
@@ -100,4 +108,11 @@ type Context<Entities extends _Entity[]> = Expand<{
 type ContextWithUser<Entities extends _Entity[]> = Expand<
   Context<Entities> & { user?: AuthUser }
 >
+{=# isMcpEnabled =}
+
+// `mcp` is set only when the operation runs as an MCP tool.
+type OperationContextWithUser<Entities extends _Entity[]> = Expand<
+  ContextWithUser<Entities> & { mcp?: McpCallContext }
+>
+{=/ isMcpEnabled =}
 {=/ isAuthEnabled =}

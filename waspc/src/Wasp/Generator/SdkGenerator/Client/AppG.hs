@@ -10,7 +10,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled, isMcpEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -68,24 +68,32 @@ genAuthPages spec =
     Nothing -> return []
     Just auth ->
       sequence $
-        genCreateAuthRequiredPage auth
-          : [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
+        genCreateAuthRequiredPage auth (isMcpEnabled spec)
+          : [genOAuthCallbackPage auth (isMcpEnabled spec) | AS.Auth.isExternalAuthEnabled auth]
   where
     maybeAuth = AS.App.auth $ getApp spec
 
-genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
-genCreateAuthRequiredPage auth =
+genCreateAuthRequiredPage :: AS.Auth.Auth -> Bool -> Generator FileDraft
+genCreateAuthRequiredPage auth mcpEnabled =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/createAuthRequiredPage.jsx|]
-      (object ["onAuthFailedRedirectTo" .= makeJsStringLiteral (AS.Auth.onAuthFailedRedirectTo auth)])
+      ( object
+          [ "onAuthFailedRedirectTo" .= makeJsStringLiteral (AS.Auth.onAuthFailedRedirectTo auth),
+            "isMcpEnabled" .= mcpEnabled
+          ]
+      )
 
-genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
-genOAuthCallbackPage auth =
+genOAuthCallbackPage :: AS.Auth.Auth -> Bool -> Generator FileDraft
+genOAuthCallbackPage auth mcpEnabled =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth)])
+      ( object
+          [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
+            "isMcpEnabled" .= mcpEnabled
+          ]
+      )
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

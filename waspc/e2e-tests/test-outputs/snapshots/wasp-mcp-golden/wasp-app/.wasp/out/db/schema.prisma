@@ -1,0 +1,93 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  tasks          Task[]
+  auth           Auth?
+  mcpConnections McpConnection[]
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  description String
+  isDone      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+}
+
+model Auth {
+  id         String         @id @default(uuid())
+  userId     Int?           @unique
+  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identities AuthIdentity[]
+  sessions   Session[]
+}
+
+model AuthIdentity {
+  providerName   String
+  providerUserId String
+  providerData   String @default("{}")
+  authId         String
+  auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+  @@id([providerName, providerUserId])
+}
+
+model Session {
+  id        String   @id @unique
+  expiresAt DateTime
+  userId    String
+  auth      Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model McpConnection {
+  id                  String             @id @default(uuid())
+  userId              Int
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId            String
+  clientName          String
+  scopes              String
+  requestedScopes     String
+  requireConfirmation Boolean            @default(true)
+  refreshGeneration   Int                @default(0)
+  createdAt           DateTime           @default(now())
+  lastUsedAt          DateTime?
+  revokedAt           DateTime?
+  pendingActions      McpPendingAction[]
+
+  @@index([userId, clientId])
+}
+
+model McpPendingAction {
+  id           String        @id @default(uuid())
+  connectionId String
+  connection   McpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  toolName     String
+  args         String
+  argsKey      String
+  summary      String
+  outcome      String?
+  expiresAt    DateTime
+  approvedAt   DateTime?
+  deniedAt     DateTime?
+  reportedAt   DateTime?
+  createdAt    DateTime      @default(now())
+
+  @@index([connectionId, toolName, argsKey])
+}
+
+model McpRateLimit {
+  id          String   @id
+  windowStart DateTime
+  count       Int
+}

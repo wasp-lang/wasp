@@ -37,6 +37,7 @@ import Wasp.Generator.DbGenerator.Common
     dbSchemaFileInNodeModulesDir,
     dbTemplatesDirInTemplatesDir,
   )
+import qualified Wasp.Generator.DbGenerator.Mcp as DbMcp
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
@@ -119,9 +120,16 @@ genPrismaSchema spec = do
     prismaSchemaAst = AS.prismaSchema spec
 
 -- | Returns a list of entities that should be included in the Prisma schema.
--- We put user defined entities as well as inject auth entities into the Prisma schema.
+-- We put user defined entities as well as inject auth entities (and, with
+-- app.mcp, MCP entities) into the Prisma schema.
 getEntitiesForPrismaSchema :: AppSpec -> Generator [AS.Entity.Entity]
-getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
+getEntitiesForPrismaSchema spec = case maybeUserEntity of
+  Nothing -> return userDefinedEntities
+  Just userEntity -> do
+    entitiesWithAuth <- DbAuth.injectAuth userDefinedEntities userEntity
+    if ASV.isMcpEnabled spec
+      then DbMcp.injectMcp entitiesWithAuth userEntity
+      else return entitiesWithAuth
   where
     userDefinedEntities = getEntities spec
 

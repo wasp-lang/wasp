@@ -10,6 +10,7 @@ module Wasp.AppSpec
     getActions,
     getQueries,
     getOperations,
+    getMcpTools,
     getApis,
     getEntities,
     getPages,
@@ -38,6 +39,7 @@ import Wasp.AppSpec.Core.IsDecl (IsDecl (declName))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.Expose (McpTool)
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -97,6 +99,11 @@ getOperations :: AppSpec -> [Operation]
 getOperations spec =
   map AS.Operation.QueryOp (getQueries spec)
     <> map AS.Operation.ActionOp (getActions spec)
+
+-- | The operations exposed as MCP tools (`expose.mcp`), with their tool config.
+getMcpTools :: AppSpec -> [(Operation, McpTool)]
+getMcpTools spec =
+  [(op, tool) | op <- getOperations spec, Just tool <- [AS.Operation.getMcpTool op]]
 
 getApis :: AppSpec -> [Api]
 getApis = getDecls

@@ -60,6 +60,7 @@
 - [Accessing the configuration](https://wasp.sh/docs/advanced/accessing-app-config.md)
 - [Prerendering](https://wasp.sh/docs/advanced/prerendering.md)
 - [SEO & GEO](https://wasp.sh/docs/advanced/seo.md)
+- [MCP server](https://wasp.sh/docs/advanced/mcp.md)
 #### Client customization
 - [Customizing the app](https://wasp.sh/docs/advanced/client-customization/customizing-app.md)
 - [Client configuration](https://wasp.sh/docs/advanced/client-customization/client-config.md)

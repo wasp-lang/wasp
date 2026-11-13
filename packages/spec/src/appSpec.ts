@@ -67,6 +67,22 @@ export type Query = {
 
 export type Expose = {
   client: Optional<boolean>;
+  mcp: Optional<McpTool>;
+};
+
+export type McpTool = {
+  name: Optional<string>;
+  title: Optional<string>;
+  scope: Optional<string>;
+  insufficientScope: Optional<McpInsufficientScope>;
+  description: string;
+  input: ExtImport;
+  output: Optional<ExtImport>;
+  idempotent: Optional<boolean>;
+  openWorld: Optional<boolean>;
+  destructive: Optional<boolean>;
+  // From `destructive: { describe }` in the spec, which also sets `destructive`.
+  describe: Optional<ExtImport>;
 };
 
 export type Job = {
@@ -120,6 +136,35 @@ export type App = {
   db: Optional<Db>;
   emailSender: Optional<EmailSender>;
   webSocket: Optional<WebSocket>;
+  mcp: Optional<Mcp>;
+};
+
+export type Mcp = {
+  instructions: string;
+  consentRoute: Ref<"Route">;
+  confirmRoute: Optional<Ref<"Route">>;
+  whoami: Optional<boolean>;
+  // A list, so the consent screen keeps the declaration order.
+  scopes: Optional<McpScope[]>;
+  initialScopes: Optional<string[]>;
+  insufficientScope: Optional<McpInsufficientScope>;
+  rateLimit: Optional<McpRateLimit>;
+};
+
+export type McpInsufficientScope = "stepUp" | "hide";
+
+// `rateLimit: false` in the spec is `{ enabled: false }` here.
+export type McpRateLimit = {
+  enabled: boolean;
+  windowMs: Optional<number>;
+  max: Optional<number>;
+};
+
+export type McpScope = {
+  name: string;
+  label: string;
+  description: Optional<string>;
+  implies: Optional<string[]>;
 };
 
 export type Deployment = {

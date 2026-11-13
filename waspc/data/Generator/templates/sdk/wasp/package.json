@@ -71,6 +71,10 @@
     "./client/api": "./dist/api/index.js",
     "./client/auth": "./dist/client/auth/index.js",
     "./client/crud": "./dist/client/crud/index.js",
+    {=# isMcpEnabled =}
+    {=! Users: McpConsentForm, McpConnections, mcpServerUrl. Experimental. =}
+    "./client/mcp": "./dist/client/mcp/index.js",
+    {=/ isMcpEnabled =}
     {=! Users: operation functions and hooks.  =}
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
@@ -95,6 +99,10 @@
     "./server/crud": "./dist/server/crud/index.js",
     "./server/email": "./dist/server/email/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
+    {=# isMcpEnabled =}
+    {=! Users: type McpCallContext. Experimental. =}
+    "./server/mcp": "./dist/server/mcp/index.js",
+    {=/ isMcpEnabled =}
     "./server/operations": "./dist/server/operations/index.js",
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
     {=! Server: type ServerType. =}

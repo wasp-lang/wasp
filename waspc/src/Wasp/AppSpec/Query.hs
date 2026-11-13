@@ -15,6 +15,7 @@ import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Expose (Expose)
+import qualified Wasp.AppSpec.Expose as Expose
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
@@ -38,4 +39,5 @@ instance Inspectable Query where
         ]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [query.entities]]
           ++ [("Auth", "Enabled") | query.auth == Just True]
+          ++ [("MCP tool", Expose.getMcpToolName query.name tool) | Just tool <- [Expose.getMcpTool query.expose]]
     ]
