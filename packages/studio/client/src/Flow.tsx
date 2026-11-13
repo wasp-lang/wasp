@@ -6,13 +6,8 @@ import {
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { Data } from "./types";
 
 import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
@@ -20,10 +15,6 @@ import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
 import { ApiNode } from "./graph/Api";
 import { AppNode } from "./graph/App";
 import { EntityNode } from "./graph/Entity";
-import { JobNode } from "./graph/Job";
-import { ActionNode, QueryNode } from "./graph/Operation";
-import { PageNode } from "./graph/Page";
-import { RouteNode } from "./graph/Route";
 import {
   createActionNode,
   createApiNode,
@@ -36,6 +27,11 @@ import {
   createRouteNode,
   type StudioNode,
 } from "./graph/factories";
+import { JobNode } from "./graph/Job";
+import { ActionNode, QueryNode } from "./graph/Operation";
+import { PageNode } from "./graph/Page";
+import { RouteNode } from "./graph/Route";
+import { Loading } from "./Loading";
 
 const elk = new ELK();
 
@@ -64,8 +60,8 @@ const getLayoutedElements = (nodes: StudioNode[], edges: Edge[]) => {
     },
     children: nodes.map((node: StudioNode) => ({
       ...node,
-      width: getNodeWidth(node),
-      height: getNodeHeight(node),
+      width: node.measured?.width,
+      height: node.measured?.height,
     })),
     edges: edges,
   };
@@ -80,7 +76,7 @@ const getLayoutedElements = (nodes: StudioNode[], edges: Edge[]) => {
         }
         return {
           // React Flow treats `width` and `height` as fixed node dimensions,
-          // so we drop ELK's estimates and let nodes size to their content.
+          // so we drop them and let nodes keep sizing to their content.
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           nodes: layoutedGraph.children.map(({ width, height, ...node }) => ({
             ...node,
@@ -98,9 +94,28 @@ export default function Flow({ data }: { data: Data }) {
   // NOTE: This is not used. But it might be useful in the future.
   const [selectedNode] = useState<StudioNode | null>(null);
 
-  const [nodes, setNodes] = useNodesState<StudioNode>([]);
-  const [edges, setEdges] = useEdgesState<Edge>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<StudioNode>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const { fitView } = useReactFlow();
+  const [laidOutData, setLaidOutData] = useState<Data | null>(null);
+
+  // On new data, render the new nodes where the old ones were, so React Flow
+  // can measure them for the layout below while the graph stays on screen.
+  // See https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [renderedData, setRenderedData] = useState<Data | null>(null);
+  if (data !== renderedData) {
+    setRenderedData(data);
+    setNodes((oldNodes) => {
+      const oldPositions = new Map(
+        oldNodes.map((node) => [node.id, node.position]),
+      );
+      return createNodes(data, selectedNode).map((node) => ({
+        ...node,
+        position: oldPositions.get(node.id) ?? node.position,
+      }));
+    });
+    setEdges(createEdges(data, selectedNode));
+  }
   const nodeTypes = useMemo(
     () => ({
       pageNode: PageNode,
@@ -115,155 +130,67 @@ export default function Flow({ data }: { data: Data }) {
     [],
   );
 
-  const onLayout = useCallback(() => {
-    const initialNodes: StudioNode[] = [
-      // ASSUMPTION: The names are of everything is unique.
-      createAppNode(
-        generateId(data.app.name, "app"),
-        data.app.name,
-        data.app,
-        selectedNode,
-      ),
-      ...data.pages.map((page) =>
-        createPageNode(
-          generateId(page.name, "page"),
-          page.name,
-          page,
-          selectedNode,
-        ),
-      ),
-      ...data.operations
-        .filter((operation) => operation.type === "query")
-        .map((query) =>
-          createQueryNode(
-            generateId(query.name, "query"),
-            query.name,
-            query,
-            selectedNode,
-          ),
-        ),
-      ...data.operations
-        .filter((operation) => operation.type === "action")
-        .map((action) =>
-          createActionNode(
-            generateId(action.name, "action"),
-            action.name,
-            action,
-            selectedNode,
-          ),
-        ),
-      ...data.entities.map((entity) =>
-        createEntityNode(
-          generateId(entity.name, "entity"),
-          entity.name,
-          entity.name === data.app.auth?.userEntity.name,
-          entity,
-          selectedNode,
-        ),
-      ),
-      ...data.routes.map((route) =>
-        createRouteNode(
-          generateId(route.path, "route"),
-          route.path,
-          route,
-          selectedNode,
-        ),
-      ),
-      ...data.apis.map((api) =>
-        createApiNode(generateId(api.name, "api"), api.name, api, selectedNode),
-      ),
-      ...data.jobs.map((job) =>
-        createJobNode(generateId(job.name, "job"), job.name, job, selectedNode),
-      ),
-    ];
+  // Once React Flow has measured the nodes, lay them out with their real sizes.
+  // We check `measured` instead of using `useNodesInitialized()`, because that
+  // one can still report the previous data's nodes as measured when new data
+  // arrives.
+  useEffect(() => {
+    const areNodesMeasured = nodes.every(
+      ({ measured }) =>
+        measured?.width !== undefined && measured?.height !== undefined,
+    );
+    if (laidOutData === data || !areNodesMeasured) {
+      return;
+    }
 
-    const initialEdges: Edge[] = [
-      ...data.entities.map((entity) =>
-        createEdge(
-          generateId(entity.name, "entity"),
-          generateId(data.app.name, "app"),
-          selectedNode,
-        ),
-      ),
-      ...data.routes.map((route) =>
-        createEdge(
-          generateId(route.path, "route"),
-          generateId(route.toPage.name, "page"),
-          selectedNode,
-        ),
-      ),
-      ...data.operations.flatMap((operation) =>
-        operation.entities.map((entity) =>
-          // ASSUMPTION: operation.type is either "query" or "action"
-          createEdge(
-            generateId(operation.name, operation.type),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...data.apis.flatMap((api) =>
-        api.entities.map((entity) =>
-          createEdge(
-            generateId(api.name, "api"),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...data.jobs.flatMap((job) =>
-        job.entities.map((entity) =>
-          createEdge(
-            generateId(job.name, "job"),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...data.routes.map((route) =>
-        createEdge(
-          generateId(data.app.name, "app"),
-          generateId(route.path, "route"),
-          selectedNode,
-        ),
-      ),
-    ];
-
-    getLayoutedElements(initialNodes, initialEdges).then((result) => {
-      if (!result) {
+    let isCancelled = false;
+    getLayoutedElements(nodes, edges).then((result) => {
+      if (isCancelled || !result) {
         return;
       }
       const { nodes: layoutedNodes, edges: layoutedEdges } = result;
       if (!layoutedNodes || !layoutedEdges) {
         return;
       }
-      // Hack
-      setNodes(layoutedNodes as StudioNode[]);
-      // Hack
-      setEdges(layoutedEdges as unknown as Edge[]);
-
-      window.requestAnimationFrame(() => fitView());
+      // React Flow syncs `nodes` into its store and applies `fitView()` in
+      // effects, which can run after a paint. Flushing them makes the first
+      // uncovered frame show the laid out and fitted graph.
+      flushSync(() => {
+        // Hack
+        setNodes(layoutedNodes as StudioNode[]);
+        // Hack
+        setEdges(layoutedEdges as unknown as Edge[]);
+        setLaidOutData(data);
+        // Only fit on the first layout, so updates keep the user's viewport.
+        if (laidOutData === null) {
+          fitView();
+        }
+      });
     });
-  }, [data, setNodes, setEdges, fitView, selectedNode]);
 
-  // Calculate the initial layout on mount.
-  useLayoutEffect(() => {
-    onLayout();
-  }, [onLayout]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      fitView();
-    }, 100);
-  }, [fitView, selectedNode]);
-
-  useEffect(() => {
-    fitView();
-  }, [fitView]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [data, laidOutData, nodes, edges, setNodes, setEdges, fitView]);
 
   return (
-    <div style={{ height: "100%" }}>
-      <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
+    <div className="relative h-full">
+      {/* Covers the nodes while they're first measured and laid out. */}
+      {laidOutData === null && (
+        <div className="bg-wasp-bg absolute inset-0 z-10">
+          <Loading />
+        </div>
+      )}
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        // The graph mirrors the app's spec, so it's read-only.
+        deleteKeyCode={null}
+        fitView
+        nodeTypes={nodeTypes}
+      >
         <Background
           style={{
             backgroundColor: `var(--color-wasp-bg)`,
@@ -276,51 +203,126 @@ export default function Flow({ data }: { data: Data }) {
   );
 }
 
-// Estimates for ELK, matching the `NodeCard` layout: header and name, plus a
-// row per chip.
-const NODE_BASE_HEIGHT = 70;
-const NODE_CHIP_HEIGHT = 30;
-
-function getNodeHeight(node: StudioNode) {
-  if (node.type === "apiNode") {
-    return NODE_BASE_HEIGHT + NODE_CHIP_HEIGHT;
-  }
-  if (node.type === "jobNode" && node.data.schedule) {
-    return NODE_BASE_HEIGHT + NODE_CHIP_HEIGHT;
-  }
-  if (node.type === "appNode") {
-    const authMethods = node.data.auth?.methods ?? [];
-    return NODE_BASE_HEIGHT + (1 + authMethods.length) * NODE_CHIP_HEIGHT;
-  }
-  return NODE_BASE_HEIGHT;
-}
-
-function getNodeWidth(node: StudioNode) {
-  const textCandidates = [
-    node.data?.label,
-    node.data?.name,
-    node.data?.path,
-    node.data?.schedule,
-    // Auth methods
-    ...getAuthMethods(node),
-  ]
-    .filter(Boolean)
-    .map((text) => text.length);
-
-  const longestText = Math.max(...textCandidates);
-  const width = Math.max(150, longestText * 10 + 40);
-  return width;
-}
-
 function generateId(name: string, type: string): string {
   return `${type}:${name}`;
 }
 
-function getAuthMethods(node: StudioNode) {
-  if (node.type !== "appNode") {
-    return [];
-  }
-  return (
-    node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ?? []
-  );
+function createNodes(
+  data: Data,
+  selectedNode: StudioNode | null,
+): StudioNode[] {
+  return [
+    // ASSUMPTION: The names are of everything is unique.
+    createAppNode(
+      generateId(data.app.name, "app"),
+      data.app.name,
+      data.app,
+      selectedNode,
+    ),
+    ...data.pages.map((page) =>
+      createPageNode(
+        generateId(page.name, "page"),
+        page.name,
+        page,
+        selectedNode,
+      ),
+    ),
+    ...data.operations
+      .filter((operation) => operation.type === "query")
+      .map((query) =>
+        createQueryNode(
+          generateId(query.name, "query"),
+          query.name,
+          query,
+          selectedNode,
+        ),
+      ),
+    ...data.operations
+      .filter((operation) => operation.type === "action")
+      .map((action) =>
+        createActionNode(
+          generateId(action.name, "action"),
+          action.name,
+          action,
+          selectedNode,
+        ),
+      ),
+    ...data.entities.map((entity) =>
+      createEntityNode(
+        generateId(entity.name, "entity"),
+        entity.name,
+        entity.name === data.app.auth?.userEntity.name,
+        entity,
+        selectedNode,
+      ),
+    ),
+    ...data.routes.map((route) =>
+      createRouteNode(
+        generateId(route.path, "route"),
+        route.path,
+        route,
+        selectedNode,
+      ),
+    ),
+    ...data.apis.map((api) =>
+      createApiNode(generateId(api.name, "api"), api.name, api, selectedNode),
+    ),
+    ...data.jobs.map((job) =>
+      createJobNode(generateId(job.name, "job"), job.name, job, selectedNode),
+    ),
+  ];
+}
+
+function createEdges(data: Data, selectedNode: StudioNode | null): Edge[] {
+  return [
+    ...data.entities.map((entity) =>
+      createEdge(
+        generateId(entity.name, "entity"),
+        generateId(data.app.name, "app"),
+        selectedNode,
+      ),
+    ),
+    ...data.routes.map((route) =>
+      createEdge(
+        generateId(route.path, "route"),
+        generateId(route.toPage.name, "page"),
+        selectedNode,
+      ),
+    ),
+    ...data.operations.flatMap((operation) =>
+      operation.entities.map((entity) =>
+        // ASSUMPTION: operation.type is either "query" or "action"
+        createEdge(
+          generateId(operation.name, operation.type),
+          generateId(entity.name, "entity"),
+          selectedNode,
+        ),
+      ),
+    ),
+    ...data.apis.flatMap((api) =>
+      api.entities.map((entity) =>
+        createEdge(
+          generateId(api.name, "api"),
+          generateId(entity.name, "entity"),
+          selectedNode,
+        ),
+      ),
+    ),
+    ...data.jobs.flatMap((job) =>
+      job.entities.map((entity) =>
+        createEdge(
+          generateId(job.name, "job"),
+          generateId(entity.name, "entity"),
+          selectedNode,
+        ),
+      ),
+    ),
+    ...data.routes.map((route) =>
+      createEdge(
+        generateId(data.app.name, "app"),
+        generateId(route.path, "route"),
+        selectedNode,
+      ),
+    ),
+  ];
 }
