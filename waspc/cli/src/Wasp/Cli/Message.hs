@@ -20,7 +20,7 @@ cliSendMessage (Msg.Success msg) = do
   check <- styleIfInteractive [Term.Green] "✔"
   waspSays $ check ++ " " ++ msg
 cliSendMessage (Msg.Failure entries) =
-  waspScreams =<< labeledMessage Term.Red "✖" "ERROR" entries
+  waspScreams =<< labeledMessage Term.Red "!" "ERROR" entries
 cliSendMessage (Msg.Warning entries) =
   waspWarns =<< labeledMessage Term.Yellow "!" "WARNING" entries
 
