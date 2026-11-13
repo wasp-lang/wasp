@@ -22,16 +22,19 @@ import qualified Wasp.Util.WebRouterPath as WebRouterPath
 genClientRouterApi :: AppSpec -> Generator [FileDraft]
 genClientRouterApi spec =
   sequence
-    [ genIndexTs spec,
+    [ genRoutesTs spec,
+      genFileCopyInClientRouter [relfile|index.ts|],
       genFileCopyInClientRouter [relfile|Link.tsx|],
       genFileCopyInClientRouter [relfile|NavLink.tsx|]
     ]
 
-genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec =
+-- | The route map, in its own module without the React components, so code
+-- that doesn't render (like the server) can import it.
+genRoutesTs :: AppSpec -> Generator FileDraft
+genRoutesTs spec =
   return $
     mkTmplFdWithData
-      (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (clientRouterDirInSdkTemplatesDir </> [relfile|routes.ts|])
       tmplData
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]

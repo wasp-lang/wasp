@@ -1,50 +1,8 @@
-{{={= =}=}}
-import {
-  interpolatePath,
-  type RouteDefinitionsToRoutes,
-  type OptionalRouteOptions,
-  type ParamValue,
-  type ExpandRouteOnOptionalStaticSegments,
-} from '@wasp/lib-sdk-core'
+import { type RouteDefinitionsToRoutes } from '@wasp/lib-sdk-core'
+import { routes } from './routes'
 
 // PUBLIC API
-export const routes = {
-  {=# routes =}
-  {= name =}: {
-    to: {=& urlPath =},
-    {=# hasUrlParams =}
-    build: (
-      options: OptionalRouteOptions
-      & { params: {{=# urlParams =}{=& name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
-      {=# hasOptionalStaticSegments =}
-      & { path: ExpandRouteOnOptionalStaticSegments<{=& urlPath =}> }
-      {=/ hasOptionalStaticSegments =}
-    ) => interpolatePath(
-        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
-        {=^ hasOptionalStaticSegments =}{=& urlPath =},{=/ hasOptionalStaticSegments =}
-        options.params,
-        options?.search,
-        options?.hash
-      ),
-    {=/ hasUrlParams =}
-    {=^ hasUrlParams =}
-    build: (
-      options{=^ hasOptionalStaticSegments =}?{=/ hasOptionalStaticSegments =}:
-      OptionalRouteOptions
-      {=# hasOptionalStaticSegments =}
-      & { path: ExpandRouteOnOptionalStaticSegments<{=& urlPath =}> }
-      {=/ hasOptionalStaticSegments =}
-    ) => interpolatePath(
-        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
-        {=^ hasOptionalStaticSegments =}{=& urlPath =},{=/ hasOptionalStaticSegments =}
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-    {=/ hasUrlParams =}
-  },
-  {=/ routes =}
-} as const;
+export { routes }
 
 // PRIVATE API
 export type Routes = RouteDefinitionsToRoutes<typeof routes>
