@@ -6,6 +6,7 @@ import apis from './apis/index.js'
 import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
+import { studioData } from './studioData.js'
 
 
 const router = express.Router()
@@ -16,6 +17,12 @@ router.use('/operations', middleware, operations)
 router.use('/crud', middleware, rootCrudRouter)
 router.get('/up', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
+})
+
+// The data that Wasp Studio shows, from the app's Wasp config. Only in
+// development, since it describes the app's internals.
+router.get('/__wasp/studio-data', middleware, function (_req, res) {
+  res.status(200).json(studioData)
 })
 
 // NOTE: Keep user-defined api routes last so they cannot override our routes.

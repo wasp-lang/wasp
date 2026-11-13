@@ -585,7 +585,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "cbcc264782e46ce8c17c6babed85b207af90fac4a317870f7cbf91b0df7b051d"
+        "5f08fe45bcab97a2088d457ba634bcf8e0a52152c4e428cc44d219167fd9d1b3"
     ],
     [
         [
@@ -593,6 +593,13 @@
             "server/src/routes/operations/index.js"
         ],
         "d09f7dcf78ed2da15f488afb08e62d9dac15f173fdbe779323dfdd75330f5de5"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/studioData.ts"
+        ],
+        "f7003b2401af7e71f1f2db47d17d1f9e9b5948ad7b8082723927dca19ea00731"
     ],
     [
         [

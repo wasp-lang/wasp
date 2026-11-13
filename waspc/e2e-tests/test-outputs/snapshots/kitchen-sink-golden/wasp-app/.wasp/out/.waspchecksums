@@ -1628,7 +1628,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "224192fffe14a33e29dd9c71767e484494c0faba11eda12f9cfca69a9d8568c5"
+        "96cc5f1392e89909693114ca84ec28181afaa0f5f1ea66870b7f4c4765152a58"
     ],
     [
         [
@@ -1853,6 +1853,13 @@
             "server/src/routes/operations/voidToStringNoAuth.js"
         ],
         "cd8a5eec6feff192d14c8d3cd05719d21e9d0e3353edb7de7036391940227f56"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/studioData.ts"
+        ],
+        "64d45b9c973f1312dc016f01abaecb70190f4c5b8c0e5c76ddac366b71231cba"
     ],
     [
         [

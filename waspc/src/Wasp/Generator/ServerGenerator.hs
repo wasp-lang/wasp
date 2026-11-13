@@ -15,8 +15,10 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as Aeson.Pretty
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromMaybe, isJust)
+import qualified Data.Text.Lazy.Encoding as TL.Encoding
 import StrongPath
   ( Dir,
     File,
@@ -70,6 +72,7 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Studio (makeStudioData)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -282,7 +285,7 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  sequence [genRoutesIndex spec]
+  sequence $ genRoutesIndex spec : [genStudioData spec | AS.isDevelopment spec]
 
 genRoutesIndex :: AppSpec -> Generator FileDraft
 genRoutesIndex spec =
@@ -301,9 +304,24 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (app.name :: String)
+          "appName" .= (app.name :: String),
+          "studioDataRouteInRootRouter" .= (studioDataRouteInRootRouter :: String)
         ]
     app = getApp spec
+
+genStudioData :: AppSpec -> Generator FileDraft
+genStudioData spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/studioData.ts|])
+      (C.asServerFile [relfile|src/routes/studioData.ts|])
+      (Just tmplData)
+  where
+    tmplData = object ["studioData" .= TL.Encoding.decodeUtf8 studioDataJson]
+    studioDataJson =
+      Aeson.Pretty.encodePretty'
+        Aeson.Pretty.defConfig {Aeson.Pretty.confIndent = Aeson.Pretty.Spaces 2}
+        (makeStudioData spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
@@ -315,6 +333,10 @@ operationsRouteInRootRouter = "operations"
 -- so we let users handle it themselves.
 upRouteInRootRouter :: String
 upRouteInRootRouter = "up"
+
+-- | Serves the data that Wasp Studio shows, in development only.
+studioDataRouteInRootRouter :: String
+studioDataRouteInRootRouter = "__wasp/studio-data"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec
