@@ -54,20 +54,16 @@ showRunConfigUrls :: AppSpec -> ProjectRunConfig -> String
 showRunConfigUrls appSpec config =
   intercalate
     "\n"
-    [ showUrls "Client" config.clientUrl localClientUrl,
-      showUrls "Server" config.serverUrl localServerUrl
+    [ showUrls "  Client: " config.clientUrl localClientUrl,
+      showUrls "  Server: " config.serverUrl localServerUrl
     ]
   where
     (localClientUrl, localServerUrl) = makeLocalUrls appSpec (config.clientPort, config.serverPort)
 
-    showUrls name url localUrl =
-      concat
-        [ " ℹ ",
-          name,
-          ": ",
-          styleLiteral (showUrl url),
-          if url /= localUrl then " (local: " ++ styleLiteral (showUrl localUrl) ++ ")" else ""
-        ]
+    showUrls label url localUrl =
+      label
+        ++ styleLiteral (showUrl url)
+        ++ (if url /= localUrl then " (local: " ++ styleLiteral (showUrl localUrl) ++ ")" else "")
 
     -- The server and client URLs have different expectations for trailing
     -- slashes, so for display consistency we just ensure they both have it.

@@ -138,12 +138,11 @@ studio = do
     Dir.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent waspStudioDataJsonFilePath
     BSL.writeFile (SP.fromAbsFile waspStudioDataJsonFilePath) (encodePretty appInfoJson)
 
+  cliSendMessageC $ Msg.Start "Starting Wasp Studio..."
   cliSendMessageC . Msg.Info $
     intercalate
       "\n"
-      [ "✨ Starting Wasp Studio ✨",
-        "",
-        "➜ Open in your browser: " ++ styleLiteral "http://localhost:4000",
+      [ "  URL: " ++ styleLiteral "http://localhost:4000",
         "",
         "Wasp Studio visualises your app and lets you understand how different parts of your app are connected."
       ]

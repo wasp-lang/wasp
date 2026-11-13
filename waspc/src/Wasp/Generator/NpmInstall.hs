@@ -72,7 +72,7 @@ installProjectNpmDependencies ::
 installProjectNpmDependencies installOutputMode projectDir = case installOutputMode of
   ShowInstallOutput -> either (Left . (: []) . Msg.Text) Right . checkExitSuccess "npm install" <$> Job.run npmInstall
   HideInstallOutput sendMessage ->
-    runTaskWithStatusReport sendMessage "Installing dependencies..." "Dependencies installed" "Dependencies failed to install" $
+    runTaskWithStatusReport sendMessage "Installing dependencies" "Installed dependencies" "Failed to install dependencies" $
       Job.captureFailure "npm install" npmInstall
   where
     npmInstall = Job.fromProc $ Job.setCwd projectDir $ Job.proc "npm" ["install"]

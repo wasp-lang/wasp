@@ -53,8 +53,6 @@ start = withArguments startArgsParser $ \args ->
     InWaspProject waspProjectDir <- require
     let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-    cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
-
     (warnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
@@ -66,8 +64,7 @@ start = withArguments startArgsParser $ \args ->
 
     throwIfDbConnectionNotEstablished projectRunConfig
 
-    cliSendMessageC $ Msg.Start "Listening for file changes..."
-    cliSendMessageC $ Msg.Start "Starting up generated project..."
+    cliSendMessageC $ Msg.Start "Starting the app..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
 
     watchOrStartResult <- liftIO $ do

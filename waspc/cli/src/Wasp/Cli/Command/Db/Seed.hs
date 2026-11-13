@@ -28,6 +28,7 @@ import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Util.Interactive as Interactive
+import Wasp.Util.Terminal (styleLiteral)
 
 -- | Seed functions import the SDK.
 seed :: SeedArgs -> Command ()
@@ -38,11 +39,11 @@ seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCli
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
-  cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
+  cliSendMessageC $ Msg.Start $ "Running the " <> styleLiteral nameOfSeedToRun <> " seed..."
 
   liftIO (dbSeed (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
-    Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
+    Right () -> cliSendMessageC $ Msg.Success $ "Ran the " <> styleLiteral nameOfSeedToRun <> " seed"
 
 newtype SeedArgs = SeedArgs
   { _seedName :: Maybe String
@@ -89,8 +90,8 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
       Just seeds@(_ : _) -> return $ NE.fromList seeds
       _noSeeds ->
         (E.throwError . CommandError "No seeds defined") $
-          "You haven't defined any database seeding functions, so there is nothing to run!\n"
-            <> "To do so, define seeding functions via app.db.seeds in your Wasp spec."
+          "You haven't defined any database seeding functions, so there is nothing to run."
+            <> " To do so, define seeding functions via app.db.seeds in your Wasp spec."
 
     getSeedNames :: (Functor f) => f AS.ExtImport.ExtImport -> f String
     getSeedNames seeds = AS.ExtImport.importIdentifier <$> seeds

@@ -5,6 +5,7 @@ module Wasp.Cli.Command.Build
   )
 where
 
+import Control.Arrow (left)
 import Control.Lens (at, (%~), (&), (.~))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
@@ -12,7 +13,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
-import Control.Arrow (left)
 import Data.Either (isRight)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import System.IO.Error (tryIOError)
@@ -80,9 +80,7 @@ build = ProjectLock.acquireExclusive $ do
     "Failed to prepare the build directory"
     (left ((: []) . Msg.Text) <$> prepareFilesNecessaryForDockerBuild waspProjectDir buildDir)
 
-  cliSendMessageC
-    $ Msg.Success
-    $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  cliSendMessageC $ Msg.Success $ "Built the app into the " ++ buildDirName ++ " directory"
   where
     buildDirName = styleLiteral $ fromRelDir generatedAppDirInWaspProjectDir
 
