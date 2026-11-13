@@ -28,6 +28,7 @@ wasp-app/.wasp/out/sdk/wasp/client/operations/queries/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/router/Link.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/NavLink.tsx
 wasp-app/.wasp/out/sdk/wasp/client/router/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/router/routes.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualUserModules.ts
@@ -112,6 +113,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/router/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/router/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/router/routes.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/router/routes.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/router/routes.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/router/routes.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.js
