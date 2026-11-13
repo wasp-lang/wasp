@@ -8,7 +8,7 @@ module Wasp.Cli.ProjectRunConfig
   )
 where
 
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, maybeToList)
 import Network.Socket (PortNumber)
 import Network.URI (URI)
 import Wasp.AppSpec (AppSpec)
@@ -50,10 +50,11 @@ makeProjectRunConfig appSpec ports@(clientPort, serverPort) (customClientUrl, cu
 
 showRunConfigUrls :: AppSpec -> ProjectRunConfig -> String
 showRunConfigUrls appSpec config =
-  unlines
+  unlines $
     [ showUrls "Client" config.clientUrl localClientUrl,
       showUrls "Server" config.serverUrl localServerUrl
     ]
+      ++ maybeToList (showDatabaseUrl <$> config.databaseUrl)
   where
     (localClientUrl, localServerUrl) = makeLocalUrls appSpec (config.clientPort, config.serverPort)
 
@@ -65,6 +66,8 @@ showRunConfigUrls appSpec config =
           showUrl url,
           if url /= localUrl then " (local: " ++ showUrl localUrl ++ ")" else ""
         ]
+
+    showDatabaseUrl url = " ℹ Managed dev database: " ++ url
 
     -- The server and client URLs have different expectations for trailing
     -- slashes, so for display consistency we just ensure they both have it.

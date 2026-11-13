@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🎉 New Features
 
+- `wasp start` now starts the managed PostgreSQL dev database when your app needs it and it isn't running yet, and stops it when you stop `wasp start`. You no longer have to run `wasp db start` in a separate terminal first. ([#4914](https://github.com/wasp-lang/wasp/pull/4914))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
 - The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))

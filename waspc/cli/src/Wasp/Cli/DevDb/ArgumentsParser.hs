@@ -15,6 +15,7 @@ data DevDbOptions = DevDbOptions
     dbImage :: DockerImageName,
     dbVolumeMountPath :: DockerVolumeMountPath
   }
+  deriving (Eq, Show)
 
 devDbOptionsParser :: Opt.Parser DevDbOptions
 devDbOptionsParser =

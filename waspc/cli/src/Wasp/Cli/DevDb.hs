@@ -1,5 +1,6 @@
 module Wasp.Cli.DevDb
   ( startPostgresDevDb,
+    withDevDb,
     withRunningPostgresDevDb,
     throwCustomDatabaseInUseError,
   )
@@ -13,6 +14,9 @@ import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Exit (ExitCode, exitFailure)
 import Text.Printf (printf)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -23,7 +27,7 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.Db.Dev (CustomDatabaseSource (..))
+import Wasp.Project.Db.Dev (CustomDatabaseSource (..), DevDatabase (..), findDevDatabase)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (checkExitSuccess)
@@ -44,6 +48,16 @@ startPostgresDevDb waspProjectDir appName devDbOptions =
         ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
           : additionalInfoLines devDbSpec
       liftIO exitFailure
+
+-- | Runs the action with the database the app uses in development available:
+-- Wasp starts its managed PostgreSQL database if it isn't running yet.
+withDevDb :: AS.AppSpec -> DevDbOptions -> Command a -> Command a
+withDevDb appSpec devDbOptions action =
+  liftIO (findDevDatabase appSpec) >>= \case
+    CustomDatabase _ -> action
+    ManagedSqliteDatabase -> action
+    ManagedPostgresDatabase ->
+      withRunningPostgresDevDb appSpec.waspProjectDir (ASV.getApp appSpec).name devDbOptions action
 
 -- | Runs the action with the project's PostgreSQL dev database: the one that's
 -- already running, or a new one that is stopped and removed when the action

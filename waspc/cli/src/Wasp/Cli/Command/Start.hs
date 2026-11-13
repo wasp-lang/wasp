@@ -18,6 +18,7 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.DevDb (withDevDb)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -57,45 +58,46 @@ start = withArguments startArgsParser $ \args ->
 
     (warnings, appSpec) <- compile
 
-    ports <- findProjectPorts (args.clientPort, args.serverPort)
-    -- The ports and custom URLs stay the same for the whole session, while the
-    -- rest of the run config follows the latest compile.
-    let makeProjectRunConfig spec = makeDevProjectRunConfig spec ports (args.clientUrl, args.serverUrl)
-    projectRunConfig <- liftIO $ makeProjectRunConfig appSpec
-    assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
+    withDevDb appSpec args.devDbOptions $ do
+      ports <- findProjectPorts (args.clientPort, args.serverPort)
+      -- The ports and custom URLs stay the same for the whole session, while the
+      -- rest of the run config follows the latest compile.
+      let makeProjectRunConfig spec = makeDevProjectRunConfig spec ports (args.clientUrl, args.serverUrl)
+      projectRunConfig <- liftIO $ makeProjectRunConfig appSpec
+      assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
 
-    throwIfDbConnectionNotEstablished projectRunConfig
+      throwIfDbConnectionNotEstablished projectRunConfig
 
-    dbMigrationWarnings <- liftIO $ checkDbMigrations appSpec projectRunConfig.databaseUrl
-    liftIO $ printWarningsIfAny dbMigrationWarnings
+      dbMigrationWarnings <- liftIO $ checkDbMigrations appSpec projectRunConfig.databaseUrl
+      liftIO $ printWarningsIfAny dbMigrationWarnings
 
-    cliSendMessageC $ Msg.Start "Listening for file changes..."
-    cliSendMessageC $ Msg.Start "Starting up generated project..."
-    cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
+      cliSendMessageC $ Msg.Start "Listening for file changes..."
+      cliSendMessageC $ Msg.Start "Starting up generated project..."
+      cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
 
-    watchOrStartResult <- liftIO $ do
-      -- This MVar is used to exchange information between the two processes below running in
-      -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
-      -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
-      -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
-      -- 'watch') once jobs from 'start' quiet down a bit.
-      ongoingCompilationResultMVar <- newMVar (warnings ++ dbMigrationWarnings, [])
-      serverInbox <- ServerGenerator.Start.newServerInbox
-      let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
-      let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
-      -- In parallel:
-      -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
-      --    code. On any change, Wasp is recompiled (and generated app is re-generated).
-      -- 2. start web app in dev mode, which will then also watch for changes but in the generated
-      --    code, and will also react to them by restarting the web app.
-      -- Both of these should run forever, unless some super serious error happens.
-      watchWaspProjectSource `race` startGeneratedWebApp
+      watchOrStartResult <- liftIO $ do
+        -- This MVar is used to exchange information between the two processes below running in
+        -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
+        -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
+        -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
+        -- 'watch') once jobs from 'start' quiet down a bit.
+        ongoingCompilationResultMVar <- newMVar (warnings ++ dbMigrationWarnings, [])
+        serverInbox <- ServerGenerator.Start.newServerInbox
+        let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
+        let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
+        -- In parallel:
+        -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
+        --    code. On any change, Wasp is recompiled (and generated app is re-generated).
+        -- 2. start web app in dev mode, which will then also watch for changes but in the generated
+        --    code, and will also react to them by restarting the web app.
+        -- Both of these should run forever, unless some super serious error happens.
+        watchWaspProjectSource `race` startGeneratedWebApp
 
-    case watchOrStartResult of
-      Left () -> error "This should never happen, listening for file changes should never end but it did."
-      Right startResult -> case startResult of
-        Left startError -> throwError $ CommandError "Start failed" startError
-        Right () -> error "This should never happen, start should never end but it did."
+      case watchOrStartResult of
+        Left () -> error "This should never happen, listening for file changes should never end but it did."
+        Right startResult -> case startResult of
+          Left startError -> throwError $ CommandError "Start failed" startError
+          Right () -> error "This should never happen, start should never end but it did."
   where
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
