@@ -1,0 +1,147 @@
+/* Built on the auth forms' CSS variables (--color-*, --font-size-*). Every
+   element also has a `wasp-mcp-*` class name apps can style. */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: var(--font-size-sm);
+}
+
+.logo {
+  height: 3rem;
+  align-self: flex-start;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1.5rem 0 0;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.muted {
+  composes: text;
+  color: var(--color-gray700);
+}
+
+.hint {
+  composes: text muted;
+  display: block;
+}
+
+.panel {
+  border: 1px solid var(--color-gray500);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--color-gray400);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.button {
+  border: 1px solid var(--color-gray600);
+  background: transparent;
+  color: inherit;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  line-height: 1.25rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.secondaryButton {
+  composes: button;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.smallButton {
+  composes: button;
+  padding: 0.25rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.connection {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--color-gray500);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+}
+
+.connectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkboxList {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legend {
+  composes: text;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.checkboxOption {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.checkbox {
+  margin-top: 0.2rem;
+  accent-color: var(--color-brand);
+}
