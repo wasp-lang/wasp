@@ -53,16 +53,16 @@ instance Show GeneratorError where
   show (GenericGeneratorError e) = e
   show GeneratorAborted = ""
 
-generatorErrorParts :: GeneratorError -> [Msg.Part]
-generatorErrorParts (GenericGeneratorError e) = [Msg.Text e]
+generatorErrorParts :: GeneratorError -> [Msg.Entry]
+generatorErrorParts (GenericGeneratorError e) = [Msg.Entry e []]
 generatorErrorParts GeneratorAborted = []
 
 data GeneratorWarning
   = GenericGeneratorWarning String
-  | GeneratorNeedsMigrationWarning [Msg.Part]
+  | GeneratorNeedsMigrationWarning [Msg.Entry]
 
-generatorWarningParts :: GeneratorWarning -> [Msg.Part]
-generatorWarningParts (GenericGeneratorWarning w) = [Msg.Text w]
+generatorWarningParts :: GeneratorWarning -> [Msg.Entry]
+generatorWarningParts (GenericGeneratorWarning w) = [Msg.Entry w []]
 generatorWarningParts (GeneratorNeedsMigrationWarning parts) = parts
 
 -- Runs the generator and either returns a result, or a list of 1 or more errors.

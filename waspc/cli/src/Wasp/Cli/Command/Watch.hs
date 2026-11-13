@@ -166,7 +166,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
-          cliSendMessage $ Msg.Failure "Recompilation on file change failed." []
+          cliSendMessage $ Msg.Failure [Msg.Entry "Recompilation on file change failed." []]
           return FailedCompile
       setWatcherStatus projectLock $ either (const CompilationFailed) (const UpToDate) $ _compileOutcome compileResult
       updateOngoingCompilationResultMVar (warnings, errors)

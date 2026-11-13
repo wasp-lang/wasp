@@ -48,7 +48,7 @@ analyzeWaspProject ::
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 analyzeWaspProject waspDir compileOptions = do
-  waspFilePathOrError <- left ((: []) . Msg.Text) <$> findWaspFile waspDir
+  waspFilePathOrError <- left (\err -> [Msg.Entry err []]) <$> findWaspFile waspDir
 
   case waspFilePathOrError of
     Left err -> return (Left err, [])
@@ -109,9 +109,9 @@ analyzePrismaSchema waspProjectDir = do
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
         Left err ->
-          return (Left [Msg.Text $ couldntParsePrismaSchemaMessage ++ "\n\n" ++ err], [])
+          return (Left [Msg.Entry (couldntParsePrismaSchemaMessage ++ "\n\n" ++ err) []], [])
         Right parsedPrismaSchema -> return $ runValidation PslV.validatePrismaSchema parsedPrismaSchema
-    Nothing -> return (Left [Msg.Text couldntFindPrismaSchemaMessage], [])
+    Nothing -> return (Left [Msg.Entry couldntFindPrismaSchemaMessage []], [])
   where
     couldntParsePrismaSchemaMessage = "Wasp couldn't parse your " ++ styleLiteral "schema.prisma" ++ " file, please check if you have any errors in it."
 
@@ -129,7 +129,7 @@ runValidation getErrorsAndWarnings result =
     errors = showErrorsBy Valid.isValidationError errsAndWarns
     warnings = showErrorsBy Valid.isValidationWarning errsAndWarns
     errsAndWarns = getErrorsAndWarnings result
-    showErrorsBy predicate = map (Msg.Text . show) . filter predicate
+    showErrorsBy predicate = map (\err -> Msg.Entry (show err) []) . filter predicate
 
 findPrismaSchemaFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findPrismaSchemaFile waspProjectDir = findFileInWaspProjectDir waspProjectDir prismaSchemaFileInWaspProjectDir

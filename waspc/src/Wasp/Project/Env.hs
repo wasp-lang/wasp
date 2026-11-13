@@ -31,7 +31,7 @@ readDotEnvClient waspDir = readDotEnvFileInWaspProjectDir waspDir dotEnvClient
 warnIfTheDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe CompileWarning)
 warnIfTheDotEnvPresent waspDir = (warningMessage <$) <$> findFileInWaspProjectDir waspDir [relfile|.env|]
   where
-    warningMessage = Msg.Text "Wasp .env files should be named .env.server or .env.client, depending on their use."
+    warningMessage = Msg.Entry "Wasp .env files should be named .env.server or .env.client, depending on their use." []
 
 -- Reads specified dotenv file and returns its values.
 -- If file doesn't exist, returns an empty list.

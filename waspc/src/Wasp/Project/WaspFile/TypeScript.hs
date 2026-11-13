@@ -156,7 +156,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     nodeEnvForBuildType BuildType.Development = "development"
     nodeEnvForBuildType BuildType.Production = "production"
 
-    readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
+    readSpecResultFile :: IO (Either [Msg.Part] SpecAnalysisResult)
     readSpecResultFile = do
       contents <- IOUtil.readFileBytes absSpecResultFile
       return

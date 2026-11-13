@@ -24,7 +24,7 @@ install = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   liftIO (installIO ShowInstallOutput waspProjectDir)
     >>= either
-      (\errors -> liftIO (cliSendMessage $ Msg.Failure "Couldn't install npm dependencies" errors) >> throwError CommandAborted)
+      (\errors -> liftIO (cliSendMessage $ Msg.Failure [Msg.Entry "Couldn't install npm dependencies" errors]) >> throwError CommandAborted)
       return
 
 installIO :: InstallOutputMode -> Path' Abs (Dir WaspProjectDir) -> IO (Either [Msg.Part] ())

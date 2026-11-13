@@ -115,13 +115,13 @@ printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
   unless (null warns)
     $ cliSendMessage
-    $ Msg.Warning compilationWarningsTitle warns
+    $ Msg.Warning warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
 printErrorsIfAny errs = do
   unless (null errs)
     $ cliSendMessage
-    $ Msg.Failure "Your wasp project failed to compile" errs
+    $ Msg.Failure errs
 
 compilationWarningsTitle :: String
 compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
@@ -172,7 +172,7 @@ analyzeWithOptions waspProjectDir options = do
   case appSpecOrErrors of
     Left [] -> throwError CommandAborted
     Left errors -> do
-      liftIO $ cliSendMessage $ Msg.Failure (analysisErrorsTitle errors) errors
+      liftIO $ cliSendMessage $ Msg.Failure errors
       throwError CommandAborted
     Right spec -> return spec
 
@@ -194,8 +194,9 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
       liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) errors
       throwError CommandAborted
 
-printDiagnosticToStderr :: String -> [Msg.Part] -> IO ()
-printDiagnosticToStderr diagnosticTitle parts = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> intercalate "\n\n" (map plainText parts)
+printDiagnosticToStderr :: String -> [Msg.Entry] -> IO ()
+printDiagnosticToStderr diagnosticTitle entries = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> intercalate "\n\n" (map plainText entries)
   where
-    plainText (Msg.Text text) = text
-    plainText (Msg.ToolOutput command exitCode output) = "Output of " <> command <> " (exit code " <> show exitCode <> "):\n" <> output
+    plainText (Msg.Entry text parts) = intercalate "\n" $ filter (not . null) $ text : map plainPart parts
+    plainPart (Msg.Text text) = text
+    plainPart (Msg.ToolOutput command exitCode output) = "Output of " <> command <> " (exit code " <> show exitCode <> "):\n" <> output

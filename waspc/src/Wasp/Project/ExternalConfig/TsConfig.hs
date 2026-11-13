@@ -24,8 +24,8 @@ parseAndValidateTsConfigFile ::
   IO (Validation [CompileError] T.TsConfig)
 parseAndValidateTsConfigFile validator waspDir tsConfigPathInProject =
   fmap eitherToValidation . runExceptT $ do
-    absTsConfigPath <- withExceptT ((: []) . Msg.Text) $ ExceptT absTsConfigPathOrError
-    tsConfigContents <- withExceptT ((: []) . Msg.Text) $ ExceptT $ parseTsConfigFile absTsConfigPath
+    absTsConfigPath <- withExceptT (\err -> [Msg.Entry err []]) $ ExceptT absTsConfigPathOrError
+    tsConfigContents <- withExceptT (\err -> [Msg.Entry err []]) $ ExceptT $ parseTsConfigFile absTsConfigPath
     case validateTsConfig validator tsConfigFileName tsConfigContents of
       [] -> return tsConfigContents
       errors -> liftEither $ Left errors
@@ -36,4 +36,4 @@ parseAndValidateTsConfigFile validator waspDir tsConfigPathInProject =
 
 validateTsConfig :: V.Validator T.TsConfig -> String -> T.TsConfig -> [CompileError]
 validateTsConfig validator tsConfigFileName tsConfigContents =
-  Msg.Text . show <$> V.execValidator (V.withFileName tsConfigFileName validator) tsConfigContents
+  (\err -> Msg.Entry (show err) []) <$> V.execValidator (V.withFileName tsConfigFileName validator) tsConfigContents

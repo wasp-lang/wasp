@@ -1,4 +1,4 @@
-module Wasp.Message (Message (..), Part (..), SendMessage) where
+module Wasp.Message (Message (..), Entry (..), Part (..), SendMessage) where
 
 -- This module defines a simple protocol for sending progress messages to a
 -- UI (like the CLI).
@@ -9,9 +9,12 @@ module Wasp.Message (Message (..), Part (..), SendMessage) where
 -- This protocol is for sending messages for display in a UI.
 -- If you need success or failure another purpose use return values.
 
-data Message = Info String | Start String | Success String | Failure String [Part] | Warning String [Part]
+data Message = Info String | Start String | Success String | Failure [Entry] | Warning [Entry]
 
--- | A piece of what a message says under its title.
+-- | One error or warning: what went wrong, then anything more there is to say about it.
+data Entry = Entry String [Part]
+  deriving (Show, Eq)
+
 data Part
   = Text String
   | -- | The output of a command Wasp ran: the command, its exit code, then what it printed.

@@ -46,7 +46,7 @@ validateViteConfig waspDir =
 
     fileNotFoundMessage :: CompileError
     fileNotFoundMessage =
-      Msg.Text . T.unpack $
+      (`Msg.Entry` []) . T.unpack $
         [trimming|
           Couldn't find ${viteConfigTsFile} (or ${viteConfigJsFile}) in the project directory.
           Wasp requires a Vite config file with the ${waspPluginName} plugin configured.
@@ -55,7 +55,7 @@ validateViteConfig waspDir =
 
     missingPluginImportMessage :: CompileError
     missingPluginImportMessage =
-      Msg.Text . T.unpack $
+      (`Msg.Entry` []) . T.unpack $
         [trimming|
           Your Vite config file doesn't seem to import the Wasp Vite plugin from ${styledWaspPluginImportModule}.
           The ${waspPluginName} plugin is required for Wasp to work correctly.

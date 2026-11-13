@@ -43,7 +43,7 @@ spec_RootTsConfig = do
         }
 
 validate :: T.TsConfig -> [String]
-validate = map partText . validateTsConfig rootTsConfigValidator "tsconfig.json"
+validate = map entryText . validateTsConfig rootTsConfigValidator "tsconfig.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
@@ -63,6 +63,5 @@ validTsConfig =
           ]
     }
 
-partText :: Msg.Part -> String
-partText (Msg.Text text) = text
-partText part = show part
+entryText :: Msg.Entry -> String
+entryText (Msg.Entry text _) = text

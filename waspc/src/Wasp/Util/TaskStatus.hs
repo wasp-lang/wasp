@@ -15,5 +15,5 @@ runTaskWithStatusReport sendMessage spinnerMessage successMessage failureMessage
 
   sendMessage $ case taskResult of
     Right _ -> Msg.Success successMessage
-    Left errorMessage -> Msg.Failure failureMessage errorMessage
+    Left errorMessage -> Msg.Failure [Msg.Entry failureMessage errorMessage]
   return taskResult

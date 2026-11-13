@@ -58,7 +58,7 @@ spec_WaspTsConfig = do
         `shouldBe` []
 
 validate :: T.TsConfig -> [String]
-validate = map partText . validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
+validate = map entryText . validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
@@ -95,6 +95,5 @@ validCompilerOptions =
       T.noEmit = Just True
     }
 
-partText :: Msg.Part -> String
-partText (Msg.Text text) = text
-partText part = show part
+entryText :: Msg.Entry -> String
+entryText (Msg.Entry text _) = text

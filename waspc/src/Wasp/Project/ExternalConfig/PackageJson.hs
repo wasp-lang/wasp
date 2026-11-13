@@ -30,8 +30,8 @@ import qualified Wasp.Validator as WaspV
 
 parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> TsConfigPaths -> IO (Validation [CompileError] PackageJson)
 parseAndValidateUserPackageJson waspDir tsConfigPaths = fmap eitherToValidation . runExceptT $ do
-  packageJsonFile <- withExceptT ((: []) . Msg.Text) $ ExceptT userPackageJsonFileOrError
-  packageJson <- withExceptT ((: []) . Msg.Text) $ ExceptT $ parsePackageJsonFile packageJsonFile
+  packageJsonFile <- withExceptT (\err -> [Msg.Entry err []]) $ ExceptT userPackageJsonFileOrError
+  packageJson <- withExceptT (\err -> [Msg.Entry err []]) $ ExceptT $ parsePackageJsonFile packageJsonFile
   case validatePackageJsonForProject tsConfigPaths packageJson of
     [] -> return packageJson
     errors -> liftEither $ Left errors
@@ -44,7 +44,7 @@ findUserPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir
 
 validatePackageJsonForProject :: TsConfigPaths -> PackageJson -> [CompileError]
 validatePackageJsonForProject tsConfigPaths packageJson =
-  Msg.Text . show <$> WaspV.execValidator (packageJsonValidator tsConfigPaths) packageJson
+  (\err -> Msg.Entry (show err) []) <$> WaspV.execValidator (packageJsonValidator tsConfigPaths) packageJson
 
 packageJsonValidator :: TsConfigPaths -> WaspV.Validator PackageJson
 packageJsonValidator tsConfigPaths =

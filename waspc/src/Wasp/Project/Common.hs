@@ -43,9 +43,9 @@ import qualified Wasp.Message as Msg
 import qualified Wasp.Util as U
 import Wasp.Util.StrongPath (invertRelDir)
 
-type CompileError = Msg.Part
+type CompileError = Msg.Entry
 
-type CompileWarning = Msg.Part
+type CompileWarning = Msg.Entry
 
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
 

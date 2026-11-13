@@ -20,7 +20,7 @@ spec_PackageJson = do
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
-validate tsConfigPaths' = map partText . validatePackageJsonForProject tsConfigPaths'
+validate tsConfigPaths' = map entryText . validatePackageJsonForProject tsConfigPaths'
 
 assertReturnsValidationErrorMentioningField :: String -> P.PackageJson -> Expectation
 assertReturnsValidationErrorMentioningField fieldName packageJson =
@@ -45,6 +45,5 @@ withDevDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> P.Pac
 withDevDependency packageJson (name, version) =
   packageJson {P.devDependencies = M.insert name version (P.devDependencies packageJson)}
 
-partText :: Msg.Part -> String
-partText (Msg.Text text) = text
-partText part = show part
+entryText :: Msg.Entry -> String
+entryText (Msg.Entry text _) = text

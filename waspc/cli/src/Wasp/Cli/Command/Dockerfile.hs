@@ -20,6 +20,6 @@ printDockerfile = do
   WaspSpecAvailable <- require
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions waspProjectDir)
   either
-    (\errors -> liftIO (cliSendMessage $ Msg.Failure "Displaying Dockerfile failed due to a compilation error in your Wasp project" errors) >> throwError CommandAborted)
+    (\errors -> liftIO (cliSendMessage $ Msg.Failure $ Msg.Entry "Displaying Dockerfile failed due to a compilation error in your Wasp project" [] : errors) >> throwError CommandAborted)
     (liftIO . T.IO.putStrLn)
     dockerfileContentOrCompileErrors

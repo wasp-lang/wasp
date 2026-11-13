@@ -31,7 +31,7 @@ deps = do
     liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either
-      (\errors -> liftIO (cliSendMessage $ Msg.Failure "Determining dependencies failed due to a compilation error in your Wasp project" errors) >> throwError CommandAborted)
+      (\errors -> liftIO (cliSendMessage $ Msg.Failure $ Msg.Entry "Determining dependencies failed due to a compilation error in your Wasp project" [] : errors) >> throwError CommandAborted)
       return
       appSpecOrAnalyzerErrors
 
