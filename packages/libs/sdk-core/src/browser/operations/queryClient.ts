@@ -4,7 +4,7 @@ import {
   type QueryClientConfig,
 } from "@tanstack/react-query";
 import { HttpError } from "../../HttpError.js";
-import { handleClientError } from "../errors.js";
+import { handleClientError, type ClientErrorContext } from "../errors.js";
 
 // Same as react-query's default.
 const MAX_QUERY_RETRIES = 3;
@@ -37,14 +37,14 @@ export function initializeQueryClient(): void {
   const queryClient = new QueryClient(
     withWaspQueryDefaults(queryClientConfig ?? {}),
   );
-  reportQueryClientErrors(queryClient);
+  listenForQueryClientErrors(queryClient);
   isQueryClientInitialized = true;
   resolveQueryClientInitialized(queryClient);
 }
 
 // We subscribe to the caches instead of passing `onError` callbacks, so we
 // don't replace the caches users pass through `configureQueryClient`.
-function reportQueryClientErrors(queryClient: QueryClient): void {
+function listenForQueryClientErrors(queryClient: QueryClient): void {
   queryClient.getQueryCache().subscribe((event) => {
     if (event.type === "updated" && event.action.type === "error") {
       reportUnlessCancelled(event.action.error, { source: "query" });
@@ -60,7 +60,7 @@ function reportQueryClientErrors(queryClient: QueryClient): void {
 // TanStack Query cancels queries on purpose, e.g. before optimistic updates.
 function reportUnlessCancelled(
   error: unknown,
-  context: { source: "query" } | { source: "action" },
+  context: ClientErrorContext,
 ): void {
   if (!isCancelledError(error)) {
     handleClientError(error, context);
