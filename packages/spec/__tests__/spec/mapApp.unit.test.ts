@@ -877,6 +877,7 @@ describe("mapServer", () => {
         server.envValidationSchema &&
         mapRefObjectForMockProjectDir(server.envValidationSchema),
       traceDeps: server.traceDeps,
+      openApi: server.openApi,
     } satisfies AppSpec.Server);
   }
 });

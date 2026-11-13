@@ -279,6 +279,7 @@ library
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.NodeCommands
+    Wasp.Generator.ServerGenerator.OpenApiG
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.RunConfig
@@ -602,6 +603,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.OpenApiGTest
     Generator.ServerGenerator.ServerEffectTest
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest

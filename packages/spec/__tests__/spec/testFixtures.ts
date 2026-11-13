@@ -307,6 +307,7 @@ export function getServerConfig(scope: ConfigScope): Config<WaspSpec.Server> {
         middlewareConfigFn: getRefObject("full", "named"),
         envValidationSchema: getRefObject("full", "named"),
         traceDeps: ["some-native-pkg*", "!aws-crt"],
+        openApi: true,
       } satisfies FullConfig<WaspSpec.Server>;
     default:
       assertUnreachable(scope);

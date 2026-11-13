@@ -249,6 +249,7 @@ export type Server = {
   middlewareConfigFn: Optional<ExtImport>;
   envValidationSchema: Optional<ExtImport>;
   traceDeps: Optional<string[]>;
+  openApi: Optional<boolean>;
 };
 
 export type Client = {

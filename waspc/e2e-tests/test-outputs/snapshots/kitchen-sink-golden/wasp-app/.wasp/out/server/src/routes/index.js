@@ -3,6 +3,7 @@ import operations from './operations/index.js'
 import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 import auth from './auth/index.js'
 import apis from './apis/index.js'
+import openApiDocument from './openapi.js'
 import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
@@ -16,6 +17,9 @@ router.use('/operations', middleware, operations)
 router.use('/crud', middleware, rootCrudRouter)
 router.get('/up', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
+})
+router.get('/openapi.json', middleware, function (_req, res) {
+  res.status(200).json(openApiDocument)
 })
 
 // NOTE: Keep user-defined api routes last so they cannot override our routes.

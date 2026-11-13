@@ -585,6 +585,19 @@ export interface Server {
    * @see https://github.com/unjs/nf3/blob/main/src/db.ts for the packages copied in full by default.
    */
   traceDeps?: string[];
+  /**
+   * Serves an [OpenAPI](https://www.openapis.org/) document describing the
+   * app's {@link api} routes at `/openapi.json`.
+   *
+   * The document lists each api's method, path, path parameters, and
+   * whether it uses auth. Wasp doesn't know the shape of request and response
+   * bodies, so the document doesn't describe them.
+   *
+   * @default false
+   *
+   * @see https://wasp.sh/docs/features/apis#openapi-document
+   */
+  openApi?: boolean;
 }
 
 /**
