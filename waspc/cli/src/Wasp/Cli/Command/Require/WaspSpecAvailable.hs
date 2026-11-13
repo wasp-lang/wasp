@@ -56,8 +56,8 @@ instance Requirable WaspSpecAvailable where
             ++ "."
       missingDepsError =
         CommandError
-          "Missing or stale dependencies in project"
-          $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
+          "Your project's dependencies are missing or out of date"
+          $ "Run " ++ styleCode "wasp install" ++ " to install them."
 
 legacyWaspSpecPackageName :: P.PackageName
 legacyWaspSpecPackageName = "@wasp.sh/spec"

@@ -42,9 +42,10 @@ minimalStarterTemplate =
             _buildStartingInstructions = \projectDirName ->
               intercalate
                 "\n"
-                [ styleText $ "To run your new app, do:",
-                  styleLiteral $ "    cd " <> projectDirName,
-                  styleLiteral $ "    wasp start"
+                [ "",
+                  styleText $ "To run your new app:",
+                  styleLiteral $ "  cd " <> projectDirName,
+                  styleLiteral $ "  wasp start"
                 ]
           }
     }
@@ -63,11 +64,12 @@ basicStarterTemplate =
             _buildStartingInstructions = \projectDirName ->
               intercalate
                 "\n"
-                [ styleText $ "To run your new app, do:",
-                  styleLiteral $ "    cd " <> projectDirName,
-                  styleLiteral $ "    wasp start",
+                [ "",
+                  styleText $ "To run your new app:",
+                  styleLiteral $ "  cd " <> projectDirName,
+                  styleLiteral $ "  wasp start",
                   styleText $ "",
-                  styleText $ "Check the " <> styleLiteral "README.md" <> " for additional guidance!"
+                  styleText $ "Check the " <> styleLiteral "README.md" <> " for additional guidance"
                 ]
           }
     }

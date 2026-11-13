@@ -101,9 +101,7 @@ compileWithOptions options = do
 -- to report to user how it went.
 printCompilationResult :: CompileResult -> IO ()
 printCompilationResult compileResult = do
-  case _compileOutcome compileResult of
-    Right _ -> cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
-    Left errs -> printErrorsIfAny errs
+  either printErrorsIfAny (const $ return ()) $ _compileOutcome compileResult
   printWarningsIfAny $ _compileWarnings compileResult
 
 printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()

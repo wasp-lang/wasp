@@ -35,7 +35,7 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
-import Wasp.Util (checkExitSuccess)
+import Wasp.Util (checkExitSuccess, indent)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.Terminal (styleCode, styleLiteral)
@@ -104,10 +104,10 @@ throwIfCustomDbAlreadyInUse spec = do
       dbUrl <- liftIO $ lookupEnv databaseUrlEnvVarName
       when (isJust dbUrl) $
         throwCustomDbAlreadyInUseError
-          ( "Wasp has detected existing "
+          ( "Wasp found "
               <> styleLiteral databaseUrlEnvVarName
-              <> " var in your environment.\n"
-              <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+              <> " in your environment."
+              <> " To have Wasp run the dev database for you, remove that env var first."
           )
 
     throwIfDbUrlInServerDotEnv :: AS.AppSpec -> Command ()
@@ -115,8 +115,8 @@ throwIfCustomDbAlreadyInUse spec = do
       when (isThereDbUrlInServerDotEnv appSpec) $
         throwCustomDbAlreadyInUseError
           ( printf
-              ( "Wasp has detected that you have defined %s env var in your %s file.\n"
-                  <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+              ( "Wasp found %s in your %s file."
+                  <> " To have Wasp run the dev database for you, remove that env var first."
               )
               (styleLiteral databaseUrlEnvVarName)
               (styleLiteral $ fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
@@ -126,7 +126,7 @@ throwIfCustomDbAlreadyInUse spec = do
 
     throwCustomDbAlreadyInUseError :: String -> Command ()
     throwCustomDbAlreadyInUseError msg =
-      E.throwError $ CommandError "You are using custom database already" msg
+      E.throwError $ CommandError "A custom database is already configured" msg
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> Command ()
 startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath = do
@@ -164,40 +164,36 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do
-      cliSendMessageC . Msg.Info . intercalate "\n" $
-        ("Your PostgreSQL dev database is already running on port " ++ styleLiteral (show devDbSpec.port) ++ ".")
-          : additionalInfoLines devDbSpec
+      cliSendMessageC $ Msg.Success $ "The database is already running on port " ++ styleLiteral (show devDbSpec.port)
+      cliSendMessageC $ Msg.Info $ facts $ connectionFacts devDbSpec
       liftIO exitFailure
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
       let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
-      cliSendMessageC . Msg.Info . intercalate "\n" $
-        "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
-          : additionalInfoLines devDbSpec
-            <> dockerRunInfoLines
-      cliSendMessageC $ Msg.Info "..."
+      cliSendMessageC $ Msg.Start "Starting the database..."
+      cliSendMessageC $ Msg.Info $ facts $ connectionFacts devDbSpec ++ dockerRunFacts
       exitCode <- Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
       either (E.throwError . CommandError "Dev database failed") return $
         checkExitSuccess "Running the PostgreSQL dev database" exitCode
 
-    additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
-    additionalInfoLines devDbSpec =
-      [ "",
-        "Additional info:",
-        " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> styleLiteral (Dev.Postgres.getDevConnectionUrl devDbSpec),
-        " ℹ Database data is persisted in a Docker volume with the following name"
-          <> " (useful to know if you will want to delete it at some point):",
-        "     " <> styleLiteral devDbSpec.dockerVolumeName
+    connectionFacts :: Dev.Postgres.DevDbSpec -> [(String, String)]
+    connectionFacts devDbSpec =
+      [ ("Connection URL:", Dev.Postgres.getDevConnectionUrl devDbSpec),
+        ("Docker volume:", devDbSpec.dockerVolumeName)
       ]
 
-    -- These lines describe what `docker run` is about to use, so we print them
-    -- only when starting the database: an already running container might have
-    -- been started with a different image or mount path than the current
-    -- invocation's arguments.
-    dockerRunInfoLines :: [String]
-    dockerRunInfoLines =
-      [ " ℹ Using Docker image: " <> styleLiteral dbDockerImage,
-        "   with the data volume mounted at: " <> styleLiteral dbDockerVolumeMountPath
+    -- These describe what `docker run` is about to use, so they are shown
+    -- only when starting the database: an already running container might
+    -- have been started with a different image or mount path.
+    dockerRunFacts :: [(String, String)]
+    dockerRunFacts =
+      [ ("Docker image:", dbDockerImage),
+        ("Volume mount path:", dbDockerVolumeMountPath)
       ]
+
+    facts :: [(String, String)] -> String
+    facts rows = indent 2 $ intercalate "\n" [padded label ++ " " ++ styleLiteral value | (label, value) <- rows]
+      where
+        padded label = label ++ replicate (labelWidth - length label) ' '
+        labelWidth = maximum $ map (length . fst) rows
