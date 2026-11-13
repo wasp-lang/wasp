@@ -14,7 +14,7 @@ export default defineConfig([
     dts: { sourcemap: true },
   },
   {
-    // The toolbar runs in the app's page, served as one self-contained file.
+    // The toolbar runs in the app's page, prebuilt with its dependencies.
     entry: { toolbar: "src/toolbar/client.ts" },
     outDir: "dist/client",
     clean: false,
@@ -22,7 +22,6 @@ export default defineConfig([
     platform: "browser",
     target: "es2022",
     format: "esm",
-    outExtensions: () => ({ js: ".js" }),
     noExternal: () => true,
     minify: true,
   },

@@ -7,7 +7,7 @@ import type { Plugin } from "vite";
  * processes the other panels start (like `wasp studio`). Vite DevTools has its
  * own, but `waspDevTools()` turns off its built-in panels.
  */
-export function waspTerminals(): Plugin {
+export function terminals(): Plugin {
   return {
     ...createPluginFromDevframe(createTerminalsDevframe(), {
       dock: { category: "advanced" },

@@ -3,8 +3,8 @@ import type { PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import {
   prismaStudio,
+  terminals,
   waspStudio,
-  waspTerminals,
   waspToolbar,
 } from "@wasp/lib-devtools/node";
 import {
@@ -50,7 +50,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       schemaFile: "{= prismaSchemaFilePath =}",
       cwd: "{= prismaCwd =}",
     }),
-    waspTerminals(),
+    terminals(),
     waspToolbar(),
   ];
 }

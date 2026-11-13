@@ -25,7 +25,7 @@ import { toolbarStyles } from "./styles";
 
 const DEVTOOLS_BASE = "/__devtools/";
 const DOCKS_STATE_KEY = "devframe:docks";
-// From `@devframes/plugin-terminals`, which `waspTerminals()` adds.
+// From `@devframes/plugin-terminals`, which `terminals()` adds.
 const TERMINAL_SESSIONS_STATE_KEY = "devframes:plugin:terminals:sessions";
 
 // The Wasp logo (`web/static/img/wasp-logo.svg` in the Wasp repo), without the
