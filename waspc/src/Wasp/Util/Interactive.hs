@@ -7,7 +7,12 @@ module Wasp.Util.Interactive
     runTaskWithSpinner,
     StatusLine,
     withStatusLine,
+    OutputSource (..),
     writeOutput,
+    OutputTrail (..),
+    initialOutputTrail,
+    separate,
+    endOutputBlock,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -30,11 +35,11 @@ import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.IORef (IORef, atomicModifyIORef', newIORef, readIORef, writeIORef)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrLn, stdin, stdout)
@@ -221,22 +226,70 @@ runTaskWithSpinner terminal spinnerMessage action =
     Just statusLine -> withStatusLineText statusLine (\groupText -> groupText ++ ": " ++ spinnerMessage) action
     Nothing -> withStatusLine terminal spinnerMessage (const action)
 
+-- | Who is writing: Wasp itself (its messages, and the output of tools it
+-- runs inline), or the running app's jobs with their prefixed logs.
+data OutputSource = WaspMessage | JobLog
+  deriving (Eq, Show)
+
 -- | Writes output where everything else is written. While a status line is
 -- shown, the output goes above it and the line is redrawn underneath, so
--- the two never share a row. Every writer of the process goes through here.
-writeOutput :: Handle -> T.Text -> IO ()
-writeOutput handle output =
+-- the two never share a row. Wasp's own output and the job logs are set
+-- apart by an empty line, see 'separate'. Every writer of the process goes
+-- through here.
+writeOutput :: OutputSource -> Handle -> T.Text -> IO ()
+writeOutput source handle output = do
+  separated <- atomicModifyIORef' stdioOutputTrailRef $ \trail -> separate trail source output
   readIORef stdioStatusLineRef >>= \case
-    Nothing -> T.IO.hPutStr handle output >> hFlush handle
+    Nothing -> T.IO.hPutStr handle separated >> hFlush handle
     Just statusLine -> modifyMVar_ statusLine.statusLineState $ \state -> do
       clearStatusLine statusLine state
       -- A line the writer has not finished yet stays just above the status
       -- line, and is redrawn with it, until the rest of it arrives.
-      let (completed, unfinished) = T.breakOnEnd "\n" $ state.unfinishedLine <> output
+      let (completed, unfinished) = T.breakOnEnd "\n" $ state.unfinishedLine <> separated
       T.IO.hPutStr handle completed >> hFlush handle
       let state' = state {unfinishedLine = unfinished}
       drawStatusLine statusLine state'
       return state'
+
+-- | What the output written so far ends with: who wrote last, how many line
+-- breaks are at the end, and whether Wasp's next output starts a new block.
+data OutputTrail = OutputTrail
+  { lastSource :: Maybe OutputSource,
+    trailingLineBreaks :: Int,
+    blockEnded :: Bool
+  }
+  deriving (Eq, Show)
+
+initialOutputTrail :: OutputTrail
+initialOutputTrail = OutputTrail Nothing 0 False
+
+-- | Ends the current block of Wasp's output: whatever Wasp writes next starts
+-- after an empty line, even if the job logs go on in between.
+endOutputBlock :: IO ()
+endOutputBlock = atomicModifyIORef' stdioOutputTrailRef $ \trail -> (trail {blockEnded = True}, ())
+
+-- | Puts an empty line between Wasp's own output and the job logs, in either
+-- direction, and before Wasp's output after 'endOutputBlock', unless one is
+-- already there. Output that is nothing but line breaks is such an empty
+-- line itself, so it never gets another one.
+separate :: OutputTrail -> OutputSource -> T.Text -> (OutputTrail, T.Text)
+separate trail source output = (trail', separator <> output)
+  where
+    separator
+      | onlyLineBreaks || trail.trailingLineBreaks >= 2 = ""
+      | isJust trail.lastSource && trail.lastSource /= Just source = "\n"
+      | trail.blockEnded && source == WaspMessage = "\n"
+      | otherwise = ""
+    trail' =
+      OutputTrail
+        { lastSource = Just source,
+          trailingLineBreaks =
+            if onlyLineBreaks
+              then trail.trailingLineBreaks + T.length output
+              else T.length (T.takeWhileEnd (== '\n') output),
+          blockEnded = trail.blockEnded && (source /= WaspMessage || onlyLineBreaks)
+        }
+    onlyLineBreaks = T.all (== '\n') output
 
 -- | The line at the bottom of the terminal that is redrawn in place: a
 -- spinning glyph and a text the running action can change. Anything written
@@ -338,3 +391,7 @@ stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout,
 {-# NOINLINE stdioStatusLineRef #-}
 stdioStatusLineRef :: IORef (Maybe StatusLine)
 stdioStatusLineRef = unsafePerformIO $ newIORef Nothing
+
+{-# NOINLINE stdioOutputTrailRef #-}
+stdioOutputTrailRef :: IORef OutputTrail
+stdioOutputTrailRef = unsafePerformIO $ newIORef initialOutputTrail

@@ -50,6 +50,7 @@ buildAndStartServerAndClient appSpec config = do
   runBuildStep "Building the client" "Built the client" "Failed to build the client" "vite build" $ buildClient config
   runBuildStep "Building the server" "Built the server" "Failed to build the server" "docker build" $ buildServer config
 
+  cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Start "Starting the app..."
   cliSendMessageC
     $ Msg.Info

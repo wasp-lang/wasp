@@ -36,7 +36,7 @@ newPrefixedWriter = PrefixedWriter <$> newMVar initialPrefixedWriterState
 printOutput :: PrefixedWriter -> Maybe J.JobType -> J.OutputType -> T.Text -> IO ()
 printOutput (PrefixedWriter stateVar) maybeJobType outputType content =
   modifyMVar_ stateVar $ execStateT $ _runPrefixedWriterM $ case maybeJobType of
-    Nothing -> liftIO $ printMessageContent outputType content
+    Nothing -> liftIO $ printMessageContent Interactive.WaspMessage outputType content
     Just jobType -> do
       time <- liftIO $ formatTime defaultTimeLocale "%H:%M:%S" <$> getZonedTime
       printJobMessagePrefixed time (Output jobType outputType) content
@@ -81,13 +81,14 @@ printOutput (PrefixedWriter stateVar) maybeJobType outputType content =
 -- We additionaly check if the last message (before the current message) was from the same output.
 -- If not, or there was no previous message, then we ensure there is prefix at the start of
 -- the message. This helps with situations where output from one job was interrupted by the
--- output from another job, or when message is the very first message.
+-- output from another job, or when message is the very first message. (Setting the job logs
+-- apart from Wasp's own output is the terminal's job, see 'Interactive.writeOutput'.)
 printJobMessagePrefixed :: String -> Output -> T.Text -> PrefixedWriterM ()
 printJobMessagePrefixed time output content = do
   writerState <- get
   let (writerState', prefixedContent) = formatOutput time writerState output content
   put writerState'
-  liftIO $ printMessageContent (_outputType output) prefixedContent
+  liftIO $ printMessageContent Interactive.JobLog (_outputType output) prefixedContent
 
 formatOutput :: String -> PrefixedWriterState -> Output -> T.Text -> (PrefixedWriterState, T.Text)
 formatOutput time (PrefixedWriterState outputsWithPendingPrefix lastOutput) output content =
@@ -129,7 +130,7 @@ formatOutput time (PrefixedWriterState outputsWithPendingPrefix lastOutput) outp
               newlineAtStart = "\n" `T.isPrefixOf` text
            in if interruptingAnotherOutput && not newlineAtStart && not previousLineComplete then "\n" <> text else text
 
-        previousLineComplete = maybe False (`S.member` outputsWithPendingPrefix) lastOutput
+        previousLineComplete = maybe True (`S.member` outputsWithPendingPrefix) lastOutput
 
 newtype PrefixedWriterM a = PrefixedWriterM {_runPrefixedWriterM :: StateT PrefixedWriterState IO a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadState PrefixedWriterState)
@@ -186,8 +187,8 @@ makeJobMessagePrefix time output =
       J.WebApp -> ("client", [Term.Cyan])
       J.Db -> ("db", [Term.Blue])
 
-printMessageContent :: J.OutputType -> T.Text -> IO ()
-printMessageContent outputType = Interactive.writeOutput (getOutputTypeHandle outputType)
+printMessageContent :: Interactive.OutputSource -> J.OutputType -> T.Text -> IO ()
+printMessageContent source outputType = Interactive.writeOutput source (getOutputTypeHandle outputType)
 
 getOutputTypeHandle :: J.OutputType -> Handle
 getOutputTypeHandle J.Stdout = stdout
