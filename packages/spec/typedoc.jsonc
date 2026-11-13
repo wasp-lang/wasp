@@ -1,0 +1,37 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+
+  // `README.md` is for people looking at the package on npm or in the repo.
+  "readme": "docs.md",
+
+  // Linking to the source code is not useful for this package, and might be
+  // confusing about the package's location.
+  "disableSources": true,
+
+  "excludeInternal": true,
+
+  // Don't document members inherited from external types, e.g.
+  // `WaspSpecUserError` shouldn't list all built-in `Error` properties.
+  "excludeExternals": true,
+
+  // Document the types that `typedoc-plugin-missing-exports` pulls in next to
+  // the exports that reference them, instead of in a separate `<internal>`
+  // module.
+  "placeInternalsInOwningModule": true,
+
+  "entryPoints": ["src/index.ts"],
+
+  // For exports with no category
+  "defaultCategory": "Fields",
+
+  "categoryOrder": [
+    "Wasp Spec",
+    "Constructors",
+    "Specifications",
+    "Declarations",
+    "References",
+    "Errors",
+    "Fields",
+    "*",
+  ],
+}

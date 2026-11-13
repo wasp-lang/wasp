@@ -4,13 +4,13 @@ import type {
   ActionId,
   BaseAction,
   MdxFilePath,
-} from "../../src/actions/actions";
+} from "../../src/actions/actions.ts";
 import {
   createApplyPatchAction,
   createInitAppAction,
   createMigrateDbAction,
-} from "../../src/actions/index";
-import type { PatchesDirPath } from "../../src/tutorialApp";
+} from "../../src/actions/index.ts";
+import type { PatchesDirPath } from "../../src/tutorialApp.ts";
 
 describe("createInitAppAction", () => {
   it("should create InitAppAction with correct properties", () => {

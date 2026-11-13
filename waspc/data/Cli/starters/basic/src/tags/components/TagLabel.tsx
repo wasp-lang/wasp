@@ -19,7 +19,7 @@ export function TagLabel({
   return (
     <span
       className={twJoin(
-        "inline-flex items-center gap-1 rounded-full border-2 border-neutral-200 font-mono font-semibold",
+        "inline-flex items-center gap-1 border-2 border-black font-bold",
         sizeStyles[size],
       )}
       style={{
@@ -30,7 +30,7 @@ export function TagLabel({
       {showColorCircle && (
         <span
           className={twJoin(
-            "relative rounded-full border-2 border-neutral-300 bg-white",
+            "relative border-2 border-black bg-white",
             colorCircleSizeStyles[size],
           )}
           style={{

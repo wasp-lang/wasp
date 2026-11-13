@@ -1,5 +1,5 @@
 # Keep in sync with .github/actions/setup-tools/action.yaml
-min_version = "2026.10.17"
+min_version = "2026.11.5"
 
 [tools]
 ghcup = "0.2.6.2"
@@ -25,27 +25,16 @@ ghcup = "0.2.6.2"
 "mise-cabal:hlint" = "3.8"
 "mise-cabal:stan" = "0.2.1.0"
 
-# This should be equal to Wasp's lowest supported Node version.
-# Keep in sync with:
-# - The compiler (Wasp.Node.Version).
-# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
-# - The docs plugin: /web/src/remark/search-and-replace.ts
-# - The web CI: /web/.node-version
-# - The web package: /web/package.json
-# - The wasp-cli package templates: /scripts/make-npm-packages/templates/*/package.json
-# - The embedded packages: /waspc/data/packages/*/package.json
-# (Also just grep for the version in case we forgot somewhere.)
-"node" = "24.14.1"
+jq = "latest"
+railway = "5.64.2"
 
-jq = "1.8.2"
-
-"github:tfausak/cabal-gild" = "1.8.4.2"
+"github:tfausak/cabal-gild" = "latest"
 
 # TODO: Provide a fallback for Linux ARM64
 # The upstream repo only distributes prebuilt binaries for Linux x64, macOS
 # (all, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
-ormolu.version = "0.9.0.0"
+ormolu.version = "latest"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
 [plugins]
@@ -62,8 +51,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apt:libncurses-dev" = "latest"
 # Cabal dependencies
 "apt:zlib1g-dev" = "latest"
-# mise plugin dependencies
-"apt:git" = "latest"
+# Node.js dependencies (https://github.com/nodejs/node/blob/main/BUILDING.md#official-binary-platforms-and-toolchains)
+"apt:libatomic1" = "latest"
 
 # Dependencies for Alpine
 # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-alpine)
@@ -82,21 +71,38 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apk:pkgconfig" = "latest"
 "apk:tar" = "latest"
 "apk:xz" = "latest"
-# `./run` script dependencies
+# Task dependencies
 "apk:bash" = "latest"
 # Cabal dependencies
 "apk:zlib-dev" = "latest"
 "apk:zlib-static" = "latest"
 # Prisma dependencies
 "apk:openssl" = "latest"
-# mise plugin dependencies
-"apk:git" = "latest"
 
 [settings]
 lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
 
+# The Node version is read from /.node-version, and the pnpm version from
+# `devEngines` in /package.json.
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
+
 [settings.node]
 # The Node backend has a knack for compiling from source on Alpine even when
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
+
+[vars]
+# `{{config_root}}` in a task's `env` resolves to the task file's directory,
+# so the tasks use these absolute paths instead.
+wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
+wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
+
+# Installs the workspace dependencies before `mise run` and `mise exec` when
+# they are out of date.
+[deps.pnpm]
+auto = true
+
+[task_config]
+includes = ["tasks"]
+excludes = ["tasks/node_modules"]

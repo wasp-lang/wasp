@@ -23,7 +23,7 @@ Wasp AI is an experimental feature. Apps that Wasp AI generates can have mistake
 
 ## usemage.ai
 
-<ImgWithCaption source="img/gpt-wasp/how-it-works.gif" caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀" />
+<ImgWithCaption source="img/blog/2023-07-10-gpt-web-app-generator/how-it-works.gif" caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀" />
 
 [Mage](https://usemage.ai) is an open-source app with which you can create new Wasp apps from just a short title and description.
 

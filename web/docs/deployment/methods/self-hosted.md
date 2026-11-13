@@ -1,3 +1,9 @@
+---
+title: "Self-hosted: deploy Wasp by guide or by hand"
+sidebar_label: Self-hosted
+description: Deploy a Wasp app to your own server with the CapRover, Coolify or Docker guides, or with manual steps for the build, database, reverse proxy and domain.
+---
+
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { CardLink } from '@site/src/components/CardLink'
 
@@ -41,7 +47,7 @@ To self-host your Wasp app, you'll follow these general steps:
 1. Serve the **client app** with a static file server.
 1. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
 
-<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
+<ImgWithCaption source="/img/docs/deployment/methods/self-hosted/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
 
 ### Steps
 

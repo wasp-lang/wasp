@@ -1,4 +1,7 @@
 ---
+title: "Vercel: deploy a Wasp server, client and database"
+sidebar_label: Vercel
+description: "Deploy a Wasp app to Vercel: the server as a Vercel Function, the client as a static site and a Supabase database. Jobs and WebSockets are not supported."
 comments: true
 ---
 

@@ -73,7 +73,7 @@ app.get("/auth/google/callback",
       files: [
         {
           name: "main.wasp.ts",
-          source: `import { app } from "@wasp.sh/spec";
+          source: `import { app } from "@wasp/spec";
 
 export default app({
   // ...
@@ -182,7 +182,7 @@ export const TasksPage = () => {
       files: [
         {
           name: "main.wasp.ts",
-          source: `import { app, query } from "@wasp.sh/spec";
+          source: `import { app, query } from "@wasp/spec";
 
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -280,7 +280,7 @@ export async function registerWorkers(boss: PgBoss) {
       files: [
         {
           name: "main.wasp.ts",
-          source: `import { app, job } from "@wasp.sh/spec";
+          source: `import { app, job } from "@wasp/spec";
 
 import { emailDigest } from "./src/jobs/email" with { type: "ref" };
 

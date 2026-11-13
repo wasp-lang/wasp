@@ -2,6 +2,14 @@ name: "Test - waspc"
 
 on:
   workflow_call:
+    inputs:
+      exclude-runner:
+        description: >
+          Runner to skip testing on (e.g. `macos-15-intel`). If empty, all
+          tests run.
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
 
 env:
@@ -25,22 +33,24 @@ jobs:
         os:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
           # prevent the version from changing on its own.
-          - ubuntu-22.04
+          - ubuntu-24.04
           - ubuntu-24.04-arm
           - macos-15-intel
           - macos-15 # Apple Silicon
           - windows-latest
         extra-tools:
           - node@latest
+        exclude:
+          - os: ${{ inputs.exclude-runner }}
 
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
-        # Ubuntu 22.04.
+        # Ubuntu 24.04.
         include:
           - # No extra tool here, so we use our default Node.js version, which
             # comes from mise and is equal to our lowest supported one.
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             extra-tools: ""
 
     steps:
@@ -67,14 +77,14 @@ jobs:
 
       - name: Compile TS packages and libs
         run: |
-          ./run build:packages
-          ./run build:libs
+          mise run build:packages
+          mise run build:libs
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
       - name: Build wasp code
-        run: cabal build all
+        run: cabal build all -v0
 
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests
@@ -84,4 +94,4 @@ jobs:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
-          mise x ${EXTRA_TOOLS:+"$EXTRA_TOOLS"} -- bash ./run test:waspc:e2e
+          mise run ${EXTRA_TOOLS:+--tool "$EXTRA_TOOLS"} test:waspc:e2e

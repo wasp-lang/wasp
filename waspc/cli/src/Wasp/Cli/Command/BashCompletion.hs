@@ -32,6 +32,7 @@ bashCompletion = do
   where
     commands =
       [ "new",
+        "help",
         "version",
         "doctor",
         "completion",
@@ -46,7 +47,6 @@ bashCompletion = do
         "deps",
         "dockerfile",
         "show",
-        "test",
         "studio"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]

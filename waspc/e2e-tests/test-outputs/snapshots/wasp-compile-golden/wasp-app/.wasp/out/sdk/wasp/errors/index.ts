@@ -1,2 +1,2 @@
 // PUBLIC API
-export { getErrorMessage, HttpError } from "@wasp.sh/lib-sdk-core";
+export { getErrorMessage, HttpError } from "@wasp/lib-sdk-core";

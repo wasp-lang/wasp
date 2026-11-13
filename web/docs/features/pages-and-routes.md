@@ -1,5 +1,10 @@
+---
+title: "Pages and routes in Wasp: URLs, links, layouts"
+sidebar_label: Pages and routes
+description: Declare pages and routes in a Wasp app, read URL parameters, link with type-safe Link and NavLink, require login, share a layout and prerender routes.
+---
+
 import { CardLink } from '@site/src/components/CardLink'
-import { Required } from '@site/src/components/Tag'
 
 # Pages and routes
 
@@ -10,7 +15,7 @@ A **page** is a React component that Wasp renders as a full screen of your app. 
 To show a page at a URL, call `route` with a unique name, the URL path, and the page to render. Wrap your React component with `page` to turn it into a page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 
@@ -49,7 +54,7 @@ Most apps have pages whose content depends on the URL, like `/photo/42`. Instead
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -76,7 +81,7 @@ Read more in the [React Router docs on dynamic segments](https://reactrouter.com
 Append `?` to a path segment to make it optional. The route matches whether or not the segment is present:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -105,7 +110,7 @@ Read more in the [React Router docs on optional segments](https://reactrouter.co
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
@@ -215,7 +220,7 @@ export function Navigation() {
 If your app uses [authentication](./auth/overview.md), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path defined in `auth.onAuthFailedRedirectTo`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -247,7 +252,7 @@ While Wasp checks whether the user is logged in, it shows a loading indicator in
 By default, Wasp renders each page on its own. To give every page a shared header, footer, or set of providers, declare a **root component** in the `client` config and render React Router's `Outlet` where the current page should go:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { Root } from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -301,7 +306,7 @@ Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/
 When a visitor opens a URL that no route matches, Wasp shows a generic error screen. To show your own "not found" page instead, add a route with a path of `/*`. The router picks the most specific matching route, so this route only renders when nothing else matches:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { NotFoundPage } from "./src/NotFoundPage" with { type: "ref" }
 
 export default app({
@@ -320,7 +325,7 @@ By default, Wasp splits and lazy-loads all pages. This means that, for example, 
 In most apps, you won't notice lazy loading at all. The page's code is usually small and downloads quickly. But when a page has a lot of code, or your users are on slow connections, navigating to it can feel sluggish: the previous page stays on screen until the new page's code arrives. If a page needs to render instantly, like one users open right after landing on your app, set the `lazy: false` option on its `route` spec to include it in the initial bundle:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -341,7 +346,7 @@ Disabling lazy loading means that this page's code will always be downloaded by 
 You can prerender specific routes at build time by setting the `prerender` property. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -359,117 +364,41 @@ See the [Prerendering](../advanced/prerendering.md) page for the full documentat
 ### `page` and `route` specifications
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/page"
+  to="../api/@wasp/spec#page-2"
   kind="api"
   title="page"
-  description="All the options for declaring a page in the Wasp spec."
+  description="All the options for declaring a page in the Wasp Spec."
 />
 
 <CardLink
-  to="../api/@wasp.sh/spec/functions/route"
+  to="../api/@wasp/spec#route-1"
   kind="api"
   title="route"
-  description="All the options for declaring a route in the Wasp spec."
+  description="All the options for declaring a route in the Wasp Spec."
 />
 
-### `Link` Component
+### `wasp/client/router`
 
-The `Link` component accepts the following props:
+<CardLink
+  to="../api/wasp/client/router#link"
+  kind="api"
+  title="Link"
+  description="All the props of the type-safe Link component."
+/>
 
-- `to` <Required />
+<CardLink
+  to="../api/wasp/client/router#navlink"
+  kind="api"
+  title="NavLink"
+  description="All the props of the type-safe NavLink component, and its render-prop functions."
+/>
 
-  - A valid Wasp Route path from your `main.wasp.ts` file.
-
-    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
-
-- `params: { [name: string]: string | number }` <Required /> (if the path contains params)
-
-  - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
-
-- `search: string[][] | Record<string, string> | string | URLSearchParams`
-
-  - The search params, in any shape the [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams) constructor accepts.
-  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
-
-- `hash: string`
-
-- All other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
-
-### `NavLink` Component
-
-The `NavLink` component accepts the same `to`, `params`, `search`, and `hash` props as the [`Link` component](#link-component), plus:
-
-- All other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
-
-  The most useful ones are:
-
-  - `className`, `style`, and `children`
-
-    - Besides regular values, these can be functions. `NavLink` calls them with an object describing the link's state and uses what they return. The object has these fields:
-      - `isActive`: the link points to the current page.
-      - `isPending`: the user clicked the link, and the page is still loading.
-      - `isTransitioning`: a [view transition](https://reactrouter.com/8.0.1/how-to/view-transitions) to the page is in progress.
-
-  - `end: boolean`
-
-    - By default, a link is also active on nested paths. For example, a link to `/tasks` is active on `/tasks/123`. Set `end` to only make it active on its exact path.
-
-  - `caseSensitive: boolean`
-
-    - By default, the link ignores letter case when checking if it's active. Set `caseSensitive` to take case into account.
-
-### `routes` Object
-
-The `routes` object contains a function for each route in your app.
-
-```ts title="router.tsx"
-export const routes = {
-  // RootRoute has a path like "/"
-  RootRoute: {
-    build: (options?: {
-      search?: string[][] | Record<string, string> | string | URLSearchParams
-      hash?: string
-    }) => // ...
-  },
-
-  // DetailRoute has a path like "/task/:id/:userId?"
-  DetailRoute: {
-    build: (
-      options: {
-        params: { id: ParamValue; userId?: ParamValue; },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // OptionalRoute has a path like "/task/:id/details?"
-  OptionalRoute: {
-    build: (
-      options: {
-        path: "/task/:id/details" | "/task/:id",
-        params: { id: ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // CatchAllRoute has a path like "/pages/*"
-  CatchAllRoute: {
-    build: (
-      options: {
-        params: { "*": ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-}
-```
-
-The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
+<CardLink
+  to="../api/wasp/client/router#routes"
+  kind="api"
+  title="routes"
+  description="The object for building the URL of each route, with its params, search, and hash."
+/>
 
 ### React Router API
 

@@ -1,10 +1,16 @@
+---
+title: "Social auth overview: providers and overrides"
+sidebar_label: Overview
+description: "Add social login such as Google or GitHub to a Wasp app: declare the User entity, learn the defaults, and store more user data with userSignupFields."
+---
+
 import { CardLink } from '@site/src/components/CardLink';
 import { SocialAuthGrid } from './SocialAuthGrid';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
 import GetUserFieldsType from './_getuserfields-type.md';
 
-# Overview
+# Social auth overview
 
 Social login options (e.g., _Log in with Google_) are a great (maybe even the best) solution for handling user accounts.
 A famous old developer joke tells us _"The best auth system is the one you never have to make."_
@@ -14,7 +20,6 @@ Wasp wants to make adding social login options to your app as painless as possib
 Using different social providers gives users a chance to sign into your app via their existing accounts on other platforms (Google, GitHub, etc.).
 
 This page goes through the common behaviors between all supported social login providers and shows you how to customize them.
-It also gives an overview of Wasp's UI helpers - the quickest possible way to get started with social auth.
 
 ## Available Providers
 
@@ -30,7 +35,7 @@ This field tells Wasp which Entity represents the user.
 Here's what the full setup looks like:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -94,7 +99,7 @@ model User {
 Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -165,7 +170,7 @@ Each provider has their own rules for defining the `userSignupFields` and `confi
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec#socialauthconfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the social auth methods."

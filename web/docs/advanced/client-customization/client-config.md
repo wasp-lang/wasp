@@ -1,3 +1,9 @@
+---
+title: "Client configuration: root component and setupFn"
+sidebar_label: Client configuration
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, query defaults and a base directory."
+---
+
 import BaseDirEnvNote from './_baseDirEnvNote.md'
 
 import { CardLink } from '@site/src/components/CardLink'
@@ -8,7 +14,7 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 You can configure the client using the `client` field inside the `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -36,7 +42,7 @@ It can be used for a variety of purposes, but the most common ones are:
 Let's define a common layout for your application:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -99,7 +105,7 @@ You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/O
 This is how to set up various providers that your application needs:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -147,7 +153,7 @@ export default app({
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp.sh/spec/interfaces/Client.md#rootcomponent).
+For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec.md#rootcomponent).
 
 ## Setup Function
 
@@ -209,10 +215,10 @@ export default async function mySetupFunction(): Promise<void> {
 ### Overriding Default Behaviour for Queries
 
 :::info
-You can change the options for a **single** Query using the `options` object, as described [here](../../features/data/operations/queries#the-usequery-hook-1).
+You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](../../api/wasp/client/operations.md#usequery).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries.
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried, except for `408` and `429` (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
 
 If you do need to change the global defaults, you can do so inside the client setup function.
 
@@ -260,14 +266,14 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp.sh/spec/interfaces/Client.md#setupfn).
+For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec.md#setupfn).
 
 ## Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -287,8 +293,15 @@ router will work correctly, and all the assets will be served from
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp.sh/spec/interfaces/Client"
+  to="../../api/@wasp/spec#client-1"
   kind="api"
   title="Client"
   description="All the options for the client field of the app spec."
+/>
+
+<CardLink
+  to="../../api/wasp/client/operations#configurequeryclient"
+  kind="api"
+  title="configureQueryClient"
+  description="Configure the default options of the QueryClient that Wasp's Queries use."
 />

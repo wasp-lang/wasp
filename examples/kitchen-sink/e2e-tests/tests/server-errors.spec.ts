@@ -51,13 +51,35 @@ test.describe("server errors", () => {
     });
   });
 
-  test("a middleware 5xx error keeps its status", async ({ request }) => {
+  test("an unknown error keeps its status and headers but hides its message", async ({
+    request,
+  }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/unavailable`);
 
     expect(response.status()).toBe(503);
+    expect(response.headers()["retry-after"]).toBe("60");
+    expect(
+      response
+        .headersArray()
+        .filter(({ name }) => name.toLowerCase() === "set-cookie")
+        .map(({ value }) => value),
+    ).toEqual(["first=1; Path=/", "second=2; Path=/"]);
     expect(await response.json()).toEqual({
       message: "Service Unavailable",
       ...expectedDevelopmentDetails("Internal detail of a 503"),
+    });
+  });
+
+  test("an unknown error doesn't forward a Headers instance", async ({
+    request,
+  }) => {
+    const response = await request.get(`${WASP_SERVER_URL}/errors/upstream`);
+
+    expect(response.status()).toBe(502);
+    expect(response.headers()["x-upstream"]).toBeUndefined();
+    expect(await response.json()).toEqual({
+      message: "Bad Gateway",
+      ...expectedDevelopmentDetails("Internal detail of a 502"),
     });
   });
 

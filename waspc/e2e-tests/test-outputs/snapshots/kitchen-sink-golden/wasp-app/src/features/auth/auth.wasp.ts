@@ -1,4 +1,4 @@
-import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
+import { action, page, route, type Auth, type Spec } from "@wasp/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
@@ -16,6 +16,7 @@ import { PasswordReset } from "./pages/PasswordReset" with { type: "ref" };
 import { ProfilePage } from "./pages/ProfilePage" with { type: "ref" };
 import { RequestPasswordReset } from "./pages/RequestPasswordReset" with { type: "ref" };
 import Signup from "./pages/Signup" with { type: "ref" };
+import { passwordValidationSchema } from "./password" with { type: "ref" };
 import {
   discordConfig,
   discordUserSignupFields,
@@ -67,6 +68,7 @@ export const authConfig: Auth = {
     },
     email: {
       userSignupFields: emailUserSignupFields,
+      passwordValidationSchema,
       fromField: {
         name: 'Wasp\'s "Kitchen Sink"',
         email: "kitchen-sink@wasp.sh",

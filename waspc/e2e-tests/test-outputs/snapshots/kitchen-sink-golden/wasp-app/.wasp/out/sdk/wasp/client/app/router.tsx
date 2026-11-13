@@ -3,7 +3,7 @@ import type { RouteObject } from 'react-router'
 
 import { OAuthCallbackPage } from "./pages/OAuthCallback"
 
-import { DefaultRootErrorBoundary } from '@wasp.sh/lib-sdk-core/browser'
+import { DefaultRootErrorBoundary } from '@wasp/lib-sdk-core/browser'
 
 import { routes } from '../router/index'
 

@@ -1,9 +1,10 @@
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { useAuthContext } from '@wasp/lib-auth/browser'
 import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError, getAuthErrorMessage } from '@wasp.sh/lib-sdk-core/browser'
+import { passwordValidationSchema } from '../../../validation.js'
+import { Form, FormItemGroup, FormLabel, FormPasswordInput, SubmitButton, FormError, getAuthErrorMessage, newPasswordFieldRules } from '@wasp/lib-sdk-core/browser'
 
 type ResetPasswordFormFields = { password: string; passwordConfirmation: string };
 
@@ -19,11 +20,6 @@ export const ResetPasswordForm = () => {
         title:
           'The token is missing from the URL. Please check the link you received in your email.',
       })
-      return
-    }
-
-    if (!data.password || data.password !== data.passwordConfirmation) {
-      setErrorMessage({ title: `Passwords don't match!` })
       return
     }
 
@@ -46,24 +42,22 @@ export const ResetPasswordForm = () => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <FormItemGroup>
           <FormLabel>New password</FormLabel>
-          <FormInput
-            {...register('password', {
-              required: 'Password is required',
-            })}
-            type="password"
+          <FormPasswordInput
+            {...register('password', newPasswordFieldRules(passwordValidationSchema))}
             disabled={isLoading}
           />
-          {errors.passwordConfirmation && (
-            <FormError>{errors.passwordConfirmation.message}</FormError>
+          {errors.password && (
+            <FormError>{errors.password.message}</FormError>
           )}
         </FormItemGroup>
         <FormItemGroup>
           <FormLabel>Confirm new password</FormLabel>
-          <FormInput
+          <FormPasswordInput
             {...register('passwordConfirmation', {
               required: 'Password confirmation is required',
+              validate: (passwordConfirmation, { password }) =>
+                passwordConfirmation === password || 'Passwords must match',
             })}
-            type="password"
             disabled={isLoading}
           />
           {errors.passwordConfirmation && (

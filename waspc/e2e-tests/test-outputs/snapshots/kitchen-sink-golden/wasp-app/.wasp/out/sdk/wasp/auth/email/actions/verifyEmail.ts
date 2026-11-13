@@ -1,5 +1,5 @@
 import { api, handleApiError } from '../../../api/index.js'
-import { SuccessResponseSchema } from '@wasp.sh/lib-sdk-core'
+import { SuccessResponseSchema } from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 export async function verifyEmail(data: {

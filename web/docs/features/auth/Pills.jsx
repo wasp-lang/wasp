@@ -43,3 +43,9 @@ export function GooglePill() {
 export function KeycloakPill() {
   return <Pill linkToPage="/features/auth/social-auth/keycloak">Keycloak</Pill>;
 }
+
+export function MicrosoftPill() {
+  return (
+    <Pill linkToPage="/features/auth/social-auth/microsoft">Microsoft</Pill>
+  );
+}

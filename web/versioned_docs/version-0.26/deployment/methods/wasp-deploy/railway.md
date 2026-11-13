@@ -1,3 +1,9 @@
+---
+title: "Railway: deploy a Wasp app with a single command"
+sidebar_label: Railway
+description: Deploy a Wasp app to Railway with wasp deploy railway launch, which sets up client, server and Postgres services. Then add a custom domain and env vars.
+---
+
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './_launch-command-env-vars.md'
 import CustomPostgresOption from './_railway-custom-postgres-option.md'

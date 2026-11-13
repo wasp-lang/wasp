@@ -1,3 +1,4 @@
+import imageRedirects from "./image-redirects.json";
 import type { RedirectRule } from "./src/plugins/cloudflare-redirects";
 import docsVersions from "./versions.json";
 
@@ -19,6 +20,7 @@ export function getRedirects({
   const redirects: RedirectRule[] = [
     ...legacyDocsRedirects,
     ...docsReorganizationRedirects,
+    ...imageReorganizationRedirects,
     ...legacyWildcardRedirects,
   ];
 
@@ -115,8 +117,24 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/wasp-ai/git-worktrees",                              "/docs/advanced/git-worktrees"),
 ];
 
+// Redirects for the reorganization of `static/img` into `blog/`, `docs/`,
+// `resources/` and `site/` folders. They keep external links to the old image
+// URLs working (social cards, newsletters, other sites).
+// TODO: Consider removing these once traffic to the old URLs dies down.
+const imageReorganizationRedirects: RedirectRule[] = imageRedirects.map(
+  ({ from, to }) => permanent(from, to),
+);
+
 // prettier-ignore
 const legacyWildcardRedirects: RedirectRule[] = [
+  // The Wasp Spec package moved from the `@wasp.sh` npm scope to `@wasp`, which
+  // also moved its API reference.
+  permanent("/docs/api/@wasp.sh/spec",   "/docs/api/@wasp/spec"),
+  permanent("/docs/api/@wasp.sh/spec/*", "/docs/api/@wasp/spec/:splat"),
+  // The API reference moved from a page per member (e.g.
+  // `/docs/api/@wasp/spec/interfaces/Server`) to a page per module.
+  permanent("/docs/api/@wasp/spec/*",    "/docs/api/@wasp/spec"),
+
   // Migration guides
   // We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}
   // to /docs/{version}/migration-guide, so we want to redirect links going to the old

@@ -4,11 +4,11 @@ import {
   type ProviderId,
   type ProviderName,
   type PossibleProviderData,
-} from '@wasp.sh/lib-sdk-core'
-export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp.sh/lib-sdk-core/node'
+} from '@wasp/lib-sdk-core'
+export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp/lib-sdk-core/node'
 
-import { ensurePasswordIsHashed } from '@wasp.sh/lib-sdk-core/node'
-import { HttpError } from '@wasp.sh/lib-sdk-core'
+import { ensurePasswordIsHashed } from '@wasp/lib-sdk-core/node'
+import { HttpError } from '@wasp/lib-sdk-core'
 import { prisma } from '../index.js'
 import type {
   User,
@@ -32,7 +32,7 @@ export {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp/lib-sdk-core'
 
 // PRIVATE API
 export const contextWithUserEntity = {

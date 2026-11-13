@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { IfAny, _Awaited, _Parameters, _ReturnType } from '@wasp.sh/lib-sdk-core'
+import type { IfAny, _Awaited, _Parameters, _ReturnType } from '@wasp/lib-sdk-core'
 
 {=# isAuthEnabled =}
 import type { AuthUser } from '../../auth/user.js'

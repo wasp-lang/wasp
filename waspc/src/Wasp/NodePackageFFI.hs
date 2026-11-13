@@ -52,14 +52,6 @@ import qualified Wasp.Util.IO as IOUtil
 -- their global installation path.
 data RunnablePackage
   = DeployPackage
-  | -- | TODO(martin): I implemented this ts package because I planned to use prisma's TS sdk
-    --   (@prisma/internals) inside it, but I ended up calling `prisma format` cli cmd directly,
-    --   which means I could have really done it from Haskell!
-    --   Therefore, reconsider if we should have this package, or if we should delete it and move
-    --   this functionality here, into Haskell.
-    --   It might make sense to keep it we will be maybe using @prisma/internals or some other
-    --   prisma packages via it in the future, if not then it is not worth keeping it.
-    PrismaPackage
   | WaspStudioPackage
 
 -- | These are globally installed packages waspc copies into a location inside
@@ -79,7 +71,6 @@ packagesDirInDataDir = [reldir|packages|]
 runnablePackageDirInPackagesDir :: RunnablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
 runnablePackageDirInPackagesDir = \case
   DeployPackage -> [reldir|deploy|]
-  PrismaPackage -> [reldir|prisma|]
   WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
@@ -91,7 +82,7 @@ scriptInPackageDir = [relfile|dist/index.js|]
 
 -- | Get a 'P.CreateProcess' for a particular package.
 --
--- These packages are built during CI/locally via the @./run build:packages@
+-- These packages are built during CI/locally via the @mise run build:packages@
 -- script.
 --
 -- If the package does not have its dependencies installed yet (for example,
@@ -117,7 +108,7 @@ getPackageJsonSpecifierForPackage package =
 getInstallablePackageName :: InstallablePackage -> String
 getInstallablePackageName = \case
   -- NOTE: These names must match the 'name' fields in packages' package.json files.
-  WaspSpecPackage -> "@wasp.sh/spec"
+  WaspSpecPackage -> "@wasp/spec"
 
 ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
 ensurePackageIsAtInstallationPathInProject projectDir package = do
@@ -173,6 +164,8 @@ getRunnablePackageDir package = do
   waspDataDir <- Data.getAbsDataDirPath
   let packageDir = waspDataDir </> packagesDirInDataDir </> runnablePackageDirInPackagesDir package
   return packageDir
+
+{- HLINT ignore ensurePackageDependenciesAreInstalled "Avoid npm and npx" -}
 
 -- | Runs @npm install@ if @node_modules@ does not exist in the package directory.
 ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO ()

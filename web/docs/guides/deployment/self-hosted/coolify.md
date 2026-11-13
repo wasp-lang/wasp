@@ -1,4 +1,7 @@
 ---
+title: "Coolify: deploy a Wasp app to your own server"
+sidebar_label: Coolify
+description: "Deploy a Wasp app to Coolify on your own server: create the database, server and client resources, and build Docker images with a GitHub Action."
 comments: true
 ---
 
@@ -145,7 +148,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
 
       - name: Install Wasp app dependencies
         run: wasp install

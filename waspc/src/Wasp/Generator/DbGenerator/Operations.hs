@@ -1,7 +1,9 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
-    doesSchemaMatchDb,
+    formatSchema,
+    checkIfSchemaMatchesDb,
+    SchemaDbMatch (..),
     writeDbSchemaChecksumToFile,
     areAllMigrationsAppliedToDb,
     dbReset,
@@ -12,16 +14,17 @@ module Wasp.Generator.DbGenerator.Operations
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import Control.Monad.Catch (catch)
+import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.Extra (whenM)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified Text.Regex.TDFA as TR
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
@@ -37,15 +40,10 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
-import Wasp.Job.IO
-  ( collectJobTextOutputUntilExitReceived,
-    printJobMsgsUntilExitReceived,
-    readJobMessagesAndPrintThemPrefixed,
-  )
+import qualified Wasp.Job as Job
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
-import Wasp.Util (checksumFromFilePath, hexToString)
+import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -57,16 +55,10 @@ data DbConnectionTestResult
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
-migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> IO (Either String ())
-migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = do
-  chan <- newChan
-  (_, dbExitCode) <-
-    concurrently
-      (printJobMsgsUntilExitReceived chan)
-      (DbJobs.migrateDev generatedAppDirAbs migrateArgs chan)
-  case dbExitCode of
-    ExitSuccess -> finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
-    ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
+migrateDevAndCopyToSource :: [EnvVar] -> Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir GeneratedAppDir) -> MigrateArgs -> IO (Either String ())
+migrateDevAndCopyToSource envVars dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs migrateArgs = runExceptT $ do
+  ExceptT $ checkExitSuccess "Migrate (dev)" <$> Job.run (DbJobs.migrateDev envVars generatedAppDirAbs migrateArgs)
+  ExceptT $ finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
 
 finalizeMigration :: Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> RefreshOnLastDbConcurrenceChecksumFile -> IO (Either String ())
 finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs onLastDbConcurrenceChecksumFileRefreshAction = do
@@ -129,46 +121,35 @@ removeDbSchemaChecksumFile generatedAppDirAbs dbSchemaChecksumInGeneratedAppDir 
 
 -- Resets the database: drops all data and applies all migrations from scratch.
 dbReset ::
+  [EnvVar] ->
   Path' Abs (Dir GeneratedAppDir) ->
   ResetArgs ->
   IO (Either String ())
-dbReset generatedAppDir resetArgs = do
+dbReset envVars generatedAppDir resetArgs = do
   -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
-  chan <- newChan
-  ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.reset generatedAppDir resetArgs chan
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure c -> Left $ "Failed with exit code " <> show c
+  checkExitSuccess "Resetting the database" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.reset envVars generatedAppDir resetArgs)
 
 dbSeed ::
-  ServerRunConfig ->
+  [EnvVar] ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed serverRunConfig generatedAppDir seedName = do
-  chan <- newChan
-  ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan
-      `concurrently` DbJobs.seed serverRunConfig generatedAppDir seedName chan
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure c -> Left $ "Failed with exit code " <> show c
+dbSeed envVars generatedAppDir seedName =
+  checkExitSuccess "Running the database seed" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.seed envVars generatedAppDir seedName)
 
 testDbConnection ::
+  [EnvVar] ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO DbConnectionTestResult
-testDbConnection generatedAppDir = do
-  chan <- newChan
-  exitCode <- DbJobs.dbExecuteTest generatedAppDir chan
+testDbConnection envVars generatedAppDir = do
+  (exitCode, output) <- Job.run $ Job.captureOutput $ DbJobs.dbExecuteTest envVars generatedAppDir
 
   case exitCode of
     ExitSuccess -> return DbConnectionSuccess
     ExitFailure _ -> do
-      outputLines <- collectJobTextOutputUntilExitReceived chan
-      let databaseNotCreated = any prismaErrorContainsDbNotCreatedError outputLines
+      let databaseNotCreated = prismaErrorContainsDbNotCreatedError output
 
       return $
         if databaseNotCreated
@@ -185,51 +166,56 @@ isDbConnectionPossible DbNotCreated = True
 isDbConnectionPossible _ = False
 
 generatePrismaClient :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-generatePrismaClient generatedAppDir = do
-  chan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.generatePrismaClient generatedAppDir chan)
-  case exitCode of
-    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
-    ExitSuccess -> do
-      updateDbSchemaChecksumOnLastGenerate
-      return $ Right ()
+generatePrismaClient generatedAppDir = runExceptT $ do
+  ExceptT $ checkExitSuccess "Prisma client generation" <$> Job.run (Job.prefixWith Job.Db $ DbJobs.generatePrismaClient generatedAppDir)
+  liftIO updateDbSchemaChecksumOnLastGenerate
   where
     updateDbSchemaChecksumOnLastGenerate =
       writeDbSchemaChecksumToFile generatedAppDir dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir
 
--- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
--- different than the DB. Returns Nothing on error as we do not know the current state.
--- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
--- Nothing if the check itself failed (exe: if a connection to the DB could not be established).
+-- | Formats schema.prisma in place, without printing Prisma's output unless it fails.
+formatSchema :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+formatSchema generatedAppDir = do
+  (exitCode, output) <- Job.run $ Job.captureOutput $ DbJobs.formatSchema generatedAppDir
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left $ "Prisma schema formatting failed with exit code " ++ show code ++ ":\n" ++ T.unpack output
+
+data SchemaDbMatch
+  = SchemaMatchesDb
+  | SchemaDiffersFromDb
+  | DbDoesNotExist
+  | SchemaDbMatchCheckFailed
+  deriving (Eq, Show)
+
+-- | Runs `prisma migrate diff` to determine if schema.prisma matches the DB.
 -- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
-doesSchemaMatchDb :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
-doesSchemaMatchDb generatedAppDirAbs = do
-  chan <- newChan
-  (_, dbExitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.migrateDiff generatedAppDirAbs chan)
-  -- Schema in sync: 0, Error: 1, Schema differs: 2
-  case dbExitCode of
-    ExitSuccess -> return $ Just True
-    ExitFailure 2 -> return $ Just False
-    ExitFailure _ -> return Nothing
+checkIfSchemaMatchesDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO SchemaDbMatch
+checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ Job.prefixWith Job.Db $ do
+  (exitCode, output) <- Job.captureOutput $ DbJobs.migrateDiff envVars generatedAppDirAbs
+  let schemaDbMatch = case exitCode of
+        ExitSuccess -> SchemaMatchesDb
+        ExitFailure 2 -> SchemaDiffersFromDb
+        ExitFailure _
+          | prismaErrorContainsDbNotCreatedError output -> DbDoesNotExist
+          | otherwise -> SchemaDbMatchCheckFailed
+  -- We print output when check failed to help with figuring out why,
+  -- while others are known and therefore handled upstream.
+  case schemaDbMatch of
+    SchemaMatchesDb -> return ()
+    SchemaDiffersFromDb -> return ()
+    DbDoesNotExist -> return ()
+    SchemaDbMatchCheckFailed -> Job.emitOutput Job.Stderr output
+  return schemaDbMatch
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
 -- matches the DB. Returns Nothing on error as we do not know the current state.
 -- Returns Just True if all migrations are applied. Due to the fact the command
 -- returns an error on connection or unapplied migrations, Just False is never returned.
--- It is recommended to call this after some check that confirms DB connectivity, like `doesSchemaMatchDb`.
-areAllMigrationsAppliedToDb :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
-areAllMigrationsAppliedToDb generatedAppDirAbs = do
-  chan <- newChan
-  (_, dbExitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.migrateStatus generatedAppDirAbs chan)
+-- It is recommended to call this after some check that confirms DB connectivity, like `checkIfSchemaMatchesDb`.
+areAllMigrationsAppliedToDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe Bool)
+areAllMigrationsAppliedToDb envVars generatedAppDirAbs = do
+  dbExitCode <- Job.run $ Job.prefixWith Job.Db $ DbJobs.migrateStatus envVars generatedAppDirAbs
   case dbExitCode of
     ExitSuccess -> return $ Just True
     ExitFailure _ -> return Nothing
