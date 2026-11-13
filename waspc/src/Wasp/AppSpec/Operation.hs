@@ -4,6 +4,8 @@ module Wasp.AppSpec.Operation
     getFn,
     getEntities,
     getAuth,
+    getExpose,
+    isExposedToClient,
   )
 where
 
@@ -11,6 +13,8 @@ import Wasp.AppSpec.Action (Action)
 import qualified Wasp.AppSpec.Action as Action
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.Expose (Expose)
+import qualified Wasp.AppSpec.Expose as Expose
 import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Query (Query)
 import qualified Wasp.AppSpec.Query as Query
@@ -36,3 +40,11 @@ getEntities (ActionOp action) = action.entities
 getAuth :: Operation -> Maybe Bool
 getAuth (QueryOp query) = query.auth
 getAuth (ActionOp action) = action.auth
+
+getExpose :: Operation -> Maybe Expose
+getExpose (QueryOp query) = query.expose
+getExpose (ActionOp action) = action.expose
+
+-- | Whether the operation gets an HTTP route and a client export (`expose.client`, default true).
+isExposedToClient :: Operation -> Bool
+isExposedToClient = Expose.isExposedToClient . getExpose

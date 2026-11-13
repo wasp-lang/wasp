@@ -1032,6 +1032,20 @@ export interface Route extends BaseSpecElement<"route"> {
 }
 
 /**
+ * Where an operation is available.
+ */
+export interface Expose {
+  /**
+   * Whether the operation gets an HTTP route and a `wasp/client/operations`
+   * export. Set it to `false` for operations only server code calls: the
+   * client can't call them, and there's no route to reach them over HTTP.
+   *
+   * @default true
+   */
+  client?: boolean;
+}
+
+/**
  * A server-side read-only operation, callable from the client and the server.
  *
  * Create one with the {@link query} constructor.
@@ -1062,6 +1076,11 @@ export interface Query extends BaseSpecElement<"query"> {
    * Only available if your app has auth enabled.
    */
   auth?: boolean;
+  /**
+   * Where the Query is available. By default it gets an HTTP route and a
+   * `wasp/client/operations` export.
+   */
+  expose?: Expose;
 }
 
 /**
@@ -1095,6 +1114,11 @@ export interface Action extends BaseSpecElement<"action"> {
    * Only available if your app has auth enabled.
    */
   auth?: boolean;
+  /**
+   * Where the Action is available. By default it gets an HTTP route and a
+   * `wasp/client/operations` export.
+   */
+  expose?: Expose;
 }
 
 /**

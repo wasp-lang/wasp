@@ -14,6 +14,7 @@ import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (..))
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.Expose (Expose)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
@@ -21,7 +22,8 @@ data Query = Query
   { name :: String,
     fn :: ExtImport,
     entities :: Maybe [Ref Entity],
-    auth :: Maybe Bool
+    auth :: Maybe Bool,
+    expose :: Maybe Expose
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 

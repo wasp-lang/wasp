@@ -31,6 +31,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - The Wasp server now logs an unhandled promise rejection and keeps running, instead of exiting. ([#5421](https://github.com/wasp-lang/wasp/pull/5421))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
+- Queries and actions can be kept on the server with `expose: { client: false }`: they get no HTTP route and no `wasp/client/operations` export, so only server code can call them. See [Keeping an operation on the server](https://wasp.sh/docs/data-model/operations/overview#keeping-an-operation-on-the-server). ([#5367](https://github.com/wasp-lang/wasp/pull/5367))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
 - `wasp studio` and `wasp db studio` now pick a free port, and accept `--port <port>` to choose it yourself. ([#5438](https://github.com/wasp-lang/wasp/pull/5438))
