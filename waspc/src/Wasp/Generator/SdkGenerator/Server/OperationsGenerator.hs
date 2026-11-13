@@ -15,7 +15,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (isAuthEnabled, isMcpEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -60,7 +60,11 @@ genWrappers spec =
       (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|])
       tmplData
   where
-    tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
+    tmplData =
+      object
+        [ "isAuthEnabled" .= isAuthEnabled spec,
+          "isMcpEnabled" .= isMcpEnabled spec
+        ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =

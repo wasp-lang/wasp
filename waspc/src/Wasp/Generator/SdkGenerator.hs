@@ -57,6 +57,7 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.Generator.SdkGenerator.McpG as SdkMcpG
 import qualified Wasp.Generator.SdkGenerator.NodeCommands as SdkNodeCommands
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
@@ -127,6 +128,7 @@ genSdk spec =
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
+    <++> SdkMcpG.genMcp spec
     <++> genServerMiddleware
     <++> genClientAuth spec
     <++> genServerAuth spec
@@ -166,7 +168,8 @@ genEntitiesAndServerTypesDirs spec =
         [relfile|server/_types/index.ts|]
         ( object
             [ "entities" .= allEntities,
-              "isAuthEnabled" .= isJust maybeUserEntityName
+              "isAuthEnabled" .= isJust maybeUserEntityName,
+              "isMcpEnabled" .= AS.Valid.isMcpEnabled spec
             ]
         )
     allEntities = map (makeJsonWithEntityData . AS.Entity.getName) $ AS.getEntities spec
@@ -181,7 +184,8 @@ genPackageJson spec = do
           [ "sdkPackageName" .= C.sdkPackageName,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec),
+            "isMcpEnabled" .= AS.Valid.isMcpEnabled spec
           ]
       )
 

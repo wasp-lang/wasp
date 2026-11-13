@@ -3,6 +3,7 @@
 module Wasp.Util
   ( Checksum,
     camelToKebabCase,
+    camelToSnakeCase,
     checksumFromString,
     getEnvVarDefinition,
     checksumFromText,
@@ -87,6 +88,10 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
         (\(a, b) -> (['-' | isCamelHump (a, b)]) ++ [toLower b])
         (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
+
+-- | Like 'camelToKebabCase', with underscores: @getLinks@ becomes @get_links@.
+camelToSnakeCase :: String -> String
+camelToSnakeCase = map (\c -> if c == '-' then '_' else c) . camelToKebabCase
 
 kebabToCamelCase :: String -> String
 kebabToCamelCase = concat . capitalizeAllWordsExceptForTheFirstOne . wordsBy (== '-')

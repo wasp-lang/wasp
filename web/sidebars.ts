@@ -133,6 +133,7 @@ const sidebars: SidebarsConfig = {
         "advanced/accessing-app-config",
         "advanced/prerendering",
         "advanced/seo",
+        "advanced/mcp",
         {
           type: "category",
           label: "Client customization",

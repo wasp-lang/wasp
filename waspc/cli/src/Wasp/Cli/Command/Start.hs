@@ -5,10 +5,12 @@ where
 
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
+import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import Wasp.AppSpec.Valid (isMcpEnabled)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -32,7 +34,8 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Project.RunConfig (ProjectRunConfig (..))
+import Wasp.Util.Network.URI (showUri)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -69,6 +72,10 @@ start = withArguments startArgsParser $ \args ->
     cliSendMessageC $ Msg.Start "Listening for file changes..."
     cliSendMessageC $ Msg.Start "Starting up generated project..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
+    when (isMcpEnabled appSpec)
+      $ cliSendMessageC
+      $ Msg.Info
+      $ " ℹ MCP server: " ++ stripTrailingSlash (showUri projectRunConfig.serverUrl) ++ "/mcp"
 
     watchOrStartResult <- liftIO $ do
       -- This MVar is used to exchange information between the two processes below running in
@@ -94,6 +101,8 @@ start = withArguments startArgsParser $ \args ->
         Left startError -> throwError $ CommandError "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
   where
+    stripTrailingSlash = reverse . dropWhile (== '/') . reverse
+
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the

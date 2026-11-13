@@ -107,6 +107,16 @@ These are some general env variables used for various Wasp features:
 ]}
 />
 
+#### MCP Server {#mcp-server}
+
+If your app has an [MCP server](./mcp.md) (`app.mcp`), you need to provide:
+
+<EnvVarsTable
+  envVars={[
+{ name: "MCP_SECRET", type: "String", isRequired: true, note: <>A random string of at least 32 characters. The server seals MCP OAuth codes and tokens with it. Changing it signs every connected AI client out. Has a default in development.<br /><SecretGeneratorBlock /></> }
+]}
+/>
+
 #### SMTP Email Sender
 
 If you are using `SMTP` as your email sender, you need to provide the following environment variables:

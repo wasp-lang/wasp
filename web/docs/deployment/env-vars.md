@@ -47,6 +47,8 @@ Make sure to go through [all the required server env vars](../advanced/env-vars.
 
 Even though you don't set these variables in development, they are **required in production** and must be explicitly set. If any of them are missing, your server will fail to start.
 
+**If your app has an [MCP server](../advanced/mcp.md)**, also set [`MCP_SECRET`](../advanced/env-vars.md#mcp-server) to a random string of at least 32 characters. The server won't start without it in production.
+
 **If you are using the [Wasp CLI](./methods/wasp-deploy/overview.md)** deployment method, Wasp will set the general configuration env vars for you, but you will need to set the rest of the env vars yourself (like the ones for OAuth auth methods or any other custom env vars you might have defined).
 ::::
 

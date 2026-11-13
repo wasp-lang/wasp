@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Navigate, useLocation } from 'react-router'
 import { useAuth } from "../../auth";
 import { api } from "../../../api";
+{=# isMcpEnabled =}
+import { peekMcpReturnTo } from "../../mcp/returnTo";
+{=/ isMcpEnabled =}
 import {
   FullPageWrapper,
   reportClientError,
@@ -18,7 +21,12 @@ export function OAuthCallbackPage() {
   const { callbackError, user } = useOAuthCallbackHandler();
 
   if (user !== undefined && user !== null) {
+    {=# isMcpEnabled =}
+    return <Navigate to={peekMcpReturnTo() ?? {=& onAuthSucceededRedirectTo =}} replace />;
+    {=/ isMcpEnabled =}
+    {=^ isMcpEnabled =}
     return <Navigate to={{=& onAuthSucceededRedirectTo =}} replace />;
+    {=/ isMcpEnabled =}
   }
 
 

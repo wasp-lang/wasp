@@ -11,7 +11,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isMcpEnabled)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
@@ -21,6 +21,7 @@ import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.ServerGenerator.McpG as McpG
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
@@ -60,7 +61,9 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema,
+          "isMcpEnabled" .= isMcpEnabled spec,
+          "mcpSecretEnvVarName" .= McpG.mcpSecretEnvVarName
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
