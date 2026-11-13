@@ -110,7 +110,7 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir sendMessage
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir sendMessage
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
   GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
@@ -124,11 +124,11 @@ installDependencies spec generatedAppDir sendMessage = do
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> return ()
 
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir sendMessage = do
+warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
+warnIfDbNeedsMigration spec generatedAppDir = do
   warning <- liftIO $ do
     envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
-    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir sendMessage
+    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
   tell $ maybeToList warning
 
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
