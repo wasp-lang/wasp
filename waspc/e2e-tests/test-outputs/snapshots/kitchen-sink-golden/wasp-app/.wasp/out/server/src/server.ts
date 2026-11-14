@@ -2,16 +2,24 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import {
+  registerServerOnErrorFn,
+  reportUnexpectedServerError,
+} from "wasp/server/errors";
 
 import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
+import { onServerError } from "../../../../src/features/errors/serverOnError"
+import type { ServerOnErrorFn } from 'wasp/server'
+
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 
 import { init as initWebSocket } from './webSocket/initialization.js'
+
+registerServerOnErrorFn(onServerError satisfies ServerOnErrorFn)
 
 const startServer = async () => {
   await startPgBoss()
@@ -51,8 +59,8 @@ const startServer = async () => {
   })
 }
 
-startServer().catch((error: unknown) => {
-  reportUnexpectedServerError(error, { source: "startup" });
+startServer().catch(async (error: unknown) => {
+  await reportUnexpectedServerError(error, { source: "startup" });
   process.exit(1);
 });
 

@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "5cc4a991aab5799fbcd5c00afc15a759b6973221d2c17b412015e6a3a6bc88a8"
+        "cd36147298995b9356878ed70bed8b39799008466323848822764af0d888c237"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "e58aa9b5ff332d99e1b57469e4fb1bf3c6d27bf4ddf91bfdb1b28bc7edafed7d"
+        "101fa1fb3e4bcdcb6e5e99c3ddf274b1fbc4ef97982ed5a3f9336c61d6f950ef"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "sdk/wasp/client/index.ts"
         ],
-        "3282aa52ac89b35117e4a80f656a2c22b713fbd49c50f02c6abd3c145e3b7556"
+        "c29cfc9b5671a4e29b42d402b6aeb504f94ecbdcb946ccfa49cd21c641fcbd52"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "5ad6de017e3f8a9be4042b6a04fd9913b1b337d128cfb9fd94ade46639d905b2"
+        "2d4e3d9d2d12cfe78627cd8509c3ee71873151498b34db8c9e3bb8bb6eecbc28"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "3e4d5c07d860c2c3ae26c8a8e2df3d9b456096b2c94b44645dfc7201059e39a9"
+        "158f34292ff3bc86c1f32256a3be4c4d5a9ade138c144ef7e3f7059f96e33490"
     ],
     [
         [
@@ -746,7 +746,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/redirect.ts"
         ],
-        "efce3f386099b513827f1f12ed8b4521da11769db52dae41496db8bfed66cc13"
+        "32f025d785b7c6b651f541fc916510cbff30034dd33abe2cd78f4b22e1d9518b"
     ],
     [
         [
@@ -865,7 +865,7 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "90a720cafa45b0ac27e05dbcd4ffa9461cd407af90620da73fbcc86fb4dcd8f4"
+        "b62fb048868dfcab8f51451d898677e6e0194d33de4ebeab224162b888fcf5de"
     ],
     [
         [
@@ -886,7 +886,7 @@
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "f05ecb73ff9650c9d298c4b538133bc2ed90accbe697132e9fccec4539f872d9"
+        "78dd7e10dbdbd24eaf138804386dcfcd0036a335da66440541cdf0db2b547aa4"
     ],
     [
         [
@@ -907,7 +907,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "eaa4719ec3b41931225660f0a660bca6ac40c33497a4378073efb64e55496778"
+        "a5a18bac87725d62bba724204a9c47c671a797d7d8aa9d65de6404efee537bf9"
     ],
     [
         [
@@ -1418,7 +1418,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "fa1ab2adddbee4b0785116c1faea86abe3b2668d9c1094f98e28ac5c150237be"
+        "8f26c267abd2b50d9e2a86063afbc77157f985d1cb3e3af2d81ba8bb5bcbfc69"
     ],
     [
         [
@@ -1579,7 +1579,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "ab101afc1dcc6d5d0d7a14eb3eb02359f49746ff302b8aea29e93b657723d7f9"
+        "a2e322afa596b93c4329edd94978319e209d13ffdcfa47a87eadf3b8903ac629"
     ],
     [
         [
@@ -1866,7 +1866,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "49d12abf8119bf9e2e59b9e4999f356647d6bf135f5b5190046ace7c8ba65580"
+        "b7a0de2c05cfdf0f99e333245f04ef3ba18ba315782915051455e3e35de1b9fe"
     ],
     [
         [
@@ -1880,7 +1880,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "77a0bfb8ce02893ee3534205d5655cb45f66f7a8a2656552ac1f4b5aaae7c649"
+        "f98cdfa1e7e6fa63bd38c8c5d0ef1fe0b03fc72be75f4175b7cf1d7b897e07a3"
     ],
     [
         [

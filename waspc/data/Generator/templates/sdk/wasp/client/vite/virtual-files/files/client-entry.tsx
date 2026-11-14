@@ -8,8 +8,14 @@ import { Layout } from "wasp/client/app/layout";
 import {
   handleClientError,
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
   WaspApp,
 } from "wasp/client/app";
+
+{=# onErrorFn.isDefined =}
+import type { ClientOnErrorFn } from "wasp/client";
+{=& onErrorFn.importStatement =}
+{=/ onErrorFn.isDefined =}
 
 {=& routeObjects.importStatement =}
 
@@ -36,6 +42,9 @@ const fullAppTree = (
   </Layout>
 )
 
+{=# onErrorFn.isDefined =}
+registerClientOnErrorFn({= onErrorFn.importIdentifier =} satisfies ClientOnErrorFn);
+{=/ onErrorFn.isDefined =}
 listenForUncaughtClientErrors();
 
 startTransition(() => {

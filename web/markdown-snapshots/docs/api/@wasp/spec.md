@@ -1723,6 +1723,26 @@ import { clientEnvSchema } from './src/env' with { type: 'ref' }
 
 See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 
+##### onError?
+
+> `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function Wasp calls with every unexpected error on the client, e.g. to send it to an error tracking service. Wasp logs the error first.
+
+It receives the error and a context whose `source` says where the error surfaced, e.g. `"render"` or `"query"`. An HTTP error response from the server is not unexpected, so Wasp doesn't call the function for it.
+
+In TypeScript, you can type the function with the `ClientOnErrorFn` type from `wasp/client`, which lists every `source`.
+
+###### Example
+
+```ts
+import { type ClientOnErrorFn } from "wasp/client"
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source })
+}
+```
+
 ##### rootComponent?
 
 > `optional` **rootComponent?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
@@ -2330,6 +2350,28 @@ See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 Function that customizes the global Express middleware stack. Affects all operations and APIs.
 
 See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
+
+##### onError?
+
+> `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function Wasp calls with every unexpected error on the server, e.g. to send it to an error tracking service. Wasp logs the error first.
+
+It receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
+
+The function can be async. Wasp waits for it before the server exits because of a startup error.
+
+In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`, which lists every `source`.
+
+###### Example
+
+```ts
+import { type ServerOnErrorFn } from "wasp/server"
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source })
+}
+```
 
 ##### setupFn?
 

@@ -267,12 +267,14 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
+              "onErrorFn" .= extImportToImportJson relPathToServerSrcDir maybeOnErrorJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (getApp spec)
+    maybeOnErrorJsFunction = AS.App.Server.onError =<< AS.App.server (getApp spec)
     maybeWebSocket = AS.App.webSocket $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)

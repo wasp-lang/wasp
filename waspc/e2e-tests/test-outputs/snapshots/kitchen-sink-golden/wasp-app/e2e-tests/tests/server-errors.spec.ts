@@ -15,6 +15,29 @@ test.describe("server errors", () => {
     });
   });
 
+  test("an unexpected error reaches the `server.onError` function", async ({
+    request,
+  }) => {
+    await request.get(`${WASP_SERVER_URL}/errors/unexpected`);
+
+    const response = await request.get(`${WASP_SERVER_URL}/errors/reported`);
+    expect(await response.json()).toContainEqual({
+      source: "request",
+      message: "Internal detail that must not reach the client",
+    });
+  });
+
+  test("an HttpError doesn't reach the `server.onError` function", async ({
+    request,
+  }) => {
+    await request.get(`${WASP_SERVER_URL}/errors/http`);
+
+    const response = await request.get(`${WASP_SERVER_URL}/errors/reported`);
+    expect(await response.json()).not.toContainEqual(
+      expect.objectContaining({ message: "I'm a teapot" }),
+    );
+  });
+
   test("an HttpError keeps its status, message, and data", async ({
     request,
   }) => {

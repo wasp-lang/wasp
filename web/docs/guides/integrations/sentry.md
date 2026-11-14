@@ -8,7 +8,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Sentry
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "@sentry/node": "8", "@sentry/react": "8" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", "@sentry/node": "11", "@sentry/react": "11" }} />
 
 This guide shows you how to integrate [Sentry](https://sentry.io/) into your Wasp application for error tracking on both the server and client.
 
@@ -38,25 +38,25 @@ npm install @sentry/node @sentry/react
 
 ### 3. Configure your Wasp file
 
-Add both the server and client setup functions to your `main.wasp.ts`:
+Wasp calls the `onError` functions with every unexpected error on the [server](../../advanced/server-customization/server-config.md#handling-unexpected-errors) and the [client](../../advanced/client-customization/client-config.md#handling-unexpected-errors). Add both to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"
-import { setupClient } from "./src/clientSetup" with { type: "ref" }
-import { setupServer } from "./src/serverSetup" with { type: "ref" }
+import { onClientError } from "./src/clientSentry" with { type: "ref" }
+import { onServerError } from "./src/serverSentry" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.27.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
     // highlight-next-line
-    setupFn: setupServer,
+    onError: onServerError,
   },
   client: {
     // highlight-next-line
-    setupFn: setupClient,
+    onError: onClientError,
   },
   // ...
 })
@@ -64,11 +64,11 @@ export default app({
 
 ### 4. Configure Server-Side Sentry
 
-Create the server setup file:
+Create the server file:
 
-```ts title="src/serverSetup.ts" auto-js
+```ts title="src/serverSentry.ts" auto-js
 import * as Sentry from "@sentry/node";
-import { ServerSetupFn } from "wasp/server";
+import { type ServerOnErrorFn } from "wasp/server";
 
 Sentry.init({
   dsn: process.env.SENTRY_SERVER_DSN,
@@ -76,21 +76,33 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export const setupServer: ServerSetupFn = async ({ app }) => {
-  Sentry.setupExpressErrorHandler(app);
+export const onServerError: ServerOnErrorFn = async (error, context) => {
+  Sentry.captureException(error, { tags: { source: context.source } });
+
+  // The server exits after these errors, so we wait for Sentry to send them.
+  if (context.source === "startup" || context.source === "dbSeed") {
+    await Sentry.flush(2000);
+  }
 };
 ```
+
+Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds. It doesn't call it for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
 :::
 
+:::caution Don't use `Sentry.setupExpressErrorHandler`
+Sentry's Express error handler never runs in a Wasp app, because Wasp answers failed requests itself. Use `onError` instead.
+:::
+
 ### 5. Configure Client-Side Sentry
 
-Create the client setup file:
+Create the client file:
 
-```ts title="src/clientSetup.ts" auto-js
+```ts title="src/clientSentry.ts" auto-js
 import * as Sentry from "@sentry/react";
+import { type ClientOnErrorFn } from "wasp/client";
 
 Sentry.init({
   dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
@@ -98,15 +110,16 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export const setupClient = async () => {
-  // Sentry is initialized above, before the setup function runs.
-  // You can add additional client-side setup here if needed.
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  // Sentry already listens for these errors itself.
+  if (context.source === "window") {
+    return;
+  }
+  Sentry.captureException(error, { tags: { source: context.source } });
 };
 ```
 
-:::note
-The `setupFn` must be defined and exported even if it has no additional logic. Sentry's `init` call runs at module load time, which is before Wasp calls the setup function.
-:::
+Sentry catches errors in event handlers and unhandled promise rejections on its own. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
 
 ### 6. Set up environment variables
 
@@ -128,31 +141,51 @@ REACT_APP_SENTRY_CLIENT_DSN=https://your-client-dsn@sentry.io/your-project-id
 
 Create an API endpoint that throws an error:
 
+```ts title="main.wasp.ts"
+import { api, app } from "@wasp/spec"
+import { testError } from "./src/apis" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    api("GET", "/test-error", testError, { auth: false }),
+  ],
+})
+```
+
 ```ts title="src/apis.ts" auto-js
-import { TestError } from "wasp/server/api";
+import { type TestError } from "wasp/server/api";
 
 export const testError: TestError = async (req, res) => {
   throw new Error("Test server error for Sentry");
 };
 ```
 
+Open `http://localhost:3001/test-error` and check that the error shows up in your Sentry server project with the `source: request` tag.
+
 ### Test Client Errors
 
-Add a button that triggers an error:
+Add a button that throws while rendering:
 
 ```tsx title="src/MainPage.tsx" auto-js
+import { useState } from "react";
+
 export const MainPage = () => {
-  const handleError = () => {
+  const [shouldThrow, setShouldThrow] = useState(false);
+
+  if (shouldThrow) {
     throw new Error("Test client error for Sentry");
-  };
+  }
 
   return (
     <div>
-      <button onClick={handleError}>Test Sentry Error</button>
+      <button onClick={() => setShouldThrow(true)}>Test Sentry Error</button>
     </div>
   );
 };
 ```
+
+Click the button and check that the error shows up in your Sentry client project with the `source: render` tag.
 
 ## Advanced Configuration
 
@@ -160,7 +193,7 @@ export const MainPage = () => {
 
 Track which user encountered an error:
 
-```ts title="src/serverSetup.ts" auto-js
+```ts title="src/operations.ts" auto-js
 import * as Sentry from "@sentry/node";
 
 // In your API handlers or operations

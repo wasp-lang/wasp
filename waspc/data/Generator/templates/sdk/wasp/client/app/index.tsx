@@ -6,6 +6,7 @@ export { WaspApp } from './components/WaspApp'
 export {
   handleClientError,
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
 } from '@wasp/lib-sdk-core/browser'
 
 {=# isAuthEnabled =}

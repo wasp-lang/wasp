@@ -54,7 +54,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
         user,
       }
     } catch (error: unknown) {
-      reportUnexpectedServerError(error, { source: "webSocket" });
+      await reportUnexpectedServerError(error, { source: "webSocket" });
     }
   }
   next()
