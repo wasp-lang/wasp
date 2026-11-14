@@ -109,7 +109,7 @@ The dev mailbox keeps the emails the `Dummy` provider sends, so you, your tests,
 
 You can reach the emails in several ways:
 
-- **Inbox page**: open [http://localhost:3001/\_\_wasp/mailbox](http://localhost:3001/__wasp/mailbox) while `wasp start` is running. It updates live as emails arrive. The auth forms link to it too.
+- **Inbox page**: open [http://localhost:3001/\_\_wasp/mailbox/](http://localhost:3001/__wasp/mailbox/) while `wasp start` is running. It updates live as emails arrive. The auth forms link to it too.
 - **HTTP API**: see [the API](#dev-mailbox-api) below. It's handy for end-to-end tests and AI agents.
 - **Files**: each email is a JSON file in `.wasp/mailbox/`, which you can read even when the server isn't running.
 - **Console**: every email logged in the `wasp start` console comes with links to its inbox page, its API URL, and its file.
@@ -140,7 +140,6 @@ All routes are under `http://localhost:3001/__wasp/mailbox/api`. Reads are `GET`
 | --- | --- |
 | `GET /emails` | Lists email summaries, newest first. Accepts the `search`, `searchIn`, `after`, and `limit` query parameters. |
 | `GET /emails/:id` | Returns one email. |
-| `GET /emails/:id/html` | Returns the email's HTML body. |
 | `GET /events` | Streams `added`, `deleted`, and `cleared` events ([server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)). |
 | `POST /emails.waitFor` | Returns the newest email matching `search`, `searchIn`, and `after`. If there is none yet, waits for one for up to `timeoutMs` milliseconds (default 10 seconds, at most 5 minutes) and responds with `408` if none arrives. |
 | `POST /emails.delete` | Deletes the email with the given `id`. |

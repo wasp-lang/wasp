@@ -1,0 +1,83 @@
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4rem;
+  padding: 0.75rem var(--gutter);
+  border-bottom: var(--border);
+  background: var(--white);
+}
+.brand,
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.brand {
+  min-width: 0;
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.logo {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: var(--border);
+}
+.wordmark {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.badge {
+  flex: none;
+  padding: 0.3125rem 0.5rem;
+  background: var(--yellow);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.separator {
+  color: var(--g4);
+}
+.app-name {
+  overflow: hidden;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.connection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid var(--black);
+  background: var(--yellow);
+}
+.connection.live .dot {
+  background: var(--green);
+}
+
+@media (max-width: 720px) {
+  header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    min-height: 3.5rem;
+    padding-block: 0.5rem;
+  }
+  .toolbar {
+    margin-left: auto;
+  }
+  .wordmark {
+    display: none;
+  }
+}

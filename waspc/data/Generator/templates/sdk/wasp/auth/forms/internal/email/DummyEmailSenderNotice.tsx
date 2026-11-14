@@ -2,7 +2,7 @@
 import { config } from '../../../../client/index.js'
 import styles from "./DummyEmailSenderNotice.module.css";
 
-const devMailboxUrl = `${config.apiUrl}{= devMailboxRoutePath =}`;
+const devMailboxUrl = `${config.apiUrl}{= devMailboxRoutePath =}/`;
 
 // PRIVATE API
 /**

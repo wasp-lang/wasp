@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { DevMailbox } from "../src/core/devMailbox";
 import {
-  MAILBOX_PATH,
   makeEmail,
   startMailboxServer,
   type MailboxServer,
@@ -28,15 +27,6 @@ function callAction(action: string, body: unknown) {
 }
 
 describe("dev mailbox routes", () => {
-  it("serves the inbox page pointing at the API", async () => {
-    const response = await fetch(apiUrl.replace(/\/api$/, ""));
-
-    expect(response.headers.get("content-type")).toMatch(/text\/html/);
-    const page = await response.text();
-    expect(page).toContain(`"${MAILBOX_PATH}/api"`);
-    expect(page).toContain("TestApp");
-  });
-
   it("lists emails with filters and a limit", async () => {
     mailbox.add(makeEmail({ to: "a@app.test" }));
     const newest = mailbox.add(makeEmail({ to: "a@app.test" }))!;
@@ -104,17 +94,12 @@ describe("dev mailbox routes", () => {
     });
   });
 
-  it("returns a email and its HTML", async () => {
+  it("returns an email", async () => {
     const email = mailbox.add(makeEmail())!;
 
-    const emailResponse = await fetch(`${apiUrl}/emails/${email.id}`);
-    const htmlResponse = await fetch(`${apiUrl}/emails/${email.id}/html`);
+    const response = await fetch(`${apiUrl}/emails/${email.id}`);
 
-    expect(await emailResponse.json()).toEqual({ email });
-    expect(htmlResponse.headers.get("content-security-policy")).toBe(
-      "script-src 'none'",
-    );
-    expect(await htmlResponse.text()).toBe(email.html);
+    expect(await response.json()).toEqual({ email });
   });
 
   it("returns 404 for a missing email", async () => {

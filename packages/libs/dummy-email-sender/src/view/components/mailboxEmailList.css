@@ -1,0 +1,46 @@
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+#emails a {
+  display: block;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid var(--g2);
+  border-left: 4px solid transparent;
+  color: inherit;
+  text-decoration: none;
+}
+#emails a:focus-visible {
+  outline-offset: -4px;
+}
+#emails a:hover {
+  background: var(--cream);
+}
+#emails a[aria-current="true"] {
+  background: var(--yellow-light);
+  border-left-color: var(--yellow);
+}
+.subject {
+  display: block;
+  overflow: hidden;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--g6);
+  font-size: 12px;
+}
+.meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meta time {
+  flex: none;
+}

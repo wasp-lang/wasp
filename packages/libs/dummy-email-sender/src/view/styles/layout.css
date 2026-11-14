@@ -1,0 +1,84 @@
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 2.5fr;
+  gap: var(--gutter);
+  min-height: 0;
+  padding: var(--gutter);
+}
+.list-panel,
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: var(--border);
+  background: var(--white);
+}
+.detail-panel {
+  box-shadow: 6px 6px 0 var(--yellow);
+}
+.list-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border-bottom: var(--border);
+}
+
+.list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1.25rem;
+  padding: 0 var(--gutter) 1rem;
+  color: var(--g6);
+  font-size: 11px;
+}
+footer code {
+  color: var(--black);
+  font-family: var(--font-mono);
+}
+.footer-links {
+  display: flex;
+  gap: 1.25rem;
+  margin-left: auto;
+}
+
+/* Tablet: a narrower list. */
+@media (max-width: 1024px) {
+  :root {
+    --gutter: 1rem;
+  }
+  main {
+    grid-template-columns: minmax(240px, 1fr) 1.75fr;
+  }
+}
+
+/* Phone: the list and the email are separate views. */
+@media (max-width: 720px) {
+  :root {
+    --gutter: 0.75rem;
+  }
+  main {
+    grid-template-columns: 1fr;
+  }
+  main[data-view="list"] .detail-panel,
+  main[data-view="detail"] .list-panel {
+    display: none;
+  }
+  .detail-panel {
+    box-shadow: 4px 4px 0 var(--yellow);
+  }
+  main[data-view="detail"] ~ footer {
+    display: none;
+  }
+}

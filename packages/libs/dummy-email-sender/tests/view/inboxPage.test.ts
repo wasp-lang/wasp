@@ -1,32 +1,38 @@
-import * as vm from "node:vm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { describe, expect, it } from "vitest";
+import { startMailboxServer, type MailboxServer } from "../mailboxServer";
 
-import { makeInboxPage } from "../../src/view/inboxPage";
+let mailboxServer: MailboxServer;
 
-function makePage(): string {
-  return makeInboxPage({
-    appName: "My <App>",
-    apiBasePath: "/__wasp/mailbox/api",
-    directoryPath: ".wasp/mailbox/",
-  });
-}
+beforeEach(async () => {
+  mailboxServer = await startMailboxServer({ appName: "My <App>" });
+});
 
-describe("makeInboxPage", () => {
-  it("has an inline script that parses", () => {
-    const script = /<script>([\s\S]*)<\/script>/.exec(makePage())?.[1];
+afterEach(() => mailboxServer.close());
 
-    expect(script).toBeDefined();
-    expect(() => new vm.Script(script!)).not.toThrow();
-  });
+describe("inbox page", () => {
+  it("fills in and escapes the app name and storage path", async () => {
+    const response = await fetch(`${mailboxServer.mailboxUrl}/`);
 
-  it("has a toggle for each search field", () => {
-    for (const field of ["from", "to", "subject", "body"]) {
-      expect(makePage()).toContain(`data-field="${field}"`);
-    }
+    expect(response.headers.get("content-type")).toMatch(/text\/html/);
+    const page = await response.text();
+    expect(page).toContain("My &lt;App&gt;");
+    expect(page).toContain(mailboxServer.mailbox.directoryPath);
+    expect(page).not.toMatch(/%[A-Z_]+%/);
   });
 
-  it("escapes the app name", () => {
-    expect(makePage()).toContain("My &lt;App&gt;");
+  it("redirects to the trailing slash its relative URLs need", async () => {
+    const response = await fetch(`${mailboxServer.mailboxUrl}?a=1`, {
+      redirect: "manual",
+    });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe("/__wasp/mailbox/?a=1");
+  });
+
+  it("serves its stylesheet", async () => {
+    const response = await fetch(`${mailboxServer.mailboxUrl}/inbox.css`);
+
+    expect(response.headers.get("content-type")).toMatch(/text\/css/);
   });
 });

@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
+    "@tsdown/css": "catalog:",
     "@types/express": "^5.0.0",
     "@types/node": "catalog:",
     "express": "catalog:",

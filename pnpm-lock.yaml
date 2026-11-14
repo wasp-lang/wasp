@@ -168,6 +168,9 @@ catalogs:
     '@commander-js/extra-typings':
       specifier: ^14.0.0
       version: 14.0.0
+    '@tsdown/css':
+      specifier: ^0.21.10
+      version: 0.21.10
     '@types/node':
       specifier: ^24.0.1
       version: 24.19.2
@@ -311,6 +314,9 @@ importers:
       '@arethetypeswrong/core':
         specifier: ^0.18.2
         version: 0.18.5
+      '@tsdown/css':
+        specifier: 'catalog:'
+        version: 0.21.10(jiti@2.7.0)(postcss@8.5.32)(tsdown@0.21.10)(yaml@2.9.1)
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -15295,7 +15301,6 @@ snapshots:
       - jiti
       - tsx
       - yaml
-    optional: true
 
   '@tybys/wasm-util@0.10.4':
     dependencies:
@@ -20496,7 +20501,6 @@ snapshots:
       jiti: 2.7.0
       postcss: 8.5.32
       yaml: 2.9.1
-    optional: true
 
   postcss-loader@7.3.4(postcss@8.5.31)(typescript@6.0.3)(webpack@5.112.0):
     dependencies:

@@ -48,7 +48,7 @@ describe("createDummyEmailSender", () => {
     const [summary] = mailbox.list();
     expect(summary).toMatchObject({ to: "user@app.test" });
     expect(lines).toContain("To:      user@app.test");
-    expect(lines).toContain(`Inbox:   ${MAILBOX_URL}#${summary!.id}`);
+    expect(lines).toContain(`Inbox:   ${MAILBOX_URL}/#${summary!.id}`);
     expect(lines).toContain(
       `API:     ${MAILBOX_URL}/api/emails/${summary!.id}`,
     );

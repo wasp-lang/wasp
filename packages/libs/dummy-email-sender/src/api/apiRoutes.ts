@@ -48,17 +48,6 @@ export function registerApiRoutes(router: Router, mailbox: DevMailbox): void {
     }),
   );
 
-  router.get(
-    route(devMailboxApiPaths.emailHtml(":id")),
-    withApiErrorResponses((req, res) => {
-      const email = getEmailOrThrow(mailbox, parseEmailId(req.params.id));
-      res
-        .setHeader("Content-Security-Policy", "script-src 'none'")
-        .type("html")
-        .send(email.html);
-    }),
-  );
-
   router.post(
     route(devMailboxApiPaths.waitForEmail),
     withApiErrorResponses(async (req, res) => {

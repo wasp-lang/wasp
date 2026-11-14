@@ -32,6 +32,7 @@ catalog:
   semver: ^7.7.3
   "@types/semver": ^7.7.1
   express: ^5.3.0
+  "@tsdown/css": ^0.21.10
 
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080

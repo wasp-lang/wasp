@@ -48,7 +48,7 @@ export function createDummyEmailSender({
 
       const storedEmail = mailbox.add({ ...email, from });
       if (storedEmail !== undefined) {
-        log(`Inbox:   ${mailboxUrl}#${storedEmail.id}`);
+        log(`Inbox:   ${mailboxUrl}/#${storedEmail.id}`);
         log(
           `API:     ${mailboxUrl}${DEV_MAILBOX_API_BASE_PATH}${devMailboxApiPaths.email(storedEmail.id)}`,
         );

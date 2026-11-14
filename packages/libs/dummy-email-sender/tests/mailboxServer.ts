@@ -22,6 +22,7 @@ export type MailboxServer = {
 /** A mailbox in a temporary directory, served like the generated server does. */
 export async function startMailboxServer({
   shouldParseJson = true,
+  appName = "TestApp",
 } = {}): Promise<MailboxServer> {
   const directoryPath = fs.mkdtempSync(
     path.join(os.tmpdir(), "wasp-dev-mailbox-"),
@@ -32,7 +33,7 @@ export async function startMailboxServer({
   if (shouldParseJson) {
     router.use(express.json());
   }
-  registerDevMailboxRoutes(router, mailbox, { appName: "TestApp" });
+  registerDevMailboxRoutes(router, mailbox, { appName });
   const app = express().use(MAILBOX_PATH, router);
 
   const server = await new Promise<Server>((resolve) => {

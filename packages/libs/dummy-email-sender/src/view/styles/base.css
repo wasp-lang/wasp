@@ -1,0 +1,133 @@
+/*
+  Wasp brand tokens, kept in sync with wasp.sh (web/tailwind.config.js).
+  Small text uses --g6 or darker for a 4.5:1 contrast ratio.
+*/
+
+:root {
+  --yellow: #f5c842;
+  --yellow-light: #fff3cc;
+  --yellow-dark: #d4a930;
+  --black: #111;
+  --cream: #f7f5f0;
+  --white: #fafafa;
+  --g2: #ddd;
+  --g4: #999;
+  --g6: #555;
+  --green: #22c55e;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --border: 2px solid var(--black);
+  --gutter: 1.5rem;
+  font-size: 14px;
+}
+* {
+  box-sizing: border-box;
+}
+/* Rules that set `display` would otherwise override it. */
+[hidden] {
+  display: none !important;
+}
+/* Wrappers that only add behavior, so they don't affect the layout. */
+mailbox-search,
+mailbox-email-list,
+mailbox-tabs {
+  display: contents;
+}
+body {
+  margin: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  color: var(--black);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+}
+a {
+  color: var(--black);
+}
+:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Uppercase text has no descenders, so line-height: 1 centers it. */
+.badge,
+.button,
+[role="tab"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.label,
+.connection {
+  color: var(--g6);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.button {
+  flex: none;
+  min-height: 2rem;
+  padding: 0.5rem 0.875rem;
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--black);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.button:hover {
+  background: var(--yellow-dark);
+}
+.button.secondary {
+  background: var(--white);
+}
+.button.secondary:hover {
+  background: var(--yellow-light);
+}
+.button.small {
+  min-height: 1.75rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 11px;
+}
+
+.empty {
+  margin: 0;
+  padding: 1rem;
+  color: var(--g6);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.empty::before {
+  content: "// ";
+  content: "// " / "";
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.button:disabled:hover {
+  background: var(--white);
+}
