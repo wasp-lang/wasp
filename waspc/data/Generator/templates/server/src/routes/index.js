@@ -15,11 +15,18 @@ import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
 import { studioData } from './studioData.js'
+import { devtoolsRouter, recordRequests } from './devtools.js'
 {=/ isDevelopment =}
 
 
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
+{=# isDevelopment =}
+
+// Records the requests the server handles, for the API Playground in Wasp
+// DevTools. First, so it sees every request.
+router.use(recordRequests)
+{=/ isDevelopment =}
 
 {=# isAuthEnabled =}
 router.use('/auth', middleware, auth)
@@ -38,6 +45,9 @@ router.get('/{= upRouteInRootRouter =}', middleware, function (_req, res) {
 router.get('/{= studioDataRouteInRootRouter =}', middleware, function (_req, res) {
   res.status(200).json(studioData)
 })
+
+// Lets the API Playground in Wasp DevTools inspect requests and run jobs.
+router.use('/{= devtoolsRouteInRootRouter =}', middleware, devtoolsRouter)
 {=/ isDevelopment =}
 
 {=# areThereAnyCustomApiRoutes =}

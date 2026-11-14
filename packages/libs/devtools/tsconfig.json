@@ -9,6 +9,8 @@
 
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "types": ["node"]
   }
 }

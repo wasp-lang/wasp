@@ -285,7 +285,7 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  sequence $ genRoutesIndex spec : [genStudioData spec | AS.isDevelopment spec]
+  sequence $ genRoutesIndex spec : concat [[genStudioData spec, genDevtoolsRoutes spec] | AS.isDevelopment spec]
 
 genRoutesIndex :: AppSpec -> Generator FileDraft
 genRoutesIndex spec =
@@ -305,7 +305,8 @@ genRoutesIndex spec =
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (app.name :: String),
-          "studioDataRouteInRootRouter" .= (studioDataRouteInRootRouter :: String)
+          "studioDataRouteInRootRouter" .= (studioDataRouteInRootRouter :: String),
+          "devtoolsRouteInRootRouter" .= (devtoolsRouteInRootRouter :: String)
         ]
     app = getApp spec
 
@@ -323,6 +324,20 @@ genStudioData spec =
         Aeson.Pretty.defConfig {Aeson.Pretty.confIndent = Aeson.Pretty.Spaces 2}
         (makeStudioData spec)
 
+genDevtoolsRoutes :: AppSpec -> Generator FileDraft
+genDevtoolsRoutes spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/devtools.ts|])
+      (C.asServerFile [relfile|src/routes/devtools.ts|])
+      (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "devtoolsRouteInRootRouter" .= (devtoolsRouteInRootRouter :: String),
+          "areThereAnyJobs" .= (not . null $ AS.getJobs spec)
+        ]
+
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
@@ -337,6 +352,10 @@ upRouteInRootRouter = "up"
 -- | Serves the data that Wasp Studio shows, in development only.
 studioDataRouteInRootRouter :: String
 studioDataRouteInRootRouter = "__wasp/studio-data"
+
+-- | Serves the API Playground of Wasp DevTools, in development only.
+devtoolsRouteInRootRouter :: String
+devtoolsRouteInRootRouter = "__wasp/devtools"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec
