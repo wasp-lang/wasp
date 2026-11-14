@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import type { HttpError } from "../../HttpError.js";
 import type { Action, Query } from "../../operations/rpc.js";
+import { handleClientError } from "../errors.js";
 import { makeQueryCacheKey } from "./queries.js";
 export { configureQueryClient } from "./queryClient.js";
 
@@ -295,11 +296,9 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
       // Attempt to optimistically update the cache using the new value.
       try {
         queryClient.setQueryData(queryKey, updateQuery);
-      } catch (e) {
-        console.error(
-          "The `updateQuery` function threw an exception, skipping optimistic update:",
-        );
-        console.error(e);
+      } catch (e: unknown) {
+        // We skip the optimistic update when `updateQuery` throws.
+        handleClientError(e, { source: "optimisticUpdate" });
       }
 
       // Remember the snapshotted value to restore in case of an error.

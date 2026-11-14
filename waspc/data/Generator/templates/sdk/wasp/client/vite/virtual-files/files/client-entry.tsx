@@ -5,7 +5,11 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
-import { WaspApp } from "wasp/client/app";
+import {
+  handleClientError,
+  listenForUncaughtClientErrors,
+  WaspApp,
+} from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
@@ -32,8 +36,18 @@ const fullAppTree = (
   </Layout>
 )
 
+listenForUncaughtClientErrors();
+
 startTransition(() => {
-  hydrateRoot(document, fullAppTree);
+  hydrateRoot(document, fullAppTree, {
+    // The root error boundary reports render errors inside the router. React
+    // calls this for render errors no error boundary caught, e.g. in the
+    // layout around the router.
+    // https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+    onUncaughtError: (error: unknown) => {
+      handleClientError(error, { source: "render" });
+    },
+  });
 });
 
 async function waitForRouterInitialized(
