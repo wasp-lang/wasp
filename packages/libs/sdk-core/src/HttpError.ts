@@ -1,64 +1,4 @@
 /**
- * The response headers an {@link HttpError} can set, passed through
- * {@link HttpErrorOptions}.
- *
- * The values are the ones Node's `response.setHeader` accepts: a string, a
- * number, or a list of strings for headers that repeat, like `Set-Cookie`.
- *
- * @example
- * ```ts
- * const headers: HttpErrorHeaders = {
- *   "Retry-After": 60,
- *   "Set-Cookie": ["a=1", "b=2"],
- * };
- * ```
- */
-export type HttpErrorHeaders = Record<string, string | number | string[]>;
-
-/**
- * The options of an {@link HttpError}, the last argument of its constructor.
- *
- * It takes the standard `Error` options (e.g. `cause`), and `headers`.
- *
- * @example
- * ```ts
- * import { HttpError } from "wasp/errors";
- *
- * try {
- *   await chargeCard(card);
- * } catch (error: unknown) {
- *   throw new HttpError(503, "Payments are unavailable", undefined, {
- *     cause: error,
- *     headers: { "Retry-After": 60 },
- *   });
- * }
- * ```
- */
-export interface HttpErrorOptions extends ErrorOptions {
-  /**
-   * Headers to set on the error response, e.g. `Retry-After`.
-   *
-   * Wasp sets them on the server. The client doesn't get them back on the
-   * `HttpError` it receives.
-   */
-  headers?: HttpErrorHeaders;
-}
-
-/**
- * The extra information an {@link HttpError} carries in its `data`: an object
- * with any fields you choose.
- *
- * Wasp sends it to the client as JSON, so use values that survive
- * `JSON.stringify`. For example, a `Date` arrives as a string.
- *
- * @example
- * ```ts
- * const data: HttpErrorData = { code: "TASK_LIMIT_REACHED", limit: 10 };
- * ```
- */
-export type HttpErrorData = Record<string, unknown>;
-
-/**
  * The error that the server and the client share. Throw it on the server to
  * send an HTTP error response to the client, and check for it on the client
  * to read that response.
@@ -196,6 +136,67 @@ export class HttpError<
     this.headers = options?.headers;
   }
 }
+
+/**
+ * The extra information an {@link HttpError} carries in its `data`: an object
+ * with any fields you choose.
+ *
+ * Wasp sends it to the client as JSON, so use values that survive
+ * `JSON.stringify`. For example, a `Date` arrives as a string.
+ *
+ * @example
+ * ```ts
+ * const data: HttpErrorData = { code: "TASK_LIMIT_REACHED", limit: 10 };
+ * ```
+ */
+export type HttpErrorData = { [fieldName: string]: unknown };
+
+/**
+ * The options of an {@link HttpError}: the standard `Error` options (e.g.
+ * `cause`), and `headers`.
+ *
+ * @example
+ * ```ts
+ * import { HttpError } from "wasp/errors";
+ *
+ * try {
+ *   await chargeCard(card);
+ * } catch (error: unknown) {
+ *   throw new HttpError(503, "Payments are unavailable", undefined, {
+ *     cause: error,
+ *     headers: { "Retry-After": 60 },
+ *   });
+ * }
+ * ```
+ */
+export interface HttpErrorOptions extends ErrorOptions {
+  /**
+   * Headers to set on the error response, e.g. `Retry-After`.
+   *
+   * Wasp sets them on the server. The client doesn't get them back on the
+   * `HttpError` it receives, so put anything the client code needs in `data`.
+   */
+  headers?: HttpErrorHeaders;
+}
+
+/**
+ * The response headers an {@link HttpError} can set, passed through
+ * {@link HttpErrorOptions}.
+ *
+ * The values are the ones Node's `response.setHeader` accepts: a string, a
+ * number, or a list of strings for headers that repeat, like `Set-Cookie`.
+ *
+ * @example
+ * ```ts
+ * const headers: HttpErrorHeaders = {
+ *   "Retry-After": 60,
+ *   "Set-Cookie": ["a=1", "b=2"],
+ * };
+ * ```
+ */
+export type HttpErrorHeaders = {
+  [headerName: string]: string | number | string[];
+};
 
 /**
  * The JSON body the server sends for an `HttpError`.

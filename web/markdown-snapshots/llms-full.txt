@@ -32304,9 +32304,7 @@ The HTTP status code of the response, an integer in the range `[400, 600)`.
 
 #### HttpErrorOptions
 
-The options of an [HttpError](#httperror), the last argument of its constructor.
-
-It takes the standard `Error` options (e.g. `cause`), and `headers`.
+The options of an [HttpError](#httperror): the standard `Error` options (e.g. `cause`), and `headers`.
 
 ##### Example
 
@@ -32335,17 +32333,21 @@ try {
 
 Headers to set on the error response, e.g. `Retry-After`.
 
-Wasp sets them on the server. The client doesn't get them back on the `HttpError` it receives.
+Wasp sets them on the server. The client doesn't get them back on the `HttpError` it receives, so put anything the client code needs in `data`.
 
 ### Type Aliases
 
 #### HttpErrorData {#httperrordata-2}
 
-> **HttpErrorData** = `Record`<`string`, `unknown`>
+> **HttpErrorData** = `object`
 
 The extra information an [HttpError](#httperror) carries in its `data`: an object with any fields you choose.
 
 Wasp sends it to the client as JSON, so use values that survive `JSON.stringify`. For example, a `Date` arrives as a string.
+
+##### Index Signature
+
+\[`fieldName`: `string`]: `unknown`
 
 ##### Example
 
@@ -32357,11 +32359,15 @@ const data: HttpErrorData = { code: "TASK_LIMIT_REACHED", limit: 10 };
 
 #### HttpErrorHeaders {#httperrorheaders-1}
 
-> **HttpErrorHeaders** = `Record`<`string`, `string` | `number` | `string`\[]>
+> **HttpErrorHeaders** = `object`
 
 The response headers an [HttpError](#httperror) can set, passed through [HttpErrorOptions](#httperroroptions).
 
 The values are the ones Node's `response.setHeader` accepts: a string, a number, or a list of strings for headers that repeat, like `Set-Cookie`.
+
+##### Index Signature
+
+\[`headerName`: `string`]: `string` | `number` | `string`\[]
 
 ##### Example
 

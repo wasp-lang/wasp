@@ -31,10 +31,11 @@ const LoginPage = () => {
       navigate("/");
     } catch (error: unknown) {
       if (error instanceof HttpError && error.statusCode === 422) {
-        const description = error.data?.message;
-        setErrorMessage(
-          typeof description === "string" ? description : "Invalid request",
-        );
+        const description =
+          typeof error.data?.message === "string"
+            ? error.data.message
+            : "Invalid request";
+        setErrorMessage(description);
       } else if (error instanceof HttpError && error.statusCode === 401) {
         setErrorMessage(error.message || "Unauthorized");
       } else {

@@ -46,9 +46,9 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Takes an error thrown by ky and turns an HTTP error response into the
- * same `HttpError` the server threw. Any other error, e.g. a network
- * failure, is returned unchanged.
+ * Converts an error thrown by ky:
+ * - An HTTP error response becomes the `HttpError` the server threw.
+ * - Any other error, e.g. a network failure, is returned unchanged.
  */
 export function handleApiError(error: unknown): unknown {
   if (isHTTPError(error)) {
