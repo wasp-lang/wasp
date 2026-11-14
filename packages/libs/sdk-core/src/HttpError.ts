@@ -122,9 +122,7 @@ export class HttpError<
     // We don't use `this.constructor.name` because minifiers rename classes.
     this.name = "HttpError";
 
-    if (
-      !(Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600)
-    ) {
+    if (!isHttpErrorStatusCode(statusCode)) {
       throw new Error("statusCode has to be integer in range [400, 600).");
     }
     this.statusCode = statusCode;
@@ -197,6 +195,19 @@ export interface HttpErrorOptions extends ErrorOptions {
 export type HttpErrorHeaders = {
   [headerName: string]: string | number | string[];
 };
+
+/**
+ * Checks for a status code an `HttpError` accepts: an integer in the range
+ * `[400, 600)`.
+ */
+export function isHttpErrorStatusCode(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 400 &&
+    value < 600
+  );
+}
 
 /**
  * The JSON body the server sends for an `HttpError`.

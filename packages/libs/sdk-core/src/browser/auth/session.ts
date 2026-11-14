@@ -1,5 +1,5 @@
 import { isHTTPError } from "ky";
-import { fromHttpErrorBody } from "../../HttpError.js";
+import { fromHttpErrorBody, isHttpErrorStatusCode } from "../../HttpError.js";
 import { storage } from "../storage.js";
 import { apiEventsEmitter } from "./events.js";
 
@@ -53,7 +53,9 @@ if (typeof window !== "undefined") {
  * error, e.g. a network failure, unchanged.
  */
 export function handleApiError(error: unknown): unknown {
-  if (isHTTPError(error)) {
+  // ky also throws for other non-2xx statuses, e.g. `0` for a redirect that
+  // wasn't followed, which an `HttpError` can't hold.
+  if (isHTTPError(error) && isHttpErrorStatusCode(error.response.status)) {
     return fromHttpErrorBody({
       statusCode: error.response.status,
       body: error.data,

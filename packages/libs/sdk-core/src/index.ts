@@ -42,6 +42,7 @@ export { HttpMethod, type Route } from "./http.js";
 export {
   HttpError,
   fromHttpErrorBody,
+  isHttpErrorStatusCode,
   toHttpErrorBody,
   type HttpErrorBody,
   type HttpErrorData,

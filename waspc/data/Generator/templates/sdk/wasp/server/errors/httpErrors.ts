@@ -7,7 +7,7 @@
 
 import * as Wasp from "@wasp/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
-import { getErrorDetails, isErrorStatusCode } from "./utils.js";
+import { getErrorDetails } from "./utils.js";
 
 // PRIVATE API (server)
 export interface HttpErrorsError extends Error {
@@ -30,7 +30,7 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
     "expose" in error &&
     typeof error.expose === "boolean" &&
     "statusCode" in error &&
-    isErrorStatusCode(error.statusCode) &&
+    Wasp.isHttpErrorStatusCode(error.statusCode) &&
     "status" in error &&
     error.status === error.statusCode
   );

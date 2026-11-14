@@ -10,7 +10,7 @@
 
 import * as Wasp from "@wasp/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
-import { getErrorDetails, isErrorStatusCode } from "./utils.js";
+import { getErrorDetails } from "./utils.js";
 
 // PRIVATE API (server)
 /**
@@ -42,7 +42,7 @@ function findStatusCode(error: unknown): number | undefined {
     status?: unknown;
     statusCode?: unknown;
   };
-  return [status, statusCode].find(isErrorStatusCode);
+  return [status, statusCode].find(Wasp.isHttpErrorStatusCode);
 }
 
 
