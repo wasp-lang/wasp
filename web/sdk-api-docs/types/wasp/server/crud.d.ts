@@ -49,7 +49,7 @@
  *
  * ```ts
  * import { type Task } from "wasp/entities";
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  * import { type Tasks } from "wasp/server/crud";
  *
  * export const getAllOverride: Tasks.GetAllQuery<void, Task[]> = async (

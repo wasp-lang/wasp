@@ -9,6 +9,7 @@ import { customSignup as customSubmit } from "wasp/client/operations";
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";
+import { getErrorMessage, HttpError } from "wasp/errors";
 import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
@@ -43,11 +44,13 @@ export const CustomSignupPage = () => {
           text: result.message,
         });
       }
-    } catch (error: any) {
-      const { message, data } = error.data;
+    } catch (error: unknown) {
       setMessage({
         type: "error",
-        text: `${message}: ${data.message}`,
+        text:
+          error instanceof HttpError
+            ? `${error.message}: ${error.data?.message}`
+            : getErrorMessage(error),
       });
     }
   });

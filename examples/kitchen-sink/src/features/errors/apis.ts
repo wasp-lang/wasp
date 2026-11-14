@@ -1,4 +1,4 @@
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   type ThrowConcealedError,
   type ThrowHttpError,

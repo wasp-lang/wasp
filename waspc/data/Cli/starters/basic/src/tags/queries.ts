@@ -1,5 +1,5 @@
 import { Tag } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { type GetTags } from "wasp/server/operations";
 
 export const getTags: GetTags<void, Tag[]> = (_, context) => {

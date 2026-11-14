@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "58cc0e861b527405a8c2a5d09d1296d2fc276d53dfaf2cc27b65e2e4a6c5ed8d"
+        "b54f0a3216c5e5e882b920b8b423f44e69a3421c64a406d8b51d5d93668c9a4a"
     ],
     [
         [
@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "065a9e07a5f0e9950c9de8760b1f711f0e099beb9564257ff68fe46838685ac7"
+        "f2e134a60720844a7fbc3ee63378ddd49c6e62c2c30959d01635631730a8c134"
     ],
     [
         [
@@ -275,9 +275,16 @@
     [
         [
             "file",
+            "sdk/wasp/errors/index.ts"
+        ],
+        "bfe2e6eb69da71dd949b149671db13578efa51446861ce0259d8f59ca2cc05be"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/package.json"
         ],
-        "1fb83a2f178a5a5a1a2c4ef222d13e789884815b85173a83db3ed8ca80226017"
+        "c1ce3b8e7687d97c86fe55c025e32b456cca8f296fadb90bb4a25cb8cf1976e1"
     ],
     [
         [
@@ -347,7 +354,7 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "afa8c3a0c3c4f65038dd2bc15c70ce25d002882633769266259ec1c250f907b6"
+        "90a720cafa45b0ac27e05dbcd4ffa9461cd407af90620da73fbcc86fb4dcd8f4"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "db84e4671930ff007c64ea3850b1eaccd2647856ae96e5ea82ac2be6b8ec90af"
+        "f05ecb73ff9650c9d298c4b538133bc2ed90accbe697132e9fccec4539f872d9"
     ],
     [
         [

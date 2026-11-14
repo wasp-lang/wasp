@@ -93,14 +93,26 @@ function DefaultRootErrorBoundary() {
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-// node_modules/@wasp/lib-sdk-core/dist/WaspHttpError.mjs
-var WaspHttpError = class extends Error {
+// node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
+/**
+* An error with an HTTP status code that Wasp sends to the client.
+*
+* Throw it on the server to answer with a specific status code, message,
+* and data. The client receives the same fields in an `HttpError`.
+* Anything else thrown on the server reaches the client as a generic 500.
+*/
+var HttpError = class HttpError extends Error {
 	statusCode;
 	data;
-	constructor(statusCode, message, data) {
-		super(message);
+	headers;
+	constructor(statusCode, message, data, options) {
+		super(message, options);
+		if (Error.captureStackTrace) Error.captureStackTrace(this, HttpError);
+		this.name = "HttpError";
+		if (!(Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600)) throw new Error("statusCode has to be integer in range [400, 600).");
 		this.statusCode = statusCode;
-		this.data = data;
+		if (data) this.data = data;
+		this.headers = options?.headers;
 	}
 };
 // node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
@@ -179,7 +191,7 @@ function withWaspQueryDefaults(config) {
 }
 function shouldRetryQuery(failureCount, error) {
 	if (failureCount >= MAX_QUERY_RETRIES) return false;
-	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+	return !(error instanceof HttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";

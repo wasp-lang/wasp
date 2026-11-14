@@ -2,21 +2,21 @@ import type { QueryClientConfig } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("query retries", () => {
-  let WaspHttpError: typeof import("../src/WaspHttpError").WaspHttpError;
+  let HttpError: typeof import("../src/HttpError").HttpError;
 
   beforeEach(async () => {
     // The query client lives in module state, so each test needs fresh
-    // modules. `WaspHttpError` must come from the same module instance for
+    // modules. `HttpError` must come from the same module instance for
     // `instanceof` checks to work.
     vi.resetModules();
-    ({ WaspHttpError } = await import("../src/WaspHttpError"));
+    ({ HttpError } = await import("../src/HttpError"));
   });
 
   it.each([400, 401, 403, 404, 422])(
     "doesn't retry a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new WaspHttpError(statusCode, "Client error", undefined),
+        new HttpError(statusCode, "Client error"),
       );
       expect(attempts).toBe(1);
     },
@@ -26,7 +26,7 @@ describe("query retries", () => {
     "retries a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new WaspHttpError(statusCode, "Error", undefined),
+        new HttpError(statusCode, "Error"),
       );
       expect(attempts).toBe(4);
     },
@@ -38,18 +38,16 @@ describe("query retries", () => {
   });
 
   it("keeps the default retries when the user configures other query options", async () => {
-    const attempts = await countQueryAttempts(
-      new WaspHttpError(404, "Not found", undefined),
-      { defaultOptions: { queries: { staleTime: Infinity } } },
-    );
+    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
+      defaultOptions: { queries: { staleTime: Infinity } },
+    });
     expect(attempts).toBe(1);
   });
 
   it("lets the user override the retries", async () => {
-    const attempts = await countQueryAttempts(
-      new WaspHttpError(404, "Not found", undefined),
-      { defaultOptions: { queries: { retry: 2 } } },
-    );
+    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
+      defaultOptions: { queries: { retry: 2 } },
+    });
     expect(attempts).toBe(3);
   });
 });

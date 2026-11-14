@@ -1590,7 +1590,7 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 
 ```ts title="src/queries.ts"
 import type { Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
@@ -1606,7 +1606,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 type CreateTaskPayload = Pick<Task, "description">;
@@ -2712,13 +2712,16 @@ For a detailed specification of the `useQuery` hook, check the [API Reference](#
 
 #### Error Handling
 
-For security reasons, Wasp hides the details of exceptions thrown in the Query's NodeJS implementation: by default, the client gets a generic response with the HTTP status code `500`. In development, the response also includes the original message and stack trace. Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+
+To send error details to the client, throw an `HttpError`:
 
 ```ts title="src/queries.ts"
 import { type GetAllTasks } from "wasp/server/operations"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 export const getAllTasks: GetAllTasks = async (args, context) => {
   throw new HttpError(
@@ -2729,7 +2732,23 @@ export const getAllTasks: GetAllTasks = async (args, context) => {
 }
 ```
 
-The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error as a `WaspHttpError` with `statusCode`, `message`, and `data`. On the client, `data` holds the whole response body (`{ message, data }`), so the `data` you passed to the `HttpError` is at `error.data.data`. This happens for every status code, so only put information in them that is safe to show to the user.
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+```tsx title="src/MainPage.tsx"
+import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+export const MainPage = () => {
+  const { data: tasks, error } = useQuery(getAllTasks);
+
+  if (error instanceof HttpError && error.statusCode === 403) {
+    return <div>{error.message}</div>;
+  }
+  // ...
+};
+```
 
 To also set response headers, e.g. `Retry-After`, pass them in the options argument:
 
@@ -2818,11 +2837,11 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 [The same, for Queries that don't use auth.](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedquerydefinition)
 
-[API reference](https://wasp.sh/docs/api/wasp/server#httperror)
+[API reference](https://wasp.sh/docs/api/wasp/errors#httperror)
 
-#### [HttpError »](https://wasp.sh/docs/api/wasp/server#httperror)
+#### [HttpError »](https://wasp.sh/docs/api/wasp/errors#httperror)
 
-[The error you throw to send an HTTP error response to the client.](https://wasp.sh/docs/api/wasp/server#httperror)
+[The error you throw to send an HTTP error response to the client.](https://wasp.sh/docs/api/wasp/errors#httperror)
 
 #### The `useQuery` Hook
 
@@ -3102,13 +3121,16 @@ await markTaskAsDone({ id: 1 }, { user })
 
 #### Error Handling
 
-For security reasons, Wasp hides the details of exceptions thrown in the Action's NodeJS implementation: by default, the client gets a generic response with the HTTP status code `500`. In development, the response also includes the original message and stack trace. Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Action's NodeJS implementation throws an error, the client sees one of two things:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+
+To send error details to the client, throw an `HttpError`:
 
 ```ts title="src/actions.ts"
 import { type CreateTask } from "wasp/server/operations"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 export const createTask: CreateTask = async (args, context) => {
   throw new HttpError(
@@ -3116,6 +3138,25 @@ export const createTask: CreateTask = async (args, context) => {
     "You can't do this!", // message
     { foo: "bar" } // data
   )
+}
+```
+
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, check whether the error is an `HttpError` to read these fields:
+
+```ts title="src/NewTaskForm.tsx"
+import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+async function handleSubmit(description: string) {
+  try {
+    await createTask({ description });
+  } catch (error: unknown) {
+    if (error instanceof HttpError && error.statusCode === 403) {
+      window.alert(error.message);
+    }
+  }
 }
 ```
 
@@ -3239,11 +3280,11 @@ Here are the key differences between Queries and Actions:
 
 [The same, for Actions that don't use auth.](https://wasp.sh/docs/api/wasp/server/operations#unauthenticatedactiondefinition)
 
-[API reference](https://wasp.sh/docs/api/wasp/server#httperror)
+[API reference](https://wasp.sh/docs/api/wasp/errors#httperror)
 
-#### [HttpError »](https://wasp.sh/docs/api/wasp/server#httperror)
+#### [HttpError »](https://wasp.sh/docs/api/wasp/errors#httperror)
 
-[The error you throw to send an HTTP error response to the client.](https://wasp.sh/docs/api/wasp/server#httperror)
+[The error you throw to send an HTTP error response to the client.](https://wasp.sh/docs/api/wasp/errors#httperror)
 
 #### The `useAction` Hook and Optimistic Updates
 
@@ -3418,7 +3459,7 @@ Here's the `src/tasks.ts` file:
 ```ts title="src/tasks.ts"
 import { type Tasks } from "wasp/server/crud"
 import { type Task } from "wasp/entities"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 type CreateTaskInput = { description: string; isDone: boolean }
 
@@ -4453,7 +4494,7 @@ When authentication is enabled, all [queries and actions](https://wasp.sh/docs/f
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
 import type { CreateTask } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 type CreateTaskPayload = Pick<Task, "description">;
 
@@ -4512,7 +4553,7 @@ import {
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
 } from "wasp/server/auth";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { UpdatePassword } from "wasp/server/operations";
 
 export const updatePassword: UpdatePassword<
@@ -9327,7 +9368,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 import type { OnBeforeSignupHook } from "wasp/server/auth"
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -9525,7 +9566,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 import type { OnBeforeLoginHook } from "wasp/server/auth"
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({
@@ -9738,7 +9779,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
@@ -9748,7 +9789,7 @@ export const onBeforeSignup = async () => {
 
 ```ts title="src/auth/signup.ts"
 import type { CustomSignup } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   createEmailVerificationLink,
   createProviderId,
@@ -9879,7 +9920,7 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
@@ -15279,7 +15320,55 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 11. Enjoy your updated Wasp app
+#### 11. Import `HttpError` from `wasp/errors`
+
+The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+
+**Before**
+
+```ts title="src/queries.ts"
+import { HttpError } from "wasp/server"
+```
+
+**After**
+
+```ts title="src/queries.ts"
+import { HttpError } from "wasp/errors"
+```
+
+#### 12. Read `HttpError` data directly on the client
+
+**If your client code doesn't read `error.data` or use `WaspHttpError`, you can skip this step.**
+
+On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`. Its `data` is now the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
+
+**Before**
+
+```ts title="src/SignupPage.tsx"
+try {
+  await signup({ username, password })
+} catch (error: any) {
+  if (error.statusCode === 422) {
+    setErrorMessage(error.data.data.message)
+  }
+}
+```
+
+**After**
+
+```ts title="src/SignupPage.tsx"
+import { HttpError } from "wasp/errors"
+
+try {
+  await signup({ username, password })
+} catch (error: unknown) {
+  if (error instanceof HttpError && error.statusCode === 422) {
+    setErrorMessage(String(error.data?.message))
+  }
+}
+```
+
+#### 13. Enjoy your updated Wasp app
 
 That's it!
 
@@ -27982,6 +28071,7 @@ You don't need to install anything, and the package isn't published to npm. The 
 | [client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket)   | React hooks for using your app's [WebSocket](https://wasp.sh/docs/features/websockets) server from the client. Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                                                            |
 | [entities](https://wasp.sh/docs/api/wasp/entities)                   | Types for your app's [Entities](https://wasp.sh/docs/features/data/entities), which you can use on both the server and the client.                                                                                                                                                                                                                                                                                                                  |
 | [env](https://wasp.sh/docs/api/wasp/env)                             | Helper for defining the validation schemas of your app's environment variables.                                                                                                                                                                                                                                                                                                                                                                     |
+| [errors](https://wasp.sh/docs/api/wasp/errors)                       | Errors that the server and the client share.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | [server](https://wasp.sh/docs/api/wasp/server)                       | Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.                                                                                                                                                                                                                                                                                                                                                                 |
 | [server/api](https://wasp.sh/docs/api/wasp/server/api)               | Types for implementing your app's [APIs](https://wasp.sh/docs/features/apis) (custom HTTP endpoints).                                                                                                                                                                                                                                                                                                                                               |
 | [server/auth](https://wasp.sh/docs/api/wasp/server/auth)             | Server-side auth APIs: types for your [auth hooks](https://wasp.sh/docs/features/auth/hooks), defining extra signup fields, helpers for working with users' auth identities, the validators Wasp uses in its default auth flows, and the OAuth clients of your social auth providers. You can use the helpers and the validators in [custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions).                      |
@@ -28701,124 +28791,7 @@ The URL of your server, which the client uses to call it. Wasp sets it during de
 
 An HTTP client for calling your app's server, including your [custom APIs](https://wasp.sh/docs/features/apis).
 
-### Classes
-
-#### WaspHttpError
-
-The error for a non-2xx response from your server.
-
-Operations and auth functions (e.g. `login`) throw it on the client, and [handleApiError](#handleapierror) creates it from the errors that [api](#api) throws.
-
-It has:
-
-- `statusCode`: The response's status code.
-- `message`: The `message` from the response body, or ky's error message if the body has none.
-- `data`: The response body: parsed if it's JSON, plain text otherwise, and `undefined` if it's empty. For an `HttpError` from `wasp/server`, the body is `{ message, data }`, so that error's data is in `error.data.data`.
-
-##### Extends
-
-- `Error`
-
-##### Constructors
-
-###### Constructor
-
-> **new WaspHttpError**(`statusCode`, `message`, `data`): [`WaspHttpError`](#wasphttperror)
-
-###### Parameters
-
-###### statusCode
-
-`number`
-
-###### message
-
-`string`
-
-###### data
-
-`unknown`
-
-###### Returns
-
-[`WaspHttpError`](#wasphttperror)
-
-###### Overrides
-
-`Error.constructor`
-
-##### Properties
-
-###### data {#data}
-
-> **data**: `unknown`
-
-###### statusCode {#statuscode}
-
-> **statusCode**: `number`
-
-### Variables
-
-#### api
-
-> `const` **api**: [`KyInstance`](#kyinstance)
-
-A [ky](https://github.com/sindresorhus/ky) instance configured for your app's server.
-
-It automatically prepends your server's URL to the paths you pass, adds the logged-in user's authentication header, and clears the user's session from the browser if the server responds with `401`. Since ky is built on `fetch`, you can also consume streaming responses through `Response.body`.
-
-Non-2xx responses make ky throw an `HTTPError`; pass it through [handleApiError](#handleapierror) to get a [WaspHttpError](#wasphttperror).
-
-Unless it's declared with the `"ALL"` method, a custom API gets the default middleware, including CORS, only on its own HTTP method, not on `OPTIONS`. Requests to such an API that need a CORS preflight (e.g. with the auth header or a JSON body) fail unless you also apply the middleware to the path with an `apiNamespace`.
-
-##### Example
-
-```ts
-import { api } from "wasp/client/api";
-
-const data = await api.get("/foo/bar").json();
-```
-
-##### See
-
-- [Using the API from the client](https://wasp.sh/docs/features/apis#using-the-api-from-the-client)
-- [Making sure CORS works](https://wasp.sh/docs/features/apis#making-sure-cors-works)
-
-### Functions
-
-#### handleApiError()
-
-> **handleApiError**(`error`): `unknown`
-
-Transforms an error thrown by [api](#api) into a [WaspHttpError](#wasphttperror).
-
-##### Parameters
-
-###### error
-
-`unknown`
-
-The error that `api` threw.
-
-##### Returns
-
-`unknown`
-
-A `WaspHttpError` if `error` comes from an HTTP response, otherwise `error` unchanged.
-
-##### Example
-
-```ts
-import { api, handleApiError } from "wasp/client/api";
-
-try {
-  await api.post("/tasks", { json: { description: "Buy milk" } });
-} catch (error) {
-  throw handleApiError(error);
-}
-```
-
-### Referenced Types
+### Interfaces
 
 #### KyInstance
 
@@ -29020,13 +28993,76 @@ Gets the response body as text.
 
 `Promise`<`string`>
 
----
+### Type Aliases
 
 #### KyInput
 
 > **KyInput** = `string` | `URL` | `Request`
 
 The URL or request to fetch: a path relative to your server's URL (e.g. `"/foo/bar"`), a `URL`, or a `Request`.
+
+### Variables
+
+#### api
+
+> `const` **api**: [`KyInstance`](#kyinstance)
+
+A [ky](https://github.com/sindresorhus/ky) instance configured for your app's server.
+
+It automatically prepends your server's URL to the paths you pass, adds the logged-in user's authentication header, and clears the user's session from the browser if the server responds with `401`. Since ky is built on `fetch`, you can also consume streaming responses through `Response.body`.
+
+Non-2xx responses make ky throw an `HTTPError`; pass it through [handleApiError](#handleapierror) to get an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror).
+
+Unless it's declared with the `"ALL"` method, a custom API gets the default middleware, including CORS, only on its own HTTP method, not on `OPTIONS`. Requests to such an API that need a CORS preflight (e.g. with the auth header or a JSON body) fail unless you also apply the middleware to the path with an `apiNamespace`.
+
+##### Example
+
+```ts
+import { api } from "wasp/client/api";
+
+const data = await api.get("/foo/bar").json();
+```
+
+##### See
+
+- [Using the API from the client](https://wasp.sh/docs/features/apis#using-the-api-from-the-client)
+- [Making sure CORS works](https://wasp.sh/docs/features/apis#making-sure-cors-works)
+
+### Functions
+
+#### handleApiError()
+
+> **handleApiError**(`error`): `unknown`
+
+Transforms an error thrown by [api](#api) into the [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) that the server sent.
+
+If the response body isn't the one Wasp sends for an `HttpError` (e.g. a proxy answered), the error has ky's error message and no `data`.
+
+##### Parameters
+
+###### error
+
+`unknown`
+
+The error that `api` threw.
+
+##### Returns
+
+`unknown`
+
+An `HttpError` if `error` comes from an HTTP response, otherwise `error` unchanged.
+
+##### Example
+
+```ts
+import { api, handleApiError } from "wasp/client/api";
+
+try {
+  await api.post("/tasks", { json: { description: "Buy milk" } });
+} catch (error) {
+  throw handleApiError(error);
+}
+```
 
 
 ## wasp/client/auth
@@ -29039,7 +29075,7 @@ Only available if your app has [auth](https://wasp.sh/docs/features/auth/overvie
 - With [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) auth: the username versions of [login](#login) and [signup](#signup).
 - With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview) provider: that provider's sign-in URL and button, e.g. [googleSignInUrl](#googlesigninurl) and [GoogleSignInButton](#googlesigninbutton) for Google.
 
-[login](#login), [signup](#signup), [verifyEmail](#verifyemail), [requestPasswordReset](#requestpasswordreset), and [resetPassword](#resetpassword) reject with a [WaspHttpError](https://wasp.sh/docs/api/wasp/client/api#wasphttperror) if the server responds with an error, instead of resolving with `success: false`.
+[login](#login), [signup](#signup), [verifyEmail](#verifyemail), [requestPasswordReset](#requestpasswordreset), and [resetPassword](#resetpassword) reject with a [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) if the server responds with an error, instead of resolving with `success: false`.
 
 ### Type Aliases
 
@@ -30804,7 +30840,7 @@ export default TaskPage;
 
 #### useQuery()
 
-> **useQuery**<`Input`, `Output`>(`query`, `queryArgs?`, `options?`): `UseQueryResult`<`Output`, `Error`>
+> **useQuery**<`Input`, `Output`>(`query`, `queryArgs?`, `options?`): `UseQueryResult`<`Output`, [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror)<[`HttpErrorData`](https://wasp.sh/docs/api/wasp/errors#httperrordata-2)> | `Error`>
 
 Calls a Query from a React component and keeps its result up to date.
 
@@ -30846,7 +30882,7 @@ A *react-query* `options` object. Use this to change [the default behavior](http
 
 ##### Returns
 
-`UseQueryResult`<`Output`, `Error`>
+`UseQueryResult`<`Output`, [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror)<[`HttpErrorData`](https://wasp.sh/docs/api/wasp/errors#httperrordata-2)> | `Error`>
 
 *react-query*'s `useQuery` result, with the Query's return value in `data`.
 
@@ -32123,35 +32159,30 @@ export default app({
 [Custom env var validations](https://wasp.sh/docs/advanced/env-vars#custom-env-var-validations)
 
 
-## wasp/server
+## wasp/errors
 
-Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.
+Errors that the server and the client share.
 
-You can only import `wasp/server` in server code.
+You can import `wasp/errors` in both server and client code.
 
 ### Classes
 
 #### HttpError
 
-Throw an `HttpError` from an Operation or API to send an HTTP error response to the client.
+The error that the server and the client share. Throw it on the server to send an HTTP error response to the client, and check for it on the client to read that response.
 
-For security reasons, Wasp hides the details of any other exception thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
+**On the server**, throw an `HttpError` from an Operation or API. Wasp answers with its `statusCode`, and sends its `message` and `data` to the client for every status code, so only put information in them that is safe to show to the user.
 
-The constructor takes:
+For security reasons, Wasp hides the details of any other error thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
 
-- `statusCode`: The HTTP status code. It must be an integer in the range `[400, 600)`.
-- `message` (optional): The error message.
-- `data` (optional): An object with any extra information about the error.
-- `options` (optional): The standard `Error` options (e.g. `cause`), and `headers` to set on the response.
-
-Wasp sends `message` and `data` to the client for every status code, so only put information in them that is safe to show to the user.
-
-When an Operation fails, the client rethrows the error as a [`WaspHttpError`](https://wasp.sh/docs/api/wasp/client/api#wasphttperror), whose `data` holds the whole response body, so the `data` you passed here is at `error.data.data`. For your custom APIs, pass the error that the `api` client throws through `handleApiError` from `wasp/client/api` to get the same error.
+**On the client**, failed Operations and auth functions (e.g. `login`) throw an `HttpError` with the `statusCode`, `message`, and `data` you threw on the server. For your custom APIs, pass the error that the `api` client throws through `handleApiError` from `wasp/client/api` to get the same error.
 
 ##### Examples
 
+Throwing it on the server:
+
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 export const getTask = async ({ id }, context) => {
   if (!context.user) {
@@ -32161,15 +32192,32 @@ export const getTask = async ({ id }, context) => {
 };
 ```
 
+Sending extra information and response headers:
+
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 throw new HttpError(
   429, // status code
   "Too many requests", // message
   { limitPerMinute: 60 }, // data
-  { headers: { "Retry-After": "60" } }, // options
+  { headers: { "Retry-After": 60 } }, // options
 );
+```
+
+Reading it on the client:
+
+```ts
+import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+try {
+  await createTask({ description: "Buy milk" });
+} catch (error: unknown) {
+  if (error instanceof HttpError && error.statusCode === 403) {
+    window.alert(error.message);
+  }
+}
 ```
 
 ##### See
@@ -32180,11 +32228,19 @@ throw new HttpError(
 
 - `Error`
 
+##### Type Parameters
+
+###### Data
+
+`Data` *extends* [`HttpErrorData`](#httperrordata-2) = [`HttpErrorData`](#httperrordata-2)
+
+The type of the error's `data`. It defaults to [HttpErrorData](#httperrordata-2), an object with any fields.
+
 ##### Constructors
 
 ###### Constructor
 
-> **new HttpError**(`statusCode`, `message?`, `data?`, `options?`): [`HttpError`](#httperror)
+> **new HttpError**<`Data`>(`statusCode`, `message?`, `data?`, `options?`): [`HttpError`](#httperror)<`Data`>
 
 ###### Parameters
 
@@ -32192,21 +32248,29 @@ throw new HttpError(
 
 `number`
 
+The HTTP status code. It must be an integer in the range `[400, 600)`, otherwise the constructor throws an `Error`.
+
 ###### message?
 
 `string`
 
-###### data?
+The error message. Wasp sends it to the client.
 
-`Record`<`string`, `unknown`>
+###### data? {#data}
+
+`Data`
+
+An object with any extra information about the error. Wasp sends it to the client.
 
 ###### options?
 
 [`HttpErrorOptions`](#httperroroptions)
 
+The standard `Error` options (e.g. `cause`), and `headers` to set on the response.
+
 ###### Returns
 
-[`HttpError`](#httperror)
+[`HttpError`](#httperror)<`Data`>
 
 ###### Overrides
 
@@ -32214,17 +32278,112 @@ throw new HttpError(
 
 ##### Properties
 
-###### data {#data}
+###### data {#data-1}
 
-> **data**: `unknown`
+> **data**: `Data` | `undefined`
+
+Extra information about the error, e.g. which form field is invalid. It is `undefined` if the error was created without it.
+
+On the client, it is the `data` the server threw the error with, after a round trip through JSON.
 
 ###### headers
 
 > **headers**: [`HttpErrorHeaders`](#httperrorheaders-1) | `undefined`
 
+The headers Wasp sets on the error response, from [HttpErrorOptions.headers](#headers-1).
+
+It is always `undefined` on the client, because the server doesn't send them back as part of the error.
+
 ###### statusCode {#statuscode}
 
 > **statusCode**: `number`
+
+The HTTP status code of the response, an integer in the range `[400, 600)`.
+
+### Interfaces
+
+#### HttpErrorOptions
+
+The options of an [HttpError](#httperror): the standard `Error` options (e.g. `cause`), and `headers`.
+
+##### Example
+
+```ts
+import { HttpError } from "wasp/errors";
+
+try {
+  await chargeCard(card);
+} catch (error: unknown) {
+  throw new HttpError(503, "Payments are unavailable", undefined, {
+    cause: error,
+    headers: { "Retry-After": 60 },
+  });
+}
+```
+
+##### Extends
+
+- `ErrorOptions`
+
+##### Properties
+
+###### headers?
+
+> `optional` **headers?**: [`HttpErrorHeaders`](#httperrorheaders-1)
+
+Headers to set on the error response, e.g. `Retry-After`.
+
+Wasp sets them on the server. The client doesn't get them back on the `HttpError` it receives, so put anything the client code needs in `data`.
+
+### Type Aliases
+
+#### HttpErrorData {#httperrordata-2}
+
+> **HttpErrorData** = `object`
+
+The extra information an [HttpError](#httperror) carries in its `data`: an object with any fields you choose.
+
+Wasp sends it to the client as JSON, so use values that survive `JSON.stringify`. For example, a `Date` arrives as a string.
+
+##### Index Signature
+
+\[`fieldName`: `string`]: `unknown`
+
+##### Example
+
+```ts
+const data: HttpErrorData = { code: "TASK_LIMIT_REACHED", limit: 10 };
+```
+
+---
+
+#### HttpErrorHeaders {#httperrorheaders-1}
+
+> **HttpErrorHeaders** = `object`
+
+The response headers an [HttpError](#httperror) can set, passed through [HttpErrorOptions](#httperroroptions).
+
+The values are the ones Node's `response.setHeader` accepts: a string, a number, or a list of strings for headers that repeat, like `Set-Cookie`.
+
+##### Index Signature
+
+\[`headerName`: `string`]: `string` | `number` | `string`\[]
+
+##### Example
+
+```ts
+const headers: HttpErrorHeaders = {
+  "Retry-After": 60,
+  "Set-Cookie": ["a=1", "b=2"],
+};
+```
+
+
+## wasp/server
+
+Server-side APIs you can use in your Operations, APIs, Jobs, and server setup code.
+
+You can only import `wasp/server` in server code.
 
 ### Type Aliases
 
@@ -32481,28 +32640,6 @@ await prisma.task.create({
 - [Customising the Prisma Client](https://wasp.sh/docs/features/data/databases#customising-the-prisma-client)
 
 ### Referenced Types
-
-#### HttpErrorOptions
-
-##### Extends
-
-- `ErrorOptions`
-
-##### Properties
-
-###### headers?
-
-> `optional` **headers?**: [`HttpErrorHeaders`](#httperrorheaders-1)
-
----
-
-#### HttpErrorHeaders {#httperrorheaders-1}
-
-> **HttpErrorHeaders** = `Record`<`string`, `string` | `number` | `string`\[]>
-
-The header values Node's `response.setHeader` accepts, e.g. a list of `Set-Cookie` values.
-
----
 
 #### MiddlewareConfig {#middlewareconfig}
 
@@ -33424,7 +33561,7 @@ Use it to reject a user based on some criteria before they log in, by throwing a
 ##### Example
 
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { OnBeforeLoginHook } from "wasp/server/auth";
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({
@@ -33516,7 +33653,7 @@ Use it to reject a user based on some criteria before they sign up, by throwing 
 ##### Example
 
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { OnBeforeSignupHook } from "wasp/server/auth";
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -34144,7 +34281,7 @@ The `AuthIdentity` entity, or `null` if it doesn't exist.
 ##### Example
 
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { createProviderId, findAuthIdentity } from "wasp/server/auth";
 
 const providerId = createProviderId("email", args.email);
@@ -34272,7 +34409,7 @@ Whether you can resend the email (`isResendAllowed`), and if not, how many secon
 ##### Example
 
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { getProviderData, isEmailResendAllowed } from "wasp/server/auth";
 
 const providerData = getProviderData<"email">(authIdentity.providerData);
@@ -34434,7 +34571,7 @@ The updated `AuthIdentity` entity.
 ##### Example
 
 ```ts
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   createProviderId,
   findAuthIdentity,
@@ -35471,7 +35608,7 @@ If you have a CRUD named `Tasks`, you can type a `getAll` override that only ret
 
 ```ts
 import { type Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { type Tasks } from "wasp/server/crud";
 
 export const getAllOverride: Tasks.GetAllQuery<void, Task[]> = async (

@@ -41,6 +41,10 @@ export { getErrorMessage } from "./errors.js";
 export { HttpMethod, type Route } from "./http.js";
 export {
   HttpError,
+  fromHttpErrorBody,
+  toHttpErrorBody,
+  type HttpErrorBody,
+  type HttpErrorData,
   type HttpErrorHeaders,
   type HttpErrorOptions,
 } from "./HttpError.js";
@@ -95,4 +99,3 @@ export {
   isValidAbsoluteURL,
   throwIfNotValidAbsoluteURL,
 } from "./utils/validators.js";
-export { WaspHttpError } from "./WaspHttpError.js";

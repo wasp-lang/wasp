@@ -1,6 +1,6 @@
 import { UppercaseTextRequestState } from "@prisma/client";
 import { UppercaseTextRequest } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import * as jobs from "wasp/server/jobs";
 import { type UppercaseTextJob } from "wasp/server/jobs";
 import {

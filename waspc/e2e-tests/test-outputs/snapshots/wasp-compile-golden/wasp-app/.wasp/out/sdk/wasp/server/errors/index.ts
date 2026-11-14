@@ -1,4 +1,4 @@
-import { HttpError } from "@wasp/lib-sdk-core";
+import { HttpError, toHttpErrorBody } from "@wasp/lib-sdk-core";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
@@ -44,9 +44,7 @@ export function sendErrorResponse(response: Response, error: unknown): void {
   if (httpError.headers) {
     response.set(httpError.headers);
   }
-  response
-    .status(httpError.statusCode)
-    .json({ message: httpError.message, data: httpError.data });
+  response.status(httpError.statusCode).json(toHttpErrorBody(httpError));
 }
 
 function toHttpError(error: unknown): HttpError {

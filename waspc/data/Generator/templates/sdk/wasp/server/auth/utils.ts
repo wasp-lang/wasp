@@ -9,7 +9,8 @@ import {
 export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp/lib-sdk-core/node'
 
 import { ensurePasswordIsHashed } from '@wasp/lib-sdk-core/node'
-import { prisma, HttpError } from '../index.js'
+import { HttpError } from '@wasp/lib-sdk-core'
+import { prisma } from '../index.js'
 import type {
   {= userEntityUpper =},
   {= authEntityUpper =},

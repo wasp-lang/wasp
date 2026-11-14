@@ -66,7 +66,8 @@ interface KyInstance {
  * you can also consume streaming responses through `Response.body`.
  *
  * Non-2xx responses make ky throw an `HTTPError`; pass it through
- * {@link handleApiError} to get a {@link WaspHttpError}.
+ * {@link handleApiError} to get an
+ * {@linkcode "errors"!HttpError | HttpError}.
  *
  * Unless it's declared with the `"ALL"` method, a custom API gets the default
  * middleware, including CORS, only on its own HTTP method, not on `OPTIONS`.
@@ -87,10 +88,14 @@ interface KyInstance {
 export declare const api: KyInstance;
 
 /**
- * Transforms an error thrown by {@link api} into a {@link WaspHttpError}.
+ * Transforms an error thrown by {@link api} into the
+ * {@linkcode "errors"!HttpError | HttpError} that the server sent.
+ *
+ * If the response body isn't the one Wasp sends for an `HttpError` (e.g. a
+ * proxy answered), the error has ky's error message and no `data`.
  *
  * @param error The error that `api` threw.
- * @returns A `WaspHttpError` if `error` comes from an HTTP response, otherwise
+ * @returns An `HttpError` if `error` comes from an HTTP response, otherwise
  * `error` unchanged.
  *
  * @example
@@ -105,20 +110,3 @@ export declare const api: KyInstance;
  * ```
  */
 export declare function handleApiError(error: unknown): unknown;
-
-/**
- * The error for a non-2xx response from your server.
- *
- * Operations and auth functions (e.g. `login`) throw it on the client, and
- * {@link handleApiError} creates it from the errors that {@link api} throws.
- *
- * It has:
- *
- * - `statusCode`: The response's status code.
- * - `message`: The `message` from the response body, or ky's error message if
- *   the body has none.
- * - `data`: The response body: parsed if it's JSON, plain text otherwise, and
- *   `undefined` if it's empty. For an `HttpError` from `wasp/server`, the body
- *   is `{ message, data }`, so that error's data is in `error.data.data`.
- */
-export { WaspHttpError } from "@wasp/lib-sdk-core";

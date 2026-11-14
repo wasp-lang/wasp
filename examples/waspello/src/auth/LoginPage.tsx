@@ -7,6 +7,7 @@ import EmailAndPassForm from "./components/EmailAndPassForm";
 import GoogleAuthButton from "./components/GoogleAuthButton";
 
 import { login } from "wasp/client/auth";
+import { HttpError } from "wasp/errors";
 import mainLogo from "../common/waspello-logo.svg";
 import "./Signup.css";
 
@@ -28,14 +29,15 @@ const LoginPage = () => {
       setPasswordFieldVal("");
 
       navigate("/");
-    } catch (err: any) {
-      // TODO: Update this to check against WaspHttpError https://github.com/wasp-lang/wasp/issues/2767
-      if (err.statusCode === 422) {
-        const errorMessage = err?.data?.data?.message || "Invalid request";
-        setErrorMessage(errorMessage);
-      } else if (err.statusCode === 401) {
-        const errorMessage = err?.data?.message || "Unauthorized";
-        setErrorMessage(errorMessage);
+    } catch (error: unknown) {
+      if (error instanceof HttpError && error.statusCode === 422) {
+        const description =
+          typeof error.data?.message === "string"
+            ? error.data.message
+            : "Invalid request";
+        setErrorMessage(description);
+      } else if (error instanceof HttpError && error.statusCode === 401) {
+        setErrorMessage(error.message || "Unauthorized");
       } else {
         setErrorMessage("An error occurred. Please try again later.");
       }

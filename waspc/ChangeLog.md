@@ -15,9 +15,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
+- `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
+- On the client, failed requests now throw an `HttpError` instead of a `WaspHttpError`, and its `data` is the `data` it was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 
 ### 🎉 New Features
 
+- The Wasp server and client now work with the same `HttpError` class, exported from `wasp/errors`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
 - The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
