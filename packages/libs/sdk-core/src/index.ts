@@ -44,6 +44,7 @@ export {
   fromHttpErrorBody,
   toHttpErrorBody,
   type HttpErrorBody,
+  type HttpErrorData,
   type HttpErrorHeaders,
   type HttpErrorOptions,
 } from "./HttpError.js";

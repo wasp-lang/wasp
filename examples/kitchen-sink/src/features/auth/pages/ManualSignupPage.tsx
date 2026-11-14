@@ -9,7 +9,7 @@ import {
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";
-import { getErrorMessage, HttpError } from "wasp/errors";
+import { HttpError } from "wasp/errors";
 import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
@@ -50,7 +50,7 @@ export const ManualSignupPage = () => {
         text:
           error instanceof HttpError
             ? `${error.message}: ${error.data?.message}`
-            : getErrorMessage(error),
+            : "Signup failed. Please try again.",
       });
     }
   });

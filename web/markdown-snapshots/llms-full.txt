@@ -32169,9 +32169,60 @@ You can import `wasp/errors` in both server and client code.
 
 #### HttpError
 
-An error with an HTTP status code that Wasp sends to the client.
+The error that the server and the client share. Throw it on the server to send an HTTP error response to the client, and check for it on the client to read that response.
 
-Throw it on the server to answer with a specific status code, message, and data. The client receives the same fields in an `HttpError`. Anything else thrown on the server reaches the client as a generic 500.
+**On the server**, throw an `HttpError` from an Operation or API. Wasp answers with its `statusCode`, and sends its `message` and `data` to the client for every status code, so only put information in them that is safe to show to the user.
+
+For security reasons, Wasp hides the details of any other error thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
+
+**On the client**, failed Operations and auth functions (e.g. `login`) throw an `HttpError` with the `statusCode`, `message`, and `data` you threw on the server. For your custom APIs, pass the error that the `api` client throws through `handleApiError` from `wasp/client/api` to get the same error.
+
+##### Examples
+
+Throwing it on the server:
+
+```ts
+import { HttpError } from "wasp/errors";
+
+export const getTask = async ({ id }, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in.");
+  }
+  // ...
+};
+```
+
+Sending extra information and response headers:
+
+```ts
+import { HttpError } from "wasp/errors";
+
+throw new HttpError(
+  429, // status code
+  "Too many requests", // message
+  { limitPerMinute: 60 }, // data
+  { headers: { "Retry-After": 60 } }, // options
+);
+```
+
+Reading it on the client:
+
+```ts
+import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+try {
+  await createTask({ description: "Buy milk" });
+} catch (error: unknown) {
+  if (error instanceof HttpError && error.statusCode === 403) {
+    window.alert(error.message);
+  }
+}
+```
+
+##### See
+
+[Error handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)
 
 ##### Extends
 
@@ -32182,6 +32233,8 @@ Throw it on the server to answer with a specific status code, message, and data.
 ###### Data
 
 `Data` *extends* [`HttpErrorData`](#httperrordata-2) = [`HttpErrorData`](#httperrordata-2)
+
+The type of the error's `data`. It defaults to [HttpErrorData](#httperrordata-2), an object with any fields.
 
 ##### Constructors
 
@@ -32195,17 +32248,25 @@ Throw it on the server to answer with a specific status code, message, and data.
 
 `number`
 
+The HTTP status code. It must be an integer in the range `[400, 600)`, otherwise the constructor throws an `Error`.
+
 ###### message?
 
 `string`
+
+The error message. Wasp sends it to the client.
 
 ###### data? {#data}
 
 `Data`
 
+An object with any extra information about the error. Wasp sends it to the client.
+
 ###### options?
 
 [`HttpErrorOptions`](#httperroroptions)
+
+The standard `Error` options (e.g. `cause`), and `headers` to set on the response.
 
 ###### Returns
 
@@ -32221,37 +32282,46 @@ Throw it on the server to answer with a specific status code, message, and data.
 
 > **data**: `Data` | `undefined`
 
+Extra information about the error, e.g. which form field is invalid. It is `undefined` if the error was created without it.
+
+On the client, it is the `data` the server threw the error with, after a round trip through JSON.
+
 ###### headers
 
 > **headers**: [`HttpErrorHeaders`](#httperrorheaders-1) | `undefined`
+
+The headers Wasp sets on the error response, from [HttpErrorOptions.headers](#headers-1).
+
+It is always `undefined` on the client, because the server doesn't send them back as part of the error.
 
 ###### statusCode {#statuscode}
 
 > **statusCode**: `number`
 
-### Functions
+The HTTP status code of the response, an integer in the range `[400, 600)`.
 
-#### getErrorMessage()
-
-> **getErrorMessage**(`error`): `string`
-
-##### Parameters
-
-###### error
-
-`unknown`
-
-The thrown value.
-
-##### Returns
-
-`string`
-
-The `message` of an `Error`, otherwise `error` converted to a string.
-
-### Referenced Types
+### Interfaces
 
 #### HttpErrorOptions
+
+The options of an [HttpError](#httperror), the last argument of its constructor.
+
+It takes the standard `Error` options (e.g. `cause`), and `headers`.
+
+##### Example
+
+```ts
+import { HttpError } from "wasp/errors";
+
+try {
+  await chargeCard(card);
+} catch (error: unknown) {
+  throw new HttpError(503, "Payments are unavailable", undefined, {
+    cause: error,
+    headers: { "Retry-After": 60 },
+  });
+}
+```
 
 ##### Extends
 
@@ -32263,11 +32333,25 @@ The `message` of an `Error`, otherwise `error` converted to a string.
 
 > `optional` **headers?**: [`HttpErrorHeaders`](#httperrorheaders-1)
 
----
+Headers to set on the error response, e.g. `Retry-After`.
+
+Wasp sets them on the server. The client doesn't get them back on the `HttpError` it receives.
+
+### Type Aliases
 
 #### HttpErrorData {#httperrordata-2}
 
 > **HttpErrorData** = `Record`<`string`, `unknown`>
+
+The extra information an [HttpError](#httperror) carries in its `data`: an object with any fields you choose.
+
+Wasp sends it to the client as JSON, so use values that survive `JSON.stringify`. For example, a `Date` arrives as a string.
+
+##### Example
+
+```ts
+const data: HttpErrorData = { code: "TASK_LIMIT_REACHED", limit: 10 };
+```
 
 ---
 
@@ -32275,7 +32359,18 @@ The `message` of an `Error`, otherwise `error` converted to a string.
 
 > **HttpErrorHeaders** = `Record`<`string`, `string` | `number` | `string`\[]>
 
-The header values Node's `response.setHeader` accepts, e.g. a list of `Set-Cookie` values.
+The response headers an [HttpError](#httperror) can set, passed through [HttpErrorOptions](#httperroroptions).
+
+The values are the ones Node's `response.setHeader` accepts: a string, a number, or a list of strings for headers that repeat, like `Set-Cookie`.
+
+##### Example
+
+```ts
+const headers: HttpErrorHeaders = {
+  "Retry-After": 60,
+  "Set-Cookie": ["a=1", "b=2"],
+};
+```
 
 
 ## wasp/server

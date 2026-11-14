@@ -1,2 +1,7 @@
 // PUBLIC API
-export { getErrorMessage, HttpError } from "@wasp/lib-sdk-core";
+export {
+  HttpError,
+  type HttpErrorData,
+  type HttpErrorHeaders,
+  type HttpErrorOptions,
+} from "@wasp/lib-sdk-core";

@@ -83,7 +83,7 @@
     {=! Server: the auth entity type. =}
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
-    {=! Users: HttpError, getErrorMessage. =}
+    {=! Users: HttpError, type HttpErrorData, type HttpErrorHeaders, type HttpErrorOptions. =}
     "./errors": "./dist/errors/index.js",
     {=! FIXME: Documented only in example apps, not in docs. =}
     "./serialization": "./dist/serialization/index.js",
