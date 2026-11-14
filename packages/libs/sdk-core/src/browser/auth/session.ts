@@ -47,7 +47,8 @@ if (typeof window !== "undefined") {
 
 /**
  * Converts an error thrown by ky:
- * - An HTTP error response becomes the `HttpError` the server threw.
+ * - ky's `HTTPError`, thrown when the server answers with an error status,
+ *   becomes the `HttpError` the server threw.
  * - Any other error, e.g. a network failure, is returned unchanged.
  */
 export function handleApiError(error: unknown): unknown {
