@@ -1,5 +1,4 @@
 import { parse as parseDotenv } from "dotenv";
-import { expand, type DotenvPopulateInput } from "dotenv-expand";
 import { access, constants, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { Plugin, UserConfig } from "vite";
@@ -75,11 +74,6 @@ export async function loadEnvVars({
   if (loadDotEnvFile) {
     const envFilePath = resolve(rootDir, envFileName);
     const parsed = await parseEnvFile(envFilePath, envFileName);
-
-    // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
-    // doesn't re-assign the expanded values to the global `process.env`.
-    const processEnv = { ...process.env } as DotenvPopulateInput;
-    expand({ parsed, processEnv });
 
     // Only keys that start with prefix are exposed to client.
     for (const [key, value] of Object.entries(parsed)) {

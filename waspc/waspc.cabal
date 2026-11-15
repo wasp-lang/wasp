@@ -125,7 +125,6 @@ library
     containers ^>=0.7,
     cryptohash-sha256 ^>=0.11.102,
     directory ^>=1.3.8,
-    dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
     filepath ^>=1.5.4,

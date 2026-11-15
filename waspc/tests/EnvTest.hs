@@ -1,8 +1,11 @@
 module EnvTest where
 
+import Data.Maybe (fromJust)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
+import qualified StrongPath as SP
+import System.IO.Temp (withSystemTempDirectory)
 import Test.Hspec
 import Wasp.Env
 
@@ -28,6 +31,11 @@ spec_envVarHelpers = do
       envVarValueShouldBeFormattedCorrectly "{\"teamConcurrency\":3, \"retryLimit\":2}" "\"{\"teamConcurrency\":3, \"retryLimit\":2}\""
 
     it "should handle special characters correctly" $ envVarValueShouldBeFormattedCorrectly "value$with&special=chars" "value$with&special=chars"
+
+    it "should quote values containing # or newlines" $ do
+      envVarValueShouldBeFormattedCorrectly "foo#bar" "\"foo#bar\""
+      envVarValueShouldBeFormattedCorrectly "line1\nline2\rline3" "\"line1\\nline2\\rline3\""
+      envVarValueShouldBeFormattedCorrectly "'quoted'" "\"'quoted'\""
 
   describe "envVarsToDotEnvContent" $ do
     it "should handle multiple environment variables correctly" $ do
@@ -91,3 +99,57 @@ spec_envVarCombining = do
         [("B", "3"), ("A", "4")]
         [("A", "1"), ("B", "2")]
         `shouldBe` Left (Set.fromList ["A", "B"])
+spec_parseDotEnvContent :: Spec
+spec_parseDotEnvContent = do
+  describe "parseDotEnvFile" $ do
+    it "lets the last definition win when the same variable is defined twice" $ do
+      parseDotEnv "SOME_VAR=1\nSOME_VAR=2"
+        `shouldReturn` [("SOME_VAR", "2")]
+
+    it "keeps ${VAR} literally without expanding from earlier lines" $ do
+      parseDotEnv "A=hello\nB=${A}_world"
+        `shouldReturn` [("A", "hello"), ("B", "${A}_world")]
+
+    it "keeps $(command) literally without executing it" $ do
+      parseDotEnv "CMD=$(echo hi)"
+        `shouldReturn` [("CMD", "$(echo hi)")]
+
+    it "parses unquoted values containing spaces" $ do
+      parseDotEnv "KEY=some spaced value"
+        `shouldReturn` [("KEY", "some spaced value")]
+
+    it "parses backtick-quoted values" $ do
+      parseDotEnv "KEY=`value`"
+        `shouldReturn` [("KEY", "value")]
+
+    it "skips lines that are not definitions instead of failing the file" $ do
+      parseDotEnv "not a definition\nVALID=1\nalso invalid"
+        `shouldReturn` [("VALID", "1")]
+
+    it "keeps escaped quotes as \\\" inside quotes" $ do
+      parseDotEnv "KEY=\"a\\\"b\""
+        `shouldReturn` [("KEY", "a\\\"b")]
+      parseDotEnv "KEY='a\\\"b'"
+        `shouldReturn` [("KEY", "a\\\"b")]
+
+    it "expands \\n and \\r inside double quotes but not single quotes" $ do
+      parseDotEnv "DOUBLE=\"line1\\nline2\"\nSINGLE='line1\\nline2'"
+        `shouldReturn` [("DOUBLE", "line1\nline2"), ("SINGLE", "line1\\nline2")]
+
+    it "round-trips formatted env vars through envVarsToDotEnvContent and parseDotEnvFile" $ do
+      let envVars =
+            [ ("SIMPLE", "value"),
+              ("SPACED", "some spaced value"),
+              ("HASH", "foo#bar"),
+              ("NEWLINES", "line1\nline2\rline3"),
+              ("SINGLE_QUOTED_INNER", "'quoted'")
+            ]
+      parseDotEnv (T.unpack $ envVarsToDotEnvContent envVars)
+        `shouldReturn` envVars
+  where
+    parseDotEnv :: String -> IO [EnvVar]
+    parseDotEnv content =
+      withSystemTempDirectory "wasp-env-test" $ \tmpDir -> do
+        let envFile = fromJust (SP.parseAbsDir tmpDir) SP.</> [SP.relfile|.env|]
+        writeFile (SP.fromAbsFile envFile) content
+        parseDotEnvFile envFile
