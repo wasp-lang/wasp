@@ -28791,7 +28791,68 @@ The URL of your server, which the client uses to call it. Wasp sets it during de
 
 An HTTP client for calling your app's server, including your [custom APIs](https://wasp.sh/docs/features/apis).
 
-### Interfaces
+### Variables
+
+#### api
+
+> `const` **api**: [`KyInstance`](#kyinstance)
+
+A [ky](https://github.com/sindresorhus/ky) instance configured for your app's server.
+
+It automatically prepends your server's URL to the paths you pass, adds the logged-in user's authentication header, and clears the user's session from the browser if the server responds with `401`. Since ky is built on `fetch`, you can also consume streaming responses through `Response.body`.
+
+Non-2xx responses make ky throw an `HTTPError`; pass it through [handleApiError](#handleapierror) to get an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror).
+
+Unless it's declared with the `"ALL"` method, a custom API gets the default middleware, including CORS, only on its own HTTP method, not on `OPTIONS`. Requests to such an API that need a CORS preflight (e.g. with the auth header or a JSON body) fail unless you also apply the middleware to the path with an `apiNamespace`.
+
+##### Example
+
+```ts
+import { api } from "wasp/client/api";
+
+const data = await api.get("/foo/bar").json();
+```
+
+##### See
+
+- [Using the API from the client](https://wasp.sh/docs/features/apis#using-the-api-from-the-client)
+- [Making sure CORS works](https://wasp.sh/docs/features/apis#making-sure-cors-works)
+
+### Functions
+
+#### handleApiError()
+
+> **handleApiError**(`error`): `unknown`
+
+Takes an error that the `api` client threw. If the server answered with an error status that Wasp handles (400 to 599), returns an `HttpError`. Otherwise, returns the error unchanged.
+
+##### Parameters
+
+###### error
+
+`unknown`
+
+The error that `api` threw.
+
+##### Returns
+
+`unknown`
+
+An `HttpError`, or `error` unchanged.
+
+##### Example
+
+```ts
+import { api, handleApiError } from "wasp/client/api";
+
+try {
+  await api.post("/tasks", { json: { description: "Buy milk" } });
+} catch (error) {
+  throw handleApiError(error);
+}
+```
+
+### Referenced Types
 
 #### KyInstance
 
@@ -28993,76 +29054,13 @@ Gets the response body as text.
 
 `Promise`<`string`>
 
-### Type Aliases
+---
 
 #### KyInput
 
 > **KyInput** = `string` | `URL` | `Request`
 
 The URL or request to fetch: a path relative to your server's URL (e.g. `"/foo/bar"`), a `URL`, or a `Request`.
-
-### Variables
-
-#### api
-
-> `const` **api**: [`KyInstance`](#kyinstance)
-
-A [ky](https://github.com/sindresorhus/ky) instance configured for your app's server.
-
-It automatically prepends your server's URL to the paths you pass, adds the logged-in user's authentication header, and clears the user's session from the browser if the server responds with `401`. Since ky is built on `fetch`, you can also consume streaming responses through `Response.body`.
-
-Non-2xx responses make ky throw an `HTTPError`; pass it through [handleApiError](#handleapierror) to get an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror).
-
-Unless it's declared with the `"ALL"` method, a custom API gets the default middleware, including CORS, only on its own HTTP method, not on `OPTIONS`. Requests to such an API that need a CORS preflight (e.g. with the auth header or a JSON body) fail unless you also apply the middleware to the path with an `apiNamespace`.
-
-##### Example
-
-```ts
-import { api } from "wasp/client/api";
-
-const data = await api.get("/foo/bar").json();
-```
-
-##### See
-
-- [Using the API from the client](https://wasp.sh/docs/features/apis#using-the-api-from-the-client)
-- [Making sure CORS works](https://wasp.sh/docs/features/apis#making-sure-cors-works)
-
-### Functions
-
-#### handleApiError()
-
-> **handleApiError**(`error`): `unknown`
-
-Takes an error that [api](#api) threw. If the server answered with an error status that Wasp handles (400 to 599), returns an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror). Otherwise, returns the error unchanged.
-
-The `HttpError` has the response's status code and the `message` and `data` from its body. If the body isn't the one Wasp sends for an `HttpError` (e.g. a proxy answered), it has ky's error message and no `data`.
-
-##### Parameters
-
-###### error
-
-`unknown`
-
-The error that `api` threw.
-
-##### Returns
-
-`unknown`
-
-An `HttpError`, or `error` unchanged.
-
-##### Example
-
-```ts
-import { api, handleApiError } from "wasp/client/api";
-
-try {
-  await api.post("/tasks", { json: { description: "Buy milk" } });
-} catch (error) {
-  throw handleApiError(error);
-}
-```
 
 
 ## wasp/client/auth

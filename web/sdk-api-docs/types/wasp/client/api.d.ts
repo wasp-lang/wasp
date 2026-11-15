@@ -87,28 +87,5 @@ interface KyInstance {
  */
 export declare const api: KyInstance;
 
-/**
- * Takes an error that {@link api} threw. If the server answered with an error
- * status that Wasp handles (400 to 599), returns an
- * {@linkcode "errors"!HttpError | HttpError}. Otherwise, returns the error
- * unchanged.
- *
- * The `HttpError` has the response's status code and the `message` and `data`
- * from its body. If the body isn't the one Wasp sends for an `HttpError` (e.g.
- * a proxy answered), it has ky's error message and no `data`.
- *
- * @param error The error that `api` threw.
- * @returns An `HttpError`, or `error` unchanged.
- *
- * @example
- * ```ts
- * import { api, handleApiError } from "wasp/client/api";
- *
- * try {
- *   await api.post("/tasks", { json: { description: "Buy milk" } });
- * } catch (error) {
- *   throw handleApiError(error);
- * }
- * ```
- */
-export declare function handleApiError(error: unknown): unknown;
+// Documented in `@wasp/lib-sdk-core`, where it is defined.
+export { handleApiError } from "@wasp/lib-sdk-core/browser";

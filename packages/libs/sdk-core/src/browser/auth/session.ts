@@ -49,6 +49,20 @@ if (typeof window !== "undefined") {
  * Takes an error that the `api` client threw. If the server answered with an
  * error status that Wasp handles (400 to 599), returns an `HttpError`.
  * Otherwise, returns the error unchanged.
+ *
+ * @param error The error that `api` threw.
+ * @returns An `HttpError`, or `error` unchanged.
+ *
+ * @example
+ * ```ts
+ * import { api, handleApiError } from "wasp/client/api";
+ *
+ * try {
+ *   await api.post("/tasks", { json: { description: "Buy milk" } });
+ * } catch (error) {
+ *   throw handleApiError(error);
+ * }
+ * ```
  */
 export function handleApiError(error: unknown): unknown {
   // ky also throws for other non-2xx statuses, e.g. `0` for a redirect that
