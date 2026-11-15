@@ -20,7 +20,9 @@
  * **On the client**, failed Operations and auth functions (e.g. `login`) throw
  * an `HttpError` with the `statusCode`, `message`, and `data` you threw on the
  * server. For your custom APIs, pass the error that the `api` client throws
- * through `handleApiError` from `wasp/client/api` to get the same error.
+ * through
+ * [`handleApiError`](https://wasp.sh/docs/api/wasp/client/api#handleapierror)
+ * to get the same error.
  *
  * @typeParam Data The type of the error's `data`. It defaults to
  * {@link HttpErrorData}, an object with any fields.

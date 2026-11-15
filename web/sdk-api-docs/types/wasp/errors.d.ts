@@ -6,7 +6,6 @@
  * @module
  */
 
-// These are documented in `@wasp/lib-sdk-core`, where they are defined.
 export {
   HttpError,
   type HttpErrorData,

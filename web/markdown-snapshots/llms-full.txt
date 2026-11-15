@@ -28824,7 +28824,7 @@ const data = await api.get("/foo/bar").json();
 
 > **handleApiError**(`error`): `unknown`
 
-Takes an error that the `api` client threw. If the server answered with an error status that Wasp handles (400 to 599), returns an `HttpError`. Otherwise, returns the error unchanged.
+Takes an error that the [`api`](https://wasp.sh/docs/api/wasp/client/api#api) client threw. If the server answered with an error status that Wasp handles (400 to 599), returns an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror). Otherwise, returns the error unchanged.
 
 ##### Parameters
 
@@ -32173,7 +32173,7 @@ The error that the server and the client share. Throw it on the server to send a
 
 For security reasons, Wasp hides the details of any other error thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
 
-**On the client**, failed Operations and auth functions (e.g. `login`) throw an `HttpError` with the `statusCode`, `message`, and `data` you threw on the server. For your custom APIs, pass the error that the `api` client throws through `handleApiError` from `wasp/client/api` to get the same error.
+**On the client**, failed Operations and auth functions (e.g. `login`) throw an `HttpError` with the `statusCode`, `message`, and `data` you threw on the server. For your custom APIs, pass the error that the `api` client throws through [`handleApiError`](https://wasp.sh/docs/api/wasp/client/api#handleapierror) to get the same error.
 
 ##### Examples
 
