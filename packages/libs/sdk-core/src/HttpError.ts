@@ -219,6 +219,9 @@ export type HttpErrorBody = {
   data?: HttpErrorData;
 };
 
+/**
+ * Builds the JSON body the server sends for an `HttpError`.
+ */
 export function toHttpErrorBody(error: HttpError): HttpErrorBody {
   return { message: error.message, data: error.data };
 }
