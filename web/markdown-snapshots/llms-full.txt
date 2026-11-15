@@ -29034,9 +29034,9 @@ const data = await api.get("/foo/bar").json();
 
 > **handleApiError**(`error`): `unknown`
 
-Transforms an error thrown by [api](#api) into the [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) that the server sent.
+Takes an error that [api](#api) threw. If the server answered with an error status that Wasp handles (400 to 599), returns an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror). Otherwise, returns the error unchanged.
 
-If the response body isn't the one Wasp sends for an `HttpError` (e.g. a proxy answered), the error has ky's error message and no `data`.
+The `HttpError` has the response's status code and the `message` and `data` from its body. If the body isn't the one Wasp sends for an `HttpError` (e.g. a proxy answered), it has ky's error message and no `data`.
 
 ##### Parameters
 
@@ -29050,7 +29050,7 @@ The error that `api` threw.
 
 `unknown`
 
-An `HttpError` if `error` comes from an HTTP response, otherwise `error` unchanged.
+An `HttpError`, or `error` unchanged.
 
 ##### Example
 

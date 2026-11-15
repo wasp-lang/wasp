@@ -88,15 +88,17 @@ interface KyInstance {
 export declare const api: KyInstance;
 
 /**
- * Transforms an error thrown by {@link api} into the
- * {@linkcode "errors"!HttpError | HttpError} that the server sent.
+ * Takes an error that {@link api} threw. If the server answered with an error
+ * status that Wasp handles (400 to 599), returns an
+ * {@linkcode "errors"!HttpError | HttpError}. Otherwise, returns the error
+ * unchanged.
  *
- * If the response body isn't the one Wasp sends for an `HttpError` (e.g. a
- * proxy answered), the error has ky's error message and no `data`.
+ * The `HttpError` has the response's status code and the `message` and `data`
+ * from its body. If the body isn't the one Wasp sends for an `HttpError` (e.g.
+ * a proxy answered), it has ky's error message and no `data`.
  *
  * @param error The error that `api` threw.
- * @returns An `HttpError` if `error` comes from an HTTP response, otherwise
- * `error` unchanged.
+ * @returns An `HttpError`, or `error` unchanged.
  *
  * @example
  * ```ts

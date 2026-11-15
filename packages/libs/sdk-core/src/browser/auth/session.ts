@@ -46,11 +46,9 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Converts an error that the `api` client threw.
- *
- * If the server answered with an error status, returns an `HttpError` with
- * that status and the response's `message` and `data`. Returns any other
- * error, e.g. a network failure, unchanged.
+ * Takes an error that the `api` client threw. If the server answered with an
+ * error status that Wasp handles (400 to 599), returns an `HttpError`.
+ * Otherwise, returns the error unchanged.
  */
 export function handleApiError(error: unknown): unknown {
   // ky also throws for other non-2xx statuses, e.g. `0` for a redirect that
