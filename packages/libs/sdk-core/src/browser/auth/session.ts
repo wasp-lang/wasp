@@ -1,5 +1,9 @@
 import { isHTTPError } from "ky";
-import { fromHttpErrorBody, isHttpErrorStatusCode } from "../../HttpError.js";
+import {
+  fromHttpErrorBody,
+  isHttpErrorStatusCode,
+  type HttpError,
+} from "../../HttpError.js";
 import { storage } from "../storage.js";
 import { apiEventsEmitter } from "./events.js";
 
@@ -49,7 +53,7 @@ if (typeof window !== "undefined") {
  * Takes an error that the
  * [`api`](https://wasp.sh/docs/api/wasp/client/api#api) client threw. If the
  * server answered with an error status that Wasp handles (400 to 599), returns
- * an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror). Otherwise,
+ * an {@link HttpError}. Otherwise,
  * returns the error unchanged.
  *
  * @param error The error that `api` threw.
