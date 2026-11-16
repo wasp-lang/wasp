@@ -1,10 +1,10 @@
 import { HTTPError } from "ky";
 import { describe, expect, it } from "vitest";
 import { handleApiError } from "../src/browser/auth/session";
-import { HttpError } from "../src/HttpError";
+import { ClientHttpError } from "../src/ClientHttpError";
 
 describe("handleApiError", () => {
-  it("returns an `HttpError` with the response's status, message, and data", async () => {
+  it("returns a `ClientHttpError` with the response's status, message, and data", async () => {
     const kyHttpError = makeKyHttpError(403, {
       message: "Not allowed",
       data: { reason: "not the owner" },
@@ -12,7 +12,7 @@ describe("handleApiError", () => {
 
     const error = handleApiError(kyHttpError);
 
-    expect(error).toBeInstanceOf(HttpError);
+    expect(error).toBeInstanceOf(ClientHttpError);
     expect(error).toMatchObject({
       statusCode: 403,
       message: "Not allowed",
@@ -25,15 +25,16 @@ describe("handleApiError", () => {
 
     const error = handleApiError(kyHttpError);
 
-    expect(error).toBeInstanceOf(HttpError);
+    expect(error).toBeInstanceOf(ClientHttpError);
     expect(error).toMatchObject({
       statusCode: 502,
       message: kyHttpError.message,
       data: undefined,
+      cause: kyHttpError,
     });
   });
 
-  it("returns ky's error unchanged for a status an `HttpError` can't hold", () => {
+  it("returns ky's error unchanged for a status a `ClientHttpError` can't hold", () => {
     const kyHttpError = makeKyHttpError(304, undefined);
 
     expect(handleApiError(kyHttpError)).toBe(kyHttpError);

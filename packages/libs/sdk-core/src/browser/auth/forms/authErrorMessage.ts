@@ -1,10 +1,10 @@
 import type { ErrorMessage } from "@wasp/lib-auth/browser";
+import { ClientHttpError } from "../../../ClientHttpError.js";
 import { getErrorMessage } from "../../../errors.js";
-import { HttpError } from "../../../HttpError.js";
 
 export function getAuthErrorMessage(error: unknown): ErrorMessage {
-  if (error instanceof HttpError) {
-    // Auth endpoints put the details in `HttpError`'s data, e.g. `{ message }`.
+  if (error instanceof ClientHttpError) {
+    // Auth endpoints put the details in the error's data, e.g. `{ message }`.
     const description =
       typeof error.data?.message === "string" ? error.data.message : undefined;
     return { title: error.message, description };

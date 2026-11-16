@@ -1,4 +1,4 @@
-import { HttpError } from "wasp/errors";
+import { ServerHttpError } from "wasp/server";
 import {
   type ThrowConcealedError,
   type ThrowHttpError,
@@ -13,7 +13,7 @@ export const throwUnexpectedError: ThrowUnexpectedError = async () => {
 };
 
 export const throwHttpError: ThrowHttpError = async () => {
-  throw new HttpError(418, "I'm a teapot", { reason: "short and stout" });
+  throw new ServerHttpError(418, "I'm a teapot", { reason: "short and stout" });
 };
 
 // The errors below have the shape that Express middleware create with the
@@ -36,7 +36,7 @@ export const throwRateLimitError: ThrowRateLimitError = async () => {
   });
 };
 
-// An error that is neither an `HttpError` nor an `http-errors` error, but
+// An error that is neither an `ServerHttpError` nor an `http-errors` error, but
 // still carries a status code and headers.
 export const throwUnavailableError: ThrowUnavailableError = async () => {
   throw Object.assign(new Error("Internal detail of a 503"), {

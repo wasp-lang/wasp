@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { HttpError } from '@wasp/lib-sdk-core'
+import { ServerHttpError } from '@wasp/lib-sdk-core'
 import { config } from '../../index.js'
 import { reportUnexpectedServerError } from "../../errors/index.js";
 
@@ -21,7 +21,7 @@ export function getRedirectUriForOneTimeCode(oneTimeCode: string): URL {
 
 // PRIVATE API (server)
 export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
-  if (error instanceof HttpError) {
+  if (error instanceof ServerHttpError) {
     const errorMessage = isHttpErrorWithExtraMessage(error)
       ? `${error.message}: ${error.data.message}`
       : error.message;
@@ -42,6 +42,6 @@ function getRedirectUriForError(error: string): URL {
   return url;
 }
 
-function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { data: { message: string } } {
+function isHttpErrorWithExtraMessage(error: ServerHttpError): error is ServerHttpError & { data: { message: string } } {
   return !!error.data && typeof (error.data as any).message === 'string';
 }

@@ -1,16 +1,11 @@
 // PUBLIC API
-export {
-  HttpError,
-  type HttpErrorData,
-  type HttpErrorHeaders,
-  type HttpErrorOptions,
-} from "@wasp/lib-sdk-core";
+export { HttpError, type HttpErrorData } from "@wasp/lib-sdk-core";
 
 // PUBLIC API
 // Undocumented: the wire format of an `HttpError`, for clients that don't use
 // Wasp's own.
 export {
-  fromHttpErrorBody,
+  isHttpErrorBody,
   isHttpErrorStatusCode,
   toHttpErrorBody,
   type HttpErrorBody,

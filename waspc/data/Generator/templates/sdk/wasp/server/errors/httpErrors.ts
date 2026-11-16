@@ -14,7 +14,7 @@ export interface HttpErrorsError extends Error {
   status: number;
   statusCode: number;
   expose: boolean;
-  headers?: Wasp.HttpErrorHeaders;
+  headers?: Wasp.ServerHttpErrorHeaders;
 }
 
 // PRIVATE API (server)
@@ -38,7 +38,7 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
 
 // PRIVATE API (server)
 /**
- * Turns an `http-errors` error into a `Wasp.HttpError`.
+ * Turns an `http-errors` error into a `Wasp.ServerHttpError`.
  *
  * - It keeps the status code and headers.
  * - It only keeps the message when `expose` marks it as safe to show.
@@ -46,17 +46,17 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
 export function toWaspHttpError(
   error: HttpErrorsError,
   { includeErrorDetails }: { includeErrorDetails: boolean },
-): Wasp.HttpError {
+): Wasp.ServerHttpError {
   const options = { headers: error.headers };
   if (error.expose) {
-    return new Wasp.HttpError(
+    return new Wasp.ServerHttpError(
       error.statusCode,
       error.message,
       undefined,
       options,
     );
   }
-  return new Wasp.HttpError(
+  return new Wasp.ServerHttpError(
     error.statusCode,
     STATUS_CODES[error.statusCode],
     includeErrorDetails ? getErrorDetails(error) : undefined,

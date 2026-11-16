@@ -83,13 +83,13 @@
     {=! Server: the auth entity type. =}
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
-    {=! Users: HttpError, type HttpErrorData, type HttpErrorHeaders, type HttpErrorOptions. =}
-    {=! Users (undocumented): type HttpErrorBody, toHttpErrorBody, fromHttpErrorBody, isHttpErrorStatusCode. =}
+    {=! Users: HttpError, type HttpErrorData. =}
+    {=! Users (undocumented): type HttpErrorBody, toHttpErrorBody, isHttpErrorBody, isHttpErrorStatusCode. =}
     "./errors": "./dist/errors/index.js",
     {=! FIXME: Documented only in example apps, not in docs. =}
     "./serialization": "./dist/serialization/index.js",
-    {=! Users: config, prisma, env, type ServerSetupFn, type DbSeedFn, type MiddlewareConfigFn. =}
-    {=! Server: config, prisma, env, ServerSetupFn, DbSeedFn. =}
+    {=! Users: config, prisma, env, ServerHttpError, type ServerHttpErrorOptions, type ServerHttpErrorHeaders, type ServerSetupFn, type DbSeedFn, type MiddlewareConfigFn. =}
+    {=! Server: config, prisma, env, ServerHttpError, ServerSetupFn, DbSeedFn. =}
     "./server": "./dist/server/index.js",
     "./server/api": "./dist/server/api/index.js",
     {=! Users: signup field helpers and validators.  =}

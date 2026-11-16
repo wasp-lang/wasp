@@ -14,7 +14,7 @@ import { getErrorDetails } from "./utils.js";
 
 // PRIVATE API (server)
 /**
- * Turns an unkown error into a `Wasp.HttpError`.
+ * Turns an unkown error into a `Wasp.ServerHttpError`.
  *
  * - It keeps the status code and headers when there is a valid status code,
  *   otherwise defaults to a generic 500 error.
@@ -23,13 +23,13 @@ import { getErrorDetails } from "./utils.js";
 export function toWaspHttpError(
   error: unknown,
   { includeErrorDetails }: { includeErrorDetails: boolean },
-): Wasp.HttpError {
+): Wasp.ServerHttpError {
   const data = includeErrorDetails ? getErrorDetails(error) : undefined;
   const statusCode = findStatusCode(error);
   if (statusCode === undefined) {
-    return new Wasp.HttpError(500, STATUS_CODES[500], data);
+    return new Wasp.ServerHttpError(500, STATUS_CODES[500], data);
   }
-  return new Wasp.HttpError(statusCode, STATUS_CODES[statusCode], data, {
+  return new Wasp.ServerHttpError(statusCode, STATUS_CODES[statusCode], data, {
     headers: findHeaders(error),
   });
 }
@@ -46,7 +46,7 @@ function findStatusCode(error: unknown): number | undefined {
 }
 
 
-function findHeaders(error: unknown): Wasp.HttpErrorHeaders | undefined {
+function findHeaders(error: unknown): Wasp.ServerHttpErrorHeaders | undefined {
   if (
     typeof error === "object" &&
     error !== null &&
@@ -54,7 +54,7 @@ function findHeaders(error: unknown): Wasp.HttpErrorHeaders | undefined {
     typeof error.headers === "object" &&
     error.headers !== null
   ) {
-    return { ...error.headers } as Wasp.HttpErrorHeaders;
+    return { ...error.headers } as Wasp.ServerHttpErrorHeaders;
   }
   return undefined;
 }

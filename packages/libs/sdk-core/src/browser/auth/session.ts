@@ -1,9 +1,6 @@
-import { isHTTPError } from "ky";
-import {
-  fromHttpErrorBody,
-  isHttpErrorStatusCode,
-  type HttpError,
-} from "../../HttpError.js";
+import { isHTTPError, type HTTPError } from "ky";
+import { ClientHttpError } from "../../ClientHttpError.js";
+import { isHttpErrorBody, isHttpErrorStatusCode } from "../../HttpError.js";
 import { storage } from "../storage.js";
 import { apiEventsEmitter } from "./events.js";
 
@@ -53,11 +50,10 @@ if (typeof window !== "undefined") {
  * Takes an error that the
  * [`api`](https://wasp.sh/docs/api/wasp/client/api#api) client threw. If the
  * server answered with an error status that Wasp handles (400 to 599), returns
- * an {@link HttpError}. Otherwise,
- * returns the error unchanged.
+ * a {@link ClientHttpError}. Otherwise, returns the error unchanged.
  *
  * @param error The error that `api` threw.
- * @returns An `HttpError`, or `error` unchanged.
+ * @returns A `ClientHttpError`, or `error` unchanged.
  *
  * @example
  * ```ts
@@ -72,15 +68,28 @@ if (typeof window !== "undefined") {
  */
 export function handleApiError(error: unknown): unknown {
   // ky also throws for other non-2xx statuses, e.g. `0` for a redirect that
-  // wasn't followed, which an `HttpError` can't hold.
+  // wasn't followed, which a `ClientHttpError` can't hold.
   if (isHTTPError(error) && isHttpErrorStatusCode(error.response.status)) {
-    return fromHttpErrorBody({
-      statusCode: error.response.status,
-      body: error.data,
-      fallbackMessage: error.message,
-    });
+    return toClientHttpError(error);
   }
   return error;
+}
+
+function toClientHttpError(kyHttpError: HTTPError): ClientHttpError {
+  const statusCode = kyHttpError.response.status;
+  const body = kyHttpError.data;
+  const options = { cause: kyHttpError };
+
+  // Something other than the Wasp server answered, e.g. a proxy.
+  if (!isHttpErrorBody(body)) {
+    return new ClientHttpError(
+      statusCode,
+      kyHttpError.message,
+      undefined,
+      options,
+    );
+  }
+  return new ClientHttpError(statusCode, body.message, body.data, options);
 }
 
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";

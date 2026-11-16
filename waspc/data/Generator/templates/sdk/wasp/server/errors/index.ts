@@ -1,4 +1,4 @@
-import { HttpError, toHttpErrorBody } from "@wasp/lib-sdk-core";
+import { ServerHttpError, toHttpErrorBody } from "@wasp/lib-sdk-core";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
@@ -27,28 +27,29 @@ export function reportUnexpectedServerError(
 /**
  * Sends anything thrown while handling a request as a JSON error response.
  *
- * - Wasp's `HttpError`s are thrown on purpose, so we return them as is.
+ * - `ServerHttpError`s are thrown on purpose, so we return them as is.
  * - `http-errors` package errors, which are thrown by `express`, are
- *   properly transformed into `HttpError`s.
+ *   properly transformed into `ServerHttpError`s.
  * - For the rest of errors, we try to make a choice based on their fields.
- *   If we manage to find a valid status code, we return a best bet `HttpError`,
- *   otherwise we default to a generic 500 error.
+ *   If we manage to find a valid status code, we return a best bet
+ *   `ServerHttpError`, otherwise we default to a generic 500 error.
  *
- * Every error, that wasn't a `HttpError` originally, logs if it's an 5xx error.
+ * Every error, that wasn't a `ServerHttpError` originally, logs if it's an 5xx
+ * error.
  *
  * In development, we purposely attach otherwise hidden data (message, stack traces)
  * where possible.
  */
 export function sendErrorResponse(response: Response, error: unknown): void {
-  const httpError = toHttpError(error);
+  const httpError = toServerHttpError(error);
   if (httpError.headers) {
     response.set(httpError.headers);
   }
   response.status(httpError.statusCode).json(toHttpErrorBody(httpError));
 }
 
-function toHttpError(error: unknown): HttpError {
-  if (error instanceof HttpError) {
+function toServerHttpError(error: unknown): ServerHttpError {
+  if (error instanceof ServerHttpError) {
     return error;
   }
 

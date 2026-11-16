@@ -497,29 +497,34 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 11. Import `HttpError` from `wasp/errors`
+### 11. Rename `HttpError` to `ServerHttpError`
 
-The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+The error you throw on the server is now called `ServerHttpError`. You still import it from `wasp/server`. Update your imports and every place that creates one:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```ts title="src/queries.ts"
     import { HttpError } from "wasp/server"
+
+    throw new HttpError(403, "Not allowed")
     ```
   </TabItem>
   <TabItem value="after" label="After">
     ```ts title="src/queries.ts"
     // highlight-next-line
-    import { HttpError } from "wasp/errors"
+    import { ServerHttpError } from "wasp/server"
+
+    // highlight-next-line
+    throw new ServerHttpError(403, "Not allowed")
     ```
   </TabItem>
 </Tabs>
 
-### 12. Read `HttpError` data directly on the client
+### 12. Read errors on the client with `ClientHttpError`
 
 **If your client code doesn't read `error.data` or use `WaspHttpError`, you can skip this step.**
 
-On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`.
+On the client, failed operations and auth actions now throw a `ClientHttpError`, which you import from `wasp/client`. It replaces `WaspHttpError` from `wasp/client/api`.
 Its `data` is now the `data` you passed on the server.
 Before, `data` held the whole response body, so you had to read `error.data.data`.
 
@@ -538,13 +543,13 @@ Before, `data` held the whole response body, so you had to read `error.data.data
   <TabItem value="after" label="After">
     ```ts title="src/SignupPage.tsx"
     // highlight-next-line
-    import { HttpError } from "wasp/errors"
+    import { ClientHttpError } from "wasp/client"
 
     try {
       await signup({ username, password })
     } catch (error: unknown) {
       // highlight-next-line
-      if (error instanceof HttpError && error.statusCode === 422) {
+      if (error instanceof ClientHttpError && error.statusCode === 422) {
         // highlight-next-line
         setErrorMessage(String(error.data?.message))
       }

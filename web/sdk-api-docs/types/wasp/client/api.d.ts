@@ -66,8 +66,8 @@ interface KyInstance {
  * you can also consume streaming responses through `Response.body`.
  *
  * Non-2xx responses make ky throw an `HTTPError`; pass it through
- * {@link handleApiError} to get an
- * {@linkcode "errors"!HttpError | HttpError}.
+ * {@link handleApiError} to get a
+ * {@linkcode "client"!ClientHttpError | ClientHttpError}.
  *
  * Unless it's declared with the `"ALL"` method, a custom API gets the default
  * middleware, including CORS, only on its own HTTP method, not on `OPTIONS`.
