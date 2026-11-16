@@ -26,7 +26,7 @@ Besides, I liked the idea of referential transparency when writing pure function
 
 **Second, Haskell is lazy.** While there are pros and cons to this, it feels undeniably different. Most languages are strict, in that all function arguments are evaluated before invoking a function. This is required because of side effects; to have some expectations regarding the order in which things will run. Haskell does the opposite: it delays evaluation until it’s actually needed.
 
-One contrived yet helpful example of laziness is infinite data structures. Below, we define `fibs` as an infinite `List` of `Integer` values, by using references to _itself_! (You can find a runnable example here.)
+One contrived yet helpful example of laziness is infinite data structures. Below, we define `fibs` as an infinite `List` of `Integer` values, by using references to _itself_!
 
 ```haskell
 fibs :: [Integer]
