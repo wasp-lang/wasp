@@ -40,7 +40,7 @@ export function handleClientError(
 }
 
 // Users who call `api` without `handleApiError` get ky's error instead of
-// our `HttpError`.
+// a `ClientHttpError`.
 function isHttpErrorResponse(error: unknown): boolean {
   return error instanceof HttpError || isHTTPError(error);
 }

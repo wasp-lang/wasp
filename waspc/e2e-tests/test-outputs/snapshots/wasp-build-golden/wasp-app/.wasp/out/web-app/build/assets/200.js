@@ -73,26 +73,61 @@ function emptySubscribe() {
 }
 // node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
 /**
-* An error with an HTTP status code that Wasp sends to the client.
+* The base form of Wasp's HTTP errors. It holds the status code, the message,
+* and the data, which the server's and the client's errors have in common.
 *
-* Throw it on the server to answer with a specific status code, message,
-* and data. The client receives the same fields in an `HttpError`.
-* Anything else thrown on the server reaches the client as a generic 500.
+* It is abstract, so you create one of the classes that extend it. Use
+* `HttpError` itself to handle any of them, e.g. in code that runs on both the
+* server and the client.
+*
+* @typeParam Data The type of the error's `data`. It defaults to
+* {@link HttpErrorData}, an object with any fields.
+*
+* @example
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* export function isNotFoundError(error: unknown): boolean {
+*   return error instanceof HttpError && error.statusCode === 404;
+* }
+* ```
+*
+* @see [Error handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)
 */
-var HttpError = class HttpError extends Error {
+var HttpError = class extends Error {
+	/**
+	* The HTTP status code of the response, an integer in the range
+	* `[400, 600)`.
+	*/
 	statusCode;
+	/**
+	* Extra information about the error, e.g. which form field is invalid.
+	* It is `undefined` if the error was created without it.
+	*/
 	data;
-	headers;
+	/**
+	* @param statusCode The HTTP status code. It must be an integer in the
+	* range `[400, 600)`, otherwise the constructor throws an `Error`.
+	* @param message The error message.
+	* @param data An object with any extra information about the error.
+	* @param options The standard `Error` options (e.g. `cause`).
+	*/
 	constructor(statusCode, message, data, options) {
 		super(message, options);
-		if (Error.captureStackTrace) Error.captureStackTrace(this, HttpError);
+		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
 		this.name = "HttpError";
-		if (!(Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600)) throw new Error("statusCode has to be integer in range [400, 600).");
+		if (!isHttpErrorStatusCode(statusCode)) throw new Error("statusCode has to be integer in range [400, 600).");
 		this.statusCode = statusCode;
-		if (data) this.data = data;
-		this.headers = options?.headers;
+		this.data = data;
 	}
 };
+/**
+* Checks that a value is a status code an {@link HttpError} accepts, which is
+* an integer in the range `[400, 600)`.
+*/
+function isHttpErrorStatusCode(value) {
+	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
+}
 // node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
 var handledErrors = /* @__PURE__ */ new WeakSet();
 /**

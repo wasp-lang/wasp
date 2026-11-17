@@ -65,9 +65,8 @@ interface KyInstance {
  * the browser if the server responds with `401`. Since ky is built on `fetch`,
  * you can also consume streaming responses through `Response.body`.
  *
- * Non-2xx responses make ky throw an `HTTPError`; pass it through
- * {@link handleApiError} to get an
- * {@linkcode "errors"!HttpError | HttpError}.
+ * Non-2xx responses make ky throw an `HTTPError`, which you can pass through
+ * {@link handleApiError}.
  *
  * Unless it's declared with the `"ALL"` method, a custom API gets the default
  * middleware, including CORS, only on its own HTTP method, not on `OPTIONS`.
@@ -87,26 +86,4 @@ interface KyInstance {
  */
 export declare const api: KyInstance;
 
-/**
- * Transforms an error thrown by {@link api} into the
- * {@linkcode "errors"!HttpError | HttpError} that the server sent.
- *
- * If the response body isn't the one Wasp sends for an `HttpError` (e.g. a
- * proxy answered), the error has ky's error message and no `data`.
- *
- * @param error The error that `api` threw.
- * @returns An `HttpError` if `error` comes from an HTTP response, otherwise
- * `error` unchanged.
- *
- * @example
- * ```ts
- * import { api, handleApiError } from "wasp/client/api";
- *
- * try {
- *   await api.post("/tasks", { json: { description: "Buy milk" } });
- * } catch (error) {
- *   throw handleApiError(error);
- * }
- * ```
- */
-export declare function handleApiError(error: unknown): unknown;
+export { handleApiError } from "@wasp/lib-sdk-core/browser";

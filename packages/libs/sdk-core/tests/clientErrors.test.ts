@@ -1,7 +1,7 @@
 import { HTTPError } from "ky";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handleClientError } from "../src/browser/errors";
-import { HttpError } from "../src/HttpError";
+import { ClientHttpError } from "../src/ClientHttpError";
 
 describe("client error handler", () => {
   beforeEach(() => {
@@ -20,7 +20,9 @@ describe("client error handler", () => {
   });
 
   it("doesn't report an `HttpError`", () => {
-    handleClientError(new HttpError(404, "Not found"), { source: "query" });
+    handleClientError(new ClientHttpError(404, "Not found"), {
+      source: "query",
+    });
 
     expect(console.error).not.toHaveBeenCalled();
   });

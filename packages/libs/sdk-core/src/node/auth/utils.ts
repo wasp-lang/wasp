@@ -4,7 +4,7 @@ import {
   type PossibleProviderData,
   type ProviderName,
 } from "../../auth/providerData.js";
-import { HttpError } from "../../HttpError.js";
+import { ServerHttpError } from "../../ServerHttpError.js";
 import { sleep } from "../../utils/sleep.js";
 
 // If an user exists, we don't want to leak information
@@ -44,6 +44,8 @@ export async function ensurePasswordIsHashed<PN extends ProviderName>(
   return data;
 }
 
-export function createInvalidCredentialsError(message?: string): HttpError {
-  return new HttpError(401, "Invalid credentials", { message });
+export function createInvalidCredentialsError(
+  message?: string,
+): ServerHttpError {
+  return new ServerHttpError(401, "Invalid credentials", { message });
 }

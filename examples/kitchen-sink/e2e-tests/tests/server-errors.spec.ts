@@ -15,7 +15,7 @@ test.describe("server errors", () => {
     });
   });
 
-  test("an HttpError keeps its status, message, and data", async ({
+  test("a ServerHttpError keeps its status, message, and data", async ({
     request,
   }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/http`);
@@ -24,6 +24,18 @@ test.describe("server errors", () => {
     expect(await response.json()).toEqual({
       message: "I'm a teapot",
       data: { reason: "short and stout" },
+    });
+  });
+
+  test("any other HttpError keeps its status, message, and data", async ({
+    request,
+  }) => {
+    const response = await request.get(`${WASP_SERVER_URL}/errors/custom-http`);
+
+    expect(response.status()).toBe(402);
+    expect(await response.json()).toEqual({
+      message: "Payment required",
+      data: { plan: "pro" },
     });
   });
 

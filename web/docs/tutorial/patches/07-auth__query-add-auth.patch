@@ -4,12 +4,12 @@ index 4e4ba1b..fe44833 100644
 +++ b/src/queries.ts
 @@ -1,8 +1,14 @@
  import type { Task } from "wasp/entities";
-+import { HttpError } from "wasp/errors";
++import { ServerHttpError } from "wasp/server";
  import type { GetTasks } from "wasp/server/operations";
  
  export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 +  if (!context.user) {
-+    throw new HttpError(401);
++    throw new ServerHttpError(401);
 +  }
 +
    return context.entities.Task.findMany({

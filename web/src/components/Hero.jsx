@@ -110,14 +110,14 @@ export function MainPage() {
     name: "tasks.ts",
     language: "typescript",
     source: `import { type GetTasks } from "wasp/server/operations";
-import { HttpError } from "wasp/errors";
+import { ServerHttpError } from "wasp/server";
 import { Task } from "wasp/entities";
 
 export const getTasks: GetTasks<void, Task[]> = async (
   _args,
   context
 ) => {
-  if (!context.user) throw new HttpError(401);
+  if (!context.user) throw new ServerHttpError(401);
 
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },

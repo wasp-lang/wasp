@@ -4,6 +4,11 @@
  * @module
  */
 
+export {
+  ClientHttpError,
+  type ClientHttpErrorOptions,
+} from "@wasp/lib-sdk-core";
+
 /**
  * The client's configuration object.
  *

@@ -2,21 +2,21 @@ import type { QueryClientConfig } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("query retries", () => {
-  let HttpError: typeof import("../src/HttpError").HttpError;
+  let ClientHttpError: typeof import("../src/ClientHttpError").ClientHttpError;
 
   beforeEach(async () => {
     // The query client lives in module state, so each test needs fresh
-    // modules. `HttpError` must come from the same module instance for
+    // modules. `ClientHttpError` must come from the same module instance for
     // `instanceof` checks to work.
     vi.resetModules();
-    ({ HttpError } = await import("../src/HttpError"));
+    ({ ClientHttpError } = await import("../src/ClientHttpError"));
   });
 
   it.each([400, 401, 403, 404, 422])(
     "doesn't retry a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new HttpError(statusCode, "Client error"),
+        new ClientHttpError(statusCode, "Client error"),
       );
       expect(attempts).toBe(1);
     },
@@ -26,11 +26,23 @@ describe("query retries", () => {
     "retries a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new HttpError(statusCode, "Error"),
+        new ClientHttpError(statusCode, "Error"),
       );
       expect(attempts).toBe(4);
     },
   );
+
+  it("doesn't retry a query that fails with another kind of `HttpError`", async () => {
+    const { HttpError } = await import("../src/HttpError");
+    class NotFoundError extends HttpError {
+      constructor() {
+        super(404, "Not found");
+      }
+    }
+
+    const attempts = await countQueryAttempts(new NotFoundError());
+    expect(attempts).toBe(1);
+  });
 
   it("retries a query that fails with a non-HTTP error", async () => {
     const attempts = await countQueryAttempts(new Error("Network error"));
@@ -38,16 +50,22 @@ describe("query retries", () => {
   });
 
   it("keeps the default retries when the user configures other query options", async () => {
-    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
-      defaultOptions: { queries: { staleTime: Infinity } },
-    });
+    const attempts = await countQueryAttempts(
+      new ClientHttpError(404, "Not found"),
+      {
+        defaultOptions: { queries: { staleTime: Infinity } },
+      },
+    );
     expect(attempts).toBe(1);
   });
 
   it("lets the user override the retries", async () => {
-    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
-      defaultOptions: { queries: { retry: 2 } },
-    });
+    const attempts = await countQueryAttempts(
+      new ClientHttpError(404, "Not found"),
+      {
+        defaultOptions: { queries: { retry: 2 } },
+      },
+    );
     expect(attempts).toBe(3);
   });
 });

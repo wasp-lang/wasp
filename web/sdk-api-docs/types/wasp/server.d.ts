@@ -7,6 +7,12 @@
  * @module
  */
 
+export {
+  ServerHttpError,
+  type ServerHttpErrorHeaders,
+  type ServerHttpErrorOptions,
+} from "@wasp/lib-sdk-core";
+
 /**
  * The server's configuration, which Wasp computes from the
  * {@link env | environment variables}.

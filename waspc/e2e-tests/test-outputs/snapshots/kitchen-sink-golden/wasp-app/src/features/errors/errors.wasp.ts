@@ -2,6 +2,7 @@ import { api, page, query, route, type Spec } from "@wasp/spec";
 
 import {
   throwConcealedError,
+  throwCustomHttpError,
   throwHttpError,
   throwRateLimitError,
   throwUnavailableError,
@@ -15,6 +16,7 @@ import { getTeapot } from "./queries" with { type: "ref" };
 export const errorsSpec: Spec = [
   api("GET", "/errors/unexpected", throwUnexpectedError, { auth: false }),
   api("GET", "/errors/http", throwHttpError, { auth: false }),
+  api("GET", "/errors/custom-http", throwCustomHttpError, { auth: false }),
   api("GET", "/errors/concealed", throwConcealedError, { auth: false }),
   api("GET", "/errors/unavailable", throwUnavailableError, { auth: false }),
   api("GET", "/errors/rate-limit", throwRateLimitError, { auth: false }),
