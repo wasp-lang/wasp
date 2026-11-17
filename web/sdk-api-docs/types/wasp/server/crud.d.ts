@@ -49,7 +49,7 @@
  *
  * ```ts
  * import { type Task } from "wasp/entities";
- * import { HttpError } from "wasp/server";
+ * import { ServerHttpError } from "wasp/server";
  * import { type Tasks } from "wasp/server/crud";
  *
  * export const getAllOverride: Tasks.GetAllQuery<void, Task[]> = async (
@@ -57,7 +57,7 @@
  *   context,
  * ) => {
  *   if (!context.user) {
- *     throw new HttpError(401, "User not authenticated.");
+ *     throw new ServerHttpError(401, "User not authenticated.");
  *   }
  *
  *   return context.entities.Task.findMany({

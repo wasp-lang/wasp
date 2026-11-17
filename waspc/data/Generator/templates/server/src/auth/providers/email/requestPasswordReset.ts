@@ -13,7 +13,7 @@ import {
 } from "wasp/server/auth";
 import { ensureValidEmail } from 'wasp/auth/validation';
 import type { EmailFromField } from 'wasp/server/email/core/types';
-import { HttpError } from 'wasp/server';
+import { ServerHttpError } from "wasp/server";
 
 export function getRequestPasswordResetRoute({
    fromField,
@@ -50,7 +50,7 @@ export function getRequestPasswordResetRoute({
         const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
         const { isResendAllowed, timeLeft } = isEmailResendAllowed(providerData, 'passwordResetSentAt');
         if (!isResendAllowed) {
-            throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
+            throw new ServerHttpError(400, `Please wait ${timeLeft} secs before trying again.`);
         }
 
         const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
@@ -66,7 +66,7 @@ export function getRequestPasswordResetRoute({
             );
         } catch (e: unknown) {
             console.error("Failed to send password reset email:", e);
-            throw new HttpError(500, "Failed to send password reset email.");
+            throw new ServerHttpError(500, "Failed to send password reset email.");
         }
     
         res.json({ success: true });

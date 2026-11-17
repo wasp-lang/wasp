@@ -112,7 +112,7 @@ export default app({
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/auth/hooks.js"
-    import { HttpError } from "wasp/server"
+    import { ServerHttpError } from "wasp/server"
 
     export const onBeforeSignup = async ({ providerId, prisma, req }) => {
       const count = await prisma.user.count()
@@ -121,14 +121,14 @@ export default app({
       console.log("provider user ID", providerId.providerUserId)
 
       if (count > 100) {
-        throw new HttpError(403, "Too many users")
+        throw new ServerHttpError(403, "Too many users")
       }
 
       if (
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "This email is not allowed")
+        throw new ServerHttpError(403, "This email is not allowed")
       }
     }
     ```
@@ -136,7 +136,7 @@ export default app({
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import { HttpError } from "wasp/server"
+    import { ServerHttpError } from "wasp/server"
     import type { OnBeforeSignupHook } from "wasp/server/auth"
 
     export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -150,14 +150,14 @@ export default app({
       console.log("provider user ID", providerId.providerUserId)
 
       if (count > 100) {
-        throw new HttpError(403, "Too many users")
+        throw new ServerHttpError(403, "Too many users")
       }
 
       if (
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "This email is not allowed")
+        throw new ServerHttpError(403, "This email is not allowed")
       }
     }
     ```
@@ -416,14 +416,14 @@ export default app({
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/auth/hooks.js"
-    import { HttpError } from "wasp/server"
+    import { ServerHttpError } from "wasp/server"
 
     export const onBeforeLogin = async ({ providerId, user, prisma, req }) => {
       if (
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "You cannot log in with this email")
+        throw new ServerHttpError(403, "You cannot log in with this email")
       }
     }
     ```
@@ -431,7 +431,7 @@ export default app({
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import { HttpError } from "wasp/server"
+    import { ServerHttpError } from "wasp/server"
     import type { OnBeforeLoginHook } from "wasp/server/auth"
 
     export const onBeforeLogin: OnBeforeLoginHook = async ({
@@ -444,7 +444,7 @@ export default app({
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "You cannot log in with this email")
+        throw new ServerHttpError(403, "You cannot log in with this email")
       }
     }
     ```

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { HttpError } from 'wasp/server';
+import { ServerHttpError } from "wasp/server";
 import { defineHandler } from 'wasp/server/utils';
 import { findAuthWithUserBy } from 'wasp/server/auth/utils'
 import { createSession } from 'wasp/server/auth/session'
@@ -13,18 +13,18 @@ export function setupOneTimeCodeRoute(router: Router) {
       const { code } = req.body;
 
       if (code === undefined) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code is missing.");
+        throw new ServerHttpError(400, "Unable to login with the OAuth provider. The code is missing.");
       }
 
       if (tokenStore.isUsed(code)) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
+        throw new ServerHttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
       }
 
       const { id: authId } = await tokenStore.verifyToken(code);
       const auth = await findAuthWithUserBy({ id: authId })
 
       if (auth === null) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
+        throw new ServerHttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
       }
 
       const session = await createSession(auth.id);

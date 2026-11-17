@@ -163,11 +163,11 @@ Here's the `src/tasks.{js,ts}` file:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/tasks.js"
-    import { HttpError } from "wasp/server"
+    import { ServerHttpError } from "wasp/server"
 
     export const createTask = async (args, context) => {
       if (!context.user) {
-        throw new HttpError(401, "User not authenticated.")
+        throw new ServerHttpError(401, "User not authenticated.")
       }
 
       const { description, isDone } = args
@@ -195,7 +195,7 @@ Here's the `src/tasks.{js,ts}` file:
     ```ts title="src/tasks.ts"
     import { type Tasks } from "wasp/server/crud"
     import { type Task } from "wasp/entities"
-    import { HttpError } from "wasp/server"
+    import { ServerHttpError } from "wasp/server"
 
     type CreateTaskInput = { description: string; isDone: boolean }
 
@@ -204,7 +204,7 @@ Here's the `src/tasks.{js,ts}` file:
       context
     ) => {
       if (!context.user) {
-        throw new HttpError(401, "User not authenticated.")
+        throw new ServerHttpError(401, "User not authenticated.")
       }
 
       const { description, isDone } = args

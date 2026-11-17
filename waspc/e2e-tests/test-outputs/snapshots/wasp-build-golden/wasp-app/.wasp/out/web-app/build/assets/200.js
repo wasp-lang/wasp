@@ -93,16 +93,63 @@ function DefaultRootErrorBoundary() {
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-// node_modules/@wasp/lib-sdk-core/dist/WaspHttpError.mjs
-var WaspHttpError = class extends Error {
+// node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
+/**
+* The base form of Wasp's HTTP errors. It holds the status code, the message,
+* and the data, which the server's and the client's errors have in common.
+*
+* It is abstract, so you create one of the classes that extend it. Use
+* `HttpError` itself to handle any of them, e.g. in code that runs on both the
+* server and the client.
+*
+* @typeParam Data The type of the error's `data`. It defaults to
+* {@link HttpErrorData}, an object with any fields.
+*
+* @example
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* export function isNotFoundError(error: unknown): boolean {
+*   return error instanceof HttpError && error.statusCode === 404;
+* }
+* ```
+*
+* @see [Error handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)
+*/
+var HttpError = class extends Error {
+	/**
+	* The HTTP status code of the response, an integer in the range
+	* `[400, 600)`.
+	*/
 	statusCode;
+	/**
+	* Extra information about the error, e.g. which form field is invalid.
+	* It is `undefined` if the error was created without it.
+	*/
 	data;
-	constructor(statusCode, message, data) {
-		super(message);
+	/**
+	* @param statusCode The HTTP status code. It must be an integer in the
+	* range `[400, 600)`, otherwise the constructor throws an `Error`.
+	* @param message The error message.
+	* @param data An object with any extra information about the error.
+	* @param options The standard `Error` options (e.g. `cause`).
+	*/
+	constructor(statusCode, message, data, options) {
+		super(message, options);
+		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
+		this.name = "HttpError";
+		if (!isHttpErrorStatusCode(statusCode)) throw new Error("statusCode has to be integer in range [400, 600).");
 		this.statusCode = statusCode;
 		this.data = data;
 	}
 };
+/**
+* Checks that a value is a status code an {@link HttpError} accepts, which is
+* an integer in the range `[400, 600)`.
+*/
+function isHttpErrorStatusCode(value) {
+	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
+}
 // node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
@@ -179,7 +226,7 @@ function withWaspQueryDefaults(config) {
 }
 function shouldRetryQuery(failureCount, error) {
 	if (failureCount >= MAX_QUERY_RETRIES) return false;
-	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+	return !(error instanceof HttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";

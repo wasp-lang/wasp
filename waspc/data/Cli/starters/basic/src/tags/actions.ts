@@ -1,12 +1,12 @@
 import { Tag } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { ServerHttpError } from "wasp/server";
 import { CreateTag } from "wasp/server/operations";
 
 type CreateTagArgs = Pick<Tag, "name" | "color">;
 
 export const createTag: CreateTag<CreateTagArgs, Tag> = (tag, context) => {
   if (!context.user) {
-    throw new HttpError(401);
+    throw new ServerHttpError(401);
   }
 
   return context.entities.Tag.create({
