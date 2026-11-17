@@ -394,19 +394,17 @@ Here's what you have to do differently:
 
 ### Error Handling
 
-When your Action's NodeJS implementation throws an error, what the client sees depends on the error:
+When your Action's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-- If you throw a `ServerHttpError`, or any other `HttpError`, the client receives its status code, `message`, and `data`. This is true for every status code.
-- If you throw anything else, Wasp treats the error as unexpected:
-  - The client receives a generic `500 Internal Server Error`.
-  - Wasp logs the error on the server.
-  - In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident.
-  - In development, the response also includes the error's message and stack to help you debug.
+1. **A `ServerHttpError`, or any other `HttpError`.** The client receives its status code, `message`, and `data`. This is true for every status code.
+2. **An error with a valid `status` or `statusCode` field**, like the ones Express middleware throw. The client receives that status code and the error's `headers`, with the generic message for the status code. The error's own message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
+3. **Anything else.** The client receives a generic `500 Internal Server Error`.
 
-Errors with a valid `status` or `statusCode` field, like the ones Express middleware throw, are a special case of unexpected errors:
+In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
 
-- Wasp answers with that status code and the error's `headers`, instead of `500`.
-- The message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
+- In production, Wasp doesn't send them.
+- In development, the response also includes the error's message and stack to help you debug.
+- Wasp logs the error on the server if the status code is `500` or above.
 
 To send error details to the client, throw a `ServerHttpError`:
 
@@ -443,7 +441,7 @@ To send error details to the client, throw a `ServerHttpError`:
 
 Only put information in a `ServerHttpError` that is safe to show to the user.
 
-On the client, the failed Action throws a `ClientHttpError` with the same status code, `message`, and `data`. Other failures, like a network error, throw generic `Error` instances, so check for a `ClientHttpError` before reading these fields:
+On the client, the failed Action throws a `ClientHttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `ClientHttpError` before reading these fields:
 
 ```ts title="src/NewTaskForm.tsx" auto-js
 import { ClientHttpError } from "wasp/client";

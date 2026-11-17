@@ -22,7 +22,7 @@ import { HttpError, type HttpErrorData } from "./HttpError.js";
  * ```
  *
  * @example
- * Reading a response header.
+ * Reading a response header:
  *
  * ```ts
  * if (error instanceof ClientHttpError && error.statusCode === 429) {

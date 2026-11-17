@@ -23,7 +23,7 @@ import { HttpError, type HttpErrorData } from "./HttpError.js";
  * ```
  *
  * @example
- * Sending extra information and response headers.
+ * Sending extra information and response headers:
  *
  * ```ts
  * import { ServerHttpError } from "wasp/server";
