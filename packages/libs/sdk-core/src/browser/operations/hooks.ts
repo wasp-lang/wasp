@@ -296,9 +296,9 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
       // Attempt to optimistically update the cache using the new value.
       try {
         queryClient.setQueryData(queryKey, updateQuery);
-      } catch (e: unknown) {
+      } catch (error: unknown) {
         // We skip the optimistic update when `updateQuery` throws.
-        handleClientError(e, { source: "optimisticUpdate" });
+        handleClientError(error, { source: "optimisticUpdate" });
       }
 
       // Remember the snapshotted value to restore in case of an error.
