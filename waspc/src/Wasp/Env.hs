@@ -17,7 +17,7 @@ where
 
 import Data.Char (isAlphaNum, isAscii, isSpace)
 import Data.Function (on)
-import Data.List (dropWhileEnd, intercalate, isInfixOf, isPrefixOf, nubBy)
+import Data.List (dropWhileEnd, intercalate, isInfixOf, isPrefixOf, isSuffixOf, nubBy)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
@@ -166,9 +166,6 @@ parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
     isKeyChar :: Char -> Bool
     isKeyChar c = (isAscii c && isAlphaNum c) || c == '_' || c == '.' || c == '-'
 
-    isQuoteChar :: Char -> Bool
-    isQuoteChar c = c == '\'' || c == '"' || c == '`'
-
 -- | Formats environment variables for .env file content.
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
 envVarsToDotEnvContent vars =
@@ -179,25 +176,24 @@ envVarsToDotEnvContent vars =
 formatEnvVarValue :: EnvVarValue -> EnvVarValue
 formatEnvVarValue rawValue
   | not (needsQuoting rawValue) = rawValue
-  | canUseSingleQuotes = concat ["'", rawValue, "'"]
-  | canUseBacktickQuotes = concat ["`", rawValue, "`"]
-  | otherwise = concat ["\"", escapedForDoubleQuotes, "\""]
+  | canUseSingleQuotes = wrapInQuotes '\'' rawValue
+  | canUseBacktickQuotes = wrapInQuotes '`' rawValue
+  | otherwise = wrapInQuotes '"' escapedForDoubleQuotes
   where
     needsQuoting :: String -> Bool
     needsQuoting val =
       any isJsSpace val
         || '#' `elem` val
-        || isSurroundedByQuotes val
+        || startsWithQuote val
 
-    isSurroundedByQuotes :: String -> Bool
-    isSurroundedByQuotes (q : rest) =
-      q `elem` ("'\"`" :: String) && not (null rest) && last rest == q
-    isSurroundedByQuotes [] = False
+    startsWithQuote :: String -> Bool
+    startsWithQuote (q : _) = isQuoteChar q
+    startsWithQuote [] = False
 
     hasDoubleQuoteConflict :: Bool
     hasDoubleQuoteConflict =
       hasLiteralNewlineEscape
-        || ('"' `elem` rawValue && ('#' `elem` rawValue || isSurroundedByQuotes rawValue))
+        || ('"' `elem` rawValue && ('#' `elem` rawValue || startsWithQuote rawValue))
 
     hasLiteralNewlineEscape :: Bool
     hasLiteralNewlineEscape =
@@ -225,6 +221,19 @@ formatEnvVarValue rawValue
           | c == quoteChar = False
           | otherwise = go rest
 
+    -- When a quoted value ends with '\', dotenv preferentially treats the
+    -- closing quote as escaped (\', \", \`) and continues scanning across lines.
+    -- Appending a trailing comment containing an unescaped quote followed by a
+    -- non-comment character (e.g. #'_) forces the escaped-quote branch to fail
+    -- on the same line and backtrack to the actual closing quote.
+    wrapInQuotes :: Char -> String -> String
+    wrapInQuotes quoteChar body
+      | hasTrailingBackslash = concat [[quoteChar], body, [quoteChar, ' ', '#', quoteChar, '_']]
+      | otherwise = concat [[quoteChar], body, [quoteChar]]
+
+    hasTrailingBackslash :: Bool
+    hasTrailingBackslash = "\\" `isSuffixOf` rawValue
+
     escapedForDoubleQuotes :: String
     escapedForDoubleQuotes = concatMap escapeChar rawValue
 
@@ -232,6 +241,9 @@ formatEnvVarValue rawValue
     escapeChar '\n' = "\\n"
     escapeChar '\r' = "\\r"
     escapeChar c = [c]
+
+isQuoteChar :: Char -> Bool
+isQuoteChar c = c == '\'' || c == '"' || c == '`'
 
 isJsSpace :: Char -> Bool
 isJsSpace c = isSpace c || c == '\xFEFF' || c == '\x2028' || c == '\x2029'
