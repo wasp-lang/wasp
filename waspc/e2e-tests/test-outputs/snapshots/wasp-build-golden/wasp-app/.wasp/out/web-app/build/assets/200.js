@@ -128,6 +128,7 @@ var HttpError = class extends Error {
 function isHttpErrorStatusCode(value) {
 	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
 }
+// node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
 var handledErrors = /* @__PURE__ */ new WeakSet();
 /**
 * The client error handler. Wasp calls it from every place where errors
@@ -166,14 +167,6 @@ function listenForUncaughtClientErrors() {
 }
 function reportUnexpectedClientError(error, context) {
 	console.error(`Unexpected error in ${context.source}:`, error);
-	callClientOnErrorFn(error, context);
-}
-async function callClientOnErrorFn(error, context) {
-	try {
-		await void 0;
-	} catch (onErrorFnError) {
-		console.error("The `client.onError` function failed:", onErrorFnError);
-	}
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
