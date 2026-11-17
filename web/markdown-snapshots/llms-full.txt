@@ -15376,7 +15376,7 @@ throw new ServerHttpError(403, "Not allowed")
 On the client, failed operations and auth actions now throw a `ClientHttpError`, which you import from `wasp/client`. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
 - Its `data` is the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
-- It is documented, so you can rely on checking for it with `instanceof`.
+- It is part of the documented public API, so you can rely on checking for it with `instanceof`.
 
 **Before**
 
