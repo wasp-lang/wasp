@@ -23,7 +23,7 @@ import { HttpError, type HttpErrorData } from "./HttpError.js";
  * ```
  *
  * @example
- * Sending extra information and response headers:
+ * Sending extra information and response headers.
  *
  * ```ts
  * import { ServerHttpError } from "wasp/server";
@@ -70,8 +70,8 @@ export class ServerHttpError<
 }
 
 /**
- * The options of a {@link ServerHttpError}: the standard `Error` options (e.g.
- * `cause`), and `headers`.
+ * The options of a {@link ServerHttpError}. It takes the standard `Error`
+ * options (e.g. `cause`), and `headers`.
  *
  * @example
  * ```ts
@@ -98,8 +98,9 @@ export interface ServerHttpErrorOptions extends ErrorOptions {
  * The response headers a {@link ServerHttpError} can set, passed through
  * {@link ServerHttpErrorOptions}.
  *
- * The values are the ones Node's `response.setHeader` accepts: a string, a
- * number, or a list of strings for headers that repeat, like `Set-Cookie`.
+ * A value is a string, a number, or a list of strings for headers that
+ * repeat, like `Set-Cookie`. These are the values that Node's
+ * `response.setHeader` accepts.
  *
  * @example
  * ```ts

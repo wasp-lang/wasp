@@ -409,10 +409,19 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ### Error Handling
 
-When your Query's NodeJS implementation throws an error, the client sees one of two things:
+When your Query's NodeJS implementation throws an error, what the client sees depends on the error:
 
-- If you throw a `ServerHttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug. If the error has a valid `status` or `statusCode` field, like the errors Express middleware throw, Wasp answers with that status code and the error's `headers` instead of `500`. The message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
+- If you throw a `ServerHttpError`, or any other `HttpError`, the client receives its status code, `message`, and `data`. This is true for every status code.
+- If you throw anything else, Wasp treats the error as unexpected:
+  - The client receives a generic `500 Internal Server Error`.
+  - Wasp logs the error on the server.
+  - In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident.
+  - In development, the response also includes the error's message and stack to help you debug.
+
+Errors with a valid `status` or `statusCode` field, like the ones Express middleware throw, are a special case of unexpected errors:
+
+- Wasp answers with that status code and the error's `headers`, instead of `500`.
+- The message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
 
 To send error details to the client, throw a `ServerHttpError`:
 
@@ -449,7 +458,7 @@ To send error details to the client, throw a `ServerHttpError`:
 
 Only put information in a `ServerHttpError` that is safe to show to the user.
 
-On the client, the failed Query throws a `ClientHttpError` with the same status code, `message`, and `data`. Other failures, like a network error, throw other errors, so check for a `ClientHttpError` before reading these fields:
+On the client, the failed Query throws a `ClientHttpError` with the same status code, `message`, and `data`. Other failures, like a network error, throw generic `Error` instances, so check for a `ClientHttpError` before reading these fields:
 
 ```tsx title="src/MainPage.tsx" auto-js
 import { ClientHttpError } from "wasp/client";

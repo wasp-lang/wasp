@@ -16,7 +16,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
 - `HttpError` from `wasp/server` is now called `ServerHttpError`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
-- On the client, failed requests now throw a `ClientHttpError` instead of a `WaspHttpError`, and its `data` is the `data` the error was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
+- On the client, failed requests now throw a `ClientHttpError`. Its `data` is the `data` the error was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
 
 ### 🎉 New Features
 
@@ -24,7 +24,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
 - The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
-- `ServerHttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
+- `ServerHttpError` (formerly `HttpError`) can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))

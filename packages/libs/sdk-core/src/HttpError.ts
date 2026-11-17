@@ -1,6 +1,6 @@
 /**
- * The base form of Wasp's HTTP errors. It holds what the server's and the
- * client's errors have in common: the status code, the message, and the data.
+ * The base form of Wasp's HTTP errors. It holds the status code, the message,
+ * and the data, which the server's and the client's errors have in common.
  *
  * It is abstract, so you create one of the classes that extend it. Use
  * `HttpError` itself to handle any of them, e.g. in code that runs on both the
@@ -66,11 +66,8 @@ export abstract class HttpError<
 }
 
 /**
- * The extra information an {@link HttpError} carries in its `data`: an object
- * with any fields you choose.
- *
- * It travels as JSON, so use values that survive `JSON.stringify`. For
- * example, a `Date` becomes a string.
+ * The extra information an {@link HttpError} carries in its `data`. It is an
+ * object with any fields you choose.
  *
  * @example
  * ```ts
@@ -80,8 +77,8 @@ export abstract class HttpError<
 export type HttpErrorData = { [fieldName: string]: unknown };
 
 /**
- * Checks for a status code an {@link HttpError} accepts: an integer in the
- * range `[400, 600)`.
+ * Checks that a value is a status code an {@link HttpError} accepts, which is
+ * an integer in the range `[400, 600)`.
  */
 export function isHttpErrorStatusCode(value: unknown): value is number {
   return (

@@ -22,7 +22,7 @@ import { HttpError, type HttpErrorData } from "./HttpError.js";
  * ```
  *
  * @example
- * Reading a response header:
+ * Reading a response header.
  *
  * ```ts
  * if (error instanceof ClientHttpError && error.statusCode === 429) {
@@ -37,16 +37,14 @@ export class ClientHttpError<
 > extends HttpError<Data> {
   /**
    * The request the server answered with an error, from
-   * {@link ClientHttpErrorOptions.request}. Use it to read the request's URL,
-   * method, or headers.
+   * {@link ClientHttpErrorOptions.request}.
    *
    * It is `undefined` if the error was created without it.
    */
   public request: Request | undefined;
 
   /**
-   * The server's response, from {@link ClientHttpErrorOptions.response}. Use
-   * it to read the response's headers or URL.
+   * The server's response, from {@link ClientHttpErrorOptions.response}.
    *
    * It is `undefined` if the error was created without it.
    */
@@ -76,8 +74,9 @@ export class ClientHttpError<
 }
 
 /**
- * The options of a {@link ClientHttpError}: the standard `Error` options (e.g.
- * `cause`), and the `request` and `response` the error comes from.
+ * The options of a {@link ClientHttpError}. It takes the standard `Error`
+ * options (e.g. `cause`), and the `request` and `response` the error comes
+ * from.
  *
  * @example
  * ```ts

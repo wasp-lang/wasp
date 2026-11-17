@@ -520,13 +520,15 @@ The error you throw on the server is now called `ServerHttpError`. You still imp
   </TabItem>
 </Tabs>
 
-### 12. Read errors on the client with `ClientHttpError`
+### 12. Update how you read errors on the client
 
-**If your client code doesn't read `error.data` or use `WaspHttpError`, you can skip this step.**
+**If your client code doesn't read the fields of errors that operations or auth actions throw (e.g. `error.data`), you can skip this step.**
 
-On the client, failed operations and auth actions now throw a `ClientHttpError`, which you import from `wasp/client`. It replaces `WaspHttpError` from `wasp/client/api`.
+We changed the error that failed operations and auth actions throw on the client, and you can now import it. It is a `ClientHttpError` from `wasp/client`, so you can check for it with `instanceof`.
 Its `data` is now the `data` you passed on the server.
 Before, `data` held the whole response body, so you had to read `error.data.data`.
+
+If you imported `WaspHttpError` from `wasp/client/api`, which was never documented, use `ClientHttpError` instead.
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
