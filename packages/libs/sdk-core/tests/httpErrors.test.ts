@@ -32,6 +32,18 @@ describe("ServerHttpError", () => {
   );
 });
 
+describe("HttpError", () => {
+  it("names classes that extend it without setting a name", () => {
+    class PaymentRequiredError extends HttpError {
+      constructor() {
+        super(402, "Payment required");
+      }
+    }
+
+    expect(new PaymentRequiredError().name).toBe("HttpError");
+  });
+});
+
 describe("ClientHttpError", () => {
   it("is an `HttpError` with the request and response it comes from", () => {
     const request = new Request("http://localhost:3001/foo");

@@ -2,6 +2,7 @@ import {
   HttpError,
   ServerHttpError,
   toHttpErrorBody,
+  type ServerHttpErrorHeaders,
 } from "@wasp/lib-sdk-core";
 import type { Response } from "express";
 import config from "../config.js";
@@ -47,11 +48,23 @@ export function reportUnexpectedServerError(
  * where possible.
  */
 export function sendErrorResponse(response: Response, error: unknown): void {
-  const httpError =
-    error instanceof HttpError ? error : toServerHttpError(error);
+  if (error instanceof ServerHttpError) {
+    sendHttpError(response, error, error.headers);
+  } else if (error instanceof HttpError) {
+    sendHttpError(response, error);
+  } else {
+    const serverHttpError = toServerHttpError(error);
+    sendHttpError(response, serverHttpError, serverHttpError.headers);
+  }
+}
 
-  if (httpError instanceof ServerHttpError && httpError.headers) {
-    response.set(httpError.headers);
+function sendHttpError(
+  response: Response,
+  httpError: HttpError,
+  headers?: ServerHttpErrorHeaders,
+): void {
+  if (headers) {
+    response.set(headers);
   }
   response.status(httpError.statusCode).json(toHttpErrorBody(httpError));
 }

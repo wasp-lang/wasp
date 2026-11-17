@@ -54,6 +54,10 @@ export abstract class HttpError<
       Error.captureStackTrace(this, new.target);
     }
 
+    // We don't use `this.constructor.name` because minifiers rename classes.
+    // Classes that extend `HttpError` set their own name.
+    this.name = "HttpError";
+
     if (!isHttpErrorStatusCode(statusCode)) {
       throw new Error("statusCode has to be integer in range [400, 600).");
     }
