@@ -2,7 +2,7 @@ import { isHTTPError as isKyHttpError } from "ky";
 import { HttpError } from "../HttpError.js";
 
 export type ClientErrorContext =
-  | { source: "render" }
+  | { source: "render"; componentStack?: string }
   | { source: "window" }
   | { source: "oauthCallback" }
   | { source: "authForm" }
@@ -67,4 +67,7 @@ function reportUnexpectedClientError(
   context: ClientErrorContext,
 ): void {
   console.error(`Unexpected error in ${context.source}:`, error);
+  if (context.source === "render" && context.componentStack) {
+    console.error(`The error happened in:${context.componentStack}`);
+  }
 }
