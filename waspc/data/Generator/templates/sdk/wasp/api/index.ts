@@ -9,9 +9,8 @@ export { getSessionId, setSessionId, clearSessionId, removeLocalUserData, handle
  *
  * Automatically prepends the API base URL, adds authentication headers,
  * and handles session invalidation on 401 responses. Non-2xx responses
- * cause ky to throw an `HTTPError`; pass it through `handleApiError` to
- * get a `ClientHttpError` carrying the server's status code, message, and
- * data.
+ * cause ky to throw an `HTTPError`, which you can pass through
+ * `handleApiError`.
  */
 export const api = ky.extend({
   prefix: config.apiUrl,

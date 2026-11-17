@@ -2715,7 +2715,7 @@ For a detailed specification of the `useQuery` hook, check the [API Reference](#
 When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
 - If you throw a `ServerHttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug. If the error has a valid `status` or `statusCode` field, like the errors Express middleware throw, Wasp answers with that status code and the error's `headers` instead of `500`. The message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
 
 To send error details to the client, throw a `ServerHttpError`:
 
@@ -3130,7 +3130,7 @@ await markTaskAsDone({ id: 1 }, { user })
 When your Action's NodeJS implementation throws an error, the client sees one of two things:
 
 - If you throw a `ServerHttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug. If the error has a valid `status` or `statusCode` field, like the errors Express middleware throw, Wasp answers with that status code and the error's `headers` instead of `500`. The message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
 
 To send error details to the client, throw a `ServerHttpError`:
 
@@ -28687,15 +28687,7 @@ Use it to describe a [Route](#route), for example when mocking an API with the `
 
 #### ClientHttpError
 
-The error the client gets when the server answers a request with an error status.
-
-Failed Operations and auth functions (e.g. `login`) throw a `ClientHttpError` with the `statusCode`, `message`, and `data` of the [`ServerHttpError`](https://wasp.sh/docs/api/wasp/server#serverhttperror) the server threw. For your custom APIs, pass the error that the `api` client throws through [`handleApiError`](https://wasp.sh/docs/api/wasp/client/api#handleapierror) to get one.
-
-Requests can also fail without an answer from the server, e.g. when the network is down. Those throw other errors, so check for a `ClientHttpError` before reading its fields.
-
-Next to the fields it shares with the server's error, it has the `request` and the `response` it comes from.
-
-You usually only read a `ClientHttpError`. Create one when you need to stand in for the server, e.g. in tests.
+The error the client gets when the server answers a request with an HTTP error status.
 
 ##### Examples
 
@@ -28784,8 +28776,6 @@ The standard `Error` options (e.g. `cause`), and the `request` and `response` th
 
 Extra information about the error, e.g. which form field is invalid. It is `undefined` if the error was created without it.
 
-On the client, it is the `data` the server threw the error with, after a round trip through JSON.
-
 ###### Inherited from
 
 [`HttpError`](https://wasp.sh/docs/api/wasp/errors#abstract-httperror).[`data`](https://wasp.sh/docs/api/wasp/errors#data-1)
@@ -28803,8 +28793,6 @@ It is `undefined` if the error was created without it.
 > **response**: `Response` | `undefined`
 
 The server's response, from [ClientHttpErrorOptions.response](#response-1). Use it to read the response's headers or URL.
-
-Its body is already read, into `message` and `data`, so you can't read it again. When the server is on another origin, the browser only shows the response headers that the server lists in `Access-Control-Expose-Headers`.
 
 It is `undefined` if the error was created without it.
 
@@ -28992,7 +28980,7 @@ A [ky](https://github.com/sindresorhus/ky) instance configured for your app's se
 
 It automatically prepends your server's URL to the paths you pass, adds the logged-in user's authentication header, and clears the user's session from the browser if the server responds with `401`. Since ky is built on `fetch`, you can also consume streaming responses through `Response.body`.
 
-Non-2xx responses make ky throw an `HTTPError`; pass it through [handleApiError](#handleapierror) to get a [`ClientHttpError`](https://wasp.sh/docs/api/wasp/client#clienthttperror).
+Non-2xx responses make ky throw an `HTTPError`, which you can pass through [handleApiError](#handleapierror).
 
 Unless it's declared with the `"ALL"` method, a custom API gets the default middleware, including CORS, only on its own HTTP method, not on `OPTIONS`. Requests to such an API that need a CORS preflight (e.g. with the auth header or a JSON body) fail unless you also apply the middleware to the path with an `apiNamespace`.
 
@@ -29016,6 +29004,8 @@ const data = await api.get("/foo/bar").json();
 > **handleApiError**(`error`): `unknown`
 
 Takes an error that the [`api`](https://wasp.sh/docs/api/wasp/client/api#api) client threw. If the server answered with an error status that Wasp handles (400 to 599), returns a ClientHttpError. Otherwise, returns the error unchanged.
+
+The body of the returned error's `response` is already read, into its `message` and `data`.
 
 ##### Parameters
 
@@ -32360,14 +32350,7 @@ You can import `wasp/errors` in both server and client code.
 
 The base form of Wasp's HTTP errors. It holds what the server's and the client's errors have in common: the status code, the message, and the data.
 
-You don't create an `HttpError` yourself:
-
-- On the server, throw a [`ServerHttpError`](https://wasp.sh/docs/api/wasp/server#serverhttperror).
-- On the client, failed requests throw a [`ClientHttpError`](https://wasp.sh/docs/api/wasp/client#clienthttperror).
-
-Both extend `HttpError`, so use it to handle either of them in code that runs on both the server and the client.
-
-Wasp treats any `HttpError` as thrown on purpose. If you extend it with your own error class and throw that on the server, the client gets its `statusCode`, `message`, and `data`.
+It is abstract, so you create one of the classes that extend it. Use `HttpError` itself to handle any of them, e.g. in code that runs on both the server and the client.
 
 ##### Example
 
@@ -32448,8 +32431,6 @@ The standard `Error` options (e.g. `cause`).
 
 Extra information about the error, e.g. which form field is invalid. It is `undefined` if the error was created without it.
 
-On the client, it is the `data` the server threw the error with, after a round trip through JSON.
-
 ###### statusCode {#statuscode}
 
 > **statusCode**: `number`
@@ -32464,7 +32445,7 @@ The HTTP status code of the response, an integer in the range `[400, 600)`.
 
 The extra information an [HttpError](#abstract-httperror) carries in its `data`: an object with any fields you choose.
 
-Wasp sends it to the client as JSON, so use values that survive `JSON.stringify`. For example, a `Date` arrives as a string.
+It travels as JSON, so use values that survive `JSON.stringify`. For example, a `Date` becomes a string.
 
 ##### Index Signature
 
@@ -32489,9 +32470,7 @@ You can only import `wasp/server` in server code.
 
 The error you throw on the server to send an HTTP error response to the client.
 
-Throw a `ServerHttpError` from an Operation or API. Wasp answers with its `statusCode`, and sends its `message` and `data` to the client for every status code, so only put information in them that is safe to show to the user. On the client, the failed request throws a [`ClientHttpError`](https://wasp.sh/docs/api/wasp/client#clienthttperror) with the same `statusCode`, `message`, and `data`.
-
-For security reasons, Wasp hides the details of any error that isn't an `HttpError` and is thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
+Its `statusCode`, `message`, and `data` are part of the response, so only put information in them that is safe to show to the user.
 
 ##### Examples
 
@@ -32553,13 +32532,13 @@ The HTTP status code. It must be an integer in the range `[400, 600)`, otherwise
 
 `string`
 
-The error message. Wasp sends it to the client.
+The error message.
 
 ###### data? {#data}
 
 `Data`
 
-An object with any extra information about the error. Wasp sends it to the client.
+An object with any extra information about the error.
 
 ###### options?
 
@@ -32583,8 +32562,6 @@ The standard `Error` options (e.g. `cause`), and `headers` to set on the respons
 
 Extra information about the error, e.g. which form field is invalid. It is `undefined` if the error was created without it.
 
-On the client, it is the `data` the server threw the error with, after a round trip through JSON.
-
 ###### Inherited from
 
 [`HttpError`](https://wasp.sh/docs/api/wasp/errors#abstract-httperror).[`data`](https://wasp.sh/docs/api/wasp/errors#data-1)
@@ -32593,7 +32570,7 @@ On the client, it is the `data` the server threw the error with, after a round t
 
 > **headers**: [`ServerHttpErrorHeaders`](#serverhttperrorheaders-1) | `undefined`
 
-The headers Wasp sets on the error response, from [ServerHttpErrorOptions.headers](#headers-1).
+The headers to set on the error response, from [ServerHttpErrorOptions.headers](#headers-1).
 
 ###### statusCode {#statuscode}
 
@@ -32637,8 +32614,6 @@ try {
 > `optional` **headers?**: [`ServerHttpErrorHeaders`](#serverhttperrorheaders-1)
 
 Headers to set on the error response, e.g. `Retry-After`.
-
-The client's error doesn't have them as a field. Client code can read them from the error's `response`, but only the ones the browser is allowed to see, so put anything the client code needs in `data`.
 
 ### Type Aliases
 

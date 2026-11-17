@@ -52,6 +52,9 @@ if (typeof window !== "undefined") {
  * server answered with an error status that Wasp handles (400 to 599), returns
  * a {@link ClientHttpError}. Otherwise, returns the error unchanged.
  *
+ * The body of the returned error's `response` is already read, into its
+ * `message` and `data`.
+ *
  * @param error The error that `api` threw.
  * @returns A `ClientHttpError`, or `error` unchanged.
  *

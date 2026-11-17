@@ -33,11 +33,9 @@ export function reportUnexpectedServerError(
  * Sends anything thrown while handling a request as a JSON error response.
  * We handle the error as the most specific kind we recognize:
  *
- * 1. A `ServerHttpError` is thrown on purpose, so we send it as is, along
- *    with its headers.
- * 2. Any other `HttpError` is also thrown on purpose, so we send its status
- *    code, message, and data.
- * 3. Anything else is unexpected:
+ * 1. `ServerHttpError` and `HttpError` are thrown on purpose, so we send them
+ *    as is. Only `ServerHttpError` includes headers.
+ * 2. Anything else is unexpected:
  *    - `http-errors` package errors, which are thrown by `express`, are
  *      properly transformed into `ServerHttpError`s.
  *    - For the rest of errors, we try to make a choice based on their fields.

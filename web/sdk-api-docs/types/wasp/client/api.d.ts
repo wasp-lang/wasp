@@ -65,9 +65,8 @@ interface KyInstance {
  * the browser if the server responds with `401`. Since ky is built on `fetch`,
  * you can also consume streaming responses through `Response.body`.
  *
- * Non-2xx responses make ky throw an `HTTPError`; pass it through
- * {@link handleApiError} to get a
- * {@linkcode "client"!ClientHttpError | ClientHttpError}.
+ * Non-2xx responses make ky throw an `HTTPError`, which you can pass through
+ * {@link handleApiError}.
  *
  * Unless it's declared with the `"ALL"` method, a custom API gets the default
  * middleware, including CORS, only on its own HTTP method, not on `OPTIONS`.

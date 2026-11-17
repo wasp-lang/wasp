@@ -412,7 +412,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
 When your Query's NodeJS implementation throws an error, the client sees one of two things:
 
 - If you throw a `ServerHttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug. If the error has a valid `status` or `statusCode` field, like the errors Express middleware throw, Wasp answers with that status code and the error's `headers` instead of `500`. The message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
 
 To send error details to the client, throw a `ServerHttpError`:
 

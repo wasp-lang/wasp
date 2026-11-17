@@ -2,19 +2,9 @@
  * The base form of Wasp's HTTP errors. It holds what the server's and the
  * client's errors have in common: the status code, the message, and the data.
  *
- * You don't create an `HttpError` yourself:
- *
- * - On the server, throw a
- *   [`ServerHttpError`](https://wasp.sh/docs/api/wasp/server#serverhttperror).
- * - On the client, failed requests throw a
- *   [`ClientHttpError`](https://wasp.sh/docs/api/wasp/client#clienthttperror).
- *
- * Both extend `HttpError`, so use it to handle either of them in code that
- * runs on both the server and the client.
- *
- * Wasp treats any `HttpError` as thrown on purpose. If you extend it with your
- * own error class and throw that on the server, the client gets its
- * `statusCode`, `message`, and `data`.
+ * It is abstract, so you create one of the classes that extend it. Use
+ * `HttpError` itself to handle any of them, e.g. in code that runs on both the
+ * server and the client.
  *
  * @typeParam Data The type of the error's `data`. It defaults to
  * {@link HttpErrorData}, an object with any fields.
@@ -42,9 +32,6 @@ export abstract class HttpError<
   /**
    * Extra information about the error, e.g. which form field is invalid.
    * It is `undefined` if the error was created without it.
-   *
-   * On the client, it is the `data` the server threw the error with, after a
-   * round trip through JSON.
    */
   public data: Data | undefined;
 
@@ -82,8 +69,8 @@ export abstract class HttpError<
  * The extra information an {@link HttpError} carries in its `data`: an object
  * with any fields you choose.
  *
- * Wasp sends it to the client as JSON, so use values that survive
- * `JSON.stringify`. For example, a `Date` arrives as a string.
+ * It travels as JSON, so use values that survive `JSON.stringify`. For
+ * example, a `Date` becomes a string.
  *
  * @example
  * ```ts
