@@ -2714,8 +2714,8 @@ For a detailed specification of the `useQuery` hook, check the [API Reference](#
 
 When your Query's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-1. **A `ServerHttpError`, or any other `HttpError`.** The client receives its status code, `message`, and `data`. This is true for every status code.
-2. **An error with a valid `status` or `statusCode` field**, like the ones Express middleware throw. The client receives that status code and the error's `headers`, with the generic message for the status code. The error's own message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
+1. **A `ServerHttpError`, or any other `HttpError`.** The client receives the error as is, with its status code, `message`, and `data`.
+2. **An error with a valid `status` or `statusCode` field**, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw. The client receives the closest `ServerHttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
 3. **Anything else.** The client receives a generic `500 Internal Server Error`.
 
 In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
@@ -3136,8 +3136,8 @@ await markTaskAsDone({ id: 1 }, { user })
 
 When your Action's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-1. **A `ServerHttpError`, or any other `HttpError`.** The client receives its status code, `message`, and `data`. This is true for every status code.
-2. **An error with a valid `status` or `statusCode` field**, like the ones Express middleware throw. The client receives that status code and the error's `headers`, with the generic message for the status code. The error's own message stays hidden, unless it is an [`http-errors`](https://github.com/jshttp/http-errors) error with `expose` set to `true`.
+1. **A `ServerHttpError`, or any other `HttpError`.** The client receives the error as is, with its status code, `message`, and `data`.
+2. **An error with a valid `status` or `statusCode` field**, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw. The client receives the closest `ServerHttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
 3. **Anything else.** The client receives a generic `500 Internal Server Error`.
 
 In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
