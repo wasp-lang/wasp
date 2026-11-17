@@ -1,4 +1,4 @@
-import { isHTTPError } from "ky";
+import { isHTTPError as isKyHttpError } from "ky";
 import { HttpError } from "../HttpError.js";
 
 export type ClientErrorContext =
@@ -42,7 +42,7 @@ export function handleClientError(
 // Users who call `api` without `handleApiError` get ky's error instead of
 // a `ClientHttpError`.
 function isHttpErrorResponse(error: unknown): boolean {
-  return error instanceof HttpError || isHTTPError(error);
+  return error instanceof HttpError || isKyHttpError(error);
 }
 
 /**

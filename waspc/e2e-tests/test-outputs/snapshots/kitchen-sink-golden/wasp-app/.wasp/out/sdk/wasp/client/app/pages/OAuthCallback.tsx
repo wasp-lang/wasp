@@ -62,8 +62,8 @@ function useOAuthCallbackHandler() {
         return;
       }
       await initSession(data.sessionId);
-    } catch (e: unknown) {
-      handleClientError(e, { source: "oauthCallback" });
+    } catch (callbackError: unknown) {
+      handleClientError(callbackError, { source: "oauthCallback" });
       setError("Unable to login with the OAuth provider.");
     } finally {
       setisCallbackLoading(false);

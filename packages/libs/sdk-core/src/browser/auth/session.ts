@@ -1,4 +1,7 @@
-import { isHTTPError, type HTTPError } from "ky";
+import {
+  isHTTPError as isKyHttpError,
+  type HTTPError as KyHttpError,
+} from "ky";
 import { ClientHttpError } from "../../ClientHttpError.js";
 import { isHttpErrorBody, isHttpErrorStatusCode } from "../../HttpError.js";
 import { storage } from "../storage.js";
@@ -69,13 +72,13 @@ if (typeof window !== "undefined") {
 export function handleApiError(error: unknown): unknown {
   // ky also throws for other non-2xx statuses, e.g. `0` for a redirect that
   // wasn't followed, which a `ClientHttpError` can't hold.
-  if (isHTTPError(error) && isHttpErrorStatusCode(error.response.status)) {
+  if (isKyHttpError(error) && isHttpErrorStatusCode(error.response.status)) {
     return toClientHttpError(error);
   }
   return error;
 }
 
-function toClientHttpError(kyHttpError: HTTPError): ClientHttpError {
+function toClientHttpError(kyHttpError: KyHttpError): ClientHttpError {
   const body = kyHttpError.data;
   const { message, data } = isHttpErrorBody(body)
     ? body

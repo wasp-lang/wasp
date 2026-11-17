@@ -8,8 +8,11 @@ import { ViteErrorDisplay } from "./ViteErrorDisplay";
 
 export function DefaultRootErrorBoundary() {
   const error = useRouteError();
-  // React may render this more than once per failure, so we report from an
-  // effect, which only runs for the render React commits.
+  // Rendering has to stay free of side effects, because React can call a
+  // component more than once before it commits: always under `StrictMode` in
+  // development, and in production whenever it discards a render. An effect
+  // runs once per committed render.
+  // https://react.dev/learn/keeping-components-pure
   useEffect(() => {
     handleClientError(error, { source: "render" });
   }, [error]);
