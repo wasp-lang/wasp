@@ -132,7 +132,8 @@ var handledErrors = /* @__PURE__ */ new WeakSet();
 /**
 * Reports an unexpected client error, once per error object.
 *
-* It skips HTTP error responses, because the server sends them on purpose.
+* It skips an {@link HttpError} and ky's `HTTPError`, because both come from
+* an error response that the server sent on purpose.
 *
 * @param error The thrown value.
 * @param context Where the error surfaced.
