@@ -32,6 +32,18 @@ describe("query retries", () => {
     },
   );
 
+  it("doesn't retry a query that fails with another kind of `HttpError`", async () => {
+    const { HttpError } = await import("../src/HttpError");
+    class NotFoundError extends HttpError {
+      constructor() {
+        super(404, "Not found");
+      }
+    }
+
+    const attempts = await countQueryAttempts(new NotFoundError());
+    expect(attempts).toBe(1);
+  });
+
   it("retries a query that fails with a non-HTTP error", async () => {
     const attempts = await countQueryAttempts(new Error("Network error"));
     expect(attempts).toBe(4);

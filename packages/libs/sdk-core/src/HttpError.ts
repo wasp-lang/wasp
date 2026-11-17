@@ -12,6 +12,10 @@
  * Both extend `HttpError`, so use it to handle either of them in code that
  * runs on both the server and the client.
  *
+ * Wasp treats any `HttpError` as thrown on purpose. If you extend it with your
+ * own error class and throw that on the server, the client gets its
+ * `statusCode`, `message`, and `data`.
+ *
  * @typeParam Data The type of the error's `data`. It defaults to
  * {@link HttpErrorData}, an object with any fields.
  *

@@ -32302,6 +32302,8 @@ You don't create an `HttpError` yourself:
 
 Both extend `HttpError`, so use it to handle either of them in code that runs on both the server and the client.
 
+Wasp treats any `HttpError` as thrown on purpose. If you extend it with your own error class and throw that on the server, the client gets its `statusCode`, `message`, and `data`.
+
 ##### Example
 
 ```ts
@@ -32424,7 +32426,7 @@ The error you throw on the server to send an HTTP error response to the client.
 
 Throw a `ServerHttpError` from an Operation or API. Wasp answers with its `statusCode`, and sends its `message` and `data` to the client for every status code, so only put information in them that is safe to show to the user. On the client, the failed request throws a [`ClientHttpError`](https://wasp.sh/docs/api/wasp/client#clienthttperror) with the same `statusCode`, `message`, and `data`.
 
-For security reasons, Wasp hides the details of any other error thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
+For security reasons, Wasp hides the details of any error that isn't an `HttpError` and is thrown while handling a request: the client gets the generic message for the status code. The status code is `500`, unless the error has a valid `status` or `statusCode` field, in which case Wasp keeps it, along with the error's `headers`. In development, Wasp also adds the original message and stack trace to `data`. The only other errors that keep their message are the ones from the `http-errors` package (which Express uses) with `expose` set to `true`.
 
 ##### Examples
 

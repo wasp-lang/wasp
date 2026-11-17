@@ -11,8 +11,8 @@ import { HttpError, type HttpErrorData } from "./HttpError.js";
  * [`ClientHttpError`](https://wasp.sh/docs/api/wasp/client#clienthttperror)
  * with the same `statusCode`, `message`, and `data`.
  *
- * For security reasons, Wasp hides the details of any other error thrown while
- * handling a request: the client gets the generic message for the status code.
+ * For security reasons, Wasp hides the details of any error that isn't an
+ * `HttpError` and is thrown while handling a request: the client gets the generic message for the status code.
  * The status code is `500`, unless the error has a valid `status` or
  * `statusCode` field, in which case Wasp keeps it, along with the error's
  * `headers`. In development, Wasp also adds the original message and stack

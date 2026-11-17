@@ -1,5 +1,5 @@
 import { QueryClient, type QueryClientConfig } from "@tanstack/react-query";
-import { ClientHttpError } from "../../ClientHttpError.js";
+import { HttpError } from "../../HttpError.js";
 
 // Same as react-query's default.
 const MAX_QUERY_RETRIES = 3;
@@ -57,7 +57,7 @@ function shouldRetryQuery(failureCount: number, error: unknown): boolean {
   }
 
   return !(
-    error instanceof ClientHttpError &&
+    error instanceof HttpError &&
     error.statusCode >= 400 &&
     error.statusCode < 500 &&
     !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode)
