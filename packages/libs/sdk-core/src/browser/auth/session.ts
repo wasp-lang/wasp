@@ -78,7 +78,11 @@ export function handleApiError(error: unknown): unknown {
 function toClientHttpError(kyHttpError: HTTPError): ClientHttpError {
   const statusCode = kyHttpError.response.status;
   const body = kyHttpError.data;
-  const options = { cause: kyHttpError };
+  const options = {
+    cause: kyHttpError,
+    request: kyHttpError.request,
+    response: kyHttpError.response,
+  };
 
   // Something other than the Wasp server answered, e.g. a proxy.
   if (!isHttpErrorBody(body)) {

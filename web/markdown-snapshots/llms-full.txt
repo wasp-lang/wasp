@@ -28693,9 +28693,11 @@ Failed Operations and auth functions (e.g. `login`) throw a `ClientHttpError` wi
 
 Requests can also fail without an answer from the server, e.g. when the network is down. Those throw other errors, so check for a `ClientHttpError` before reading its fields.
 
+Next to the fields it shares with the server's error, it has the `request` and the `response` it comes from.
+
 You usually only read a `ClientHttpError`. Create one when you need to stand in for the server, e.g. in tests.
 
-##### Example
+##### Examples
 
 ```ts
 import { ClientHttpError } from "wasp/client";
@@ -28707,6 +28709,14 @@ try {
   if (error instanceof ClientHttpError && error.statusCode === 403) {
     window.alert(error.message);
   }
+}
+```
+
+Reading a response header:
+
+```ts
+if (error instanceof ClientHttpError && error.statusCode === 429) {
+  const retryAfter = error.response?.headers.get("Retry-After");
 }
 ```
 
@@ -28754,9 +28764,9 @@ An object with any extra information about the error.
 
 ###### options?
 
-`ErrorOptions`
+[`ClientHttpErrorOptions`](#clienthttperroroptions)
 
-The standard `Error` options (e.g. `cause`).
+The standard `Error` options (e.g. `cause`), and the `request` and `response` the error comes from.
 
 ###### Returns
 
@@ -28780,6 +28790,24 @@ On the client, it is the `data` the server threw the error with, after a round t
 
 [`HttpError`](https://wasp.sh/docs/api/wasp/errors#abstract-httperror).[`data`](https://wasp.sh/docs/api/wasp/errors#data-1)
 
+###### request
+
+> **request**: `Request` | `undefined`
+
+The request the server answered with an error, from [ClientHttpErrorOptions.request](#request-1). Use it to read the request's URL, method, or headers.
+
+It is `undefined` if the error was created without it.
+
+###### response
+
+> **response**: `Response` | `undefined`
+
+The server's response, from [ClientHttpErrorOptions.response](#response-1). Use it to read the response's headers or URL.
+
+Its body is already read, into `message` and `data`, so you can't read it again. When the server is on another origin, the browser only shows the response headers that the server lists in `Access-Control-Expose-Headers`.
+
+It is `undefined` if the error was created without it.
+
 ###### statusCode {#statuscode}
 
 > **statusCode**: `number`
@@ -28789,6 +28817,43 @@ The HTTP status code of the response, an integer in the range `[400, 600)`.
 ###### Inherited from
 
 [`HttpError`](https://wasp.sh/docs/api/wasp/errors#abstract-httperror).[`statusCode`](https://wasp.sh/docs/api/wasp/errors#statuscode)
+
+### Interfaces
+
+#### ClientHttpErrorOptions
+
+The options of a [ClientHttpError](#clienthttperror): the standard `Error` options (e.g. `cause`), and the `request` and `response` the error comes from.
+
+##### Example
+
+```ts
+import { ClientHttpError } from "wasp/client";
+
+const error = new ClientHttpError(429, "Too many requests", undefined, {
+  response: new Response(null, {
+    status: 429,
+    headers: { "Retry-After": "60" },
+  }),
+});
+```
+
+##### Extends
+
+- `ErrorOptions`
+
+##### Properties
+
+###### request?
+
+> `optional` **request?**: `Request`
+
+The request the server answered with an error.
+
+###### response?
+
+> `optional` **response?**: `Response`
+
+The server's response.
 
 ### Type Aliases
 
@@ -32573,7 +32638,7 @@ try {
 
 Headers to set on the error response, e.g. `Retry-After`.
 
-The client's error doesn't have them, so put anything the client code needs in `data`.
+The client's error doesn't have them as a field. Client code can read them from the error's `response`, but only the ones the browser is allowed to see, so put anything the client code needs in `data`.
 
 ### Type Aliases
 

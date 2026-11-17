@@ -105,8 +105,9 @@ export interface ServerHttpErrorOptions extends ErrorOptions {
   /**
    * Headers to set on the error response, e.g. `Retry-After`.
    *
-   * The client's error doesn't have them, so put anything the client code
-   * needs in `data`.
+   * The client's error doesn't have them as a field. Client code can read
+   * them from the error's `response`, but only the ones the browser is allowed
+   * to see, so put anything the client code needs in `data`.
    */
   headers?: ServerHttpErrorHeaders;
 }

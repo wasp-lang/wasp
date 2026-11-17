@@ -30,7 +30,10 @@ export {
   throwValidationError,
   type PasswordValidationSchema,
 } from "./auth/validation.js";
-export { ClientHttpError } from "./ClientHttpError.js";
+export {
+  ClientHttpError,
+  type ClientHttpErrorOptions,
+} from "./ClientHttpError.js";
 export { type ClientConfig } from "./config.js";
 export { defineEnvValidationSchema } from "./env/schema.js";
 export {

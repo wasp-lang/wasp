@@ -17,6 +17,9 @@ describe("handleApiError", () => {
       statusCode: 403,
       message: "Not allowed",
       data: { reason: "not the owner" },
+      request: kyHttpError.request,
+      response: kyHttpError.response,
+      cause: kyHttpError,
     });
   });
 
