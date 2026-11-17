@@ -184,11 +184,21 @@ formatEnvVarValue rawValue
     needsQuoting val =
       any isJsSpace val
         || '#' `elem` val
-        || startsWithQuote val
+        || isSurroundedByQuotes val
+        || (startsWithQuote val && canQuoteWithoutConflict)
+
+    isSurroundedByQuotes :: String -> Bool
+    isSurroundedByQuotes (q : rest) =
+      isQuoteChar q && not (null rest) && last rest == q
+    isSurroundedByQuotes [] = False
 
     startsWithQuote :: String -> Bool
     startsWithQuote (q : _) = isQuoteChar q
     startsWithQuote [] = False
+
+    canQuoteWithoutConflict :: Bool
+    canQuoteWithoutConflict =
+      canUseSingleQuotes || canUseBacktickQuotes || not hasDoubleQuoteConflict
 
     hasDoubleQuoteConflict :: Bool
     hasDoubleQuoteConflict =
