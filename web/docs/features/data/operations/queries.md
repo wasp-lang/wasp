@@ -411,9 +411,9 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 When your Query's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-1. **A `ServerHttpError`, or any other `HttpError`.** The client receives the error as is, with its status code, `message`, and `data`.
-2. **An error with a valid `status` or `statusCode` field**, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw. The client receives the closest `ServerHttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
-3. **Anything else.** The client receives a generic `500 Internal Server Error`.
+1. If it is a `ServerHttpError`, or any other `HttpError`, the client receives the error as is, with its status code, `message`, and `data`.
+2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `ServerHttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
+3. If it is anything else, the client receives a generic `500 Internal Server Error`.
 
 In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
 
