@@ -43,7 +43,7 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
  * - It keeps the status code and headers.
  * - It only keeps the message when `expose` marks it as safe to show.
  */
-export function toWaspHttpError(
+export function toServerHttpError(
   error: HttpErrorsError,
   { includeErrorDetails }: { includeErrorDetails: boolean },
 ): Wasp.ServerHttpError {

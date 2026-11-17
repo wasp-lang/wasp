@@ -59,9 +59,7 @@ export abstract class HttpError<
     }
     this.statusCode = statusCode;
 
-    if (data) {
-      this.data = data;
-    }
+    this.data = data;
   }
 }
 

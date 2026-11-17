@@ -67,6 +67,7 @@
     {=! Users: validators in custom auth actions. =}
     {=! Server: the same validators in auth provider routes. =}
     "./auth/validation": "./dist/auth/validation.js",
+    {=! Users: config, env, ClientHttpError, type ClientHttpErrorOptions, HttpMethod, type ClientConfig, type Route. =}
     "./client": "./dist/client/index.js",
     "./client/api": "./dist/api/index.js",
     "./client/auth": "./dist/client/auth/index.js",

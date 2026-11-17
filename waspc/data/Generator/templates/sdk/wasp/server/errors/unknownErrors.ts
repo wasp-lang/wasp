@@ -20,7 +20,7 @@ import { getErrorDetails } from "./utils.js";
  *   otherwise defaults to a generic 500 error.
  * - It always hides the message behind the status code's generic one.
  */
-export function toWaspHttpError(
+export function toServerHttpError(
   error: unknown,
   { includeErrorDetails }: { includeErrorDetails: boolean },
 ): Wasp.ServerHttpError {

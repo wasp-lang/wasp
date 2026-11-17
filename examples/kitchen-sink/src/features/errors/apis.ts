@@ -48,7 +48,7 @@ export const throwRateLimitError: ThrowRateLimitError = async () => {
   });
 };
 
-// An error that is neither an `ServerHttpError` nor an `http-errors` error, but
+// An error that is neither an `HttpError` nor an `http-errors` error, but
 // still carries a status code and headers.
 export const throwUnavailableError: ThrowUnavailableError = async () => {
   throw Object.assign(new Error("Internal detail of a 503"), {

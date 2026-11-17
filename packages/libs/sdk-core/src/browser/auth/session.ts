@@ -76,24 +76,17 @@ export function handleApiError(error: unknown): unknown {
 }
 
 function toClientHttpError(kyHttpError: HTTPError): ClientHttpError {
-  const statusCode = kyHttpError.response.status;
   const body = kyHttpError.data;
-  const options = {
+  // Something other than the Wasp server can answer, e.g. a proxy.
+  const { message, data } = isHttpErrorBody(body)
+    ? body
+    : { message: kyHttpError.message, data: undefined };
+
+  return new ClientHttpError(kyHttpError.response.status, message, data, {
     cause: kyHttpError,
     request: kyHttpError.request,
     response: kyHttpError.response,
-  };
-
-  // Something other than the Wasp server answered, e.g. a proxy.
-  if (!isHttpErrorBody(body)) {
-    return new ClientHttpError(
-      statusCode,
-      kyHttpError.message,
-      undefined,
-      options,
-    );
-  }
-  return new ClientHttpError(statusCode, body.message, body.data, options);
+  });
 }
 
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";
