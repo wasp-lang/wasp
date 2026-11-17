@@ -302,21 +302,8 @@ export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
 
 /**
  * The type of the function you pass to the `server.onError` field of the app
- * spec. Wasp calls it with every unexpected error on the server, after logging
- * the error. Use it to send errors to an error tracking service.
- *
- * It receives:
- *
- * - `error`: The thrown value.
- * - `context`: A {@link ServerErrorContext} that says where the error happened.
- *
- * An {@linkcode "errors"!HttpError | HttpError} you throw while handling a
- * request is not unexpected, so Wasp doesn't call the function for it.
- *
- * The function can be async. Wasp waits for it before the server exits because
- * of a `"startup"` or `"dbSeed"` error, and doesn't wait for it before
- * answering a request. If the function itself throws, Wasp logs that error and
- * carries on.
+ * spec. It receives an unexpected server error and the
+ * {@link ServerErrorContext} it happened in.
  *
  * @example
  * ```ts
@@ -335,15 +322,13 @@ export type ServerOnErrorFn = (
 ) => void | Promise<void>;
 
 /**
- * Where an unexpected server error happened. A {@link ServerOnErrorFn}
- * receives it next to the error.
+ * Where an unexpected server error happened.
  *
  * - `"request"`: While handling a request to an Operation, API, or auth route.
  * - `"job"`: In a Job. `jobName` is the name of the Job.
  * - `"webSocket"`: While authenticating a WebSocket connection.
  * - `"oauth"`: During an OAuth login.
- * - `"startup"`: While starting the server, e.g. in `server.setupFn`. The
- *   server exits after it.
+ * - `"startup"`: While starting the server, e.g. in `server.setupFn`.
  * - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
  */
 export type ServerErrorContext =

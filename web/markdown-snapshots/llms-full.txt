@@ -29063,7 +29063,7 @@ The URL of your server (the app's backend), without a trailing slash, from the [
 
 > **ClientErrorContext** = { `source`: `"render"`; } | { `source`: `"query"`; } | { `source`: `"action"`; } | { `source`: `"window"`; } | { `source`: `"oauthCallback"`; } | { `source`: `"authForm"`; } | { `source`: `"optimisticUpdate"`; }
 
-Where an unexpected client error surfaced. A [ClientOnErrorFn](#clientonerrorfn) receives it next to the error.
+Where an unexpected client error surfaced.
 
 - `"render"`: While rendering a page or the root component.
 - `"query"`: In a failed Query.
@@ -29079,16 +29079,7 @@ Where an unexpected client error surfaced. A [ClientOnErrorFn](#clientonerrorfn)
 
 > **ClientOnErrorFn** = (`error`, `context`) => `void` | `Promise`<`void`>
 
-The type of the function you pass to the `client.onError` field of the app spec. Wasp calls it with every unexpected error on the client, after logging the error. Use it to send errors to an error tracking service.
-
-It receives:
-
-- `error`: The thrown value.
-- `context`: A [ClientErrorContext](#clienterrorcontext) that says where the error surfaced.
-
-An HTTP error response is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for an [`HttpError`](https://wasp.sh/docs/api/wasp/errors#abstract-httperror) or for the error the `api` client throws. Wasp calls the function once per error, even if the error surfaces in more than one place.
-
-The function can be async, but Wasp doesn't wait for it. If the function itself throws, Wasp logs that error and carries on.
+The type of the function you pass to the `client.onError` field of the app spec. It receives an unexpected client error and the [ClientErrorContext](#clienterrorcontext) it surfaced in.
 
 ##### Parameters
 
@@ -33004,13 +32995,13 @@ Disconnects from the database.
 
 > **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; }
 
-Where an unexpected server error happened. A [ServerOnErrorFn](#serveronerrorfn) receives it next to the error.
+Where an unexpected server error happened.
 
 - `"request"`: While handling a request to an Operation, API, or auth route.
 - `"job"`: In a Job. `jobName` is the name of the Job.
 - `"webSocket"`: While authenticating a WebSocket connection.
 - `"oauth"`: During an OAuth login.
-- `"startup"`: While starting the server, e.g. in `server.setupFn`. The server exits after it.
+- `"startup"`: While starting the server, e.g. in `server.setupFn`.
 - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
 
 ---
@@ -33042,16 +33033,7 @@ const headers: ServerHttpErrorHeaders = {
 
 > **ServerOnErrorFn** = (`error`, `context`) => `void` | `Promise`<`void`>
 
-The type of the function you pass to the `server.onError` field of the app spec. Wasp calls it with every unexpected error on the server, after logging the error. Use it to send errors to an error tracking service.
-
-It receives:
-
-- `error`: The thrown value.
-- `context`: A [ServerErrorContext](#servererrorcontext) that says where the error happened.
-
-An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#abstract-httperror) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
-
-The function can be async. Wasp waits for it before the server exits because of a `"startup"` or `"dbSeed"` error, and doesn't wait for it before answering a request. If the function itself throws, Wasp logs that error and carries on.
+The type of the function you pass to the `server.onError` field of the app spec. It receives an unexpected server error and the [ServerErrorContext](#servererrorcontext) it happened in.
 
 ##### Parameters
 
