@@ -49,10 +49,6 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 At the core is the Wasp compiler which takes the Wasp Spec and your Javascript code and outputs the client app, server app and deployment code.
 
-![](https://wasp.sh/img/docs/getting-started/introduction/wasp-compilation-diagram.png)
-
-How the magic happens 🌈
-
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
 Define your app in the Wasp file and get:
@@ -2802,7 +2798,7 @@ Wasp's `useQuery` hook accepts three arguments:
 
 - `options`
 
-  A *react-query* `options` object. Use this to change [the default behavior](https://react-query.tanstack.com/guides/important-defaults) for this particular Query. If you want to change the global defaults, you can do so in the [client setup function](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
+  A *react-query* `options` object. Use this to change [the default behavior](https://tanstack.com/query/v4/docs/framework/react/guides/important-defaults) for this particular Query. If you want to change the global defaults, you can do so in the [client setup function](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
 
 For an example of usage, check [this section](#the-usequery-hook).
 
@@ -9272,7 +9268,7 @@ The `AuthIdentity` fields:
 - `providerData` is a JSON string that contains additional data about the user from the authentication provider.
 
   - For example, for password based auth, this field contains the user's hashed password.
-  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/prisma/issues/3786).
+  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/orm/issues/3786).
 
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
@@ -13466,7 +13462,7 @@ $ wasp clean
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
-Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/packages/deploy).
 
 Read more about automatic deployment [here](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview).
 

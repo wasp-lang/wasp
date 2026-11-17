@@ -6,6 +6,7 @@ const WASP_V1_MAILING_LIST_ID = "cmvfc4mns050y0kzb72vw51px";
 
 export const WaspV1Signup = ({ source }: { source: string }) => (
   <div
+    id="signup"
     {...trackPlacementAttributes("wasp_v1_signup")}
     className="mb-6 flex flex-col items-start space-y-3 rounded-lg border border-yellow-500/25 bg-yellow-500/20 p-8"
   >

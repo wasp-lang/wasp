@@ -9,7 +9,7 @@ permissions:
 jobs:
   check-web-markdown:
     name: Build web and check markdown snapshots
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v7

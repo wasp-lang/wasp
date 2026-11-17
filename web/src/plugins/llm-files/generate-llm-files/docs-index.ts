@@ -81,22 +81,18 @@ export function buildLlmFilesMarkdownDocsIndex(
   );
 
   const indexSections: IndexSection[] = [
-    {
-      title: "Docs",
-      items: buildSidebarItems(
-        context,
-        loadedVersion.sidebars["docs"] ?? [],
-        docsById,
-      ),
-    },
-    {
-      title: "Guides",
-      items: buildSidebarItems(
-        context,
-        loadedVersion.sidebars["guides"] ?? [],
-        docsById,
-      ),
-    },
+    buildSidebarSection(
+      context,
+      "Docs",
+      loadedVersion.sidebars["docs"] ?? [],
+      docsById,
+    ),
+    buildSidebarSection(
+      context,
+      "Guides",
+      loadedVersion.sidebars["guides"] ?? [],
+      docsById,
+    ),
     {
       title: "API",
       items: buildApiSectionItems(context, loadedVersion.docs),
@@ -108,6 +104,27 @@ export function buildLlmFilesMarkdownDocsIndex(
   return {
     sections: indexSections,
   };
+}
+
+function buildSidebarSection(
+  context: LlmFilesContext,
+  title: string,
+  sidebarItems: LoadedSidebarItem[],
+  docsById: DocsById,
+): IndexSection {
+  const items = buildSidebarItems(context, sidebarItems, docsById);
+  // A sidebar can wrap all of its items in a single category named like the
+  // sidebar itself (e.g. `Guides`), so it shows up in the breadcrumbs.
+  // We unwrap it so we don't repeat the section title.
+  const [onlyItem, ...otherItems] = items;
+  if (
+    onlyItem?.type === "category" &&
+    onlyItem.title === title &&
+    otherItems.length === 0
+  ) {
+    return { title, items: onlyItem.items };
+  }
+  return { title, items };
 }
 
 function buildSidebarItems(

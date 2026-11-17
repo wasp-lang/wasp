@@ -1,12 +1,13 @@
 import type * as Preset from "@docusaurus/preset-classic";
-import type { Config, DocusaurusConfig } from "@docusaurus/types";
+import type { Config, DocusaurusConfig, RouteConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
+import { COOKIE_SETTINGS_HREF } from "./src/lib/cookie-consent";
 import {
-  COOKIE_SETTINGS_HREF,
-  SCRIPT_WITH_CONSENT_TYPE,
-} from "./src/lib/cookie-consent";
+  getLatestDocCanonicalPath,
+  waspDslDocsVersions,
+} from "./src/lib/old-docs-versions";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import { docusaurusPluginLlmFiles } from "./src/plugins/llm-files/docusaurus-plugin";
 import autoImportTabs from "./src/remark/auto-import-tabs";
@@ -23,7 +24,7 @@ const lightCodeTheme = {
 
 const darkCodeTheme = {
   ...themes.dracula,
-  plain: { ...themes.dracula.plain, backgroundColor: "#1e1e1e" },
+  plain: { ...themes.dracula.plain, backgroundColor: "var(--wasp-code-bg)" },
 };
 
 const includeCurrentVersion =
@@ -65,13 +66,10 @@ const config: Config = {
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {
-        /*
-        margin: 24,
-        background: '#BADA55',
-        scrollOffset: 0,
-        container: '#zoom-container',
-        template: '#zoom-template',
-        */
+        // medium-zoom defaults to a white overlay, which shows through images
+        // with transparent backgrounds. The overlay lives on <body>, so a CSS
+        // variable resolves to the current theme's page background.
+        background: "var(--ifm-background-color)",
       },
     },
     navbar: {
@@ -110,21 +108,6 @@ const config: Config = {
           to: "blog",
           label: "Blog",
           position: "left",
-        },
-        {
-          href: "https://github.com/wasp-lang/wasp",
-          className: "navbar-item-github",
-          position: "right",
-        },
-        {
-          href: "https://twitter.com/WaspLang",
-          className: "navbar-item-twitter",
-          position: "right",
-        },
-        {
-          href: "https://discord.gg/rzdnErX",
-          className: "navbar-item-discord",
-          position: "right",
         },
       ],
     },
@@ -243,6 +226,13 @@ const config: Config = {
                 }
               : {}),
 
+            ...Object.fromEntries(
+              waspDslDocsVersions.map((version) => [
+                version,
+                { noIndex: true },
+              ]),
+            ),
+
             // Configuration example:
             // "0.11.1": {
             //   path: "0.11.1",  // default, but can be anything.
@@ -272,6 +262,22 @@ const config: Config = {
         },
         theme: {
           customCss: ["./src/css/custom.css"],
+        },
+        sitemap: {
+          // A sitemap should list only canonical URLs, so we leave out the old
+          // docs pages that point their canonical URL to the latest docs.
+          async createSitemapItems({ defaultCreateSitemapItems, ...params }) {
+            const items = await defaultCreateSitemapItems(params);
+            // The routes list every page, also the `noindex` ones that have no
+            // sitemap entry (e.g. the docs writing guide).
+            const sitePaths = new Set(getRoutePaths(params.routes));
+            return items.filter((item) => {
+              const path = new URL(item.url).pathname;
+              const keepsOwnCanonicalUrl =
+                getLatestDocCanonicalPath(path, sitePaths) === undefined;
+              return keepsOwnCanonicalUrl;
+            });
+          },
         },
       } as Preset.Options,
     ],
@@ -359,61 +365,40 @@ const config: Config = {
 };
 
 type DocusaurusScript = DocusaurusConfig["scripts"][number];
-type ScriptWithConsent = Exclude<DocusaurusScript, string> & {
-  requiresConsent: boolean;
-};
 
-function getScripts() {
-  const sharedScripts: ScriptWithConsent[] = [
-    {
-      src: "/js/fix-multiple-trailing-slashes.js",
-      requiresConsent: false,
-    },
+// None of these scripts needs consent. PostHog needs it, so it is not in this
+// list: `src/lib/posthog.ts` loads it from npm and starts it after the consent
+// check.
+function getScripts(): DocusaurusScript[] {
+  const sharedScripts: DocusaurusScript[] = [
+    "/js/fix-multiple-trailing-slashes.js",
   ];
 
-  const devOnlyScripts: ScriptWithConsent[] = [];
+  const devOnlyScripts: DocusaurusScript[] = [];
 
-  const prodOnlyScripts: ScriptWithConsent[] = [
-    {
-      src: "/scripts/plausible-queue.js",
-      requiresConsent: false,
-    },
+  const prodOnlyScripts: DocusaurusScript[] = [
+    "/scripts/plausible-queue.js",
     {
       // We are using Cloudflare Workers to proxy the Plausible script.
+      // Plausible doesn't use cookies, so it can be loaded right away.
       src: "/waspara/wasp/script.js",
       defer: true,
       "data-domain": "wasp.sh",
       "data-api": "/waspara/wasp/event",
-      // Plausible doesn't use cookies, so it can be loaded right away.
-      requiresConsent: false,
-    },
-    {
-      src: "/scripts/posthog.js",
-      defer: true,
-      requiresConsent: true,
     },
   ];
 
-  const scripts = [
+  return [
     ...sharedScripts,
     ...(isProduction ? prodOnlyScripts : devOnlyScripts),
   ];
-
-  return mapToDocusaurusScripts(scripts);
 }
 
-function mapToDocusaurusScripts(
-  scripts: ScriptWithConsent[],
-): DocusaurusScript[] {
-  return scripts.map(({ requiresConsent, ...rest }) => ({
-    ...rest,
-    // Scripts requiring consent shouldn't be loaded until the cookies are accepted,
-    // so we use a custom type on the script _not to load it_ automatically.
-    // Later, if cookies are accepted or the visitor is outside the consent
-    // region, the script will be loaded by the
-    // `src/components/CookieConsentBanner.tsx` component.
-    ...(requiresConsent ? { type: SCRIPT_WITH_CONSENT_TYPE } : {}),
-  }));
+function getRoutePaths(routes: RouteConfig[]): string[] {
+  return routes.flatMap((route) => [
+    route.path,
+    ...getRoutePaths(route.routes ?? []),
+  ]);
 }
 
 export default config;
