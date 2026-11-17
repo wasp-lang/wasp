@@ -10,18 +10,16 @@ export type ClientErrorContext =
   | { source: "authForm" }
   | { source: "optimisticUpdate" };
 
-// The same error can surface in more than one place, e.g. an action error
-// reaches TanStack Query's cache and, if nobody catches it, the window.
+// The handler can receive the same error more than once.
 const handledErrors = new WeakSet<object>();
 
 /**
- * The client error handler. Wasp calls it from every place where errors
- * surface: the root error boundary, React's root, TanStack Query's caches,
- * the browser's global error events, and Wasp's own `catch` blocks.
+ * Reports an unexpected client error, once per error object.
  *
- * An HTTP error response is sent by the server on purpose, and the server
- * already reports its own unexpected errors, so we only report everything
- * else.
+ * It skips HTTP error responses, because the server sends them on purpose.
+ *
+ * @param error The thrown value.
+ * @param context Where the error surfaced.
  */
 export function handleClientError(
   error: unknown,
@@ -46,8 +44,8 @@ function isHttpErrorResponse(error: unknown): boolean {
 }
 
 /**
- * Catches errors that nothing else caught, e.g. errors thrown in event
- * handlers and rejected promises that nobody awaited.
+ * Passes the errors that reach the window to {@link handleClientError}, e.g.
+ * errors thrown in event handlers and rejected promises that nobody awaited.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event

@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "5afbcb5198296f02a9b93ab82c0c3ff763a3e88d69b06bddad554e109d07dc9a"
+        "74cf640328b2f2187705daa13d5ab9f60b0e4ece92668f5fbdc821a8638e1edf"
     ],
     [
         [
@@ -298,7 +298,7 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "27953a07129853a5fd292ee9cb04ce5229db986634893841df8e4db4b0a86146"
+        "01ae511901b88569170deb331ba709ecf275b732b15443745f96df3c607d0a98"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "5ad6de017e3f8a9be4042b6a04fd9913b1b337d128cfb9fd94ade46639d905b2"
+        "a22d06e05f2470aa3d03a020ced8102a561b71d878f3cf4273a86989878c349b"
     ],
     [
         [

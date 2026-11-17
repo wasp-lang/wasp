@@ -131,13 +131,12 @@ function isHttpErrorStatusCode(value) {
 // node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
 var handledErrors = /* @__PURE__ */ new WeakSet();
 /**
-* The client error handler. Wasp calls it from every place where errors
-* surface: the root error boundary, React's root, TanStack Query's caches,
-* the browser's global error events, and Wasp's own `catch` blocks.
+* Reports an unexpected client error, once per error object.
 *
-* An HTTP error response is sent by the server on purpose, and the server
-* already reports its own unexpected errors, so we only report everything
-* else.
+* It skips HTTP error responses, because the server sends them on purpose.
+*
+* @param error The thrown value.
+* @param context Where the error surfaced.
 */
 function handleClientError(error, context) {
 	if (isHttpErrorResponse(error)) return;
@@ -151,8 +150,8 @@ function isHttpErrorResponse(error) {
 	return error instanceof HttpError || isHTTPError(error);
 }
 /**
-* Catches errors that nothing else caught, e.g. errors thrown in event
-* handlers and rejected promises that nobody awaited.
+* Passes the errors that reach the window to {@link handleClientError}, e.g.
+* errors thrown in event handlers and rejected promises that nobody awaited.
 *
 * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
 * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event
