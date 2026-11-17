@@ -3,8 +3,6 @@ import { HttpError } from "../HttpError.js";
 
 export type ClientErrorContext =
   | { source: "render" }
-  | { source: "query" }
-  | { source: "action" }
   | { source: "window" }
   | { source: "oauthCallback" }
   | { source: "authForm" }

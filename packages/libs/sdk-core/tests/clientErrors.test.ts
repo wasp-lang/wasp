@@ -21,7 +21,7 @@ describe("client error handler", () => {
 
   it("doesn't report an `HttpError`", () => {
     handleClientError(new ClientHttpError(404, "Not found"), {
-      source: "query",
+      source: "window",
     });
 
     expect(console.error).not.toHaveBeenCalled();
@@ -35,7 +35,7 @@ describe("client error handler", () => {
       {} as ConstructorParameters<typeof HTTPError>[2],
     );
 
-    handleClientError(kyHttpError, { source: "query" });
+    handleClientError(kyHttpError, { source: "window" });
 
     expect(console.error).not.toHaveBeenCalled();
   });
@@ -43,7 +43,7 @@ describe("client error handler", () => {
   it("reports the same error object only once", () => {
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "action" });
+    handleClientError(error, { source: "render" });
     handleClientError(error, { source: "window" });
 
     expect(console.error).toHaveBeenCalledTimes(1);
