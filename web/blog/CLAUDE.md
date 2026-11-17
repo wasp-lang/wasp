@@ -75,7 +75,7 @@ Every post **must** include:
 ---
 title: "Post Title Here"
 authors: [authorHandle] # array of handles from authors.yml
-image: /img/<topic-slug>/banner.webp
+image: /img/blog/<post-file-name>/banner.webp # post images live in web/static/img/blog/<post-file-name>/, named after the MDX file
 tags: [wasp, web dev, relevant, tags] # 3-6 lowercase tags
 keywords: ["long-tail keyword 1", "keyword 2", ...] # 10+ for SEO/GEO
 description: "SEO/GEO-optimized summary of the article."

@@ -35,10 +35,20 @@ Use a Python script (via Bash) to parse the JSON block data because it can be ve
   - `table_of_contents` → skip (Docusaurus handles this)
 - Preserve rich text formatting: bold (`**`), italic (`*`), code (`` ` ``), strikethrough (`~~`), links (`[text](url)`)
 - Collect all image URLs and captions separately
+- Rewrite in-page Notion links as heading anchors (see below)
+
+#### Rewriting in-page Notion links
+
+Notion links to another block on the same page look like `https://app.notion.com/p/<page-id>#<block-id>`, `https://www.notion.so/<slug>-<page-id>#<block-id>`, or `/p/<page-id>?pvs=25#<block-id>`. They break once published, so the script should convert each one into a Docusaurus heading anchor:
+
+1. Build a map of every block ID in the post range (dashes removed, lowercase) to the heading it belongs to: the block itself if it's a `heading_1/2/3`, otherwise the closest heading above it.
+2. Turn each heading's final text into a slug the way Docusaurus does. It uses `github-slugger`, which is in `web/node_modules`, so the easiest way is to call it from Node. The rule is: lowercase the text, drop everything except letters, numbers, spaces, hyphens, and underscores, then replace each space with `-`. For example, `TL;DR` → `tldr` and `Part 1: What to build (MCP vs API vs CLI)` → `part-1-what-to-build-mcp-vs-api-vs-cli`. If two headings get the same slug, the second one gets `-1`, the third `-2`, and so on.
+3. Replace the link with `#<slug>`, keeping the link text.
+4. Keep a list of the links you had to resolve to the closest heading (because the target block wasn't a heading), plus any Notion links you couldn't resolve, like links to other Notion pages or to blocks outside the post range. Leave those links unchanged.
 
 ### Step 3: Download and optimize images
 
-1. Create directory: `web/static/img/<post-slug>/`
+1. Create directory: `web/static/img/blog/YYYY-MM-DD-<slug>/` (same name as the MDX file created in step 4)
 2. Download all images using `curl` (Notion URLs are temporary signed S3 URLs — download immediately).
 3. Give images descriptive names based on their context/caption.
 4. Convert all images to WebP using `cwebp -q 85` for smaller file sizes.
@@ -53,7 +63,7 @@ Create `web/blog/YYYY-MM-DD-<slug>.mdx` following these conventions:
 ---
 title: "Post Title"
 authors: [authorHandle]  # from web/blog/authors.yml
-image: /img/<post-slug>/banner.webp
+image: /img/blog/YYYY-MM-DD-<slug>/banner.webp
 tags: [wasp, tag2, tag3]  # 3-6 lowercase tags
 keywords: ["keyword1", "keyword2", ...]  # 10+ for SEO
 description: "SEO summary under 160 chars."
@@ -73,4 +83,4 @@ Show a summary of what was created:
 - File path
 - Number of images downloaded and total size savings from WebP conversion
 - Any decisions made (title choice, skipped sections, etc.)
-- Remind user to review anchor links in TL;DR sections
+- In-page links: how many were rewritten to heading anchors, which ones point to the closest heading instead of the exact block (show the link text and the chosen heading), and any Notion links left unresolved

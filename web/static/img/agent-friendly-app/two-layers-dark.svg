@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="492" viewBox="0 0 900 492" role="img" aria-labelledby="t d">
+  <title id="t">Two layers: surfaces and operations</title>
+  <desc id="d">Four callers, the dashboard, an MCP server, a REST API and a CLI, each send a request. The dashboard, MCP and REST each pass through a one-line adapter; the CLI uses the REST API. All four land on the same createLink operation, where the permission check, validation and business rules live, and the same result goes back to each caller.</desc>
+  <style>
+    svg {
+      --bg: #ffffff; --band: #f3f5f8; --box: #f8fafb; --ink: #15202b; --muted: #5a6774; --line: #cbd3db;
+      --dash: #2f5bd8; --mcp: #8b3fcf; --rest: #0f8577; --cli: #b06a00; --ok: #23863a; --ok-bg: #e9f5ec;
+    }
+    svg {
+        --bg: #0e141a; --band: #151d25; --box: #1b2530; --ink: #e4ebf1; --muted: #95a3b0; --line: #2c3845;
+        --dash: #7d9dff; --mcp: #c18bf2; --rest: #3fc1ae; --cli: #f0a63a; --ok: #5ccb74; --ok-bg: #173323;
+      }
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
+    .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .bg { fill: var(--bg); }
+    .band { fill: var(--band); }
+    .label { font: 600 11px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .08em; fill: var(--muted); }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 1; }
+    .note { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 4 4; }
+    .t { font-size: 15px; font-weight: 600; }
+    .s { font-size: 12px; fill: var(--muted); }
+    .m { font-size: 12px; }
+    .wire { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
+    .ops { fill: var(--bg); stroke: var(--ink); stroke-width: 1.5; }
+    .glow { fill: none; stroke: var(--ok); stroke-width: 3; }
+    .db { stroke: var(--line); stroke-width: 2; }
+    .ok { fill: var(--ok); }
+    .pkt { stroke: var(--bg); stroke-width: 2.5; }
+    .row-bg { fill: var(--ok-bg); }
+    .row { font-size: 13px; }
+    .tag { font-size: 11.5px; fill: var(--muted); }
+    .ck { fill: none; stroke: var(--ok); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <rect class="bg" width="900" height="492" rx="14"/>
+
+  <!-- Layer bands -->
+  <rect class="band" x="12" y="12" width="876" height="176" rx="10"/>
+  <text class="label" x="28" y="32">SURFACES · THIN ADAPTERS</text>
+  <rect class="band" x="12" y="200" width="876" height="182" rx="10"/>
+  <text class="label" x="872" y="226" text-anchor="end">OPERATIONS · LOGIC + METADATA</text>
+
+  <!-- Wires (drawn first, so boxes sit on top) -->
+  <path id="p-dash" class="wire" style="stroke:var(--dash)" d="M125 96 V236"/>
+  <path id="p-mcp" class="wire" style="stroke:var(--mcp)" d="M345 96 V236"/>
+  <path id="p-rest" class="wire" style="stroke:var(--rest)" d="M565 96 V236"/>
+  <path id="p-cli" class="wire" style="stroke:var(--cli)" d="M785 96 V112 H620 V236"/>
+
+  <!-- Callers -->
+  <g transform="translate(30,40)">
+    <rect class="box" width="190" height="56" rx="9"/>
+    <rect width="190" height="4" rx="2" style="fill:var(--dash)"/>
+    <text class="t" x="14" y="27">Dashboard</text>
+    <text class="s" x="14" y="45">a person in a browser</text>
+  </g>
+  <g transform="translate(250,40)">
+    <rect class="box" width="190" height="56" rx="9"/>
+    <rect width="190" height="4" rx="2" style="fill:var(--mcp)"/>
+    <text class="t" x="14" y="27">MCP server</text>
+    <text class="s" x="14" y="45">agents in any MCP client</text>
+  </g>
+  <g transform="translate(470,40)">
+    <rect class="box" width="190" height="56" rx="9"/>
+    <rect width="190" height="4" rx="2" style="fill:var(--rest)"/>
+    <text class="t" x="14" y="27">REST API</text>
+    <text class="s" x="14" y="45">scripts and integrations</text>
+  </g>
+  <g transform="translate(690,40)">
+    <rect class="box" width="190" height="56" rx="9"/>
+    <rect width="190" height="4" rx="2" style="fill:var(--cli)"/>
+    <text class="t" x="14" y="27">CLI</text>
+    <text class="s" x="14" y="45">agents with a shell</text>
+  </g>
+
+  <!-- Adapters: one line each -->
+  <g transform="translate(30,128)">
+    <rect class="box" width="190" height="44" rx="8"/>
+    <text class="s" x="12" y="18">form handler</text>
+    <text class="m mono" x="12" y="35">→ createLink()</text>
+  </g>
+  <g transform="translate(250,128)">
+    <rect class="box" width="190" height="44" rx="8"/>
+    <text class="s mono" x="12" y="18">create_link tool</text>
+    <text class="m mono" x="12" y="35">→ createLink()</text>
+  </g>
+  <g transform="translate(470,128)">
+    <rect class="box" width="190" height="44" rx="8"/>
+    <text class="s mono" x="12" y="18">POST /links</text>
+    <text class="m mono" x="12" y="35">→ createLink()</text>
+  </g>
+  <g transform="translate(690,128)">
+    <rect class="note" width="190" height="44" rx="8"/>
+    <text class="s" x="12" y="18">no server code:</text>
+    <text class="s" x="12" y="35">it calls the REST API</text>
+  </g>
+
+  <!-- The operation -->
+  <rect class="ops" x="40" y="236" width="820" height="130" rx="10"/>
+  <rect class="glow" x="40" y="236" width="820" height="130" rx="10" opacity="0">
+    <animate attributeName="opacity" dur="8s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0;0.25;0.28;0.6;0.65;1"/>
+  </rect>
+  <text class="t" x="62" y="264">links/service.ts</text>
+  <text class="s mono" x="196" y="264" style="font-size:13px">createLink(caller, input, deps)</text>
+  <g transform="translate(52,280)">
+    <rect class="row-bg" width="796" height="24" rx="5" opacity="0"><animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.27;0.29;0.6;0.65;1"/></rect>
+    <text class="row mono" x="10" y="16.5">requirePermission(caller, &quot;links:write&quot;)</text>
+    <text class="tag" x="752" y="16" text-anchor="end">permission</text>
+    <path class="ck" d="M770 12 l4 4 l8 -8" opacity="0"><animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.27;0.29;0.6;0.65;1"/></path>
+  </g>
+  <g transform="translate(52,306)">
+    <rect class="row-bg" width="796" height="24" rx="5" opacity="0"><animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.31;0.33;0.6;0.65;1"/></rect>
+    <text class="row mono" x="10" y="16.5">LinkInput.parse(input)</text>
+    <text class="tag" x="752" y="16" text-anchor="end">validation</text>
+    <path class="ck" d="M770 12 l4 4 l8 -8" opacity="0"><animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.31;0.33;0.6;0.65;1"/></path>
+  </g>
+  <g transform="translate(52,332)">
+    <rect class="row-bg" width="796" height="24" rx="5" opacity="0"><animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.35;0.37;0.6;0.65;1"/></rect>
+    <text class="row mono" x="10" y="16.5">assertSlugFree → link.create → toLinkOut</text>
+    <text class="tag" x="752" y="16" text-anchor="end">business rules</text>
+    <path class="ck" d="M770 12 l4 4 l8 -8" opacity="0"><animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.35;0.37;0.6;0.65;1"/></path>
+  </g>
+
+  <!-- Database -->
+  <line class="db" x1="450" y1="366" x2="450" y2="400"/>
+  <g transform="translate(390,400)">
+    <rect class="box" width="120" height="38" rx="8"/>
+    <text class="t" x="60" y="24" text-anchor="middle" style="font-size:13px">Database</text>
+  </g>
+
+  <!-- Requests travel down, then the same result travels back up -->
+  <g>
+    <circle class="pkt" r="7" style="fill:var(--dash)">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-dash"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="1;0;1" keyTimes="0;0.6;0.95"/>
+    </circle>
+    <circle class="pkt" r="7" style="fill:var(--mcp)">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-mcp"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="1;0;1" keyTimes="0;0.6;0.95"/>
+    </circle>
+    <circle class="pkt" r="7" style="fill:var(--rest)">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-rest"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="1;0;1" keyTimes="0;0.6;0.95"/>
+    </circle>
+    <circle class="pkt" r="7" style="fill:var(--cli)">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-cli"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="1;0;1" keyTimes="0;0.6;0.95"/>
+    </circle>
+
+    <!-- The result: same object, back to every caller -->
+    <circle class="pkt ok" r="7" opacity="0">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-dash"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="0;1;0" keyTimes="0;0.6;0.95"/>
+    </circle>
+    <circle class="pkt ok" r="7" opacity="0">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-mcp"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="0;1;0" keyTimes="0;0.6;0.95"/>
+    </circle>
+    <circle class="pkt ok" r="7" opacity="0">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-rest"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="0;1;0" keyTimes="0;0.6;0.95"/>
+    </circle>
+    <circle class="pkt ok" r="7" opacity="0">
+      <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear"
+        keyPoints="0;1;1;0;0" keyTimes="0;0.25;0.625;0.875;1"><mpath xlink:href="#p-cli"/></animateMotion>
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete"
+        values="0;1;0" keyTimes="0;0.6;0.95"/>
+    </circle>
+  </g>
+
+  <text class="s" x="450" y="472" text-anchor="middle" style="font-size:13px">Four ways in, three one-line adapters, one place the rules live.</text>
+</svg>
