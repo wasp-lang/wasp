@@ -65,34 +65,39 @@ parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
     parseDefinition :: String -> Maybe (EnvVar, String)
     parseDefinition lineStart = do
       let s1 = dropHorizontalSpace lineStart
-          s2 = stripOptionalExport s1
-          (key, afterKey) = span isKeyChar s2
+      (key, valStart) <- parseKeyAndSeparator s1
+      case dropJsSpace valStart of
+        q : afterOpenQuote
+          | isQuoteChar q,
+            Just (quotedVal, remainingLines) <- parseQuotedValue q afterOpenQuote ->
+              let finalVal = if q == '"' then expandDoubleQuoteNewlines quotedVal else quotedVal
+               in Just ((key, finalVal), remainingLines)
+        _ -> Just $ parseUnquotedValue key valStart
+
+    parseKeyAndSeparator :: String -> Maybe (EnvVarName, String)
+    parseKeyAndSeparator s
+      | "export" `isPrefixOf` s,
+        c : rest <- drop 6 s,
+        isJsSpace c,
+        Just result <- parseRawKeyAndSeparator (dropJsSpace rest) =
+          Just result
+      | otherwise = parseRawKeyAndSeparator s
+
+    parseRawKeyAndSeparator :: String -> Maybe (EnvVarName, String)
+    parseRawKeyAndSeparator s = do
+      let (key, afterKey) = span isKeyChar s
       if null key
         then Nothing
         else do
           valStart <- stripSeparator afterKey
-          case valStart of
-            q : afterOpenQuote
-              | isQuoteChar q,
-                Just (quotedVal, remainingLines) <- parseQuotedValue q afterOpenQuote ->
-                  let finalVal = if q == '"' then expandDoubleQuoteNewlines quotedVal else quotedVal
-                   in Just ((key, finalVal), remainingLines)
-            _ -> Just $ parseUnquotedValue key valStart
-
-    stripOptionalExport :: String -> String
-    stripOptionalExport s
-      | "export" `isPrefixOf` s,
-        c : rest <- drop 6 s,
-        isHorizontalSpace c =
-          dropHorizontalSpace rest
-      | otherwise = s
+          Just (key, valStart)
 
     stripSeparator :: String -> Maybe String
     stripSeparator s =
-      case dropHorizontalSpace s of
-        '=' : rest -> Just (dropHorizontalSpace rest)
+      case dropJsSpace s of
+        '=' : rest -> Just rest
         _ -> case s of
-          ':' : c : rest | isHorizontalSpace c -> Just (dropHorizontalSpace rest)
+          ':' : c : rest | isJsSpace c -> Just rest
           _ -> Nothing
 
     parseQuotedValue :: Char -> String -> Maybe (String, String)
@@ -148,6 +153,9 @@ parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
 
     isHorizontalSpace :: Char -> Bool
     isHorizontalSpace c = c /= '\n' && c /= '\r' && isJsSpace c
+
+    dropJsSpace :: String -> String
+    dropJsSpace = dropWhile isJsSpace
 
     dropHorizontalSpace :: String -> String
     dropHorizontalSpace = dropWhile isHorizontalSpace
@@ -210,7 +218,6 @@ formatEnvVarValue rawValue
     canWrapInQuote quoteChar = go
       where
         go [] = True
-        go ['\\'] = False
         go ('\\' : c : rest)
           | c == quoteChar = go rest
           | otherwise = go (c : rest)
