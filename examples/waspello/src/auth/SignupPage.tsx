@@ -5,8 +5,8 @@ import addWaspSourceHeader from "../common/addWaspSourceHeader";
 import EmailAndPassForm from "./components/EmailAndPassForm";
 import GoogleAuthButton from "./components/GoogleAuthButton";
 
+import { ClientHttpError } from "wasp/client";
 import { login, signup } from "wasp/client/auth";
-import { HttpError } from "wasp/errors";
 import mainLogo from "../common/waspello-logo.svg";
 import "./Signup.css";
 
@@ -30,11 +30,12 @@ const SignupPage = () => {
 
       navigate("/");
     } catch (error: unknown) {
-      if (error instanceof HttpError && error.statusCode === 422) {
-        const description = error.data?.message;
-        setErrorMessage(
-          typeof description === "string" ? description : "Invalid request",
-        );
+      if (error instanceof ClientHttpError && error.statusCode === 422) {
+        const description =
+          typeof error.data?.message === "string"
+            ? error.data.message
+            : "Invalid request";
+        setErrorMessage(description);
       } else {
         setErrorMessage("An error occurred. Please try again later.");
       }

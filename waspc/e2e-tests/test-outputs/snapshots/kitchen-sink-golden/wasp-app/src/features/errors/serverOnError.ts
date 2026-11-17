@@ -1,4 +1,3 @@
-import { getErrorMessage } from "wasp/errors";
 import { type ServerOnErrorFn } from "wasp/server";
 import { type GetReportedServerErrors } from "wasp/server/api";
 
@@ -10,7 +9,7 @@ const serverErrorReports: ServerErrorReport[] = [];
 export const onServerError: ServerOnErrorFn = (error, context) => {
   serverErrorReports.push({
     source: context.source,
-    message: getErrorMessage(error),
+    message: error instanceof Error ? error.message : String(error),
   });
   if (serverErrorReports.length > MAX_SERVER_ERROR_REPORTS) {
     serverErrorReports.shift();

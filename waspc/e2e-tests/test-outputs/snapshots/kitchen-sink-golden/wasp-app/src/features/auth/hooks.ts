@@ -1,4 +1,4 @@
-import { HttpError } from "wasp/errors";
+import { ServerHttpError } from "wasp/server";
 import {
   type OnAfterEmailVerifiedHook,
   type OnAfterLoginHook,
@@ -9,7 +9,10 @@ import {
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId }) => {
   if (providerId.providerUserId === "notallowed@email.com") {
-    throw new HttpError(403, "On Before Signup Hook disallows this email.");
+    throw new ServerHttpError(
+      403,
+      "On Before Signup Hook disallows this email.",
+    );
   }
 };
 
@@ -39,7 +42,10 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({ providerId }) => {
   if (providerId.providerUserId === "cantlogin@email.com") {
-    throw new HttpError(403, "On Before Login Hook disallows this email.");
+    throw new ServerHttpError(
+      403,
+      "On Before Login Hook disallows this email.",
+    );
   }
 };
 

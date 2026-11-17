@@ -409,20 +409,27 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ### Error Handling
 
-When your Query's NodeJS implementation throws an error, the client sees one of two things:
+When your Query's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-- If you throw an `HttpError`, the client receives its status code, `message`, and `data`, for any status code.
-- If you throw anything else, the client receives a generic `500 Internal Server Error`, and Wasp logs the error on the server. In production, Wasp doesn't send the error's details, so you don't leak sensitive information by accident. In development, the response also includes the error's message and stack to help you debug.
+1. If it is a `ServerHttpError`, or any other `HttpError`, the client receives the error as is, with its status code, `message`, and `data`.
+2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `ServerHttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
+3. If it is anything else, the client receives a generic `500 Internal Server Error`.
 
-To send error details to the client, throw an `HttpError`:
+In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
+
+- In production, Wasp doesn't send them.
+- In development, the response also includes the error's message and stack to help you debug.
+- Wasp logs the error on the server if the status code is `500` or above.
+
+To send error details to the client, throw a `ServerHttpError`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/queries.js"
-    import { HttpError } from "wasp/errors"
+    import { ServerHttpError } from "wasp/server"
 
     export const getAllTasks = async (args, context) => {
-      throw new HttpError(
+      throw new ServerHttpError(
         403, // status code
         "You can't do this!", // message
         { foo: "bar" } // data
@@ -434,10 +441,10 @@ To send error details to the client, throw an `HttpError`:
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
     import { type GetAllTasks } from "wasp/server/operations"
-    import { HttpError } from "wasp/errors"
+    import { ServerHttpError } from "wasp/server"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
-      throw new HttpError(
+      throw new ServerHttpError(
         403, // status code
         "You can't do this!", // message
         { foo: "bar" } // data
@@ -447,18 +454,18 @@ To send error details to the client, throw an `HttpError`:
   </TabItem>
 </Tabs>
 
-Only put information in an `HttpError` that is safe to show to the user.
+Only put information in a `ServerHttpError` that is safe to show to the user.
 
-On the client, check whether the error is an `HttpError` to read these fields:
+On the client, the failed Query throws a `ClientHttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `ClientHttpError` before reading these fields:
 
 ```tsx title="src/MainPage.tsx" auto-js
+import { ClientHttpError } from "wasp/client";
 import { getAllTasks, useQuery } from "wasp/client/operations";
-import { HttpError } from "wasp/errors";
 
 export const MainPage = () => {
   const { data: tasks, error } = useQuery(getAllTasks);
 
-  if (error instanceof HttpError && error.statusCode === 403) {
+  if (error instanceof ClientHttpError && error.statusCode === 403) {
     return <div>{error.message}</div>;
   }
   // ...
@@ -468,7 +475,7 @@ export const MainPage = () => {
 To also set response headers, e.g. `Retry-After`, pass them in the options argument:
 
 ```js
-throw new HttpError(429, "Too many requests", undefined, {
+throw new ServerHttpError(429, "Too many requests", undefined, {
   headers: { "Retry-After": "60" },
 })
 ```
@@ -579,10 +586,17 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 />
 
 <CardLink
-  to="../../../api/wasp/errors#httperror"
+  to="../../../api/wasp/server#serverhttperror"
   kind="api"
-  title="HttpError"
+  title="ServerHttpError"
   description="The error you throw to send an HTTP error response to the client."
+/>
+
+<CardLink
+  to="../../../api/wasp/client#clienthttperror"
+  kind="api"
+  title="ClientHttpError"
+  description="The error the client gets when the server answers with an error status."
 />
 
 ### The `useQuery` Hook

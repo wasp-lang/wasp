@@ -17,6 +17,7 @@ import { webhookCallback as _waspwebhookCallbackfn } from "../../../../../../src
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
 import { throwUnexpectedError as _waspthrowUnexpectedErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwHttpError as _waspthrowHttpErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwCustomHttpError as _waspthrowCustomHttpErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwConcealedError as _waspthrowConcealedErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwUnavailableError as _waspthrowUnavailableErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwRateLimitError as _waspthrowRateLimitErrorfn } from "../../../../../../src/features/errors/apis"
@@ -31,6 +32,7 @@ const _waspbarBazmiddlewareConfigFn = idFn
 const _wasppatchBarBazmiddlewareConfigFn = idFn
 const _waspthrowUnexpectedErrormiddlewareConfigFn = idFn
 const _waspthrowHttpErrormiddlewareConfigFn = idFn
+const _waspthrowCustomHttpErrormiddlewareConfigFn = idFn
 const _waspthrowConcealedErrormiddlewareConfigFn = idFn
 const _waspthrowUnavailableErrormiddlewareConfigFn = idFn
 const _waspthrowRateLimitErrormiddlewareConfigFn = idFn
@@ -162,6 +164,23 @@ router.get(
         },
       }
       return _waspthrowHttpErrorfn(req, res, context)
+    }
+  )
+)
+const throwCustomHttpErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowCustomHttpErrormiddlewareConfigFn)
+router.get(
+  "/errors/custom-http",
+  throwCustomHttpErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowCustomHttpErrorfn>[0],
+      res: Parameters<typeof _waspthrowCustomHttpErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowCustomHttpErrorfn(req, res, context)
     }
   )
 )

@@ -30,6 +30,10 @@ export {
   throwValidationError,
   type PasswordValidationSchema,
 } from "./auth/validation.js";
+export {
+  ClientHttpError,
+  type ClientHttpErrorOptions,
+} from "./ClientHttpError.js";
 export { type ClientConfig } from "./config.js";
 export { defineEnvValidationSchema } from "./env/schema.js";
 export {
@@ -41,11 +45,11 @@ export { getErrorMessage } from "./errors.js";
 export { HttpMethod, type Route } from "./http.js";
 export {
   HttpError,
-  fromHttpErrorBody,
+  isHttpErrorBody,
+  isHttpErrorStatusCode,
   toHttpErrorBody,
   type HttpErrorBody,
-  type HttpErrorHeaders,
-  type HttpErrorOptions,
+  type HttpErrorData,
 } from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
 export {
@@ -81,6 +85,11 @@ export {
   type SuperJSONObject,
   type SuperJSONValue,
 } from "./serialization/types.js";
+export {
+  ServerHttpError,
+  type ServerHttpErrorHeaders,
+  type ServerHttpErrorOptions,
+} from "./ServerHttpError.js";
 export { colorize } from "./utils/ansiColors.js";
 export { isNotNull } from "./utils/predicates.js";
 export { sleep } from "./utils/sleep.js";

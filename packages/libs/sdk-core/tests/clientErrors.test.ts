@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("client error handler", () => {
-  let HttpError: typeof import("../src/HttpError").HttpError;
+  let ClientHttpError: typeof import("../src/ClientHttpError").ClientHttpError;
   let KyHttpError: typeof import("ky").HTTPError;
   let handleClientError: typeof import("../src/browser/errors").handleClientError;
   let registerClientOnErrorFn: typeof import("../src/browser/errors").registerClientOnErrorFn;
@@ -12,7 +12,7 @@ describe("client error handler", () => {
     // module instances for `instanceof` checks to work.
     vi.resetModules();
     vi.spyOn(console, "error").mockImplementation(() => {});
-    ({ HttpError } = await import("../src/HttpError"));
+    ({ ClientHttpError } = await import("../src/ClientHttpError"));
     ({ HTTPError: KyHttpError } = await import("ky"));
     ({ handleClientError, registerClientOnErrorFn } = await import(
       "../src/browser/errors"
@@ -46,7 +46,9 @@ describe("client error handler", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
 
-    handleClientError(new HttpError(404, "Not found"), { source: "query" });
+    handleClientError(new ClientHttpError(404, "Not found"), {
+      source: "query",
+    });
 
     expect(console.error).not.toHaveBeenCalled();
     expect(onErrorFn).not.toHaveBeenCalled();
