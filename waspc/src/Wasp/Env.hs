@@ -17,7 +17,7 @@ where
 
 import Data.Char (isAlphaNum, isAscii, isSpace)
 import Data.Function (on)
-import Data.List (dropWhileEnd, intercalate, isPrefixOf, nubBy)
+import Data.List (dropWhileEnd, intercalate, isInfixOf, isPrefixOf, nubBy)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
@@ -100,16 +100,22 @@ parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
       where
         go _ [] = Nothing
         go acc ('\\' : c : rest)
-          | c == quoteChar = go (c : '\\' : acc) rest
-        go acc (c : rest)
           | c == quoteChar =
-              let afterClose = dropHorizontalSpace rest
-               in case afterClose of
-                    [] -> Just (reverse acc, [])
-                    '\n' : nextLines -> Just (reverse acc, nextLines)
-                    '#' : _ -> Just (reverse acc, dropLine afterClose)
-                    _ -> Nothing
+              case go (c : '\\' : acc) rest of
+                Just result -> Just result
+                Nothing -> closeQuote ('\\' : acc) rest
+        go acc (c : rest)
+          | c == quoteChar = closeQuote acc rest
           | otherwise = go (c : acc) rest
+
+        closeQuote :: String -> String -> Maybe (String, String)
+        closeQuote acc rest =
+          let afterClose = dropHorizontalSpace rest
+           in case afterClose of
+                [] -> Just (reverse acc, [])
+                '\n' : nextLines -> Just (reverse acc, nextLines)
+                '#' : _ -> Just (reverse acc, dropLine afterClose)
+                _ -> Nothing
 
     parseUnquotedValue :: EnvVarName -> String -> (EnvVar, String)
     parseUnquotedValue key valStart =
@@ -141,7 +147,7 @@ parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
       (_, _) -> []
 
     isHorizontalSpace :: Char -> Bool
-    isHorizontalSpace c = c == ' ' || c == '\t'
+    isHorizontalSpace c = c /= '\n' && c /= '\r' && isJsSpace c
 
     dropHorizontalSpace :: String -> String
     dropHorizontalSpace = dropWhile isHorizontalSpace
@@ -171,7 +177,7 @@ formatEnvVarValue rawValue
   where
     needsQuoting :: String -> Bool
     needsQuoting val =
-      any isSpace val
+      any isJsSpace val
         || '#' `elem` val
         || isSurroundedByQuotes val
 
@@ -182,18 +188,35 @@ formatEnvVarValue rawValue
 
     hasDoubleQuoteConflict :: Bool
     hasDoubleQuoteConflict =
-      '"' `elem` rawValue && ('#' `elem` rawValue || isSurroundedByQuotes rawValue)
+      hasLiteralNewlineEscape
+        || ('"' `elem` rawValue && ('#' `elem` rawValue || isSurroundedByQuotes rawValue))
 
-    hasNewline :: Bool
-    hasNewline = '\n' `elem` rawValue || '\r' `elem` rawValue
+    hasLiteralNewlineEscape :: Bool
+    hasLiteralNewlineEscape =
+      "\\n" `isInfixOf` rawValue || "\\r" `isInfixOf` rawValue
+
+    hasCarriageReturn :: Bool
+    hasCarriageReturn = '\r' `elem` rawValue
 
     canUseSingleQuotes :: Bool
     canUseSingleQuotes =
-      hasDoubleQuoteConflict && not hasNewline && '\'' `notElem` rawValue
+      hasDoubleQuoteConflict && not hasCarriageReturn && canWrapInQuote '\'' rawValue
 
     canUseBacktickQuotes :: Bool
     canUseBacktickQuotes =
-      hasDoubleQuoteConflict && not hasNewline && '`' `notElem` rawValue
+      hasDoubleQuoteConflict && not hasCarriageReturn && canWrapInQuote '`' rawValue
+
+    canWrapInQuote :: Char -> String -> Bool
+    canWrapInQuote quoteChar = go
+      where
+        go [] = True
+        go ['\\'] = False
+        go ('\\' : c : rest)
+          | c == quoteChar = go rest
+          | otherwise = go (c : rest)
+        go (c : rest)
+          | c == quoteChar = False
+          | otherwise = go rest
 
     escapedForDoubleQuotes :: String
     escapedForDoubleQuotes = concatMap escapeChar rawValue
@@ -202,6 +225,9 @@ formatEnvVarValue rawValue
     escapeChar '\n' = "\\n"
     escapeChar '\r' = "\\r"
     escapeChar c = [c]
+
+isJsSpace :: Char -> Bool
+isJsSpace c = isSpace c || c == '\xFEFF' || c == '\x2028' || c == '\x2029'
 
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
