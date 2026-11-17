@@ -2,6 +2,7 @@
 title: 'Wasp Beta brings major IDE improvements'
 authors: [martinsos]
 tags: [wasp, language]
+toc_max_heading_level: 4
 description: "Wasp Beta (0.7) adds a language server with live errors and autocompletion for .wasp files, VS Code snippets, and IDE support for JS and TS."
 ---
 
@@ -26,7 +27,7 @@ So far Wasp didn’t have much beyond basic syntax highlighting in VSCode, but n
 
 Wasp IDE support in action in VSCode: syntax highlighting, snippets, live error reporting.
 
-# Wasp Language Server
+## Wasp Language Server
 
 Wasp Language Server (WLS) is the “brain” behind smart IDE features like live error reporting and autocompletion - so if it seems like IDE actually understands your code to some degree, well that is the language server!
 
@@ -34,15 +35,15 @@ Wasp Language Server (WLS) is the “brain” behind smart IDE features like liv
 For curious, check out the source code of WLS on Github: [https://github.com/wasp-lang/wasp/tree/main/waspc/waspls/src/Wasp/LSP](https://github.com/wasp-lang/wasp/tree/main/waspc/waspls/src/Wasp/LSP) .
 :::
 
-## Features
+### Features
 
-### Live error/warning reporting
+#### Live error/warning reporting
 
 WLS compiles wasp code for you as you work on it and shows you any errors directly in the editor, via red squiggly lines.
 
 <ImgWithCaption alt="" source="img/blog/2022-12-01-beta-ide-improvements/wls-live-errors.gif" />
 
-### Autocompletion
+#### Autocompletion
 
 WLS understands at which part of code you are right now and offers appropriate completions for it.
 
@@ -52,7 +53,7 @@ WLS understands at which part of code you are right now and offers appropriate c
 Right now WLS is pretty naive here, and mostly focuses on offering available expressions when it realizes you need an expression. This is helpful but just a start, and it will get much smarter in future versions!
 :::
 
-## Bit of history: why are Language Servers cool
+### Bit of history: why are Language Servers cool
 
 Years ago, there was no standardized way to write something like Language Server for your language, instead, each language was doing something of its own, and then each editor/IDE would also implement its own layer of logic for using it, and that was a loooot of work that needed to be done for each editor!
 
@@ -62,7 +63,7 @@ This is great for us, language creators, because it means that once we implement
 
 Right now WLS is used only by the [VSCode Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp), but thanks to the nature of the Language Server Protocol, it should be relatively easy to add support for other editors too! Check this [GH issue](https://github.com/wasp-lang/wasp/issues/864) if you are interested in helping.
 
-## Setup
+### Setup
 
 The best thing: there is nothing you, as a Wasp user, have to do to set up WLS! It already comes bundled with your installation of `wasp` → so if you can run `wasp` projects on your machine, you already have WLS, and it is always of the correct version needed for your current wasp installation. The only thing you need to ensure is you have `wasp` version ≥ 0.6, and a relatively fresh VSCode Wasp language extension.
 
@@ -70,7 +71,7 @@ An easy way to check that your version of `wasp` has WLS packaged into it is to 
 
 <ImgWithCaption alt="" source="img/blog/2022-12-01-beta-ide-improvements/wasp-cli-waspls.png" />
 
-# Wasp VSCode extension
+## Wasp VSCode extension
 
 If we would call Wasp Language Server (WLS) the “backend”, then [VSCode Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) would be “frontend” → it takes care of everything to ensure you have a nice experience working with Wasp in VSCode, while delegating the hardest work to the WLS.
 
@@ -80,15 +81,15 @@ If we would call Wasp Language Server (WLS) the “backend”, then [VSCode Wasp
 For curious, you can check out its source code here, core of it is just one file: [https://github.com/wasp-lang/vscode-wasp/blob/main/src/extension.ts](https://github.com/wasp-lang/vscode-wasp/blob/main/src/extension.ts)
 :::
 
-## Features
+### Features
 
-### Syntax highlighting
+#### Syntax highlighting
 
 Nothing unexpected here: it recognizes different parts of Wasp syntax, like type, value, identifier, comment, string, … and colors them appropriately.
 
 If you are curious how is this implemented, check [https://github.com/wasp-lang/vscode-wasp/blob/main/syntaxes/wasp.tmLanguage.yaml](https://github.com/wasp-lang/vscode-wasp/blob/main/syntaxes/wasp.tmLanguage.yaml) → the whole syntax of Wasp is described via this “mysterious” old TextMate format, since that is the way to do it in VSCode.
 
-### Snippets
+#### Snippets
 
 Wasp allows you to quickly generate a snippet of code for a new `page`, `query`, `action`, or `entity`!
 
@@ -96,11 +97,11 @@ Wasp allows you to quickly generate a snippet of code for a new `page`, `query`,
 
 Check out our snippet definitions here: [https://github.com/wasp-lang/vscode-wasp/blob/main/snippets/wasp.json](https://github.com/wasp-lang/vscode-wasp/blob/main/snippets/wasp.json) . It is actually really easy, in VSCode, to define them and add new ones.
 
-### Live error reporting + autocompletion
+#### Live error reporting + autocompletion
 
 This is done by delegating the work to WLS, as described above!
 
-# IDE support for Javascript / Typescript in Wasp project
+## IDE support for Javascript / Typescript in Wasp project
 
 Due to how unique Wasp is in its approach, getting an IDE to provide all the usual features for Javascript / Typescript wasn’t completely working, and instead, the IDE would get somewhat confused with the context in which files are and would for example not be able to offer “go to definition” for some values, or would not know how to follow the import path.
 
@@ -108,7 +109,7 @@ With Wasp Beta this is now resolved! We resolved this by somewhat changing the s
 
 To learn more about Typescript support in Wasp Beta, check [this blog post](https://wasp.sh/blog/2022/11/29/typescript-feature-announcement)!
 
-# What does the future hold?
+## What does the future hold?
 
 While Wasp Beta greatly improved IDE support for Wasp, there are still quite a few things we want to improve on:
 

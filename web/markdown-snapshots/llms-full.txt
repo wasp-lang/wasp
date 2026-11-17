@@ -2798,7 +2798,7 @@ Wasp's `useQuery` hook accepts three arguments:
 
 - `options`
 
-  A *react-query* `options` object. Use this to change [the default behavior](https://react-query.tanstack.com/guides/important-defaults) for this particular Query. If you want to change the global defaults, you can do so in the [client setup function](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
+  A *react-query* `options` object. Use this to change [the default behavior](https://tanstack.com/query/v4/docs/framework/react/guides/important-defaults) for this particular Query. If you want to change the global defaults, you can do so in the [client setup function](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
 
 For an example of usage, check [this section](#the-usequery-hook).
 
@@ -9268,7 +9268,7 @@ The `AuthIdentity` fields:
 - `providerData` is a JSON string that contains additional data about the user from the authentication provider.
 
   - For example, for password based auth, this field contains the user's hashed password.
-  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/prisma/issues/3786).
+  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/orm/issues/3786).
 
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
