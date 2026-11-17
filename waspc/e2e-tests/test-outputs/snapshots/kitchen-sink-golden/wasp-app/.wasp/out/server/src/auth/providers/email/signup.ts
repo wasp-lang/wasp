@@ -5,7 +5,7 @@ import {
   ensureValidEmail,
   ensureValidPassword,
 } from 'wasp/auth/validation'
-import { HttpError } from "wasp/errors";
+import { ServerHttpError } from "wasp/server";
 import {
   GetVerificationEmailContentFn,
   createEmailVerificationLink,
@@ -94,7 +94,7 @@ export function getSignupRoute({
         'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
-        throw new HttpError(
+        throw new ServerHttpError(
           400,
           `Please wait ${timeLeft} secs before trying again.`,
         )
@@ -162,7 +162,7 @@ export function getSignupRoute({
       })
     } catch (e: unknown) {
       console.error('Failed to send email verification email:', e)
-      throw new HttpError(500, 'Failed to send email verification email.')
+      throw new ServerHttpError(500, 'Failed to send email verification email.')
     }
 
     res.json({ success: true })

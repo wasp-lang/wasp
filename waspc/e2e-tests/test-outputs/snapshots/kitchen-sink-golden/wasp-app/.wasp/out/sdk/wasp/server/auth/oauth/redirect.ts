@@ -21,7 +21,7 @@ export function getRedirectUriForOneTimeCode(oneTimeCode: string): URL {
 // PRIVATE API (server)
 export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
   if (error instanceof HttpError) {
-    const errorMessage = isHttpErrorWithExtraMessage(error)
+    const errorMessage = typeof error.data?.message === "string"
       ? `${error.message}: ${error.data.message}`
       : error.message;
     return getRedirectUriForError(errorMessage)
@@ -39,8 +39,4 @@ function getRedirectUriForError(error: string): URL {
   const url = new URL(`${config.frontendUrl}${clientOAuthCallbackPath}`);
   url.searchParams.set("error", error);
   return url;
-}
-
-function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { data: { message: string } } {
-  return !!error.data && typeof (error.data as any).message === 'string';
 }
