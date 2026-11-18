@@ -29,7 +29,6 @@ import Wasp.Project.Common
     srcTsConfig,
     tsConfigPaths,
   )
-import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
@@ -37,7 +36,6 @@ import qualified Wasp.Project.ExternalConfig as EC
 import Wasp.Project.WaspFile (analyzeWaspFile, findWaspFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
-import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.Psl.Valid as PslV
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Valid (ValidationError)
@@ -82,8 +80,6 @@ constructAppSpec ::
 constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls srcTsConfigPath = do
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
-  let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
-  devDbUrl <- makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 
@@ -97,7 +93,6 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.devEnvVarsClient = clientEnvVars,
             AS.buildType = CompileOptions.buildType compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
-            AS.devDatabaseUrl = devDbUrl,
             AS.packageJson = EC._packageJson externalConfigs,
             AS.srcTsConfigPath = srcTsConfigPath
           }

@@ -4,7 +4,8 @@
     // We must set the `baseUrl`, because otherwise Docusaurus's
     // tsconfig `baseUrl` overrides ours, leading to wrong paths.
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "allowImportingTsExtensions": true
   },
   "exclude": ["build"]
 }

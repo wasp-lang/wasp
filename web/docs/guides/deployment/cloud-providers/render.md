@@ -41,7 +41,7 @@ services:
     region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -62,7 +62,7 @@ services:
       - key: WASP_WEB_CLIENT_URL
         sync: false # you'll fill this in after the first deploy
       - key: NODE_VERSION
-        value: "24"
+        value: "26"
 
   # React client -- static site built with Vite
   - type: web
@@ -70,7 +70,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      npm install -g @wasp/cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp install &&
       wasp build &&
@@ -80,7 +80,7 @@ services:
       - key: REACT_APP_API_URL
         sync: false # you'll fill this in after the first deploy
       - key: NODE_VERSION
-        value: "24"
+        value: "26"
     routes:
       - type: rewrite
         source: /*

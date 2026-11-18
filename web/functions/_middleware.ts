@@ -79,7 +79,7 @@ function escapeRegExp(value: string): string {
  * @example "/docs.md" → true
  * @example "/docs.html" → true
  * @example "/docs/0.24" → false
- * @example "/docs/api/@wasp.sh" → false
+ * @example "/docs/api/@wasp" → false
  */
 function routeHasFileTypeExtension(pathname: string): boolean {
   return /\.(md|html)$/i.test(pathname);

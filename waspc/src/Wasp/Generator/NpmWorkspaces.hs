@@ -47,4 +47,4 @@ serverPackageName :: String
 serverPackageName = workspacePackageName "server"
 
 workspacePackageName :: String -> String
-workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName
+workspacePackageName baseName = "@wasp/generated-" ++ baseName

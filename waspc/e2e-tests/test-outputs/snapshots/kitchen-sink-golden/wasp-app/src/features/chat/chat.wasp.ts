@@ -1,4 +1,4 @@
-import { page, route, type Spec, type WebSocket } from "@wasp.sh/spec";
+import { page, route, type Spec, type WebSocket } from "@wasp/spec";
 
 import { ChatPage } from "./pages/ChatPage" with { type: "ref" };
 import { chatWebSocket } from "./webSocket" with { type: "ref" };

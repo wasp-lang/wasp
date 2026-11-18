@@ -4,6 +4,8 @@ sidebar_label: Custom sign-up actions
 description: Write your own sign-up action in Wasp to add validation or store more data, with email and username examples. Wasp advises auth hooks or custom UI first.
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 # Custom sign-up actions
 
 If you need to deeply hook into the sign-up process, you can create your own sign-up action and customize the code to, for example, add extra validation, store more data, or otherwise call custom code at registration time.
@@ -26,7 +28,7 @@ Below you will find a starting point for creating your own actions. The given im
 ### Email
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -46,17 +48,17 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from "wasp/server"
+import { ServerHttpError } from "wasp/server"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, "This sign-up method is disabled")
+  throw new ServerHttpError(403, "This sign-up method is disabled")
 }
 ```
 
 ```ts title="src/auth/signup.ts" auto-js
 import type { CustomSignup } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { ServerHttpError } from "wasp/server";
 import {
   createEmailVerificationLink,
   createProviderId,
@@ -98,7 +100,7 @@ export const customSignup: CustomSignup<
       // User already exists, handle accordingly
 
       // For example, throw an error or return a message
-      throw new HttpError(400, "Email already exists.");
+      throw new ServerHttpError(400, "Email already exists.");
 
       // Or, another example, you can check if the user is already
       // verified and re-send the verification email if not
@@ -106,7 +108,7 @@ export const customSignup: CustomSignup<
         existingAuthIdentity.providerData,
       );
       if (providerData.isEmailVerified)
-        throw new HttpError(400, "Email already verified.");
+        throw new ServerHttpError(400, "Email already verified.");
     }
 
     if (!providerData) {
@@ -146,7 +148,7 @@ export const customSignup: CustomSignup<
       });
     } catch (e: unknown) {
       console.error("Failed to send email verification email:", e);
-      throw new HttpError(500, "Failed to send email verification email.");
+      throw new ServerHttpError(500, "Failed to send email verification email.");
     }
   } catch (e: any) {
     return {
@@ -168,7 +170,7 @@ export const customSignup: CustomSignup<
 ### Username and password
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app } from "@wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -187,11 +189,11 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from "wasp/server"
+import { ServerHttpError } from "wasp/server"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, "This sign-up method is disabled")
+  throw new ServerHttpError(403, "This sign-up method is disabled")
 }
 ```
 
@@ -253,22 +255,34 @@ We suggest using the built-in field validators for your authentication flow. You
 
 #### Username
 
-- `ensureValidUsername(args)`
-
-  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+<CardLink
+  to="../../../api/wasp/server/auth#ensurevalidusername"
+  kind="api"
+  title="ensureValidUsername"
+  description="Check that the username is present."
+/>
 
 #### Email
 
-- `ensureValidEmail(args)`
-
-  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+<CardLink
+  to="../../../api/wasp/server/auth#ensurevalidemail"
+  kind="api"
+  title="ensureValidEmail"
+  description="Check that the email is present and valid."
+/>
 
 #### Password
 
-- `ensurePasswordIsPresent(args)`
+<CardLink
+  to="../../../api/wasp/server/auth#ensurepasswordispresent"
+  kind="api"
+  title="ensurePasswordIsPresent"
+  description="Check that the password is present."
+/>
 
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+<CardLink
+  to="../../../api/wasp/server/auth#ensurevalidpassword"
+  kind="api"
+  title="ensureValidPassword"
+  description="Check that the password is valid."
+/>

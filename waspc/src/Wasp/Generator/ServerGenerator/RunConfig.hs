@@ -1,34 +1,21 @@
 module Wasp.Generator.ServerGenerator.RunConfig
-  ( ServerRunConfig (..),
-    makeServerRunConfig,
+  ( makeEnvVars,
   )
 where
 
-import Wasp.AppComponentUrl (AppComponentUrl)
-import qualified Wasp.AppComponentUrl as AppComponentUrl
-import Wasp.Env (EnvVar, HasEnvVars (..))
+import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
+import Wasp.Project.Db.Dev (devDatabaseEnvVars)
+import Wasp.Project.RunConfig (ProjectRunConfig (..))
+import Wasp.Util.Network.URI (showUri)
 
-data ServerRunConfig = ServerRunConfig
-  { url :: AppComponentUrl,
-    -- These might not hold all the environment variables that the server uses,
-    -- as it also reads from `.env.server` files and the current environment,
-    -- autonomously. This holds the necessary environment variables for the app
-    -- components to know where to run and where to communicate with web app.
-    -- https://github.com/wasp-lang/wasp/issues/4739
-    envVars :: [EnvVar]
-  }
-  deriving (Show, Eq)
-
-instance HasEnvVars ServerRunConfig where
-  getEnvVars = envVars
-  setEnvVars newEnvVars config = config {envVars = newEnvVars}
-
-makeServerRunConfig :: AppComponentUrl -> String -> ServerRunConfig
-makeServerRunConfig expectedUrl clientUrl =
-  ServerRunConfig
-    expectedUrl
-    [ (Common.clientUrlEnvVarName, clientUrl),
-      (Common.serverUrlEnvVarName, AppComponentUrl.url expectedUrl),
-      (Common.serverPortEnvVarName, show $ AppComponentUrl.port expectedUrl)
-    ]
+-- | The env vars that tell the server where to run, how to reach the other
+-- components, and which database to use. The server also reads its own dotenv
+-- files and the inherited environment: https://github.com/wasp-lang/wasp/issues/4739.
+makeEnvVars :: ProjectRunConfig -> [EnvVar]
+makeEnvVars config =
+  [ (Common.clientUrlEnvVarName, showUri config.clientUrl),
+    (Common.serverUrlEnvVarName, showUri config.serverUrl),
+    (Common.serverPortEnvVarName, show config.serverPort)
+  ]
+    ++ devDatabaseEnvVars config.databaseUrl

@@ -18,7 +18,7 @@ import Wasp.Cli.GithubRepo
     fetchFolderFromGithubReleaseArchiveToDisk,
   )
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 
 createProjectOnDiskFromGhReleaseArchiveTemplate ::
   NewProjectDescription ->
@@ -51,6 +51,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef 
             "and install the Wasp version that matches the latest release tag available by running:",
             "",
             indent 2 $ getInstallationCommand (Just "x.y.z"),
+            legacyVersionsNote,
             "",
             "Then you can try creating your project again."
           ]

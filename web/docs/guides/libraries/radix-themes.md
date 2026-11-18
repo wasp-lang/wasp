@@ -28,7 +28,7 @@ npm install @radix-ui/themes
 Due to how Radix works, we'll need to have a single component that wraps all the pages in our app. In Wasp, this is done through the `rootComponent` configuration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 import { Layout } from "./src/Layout" with { type: "ref" }
 
 export default app({

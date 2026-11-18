@@ -1,7 +1,5 @@
 {{={= =}=}}
-/// <reference types="vitest/config" />
 import type { PluginOption } from "vite";
-import { defaultExclude } from "vitest/config";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -63,7 +61,7 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          noExternal: ["@wasp.sh/lib-sdk-core"],
+          noExternal: ["@wasp/lib-sdk-core"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
@@ -74,15 +72,6 @@ export function waspConfig(): PluginOption {
             "react-dom",
             "@tanstack/react-query",
             "react-router",
-          ],
-        },
-        test: {
-          globals: useUserValue(config.test?.globals, true),
-          environment: useUserValue(config.test?.environment, "jsdom"),
-          setupFiles: {=& vitest.setupFilesArray =},
-          exclude: [
-            ...defaultExclude,
-            "{= vitest.excludeWaspArtefactsPattern =}",
           ],
         },
       };

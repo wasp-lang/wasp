@@ -1,8 +1,5 @@
 # Keep in sync with .github/actions/setup-tools/action.yaml
-min_version = "2026.10.17"
-
-# See the `[monorepo]` section at the end of this file.
-monorepo_root = true
+min_version = "2026.11.5"
 
 [tools]
 ghcup = "0.2.6.2"
@@ -28,28 +25,16 @@ ghcup = "0.2.6.2"
 "mise-cabal:hlint" = "3.8"
 "mise-cabal:stan" = "0.2.1.0"
 
-# This should be equal to Wasp's lowest supported Node version.
-# Keep in sync with:
-# - The compiler (Wasp.Node.Version).
-# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
-# - The docs plugin: /web/src/remark/search-and-replace.ts
-# - The web CI: /web/.node-version
-# - The web package: /web/package.json
-# - The wasp-cli package templates: /scripts/make-npm-packages/templates/*/package.json
-# - The embedded packages: /waspc/data/packages/*/package.json
-# (Also just grep for the version in case we forgot somewhere.)
-"node" = "24.22.1"
-
-jq = "1.8.2"
+jq = "latest"
 railway = "5.64.2"
 
-"github:tfausak/cabal-gild" = "1.8.4.2"
+"github:tfausak/cabal-gild" = "latest"
 
 # TODO: Provide a fallback for Linux ARM64
 # The upstream repo only distributes prebuilt binaries for Linux x64, macOS
 # (all, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
-ormolu.version = "0.9.0.0"
+ormolu.version = "latest"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
 [plugins]
@@ -66,6 +51,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apt:libncurses-dev" = "latest"
 # Cabal dependencies
 "apt:zlib1g-dev" = "latest"
+# Node.js dependencies (https://github.com/nodejs/node/blob/main/BUILDING.md#official-binary-platforms-and-toolchains)
+"apt:libatomic1" = "latest"
 
 # Dependencies for Alpine
 # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-alpine)
@@ -84,7 +71,7 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "apk:pkgconfig" = "latest"
 "apk:tar" = "latest"
 "apk:xz" = "latest"
-# `./run` script dependencies
+# Task dependencies
 "apk:bash" = "latest"
 # Cabal dependencies
 "apk:zlib-dev" = "latest"
@@ -96,199 +83,26 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
 
+# The Node version is read from /.node-version, and the pnpm version from
+# `devEngines` in /package.json.
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
+
 [settings.node]
 # The Node backend has a knack for compiling from source on Alpine even when
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
 
-# Monorepo setup. Each config root has its own `mise.toml`, and its tasks can
-# be run from anywhere as `//<path>:<task>` (e.g. `mise run //waspc:build`).
-# Tools and env vars defined in this file are inherited by every project.
-# https://mise.jdx.dev/tasks/monorepo.html
-[monorepo]
-config_roots = [
-  "waspc",
-  "waspc/data/Generator/libs/*",
-  "waspc/data/packages/*",
-  "waspc/data/packages/studio/client",
-  "waspc/starters-e2e-tests",
-  "wasp-app-runner",
-  "web",
-  "web/tutorial-actions-executor",
-  "scripts/make-npm-packages",
-  "examples/*",
-  "examples/tutorials/*",
-]
-# Keep a single `mise.lock` at the root instead of one per project.
-lockfile = true
-
-# Project graph, used by `^task` dependencies (e.g. `depends = ["^build"]`) and
-# `mise run --affected`. We don't use npm workspaces, so mise can't infer it
-# from our `package.json` files, and we declare it here instead. Each project's
-# `root` must match its config root above. Inspect it with `mise tasks graph`.
-# https://mise.jdx.dev/tasks/workspace-graph.html
-
-[monorepo.projects."wasp:waspc"]
-root = "waspc"
-# The compiler embeds the built libs and packages.
-depends = [
-  "wasp:lib-auth",
-  "wasp:lib-sdk-core",
-  "wasp:lib-test-utils",
-  "wasp:lib-vite-ssr",
-  "wasp:package-deploy",
-  "wasp:package-prisma",
-  "wasp:package-spec",
-  "wasp:package-studio",
-]
-
-[monorepo.projects."wasp:lib-auth"]
-root = "waspc/data/Generator/libs/auth"
-
-[monorepo.projects."wasp:lib-sdk-core"]
-root = "waspc/data/Generator/libs/sdk-core"
-depends = ["wasp:lib-auth"]
-
-[monorepo.projects."wasp:lib-test-utils"]
-root = "waspc/data/Generator/libs/test-utils"
-depends = ["wasp:lib-sdk-core"]
-
-[monorepo.projects."wasp:lib-vite-ssr"]
-root = "waspc/data/Generator/libs/vite-ssr"
-
-[monorepo.projects."wasp:package-deploy"]
-root = "waspc/data/packages/deploy"
-
-[monorepo.projects."wasp:package-prisma"]
-root = "waspc/data/packages/prisma"
-
-[monorepo.projects."wasp:package-spec"]
-root = "waspc/data/packages/spec"
-
-[monorepo.projects."wasp:package-studio"]
-root = "waspc/data/packages/studio"
-# The server's build bundles the built client.
-depends = ["wasp:package-studio-client"]
-
-[monorepo.projects."wasp:package-studio-client"]
-root = "waspc/data/packages/studio/client"
-
-[monorepo.projects."wasp:starters-e2e-tests"]
-root = "waspc/starters-e2e-tests"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:wasp-app-runner"]
-root = "wasp-app-runner"
-
-[monorepo.projects."wasp:web"]
-root = "web"
-depends = ["wasp:package-spec"]
-
-[monorepo.projects."wasp:tutorial-actions-executor"]
-root = "web/tutorial-actions-executor"
-depends = ["wasp:waspc"]
-
-[monorepo.projects."wasp:make-npm-packages"]
-root = "scripts/make-npm-packages"
-depends = ["wasp:waspc"]
-
-[monorepo.projects."wasp:example-ask-the-documents"]
-root = "examples/ask-the-documents"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:example-kitchen-sink"]
-root = "examples/kitchen-sink"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:example-waspello"]
-root = "examples/waspello"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:example-waspleau"]
-root = "examples/waspleau"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:example-websockets-realtime-voting"]
-root = "examples/websockets-realtime-voting"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:example-tutorial-todo-app"]
-root = "examples/tutorials/TodoApp"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-[monorepo.projects."wasp:example-tutorial-todo-app-ts"]
-root = "examples/tutorials/TodoAppTs"
-depends = ["wasp:waspc", "wasp:wasp-app-runner"]
-
-# Shared values and task templates for the projects' tasks.
-# https://mise.jdx.dev/tasks/templates.html
-
 [vars]
-waspc_tools_dir = "{{config_root}}/waspc/tools"
-# Runs the local Wasp CLI through `cabal run`.
+# `{{config_root}}` in a task's `env` resolves to the task file's directory,
+# so the tasks use these absolute paths instead.
 wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
-wasp_app_runner_cli = "{{config_root}}/wasp-app-runner/bin/index.js"
+wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
 
-# These run on Windows CI too, where mise runs tasks with `cmd`, so they must
-# stick to commands that work in both `sh` and `cmd`.
-#
-# The `build` tasks declare their `sources` and `outputs`, so mise skips them
-# while they're up to date. Use `mise run --force` to rebuild anyway.
-# https://mise.jdx.dev/tasks/caching.html
+# Installs the workspace dependencies before `mise run` and `mise exec` when
+# they are out of date.
+[deps.pnpm]
+auto = true
 
-[task_templates."wasp:lib:build"]
-description = "Build the lib and pack it into the tarball that waspc embeds"
-depends = ["^build"]
-sources = [
-  "src/**",
-  "package.json",
-  "package-lock.json",
-  "README.md",
-  ".npmrc",
-  "tsconfig.json",
-  "tsdown.config.ts",
-]
-outputs = ["*.tgz"]
-run = [
-  'node "{{vars.waspc_tools_dir}}/assert-package-version-matches-waspc.ts"',
-  # Remove tarballs from previous versions.
-  '''node -e "for (const f of require('fs').readdirSync('.')) if (f.endsWith('.tgz')) require('fs').rmSync(f)"''',
-  "npm install",
-  "npm pack",
-]
-
-[task_templates."wasp:lib:test"]
-description = "Test the lib"
-depends = ["^build"]
-run = ["npm install", "npm run test"]
-
-[task_templates."wasp:package:build"]
-description = "Build the package that waspc embeds"
-depends = ["^build"]
-sources = [
-  "src/**",
-  "package.json",
-  "package-lock.json",
-  ".npmrc",
-  "tsconfig.json",
-]
-outputs = ["dist/**"]
-run = [
-  'node "{{vars.waspc_tools_dir}}/assert-package-version-matches-waspc.ts"',
-  "npm install",
-  "npm run build",
-]
-
-[task_templates."wasp:package:test"]
-description = "Test the package"
-run = ["npm ci", "npm run test"]
-
-[task_templates."wasp:example:test"]
-description = "Run the example's e2e tests with the local Wasp CLI"
-depends = ["^build"]
-env = { WASP_CLI_CMD = "{{vars.wasp_cli_dev}}", WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}" }
-run = [
-  "[ ! -f .env.server.example ] || [ -f .env.server ] || cp .env.server.example .env.server",
-  '"$WASP_CLI_CMD" install',
-  "npm run test",
-]
+[task_config]
+includes = ["tasks"]
+excludes = ["tasks/node_modules"]

@@ -1,5 +1,5 @@
-import type { SentMessageInfo, EmailFromField } from '@wasp.sh/lib-sdk-core/node'
-export { type EmailProvider, type SMTPEmailProvider, type SendGridProvider, type MailgunEmailProvider, type ResendEmailProvider, type DummyEmailProvider, type SentMessageInfo, type EmailFromField } from '@wasp.sh/lib-sdk-core/node'
+import type { SentMessageInfo, EmailFromField } from '@wasp/lib-sdk-core/node'
+export { type EmailProvider, type SMTPEmailProvider, type SendGridProvider, type MailgunEmailProvider, type ResendEmailProvider, type DummyEmailProvider, type SentMessageInfo, type EmailFromField } from '@wasp/lib-sdk-core/node'
 
 // PUBLIC API
 export type EmailSender = {

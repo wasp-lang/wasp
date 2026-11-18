@@ -18,15 +18,15 @@ import Numeric.Natural (Natural)
 import qualified Text.Parsec as P
 import Text.Printf (printf)
 import Wasp.SemanticVersion.Parsers (naturalNumberParser)
-import Wasp.SemanticVersion.Version (Version (..))
+import Wasp.SemanticVersion.Version (Version, versionWithCoreParser)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Version representation used in `node-semver` range expressions.
 -- Unlike 'Version' which always has all 3 version components,
 -- 'PartialVersion' can represent partial/wildcard versions as they appear in a range.
 data PartialVersion
-  = -- | Major, minor and patch version (e.g. 1.2.3).
-    MajorMinorPatch !Natural !Natural !Natural
+  = -- | Full version, optionally with pre-release and build (e.g. 1.2.3, 1.2.3-alpha.1+build).
+    FullVersion !Version
   | -- | Major and minor version only (e.g. 1.2).
     MajorMinor !Natural !Natural
   | -- | Major version only (e.g. 1).
@@ -37,21 +37,23 @@ data PartialVersion
 
 -- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show PartialVersion where
-  show (MajorMinorPatch mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
+  show (FullVersion version) = show version
   show (MajorMinor mjr mnr) = printf "%d.%d" mjr mnr
   show (Major mjr) = printf "%d" mjr
   show Any = "*"
 
 versionToPartialVersion :: Version -> PartialVersion
-versionToPartialVersion (Version mjr mnr ptc) = MajorMinorPatch mjr mnr ptc
+versionToPartialVersion = FullVersion
 
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
 
 parsePartialVersion :: String -> Either P.ParseError PartialVersion
-parsePartialVersion = P.parse partialVersionParser ""
+parsePartialVersion = P.parse (partialVersionParser <* P.eof) ""
 
 -- See `partial` definition here: https://github.com/npm/node-semver#range-grammar
+-- NOTE: Unlike the grammar, we accept the pre-release and build metadata only on versions without wildcards.
+-- `node-semver` discards them on versions with wildcards anyway (e.g. 1.2.x-alpha).
 partialVersionParser :: P.Parsec String () PartialVersion
 partialVersionParser = do
   maybeMajor <- versionComponentParser
@@ -65,7 +67,7 @@ partialVersionParser = do
     [Number mjr, Wildcard, Wildcard] -> pure (Major mjr) -- "1.x.x"
     [Number mjr, Number mnr] -> pure (MajorMinor mjr mnr) -- "1.2"
     [Number mjr, Number mnr, Wildcard] -> pure (MajorMinor mjr mnr) -- "1.2.x"
-    [Number mjr, Number mnr, Number ptc] -> pure (MajorMinorPatch mjr mnr ptc) -- "1.2.3"
+    [Number mjr, Number mnr, Number ptc] -> FullVersion <$> versionWithCoreParser mjr mnr ptc -- "1.2.3", "1.2.3-alpha+build"
     [Wildcard, _, _] -> fail "wildcard must be the only component"
     [_, Wildcard, Number _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"

@@ -14,6 +14,7 @@ import type {
   GetOldestTask,
   GetSerializedObjects,
   GetTextUppercaseRequests,
+  GetTeapot,
   GetDate,
   GetAnythingNoAuth,
   GetAnythingAuth,
@@ -28,6 +29,7 @@ import { getTask as getTask_ext } from "virtual:wasp/user/features/operations/qu
 import getOldestTask_ext from "virtual:wasp/user/features/operations/getOldestTask"
 import { getSerializedObjects as getSerializedObjects_ext } from "virtual:wasp/user/features/operations/queries"
 import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from "virtual:wasp/user/features/jobs/uppercaseText"
+import { getTeapot as getTeapot_ext } from "virtual:wasp/user/features/errors/queries"
 import { getDate as getDate_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
 import { getAnythingNoAuth as getAnythingNoAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
 import { getAnythingAuth as getAnythingAuth_ext } from "virtual:wasp/user/rpcTests/operations/definitions"
@@ -109,6 +111,18 @@ export const getTextUppercaseRequests: AuthenticatedOperationFor<RegisteredGetTe
     () => getTextUppercaseRequests_ext,
     {
       UppercaseTextRequest: prisma.uppercaseTextRequest,
+    },
+  )
+
+
+// PRIVATE API
+export type RegisteredGetTeapot = FromRegisterPath<['operations', 'getTeapot'], GetTeapot>
+
+// PUBLIC API
+export const getTeapot: UnauthenticatedOperationFor<RegisteredGetTeapot> =
+  createUnauthenticatedOperation<RegisteredGetTeapot>(
+    () => getTeapot_ext,
+    {
     },
   )
 

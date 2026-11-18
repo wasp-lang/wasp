@@ -1,5 +1,4 @@
 import Head from "@docusaurus/Head";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
 import AI from "../components/AI";
 import ExampleApps from "../components/ExampleApps";
@@ -19,7 +18,6 @@ import ShippedWithWasp from "../components/ShippedWithWasp";
 import Testimonials from "../components/Testimonials";
 import Waspeteers from "../components/Waspeteers";
 
-import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
 import "./preflight.css";
 
@@ -62,8 +60,6 @@ const homepageStructuredData = {
 };
 
 const Index = () => {
-  const { siteConfig } = useDocusaurusContext();
-  const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`;
   return (
     <div className="twLandingPage">
       <Head>
@@ -74,13 +70,10 @@ const Index = () => {
         <meta property="og:url" content="https://wasp.sh/" />
         <meta property="og:title" content={homepageTitle} />
         <meta property="og:description" content={homepageDescription} />
-        <meta property="og:image" content={coverPhotoAbsoluteUrl} />
         {/* twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://wasp.sh/" />
         <meta property="twitter:title" content={homepageTitle} />
         <meta property="twitter:description" content={homepageDescription} />
-        <meta property="twitter:image" content={coverPhotoAbsoluteUrl} />
         <script type="application/ld+json">
           {JSON.stringify(homepageStructuredData)}
         </script>

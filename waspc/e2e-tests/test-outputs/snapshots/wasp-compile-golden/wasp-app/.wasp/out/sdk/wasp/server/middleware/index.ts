@@ -1,1 +1,1 @@
-export { type MiddlewareConfig, type MiddlewareConfigFn } from '@wasp.sh/lib-sdk-core/node'
+export { type MiddlewareConfig, type MiddlewareConfigFn } from '@wasp/lib-sdk-core/node'

@@ -1,5 +1,5 @@
 import { type Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { ServerHttpError } from "wasp/server";
 import type {
   CreateTask,
   DeleteCompletedTasks,
@@ -13,7 +13,7 @@ export const createTask: CreateTask<Pick<Task, "description">, Task> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new HttpError(401);
+    throw new ServerHttpError(401);
   }
 
   const Task = context.entities.Task;
@@ -39,7 +39,7 @@ export const updateTaskIsDone: UpdateTaskIsDone<
   Pick<Task, "id" | "isDone">
 > = async ({ id, isDone }, context) => {
   if (!context.user) {
-    throw new HttpError(401);
+    throw new ServerHttpError(401);
   }
 
   // Uncomment to test optimistic updates
@@ -59,7 +59,7 @@ export const deleteCompletedTasks: DeleteCompletedTasks = async (
   context,
 ) => {
   if (!context.user) {
-    throw new HttpError(401);
+    throw new ServerHttpError(401);
   }
 
   const Task = context.entities.Task;
@@ -71,7 +71,7 @@ export const deleteCompletedTasks: DeleteCompletedTasks = async (
 export const toggleAllTasks: ToggleAllTasks = async (_args, context) => {
   const user = context.user;
   if (!user) {
-    throw new HttpError(401);
+    throw new ServerHttpError(401);
   }
 
   const whereIsDone = (isDone: boolean) => ({

@@ -1,4 +1,4 @@
-import type { QueryFor } from '@wasp.sh/lib-sdk-core/browser'
+import type { QueryFor } from '@wasp/lib-sdk-core/browser'
 import { createQuery } from "./core";
 import type {
   RegisteredGetTasks,
@@ -7,6 +7,7 @@ import type {
   RegisteredGetOldestTask,
   RegisteredGetSerializedObjects,
   RegisteredGetTextUppercaseRequests,
+  RegisteredGetTeapot,
   RegisteredGetDate,
   RegisteredGetAnythingNoAuth,
   RegisteredGetAnythingAuth,
@@ -50,6 +51,12 @@ export const getSerializedObjects: QueryFor<RegisteredGetSerializedObjects> = cr
 export const getTextUppercaseRequests: QueryFor<RegisteredGetTextUppercaseRequests> = createQuery<RegisteredGetTextUppercaseRequests>(
   "operations/get-text-uppercase-requests",
   ["UppercaseTextRequest"],
+)
+
+// PUBLIC API
+export const getTeapot: QueryFor<RegisteredGetTeapot> = createQuery<RegisteredGetTeapot>(
+  "operations/get-teapot",
+  [],
 )
 
 // PUBLIC API

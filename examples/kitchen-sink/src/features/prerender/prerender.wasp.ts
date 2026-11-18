@@ -1,4 +1,4 @@
-import { page, route, type Spec } from "@wasp.sh/spec";
+import { page, route, type Spec } from "@wasp/spec";
 
 import { HydrationMismatchPage } from "./pages/HydrationMismatchPage" with { type: "ref" };
 import { PrerenderInstancesPage } from "./pages/PrerenderInstancesPage" with { type: "ref" };

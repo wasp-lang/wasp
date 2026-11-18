@@ -1,114 +1,82 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Wasp.Job.Process
-  ( runProcessAsJob,
-    runNodeCommandAsJob,
-    runNodeCommandAsJobWithExtraEnv,
-    runNodeCommandAsJobWithExtraEnvAndStdin,
+  ( fromProc,
   )
 where
 
-import Control.Concurrent (writeChan)
-import Control.Concurrent.Async (Concurrently (..))
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (onException)
+import Control.Monad (void)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader (ask)
 import Data.Conduit (runConduit, (.|))
+import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
-import qualified Data.Conduit.Process as CP
-import Data.Text.Encoding (decodeUtf8)
-import StrongPath (Abs, Dir, Path')
-import qualified StrongPath as SP
-import System.Environment (getEnvironment)
-import System.Exit (ExitCode (..))
-import qualified System.Info
+import qualified Data.Conduit.Text as CT
+import Data.Text (Text)
+import System.Exit (ExitCode)
+import System.IO (Handle, hClose)
 import qualified System.Process as P
-import UnliftIO.Exception (bracket)
-import qualified Wasp.Job as J
+import System.Timeout (timeout)
+import Wasp.Job.Common (Job (..), OutputType (..))
+import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
+import Wasp.Util (secondsToMicroSeconds)
 
--- TODO:
---   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
---   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
+-- | Runs the process to completion, emitting its stdout and stderr as the job's
+-- output, and returns its exit code once all of it has been emitted.
+fromProc :: CreateJobProcess -> Job ExitCode
+fromProc jobProcess = Job $ do
+  process <- liftIO $ asCreateProcess jobProcess
+  sink <- ask
+  liftIO $ run (sink Nothing) process
 
--- | Same as 'runProcessAsJobWithStdin', with stdin inherited.
-runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob = runProcessAsJobWithStdin CP.Inherited
-
--- | Runs a given process while streaming its stderr and stdout to provided channel.
---   The type of the first argument decides the process' stdin, e.g. 'CP.Inherited' for Wasp's own,
---   or 'CP.ClosedStream' for one that is already at end-of-input.
---   Returns exit code of the process once it finishes, and also sends it to the channel.
---   Makes sure to terminate the process (or process group on *nix) if exception occurs.
-runProcessAsJobWithStdin :: forall stdin. (CP.InputSource stdin) => stdin -> P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJobWithStdin _stdin process jobType chan =
-  bracket
-    (CP.streamingProcess process)
-    (\(_, _, _, sph) -> terminateStreamingProcess sph)
-    runStreamingProcessAsJob
+-- | Runs the process to completion, passing its output to the given function,
+-- and returns its exit code once all of its output has been passed on.
+--
+-- If this is stopped before the process finishes, it terminates the process
+-- (SIGTERM on *nix), and returns once it exits, so that whatever runs next,
+-- e.g. a restarted server, doesn't find the resources it held still in use. If
+-- the process takes too long to exit, it stops waiting for it. The same happens
+-- if emitting the output fails. We only signal the process itself, and rely on
+-- it to stop the processes it started.
+run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
+run emit process =
+  P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
+    \stdinHandle stdoutHandle stderrHandle processHandle ->
+      -- Forwarded outside of `concurrently`, so that it keeps going if the job
+      -- is stopped, and the output can be drained.
+      Async.withAsync
+        ( Async.concurrently_
+            (forwardOutput (emit Stdout) stdoutHandle)
+            (forwardOutput (emit Stderr) stderrHandle)
+        )
+        $ \outputForwarding -> do
+          mapM_ hClose stdinHandle
+          (fst <$> Async.concurrently (P.waitForProcess processHandle) (Async.wait outputForwarding))
+            `onException` stopProcess processHandle outputForwarding
   where
-    runStreamingProcessAsJob (_ :: stdin, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
-            runConduit $
-              stdoutStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout,
-                            J._jobType = jobType
-                          }
-                  )
+    -- Once the process exited, the rest of its output, e.g. a crash's stack
+    -- trace, is about to be emitted. If it doesn't exit in time, we leave it to
+    -- `withCreateProcess`, which signals it again and doesn't wait for it.
+    stopProcess processHandle outputForwarding = do
+      P.terminateProcess processHandle
+      timeout maxProcessExitWaitMicroseconds (P.waitForProcess processHandle) >>= \case
+        Just _ -> void $ timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputForwarding
+        Nothing -> return ()
 
-      let forwardStderrToChan =
-            runConduit $
-              stderrStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr,
-                            J._jobType = jobType
-                          }
-                  )
+-- | The longest a job that is stopped waits for its process to exit. Usually it
+-- exits much sooner, and the job stops right then. The wait is bounded because
+-- the process can ignore the signal.
+maxProcessExitWaitMicroseconds :: Int
+maxProcessExitWaitMicroseconds = secondsToMicroSeconds 5
 
-      exitCode <-
-        runConcurrently $
-          Concurrently forwardStdoutToChan
-            *> Concurrently forwardStderrToChan
-            *> Concurrently (CP.waitForStreamingProcess processHandle)
+-- | How long a job that is stopped still emits the output of its exited
+-- process for. It's bounded because the process's children can keep
+-- its output open.
+outputDrainTimeoutMicroseconds :: Int
+outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
 
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobExit exitCode,
-            J._jobType = jobType
-          }
-
-      return exitCode
-
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
-    terminateStreamingProcess streamingProcessHandle = do
-      let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
-      return $ ExitFailure 1
-
-runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
-
-runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndStdin CP.Inherited
-
-runNodeCommandAsJobWithExtraEnvAndStdin :: (CP.InputSource stdin) => stdin -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnvAndStdin stdin extraEnvVars fromDir command args jobType chan = do
-  envVars <- getAllEnvVars
-  let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-  runProcessAsJobWithStdin stdin nodeCommandProcess jobType chan
-  where
-    -- Haskell will use the first value for variable name it finds. Since env
-    -- vars in 'extraEnvVars' should override the inherited env vars, we
-    -- must prepend them.
-    getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
+forwardOutput :: (Text -> IO ()) -> Maybe Handle -> IO ()
+forwardOutput _ Nothing = return ()
+forwardOutput emit (Just handle) =
+  runConduit $
+    CB.sourceHandle handle .| CT.decodeUtf8Lenient .| CL.mapM_ emit

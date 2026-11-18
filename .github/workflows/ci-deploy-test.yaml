@@ -26,7 +26,7 @@ env:
 jobs:
   test_fly_deployment:
     name: Test Fly deployment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: fly-deploy-test
 
@@ -90,11 +90,11 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm test
+        run: npm run test:e2e
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test_fly_deployment
     # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.
@@ -110,14 +110,17 @@ jobs:
 
       - name: Clean up test apps
         run: |
-          # NOTE: We are relying on Wasp's naming conventions here
+          # NOTE: We are relying on Wasp's naming conventions here.
+          # This cleanup is best-effort (`|| true` also swallows real destroy
+          # failures). Apps it fails to destroy are destroyed by the
+          # automation-fly-destroy-leftover-ci-apps.yaml workflow.
           flyctl apps destroy -y $APP_PREFIX-server || true
           flyctl apps destroy -y $APP_PREFIX-client || true
           flyctl apps destroy -y $APP_PREFIX-db || true
 
   test_railway_deployment:
     name: Test Railway deployment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: railway-deploy-test
 
@@ -179,11 +182,11 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm test
+        run: npm run test:e2e
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test_railway_deployment
     # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.

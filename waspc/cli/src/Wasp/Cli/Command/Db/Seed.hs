@@ -21,28 +21,26 @@ import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
-import Wasp.Cli.Util.Parser (ArgsParser (..))
+import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
+import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import qualified Wasp.Util.Interactive as Interactive
 
 -- | Seed functions import the SDK.
 seed :: SeedArgs -> Command ()
-seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec -> do
+seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-
-  let (_, serverRunConfig) = makeDefaultDevRunConfigs appSpec
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  liftIO (dbSeed serverRunConfig genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
@@ -59,7 +57,8 @@ seedArgsParser =
             Opt.metavar "SEED_NAME"
               <> Opt.help
                 ( "Name of the seed to run. "
-                    ++ "If multiple seeds are available and you don't pick one, Wasp will prompt you to pick interactively."
+                    ++ "If multiple seeds are available and you don't pick one, Wasp will prompt you to pick interactively. "
+                    ++ "Required when running non-interactively with more than one seed defined."
                 )
         )
 
@@ -70,7 +69,9 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     Just name -> parseUserProvidedSeedName name seedNames
     Nothing -> case seedNames of
       seedName :| [] -> return seedName
-      _seedNames -> liftIO $ Interactive.askToChoose "Choose a seed to run" seedNames
+      _seedNames -> do
+        terminal <- requireInteractiveTerminal seedArgsParser
+        liftIO $ Interactive.askToChoose terminal "Choose a seed to run" seedNames
   where
     parseUserProvidedSeedName :: String -> NE.NonEmpty String -> Command String
     parseUserProvidedSeedName userProvidedSeedName seedNames =

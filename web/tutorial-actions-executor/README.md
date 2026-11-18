@@ -13,14 +13,14 @@ to create a fully functional Wasp application.
 
 The CLI provides three commands:
 
-### 1. Generate App (`npm run generate-app`)
+### 1. Generate App (`pnpm run generate-app`)
 
 Creates a complete Wasp application by executing all tutorial actions in sequence.
 
 ```bash
-npm run generate-app
+pnpm run generate-app
 # Optional: pass a custom Wasp CLI binary/command
-npm run generate-app -- --wasp-cli-command wasp
+pnpm run generate-app --wasp-cli-command wasp
 ```
 
 This command:
@@ -34,22 +34,22 @@ One of the action types is to apply a Git patch that modifies a source file. If 
 a patch fails due to conflicts, `generate-app` command pauses and allows you
 to resolve the conflicts manually.
 
-### 2. Edit Patch Action (`npm run edit-patch-action`)
+### 2. Edit Patch Action (`pnpm run edit-patch-action`)
 
 Allows you to modify a specific patch action and automatically reapplies all subsequent actions.
 
 ```bash
 # Non-interactive (direct by ID):
-npm run edit-patch-action -- --action-id "create-task-entity"
+pnpm run edit-patch-action --action-id "create-task-entity"
 
 # Interactive (pick an action from a list):
-npm run edit-patch-action
+pnpm run edit-patch-action
 
 # Optional flags:
 # - skip generating app before editing
-npm run edit-patch-action -- --skip-generating-app
+pnpm run edit-patch-action --skip-generating-app
 # - pass a custom Wasp CLI
-npm run edit-patch-action -- --wasp-cli-command wasp
+pnpm run edit-patch-action --wasp-cli-command wasp
 ```
 
 This command:
@@ -63,12 +63,12 @@ This command:
   - There might be conflicts between your new changes and subsequent commits.
     If so, you will need to resolve them manually.
 
-### 3. List Actions (`npm run list-actions`)
+### 3. List Actions (`pnpm run list-actions`)
 
 Displays all available tutorial actions organized by source file.
 
 ```bash
-npm run list-actions
+pnpm run list-actions
 ```
 
 Shows actions grouped by tutorial file, including each action's `id` and `kind`.
@@ -84,7 +84,7 @@ All commands require the following options to set up the tutorial app configurat
 For example:
 
 ```bash
-npm run generate-app -- --app-name MyApp --output-dir ./custom-output --tutorial-dir ./my-tutorial
+pnpm run generate-app --app-name MyApp --output-dir ./custom-output --tutorial-dir ./my-tutorial
 ```
 
 ### Patch File Management
@@ -129,7 +129,7 @@ The project includes both unit tests and end-to-end (e2e) snapshot tests.
 You can run all tests using:
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 ### E2E Snapshot Tests
@@ -151,5 +151,5 @@ to ensure nothing has changed unexpectedly.
 When you intentionally change the tutorial action executor behavior, run the tests in update mode:
 
 ```bash
-$ npm test -- -u
+$ pnpm test -u
 ```

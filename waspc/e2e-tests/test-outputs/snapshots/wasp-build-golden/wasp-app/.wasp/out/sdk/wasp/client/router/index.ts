@@ -4,7 +4,7 @@ import {
   type OptionalRouteOptions,
   type ParamValue,
   type ExpandRouteOnOptionalStaticSegments,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 export const routes = {

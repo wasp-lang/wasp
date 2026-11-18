@@ -8,10 +8,11 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
+    waitUntil,
     writeToFile,
     appendToFile,
     replaceLineInFile,
-    waspCliNewInteractive,
+    waspCliNewWithPipedAnswersFails,
     waspCliNew,
     waspCliCompletion,
     waspCliVersion,
@@ -23,13 +24,14 @@ module ShellCommands
     waspCliDbStart,
     waspCliDbReset,
     waspCliDbSeed,
+    waspCliDbSeedWithoutName,
+    waspCliDbSeedWithoutNameFailsNonInteractively,
     waspCliCompile,
     waspCliDbMigrateDev,
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
     waspCliStartDb,
-    waspCliTestClient,
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
@@ -41,6 +43,7 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -105,6 +108,19 @@ infixl 6 ~&&
 
 infixl 4 ~?
 
+-- | Checks the condition right away, and then once per second until it
+-- succeeds. Fails with the error message if it still doesn't succeed after the
+-- given number of seconds.
+waitUntil :: Int -> ShellCommand -> String -> ShellCommand
+waitUntil timeoutSeconds condition errorMessage =
+  "( i=0; until "
+    ++ condition
+    ++ "; do i=$((i+1)); [ \"$i\" -lt "
+    ++ show timeoutSeconds
+    ++ " ] || { echo "
+    ++ show errorMessage
+    ++ " >&2; exit 1; }; sleep 1; done )"
+
 -- General commands
 
 writeToFile :: Path' Abs (File a) -> T.Text -> ShellCommandBuilder context ShellCommand
@@ -136,9 +152,13 @@ replaceLineInFile fileName lineNumber line =
 
     tempFileName = fileName ++ ".tmp"
 
-waspCliNewInteractive :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNewInteractive appName starterTemplate =
-  return $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
+-- | Pipes the answers into `wasp new`'s prompts. This is not supported: without
+-- an interactive terminal, Wasp refuses to prompt and the command must fail.
+waspCliNewWithPipedAnswersFails :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewWithPipedAnswersFails appName starterTemplate =
+  assertCommandFailsWithoutInteractiveTerminal "wasp new"
+    $ return
+    $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
 
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
@@ -172,9 +192,6 @@ waspCliStart = return "$WASP_CLI_CMD start"
 
 waspCliStartDb :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStartDb = return "$WASP_CLI_CMD start db"
-
-waspCliTestClient :: [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliTestClient testArgs = return $ unwords ("$WASP_CLI_CMD test client" : testArgs)
 
 waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliBuild = return "$WASP_CLI_CMD build"
@@ -224,9 +241,22 @@ waspCliDbMigrateDev migrationName = do
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "$WASP_CLI_CMD db seed " ++ seedName
 
+waspCliDbSeedWithoutName :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeedWithoutName = return "$WASP_CLI_CMD db seed"
+
+-- | With more than one seed and no name, `wasp db seed` has to ask which one to
+-- run. Without an interactive terminal it must fail instead.
+waspCliDbSeedWithoutNameFailsNonInteractively :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeedWithoutNameFailsNonInteractively =
+  assertCommandFailsWithoutInteractiveTerminal "wasp db seed" $
+    (++ " < /dev/null") <$> waspCliDbSeedWithoutName
+
+-- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g. when
+-- the e2e tests are run from Claude Code), unless the consent env var is set.
+-- The test only resets its own throwaway database, so we always consent.
 waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbReset =
-  return "$WASP_CLI_CMD db reset --force"
+  return "PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='Resetting the throwaway e2e test database' $WASP_CLI_CMD db reset --force"
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"
@@ -347,17 +377,36 @@ assertCommandOutputContains ::
   ShellCommandBuilder context ShellCommand ->
   String ->
   ShellCommandBuilder context ShellCommand
-assertCommandOutputContains commandBuilder marker = do
+assertCommandOutputContains commandBuilder marker =
+  assertCommandOutputContainsAll commandBuilder [marker]
+
+assertCommandOutputContainsAll ::
+  ShellCommandBuilder context ShellCommand ->
+  [String] ->
+  ShellCommandBuilder context ShellCommand
+assertCommandOutputContainsAll commandBuilder markers = do
   command <- commandBuilder
   let logFile = ".wasp-e2e-output.log"
       logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
-      searchMarkerInLogFile = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
-  return $ logCommandOutputToFile ~&& searchMarkerInLogFile
+      searchMarkerInLogFile marker = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
+  return $ foldl (~&&) logCommandOutputToFile (searchMarkerInLogFile <$> markers)
   where
     shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
 
     escapeSingleQuote '\'' = "'\\''"
     escapeSingleQuote c = [c]
+
+-- | Asserts that a command that needs to prompt fails when stdin is not an
+-- interactive terminal, and prints its usage so the user can pass the answers
+-- as arguments instead.
+assertCommandFailsWithoutInteractiveTerminal ::
+  String ->
+  ShellCommandBuilder context ShellCommand ->
+  ShellCommandBuilder context ShellCommand
+assertCommandFailsWithoutInteractiveTerminal commandName commandBuilder =
+  assertCommandOutputContainsAll
+    (("! " ++) <$> commandBuilder)
+    ["stdin is not an interactive terminal", "Usage: " ++ commandName]
 
 -- 'SnapshotTest' specific commands
 

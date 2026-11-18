@@ -11,13 +11,13 @@ It consists of three main parts:
 ### Installation
 
 ```sh
-npm install
+pnpm install
 ```
 
 ### Local Development
 
 ```sh
-npm start
+pnpm start
 ```
 
 This command starts a local development server and opens up a browser window.
@@ -34,12 +34,12 @@ We have a few guides on how to write documentation:
 ### Build
 
 ```sh
-npm build
+pnpm build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
-To run this version of code and check that it works correctly, run `npm run serve`.
+To run this version of code and check that it works correctly, run `pnpm run serve`.
 
 ### LLM file snapshots
 
@@ -48,8 +48,8 @@ The build also generates markdown versions of pages and `llms*.txt` files (see [
 If the check fails and the changes are intended, update the snapshots and commit the result:
 
 ``` sh
-npm run build-dev
-npm run markdown-snapshots:update
+pnpm run build-dev
+pnpm run markdown-snapshots:update
 ```
 
 NOTE: Files in `static/` dir can override whatever is generate on build. Make sure you don't have any stale static files.
@@ -112,7 +112,7 @@ Since we don't want our users to read `docs/next` ("current" docs), we don't pub
 
 #### When/how do we create new version of docs from "current" docs?
 
-When releasing new version of Wasp, what we do is run `npm run docusaurus docs:version {version}` to create new versioned docs from the current docs. We do this on every new Wasp release.
+When releasing new version of Wasp, what we do is run `pnpm run docusaurus docs:version {version}` to create new versioned docs from the current docs. We do this on every new Wasp release.
 
 The version should not be a full version (e.g. `0.21.0`), but valid for all the non-breaking changes in that range (e.g. `0.21`).
 
@@ -125,7 +125,7 @@ there is nothing else we need to do, it will be picked up as the latest version 
 
 If you are writing/updating docs on `main` for the new release of Wasp, you should edit "current" docs (docs/).
 
-If you are (hot)fixing currently published docs on `release`, then you should edit the current docs (docs/), and then regenerate the versioned docs for the current version (versioned_docs/{version}), for whatever version you want to do this for. You can do that by running `npm run remove-version {version}` to remove the old versioned docs, and then `npm run docusaurus docs:version {version}` to create new versioned docs from the current docs.
+If you are (hot)fixing currently published docs on `release`, then you should edit the current docs (docs/), and then regenerate the versioned docs for the current version (versioned_docs/{version}), for whatever version you want to do this for. You can do that by running `pnpm run remove-version {version}` to remove the old versioned docs, and then `pnpm run docusaurus docs:version {version}` to create new versioned docs from the current docs.
 
 Prefer doing doc edits on `main`, as that keeps the whole process simpler, and do changes to docs on `release` only if it really matters to fix the already published versioned docs.
 

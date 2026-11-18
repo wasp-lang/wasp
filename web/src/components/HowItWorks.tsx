@@ -15,7 +15,9 @@ const HowItWorks = () => (
         deploy anywhere.
       </p>
 
-      <HowItWorksDiagram />
+      {/* The landing page is always light, so keep the diagram's light colours
+          even when the site theme is dark. */}
+      <HowItWorksDiagram className="[color-scheme:light]" />
 
       <p className="mt-4 max-w-2xl text-sm leading-relaxed text-wasp-g6">
         * Treat the generated code like any compiler output. You can look at it,

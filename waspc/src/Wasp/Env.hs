@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 -- | This modules implements general concepts regarding env vars.
 -- It is not specific to Wasp in any way.
 module Wasp.Env
@@ -11,7 +9,6 @@ module Wasp.Env
     nubEnvVars,
     formatEnvVarValue,
     findDuplicateEnvVars,
-    HasEnvVars (..),
     addEnvVarsUnique,
     addEnvVarsOverride,
   )
@@ -67,32 +64,18 @@ findDuplicateEnvVars existing incoming =
     existingNames = Set.fromList $ fst <$> existing
     incomingNames = Set.fromList $ fst <$> incoming
 
-class HasEnvVars a where
-  getEnvVars :: a -> [EnvVar]
-  setEnvVars :: [EnvVar] -> a -> a
-
-instance HasEnvVars [EnvVar] where
-  getEnvVars = id
-  setEnvVars newEnvVars _ = newEnvVars
-
--- | Combines the existing env vars of a type with new env vars. If there are
--- duplicates in the new env vars, returns a @Left@ of the duplicate env var
--- names.
-addEnvVarsUnique :: (HasEnvVars a) => [EnvVar] -> a -> Either (Set EnvVarName) a
-addEnvVarsUnique incoming x
-  | Set.null duplicateNames = Right $ addEnvVarsOverride incoming x
+-- | Combines existing env vars with incoming ones. If there are duplicates in
+-- the incoming env vars, returns a @Left@ of the duplicate env var names.
+addEnvVarsUnique :: [EnvVar] -> [EnvVar] -> Either (Set EnvVarName) [EnvVar]
+addEnvVarsUnique incoming existing
+  | Set.null duplicateNames = Right $ addEnvVarsOverride incoming existing
   | otherwise = Left duplicateNames
   where
     duplicateNames = findDuplicateEnvVars existing incoming
-    existing = getEnvVars x
 
--- | Combines the existing env vars of a type with new env vars. If there are
--- duplicates in the new env vars, the new env vars will override the existing
--- ones.
-addEnvVarsOverride :: (HasEnvVars a) => [EnvVar] -> a -> a
-addEnvVarsOverride incoming x = setEnvVars (nubEnvVars merged) x
-  where
-    merged =
-      -- Incoming first so that they take priority over existing.
-      incoming <> existing
-    existing = getEnvVars x
+-- | Combines existing env vars with incoming ones. If there are duplicates in
+-- the incoming env vars, they override the existing ones.
+addEnvVarsOverride :: [EnvVar] -> [EnvVar] -> [EnvVar]
+addEnvVarsOverride incoming existing =
+  -- Incoming first so that they take priority over existing.
+  nubEnvVars $ incoming <> existing

@@ -1,4 +1,4 @@
-import { app, job, page, query, route } from "@wasp.sh/spec";
+import { app, job, page, query, route } from "@wasp/spec";
 
 import { refreshDashboardData } from "./src/dashboard" with { type: "ref" };
 import MainPage from "./src/MainPage" with { type: "ref" };

@@ -46,8 +46,8 @@ index 685536e..5600668 100644
 +
 +  return (
 +    <ul className="tasks">
-+      {tasks.map((task, idx) => (
-+        <TaskView task={task} key={idx} />
++      {tasks.map((task) => (
++        <TaskView task={task} key={task.id} />
 +      ))}
 +    </ul>
 +  );

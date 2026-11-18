@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@tailwindcss/vite": "^4.3.1",
@@ -29,7 +29,13 @@
     "typescript": "6.0.3",
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0",
-    "vitest": "^4.1.9",
-    "@wasp.sh/spec": "__waspSpecPackageSpecifier__"
+    "@wasp/spec": "__waspSpecPackageSpecifier__"
+  },
+  "allowScripts": {
+    "prisma": true,
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "esbuild": true,
+    "fsevents": true
   }
 }

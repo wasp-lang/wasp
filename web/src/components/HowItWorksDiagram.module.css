@@ -1,0 +1,54 @@
+/* Diagram colours. Each one follows the color scheme of the element the
+   diagram is in, so it picks the dark variant inside dark-mode docs.
+   Raw hex values are off-palette: brand colours and bespoke tints. */
+
+.ink {
+  fill: light-dark(theme("colors.wasp.black"), theme("colors.wasp.g1"));
+}
+.inkStroke {
+  stroke: light-dark(theme("colors.wasp.black"), theme("colors.wasp.g1"));
+}
+/* Text and marks on the yellow headers stay dark in both schemes. */
+.onYellow {
+  fill: theme("colors.wasp.black");
+}
+.onYellowStroke {
+  stroke: theme("colors.wasp.black");
+}
+.text {
+  fill: light-dark(theme("colors.wasp.g7"), theme("colors.wasp.g3"));
+}
+.muted {
+  fill: light-dark(theme("colors.wasp.g6"), theme("colors.wasp.g4"));
+}
+.surface {
+  fill: light-dark(theme("colors.wasp.white"), #242424);
+}
+.yellow {
+  fill: theme("colors.wasp.yellow");
+}
+/* Behind the COMPILE and DEPLOY labels, where they cross the striped frame. */
+.plate {
+  fill: light-dark(theme("colors.white"), #1a1a1a);
+}
+.stripeBackground {
+  fill: light-dark(#f7f7f7, #1f1f1f);
+}
+.stripeLine {
+  stroke: light-dark(#e2e2e2, #2c2c2c);
+}
+.ir {
+  fill: light-dark(#e8e8e8, theme("colors.wasp.g7"));
+}
+.frontend {
+  fill: light-dark(#e6f7fb, #16323a);
+}
+.backend {
+  fill: light-dark(#e8f5e0, #1d3018);
+}
+.database {
+  stroke: light-dark(#2d3748, #a0aec0);
+}
+.prismaLogo {
+  fill: light-dark(#090a15, theme("colors.wasp.g1"));
+}

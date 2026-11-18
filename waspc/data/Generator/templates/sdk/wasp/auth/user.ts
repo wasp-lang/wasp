@@ -10,7 +10,7 @@ import {
   getProviderData,
   isNotNull,
   type Expand,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {

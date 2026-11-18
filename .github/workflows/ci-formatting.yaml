@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   prettier:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -20,11 +20,11 @@ jobs:
 
       - name: Run Prettier
         run: |
-          npm ci
-          npm run check:prettier
+          pnpm install
+          pnpm run check:prettier
 
   ormolu:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - run: |
@@ -38,10 +38,10 @@ jobs:
 
       - name: Run ormolu
         working-directory: waspc
-        run: ./run check:ormolu
+        run: mise run check:ormolu
 
   cabal-gild:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v7
@@ -51,4 +51,4 @@ jobs:
 
       - name: Run cabal-gild
         working-directory: waspc
-        run: ./run check:cabal
+        run: mise run check:cabal

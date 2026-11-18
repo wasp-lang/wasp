@@ -9,7 +9,7 @@ env:
 jobs:
   test-packages:
     name: Test Wasp packages
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -18,4 +18,4 @@ jobs:
 
       - name: Test all packages
         working-directory: waspc
-        run: ./run test:packages
+        run: mise run test:packages
