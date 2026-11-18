@@ -135,10 +135,12 @@ parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
               | isQuoteChar q,
                 not (null inner),
                 last inner == q ->
-                  let body = init inner
-                   in if q == '"' then expandDoubleQuoteNewlines body else body
+                  init inner
             _ -> trimmed
-       in ((key, unwrapped), remainingLines)
+          finalVal = case trimmed of
+            '"' : _ -> expandDoubleQuoteNewlines unwrapped
+            _ -> unwrapped
+       in ((key, finalVal), remainingLines)
 
     expandDoubleQuoteNewlines :: String -> String
     expandDoubleQuoteNewlines ('\\' : 'n' : rest) = '\n' : expandDoubleQuoteNewlines rest
@@ -178,27 +180,18 @@ formatEnvVarValue rawValue
   | not (needsQuoting rawValue) = rawValue
   | canUseSingleQuotes = wrapInQuotes '\'' rawValue
   | canUseBacktickQuotes = wrapInQuotes '`' rawValue
+  | canUseSingleLineQuotes = wrapInQuotes '\'' rawValue
   | otherwise = wrapInQuotes '"' escapedForDoubleQuotes
   where
     needsQuoting :: String -> Bool
     needsQuoting val =
       any isJsSpace val
         || '#' `elem` val
-        || isSurroundedByQuotes val
-        || (startsWithQuote val && canQuoteWithoutConflict)
-
-    isSurroundedByQuotes :: String -> Bool
-    isSurroundedByQuotes (q : rest) =
-      isQuoteChar q && not (null rest) && last rest == q
-    isSurroundedByQuotes [] = False
+        || startsWithQuote val
 
     startsWithQuote :: String -> Bool
     startsWithQuote (q : _) = isQuoteChar q
     startsWithQuote [] = False
-
-    canQuoteWithoutConflict :: Bool
-    canQuoteWithoutConflict =
-      canUseSingleQuotes || canUseBacktickQuotes || not hasDoubleQuoteConflict
 
     hasDoubleQuoteConflict :: Bool
     hasDoubleQuoteConflict =
@@ -219,6 +212,19 @@ formatEnvVarValue rawValue
     canUseBacktickQuotes :: Bool
     canUseBacktickQuotes =
       hasDoubleQuoteConflict && not hasCarriageReturn && canWrapInQuote '`' rawValue
+
+    -- Single-line values without '#' can safely be wrapped in single quotes
+    -- even if they contain unescaped single quotes: the quoted parser fails on
+    -- the same line (since the final closing quote prevents any interior quote
+    -- from being followed only by horizontal whitespace, a comment, or EOL) and
+    -- the unquoted parser strips the outer single quotes without expanding
+    -- literal \n or \r escapes.
+    canUseSingleLineQuotes :: Bool
+    canUseSingleLineQuotes =
+      hasDoubleQuoteConflict
+        && not hasCarriageReturn
+        && '\n' `notElem` rawValue
+        && '#' `notElem` rawValue
 
     canWrapInQuote :: Char -> String -> Bool
     canWrapInQuote quoteChar = go
