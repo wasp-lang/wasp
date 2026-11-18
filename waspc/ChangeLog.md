@@ -31,6 +31,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🐞 Bug fixes
 
+- `logout` now throws a `ClientHttpError` when the server answers with an error, like the other auth functions. ([#5021](https://github.com/wasp-lang/wasp/pull/5021))
 - The Auth UI reset password form now shows the error for an empty new password. ([#5138](https://github.com/wasp-lang/wasp/pull/5138))
 - Async `userSignupFields` getters no longer make the client `signup()` types require a `Promise`. ([#5150](https://github.com/wasp-lang/wasp/pull/5150))
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
