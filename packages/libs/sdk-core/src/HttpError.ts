@@ -108,6 +108,11 @@ export class HttpError<
     if (!isHttpErrorStatusCode(status)) {
       throw new Error("status has to be an integer in the range [400, 600).");
     }
+    if (options.response && !isHttpErrorStatusCode(options.response.status)) {
+      throw new Error(
+        "The status of the response has to be in the range [400, 600).",
+      );
+    }
     throwIfUnknownOption(options);
 
     this.data = options.data;
@@ -176,7 +181,8 @@ export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
    * message, data, and `headers`.
    *
    * If you pass it, its status and headers take precedence over the `status`
-   * argument and the `headers` option.
+   * argument and the `headers` option. Its status must be in the range
+   * `[400, 600)` too.
    */
   response?: Response;
 }

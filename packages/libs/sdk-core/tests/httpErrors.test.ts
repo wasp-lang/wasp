@@ -99,6 +99,14 @@ describe("HttpError", () => {
     expect(error.status).toBe(404);
     expect(error.response.headers.get("X-From")).toBe("response");
   });
+
+  it("rejects a response whose status isn't an error status", () => {
+    const response = new Response(null, { status: 200 });
+
+    expect(() => new HttpError(404, "Not found", { response })).toThrow(
+      "The status of the response has to be in the range [400, 600).",
+    );
+  });
 });
 
 describe("HttpErrorBody", () => {
