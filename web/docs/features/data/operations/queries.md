@@ -454,13 +454,21 @@ To send error details to the client, throw an `HttpError`:
   </TabItem>
 </Tabs>
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 Only put information in an `HttpError` that is safe to show to the user.
 
 On the client, the failed Query throws an `HttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import { HttpError } from "wasp/errors";
 import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 
 export const MainPage = () => {
   const { data: tasks, error } = useQuery(getAllTasks);
@@ -472,13 +480,10 @@ export const MainPage = () => {
 };
 ```
 
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+An `HttpError` on the client also has what the request and the response looked like:
 
-```js
-throw new HttpError(429, "Too many requests", undefined, {
-  headers: { "Retry-After": "60" },
-})
-```
+- `error.response` is the server's response. Read its headers from it, e.g. `error.response.headers.get("Retry-After")`. Its body is already read into `message` and `data`.
+- `error.cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw. It has the `request` that failed.
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.

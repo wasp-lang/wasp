@@ -439,13 +439,21 @@ To send error details to the client, throw an `HttpError`:
   </TabItem>
 </Tabs>
 
+To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+
+```js
+throw new HttpError(429, "Too many requests", undefined, {
+  headers: { "Retry-After": "60" },
+})
+```
+
 Only put information in an `HttpError` that is safe to show to the user.
 
 On the client, the failed Action throws an `HttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
 
 ```ts title="src/NewTaskForm.tsx" auto-js
-import { HttpError } from "wasp/errors";
 import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 
 async function handleSubmit(description: string) {
   try {
@@ -458,13 +466,10 @@ async function handleSubmit(description: string) {
 }
 ```
 
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+An `HttpError` on the client also has what the request and the response looked like:
 
-```js
-throw new HttpError(429, "Too many requests", undefined, {
-  headers: { "Retry-After": "60" },
-})
-```
+- `error.response` is the server's response. Read its headers from it, e.g. `error.response.headers.get("Retry-After")`. Its body is already read into `message` and `data`.
+- `error.cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw. It has the `request` that failed.
 
 ### Using Entities in Actions
 
