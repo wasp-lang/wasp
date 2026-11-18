@@ -10,7 +10,7 @@ import { STATUS_CODES } from "node:http";
 import {
   getErrorDetails,
   toHeadersInit,
-  type NodeResponseHeaders,
+  type ForeignErrorHeaders,
 } from "./utils.js";
 
 // PRIVATE API (server)
@@ -18,7 +18,7 @@ export interface HttpErrorsError extends Error {
   status: number;
   statusCode: number;
   expose: boolean;
-  headers?: NodeResponseHeaders;
+  headers?: ForeignErrorHeaders;
 }
 
 // PRIVATE API (server)

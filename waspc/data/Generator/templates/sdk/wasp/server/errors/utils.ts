@@ -13,20 +13,26 @@ export function getErrorDetails(error: unknown): {
 
 // PRIVATE API (server)
 /**
- * The header values Node's `response.setHeader` accepts, which is what errors
- * from Express middleware carry.
+ * The `headers` of an error that isn't ours. Express sets each of them with
+ * Node's `response.setHeader`, which takes a string, a number, or a list of
+ * strings, but nothing checks that, so we treat the values as unknown.
+ *
+ * @see https://github.com/pillarjs/finalhandler/blob/v2.1.1/index.js#L132-L145
  */
-export type NodeResponseHeaders = {
-  [headerName: string]: string | number | string[];
-};
+export type ForeignErrorHeaders = { [headerName: string]: unknown };
 
 // PRIVATE API (server)
+/**
+ * Converts them to the standard form, with one pair for each value of a
+ * repeated header.
+ */
 export function toHeadersInit(
-  headers: NodeResponseHeaders | undefined,
+  headers: ForeignErrorHeaders | undefined,
 ): [string, string][] {
   return Object.entries(headers ?? {}).flatMap(([name, value]) =>
-    Array.isArray(value)
-      ? value.map((item): [string, string] => [name, item])
-      : [[name, String(value)]],
+    (Array.isArray(value) ? value : [value]).map((item): [string, string] => [
+      name,
+      String(item),
+    ]),
   );
 }
