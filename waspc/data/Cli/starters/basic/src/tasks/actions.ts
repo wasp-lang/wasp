@@ -1,5 +1,5 @@
 import { type Tag, type Task } from "wasp/entities";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 import {
   DeleteCompletedTasks,
   type CreateTask,
@@ -15,7 +15,7 @@ export const createTask: CreateTask<CreateTaskArgs, Task> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
 
   return context.entities.Task.create({
@@ -43,7 +43,7 @@ export const updateTaskStatus: UpdateTaskStatus<UpdateTaskStatusArgs> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
 
   return context.entities.Task.update({
@@ -59,7 +59,7 @@ export const deleteCompletedTasks: DeleteCompletedTasks = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
 
   return context.entities.Task.deleteMany({

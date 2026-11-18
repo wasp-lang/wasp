@@ -10,3 +10,23 @@ export function getErrorDetails(error: unknown): {
     stack: error instanceof Error ? error.stack : undefined,
   };
 }
+
+// PRIVATE API (server)
+/**
+ * The header values Node's `response.setHeader` accepts, which is what errors
+ * from Express middleware carry.
+ */
+export type NodeResponseHeaders = {
+  [headerName: string]: string | number | string[];
+};
+
+// PRIVATE API (server)
+export function toHeadersInit(
+  headers: NodeResponseHeaders | undefined,
+): [string, string][] {
+  return Object.entries(headers ?? {}).flatMap(([name, value]) =>
+    Array.isArray(value)
+      ? value.map((item): [string, string] => [name, item])
+      : [[name, String(value)]],
+  );
+}

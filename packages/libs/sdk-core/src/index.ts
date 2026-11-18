@@ -30,10 +30,6 @@ export {
   throwValidationError,
   type PasswordValidationSchema,
 } from "./auth/validation.js";
-export {
-  ClientHttpError,
-  type ClientHttpErrorOptions,
-} from "./ClientHttpError.js";
 export { type ClientConfig } from "./config.js";
 export { defineEnvValidationSchema } from "./env/schema.js";
 export {
@@ -50,6 +46,7 @@ export {
   toHttpErrorBody,
   type HttpErrorBody,
   type HttpErrorData,
+  type HttpErrorOptions,
 } from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
 export {
@@ -85,11 +82,6 @@ export {
   type SuperJSONObject,
   type SuperJSONValue,
 } from "./serialization/types.js";
-export {
-  ServerHttpError,
-  type ServerHttpErrorHeaders,
-  type ServerHttpErrorOptions,
-} from "./ServerHttpError.js";
 export { colorize } from "./utils/ansiColors.js";
 export { isNotNull } from "./utils/predicates.js";
 export { sleep } from "./utils/sleep.js";

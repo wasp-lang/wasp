@@ -8,9 +8,9 @@ export { default as prisma, type PrismaClient } from './dbClient.js'
 export type { ServerSetupFn } from './types/index.js'
 // PUBLIC API
 export {
-  ServerHttpError,
-  type ServerHttpErrorHeaders,
-  type ServerHttpErrorOptions,
+  HttpError,
+  type HttpErrorData,
+  type HttpErrorOptions,
 } from '@wasp/lib-sdk-core'
 // PUBLIC API
 export type { MiddlewareConfigFn } from './middleware/index.js'
