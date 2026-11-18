@@ -5,8 +5,8 @@ import addWaspSourceHeader from "../common/addWaspSourceHeader";
 import EmailAndPassForm from "./components/EmailAndPassForm";
 import GoogleAuthButton from "./components/GoogleAuthButton";
 
-import { HttpError } from "wasp/client";
 import { login, signup } from "wasp/client/auth";
+import { HttpError } from "wasp/errors";
 import mainLogo from "../common/waspello-logo.svg";
 import "./Signup.css";
 

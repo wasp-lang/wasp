@@ -411,7 +411,7 @@ To send error details to the client, throw an `HttpError`:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/actions.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask = async (args, context) => {
       throw new HttpError(
@@ -426,7 +426,7 @@ To send error details to the client, throw an `HttpError`:
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/actions.ts"
     import { type CreateTask } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask: CreateTask = async (args, context) => {
       throw new HttpError(
@@ -441,10 +441,10 @@ To send error details to the client, throw an `HttpError`:
 
 Only put information in an `HttpError` that is safe to show to the user.
 
-On the client, the failed Action throws an `HttpError` with the same status code, `message`, and `data`, which you import from `wasp/client`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
+On the client, the failed Action throws an `HttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
 
 ```ts title="src/NewTaskForm.tsx" auto-js
-import { HttpError } from "wasp/client";
+import { HttpError } from "wasp/errors";
 import { createTask } from "wasp/client/operations";
 
 async function handleSubmit(description: string) {

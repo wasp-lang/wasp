@@ -10,7 +10,7 @@
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  *
  * export const getTask = async ({ id }, context) => {
  *   if (!context.user) {
@@ -24,7 +24,7 @@
  * Sending extra information and response headers:
  *
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  *
  * throw new HttpError(
  *   429, // status code
@@ -38,8 +38,8 @@
  * Reading it on the client:
  *
  * ```ts
- * import { HttpError } from "wasp/client";
  * import { createTask } from "wasp/client/operations";
+ * import { HttpError } from "wasp/errors";
  *
  * try {
  *   await createTask({ description: "Buy milk" });
@@ -153,7 +153,7 @@ export type HttpErrorData = { [fieldName: string]: unknown };
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  *
  * try {
  *   await chargeCard(card);

@@ -1,5 +1,5 @@
-import { HttpError } from "wasp/client";
 import { getTeapot, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export const ErrorsPage = () => {

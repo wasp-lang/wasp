@@ -7,8 +7,6 @@
  * @module
  */
 
-export { HttpError, type HttpErrorOptions } from "@wasp/lib-sdk-core";
-
 /**
  * The server's configuration, which Wasp computes from the
  * {@link env | environment variables}.

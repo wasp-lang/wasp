@@ -21,7 +21,7 @@
  *
  * {@link login}, {@link signup}, {@link verifyEmail},
  * {@link requestPasswordReset}, and {@link resetPassword} reject with a
- * {@linkcode "client"!HttpError | HttpError} if the server responds with an
+ * {@linkcode "errors"!HttpError | HttpError} if the server responds with an
  * error, instead of resolving with `success: false`.
  *
  * @module
