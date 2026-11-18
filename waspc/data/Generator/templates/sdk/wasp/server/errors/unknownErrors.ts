@@ -58,7 +58,9 @@ function findHeaders(error: unknown): UnknownErrorHeaders | undefined {
     typeof error.headers === "object" &&
     error.headers !== null
   ) {
-    return Object.fromEntries(Object.entries(error.headers));
+    // Like Express, we copy the object's own properties. A `Headers` instance
+    // has none, so it gives no headers.
+    return { ...error.headers };
   }
   return undefined;
 }

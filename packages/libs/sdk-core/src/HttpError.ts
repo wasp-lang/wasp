@@ -188,8 +188,11 @@ const HTTP_ERROR_OPTION_NAMES = new Set([
   "cause",
 ]);
 
-// Before, the third argument was the data itself. Without this check, code
-// that still passes it that way would lose its data without any error.
+// TODO: Remove this check a few versions after Wasp 0.27, when apps no longer
+// pass data the old way.
+//
+// Before 0.27, the third argument was the data itself. Without this check,
+// code that still passes it that way would lose its data without any error.
 function throwIfUnknownOption(options: object): void {
   const unknownOptionName = Object.keys(options).find(
     (optionName) => !HTTP_ERROR_OPTION_NAMES.has(optionName),
