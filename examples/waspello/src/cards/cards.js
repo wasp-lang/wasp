@@ -1,8 +1,8 @@
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 
 export const createCard = async ({ title, listId, pos }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
   return context.entities.Card.create({
     data: {
@@ -16,7 +16,7 @@ export const createCard = async ({ title, listId, pos }, context) => {
 
 export const updateCard = async ({ cardId, data }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   // Check if user owns the card.
@@ -24,7 +24,7 @@ export const updateCard = async ({ cardId, data }, context) => {
     where: { id: cardId, author: { id: context.user.id } },
   });
   if (!card) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   return context.entities.Card.update({

@@ -8,7 +8,7 @@ import {
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
@@ -22,7 +22,7 @@ export async function resetPassword(
     const { token, password } = args;
     const { email } = await validateJWT<{ email: string }>(token)
         .catch(() => {
-            throw new ServerHttpError(400, "Password reset failed, invalid token");
+            throw new HttpError(400, "Password reset failed, invalid token");
         });
 
     ensureValidPasswordArg(args);
@@ -30,7 +30,7 @@ export async function resetPassword(
     const providerId = createProviderId('email', email);
     const authIdentity = await findAuthIdentity(providerId);
     if (!authIdentity) {
-        throw new ServerHttpError(400, "Password reset failed, invalid token");
+        throw new HttpError(400, "Password reset failed, invalid token");
     }
 
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);

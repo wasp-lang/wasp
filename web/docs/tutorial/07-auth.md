@@ -294,13 +294,13 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 ```ts title="src/queries.ts" auto-js
 import type { Task } from "wasp/entities";
 // highlight-next-line
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   // highlight-start
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.findMany({
@@ -317,7 +317,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 ```ts title="src/actions.ts" auto-js
 import type { Task } from "wasp/entities";
 // highlight-next-line
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 type CreateTaskPayload = Pick<Task, "description">;
@@ -328,7 +328,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 ) => {
   // highlight-start
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.create({
@@ -348,7 +348,7 @@ export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
 ) => {
   // highlight-start
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.update({

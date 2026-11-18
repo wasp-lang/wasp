@@ -15,23 +15,22 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
-- `HttpError` from `wasp/server` is now called `ServerHttpError`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
-- On the client, failed requests now throw a `ClientHttpError`. Its `data` is the `data` the error was thrown with on the server, instead of the whole response body. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
+- On the client, failed requests now throw an `HttpError`, whose `data` is the `data` the error was thrown with on the server. Before, they threw an undocumented error whose `data` held the whole response body. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 
 ### 🎉 New Features
 
-- Client code can now import the error that failed requests throw, `ClientHttpError` from `wasp/client`, and check for it with `instanceof`. It shares its base class, `HttpError` from `wasp/errors`, with `ServerHttpError`. ([#5020](https://github.com/wasp-lang/wasp/pull/5020))
+- The server and the client now use the same `HttpError` class. Client code can import it from `wasp/client` and check for it with `instanceof`, and read the response's headers from its `response`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
 - The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
-- `ServerHttpError` (formerly `HttpError`) can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
+- `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
 
 ### 🐞 Bug fixes
 
-- `logout` now throws a `ClientHttpError` when the server answers with an error, like the other auth functions. ([#5021](https://github.com/wasp-lang/wasp/pull/5021))
+- `logout` now throws an `HttpError` when the server answers with an error, like the other auth functions. ([#5021](https://github.com/wasp-lang/wasp/pull/5021))
 - The Auth UI reset password form now shows the error for an empty new password. ([#5138](https://github.com/wasp-lang/wasp/pull/5138))
 - Async `userSignupFields` getters no longer make the client `signup()` types require a `Promise`. ([#5150](https://github.com/wasp-lang/wasp/pull/5150))
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))

@@ -1,8 +1,8 @@
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 
 export const getListsAndCards = async (args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
   return context.entities.List.findMany({
     // We want to make sure user can get only his own info.
@@ -13,7 +13,7 @@ export const getListsAndCards = async (args, context) => {
 
 export const createList = async ({ name, pos }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
   return context.entities.List.create({
     data: {
@@ -26,7 +26,7 @@ export const createList = async ({ name, pos }, context) => {
 
 export const updateList = async ({ listId, data }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
   return context.entities.List.updateMany({
     where: { id: listId, user: { id: context.user.id } },
@@ -39,7 +39,7 @@ export const updateList = async ({ listId, data }, context) => {
 
 export const deleteList = async ({ listId }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   // We make sure that user is not trying to delete somebody else's list.
@@ -47,7 +47,7 @@ export const deleteList = async ({ listId }, context) => {
     where: { id: listId },
   });
   if (list.userId !== context.user.id) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   // First delete all the cards that are in the list we want to delete.
@@ -62,7 +62,7 @@ export const deleteList = async ({ listId }, context) => {
 
 export const createListCopy = async ({ listId, pos }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   // Check if user owns the list.
@@ -71,7 +71,7 @@ export const createListCopy = async ({ listId, pos }, context) => {
   });
 
   if (!list) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   // Create a new list.

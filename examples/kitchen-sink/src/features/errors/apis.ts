@@ -1,5 +1,4 @@
-import { HttpError } from "wasp/errors";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 import {
   type ThrowConcealedError,
   type ThrowCustomHttpError,
@@ -15,7 +14,7 @@ export const throwUnexpectedError: ThrowUnexpectedError = async () => {
 };
 
 export const throwHttpError: ThrowHttpError = async () => {
-  throw new ServerHttpError(418, "I'm a teapot", { reason: "short and stout" });
+  throw new HttpError(418, "I'm a teapot", { reason: "short and stout" });
 };
 
 class PaymentRequiredError extends HttpError<{ plan: string }> {

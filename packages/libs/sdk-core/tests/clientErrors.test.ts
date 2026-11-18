@@ -1,7 +1,7 @@
 import { HTTPError } from "ky";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handleClientError } from "../src/browser/errors";
-import { ClientHttpError } from "../src/ClientHttpError";
+import { HttpError } from "../src/HttpError";
 
 describe("client error handler", () => {
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe("client error handler", () => {
   });
 
   it("doesn't report an `HttpError`", () => {
-    handleClientError(new ClientHttpError(404, "Not found"), {
+    handleClientError(new HttpError(404, "Not found"), {
       source: "window",
     });
 
