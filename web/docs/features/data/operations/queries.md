@@ -480,9 +480,9 @@ export const MainPage = () => {
 };
 ```
 
-An `HttpError` on the client also has what the request and the response looked like:
+Every `HttpError` has the `response` it stands for. On the client, that is the response the server sent, so you can read more from the error:
 
-- `error.response` is the server's response. Read its headers from it, e.g. `error.response.headers.get("Retry-After")`. Its body is already read into `message` and `data`.
+- `error.response.headers` has the response's headers, e.g. `error.response.headers.get("Retry-After")`. Don't read the response's body, since it is already read into `message` and `data`.
 - `error.cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw. It has the `request` that failed.
 
 When a Query fails, `useQuery` retries it a few times before giving up.

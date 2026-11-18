@@ -16,8 +16,6 @@ export function getErrorDetails(error: unknown): {
  * The `headers` of an error that isn't ours. Express sets each of them with
  * Node's `response.setHeader`, which takes a string, a number, or a list of
  * strings, but nothing checks that, so we treat the values as unknown.
- *
- * @see https://github.com/pillarjs/finalhandler/blob/v2.1.1/index.js#L132-L145
  */
 export type ForeignErrorHeaders = { [headerName: string]: unknown };
 
