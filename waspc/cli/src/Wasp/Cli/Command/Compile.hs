@@ -24,24 +24,26 @@ import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.IO (hPutStrLn, stderr)
+import System.IO.Error (tryIOError)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Message (cliSendFailedLine, cliSendMessage, runStepGroup)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
+import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+import Wasp.Util.Terminal (styleLiteral)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
@@ -71,41 +73,46 @@ compileWithOptions options = do
   InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
+      outDirName = styleLiteral $ SP.fromRelDir generatedAppDirInWaspProjectDir
 
   generatedAppIsCompatible <-
     liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
   outDirExists <- liftIO $ doesDirectoryExist outDir
 
-  when (outDirExists && not generatedAppIsCompatible) $ do
-    cliSendMessageC
-      $ Msg.Start
-      $ "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
-    liftIO $ removeDirectory outDir
-    cliSendMessageC
-      $ Msg.Success
-      $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  when (outDirExists && not generatedAppIsCompatible) $
+    runTaskOrAbort
+      ("Clearing the " ++ outDirName ++ " directory")
+      ("Cleared the " ++ outDirName ++ " directory")
+      ("Failed to clear the " ++ outDirName ++ " directory")
+      (either (Left . (: []) . Msg.Text . show) Right <$> tryIOError (removeDirectory outDir))
 
-  cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
-  let (warnings, errors) = compileResultWarningsAndErrors compileResult
+  (compileResult, stepFailures) <- liftIO $ runStepGroup "Compiling the project" $ \groupSendMessage ->
+    compileIOWithOptions options {sendMessage = groupSendMessage} waspProjectDir outDir
 
-  liftIO $ printCompilationResult (warnings, errors)
+  liftIO $ printCompilationResult "Compiled the project" stepFailures compileResult
   case _compileOutcome compileResult of
-    Right appSpec -> return (warnings, appSpec)
+    Right appSpec -> return (_compileWarnings compileResult, appSpec)
     Left _ -> throwError CommandAborted
 
--- | Given any compile warnings and errors, prints information about how compilation went:
--- reports it as success if there was no errors, or if a failure if there were errors,
--- also shows any warnings (and errors), ... .
--- Normally you will want to call this function after compile step is done and you want
--- to report to user how it went.
-printCompilationResult :: ([CompileWarning], [CompileError]) -> IO ()
-printCompilationResult (warns, errs) = do
-  if null errs
-    then cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
-    else printErrorsIfAny errs
-  printWarningsIfAny warns
+-- | Reports how the compile went, counting the errors and warnings on the
+-- result line: the success message if there were no errors, "Compilation
+-- failed" otherwise. The errors come next (those its steps reported first),
+-- then the warnings.
+printCompilationResult :: String -> [CompileError] -> CompileResult -> IO ()
+printCompilationResult successMessage stepFailures compileResult = do
+  case _compileOutcome compileResult of
+    Right _ -> cliSendMessage $ Msg.Success $ successMessage ++ ": " ++ issues
+    Left _ -> cliSendFailedLine ("Compilation failed: " ++ issues) >> printErrorsIfAny errors
+  printWarningsIfAny warnings
+  where
+    errors = stepFailures ++ either id (const []) (_compileOutcome compileResult)
+    warnings = _compileWarnings compileResult
+    issues = case [counted n name | (n, name) <- [(length errors, "error"), (length warnings, "warning")], n > 0] of
+      [] -> "No issues"
+      counts -> intercalate ", " counts
+    counted 1 name = "1 " ++ name
+    counted n name = show n ++ " " ++ name ++ "s"
 
 printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()
 printWarningsAndErrorsIfAny (warns, errs) = do
@@ -116,18 +123,13 @@ printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
   unless (null warns)
     $ cliSendMessage
-    $ Msg.Warning compilationWarningsTitle
-    $ formatErrorOrWarningMessages warns
+    $ Msg.Warning warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
 printErrorsIfAny errs = do
   unless (null errs)
     $ cliSendMessage
-    $ Msg.Failure "Your wasp project failed to compile"
-    $ formatErrorOrWarningMessages errs
-
-formatErrorOrWarningMessages :: [String] -> String
-formatErrorOrWarningMessages = intercalate "\n\n"
+    $ Msg.Failure errs
 
 compilationWarningsTitle :: String
 compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
@@ -176,9 +178,10 @@ analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
   liftIO $ printWarningsIfAny warnings
   case appSpecOrErrors of
-    Left errors ->
-      throwError $
-        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+    Left [] -> throwError CommandAborted
+    Left errors -> do
+      liftIO $ cliSendMessage $ Msg.Failure errors
+      throwError CommandAborted
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:
@@ -191,12 +194,17 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
   liftIO
     $ unless (null warnings)
-    $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
+    $ printDiagnosticToStderr compilationWarningsTitle warnings
   case appSpecOrErrors of
     Right spec -> return spec
+    Left [] -> throwError CommandAborted
     Left errors -> do
-      liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+      liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) errors
       throwError CommandAborted
 
-printDiagnosticToStderr :: String -> String -> IO ()
-printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
+printDiagnosticToStderr :: String -> [Msg.Entry] -> IO ()
+printDiagnosticToStderr diagnosticTitle entries = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> intercalate "\n\n" (map plainText entries)
+  where
+    plainText (Msg.Entry text parts) = intercalate "\n" $ filter (not . null) $ text : map plainPart parts
+    plainPart (Msg.Text text) = text
+    plainPart (Msg.ToolOutput command exitCode output) = "Output of " <> command <> " (exit code " <> show exitCode <> "):\n" <> output

@@ -1,6 +1,6 @@
 module AppSpec.ValidTest where
 
-import Data.List (isInfixOf)
+import Data.List (intercalate, isInfixOf)
 import Data.Maybe (fromJust)
 import Fixtures.AppSpec (basicAppSpec)
 import qualified StrongPath as SP
@@ -80,7 +80,8 @@ spec_AppSpecValid = do
 
           ASV.validateAppSpec (basicAppSpecWithVersionRange invalidWaspVerison)
             `shouldBe` [ Valid.GenericValidationError $
-                           unlines
+                           intercalate
+                             "\n"
                              [ "Invalid Wasp version requirement: " ++ invalidWaspVerison,
                                "Make sure to use a npm-compatible version range.",
                                "For example: "
@@ -97,7 +98,8 @@ spec_AppSpecValid = do
 
           ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
             `shouldBe` [ Valid.GenericValidationError $
-                           unlines
+                           intercalate
+                             "\n"
                              [ "Your Wasp version does not match the app's requirements.",
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
                                "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",

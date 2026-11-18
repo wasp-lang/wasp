@@ -5,6 +5,14 @@ module Wasp.Util.Interactive
     getInteractiveTerminal,
     isPromptInputEOF,
     runTaskWithSpinner,
+    StatusLine,
+    withStatusLine,
+    OutputSource (..),
+    writeOutput,
+    OutputTrail (..),
+    initialOutputTrail,
+    separate,
+    endOutputBlock,
     askForInput,
     askToChoose,
     askForRequiredInput,
@@ -20,19 +28,23 @@ where
 import Control.Applicative ((<|>))
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
+import Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, readMVar, withMVar)
 import Control.Exception (finally)
-import Control.Monad (forM_, forever)
+import Control.Monad (forM_, forever, unless, when)
 import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.IORef (IORef, atomicModifyIORef', newIORef, readIORef, writeIORef)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrLn, stdin, stdout)
 import System.IO.Error (ioeGetHandle, isEOFError)
+import System.IO.Unsafe (unsafePerformIO)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
 import Wasp.Util (millisecondsToMicroSeconds)
@@ -98,7 +110,9 @@ instance IsOption (Option o) where
 
 data InteractiveTerminal = InteractiveTerminal
   { inputHandle :: Handle,
-    outputHandle :: Handle
+    outputHandle :: Handle,
+    -- | The status line currently shown, if any. A terminal shows at most one.
+    statusLineRef :: IORef (Maybe StatusLine)
   }
 
 askForRequiredInput :: InteractiveTerminal -> String -> IO String
@@ -203,22 +217,166 @@ repeatUntil terminal predicate errorMessage action = do
 
 -- | Runs the action while showing the message as a status line with a
 -- spinning glyph. The line is redrawn in place and erased once the action
--- finishes, so nothing of it stays in the terminal.
+-- finishes, so nothing of it stays in the terminal. While a status line is
+-- already shown, the message takes its place for the action's duration
+-- instead, so steps inside a bigger step share its line.
 runTaskWithSpinner :: InteractiveTerminal -> String -> IO a -> IO a
 runTaskWithSpinner terminal spinnerMessage action =
-  Async.withAsync spinStatusLine (const action)
-    `finally` putStrFlush terminal clearLine
+  readIORef terminal.statusLineRef >>= \case
+    Just statusLine -> withStatusLineText statusLine (\groupText -> groupText ++ ": " ++ spinnerMessage) action
+    Nothing -> withStatusLine terminal spinnerMessage (const action)
+
+-- | Who is writing: Wasp itself (its messages, and the output of tools it
+-- runs inline), or the running app's jobs with their prefixed logs.
+data OutputSource = WaspMessage | JobLog
+  deriving (Eq, Show)
+
+-- | Writes output where everything else is written. While a status line is
+-- shown, the output goes above it and the line is redrawn underneath, so
+-- the two never share a row. Wasp's own output and the job logs are set
+-- apart by an empty line, see 'separate'. Every writer of the process goes
+-- through here.
+writeOutput :: OutputSource -> Handle -> T.Text -> IO ()
+writeOutput source handle output = do
+  separated <- atomicModifyIORef' stdioOutputTrailRef $ \trail -> separate trail source output
+  readIORef stdioStatusLineRef >>= \case
+    Nothing -> T.IO.hPutStr handle separated >> hFlush handle
+    Just statusLine -> modifyMVar_ statusLine.statusLineState $ \state -> do
+      clearStatusLine statusLine state
+      -- A line the writer has not finished yet stays just above the status
+      -- line, and is redrawn with it, until the rest of it arrives.
+      let (completed, unfinished) = T.breakOnEnd "\n" $ state.unfinishedLine <> separated
+      T.IO.hPutStr handle completed >> hFlush handle
+      drawStatusLine statusLine state {unfinishedLine = unfinished}
+
+-- | What the output written so far ends with: who wrote last, how many line
+-- breaks are at the end, and whether Wasp's next output starts a new block.
+data OutputTrail = OutputTrail
+  { lastSource :: Maybe OutputSource,
+    trailingLineBreaks :: Int,
+    blockEnded :: Bool
+  }
+  deriving (Eq, Show)
+
+initialOutputTrail :: OutputTrail
+initialOutputTrail = OutputTrail Nothing 0 False
+
+-- | Ends the current block of Wasp's output: whatever Wasp writes next starts
+-- after an empty line, even if the job logs go on in between.
+endOutputBlock :: IO ()
+endOutputBlock = atomicModifyIORef' stdioOutputTrailRef $ \trail -> (trail {blockEnded = True}, ())
+
+-- | Puts an empty line between Wasp's own output and the job logs, in either
+-- direction, and before Wasp's output after 'endOutputBlock', unless one is
+-- already there. Output that is nothing but line breaks is such an empty
+-- line itself, so it never gets another one.
+separate :: OutputTrail -> OutputSource -> T.Text -> (OutputTrail, T.Text)
+separate trail source output = (trail', separator <> output)
   where
-    spinStatusLine = forever $
-      forM_ spinnerFrames $ \frame -> do
-        putStrFlush terminal $ clearLine ++ Term.applyStyles [Term.Yellow] frame ++ " " ++ spinnerMessage
+    separator
+      | onlyLineBreaks || trail.trailingLineBreaks >= 2 = ""
+      | isJust trail.lastSource && trail.lastSource /= Just source = "\n"
+      | trail.blockEnded && source == WaspMessage = "\n"
+      | otherwise = ""
+    trail' =
+      OutputTrail
+        { lastSource = Just source,
+          trailingLineBreaks =
+            if onlyLineBreaks
+              then trail.trailingLineBreaks + T.length output
+              else T.length (T.takeWhileEnd (== '\n') output),
+          blockEnded = trail.blockEnded && (source /= WaspMessage || onlyLineBreaks)
+        }
+    onlyLineBreaks = T.all (== '\n') output
+
+-- | The line at the bottom of the terminal that is redrawn in place: a
+-- spinning glyph and a text the running action can change. Anything written
+-- while it is shown goes above it, through 'writeOutput'.
+data StatusLine = StatusLine
+  { statusLineTerminal :: InteractiveTerminal,
+    -- | Holding the state also serializes drawing the line and writing above it.
+    statusLineState :: MVar StatusLineState
+  }
+
+data StatusLineState = StatusLineState
+  { text :: String,
+    frame :: String,
+    -- | Output written above the line that has no line break yet.
+    unfinishedLine :: T.Text,
+    -- | Whether an empty line was drawn above the spinner row, as 'separate'
+    -- would put one before Wasp's output at this point.
+    separatedAbove :: Bool
+  }
+
+withStatusLine :: InteractiveTerminal -> String -> (StatusLine -> IO a) -> IO a
+withStatusLine terminal initialText action = do
+  statusLine <- StatusLine terminal <$> newMVar (StatusLineState initialText (head spinnerFrames) "" False)
+  modifyMVar_ statusLine.statusLineState $ drawStatusLine statusLine
+  writeIORef terminal.statusLineRef (Just statusLine)
+  Async.withAsync (spin statusLine) (const $ action statusLine)
+    `finally` (writeIORef terminal.statusLineRef Nothing >> removeStatusLine statusLine)
+  where
+    spin statusLine = forever $
+      forM_ spinnerFrames $ \nextFrame -> do
+        modifyMVar_ statusLine.statusLineState $ \state -> do
+          let state' = state {frame = nextFrame}
+          drawSpinnerRow statusLine state'
+          return state'
         threadDelay $ millisecondsToMicroSeconds 80
 
     spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
+-- | Shows the text derived from the current one while the action runs, then
+-- the current text again.
+withStatusLineText :: StatusLine -> (String -> String) -> IO a -> IO a
+withStatusLineText statusLine deriveText action = do
+  previousText <- (.text) <$> readMVar statusLine.statusLineState
+  setText $ deriveText previousText
+  action `finally` setText previousText
+  where
+    setText t = modifyMVar_ statusLine.statusLineState $ \state -> return state {text = t}
+
+-- | Draws the status line from the current row: the unfinished output line,
+-- if any, the empty line that sets the spinner apart from job logs, if one
+-- is due, then the spinner row.
+drawStatusLine :: StatusLine -> StatusLineState -> IO StatusLineState
+drawStatusLine statusLine state = do
+  trail <- readIORef stdioOutputTrailRef
+  let separated = "\n" `T.isPrefixOf` snd (separate trail WaspMessage "the status line")
+  unless (T.null state.unfinishedLine)
+    $ putStrFlush statusLine.statusLineTerminal
+    $ T.unpack state.unfinishedLine ++ "\n"
+  when separated $ putStrFlush statusLine.statusLineTerminal "\n"
+  drawSpinnerRow statusLine state
+  return state {separatedAbove = separated}
+
+-- | Redraws the spinner row in place.
+drawSpinnerRow :: StatusLine -> StatusLineState -> IO ()
+drawSpinnerRow statusLine state =
+  putStrFlush statusLine.statusLineTerminal $
+    clearLine ++ Term.applyStyles [Term.Yellow] state.frame ++ " " ++ state.text
+
+-- | Erases what 'drawStatusLine' drew, leaving the cursor where it started.
+clearStatusLine :: StatusLine -> StatusLineState -> IO ()
+clearStatusLine statusLine state =
+  putStrFlush statusLine.statusLineTerminal $
+    clearLine
+      ++ (if state.separatedAbove then cursorUp ++ clearLine else "")
+      ++ (if T.null state.unfinishedLine then "" else cursorUp ++ clearLine)
+
+-- | Erases the status line for good, leaving any unfinished output line in
+-- place for its writer to continue.
+removeStatusLine :: StatusLine -> IO ()
+removeStatusLine statusLine = withMVar statusLine.statusLineState $ \state -> do
+  clearStatusLine statusLine state
+  putStrFlush statusLine.statusLineTerminal $ T.unpack state.unfinishedLine
+
 -- | Moves the cursor to the start of the line and erases the line.
 clearLine :: String
 clearLine = "\r" ++ Term.ansiEscapeCode ++ Term.ansiClearLineCode
+
+cursorUp :: String
+cursorUp = Term.ansiEscapeCode ++ "[1A"
 
 -- | Prompts for the user's answer and reads it.. Reaching the end of input
 -- while waiting for an answer (Ctrl+D) throws an error 'isPromptInputEOF'
@@ -235,4 +393,14 @@ putStrFlush terminal msg = do
   hFlush terminal.outputHandle
 
 stdioTerminal :: InteractiveTerminal
-stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout}
+stdioTerminal = InteractiveTerminal {inputHandle = stdin, outputHandle = stdout, statusLineRef = stdioStatusLineRef}
+
+-- The one status line of the one terminal, so that steps started anywhere in
+-- the process find the line a bigger step is showing.
+{-# NOINLINE stdioStatusLineRef #-}
+stdioStatusLineRef :: IORef (Maybe StatusLine)
+stdioStatusLineRef = unsafePerformIO $ newIORef Nothing
+
+{-# NOINLINE stdioOutputTrailRef #-}
+stdioOutputTrailRef :: IORef OutputTrail
+stdioOutputTrailRef = unsafePerformIO $ newIORef initialOutputTrail

@@ -1,7 +1,9 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Wasp.Generator.Monad
-  ( Generator,
+  ( generatorErrorParts,
+    generatorWarningParts,
+    Generator,
     GeneratorError (..),
     GeneratorWarning (..),
     catchGeneratorError,
@@ -16,6 +18,7 @@ import qualified Control.Monad.Except as MonadExcept
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.State (MonadState, State, modify, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
+import qualified Wasp.Message as Msg
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
 -- concrete monad transformers with the helper functions below. This will allow us
@@ -40,19 +43,27 @@ data GeneratorState = GeneratorState
     errors :: [GeneratorError]
   }
 
-data GeneratorError = GenericGeneratorError String
+data GeneratorError
+  = GenericGeneratorError String
+  | -- | The step has already reported its error and only has to fail.
+    GeneratorAborted
   deriving (Eq)
 
 instance Show GeneratorError where
   show (GenericGeneratorError e) = e
+  show GeneratorAborted = ""
+
+generatorErrorParts :: GeneratorError -> [Msg.Entry]
+generatorErrorParts (GenericGeneratorError e) = [Msg.Entry e []]
+generatorErrorParts GeneratorAborted = []
 
 data GeneratorWarning
   = GenericGeneratorWarning String
-  | GeneratorNeedsMigrationWarning String
+  | GeneratorNeedsMigrationWarning [Msg.Entry]
 
-instance Show GeneratorWarning where
-  show (GenericGeneratorWarning e) = e
-  show (GeneratorNeedsMigrationWarning e) = e
+generatorWarningParts :: GeneratorWarning -> [Msg.Entry]
+generatorWarningParts (GenericGeneratorWarning w) = [Msg.Entry w []]
+generatorWarningParts (GeneratorNeedsMigrationWarning parts) = parts
 
 -- Runs the generator and either returns a result, or a list of 1 or more errors.
 -- Results in error if any error was ever logged and thrown (even if caught).

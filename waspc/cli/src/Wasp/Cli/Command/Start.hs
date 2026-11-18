@@ -4,14 +4,14 @@ module Wasp.Cli.Command.Start
 where
 
 import Control.Concurrent.Async (race)
-import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
+import Control.Concurrent.MVar (newMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
@@ -29,7 +29,7 @@ import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning)
+-- import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 import Wasp.Project.RunConfig (ProjectRunConfig)
@@ -53,8 +53,6 @@ start = withArguments startArgsParser $ \args ->
     InWaspProject waspProjectDir <- require
     let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-    cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
-
     (warnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
@@ -66,8 +64,8 @@ start = withArguments startArgsParser $ \args ->
 
     throwIfDbConnectionNotEstablished projectRunConfig
 
-    cliSendMessageC $ Msg.Start "Listening for file changes..."
-    cliSendMessageC $ Msg.Start "Starting up generated project..."
+    cliSendMessageC $ Msg.Info ""
+    cliSendMessageC $ Msg.Start "Starting the app..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
 
     watchOrStartResult <- liftIO $ do
@@ -79,7 +77,10 @@ start = withArguments startArgsParser $ \args ->
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
       let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
-      let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
+      -- Temporarily disabled: the compile already reports its warnings and errors, so the
+      -- reprint below showed every one of them twice. Not removed yet, pending a decision.
+      -- let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
+      let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (return ())
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
       --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -93,22 +94,23 @@ start = withArguments startArgsParser $ \args ->
       Right startResult -> case startResult of
         Left startError -> throwError $ CommandError "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
-  where
-    onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
-    onJobsQuietDown ongoingCompilationResultMVar = do
-      -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
-      -- latest (re)compile that haven't yet been printed in this situation.
-      -- This way we ensure that even if web app jobs print a lot of output, users
-      -- won't miss wasp compiler warnings and errors, since they will be again printed after all
-      -- of that output.
-      maybeOngoingCompilationResult <- tryTakeMVar ongoingCompilationResultMVar
-      case maybeOngoingCompilationResult of
-        Nothing -> return ()
-        Just ([], []) -> return ()
-        Just (warnings, errors) -> do
-          putStrLn ""
-          printWarningsAndErrorsIfAny (warnings, errors)
-          putStrLn ""
+
+-- where
+--   onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
+--   onJobsQuietDown ongoingCompilationResultMVar = do
+--     -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
+--     -- latest (re)compile that haven't yet been printed in this situation.
+--     -- This way we ensure that even if web app jobs print a lot of output, users
+--     -- won't miss wasp compiler warnings and errors, since they will be again printed after all
+--     -- of that output.
+--     maybeOngoingCompilationResult <- tryTakeMVar ongoingCompilationResultMVar
+--     case maybeOngoingCompilationResult of
+--       Nothing -> return ()
+--       Just ([], []) -> return ()
+--       Just (warnings, errors) -> do
+--         putStrLn ""
+--         printWarningsAndErrorsIfAny (warnings, errors)
+--         putStrLn ""
 
 -- | The web app and server have their own logic for reading environment
 -- variables autonomously, so we don't need to merge the different sources of

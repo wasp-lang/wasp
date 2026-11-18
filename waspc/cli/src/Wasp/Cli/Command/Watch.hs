@@ -16,16 +16,17 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIOWithOptions, defaultCompileOptions, printCompilationResult)
+import Wasp.Cli.Message (runStepGroup)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
+import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
-import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import qualified Wasp.Util.Interactive as Interactive
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -148,14 +149,14 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
 
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
-      cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO waspProjectDir outDir
+      Interactive.endOutputBlock
+      (compileResult, stepFailures) <- runStepGroup "Recompiling on file change" $ \groupSendMessage ->
+        compileIOWithOptions (defaultCompileOptions waspProjectDir) {sendMessage = groupSendMessage} waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-      printCompilationResult (warnings, errors)
+      printCompilationResult "Recompiled the project" stepFailures compileResult
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
-          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
           projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
@@ -165,10 +166,8 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   _changedProjectFiles = changedProjectFiles,
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
-        Left _ -> do
-          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
-          return FailedCompile
-      setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
+        Left _ -> return FailedCompile
+      setWatcherStatus projectLock $ either (const CompilationFailed) (const UpToDate) $ _compileOutcome compileResult
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
 

@@ -12,6 +12,7 @@ import qualified StrongPath as SP
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Cli.Command.Common (runTaskOrAbort)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
@@ -32,7 +33,6 @@ import Wasp.Util.IO
     doesFileExist,
   )
 import Wasp.Util.InstallMethod (uninstallationCommand)
-import Wasp.Util.Interactive (InteractiveTerminal)
 import qualified Wasp.Util.Interactive as Interactive
 
 -- | Removes Wasp from the system.
@@ -47,9 +47,15 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
         if skipConfirmation
           then return Nothing
           else Just <$> requireInteractiveTerminal uninstallArgsParser
-      cliSendMessageC $ Msg.Start "Removing Wasp data..."
-      liftIO $ removeWaspPaths confirmationTerminal waspPathsToRemove
-      cliSendMessageC $ Msg.Success "Removed Wasp data."
+      cliSendMessageC
+        $ Msg.Info
+        $ "We will remove the following files and directories:\n"
+          ++ indent 2 (intercalate "\n" $ toFilePaths waspPathsToRemove)
+      forM_ confirmationTerminal $ \terminal -> do
+        confirmed <- liftIO $ Interactive.askForConfirmation terminal "Are you sure you want to continue?"
+        unless confirmed $ liftIO $ die "Aborted."
+      runTaskOrAbort "Removing Wasp data" "Removed Wasp data" "Failed to remove Wasp data" $
+        Right <$> removeWaspPaths waspPathsToRemove
 
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
@@ -99,20 +105,8 @@ findWaspPathsToRemove =
         [ homeDir </> waspExecutableInHomeDir
         ]
 
--- | Asks for confirmation on the given terminal before deleting anything.
--- Without one (`--force`), deletes right away.
-removeWaspPaths :: Maybe InteractiveTerminal -> PathsToRemove -> IO ()
-removeWaspPaths confirmationTerminal pathsToRemove = do
-  putStr $
-    unlines
-      [ "We will remove the following files and directories:",
-        indent 2 $ intercalate "\n" $ toFilePaths pathsToRemove
-      ]
-
-  forM_ confirmationTerminal $ \terminal -> do
-    confirmed <- Interactive.askForConfirmation terminal "Are you sure you want to continue?"
-    unless confirmed $ die "Aborted."
-
+removeWaspPaths :: PathsToRemove -> IO ()
+removeWaspPaths pathsToRemove = do
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
   mapM_ deleteFileIfExists $ snd pathsToRemove
 

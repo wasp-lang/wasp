@@ -4,11 +4,10 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
 where
 
 import Control.Monad (unless)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import StrongPath (Dir', Path', Rel')
-import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), getAbsWaspProjectDir)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import Wasp.Cli.GithubRepo
@@ -25,37 +24,36 @@ createProjectOnDiskFromGhReleaseArchiveTemplate ::
   GithubRepoRef ->
   GithubReleaseArchiveName ->
   Path' Rel' Dir' ->
-  Command ()
-createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef assetName templatePathInRepo = do
+  IO (Either String ())
+createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef assetName templatePathInRepo = runExceptT $ do
   releaseExists <- liftIO (checkGitHubReleaseExists ghRepoRef)
 
-  unless releaseExists throwOutdatedTagError
+  unless releaseExists $ throwError outdatedTagError
 
-  fetchTemplateFromGhToTemplateOutputDir
-    >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
+  ExceptT fetchTemplateFromGhToTemplateOutputDir
+  liftIO replaceTemplatePlaceholders
   where
     fetchTemplateFromGhToTemplateOutputDir =
-      liftIO $ fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo (_absTemplateOutputDir newProjectDescription)
+      fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo (_absTemplateOutputDir newProjectDescription)
 
     replaceTemplatePlaceholders =
-      liftIO $ replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
+      replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
 
-    throwOutdatedTagError =
-      throwProjectCreationError $
-        intercalate
-          "\n"
-          [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
-            "You can try again with an older Wasp version, or choose a different template.",
-            "",
-            "If you want to use an older Wasp version:",
-            "Visit " ++ releasesUrl ++ " to see available template releases,",
-            "and install the Wasp version that matches the latest release tag available by running:",
-            "",
-            indent 2 $ getInstallationCommand (Just "x.y.z"),
-            legacyVersionsNote,
-            "",
-            "Then you can try creating your project again."
-          ]
+    outdatedTagError =
+      intercalate
+        "\n"
+        [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
+          "You can try again with an older Wasp version, or choose a different template.",
+          "",
+          "If you want to use an older Wasp version:",
+          "Visit " ++ releasesUrl ++ " to see available template releases,",
+          "and install the Wasp version that matches the latest release tag available by running:",
+          "",
+          indent 2 $ getInstallationCommand (Just "x.y.z"),
+          legacyVersionsNote,
+          "",
+          "Then you can try creating your project again."
+        ]
 
     releasesUrl = intercalate "/" ["https://github.com", _repoOwner ghRepoRef, _repoName ghRepoRef, "releases"]
 

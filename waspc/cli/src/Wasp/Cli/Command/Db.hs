@@ -54,9 +54,9 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
   where
     noDbError =
       CommandError
-        "Can not connect to database"
-        ( "The database needs to be running in order to execute this command."
-            ++ " You can easily start a managed dev database with "
+        "Cannot connect to the database"
+        ( "It needs to be running for this command."
+            ++ " You can start a managed dev database with "
             ++ styleCode "wasp start db"
             ++ "."
         )

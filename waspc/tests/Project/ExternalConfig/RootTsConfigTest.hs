@@ -3,6 +3,7 @@ module Project.ExternalConfig.RootTsConfigTest (spec_RootTsConfig) where
 import Data.List (isInfixOf)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
+import qualified Wasp.Message as Msg
 import Wasp.Project.ExternalConfig.RootTsConfig (rootTsConfigValidator)
 import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
 
@@ -42,7 +43,7 @@ spec_RootTsConfig = do
         }
 
 validate :: T.TsConfig -> [String]
-validate = validateTsConfig rootTsConfigValidator "tsconfig.json"
+validate = map entryText . validateTsConfig rootTsConfigValidator "tsconfig.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
@@ -61,3 +62,6 @@ validTsConfig =
             T.TsConfigReference {T.path = "tsconfig.wasp.json"}
           ]
     }
+
+entryText :: Msg.Entry -> String
+entryText (Msg.Entry text _) = text
