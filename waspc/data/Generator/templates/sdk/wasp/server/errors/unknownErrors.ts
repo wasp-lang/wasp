@@ -13,7 +13,7 @@ import { STATUS_CODES } from "node:http";
 import {
   getErrorDetails,
   toHeadersInit,
-  type ForeignErrorHeaders,
+  type UnknownErrorHeaders,
 } from "./utils.js";
 
 // PRIVATE API (server)
@@ -49,7 +49,7 @@ function findStatusCode(error: unknown): number | undefined {
   return [status, statusCode].find(Wasp.isHttpErrorStatusCode);
 }
 
-function findHeaders(error: unknown): ForeignErrorHeaders | undefined {
+function findHeaders(error: unknown): UnknownErrorHeaders | undefined {
   if (
     typeof error === "object" &&
     error !== null &&

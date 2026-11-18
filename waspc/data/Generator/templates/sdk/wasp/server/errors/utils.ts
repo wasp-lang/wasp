@@ -17,7 +17,7 @@ export function getErrorDetails(error: unknown): {
  * Node's `response.setHeader`, which takes a string, a number, or a list of
  * strings, but nothing checks that, so we treat the values as unknown.
  */
-export type ForeignErrorHeaders = { [headerName: string]: unknown };
+export type UnknownErrorHeaders = { [headerName: string]: unknown };
 
 // PRIVATE API (server)
 /**
@@ -25,7 +25,7 @@ export type ForeignErrorHeaders = { [headerName: string]: unknown };
  * repeated header.
  */
 export function toHeadersInit(
-  headers: ForeignErrorHeaders | undefined,
+  headers: UnknownErrorHeaders | undefined,
 ): [string, string][] {
   return Object.entries(headers ?? {}).flatMap(([name, value]) =>
     (Array.isArray(value) ? value : [value]).map((item): [string, string] => [
