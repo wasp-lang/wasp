@@ -1,6 +1,6 @@
 import { UppercaseTextRequestState } from "@prisma/client";
 import { UppercaseTextRequest } from "wasp/entities";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import * as jobs from "wasp/server/jobs";
 import { type UppercaseTextJob } from "wasp/server/jobs";
 import {
@@ -13,7 +13,7 @@ export const requestUppercaseText: RequestUppercaseText<{
   text: string;
 }> = async (args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401, "Unauthorized");
+    throw new HttpError(401, "Unauthorized");
   }
 
   const { text } = args;
@@ -42,7 +42,7 @@ export const getTextUppercaseRequests: GetTextUppercaseRequests<
   UppercaseTextRequest[]
 > = (_args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401, "Unauthorized");
+    throw new HttpError(401, "Unauthorized");
   }
   return context.entities.UppercaseTextRequest.findMany({
     where: { userId: context.user.id },
