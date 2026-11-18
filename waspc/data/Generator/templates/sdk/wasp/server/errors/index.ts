@@ -49,7 +49,7 @@ export function sendErrorResponse(response: Response, error: unknown): void {
       response.append(name, value);
     }
   }
-  response.status(httpError.statusCode).json(toHttpErrorBody(httpError));
+  response.status(httpError.status).json(toHttpErrorBody(httpError));
 }
 
 function toHttpError(unexpectedError: unknown): HttpError {
@@ -60,7 +60,7 @@ function toHttpError(unexpectedError: unknown): HttpError {
     ? httpErrors.toHttpError(unexpectedError, options)
     : unknownErrors.toHttpError(unexpectedError, options);
 
-  if (httpError.statusCode >= 500) {
+  if (httpError.status >= 500) {
     reportUnexpectedServerError(unexpectedError, { source: "request" });
   }
   return httpError;

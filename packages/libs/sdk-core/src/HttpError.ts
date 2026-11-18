@@ -2,15 +2,15 @@
  * An error for an HTTP error response, which has a status code in the range
  * `[400, 600)`.
  *
- * Its `statusCode`, `message`, and `data` are part of the response, so only
- * put information in them that is safe to show to the user.
+ * Its `status`, `message`, and `data` are part of the response, so only put
+ * information in them that is safe to show to the user.
  *
  * @typeParam Data The type of the error's `data`. It defaults to
  * {@link HttpErrorData}, an object with any fields.
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  *
  * export const getTask = async ({ id }, context) => {
  *   if (!context.user) {
@@ -24,27 +24,25 @@
  * Sending extra information and response headers:
  *
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  *
- * throw new HttpError(
- *   429, // status code
- *   "Too many requests", // message
- *   { limitPerMinute: 60 }, // data
- *   { headers: { "Retry-After": "60" } }, // options
- * );
+ * throw new HttpError(429, "Too many requests", {
+ *   data: { limitPerMinute: 60 },
+ *   headers: { "Retry-After": "60" },
+ * });
  * ```
  *
  * @example
  * Reading it on the client:
  *
  * ```ts
- * import { HttpError } from "wasp/client";
  * import { createTask } from "wasp/client/operations";
+ * import { HttpError } from "wasp/errors";
  *
  * try {
  *   await createTask({ description: "Buy milk" });
  * } catch (error: unknown) {
- *   if (error instanceof HttpError && error.statusCode === 429) {
+ *   if (error instanceof HttpError && error.status === 429) {
  *     const retryAfter = error.response.headers.get("Retry-After");
  *   }
  * }
@@ -74,23 +72,28 @@ export class HttpError<
    * The HTTP status code of the response, an integer in the range
    * `[400, 600)`.
    */
-  public get statusCode(): number {
+  public get status(): number {
     return this.response.status;
   }
 
   /**
-   * @param statusCode The HTTP status code. It must be an integer in the
-   * range `[400, 600)`, otherwise the constructor throws an `Error`.
+   * @deprecated Use {@link HttpError.status | status} instead.
+   */
+  public get statusCode(): number {
+    return this.status;
+  }
+
+  /**
+   * @param status The HTTP status code. It must be an integer in the range
+   * `[400, 600)`, otherwise the constructor throws an `Error`.
    * @param message The error message.
-   * @param data An object with any extra information about the error.
-   * @param options The standard `Error` options (e.g. `cause`), and `headers`
-   * for the response.
+   * @param options The data, the headers for the response or the response
+   * itself, and the standard `Error` options (e.g. `cause`).
    */
   constructor(
-    statusCode: number,
+    status: number,
     message?: string,
-    data?: Data,
-    options?: HttpErrorOptions,
+    options: HttpErrorOptions<Data> = {},
   ) {
     super(message, options);
 
@@ -102,37 +105,23 @@ export class HttpError<
     // Classes that extend `HttpError` set their own name.
     this.name = "HttpError";
 
-    if (!isHttpErrorStatusCode(statusCode)) {
-      throw new Error("statusCode has to be integer in range [400, 600).");
+    if (!isHttpErrorStatusCode(status)) {
+      throw new Error("status has to be an integer in the range [400, 600).");
     }
-    this.data = data;
-    this.response =
-      (options as InternalHttpErrorOptions | undefined)?.[existingResponse] ??
-      Response.json(toHttpErrorBody(this), {
-        status: statusCode,
-        headers: options?.headers,
-      });
-  }
+    if (options.response && !isHttpErrorStatusCode(options.response.status)) {
+      throw new Error(
+        "The status of the response has to be in the range [400, 600).",
+      );
+    }
+    throwIfUnknownOption(options);
 
-  /**
-   * Creates the error for an HTTP error response that already exists, e.g.
-   * one a client received.
-   *
-   * @param response The response. Its status code must be in the range
-   * `[400, 600)`.
-   * @param body The parsed body of the response.
-   * @param options The standard `Error` options (e.g. `cause`).
-   */
-  static fromResponse(
-    response: Response,
-    { message, data }: HttpErrorBody,
-    options?: ErrorOptions,
-  ): HttpError {
-    const internalOptions: InternalHttpErrorOptions = {
-      ...options,
-      [existingResponse]: response,
-    };
-    return new HttpError(response.status, message, data, internalOptions);
+    this.data = options.data;
+    this.response =
+      options.response ??
+      Response.json(toHttpErrorBody(this), {
+        status,
+        headers: options.headers,
+      });
   }
 }
 
@@ -149,23 +138,29 @@ export type HttpErrorData = { [fieldName: string]: unknown };
 
 /**
  * The options of an {@link HttpError}. It takes the standard `Error` options
- * (e.g. `cause`), and `headers`.
+ * (e.g. `cause`), and what the error's response consists of.
+ *
+ * @typeParam Data The type of `data`.
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  *
  * try {
  *   await chargeCard(card);
  * } catch (error: unknown) {
- *   throw new HttpError(503, "Payments are unavailable", undefined, {
- *     cause: error,
+ *   throw new HttpError(503, "Payments are unavailable", {
  *     headers: { "Retry-After": "60" },
+ *     cause: error,
  *   });
  * }
  * ```
  */
-export interface HttpErrorOptions extends ErrorOptions {
+export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
+  extends ErrorOptions {
+  /** An object with any extra information about the error. */
+  data?: Data;
+
   /**
    * Headers for the error response, e.g. `Retry-After`. To repeat a header,
    * like `Set-Cookie`, pass a list of name and value pairs.
@@ -179,13 +174,40 @@ export interface HttpErrorOptions extends ErrorOptions {
    * ```
    */
   headers?: HeadersInit;
+
+  /**
+   * An existing response for the error to stand for, e.g. one a client
+   * received. Without it, the error builds its own response from its status,
+   * message, data, and `headers`.
+   *
+   * If you pass it, its status and headers take precedence over the `status`
+   * argument and the `headers` option. Its status must be in the range
+   * `[400, 600)` too.
+   */
+  response?: Response;
 }
 
-// Lets `fromResponse` hand the constructor a response to keep, without making
-// that part of the public options.
-const existingResponse = Symbol("existingResponse");
-interface InternalHttpErrorOptions extends HttpErrorOptions {
-  [existingResponse]?: Response;
+const HTTP_ERROR_OPTION_NAMES = new Set([
+  "data",
+  "headers",
+  "response",
+  "cause",
+]);
+
+// TODO: Remove this check a few versions after Wasp 0.27, when apps no longer
+// pass data the old way.
+//
+// Before 0.27, the third argument was the data itself. Without this check,
+// code that still passes it that way would lose its data without any error.
+function throwIfUnknownOption(options: object): void {
+  const unknownOptionName = Object.keys(options).find(
+    (optionName) => !HTTP_ERROR_OPTION_NAMES.has(optionName),
+  );
+  if (unknownOptionName !== undefined) {
+    throw new Error(
+      `Unknown HttpError option "${unknownOptionName}". To send data with the error, pass it as the "data" option.`,
+    );
+  }
 }
 
 /**

@@ -4,7 +4,7 @@ import { hydrateRoot } from "react-dom/client";
 import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
-import { QueryClient, QueryClientProvider, isCancelledError } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ky, { isHTTPError } from "ky";
 import mitt from "mitt";
 import * as z from "zod";
@@ -73,12 +73,11 @@ function emptySubscribe() {
 }
 // node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
 /**
-* The base form of Wasp's HTTP errors. It holds the status code, the message,
-* and the data, which the server's and the client's errors have in common.
+* An error for an HTTP error response, which has a status code in the range
+* `[400, 600)`.
 *
-* It is abstract, so you create one of the classes that extend it. Use
-* `HttpError` itself to handle any of them, e.g. in code that runs on both the
-* server and the client.
+* Its `status`, `message`, and `data` are part of the response, so only put
+* information in them that is safe to show to the user.
 *
 * @typeParam Data The type of the error's `data`. It defaults to
 * {@link HttpErrorData}, an object with any fields.
@@ -87,8 +86,39 @@ function emptySubscribe() {
 * ```ts
 * import { HttpError } from "wasp/errors";
 *
-* export function isNotFoundError(error: unknown): boolean {
-*   return error instanceof HttpError && error.statusCode === 404;
+* export const getTask = async ({ id }, context) => {
+*   if (!context.user) {
+*     throw new HttpError(401, "You must be logged in.");
+*   }
+*   // ...
+* };
+* ```
+*
+* @example
+* Sending extra information and response headers:
+*
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* throw new HttpError(429, "Too many requests", {
+*   data: { limitPerMinute: 60 },
+*   headers: { "Retry-After": "60" },
+* });
+* ```
+*
+* @example
+* Reading it on the client:
+*
+* ```ts
+* import { createTask } from "wasp/client/operations";
+* import { HttpError } from "wasp/errors";
+*
+* try {
+*   await createTask({ description: "Buy milk" });
+* } catch (error: unknown) {
+*   if (error instanceof HttpError && error.status === 429) {
+*     const retryAfter = error.response.headers.get("Retry-After");
+*   }
 * }
 * ```
 *
@@ -96,37 +126,77 @@ function emptySubscribe() {
 */
 var HttpError = class extends Error {
 	/**
-	* The HTTP status code of the response, an integer in the range
-	* `[400, 600)`.
+	* The HTTP response the error stands for. Read the status code and the
+	* headers from it.
+	*
+	* Don't read its body, since it may already be consumed. Use `message` and
+	* `data` instead.
 	*/
-	statusCode;
+	response;
 	/**
 	* Extra information about the error, e.g. which form field is invalid.
 	* It is `undefined` if the error was created without it.
 	*/
 	data;
 	/**
-	* @param statusCode The HTTP status code. It must be an integer in the
-	* range `[400, 600)`, otherwise the constructor throws an `Error`.
-	* @param message The error message.
-	* @param data An object with any extra information about the error.
-	* @param options The standard `Error` options (e.g. `cause`).
+	* The HTTP status code of the response, an integer in the range
+	* `[400, 600)`.
 	*/
-	constructor(statusCode, message, data, options) {
+	get status() {
+		return this.response.status;
+	}
+	/**
+	* @deprecated Use {@link HttpError.status | status} instead.
+	*/
+	get statusCode() {
+		return this.status;
+	}
+	/**
+	* @param status The HTTP status code. It must be an integer in the range
+	* `[400, 600)`, otherwise the constructor throws an `Error`.
+	* @param message The error message.
+	* @param options The data, the headers for the response or the response
+	* itself, and the standard `Error` options (e.g. `cause`).
+	*/
+	constructor(status, message, options = {}) {
 		super(message, options);
 		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
 		this.name = "HttpError";
-		if (!isHttpErrorStatusCode(statusCode)) throw new Error("statusCode has to be integer in range [400, 600).");
-		this.statusCode = statusCode;
-		this.data = data;
+		if (!isHttpErrorStatusCode(status)) throw new Error("status has to be an integer in the range [400, 600).");
+		if (options.response && !isHttpErrorStatusCode(options.response.status)) throw new Error("The status of the response has to be in the range [400, 600).");
+		throwIfUnknownOption(options);
+		this.data = options.data;
+		this.response = options.response ?? Response.json(toHttpErrorBody(this), {
+			status,
+			headers: options.headers
+		});
 	}
 };
+var HTTP_ERROR_OPTION_NAMES = /* @__PURE__ */ new Set([
+	"data",
+	"headers",
+	"response",
+	"cause"
+]);
+function throwIfUnknownOption(options) {
+	const unknownOptionName = Object.keys(options).find((optionName) => !HTTP_ERROR_OPTION_NAMES.has(optionName));
+	if (unknownOptionName !== void 0) throw new Error(`Unknown HttpError option "${unknownOptionName}". To send data with the error, pass it as the "data" option.`);
+}
 /**
 * Checks that a value is a status code an {@link HttpError} accepts, which is
 * an integer in the range `[400, 600)`.
 */
 function isHttpErrorStatusCode(value) {
 	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
+}
+/**
+* Builds the JSON body of the response of an {@link HttpError}.
+*/
+function toHttpErrorBody(error) {
+	return {
+		message: error.message,
+		data: error.data
+	};
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
 var handledErrors = /* @__PURE__ */ new WeakSet();
@@ -167,6 +237,7 @@ function listenForUncaughtClientErrors() {
 }
 function reportUnexpectedClientError(error, context) {
 	console.error(`Unexpected error in ${context.source}:`, error);
+	if (context.source === "render" && context.componentStack) console.error(`The error happened in:${context.componentStack}`);
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
@@ -252,19 +323,7 @@ var queryClientInitialized = new Promise((resolve) => {
 });
 function initializeQueryClient() {
 	const queryClient = new QueryClient(withWaspQueryDefaults({}));
-	listenForQueryClientErrors(queryClient);
 	resolveQueryClientInitialized(queryClient);
-}
-function listenForQueryClientErrors(queryClient) {
-	queryClient.getQueryCache().subscribe((event) => {
-		if (event.type === "updated" && event.action.type === "error") reportUnlessCancelled(event.action.error, { source: "query" });
-	});
-	queryClient.getMutationCache().subscribe((event) => {
-		if (event.type === "updated" && event.action.type === "error") reportUnlessCancelled(event.action.error, { source: "action" });
-	});
-}
-function reportUnlessCancelled(error, context) {
-	if (!isCancelledError(error)) handleClientError(error, context);
 }
 function withWaspQueryDefaults(config) {
 	return {
@@ -280,7 +339,7 @@ function withWaspQueryDefaults(config) {
 }
 function shouldRetryQuery(failureCount, error) {
 	if (failureCount >= MAX_QUERY_RETRIES) return false;
-	return !(error instanceof HttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+	return !(error instanceof HttpError && error.status >= 400 && error.status < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.status));
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
@@ -568,10 +627,17 @@ var fullAppTree = /* @__PURE__ */ jsx(Layout, {
 });
 listenForUncaughtClientErrors();
 startTransition(() => {
-	hydrateRoot(document, fullAppTree, { onUncaughtError: (error) => {
-		handleClientError(error, { source: "render" });
-	} });
+	hydrateRoot(document, fullAppTree, {
+		onUncaughtError: reportRenderError,
+		onCaughtError: reportRenderError
+	});
 });
+function reportRenderError(error, { componentStack }) {
+	handleClientError(error, {
+		source: "render",
+		componentStack
+	});
+}
 async function waitForRouterInitialized(router) {
 	if (router.state.initialized) return;
 	return new Promise((resolve) => {

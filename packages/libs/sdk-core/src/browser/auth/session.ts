@@ -56,7 +56,8 @@ if (typeof window !== "undefined") {
  * Takes an error that the
  * [`api`](https://wasp.sh/docs/api/wasp/client/api#api) client threw. If the
  * server answered with an error status that Wasp handles (400 to 599), returns
- * an {@link HttpError}. Otherwise, returns the error unchanged.
+ * an {@link HttpError} whose `cause` is the error that `api` threw. Otherwise,
+ * returns the error unchanged.
  *
  * @param error The error that `api` threw.
  * @returns An `HttpError`, or `error` unchanged.
@@ -82,13 +83,16 @@ export function handleApiError(error: unknown): unknown {
 }
 
 function toHttpError(kyHttpError: KyHttpError): HttpError {
+  const { response } = kyHttpError;
   // ky has already read the response's body into `data`.
-  const body = isHttpErrorBody(kyHttpError.data)
+  const { message, data } = isHttpErrorBody(kyHttpError.data)
     ? kyHttpError.data
     : // Something other than the Wasp server answered, e.g. a proxy.
-      { message: kyHttpError.message };
+      { message: kyHttpError.message, data: undefined };
 
-  return HttpError.fromResponse(kyHttpError.response, body, {
+  return new HttpError(response.status, message, {
+    data,
+    response,
     cause: kyHttpError,
   });
 }

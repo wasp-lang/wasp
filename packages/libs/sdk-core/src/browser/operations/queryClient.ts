@@ -58,8 +58,8 @@ function shouldRetryQuery(failureCount: number, error: unknown): boolean {
 
   return !(
     error instanceof HttpError &&
-    error.statusCode >= 400 &&
-    error.statusCode < 500 &&
-    !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode)
+    error.status >= 400 &&
+    error.status < 500 &&
+    !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.status)
   );
 }

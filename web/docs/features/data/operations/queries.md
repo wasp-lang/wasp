@@ -426,14 +426,10 @@ To send error details to the client, throw an `HttpError`:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/queries.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
@@ -441,44 +437,43 @@ To send error details to the client, throw an `HttpError`:
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
     import { type GetAllTasks } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
 </Tabs>
 
+To also set response headers, e.g. `Retry-After`, pass `headers` in the options:
+
+```js
+throw new HttpError(429, "Too many requests", { headers: { "Retry-After": "60" } })
+```
+
 Only put information in an `HttpError` that is safe to show to the user.
 
-On the client, the failed Query throws an `HttpError` with the same status code, `message`, and `data`, which you import from `wasp/client`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
+On the client, the failed Query throws an `HttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import { HttpError } from "wasp/client";
 import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 
 export const MainPage = () => {
   const { data: tasks, error } = useQuery(getAllTasks);
 
-  if (error instanceof HttpError && error.statusCode === 403) {
+  if (error instanceof HttpError && error.status === 403) {
     return <div>{error.message}</div>;
   }
   // ...
 };
 ```
 
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+Every `HttpError` has the `response` it stands for. On the client, that is the response the server sent, so you can read more from the error:
 
-```js
-throw new HttpError(429, "Too many requests", undefined, {
-  headers: { "Retry-After": "60" },
-})
-```
+- `error.response.headers` has the response's headers, e.g. `error.response.headers.get("Retry-After")`. Don't read the response's body, since it is already read into `message` and `data`.
+- `error.cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw. It has the `request` that failed.
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.

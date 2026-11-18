@@ -21,10 +21,7 @@
   "placeInternalsInOwningModule": true,
 
   // One module per SDK import path, e.g. `server.d.ts` documents `wasp/server`.
-  // TypeDoc documents an export in the first module that has it, and links to
-  // it from the others. `wasp/errors` goes first so it owns the errors that
-  // `wasp/server` and `wasp/client` also export.
-  "entryPoints": ["./types/wasp/errors.d.ts", "./types/**/*.d.ts"],
+  "entryPoints": ["./types/**/*.d.ts"],
   "exclude": ["node_modules/**"],
 
   "modifierTags": ["@component", "@placeholder"],
