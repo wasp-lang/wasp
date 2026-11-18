@@ -224,6 +224,8 @@ formatEnvVarValue rawValue
       hasDoubleQuoteConflict
         && not hasCarriageReturn
         && '\n' `notElem` rawValue
+        && '\x2028' `notElem` rawValue
+        && '\x2029' `notElem` rawValue
         && '#' `notElem` rawValue
 
     canWrapInQuote :: Char -> String -> Bool
