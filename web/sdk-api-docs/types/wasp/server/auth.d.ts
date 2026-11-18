@@ -256,7 +256,7 @@ export declare function createProviderId(
  * const providerId = createProviderId("email", args.email);
  * const authIdentity = await findAuthIdentity(providerId);
  * if (!authIdentity) {
- *   throw new HttpError(400, { message: "Unknown user" });
+ *   throw new HttpError(400, "Unknown user");
  * }
  * ```
  */
@@ -351,7 +351,7 @@ export declare function sanitizeAndSerializeProviderData<
  *   const providerId = createProviderId("email", args.email);
  *   const authIdentity = await findAuthIdentity(providerId);
  *   if (!authIdentity) {
- *     throw new HttpError(400, { message: "Unknown user" });
+ *     throw new HttpError(400, "Unknown user");
  *   }
  *
  *   const providerData = getProviderDataWithPassword<"email">(
@@ -651,8 +651,7 @@ export declare function sendPasswordResetEmail(
  *   "passwordResetSentAt",
  * );
  * if (!isResendAllowed) {
- *   throw new HttpError(*     400, {
- *     message: *     `Please wait ${timeLeft} seconds before trying again.`,
+ *   throw new HttpError(*     400, *     `Please wait ${timeLeft} seconds before trying again.`, {
  *     data: *,
  *   });
  * }
@@ -829,14 +828,14 @@ interface OnAfterLoginHookParams extends CommonAuthHookParams {
  * }) => {
  *   const count = await prisma.user.count();
  *   if (count > 100) {
- *     throw new HttpError(403, { message: "Too many users" });
+ *     throw new HttpError(403, "Too many users");
  *   }
  *
  *   if (
  *     providerId.providerName === "email" &&
  *     providerId.providerUserId === "some@email.com"
  *   ) {
- *     throw new HttpError(403, { message: "This email is not allowed" });
+ *     throw new HttpError(403, "This email is not allowed");
  *   }
  * };
  * ```
@@ -981,9 +980,7 @@ export type OnBeforeOAuthRedirectHook = (
  *     providerId.providerName === "email" &&
  *     providerId.providerUserId === "some@email.com"
  *   ) {
- *     throw new HttpError(403, {
- *       message: "You cannot log in with this email",
- *     });
+ *     throw new HttpError(403, "You cannot log in with this email");
  *   }
  * };
  * ```

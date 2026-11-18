@@ -31,10 +31,9 @@ export function toHttpError(
   const data = includeErrorDetails ? getErrorDetails(error) : undefined;
   const statusCode = findStatusCode(error);
   if (statusCode === undefined) {
-    return new Wasp.HttpError(500, { message: STATUS_CODES[500], data });
+    return new Wasp.HttpError(500, STATUS_CODES[500], { data });
   }
-  return new Wasp.HttpError(statusCode, {
-    message: STATUS_CODES[statusCode],
+  return new Wasp.HttpError(statusCode, STATUS_CODES[statusCode], {
     data,
     headers: toHeadersInit(findHeaders(error)),
   });

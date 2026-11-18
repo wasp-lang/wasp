@@ -2731,20 +2731,14 @@ import { type GetAllTasks } from "wasp/server/operations"
 import { HttpError } from "wasp/errors"
 
 export const getAllTasks: GetAllTasks = async (args, context) => {
-  throw new HttpError(403, {
-    message: "You can't do this!",
-    data: { foo: "bar" },
-  })
+  throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
 }
 ```
 
-To also set response headers, e.g. `Retry-After`, pass `headers`:
+To also set response headers, e.g. `Retry-After`, pass `headers` in the options:
 
 ```js
-throw new HttpError(429, {
-  message: "Too many requests",
-  headers: { "Retry-After": "60" },
-})
+throw new HttpError(429, "Too many requests", { headers: { "Retry-After": "60" } })
 ```
 
 Only put information in an `HttpError` that is safe to show to the user.
@@ -3152,20 +3146,14 @@ import { type CreateTask } from "wasp/server/operations"
 import { HttpError } from "wasp/errors"
 
 export const createTask: CreateTask = async (args, context) => {
-  throw new HttpError(403, {
-    message: "You can't do this!",
-    data: { foo: "bar" },
-  })
+  throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
 }
 ```
 
-To also set response headers, e.g. `Retry-After`, pass `headers`:
+To also set response headers, e.g. `Retry-After`, pass `headers` in the options:
 
 ```js
-throw new HttpError(429, {
-  message: "Too many requests",
-  headers: { "Retry-After": "60" },
-})
+throw new HttpError(429, "Too many requests", { headers: { "Retry-After": "60" } })
 ```
 
 Only put information in an `HttpError` that is safe to show to the user.
@@ -3492,7 +3480,7 @@ export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
   context
 ) => {
   if (!context.user) {
-    throw new HttpError(401, { message: "User not authenticated." })
+    throw new HttpError(401, "User not authenticated.")
   }
 
   const { description, isDone } = args
@@ -4587,7 +4575,7 @@ export const updatePassword: UpdatePassword<
   const providerId = createProviderId("email", args.email);
   const authIdentity = await findAuthIdentity(providerId);
   if (!authIdentity) {
-    throw new HttpError(400, { message: "Unknown user" });
+    throw new HttpError(400, "Unknown user");
   }
 
   const providerData = getProviderDataWithPassword<"email">(
@@ -9406,14 +9394,14 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
   console.log("provider user ID", providerId.providerUserId)
 
   if (count > 100) {
-    throw new HttpError(403, { message: "Too many users" })
+    throw new HttpError(403, "Too many users")
   }
 
   if (
     providerId.providerName === "email" &&
     providerId.providerUserId === "some@email.com"
   ) {
-    throw new HttpError(403, { message: "This email is not allowed" })
+    throw new HttpError(403, "This email is not allowed")
   }
 }
 ```
@@ -9603,9 +9591,7 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({
     providerId.providerName === "email" &&
     providerId.providerUserId === "some@email.com"
   ) {
-    throw new HttpError(403, {
-      message: "You cannot log in with this email",
-    })
+    throw new HttpError(403, "You cannot log in with this email")
   }
 }
 ```
@@ -9809,7 +9795,7 @@ import { HttpError } from "wasp/errors";
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, { message: "This sign-up method is disabled" });
+  throw new HttpError(403, "This sign-up method is disabled");
 };
 ```
 
@@ -9857,7 +9843,7 @@ export const customSignup: CustomSignup<
       // User already exists, handle accordingly
 
       // For example, throw an error or return a message
-      throw new HttpError(400, { message: "Email already exists." });
+      throw new HttpError(400, "Email already exists.");
 
       // Or, another example, you can check if the user is already
       // verified and re-send the verification email if not
@@ -9865,7 +9851,7 @@ export const customSignup: CustomSignup<
         existingAuthIdentity.providerData,
       );
       if (providerData.isEmailVerified)
-        throw new HttpError(400, { message: "Email already verified." });
+        throw new HttpError(400, "Email already verified.");
     }
 
     if (!providerData) {
@@ -9905,9 +9891,7 @@ export const customSignup: CustomSignup<
       });
     } catch (e: unknown) {
       console.error("Failed to send email verification email:", e);
-      throw new HttpError(500, {
-        message: "Failed to send email verification email.",
-      });
+      throw new HttpError(500, "Failed to send email verification email.");
     }
   } catch (e: any) {
     return {
@@ -9952,7 +9936,7 @@ import { HttpError } from "wasp/errors";
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, { message: "This sign-up method is disabled" });
+  throw new HttpError(403, "This sign-up method is disabled");
 };
 ```
 
@@ -15399,34 +15383,29 @@ try {
 }
 ```
 
-#### 13. Switch to the new `HttpError` options
+#### 13. Pass `HttpError` data in the options
 
-**This step is optional.** The old forms still work, but they are deprecated.
+**If you never pass a third argument to `HttpError`, you can skip this step.**
 
-`HttpError` now takes its message and data in an options object, and its status code is called `status`:
+`HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
 **Before**
 
 ```ts title="src/queries.ts"
 throw new HttpError(403, "Not allowed", { reason: "NOT_OWNER" })
-
-if (error.statusCode === 403) {
-  // ...
-}
 ```
 
 **After**
 
 ```ts title="src/queries.ts"
-throw new HttpError(403, {
-  message: "Not allowed",
+throw new HttpError(403, "Not allowed", {
   data: { reason: "NOT_OWNER" },
 })
-
-if (error.status === 403) {
-  // ...
-}
 ```
+
+If you pass the data the old way, `HttpError` throws an error that tells you so.
+
+Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
 #### 14. Enjoy your updated Wasp app
 
@@ -32238,7 +32217,7 @@ import { HttpError } from "wasp/errors";
 
 export const getTask = async ({ id }, context) => {
   if (!context.user) {
-    throw new HttpError(401, { message: "You must be logged in." });
+    throw new HttpError(401, "You must be logged in.");
   }
   // ...
 };
@@ -32249,8 +32228,7 @@ Sending extra information and response headers:
 ```ts
 import { HttpError } from "wasp/errors";
 
-throw new HttpError(429, {
-  message: "Too many requests",
+throw new HttpError(429, "Too many requests", {
   data: { limitPerMinute: 60 },
   headers: { "Retry-After": "60" },
 });
@@ -32291,7 +32269,7 @@ The type of the error's `data`. It defaults to [HttpErrorData](#httperrordata-2)
 
 ###### Constructor
 
-> **new HttpError**<`Data`>(`status`, `options?`): [`HttpError`](#httperror)<`Data`>
+> **new HttpError**<`Data`>(`status`, `message?`, `options?`): [`HttpError`](#httperror)<`Data`>
 
 ###### Parameters
 
@@ -32301,49 +32279,21 @@ The type of the error's `data`. It defaults to [HttpErrorData](#httperrordata-2)
 
 The HTTP status code. It must be an integer in the range `[400, 600)`, otherwise the constructor throws an `Error`.
 
-###### options?
-
-[`HttpErrorOptions`](#httperroroptions)<`Data`>
-
-The message, the data, the headers for the response, and the standard `Error` options (e.g. `cause`).
-
-###### Returns
-
-[`HttpError`](#httperror)<`Data`>
-
-###### Overrides
-
-`Error.constructor`
-
-###### Constructor
-
-> **new HttpError**<`Data`>(`status`, `message?`, `data?`, `options?`): [`HttpError`](#httperror)<`Data`>
-
-###### Parameters
-
-###### status
-
-`number`
-
 ###### message?
 
 `string`
 
-###### data? {#data}
-
-`Data`
+The error message.
 
 ###### options?
 
-`Omit`<[`HttpErrorOptions`](#httperroroptions)<`Data`>, `"message"` | `"data"`>
+[`HttpErrorOptions`](#httperroroptions)<`Data`>
+
+The data, the headers for the response, and the standard `Error` options (e.g. `cause`).
 
 ###### Returns
 
 [`HttpError`](#httperror)<`Data`>
-
-###### Deprecated
-
-Pass the message and the data in the options instead, e.g. `new HttpError(403, { message, data })`.
 
 ###### Overrides
 
@@ -32351,7 +32301,7 @@ Pass the message and the data in the options instead, e.g. `new HttpError(403, {
 
 ##### Properties
 
-###### data {#data-1}
+###### data
 
 > `readonly` **data**: `Data` | `undefined`
 
@@ -32439,8 +32389,7 @@ import { HttpError } from "wasp/errors";
 try {
   await chargeCard(card);
 } catch (error: unknown) {
-  throw new HttpError(503, {
-    message: "Payments are unavailable",
+  throw new HttpError(503, "Payments are unavailable", {
     headers: { "Retry-After": "60" },
     cause: error,
   });
@@ -32453,7 +32402,7 @@ try {
 
 ##### Type Parameters
 
-###### Data {#data-2}
+###### Data
 
 `Data` *extends* [`HttpErrorData`](#httperrordata-2) = [`HttpErrorData`](#httperrordata-2)
 
@@ -32461,7 +32410,7 @@ The type of `data`.
 
 ##### Properties
 
-###### data? {#data-3}
+###### data?
 
 > `optional` **data?**: `Data`
 
@@ -32481,12 +32430,6 @@ const headers: HeadersInit = [
   ["Set-Cookie", "b=2"],
 ];
 ```
-
-###### message? {#message}
-
-> `optional` **message?**: `string`
-
-The error message.
 
 ### Type Aliases
 
@@ -32516,11 +32459,11 @@ The JSON body of the response of an [HttpError](#httperror).
 
 ##### Properties
 
-###### data? {#data-4}
+###### data?
 
 > `optional` **data?**: [`HttpErrorData`](#httperrordata-2)
 
-###### message {#message-1}
+###### message {#message}
 
 > **message**: `string`
 
@@ -33720,9 +33663,7 @@ export const onBeforeLogin: OnBeforeLoginHook = async ({
     providerId.providerName === "email" &&
     providerId.providerUserId === "some@email.com"
   ) {
-    throw new HttpError(403, {
-      message: "You cannot log in with this email",
-    });
+    throw new HttpError(403, "You cannot log in with this email");
   }
 };
 ```
@@ -33811,14 +33752,14 @@ export const onBeforeSignup: OnBeforeSignupHook = async ({
 }) => {
   const count = await prisma.user.count();
   if (count > 100) {
-    throw new HttpError(403, { message: "Too many users" });
+    throw new HttpError(403, "Too many users");
   }
 
   if (
     providerId.providerName === "email" &&
     providerId.providerUserId === "some@email.com"
   ) {
-    throw new HttpError(403, { message: "This email is not allowed" });
+    throw new HttpError(403, "This email is not allowed");
   }
 };
 ```
@@ -34435,7 +34376,7 @@ import { createProviderId, findAuthIdentity } from "wasp/server/auth";
 const providerId = createProviderId("email", args.email);
 const authIdentity = await findAuthIdentity(providerId);
 if (!authIdentity) {
-  throw new HttpError(400, { message: "Unknown user" });
+  throw new HttpError(400, "Unknown user");
 }
 ```
 
@@ -34566,8 +34507,7 @@ const { isResendAllowed, timeLeft } = isEmailResendAllowed(
   "passwordResetSentAt",
 );
 if (!isResendAllowed) {
-  throw new HttpError(*     400, {
-    message: *     `Please wait ${timeLeft} seconds before trying again.`,
+  throw new HttpError(*     400, *     `Please wait ${timeLeft} seconds before trying again.`, {
     data: *,
   });
 }
@@ -34735,7 +34675,7 @@ export const updatePassword: UpdatePassword<
   const providerId = createProviderId("email", args.email);
   const authIdentity = await findAuthIdentity(providerId);
   if (!authIdentity) {
-    throw new HttpError(400, { message: "Unknown user" });
+    throw new HttpError(400, "Unknown user");
   }
 
   const providerData = getProviderDataWithPassword<"email">(
@@ -35764,7 +35704,7 @@ export const getAllOverride: Tasks.GetAllQuery<void, Task[]> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new HttpError(401, { message: "User not authenticated." });
+    throw new HttpError(401, "User not authenticated.");
   }
 
   return context.entities.Task.findMany({

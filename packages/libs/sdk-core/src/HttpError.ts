@@ -14,7 +14,7 @@
  *
  * export const getTask = async ({ id }, context) => {
  *   if (!context.user) {
- *     throw new HttpError(401, { message: "You must be logged in." });
+ *     throw new HttpError(401, "You must be logged in.");
  *   }
  *   // ...
  * };
@@ -26,8 +26,7 @@
  * ```ts
  * import { HttpError } from "wasp/errors";
  *
- * throw new HttpError(429, {
- *   message: "Too many requests",
+ * throw new HttpError(429, "Too many requests", {
  *   data: { limitPerMinute: 60 },
  *   headers: { "Retry-After": "60" },
  * });
@@ -87,35 +86,16 @@ export class HttpError<
   /**
    * @param status The HTTP status code. It must be an integer in the range
    * `[400, 600)`, otherwise the constructor throws an `Error`.
-   * @param options The message, the data, the headers for the response, and
-   * the standard `Error` options (e.g. `cause`).
-   */
-  constructor(status: number, options?: HttpErrorOptions<Data>);
-  /**
-   * @deprecated Pass the message and the data in the options instead, e.g.
-   * `new HttpError(403, { message, data })`.
+   * @param message The error message.
+   * @param options The data, the headers for the response, and the standard
+   * `Error` options (e.g. `cause`).
    */
   constructor(
     status: number,
     message?: string,
-    data?: Data,
-    options?: Omit<HttpErrorOptions<Data>, "message" | "data">,
-  );
-  constructor(
-    status: number,
-    messageOrOptions?: string | HttpErrorOptions<Data>,
-    deprecatedData?: Data,
-    deprecatedOptions?: Omit<HttpErrorOptions<Data>, "message" | "data">,
+    options: HttpErrorOptions<Data> = {},
   ) {
-    const options: HttpErrorOptions<Data> =
-      typeof messageOrOptions === "object"
-        ? messageOrOptions
-        : {
-            ...deprecatedOptions,
-            message: messageOrOptions,
-            data: deprecatedData,
-          };
-    super(options.message, options);
+    super(message, options);
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, new.target);
@@ -128,6 +108,8 @@ export class HttpError<
     if (!isHttpErrorStatusCode(status)) {
       throw new Error("status has to be an integer in the range [400, 600).");
     }
+    throwIfUnknownOption(options);
+
     this.data = options.data;
     this.response =
       (options as InternalHttpErrorOptions<Data>)[existingResponse] ??
@@ -153,11 +135,10 @@ export class HttpError<
   ): HttpError {
     const internalOptions: InternalHttpErrorOptions<HttpErrorData> = {
       ...options,
-      message,
       data,
       [existingResponse]: response,
     };
-    return new HttpError(response.status, internalOptions);
+    return new HttpError(response.status, message, internalOptions);
   }
 }
 
@@ -185,8 +166,7 @@ export type HttpErrorData = { [fieldName: string]: unknown };
  * try {
  *   await chargeCard(card);
  * } catch (error: unknown) {
- *   throw new HttpError(503, {
- *     message: "Payments are unavailable",
+ *   throw new HttpError(503, "Payments are unavailable", {
  *     headers: { "Retry-After": "60" },
  *     cause: error,
  *   });
@@ -195,9 +175,6 @@ export type HttpErrorData = { [fieldName: string]: unknown };
  */
 export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
   extends ErrorOptions {
-  /** The error message. */
-  message?: string;
-
   /** An object with any extra information about the error. */
   data?: Data;
 
@@ -214,6 +191,21 @@ export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
    * ```
    */
   headers?: HeadersInit;
+}
+
+const HTTP_ERROR_OPTION_NAMES = new Set(["data", "headers", "cause"]);
+
+// Before, the third argument was the data itself. Without this check, code
+// that still passes it that way would lose its data without any error.
+function throwIfUnknownOption(options: object): void {
+  const unknownOptionName = Object.keys(options).find(
+    (optionName) => !HTTP_ERROR_OPTION_NAMES.has(optionName),
+  );
+  if (unknownOptionName !== undefined) {
+    throw new Error(
+      `Unknown HttpError option "${unknownOptionName}". To send data with the error, pass it as the "data" option.`,
+    );
+  }
 }
 
 // Lets `fromResponse` hand the constructor a response to keep, without making

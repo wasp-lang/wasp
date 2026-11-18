@@ -94,9 +94,7 @@ export function getSignupRoute({
         'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
-        throw new HttpError(400, {
-          message: `Please wait ${timeLeft} secs before trying again.`,
-        })
+        throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`)
       }
 
       try {
@@ -161,9 +159,7 @@ export function getSignupRoute({
       })
     } catch (e: unknown) {
       console.error('Failed to send email verification email:', e)
-      throw new HttpError(500, {
-        message: 'Failed to send email verification email.',
-      })
+      throw new HttpError(500, 'Failed to send email verification email.')
     }
 
     res.json({ success: true })

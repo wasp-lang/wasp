@@ -53,13 +53,9 @@ export function toHttpError(
 ): Wasp.HttpError {
   const options = { headers: toHeadersInit(error.headers) };
   if (error.expose) {
-    return new Wasp.HttpError(error.statusCode, {
-      message: error.message,
-      ...options,
-    });
+    return new Wasp.HttpError(error.statusCode, error.message, options);
   }
-  return new Wasp.HttpError(error.statusCode, {
-    message: STATUS_CODES[error.statusCode],
+  return new Wasp.HttpError(error.statusCode, STATUS_CODES[error.statusCode], {
     data: includeErrorDetails ? getErrorDetails(error) : undefined,
     ...options,
   });

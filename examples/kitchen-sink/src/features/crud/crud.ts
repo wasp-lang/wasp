@@ -4,9 +4,7 @@ import { tasks } from "wasp/server/crud";
 
 export const getTask = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, {
-      message: "You must be logged in to view a task.",
-    });
+    throw new HttpError(401, "You must be logged in to view a task.");
   }
   return context.entities.Task.findUnique({
     where: { id: args.id, user: { id: context.user.id } },
@@ -18,9 +16,7 @@ export const getTask = (async (args, context) => {
 
 export const crudGetAllTasks = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, {
-      message: "You must be logged in to view tasks.",
-    });
+    throw new HttpError(401, "You must be logged in to view tasks.");
   }
   return context.entities.Task.findMany({
     where: {
@@ -52,12 +48,10 @@ export const crudGetAllTasks = (async (args, context) => {
 
 export const crudCreateTask = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, {
-      message: "You must be logged in to create a task.",
-    });
+    throw new HttpError(401, "You must be logged in to create a task.");
   }
   if (!args.description) {
-    throw new HttpError(400, { message: "Task description is required." });
+    throw new HttpError(400, "Task description is required.");
   }
   return context.entities.Task.create({
     data: {

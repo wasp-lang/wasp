@@ -16,7 +16,7 @@ describe("query retries", () => {
     "doesn't retry a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new HttpError(statusCode, { message: "Client error" }),
+        new HttpError(statusCode, "Client error"),
       );
       expect(attempts).toBe(1);
     },
@@ -26,7 +26,7 @@ describe("query retries", () => {
     "retries a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new HttpError(statusCode, { message: "Error" }),
+        new HttpError(statusCode, "Error"),
       );
       expect(attempts).toBe(4);
     },
@@ -36,7 +36,7 @@ describe("query retries", () => {
     const { HttpError } = await import("../src/HttpError");
     class NotFoundError extends HttpError {
       constructor() {
-        super(404, { message: "Not found" });
+        super(404, "Not found");
       }
     }
 
@@ -50,26 +50,16 @@ describe("query retries", () => {
   });
 
   it("keeps the default retries when the user configures other query options", async () => {
-    const attempts = await countQueryAttempts(
-      new HttpError(404, {
-        message: "Not found",
-      }),
-      {
-        defaultOptions: { queries: { staleTime: Infinity } },
-      },
-    );
+    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
+      defaultOptions: { queries: { staleTime: Infinity } },
+    });
     expect(attempts).toBe(1);
   });
 
   it("lets the user override the retries", async () => {
-    const attempts = await countQueryAttempts(
-      new HttpError(404, {
-        message: "Not found",
-      }),
-      {
-        defaultOptions: { queries: { retry: 2 } },
-      },
-    );
+    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
+      defaultOptions: { queries: { retry: 2 } },
+    });
     expect(attempts).toBe(3);
   });
 });

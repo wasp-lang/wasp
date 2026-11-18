@@ -9,9 +9,7 @@ import {
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId }) => {
   if (providerId.providerUserId === "notallowed@email.com") {
-    throw new HttpError(403, {
-      message: "On Before Signup Hook disallows this email.",
-    });
+    throw new HttpError(403, "On Before Signup Hook disallows this email.");
   }
 };
 
@@ -41,9 +39,7 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({ providerId }) => {
   if (providerId.providerUserId === "cantlogin@email.com") {
-    throw new HttpError(403, {
-      message: "On Before Login Hook disallows this email.",
-    });
+    throw new HttpError(403, "On Before Login Hook disallows this email.");
   }
 };
 

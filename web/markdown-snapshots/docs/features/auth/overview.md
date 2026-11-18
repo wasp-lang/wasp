@@ -321,7 +321,7 @@ export const updatePassword: UpdatePassword<
   const providerId = createProviderId("email", args.email);
   const authIdentity = await findAuthIdentity(providerId);
   if (!authIdentity) {
-    throw new HttpError(400, { message: "Unknown user" });
+    throw new HttpError(400, "Unknown user");
   }
 
   const providerData = getProviderDataWithPassword<"email">(

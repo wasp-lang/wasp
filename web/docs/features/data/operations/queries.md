@@ -429,10 +429,7 @@ To send error details to the client, throw an `HttpError`:
     import { HttpError } from "wasp/errors"
 
     export const getAllTasks = async (args, context) => {
-      throw new HttpError(403, {
-        message: "You can't do this!",
-        data: { foo: "bar" },
-      })
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
@@ -443,22 +440,16 @@ To send error details to the client, throw an `HttpError`:
     import { HttpError } from "wasp/errors"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
-      throw new HttpError(403, {
-        message: "You can't do this!",
-        data: { foo: "bar" },
-      })
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
 </Tabs>
 
-To also set response headers, e.g. `Retry-After`, pass `headers`:
+To also set response headers, e.g. `Retry-After`, pass `headers` in the options:
 
 ```js
-throw new HttpError(429, {
-  message: "Too many requests",
-  headers: { "Retry-After": "60" },
-})
+throw new HttpError(429, "Too many requests", { headers: { "Retry-After": "60" } })
 ```
 
 Only put information in an `HttpError` that is safe to show to the user.

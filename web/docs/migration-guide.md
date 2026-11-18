@@ -554,38 +554,31 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
   </TabItem>
 </Tabs>
 
-### 13. Switch to the new `HttpError` options
+### 13. Pass `HttpError` data in the options
 
-**This step is optional.** The old forms still work, but they are deprecated.
+**If you never pass a third argument to `HttpError`, you can skip this step.**
 
-`HttpError` now takes its message and data in an options object, and its status code is called `status`:
+`HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```ts title="src/queries.ts"
     throw new HttpError(403, "Not allowed", { reason: "NOT_OWNER" })
-
-    if (error.statusCode === 403) {
-      // ...
-    }
     ```
   </TabItem>
   <TabItem value="after" label="After">
     ```ts title="src/queries.ts"
-    // highlight-start
-    throw new HttpError(403, {
-      message: "Not allowed",
+    throw new HttpError(403, "Not allowed", {
+      // highlight-next-line
       data: { reason: "NOT_OWNER" },
     })
-    // highlight-end
-
-    // highlight-next-line
-    if (error.status === 403) {
-      // ...
-    }
     ```
   </TabItem>
 </Tabs>
+
+If you pass the data the old way, `HttpError` throws an error that tells you so.
+
+Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
 ### 14. Enjoy your updated Wasp app
 

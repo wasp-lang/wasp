@@ -16,12 +16,13 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
 - `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- `HttpError`'s third argument is now an options object, so its data is passed as `new HttpError(403, "Not allowed", { data })`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - On the client, failed requests now throw an `HttpError`, whose `data` is the `data` the error was thrown with on the server. Before, they threw an undocumented error whose `data` held the whole response body. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 
 ### 🎉 New Features
 
 - The server and the client now share one `HttpError` class, exported from `wasp/errors`. Client code can check for it with `instanceof`, and read the response's headers from its `response`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
-- `HttpError` takes its message, data, and headers in an options object, e.g. `new HttpError(403, { message, data })`, and its status code is now `status`. The old arguments and `statusCode` still work, but are deprecated. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- `HttpError`'s status code is now available as `status`. `statusCode` still works, but is deprecated. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
 - We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
 - The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))

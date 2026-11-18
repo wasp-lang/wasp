@@ -4,8 +4,7 @@ import { HttpError, isHttpErrorBody, toHttpErrorBody } from "../src/HttpError";
 describe("HttpError", () => {
   it("is an `Error` with its status code, message, and data", () => {
     const cause = new Error("Upstream failed");
-    const error = new HttpError(429, {
-      message: "Too many requests",
+    const error = new HttpError(429, "Too many requests", {
       data: { limitPerMinute: 60 },
       cause,
     });
@@ -21,8 +20,7 @@ describe("HttpError", () => {
   });
 
   it("builds the response it stands for", async () => {
-    const error = new HttpError(429, {
-      message: "Too many requests",
+    const error = new HttpError(429, "Too many requests", {
       data: { limitPerMinute: 60 },
       headers: [
         ["Retry-After", "60"],
@@ -46,22 +44,12 @@ describe("HttpError", () => {
     );
   });
 
-  it("still takes the message and the data as arguments", () => {
-    const cause = new Error("Upstream failed");
-    const error = new HttpError(
-      429,
-      "Too many requests",
-      { limitPerMinute: 60 },
-      { cause, headers: { "Retry-After": "60" } },
-    );
-
-    expect(error).toMatchObject({
-      status: 429,
-      message: "Too many requests",
-      data: { limitPerMinute: 60 },
-      cause,
-    });
-    expect(error.response.headers.get("Retry-After")).toBe("60");
+  it("rejects data passed in place of the options", () => {
+    expect(
+      () =>
+        // @ts-expect-error The third argument is the options, not the data.
+        new HttpError(403, "Not allowed", { reason: "owner" }),
+    ).toThrow('Unknown HttpError option "reason".');
   });
 
   it("still has its status as `statusCode`", () => {
@@ -71,7 +59,7 @@ describe("HttpError", () => {
   it("names classes that extend it without setting a name", () => {
     class PaymentRequiredError extends HttpError {
       constructor() {
-        super(402, { message: "Payment required" });
+        super(402, "Payment required");
       }
     }
 
@@ -100,8 +88,7 @@ describe("HttpError", () => {
 
 describe("HttpErrorBody", () => {
   it("is built from an error's message and data", () => {
-    const error = new HttpError(403, {
-      message: "Not allowed",
+    const error = new HttpError(403, "Not allowed", {
       data: { reason: "owner" },
     });
 
