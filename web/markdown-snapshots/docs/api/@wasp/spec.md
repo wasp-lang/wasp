@@ -1729,7 +1729,7 @@ See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 
 Function Wasp calls with every unexpected error on the client, e.g. to send it to an error tracking service. Wasp logs the error first.
 
-It receives the error and a context whose `source` says where the error surfaced, e.g. `"render"` or `"query"`. An HTTP error response from the server is not unexpected, so Wasp doesn't call the function for it.
+It receives the error and a context whose `source` says where the error surfaced, e.g. `"render"` or `"window"`. An HTTP error response from the server is not unexpected, so Wasp doesn't call the function for it.
 
 In TypeScript, you can type the function with the `ClientOnErrorFn` type from `wasp/client`, which lists every `source`.
 

@@ -297,9 +297,7 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 
 | `source`             | The error surfaced...                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------- |
-| `"render"`           | while rendering a page or the root component.                                                           |
-| `"query"`            | in a failed Query.                                                                                      |
-| `"action"`           | in a failed Action.                                                                                     |
+| `"render"`           | while rendering a page or the root component. The context also has `componentStack`, when React provides it. |
 | `"window"`           | in an event handler, or as a rejected promise nobody caught (the browser's `error` and `unhandledrejection` events). |
 | `"oauthCallback"`    | while finishing an OAuth login.                                                                         |
 | `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                           |
@@ -307,9 +305,10 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 
 A few things to keep in mind:
 
-- An HTTP error response is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for an [`HttpError`](../../features/data/operations/queries.md#error-handling) or for the error the `api` client throws. Failed Queries and Actions reach the function only for other errors, like a network failure.
+- An HTTP error response is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for an [`HttpError`](../../features/data/operations/queries.md#error-handling) or for the error the `api` client throws.
+- Wasp doesn't call the function for a failed Query or Action that your code handles. A failed Action that nobody catches reaches it as a `"window"` error.
 - Wasp calls the function once per error, even if the error surfaces in more than one place.
-- Wasp doesn't call the function for render errors that your own error boundary catches.
+- Wasp calls the function for every render error, including the ones your own error boundaries catch.
 - Wasp doesn't call the function while [prerendering](../prerendering.md) pages.
 - If the function itself throws, Wasp logs that error and carries on.
 

@@ -38,7 +38,7 @@ test.describe("server errors", () => {
     );
   });
 
-  test("a ServerHttpError keeps its status, message, and data", async ({
+  test("an HttpError keeps its status, message, and data", async ({
     request,
   }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/http`);
@@ -50,7 +50,7 @@ test.describe("server errors", () => {
     });
   });
 
-  test("any other HttpError keeps its status, message, and data", async ({
+  test("a class that extends HttpError keeps its status, message, and data", async ({
     request,
   }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/custom-http`);

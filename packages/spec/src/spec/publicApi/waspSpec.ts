@@ -693,7 +693,7 @@ export interface Client {
    * send it to an error tracking service. Wasp logs the error first.
    *
    * It receives the error and a context whose `source` says where the error
-   * surfaced, e.g. `"render"` or `"query"`. An HTTP error response from the
+   * surfaced, e.g. `"render"` or `"window"`. An HTTP error response from the
    * server is not unexpected, so Wasp doesn't call the function for it.
    *
    * In TypeScript, you can type the function with the `ClientOnErrorFn` type

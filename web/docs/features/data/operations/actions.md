@@ -396,8 +396,8 @@ Here's what you have to do differently:
 
 When your Action's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-1. If it is a `ServerHttpError`, or any other `HttpError`, the client receives the error as is, with its status code, `message`, and `data`.
-2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `ServerHttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
+1. If it is an `HttpError`, the client receives the error as is, with its status code, `message`, and `data`.
+2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `HttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
 3. If it is anything else, the client receives a generic `500 Internal Server Error`.
 
 In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
@@ -406,15 +406,15 @@ In the last two cases, Wasp hides the error's details so you don't leak sensitiv
 - In development, the response also includes the error's message and stack to help you debug.
 - Wasp logs the error on the server if the status code is `500` or above.
 
-To send error details to the client, throw a `ServerHttpError`:
+To send error details to the client, throw an `HttpError`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/actions.js"
-    import { ServerHttpError } from "wasp/server"
+    import { HttpError } from "wasp/server"
 
     export const createTask = async (args, context) => {
-      throw new ServerHttpError(
+      throw new HttpError(
         403, // status code
         "You can't do this!", // message
         { foo: "bar" } // data
@@ -426,10 +426,10 @@ To send error details to the client, throw a `ServerHttpError`:
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/actions.ts"
     import { type CreateTask } from "wasp/server/operations"
-    import { ServerHttpError } from "wasp/server"
+    import { HttpError } from "wasp/server"
 
     export const createTask: CreateTask = async (args, context) => {
-      throw new ServerHttpError(
+      throw new HttpError(
         403, // status code
         "You can't do this!", // message
         { foo: "bar" } // data
@@ -439,19 +439,19 @@ To send error details to the client, throw a `ServerHttpError`:
   </TabItem>
 </Tabs>
 
-Only put information in a `ServerHttpError` that is safe to show to the user.
+Only put information in an `HttpError` that is safe to show to the user.
 
-On the client, the failed Action throws a `ClientHttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `ClientHttpError` before reading these fields:
+On the client, the failed Action throws an `HttpError` with the same status code, `message`, and `data`, which you import from `wasp/client`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
 
 ```ts title="src/NewTaskForm.tsx" auto-js
-import { ClientHttpError } from "wasp/client";
+import { HttpError } from "wasp/client";
 import { createTask } from "wasp/client/operations";
 
 async function handleSubmit(description: string) {
   try {
     await createTask({ description });
   } catch (error: unknown) {
-    if (error instanceof ClientHttpError && error.statusCode === 403) {
+    if (error instanceof HttpError && error.statusCode === 403) {
       window.alert(error.message);
     }
   }
@@ -461,7 +461,7 @@ async function handleSubmit(description: string) {
 To also set response headers, e.g. `Retry-After`, pass them in the options argument:
 
 ```js
-throw new ServerHttpError(429, "Too many requests", undefined, {
+throw new HttpError(429, "Too many requests", undefined, {
   headers: { "Retry-After": "60" },
 })
 ```
@@ -615,17 +615,10 @@ Here are the key differences between Queries and Actions:
 />
 
 <CardLink
-  to="../../../api/wasp/server#serverhttperror"
+  to="../../../api/wasp/errors#httperror"
   kind="api"
-  title="ServerHttpError"
-  description="The error you throw to send an HTTP error response to the client."
-/>
-
-<CardLink
-  to="../../../api/wasp/client#clienthttperror"
-  kind="api"
-  title="ClientHttpError"
-  description="The error the client gets when the server answers with an error status."
+  title="HttpError"
+  description="The error for an HTTP error response, which you throw on the server and read on the client."
 />
 
 ### The `useAction` Hook and Optimistic Updates

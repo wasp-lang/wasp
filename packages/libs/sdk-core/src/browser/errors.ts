@@ -26,8 +26,8 @@ export type ClientOnErrorFn = (
  * Where an unexpected client error surfaced.
  *
  * - `"render"`: While rendering a page or the root component.
- * - `"query"`: In a failed Query.
- * - `"action"`: In a failed Action.
+ *   `componentStack` lists the components that led to the error, when React
+ *   provides it.
  * - `"window"`: In the browser's `error` and `unhandledrejection` events,
  *   e.g. an error thrown in an event handler or a rejected promise nobody
  *   caught.
@@ -37,9 +37,7 @@ export type ClientOnErrorFn = (
  *   update.
  */
 export type ClientErrorContext =
-  | { source: "render" }
-  | { source: "query" }
-  | { source: "action" }
+  | { source: "render"; componentStack?: string }
   | { source: "window" }
   | { source: "oauthCallback" }
   | { source: "authForm" }
@@ -80,7 +78,7 @@ export function handleClientError(
 }
 
 // Users who call `api` without `handleApiError` get ky's error instead of
-// a `ClientHttpError`.
+// an `HttpError`.
 function isHttpErrorResponse(error: unknown): boolean {
   return error instanceof HttpError || isKyHttpError(error);
 }
@@ -111,6 +109,9 @@ function reportUnexpectedClientError(
 ): void {
   console.error(`Unexpected error in ${context.source}:`, error);
   void callClientOnErrorFn(error, context);
+  if (context.source === "render" && context.componentStack) {
+    console.error(`The error happened in:${context.componentStack}`);
+  }
 }
 
 // It never rejects, so a failing `client.onError` function isn't reported as

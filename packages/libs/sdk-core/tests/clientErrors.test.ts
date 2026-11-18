@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("client error handler", () => {
-  let ClientHttpError: typeof import("../src/ClientHttpError").ClientHttpError;
+  let HttpError: typeof import("../src/HttpError").HttpError;
   let KyHttpError: typeof import("ky").HTTPError;
   let handleClientError: typeof import("../src/browser/errors").handleClientError;
   let registerClientOnErrorFn: typeof import("../src/browser/errors").registerClientOnErrorFn;
@@ -12,7 +12,7 @@ describe("client error handler", () => {
     // module instances for `instanceof` checks to work.
     vi.resetModules();
     vi.spyOn(console, "error").mockImplementation(() => {});
-    ({ ClientHttpError } = await import("../src/ClientHttpError"));
+    ({ HttpError } = await import("../src/HttpError"));
     ({ HTTPError: KyHttpError } = await import("ky"));
     ({ handleClientError, registerClientOnErrorFn } = await import(
       "../src/browser/errors"
@@ -46,8 +46,8 @@ describe("client error handler", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
 
-    handleClientError(new ClientHttpError(404, "Not found"), {
-      source: "query",
+    handleClientError(new HttpError(404, "Not found"), {
+      source: "window",
     });
 
     expect(console.error).not.toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe("client error handler", () => {
       {} as ConstructorParameters<typeof KyHttpError>[2],
     );
 
-    handleClientError(kyHttpError, { source: "query" });
+    handleClientError(kyHttpError, { source: "window" });
 
     expect(console.error).not.toHaveBeenCalled();
     expect(onErrorFn).not.toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe("client error handler", () => {
     registerClientOnErrorFn(onErrorFn);
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "action" });
+    handleClientError(error, { source: "render" });
     handleClientError(error, { source: "window" });
 
     expect(onErrorFn).toHaveBeenCalledTimes(1);

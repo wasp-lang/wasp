@@ -1,9 +1,10 @@
 // PUBLIC API
 export {
-  ClientHttpError,
+  HttpError,
   HttpMethod,
   type ClientConfig,
-  type ClientHttpErrorOptions,
+  type HttpErrorData,
+  type HttpErrorOptions,
   type Route,
 } from '@wasp/lib-sdk-core'
 

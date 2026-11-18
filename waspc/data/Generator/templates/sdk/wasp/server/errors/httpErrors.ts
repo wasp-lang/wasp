@@ -7,14 +7,18 @@
 
 import * as Wasp from "@wasp/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
-import { getErrorDetails } from "./utils.js";
+import {
+  getErrorDetails,
+  toHeadersInit,
+  type NodeResponseHeaders,
+} from "./utils.js";
 
 // PRIVATE API (server)
 export interface HttpErrorsError extends Error {
   status: number;
   statusCode: number;
   expose: boolean;
-  headers?: Wasp.ServerHttpErrorHeaders;
+  headers?: NodeResponseHeaders;
 }
 
 // PRIVATE API (server)
@@ -38,25 +42,25 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
 
 // PRIVATE API (server)
 /**
- * Turns an `http-errors` error into a `Wasp.ServerHttpError`.
+ * Turns an `http-errors` error into a `Wasp.HttpError`.
  *
  * - It keeps the status code and headers.
  * - It only keeps the message when `expose` marks it as safe to show.
  */
-export function toServerHttpError(
+export function toHttpError(
   error: HttpErrorsError,
   { includeErrorDetails }: { includeErrorDetails: boolean },
-): Wasp.ServerHttpError {
-  const options = { headers: error.headers };
+): Wasp.HttpError {
+  const options = { headers: toHeadersInit(error.headers) };
   if (error.expose) {
-    return new Wasp.ServerHttpError(
+    return new Wasp.HttpError(
       error.statusCode,
       error.message,
       undefined,
       options,
     );
   }
-  return new Wasp.ServerHttpError(
+  return new Wasp.HttpError(
     error.statusCode,
     STATUS_CODES[error.statusCode],
     includeErrorDetails ? getErrorDetails(error) : undefined,

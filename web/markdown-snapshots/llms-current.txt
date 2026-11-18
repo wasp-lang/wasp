@@ -159,6 +159,7 @@
 - [wasp/entities](https://wasp.sh/docs/api/wasp/entities.md)
 - [wasp/env](https://wasp.sh/docs/api/wasp/env.md)
 - [wasp/errors](https://wasp.sh/docs/api/wasp/errors.md)
+- [wasp/errors](https://wasp.sh/docs/api/wasp/errors-1.md)
 - [wasp/server](https://wasp.sh/docs/api/wasp/server.md)
 - [wasp/server/api](https://wasp.sh/docs/api/wasp/server/api.md)
 - [wasp/server/auth](https://wasp.sh/docs/api/wasp/server/auth.md)

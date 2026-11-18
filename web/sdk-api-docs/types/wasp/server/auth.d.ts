@@ -250,13 +250,13 @@ export declare function createProviderId(
  *
  * @example
  * ```ts
- * import { ServerHttpError } from "wasp/server";
+ * import { HttpError } from "wasp/server";
  * import { createProviderId, findAuthIdentity } from "wasp/server/auth";
  *
  * const providerId = createProviderId("email", args.email);
  * const authIdentity = await findAuthIdentity(providerId);
  * if (!authIdentity) {
- *   throw new ServerHttpError(400, "Unknown user");
+ *   throw new HttpError(400, "Unknown user");
  * }
  * ```
  */
@@ -335,7 +335,7 @@ export declare function sanitizeAndSerializeProviderData<
  *
  * @example
  * ```ts
- * import { ServerHttpError } from "wasp/server";
+ * import { HttpError } from "wasp/server";
  * import {
  *   createProviderId,
  *   findAuthIdentity,
@@ -351,7 +351,7 @@ export declare function sanitizeAndSerializeProviderData<
  *   const providerId = createProviderId("email", args.email);
  *   const authIdentity = await findAuthIdentity(providerId);
  *   if (!authIdentity) {
- *     throw new ServerHttpError(400, "Unknown user");
+ *     throw new HttpError(400, "Unknown user");
  *   }
  *
  *   const providerData = getProviderDataWithPassword<"email">(
@@ -438,7 +438,7 @@ export declare function createUser(
 // Validators
 
 /**
- * Checks that `args.password` is present, and throws a `ServerHttpError` with
+ * Checks that `args.password` is present, and throws an `HttpError` with
  * status 422 if it isn't.
  *
  * @param args The data sent from the client.
@@ -466,7 +466,7 @@ export declare function createUser(
 export { ensurePasswordIsPresent } from "@wasp/lib-sdk-core";
 
 /**
- * Checks that `args.password` is a valid password, and throws a `ServerHttpError`
+ * Checks that `args.password` is a valid password, and throws an `HttpError`
  * with status 422 if it isn't.
  *
  * A valid password passes your app's
@@ -480,7 +480,7 @@ export { ensurePasswordIsPresent } from "@wasp/lib-sdk-core";
 export declare function ensureValidPassword(args: object): void;
 
 /**
- * Checks that `args.token` is present, and throws a `ServerHttpError` with status
+ * Checks that `args.token` is present, and throws an `HttpError` with status
  * 422 if it isn't.
  *
  * @param args The data sent from the client.
@@ -489,7 +489,7 @@ export { ensureTokenIsPresent } from "@wasp/lib-sdk-core";
 
 /**
  * Checks that `args.email` is present and a valid email address, and throws
- * a `ServerHttpError` with status 422 if it isn't.
+ * an `HttpError` with status 422 if it isn't.
  *
  * Wasp's definition of a valid email address is the HTML5 one, widened to
  * support Unicode.
@@ -504,7 +504,7 @@ export { ensureTokenIsPresent } from "@wasp/lib-sdk-core";
 export { ensureValidEmail } from "@wasp/lib-sdk-core";
 
 /**
- * Checks that `args.username` is present, and throws a `ServerHttpError` with
+ * Checks that `args.username` is present, and throws an `HttpError` with
  * status 422 if it isn't.
  *
  * Only available with
@@ -642,7 +642,7 @@ export declare function sendPasswordResetEmail(
  *
  * @example
  * ```ts
- * import { ServerHttpError } from "wasp/server";
+ * import { HttpError } from "wasp/server";
  * import { getProviderData, isEmailResendAllowed } from "wasp/server/auth";
  *
  * const providerData = getProviderData<"email">(authIdentity.providerData);
@@ -651,7 +651,7 @@ export declare function sendPasswordResetEmail(
  *   "passwordResetSentAt",
  * );
  * if (!isResendAllowed) {
- *   throw new ServerHttpError(
+ *   throw new HttpError(
  *     400,
  *     `Please wait ${timeLeft} seconds before trying again.`,
  *   );
@@ -815,11 +815,11 @@ interface OnAfterLoginHookParams extends CommonAuthHookParams {
  * creates the user.
  *
  * Use it to reject a user based on some criteria before they sign up, by
- * throwing a `ServerHttpError`.
+ * throwing an `HttpError`.
  *
  * @example
  * ```ts
- * import { ServerHttpError } from "wasp/server";
+ * import { HttpError } from "wasp/server";
  * import type { OnBeforeSignupHook } from "wasp/server/auth";
  *
  * export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -829,14 +829,14 @@ interface OnAfterLoginHookParams extends CommonAuthHookParams {
  * }) => {
  *   const count = await prisma.user.count();
  *   if (count > 100) {
- *     throw new ServerHttpError(403, "Too many users");
+ *     throw new HttpError(403, "Too many users");
  *   }
  *
  *   if (
  *     providerId.providerName === "email" &&
  *     providerId.providerUserId === "some@email.com"
  *   ) {
- *     throw new ServerHttpError(403, "This email is not allowed");
+ *     throw new HttpError(403, "This email is not allowed");
  *   }
  * };
  * ```
@@ -964,11 +964,11 @@ export type OnBeforeOAuthRedirectHook = (
  * the user in.
  *
  * Use it to reject a user based on some criteria before they log in, by
- * throwing a `ServerHttpError`.
+ * throwing an `HttpError`.
  *
  * @example
  * ```ts
- * import { ServerHttpError } from "wasp/server";
+ * import { HttpError } from "wasp/server";
  * import type { OnBeforeLoginHook } from "wasp/server/auth";
  *
  * export const onBeforeLogin: OnBeforeLoginHook = async ({
@@ -981,7 +981,7 @@ export type OnBeforeOAuthRedirectHook = (
  *     providerId.providerName === "email" &&
  *     providerId.providerUserId === "some@email.com"
  *   ) {
- *     throw new ServerHttpError(403, "You cannot log in with this email");
+ *     throw new HttpError(403, "You cannot log in with this email");
  *   }
  * };
  * ```

@@ -2,21 +2,21 @@ import type { QueryClientConfig } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("query retries", () => {
-  let ClientHttpError: typeof import("../src/ClientHttpError").ClientHttpError;
+  let HttpError: typeof import("../src/HttpError").HttpError;
 
   beforeEach(async () => {
     // The query client lives in module state, so each test needs fresh
-    // modules. `ClientHttpError` must come from the same module instance for
+    // modules. `HttpError` must come from the same module instance for
     // `instanceof` checks to work.
     vi.resetModules();
-    ({ ClientHttpError } = await import("../src/ClientHttpError"));
+    ({ HttpError } = await import("../src/HttpError"));
   });
 
   it.each([400, 401, 403, 404, 422])(
     "doesn't retry a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new ClientHttpError(statusCode, "Client error"),
+        new HttpError(statusCode, "Client error"),
       );
       expect(attempts).toBe(1);
     },
@@ -26,7 +26,7 @@ describe("query retries", () => {
     "retries a query that fails with %i",
     async (statusCode) => {
       const attempts = await countQueryAttempts(
-        new ClientHttpError(statusCode, "Error"),
+        new HttpError(statusCode, "Error"),
       );
       expect(attempts).toBe(4);
     },
@@ -50,22 +50,16 @@ describe("query retries", () => {
   });
 
   it("keeps the default retries when the user configures other query options", async () => {
-    const attempts = await countQueryAttempts(
-      new ClientHttpError(404, "Not found"),
-      {
-        defaultOptions: { queries: { staleTime: Infinity } },
-      },
-    );
+    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
+      defaultOptions: { queries: { staleTime: Infinity } },
+    });
     expect(attempts).toBe(1);
   });
 
   it("lets the user override the retries", async () => {
-    const attempts = await countQueryAttempts(
-      new ClientHttpError(404, "Not found"),
-      {
-        defaultOptions: { queries: { retry: 2 } },
-      },
-    );
+    const attempts = await countQueryAttempts(new HttpError(404, "Not found"), {
+      defaultOptions: { queries: { retry: 2 } },
+    });
     expect(attempts).toBe(3);
   });
 });

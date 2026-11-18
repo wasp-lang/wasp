@@ -10,9 +10,9 @@ export type { ServerSetupFn } from './types/index.js'
 export type { ServerErrorContext, ServerOnErrorFn } from './errors/index.js'
 // PUBLIC API
 export {
-  ServerHttpError,
-  type ServerHttpErrorHeaders,
-  type ServerHttpErrorOptions,
+  HttpError,
+  type HttpErrorData,
+  type HttpErrorOptions,
 } from '@wasp/lib-sdk-core'
 // PUBLIC API
 export type { MiddlewareConfigFn } from './middleware/index.js'

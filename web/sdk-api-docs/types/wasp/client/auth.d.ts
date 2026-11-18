@@ -19,9 +19,9 @@
  *   provider: that provider's sign-in URL and button, e.g.
  *   {@link googleSignInUrl} and {@link GoogleSignInButton} for Google.
  *
- * {@link login}, {@link signup}, {@link verifyEmail},
+ * {@link login}, {@link logout}, {@link signup}, {@link verifyEmail},
  * {@link requestPasswordReset}, and {@link resetPassword} reject with a
- * {@linkcode "client"!ClientHttpError | ClientHttpError} if the server responds with an
+ * {@linkcode "client"!HttpError | HttpError} if the server responds with an
  * error, instead of resolving with `success: false`.
  *
  * @module

@@ -115,7 +115,13 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
   if (context.source === "window") {
     return;
   }
-  Sentry.captureException(error, { tags: { source: context.source } });
+  Sentry.captureException(error, {
+    tags: { source: context.source },
+    contexts:
+      context.source === "render"
+        ? { react: { componentStack: context.componentStack } }
+        : undefined,
+  });
 };
 ```
 

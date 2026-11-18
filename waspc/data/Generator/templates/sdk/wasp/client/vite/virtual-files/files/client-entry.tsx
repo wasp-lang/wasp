@@ -49,13 +49,20 @@ listenForUncaughtClientErrors();
 
 startTransition(() => {
   hydrateRoot(document, fullAppTree, {
-    // React calls this for render errors that no error boundary caught.
+    // React calls these for errors thrown while rendering, with the stack of
+    // components that led to the error.
     // https://react.dev/reference/react-dom/client/hydrateRoot#parameters
-    onUncaughtError: (error: unknown) => {
-      handleClientError(error, { source: "render" });
-    },
+    onUncaughtError: reportRenderError,
+    onCaughtError: reportRenderError,
   });
 });
+
+function reportRenderError(
+  error: unknown,
+  { componentStack }: { componentStack?: string },
+): void {
+  handleClientError(error, { source: "render", componentStack });
+}
 
 async function waitForRouterInitialized(
   router: ReturnType<typeof createBrowserRouter>,

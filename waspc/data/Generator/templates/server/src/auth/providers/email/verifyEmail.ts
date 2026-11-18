@@ -8,7 +8,7 @@ import {
   getProviderDataWithPassword,
   updateAuthIdentityProviderData,
 } from 'wasp/server/auth/utils';
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/server";
 import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
 
@@ -19,13 +19,13 @@ export async function verifyEmail(
     const { token } = req.body;
     const { email } = await validateJWT<{ email: string }>(token)
         .catch(() => {
-            throw new ServerHttpError(400, "Email verification failed, invalid token");
+            throw new HttpError(400, "Email verification failed, invalid token");
         });
 
     const providerId = createProviderId('email', email);
     const authIdentity = await findAuthIdentity(providerId);
     if (!authIdentity) {
-        throw new ServerHttpError(400, "Email verification failed, invalid token");
+        throw new HttpError(400, "Email verification failed, invalid token");
     }
 
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);

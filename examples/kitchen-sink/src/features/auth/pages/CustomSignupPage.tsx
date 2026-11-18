@@ -9,7 +9,7 @@ import { customSignup as customSubmit } from "wasp/client/operations";
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";
-import { ClientHttpError } from "wasp/client";
+import { HttpError } from "wasp/client";
 import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
@@ -48,7 +48,7 @@ export const CustomSignupPage = () => {
       setMessage({
         type: "error",
         text:
-          error instanceof ClientHttpError
+          error instanceof HttpError
             ? `${error.message}: ${error.data?.message}`
             : "Signup failed. Please try again.",
       });
