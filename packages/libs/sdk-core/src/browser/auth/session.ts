@@ -83,13 +83,16 @@ export function handleApiError(error: unknown): unknown {
 }
 
 function toHttpError(kyHttpError: KyHttpError): HttpError {
+  const { response } = kyHttpError;
   // ky has already read the response's body into `data`.
-  const body = isHttpErrorBody(kyHttpError.data)
+  const { message, data } = isHttpErrorBody(kyHttpError.data)
     ? kyHttpError.data
     : // Something other than the Wasp server answered, e.g. a proxy.
-      { message: kyHttpError.message };
+      { message: kyHttpError.message, data: undefined };
 
-  return HttpError.fromResponse(kyHttpError.response, body, {
+  return new HttpError(response.status, message, {
+    data,
+    response,
     cause: kyHttpError,
   });
 }

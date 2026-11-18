@@ -66,15 +66,15 @@ describe("HttpError", () => {
     expect(new PaymentRequiredError().name).toBe("HttpError");
   });
 
-  it("keeps the response it was created from", () => {
+  it("keeps a response passed to it", () => {
     const response = new Response(null, {
       status: 403,
       headers: { "X-Reason": "owner" },
     });
 
-    const error = HttpError.fromResponse(response, {
-      message: "Not allowed",
+    const error = new HttpError(403, "Not allowed", {
       data: { reason: "owner" },
+      response,
     });
 
     expect(error.response).toBe(response);
@@ -83,6 +83,22 @@ describe("HttpError", () => {
       message: "Not allowed",
       data: { reason: "owner" },
     });
+  });
+
+  it("rejects a response with another status", () => {
+    const response = new Response(null, { status: 404 });
+
+    expect(() => new HttpError(403, "Not allowed", { response })).toThrow(
+      "The response has the status 404, but the HttpError has 403.",
+    );
+  });
+
+  it("rejects headers next to a response", () => {
+    const response = new Response(null, { status: 403 });
+
+    expect(
+      () => new HttpError(403, "Not allowed", { response, headers: {} }),
+    ).toThrow('Pass either the "headers" or the "response" option');
   });
 });
 

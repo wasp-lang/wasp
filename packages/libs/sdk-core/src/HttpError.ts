@@ -87,8 +87,8 @@ export class HttpError<
    * @param status The HTTP status code. It must be an integer in the range
    * `[400, 600)`, otherwise the constructor throws an `Error`.
    * @param message The error message.
-   * @param options The data, the headers for the response, and the standard
-   * `Error` options (e.g. `cause`).
+   * @param options The data, the headers for the response or the response
+   * itself, and the standard `Error` options (e.g. `cause`).
    */
   constructor(
     status: number,
@@ -111,34 +111,12 @@ export class HttpError<
     throwIfUnknownOption(options);
 
     this.data = options.data;
-    this.response =
-      (options as InternalHttpErrorOptions<Data>)[existingResponse] ??
-      Response.json(toHttpErrorBody(this), {
-        status,
-        headers: options.headers,
-      });
-  }
-
-  /**
-   * Creates the error for an HTTP error response that already exists, e.g.
-   * one a client received.
-   *
-   * @param response The response. Its status code must be in the range
-   * `[400, 600)`.
-   * @param body The parsed body of the response.
-   * @param options The standard `Error` options (e.g. `cause`).
-   */
-  static fromResponse(
-    response: Response,
-    { message, data }: HttpErrorBody,
-    options?: ErrorOptions,
-  ): HttpError {
-    const internalOptions: InternalHttpErrorOptions<HttpErrorData> = {
-      ...options,
-      data,
-      [existingResponse]: response,
-    };
-    return new HttpError(response.status, message, internalOptions);
+    this.response = options.response
+      ? ensureResponseFitsError(options.response, status, options)
+      : Response.json(toHttpErrorBody(this), {
+          status,
+          headers: options.headers,
+        });
   }
 }
 
@@ -191,9 +169,24 @@ export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
    * ```
    */
   headers?: HeadersInit;
+
+  /**
+   * An existing response for the error to stand for, e.g. one a client
+   * received. Without it, the error builds its own response from its status,
+   * message, data, and `headers`.
+   *
+   * Its status has to be the error's status, and you can't pass `headers`
+   * next to it, since it has its own.
+   */
+  response?: Response;
 }
 
-const HTTP_ERROR_OPTION_NAMES = new Set(["data", "headers", "cause"]);
+const HTTP_ERROR_OPTION_NAMES = new Set([
+  "data",
+  "headers",
+  "response",
+  "cause",
+]);
 
 // Before, the third argument was the data itself. Without this check, code
 // that still passes it that way would lose its data without any error.
@@ -208,12 +201,22 @@ function throwIfUnknownOption(options: object): void {
   }
 }
 
-// Lets `fromResponse` hand the constructor a response to keep, without making
-// that part of the public options.
-const existingResponse = Symbol("existingResponse");
-interface InternalHttpErrorOptions<Data extends HttpErrorData>
-  extends HttpErrorOptions<Data> {
-  [existingResponse]?: Response;
+function ensureResponseFitsError(
+  response: Response,
+  status: number,
+  options: HttpErrorOptions,
+): Response {
+  if (response.status !== status) {
+    throw new Error(
+      `The response has the status ${response.status}, but the HttpError has ${status}.`,
+    );
+  }
+  if (options.headers !== undefined) {
+    throw new Error(
+      'Pass either the "headers" or the "response" option to an HttpError, not both.',
+    );
+  }
+  return response;
 }
 
 /**

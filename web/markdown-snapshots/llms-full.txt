@@ -32289,7 +32289,7 @@ The error message.
 
 [`HttpErrorOptions`](#httperroroptions)<`Data`>
 
-The data, the headers for the response, and the standard `Error` options (e.g. `cause`).
+The data, the headers for the response or the response itself, and the standard `Error` options (e.g. `cause`).
 
 ###### Returns
 
@@ -32342,38 +32342,6 @@ Use [status](#status) instead.
 ###### Returns
 
 `number`
-
-##### Methods
-
-###### fromResponse()
-
-> `static` **fromResponse**(`response`, `body`, `options?`): [`HttpError`](#httperror)
-
-Creates the error for an HTTP error response that already exists, e.g. one a client received.
-
-###### Parameters
-
-###### response {#response}
-
-`Response`
-
-The response. Its status code must be in the range `[400, 600)`.
-
-###### body
-
-[`HttpErrorBody`](#httperrorbody)
-
-The parsed body of the response.
-
-###### options?
-
-`ErrorOptions`
-
-The standard `Error` options (e.g. `cause`).
-
-###### Returns
-
-[`HttpError`](#httperror)
 
 ### Interfaces
 
@@ -32431,6 +32399,14 @@ const headers: HeadersInit = [
 ];
 ```
 
+###### response?
+
+> `optional` **response?**: `Response`
+
+An existing response for the error to stand for, e.g. one a client received. Without it, the error builds its own response from its status, message, data, and `headers`.
+
+Its status has to be the error's status, and you can't pass `headers` next to it, since it has its own.
+
 ### Type Aliases
 
 #### HttpErrorData {#httperrordata-2}
@@ -32448,24 +32424,6 @@ The extra information an [HttpError](#httperror) carries in its `data`. It is an
 ```ts
 const data: HttpErrorData = { code: "TASK_LIMIT_REACHED", limit: 10 };
 ```
-
-### Referenced Types
-
-#### HttpErrorBody
-
-> **HttpErrorBody** = `object`
-
-The JSON body of the response of an [HttpError](#httperror).
-
-##### Properties
-
-###### data?
-
-> `optional` **data?**: [`HttpErrorData`](#httperrordata-2)
-
-###### message {#message}
-
-> **message**: `string`
 
 
 ## wasp/server
