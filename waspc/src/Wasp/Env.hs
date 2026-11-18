@@ -180,7 +180,8 @@ formatEnvVarValue rawValue
   | not (needsQuoting rawValue) = rawValue
   | canUseSingleQuotes = wrapInQuotes '\'' rawValue
   | canUseBacktickQuotes = wrapInQuotes '`' rawValue
-  | canUseSingleLineQuotes = wrapInQuotes '\'' rawValue
+  | canUseSingleLineSingleQuotes = wrapInQuotes '\'' rawValue
+  | canUseSingleLineBacktickQuotes = wrapInQuotes '`' rawValue
   | otherwise = wrapInQuotes '"' escapedForDoubleQuotes
   where
     needsQuoting :: String -> Bool
@@ -196,7 +197,12 @@ formatEnvVarValue rawValue
     hasDoubleQuoteConflict :: Bool
     hasDoubleQuoteConflict =
       hasLiteralNewlineEscape
-        || ('"' `elem` rawValue && ('#' `elem` rawValue || startsWithQuote rawValue))
+        || ( '"' `elem` rawValue
+               && ( '#' `elem` rawValue
+                      || startsWithQuote rawValue
+                      || not (canWrapSingleLineInQuote '"' escapedForDoubleQuotes)
+                  )
+           )
 
     hasLiteralNewlineEscape :: Bool
     hasLiteralNewlineEscape =
@@ -204,6 +210,12 @@ formatEnvVarValue rawValue
 
     hasCarriageReturn :: Bool
     hasCarriageReturn = '\r' `elem` rawValue
+
+    isSingleLineWithoutComment :: Bool
+    isSingleLineWithoutComment =
+      not hasCarriageReturn
+        && '\n' `notElem` rawValue
+        && '#' `notElem` rawValue
 
     canUseSingleQuotes :: Bool
     canUseSingleQuotes =
@@ -213,20 +225,23 @@ formatEnvVarValue rawValue
     canUseBacktickQuotes =
       hasDoubleQuoteConflict && not hasCarriageReturn && canWrapInQuote '`' rawValue
 
-    -- Single-line values without '#' can safely be wrapped in single quotes
-    -- even if they contain unescaped single quotes: the quoted parser fails on
-    -- the same line (since the final closing quote prevents any interior quote
-    -- from being followed only by horizontal whitespace, a comment, or EOL) and
-    -- the unquoted parser strips the outer single quotes without expanding
-    -- literal \n or \r escapes.
-    canUseSingleLineQuotes :: Bool
-    canUseSingleLineQuotes =
+    -- Single-line values without '#' can safely be wrapped in single or
+    -- backtick quotes even when they contain that quote character internally,
+    -- as long as no interior quote at or before the first unescaped quote is
+    -- followed by JS whitespace containing a line separator (U+2028/U+2029).
+    -- The quoted parser then fails on the same line and the unquoted parser
+    -- strips the outer quotes without expanding literal \n or \r escapes.
+    canUseSingleLineSingleQuotes :: Bool
+    canUseSingleLineSingleQuotes =
       hasDoubleQuoteConflict
-        && not hasCarriageReturn
-        && '\n' `notElem` rawValue
-        && '\x2028' `notElem` rawValue
-        && '\x2029' `notElem` rawValue
-        && '#' `notElem` rawValue
+        && isSingleLineWithoutComment
+        && canWrapSingleLineInQuote '\'' rawValue
+
+    canUseSingleLineBacktickQuotes :: Bool
+    canUseSingleLineBacktickQuotes =
+      hasDoubleQuoteConflict
+        && isSingleLineWithoutComment
+        && canWrapSingleLineInQuote '`' rawValue
 
     canWrapInQuote :: Char -> String -> Bool
     canWrapInQuote quoteChar = go
@@ -238,6 +253,21 @@ formatEnvVarValue rawValue
         go (c : rest)
           | c == quoteChar = False
           | otherwise = go rest
+
+    canWrapSingleLineInQuote :: Char -> String -> Bool
+    canWrapSingleLineInQuote quoteChar = go
+      where
+        go [] = True
+        go ('\\' : c : rest)
+          | c == quoteChar = not (closesAtLineSeparator rest) && go rest
+          | otherwise = go (c : rest)
+        go (c : rest)
+          | c == quoteChar = not (closesAtLineSeparator rest)
+          | otherwise = go rest
+
+        closesAtLineSeparator :: String -> Bool
+        closesAtLineSeparator s =
+          any isJsLineSeparator (takeWhile isJsSpace s)
 
     -- When a quoted value ends with '\', dotenv preferentially treats the
     -- closing quote as escaped (\', \", \`) and continues scanning across lines.
@@ -263,8 +293,11 @@ formatEnvVarValue rawValue
 isQuoteChar :: Char -> Bool
 isQuoteChar c = c == '\'' || c == '"' || c == '`'
 
+isJsLineSeparator :: Char -> Bool
+isJsLineSeparator c = c == '\x2028' || c == '\x2029'
+
 isJsSpace :: Char -> Bool
-isJsSpace c = isSpace c || c == '\xFEFF' || c == '\x2028' || c == '\x2029'
+isJsSpace c = isSpace c || c == '\xFEFF' || isJsLineSeparator c
 
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)

@@ -37,12 +37,14 @@ spec_envVarHelpers = do
       envVarValueShouldBeFormattedCorrectly "line1\nline2\rline3" "\"line1\\nline2\\rline3\""
       envVarValueShouldBeFormattedCorrectly "'quoted'" "\"'quoted'\""
 
-    it "should exclude U+2028 and U+2029 from single-line single-quote wrapping when values contain interior apostrophes" $ do
+    it "should preserve literal escapes when U+2028 or U+2029 appear with interior quotes" $ do
       envVarValueShouldBeFormattedCorrectly "a' `\\nb" "'a' `\\nb'"
-      envVarValueShouldBeFormattedCorrectly "a'\x2028`\\nb" "\"a'\x2028`\\nb\""
-      envVarValueShouldBeFormattedCorrectly "a'\x2029`\\nb" "\"a'\x2029`\\nb\""
-      envVarValueShouldBeFormattedCorrectly "'a'\x2028`\"b" "\"'a'\x2028`\"b\""
-      envVarValueShouldBeFormattedCorrectly "'a'\x2029`\"b" "\"'a'\x2029`\"b\""
+      envVarValueShouldBeFormattedCorrectly "a' `\x2028\\nb" "'a' `\x2028\\nb'"
+      envVarValueShouldBeFormattedCorrectly "a' `\x2029\\nb" "'a' `\x2029\\nb'"
+      envVarValueShouldBeFormattedCorrectly "a'\x2028`\\nb" "`a'\x2028`\\nb`"
+      envVarValueShouldBeFormattedCorrectly "a'\x2029`\\nb" "`a'\x2029`\\nb`"
+      envVarValueShouldBeFormattedCorrectly "'a'\x2028`\"b" "''a'\x2028`\"b'"
+      envVarValueShouldBeFormattedCorrectly "'a'\x2029`\"b" "''a'\x2029`\"b'"
 
   describe "envVarsToDotEnvContent" $ do
     it "should handle multiple environment variables correctly" $ do
@@ -150,8 +152,10 @@ spec_parseDotEnvContent = do
               ("HASH", "foo#bar"),
               ("NEWLINES", "line1\nline2\rline3"),
               ("SINGLE_QUOTED_INNER", "'quoted'"),
-              ("LINE_SEP_APOSTROPHE", "a'\x2028\\nb"),
-              ("PARA_SEP_APOSTROPHE", "a'\x2029\\nb"),
+              ("LINE_SEP_SINGLE_QUOTE_SAFE", "a' `\x2028\\nb"),
+              ("PARA_SEP_SINGLE_QUOTE_SAFE", "a' `\x2029\\nb"),
+              ("LINE_SEP_APOSTROPHE", "a'\x2028`\\nb"),
+              ("PARA_SEP_APOSTROPHE", "a'\x2029`\\nb"),
               ("LINE_SEP_SINGLE_LINE_CONFLICT", "'a'\x2028`\"b"),
               ("PARA_SEP_SINGLE_LINE_CONFLICT", "'a'\x2029`\"b")
             ]
