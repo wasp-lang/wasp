@@ -111,12 +111,12 @@ export class HttpError<
     throwIfUnknownOption(options);
 
     this.data = options.data;
-    this.response = options.response
-      ? ensureResponseFitsError(options.response, status, options)
-      : Response.json(toHttpErrorBody(this), {
-          status,
-          headers: options.headers,
-        });
+    this.response =
+      options.response ??
+      Response.json(toHttpErrorBody(this), {
+        status,
+        headers: options.headers,
+      });
   }
 }
 
@@ -175,8 +175,8 @@ export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
    * received. Without it, the error builds its own response from its status,
    * message, data, and `headers`.
    *
-   * Its status has to be the error's status, and you can't pass `headers`
-   * next to it, since it has its own.
+   * If you pass it, its status and headers take precedence over the `status`
+   * argument and the `headers` option.
    */
   response?: Response;
 }
@@ -202,24 +202,6 @@ function throwIfUnknownOption(options: object): void {
       `Unknown HttpError option "${unknownOptionName}". To send data with the error, pass it as the "data" option.`,
     );
   }
-}
-
-function ensureResponseFitsError(
-  response: Response,
-  status: number,
-  options: HttpErrorOptions,
-): Response {
-  if (response.status !== status) {
-    throw new Error(
-      `The response has the status ${response.status}, but the HttpError has ${status}.`,
-    );
-  }
-  if (options.headers !== undefined) {
-    throw new Error(
-      'Pass either the "headers" or the "response" option to an HttpError, not both.',
-    );
-  }
-  return response;
 }
 
 /**

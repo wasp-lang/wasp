@@ -32405,7 +32405,7 @@ const headers: HeadersInit = [
 
 An existing response for the error to stand for, e.g. one a client received. Without it, the error builds its own response from its status, message, data, and `headers`.
 
-Its status has to be the error's status, and you can't pass `headers` next to it, since it has its own.
+If you pass it, its status and headers take precedence over the `status` argument and the `headers` option.
 
 ### Type Aliases
 

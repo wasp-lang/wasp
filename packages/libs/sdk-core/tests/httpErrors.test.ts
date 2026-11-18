@@ -85,20 +85,19 @@ describe("HttpError", () => {
     });
   });
 
-  it("rejects a response with another status", () => {
-    const response = new Response(null, { status: 404 });
+  it("takes its status and headers from a response passed to it", () => {
+    const response = new Response(null, {
+      status: 404,
+      headers: { "X-From": "response" },
+    });
 
-    expect(() => new HttpError(403, "Not allowed", { response })).toThrow(
-      "The response has the status 404, but the HttpError has 403.",
-    );
-  });
+    const error = new HttpError(403, "Not allowed", {
+      response,
+      headers: { "X-From": "option" },
+    });
 
-  it("rejects headers next to a response", () => {
-    const response = new Response(null, { status: 403 });
-
-    expect(
-      () => new HttpError(403, "Not allowed", { response, headers: {} }),
-    ).toThrow('Pass either the "headers" or the "response" option');
+    expect(error.status).toBe(404);
+    expect(error.response.headers.get("X-From")).toBe("response");
   });
 });
 
