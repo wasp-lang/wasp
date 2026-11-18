@@ -12,7 +12,7 @@ export const ErrorsPage = () => {
         {error instanceof HttpError && (
           <dl className="card" data-testid="http-error">
             <dt>Status</dt>
-            <dd data-testid="status">{error.statusCode}</dd>
+            <dd data-testid="status">{error.status}</dd>
             <dt>Message</dt>
             <dd data-testid="message">{error.message}</dd>
             <dt>Reason</dt>

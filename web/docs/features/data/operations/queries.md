@@ -429,11 +429,10 @@ To send error details to the client, throw an `HttpError`:
     import { HttpError } from "wasp/errors"
 
     export const getAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, {
+        message: "You can't do this!",
+        data: { foo: "bar" },
+      })
     }
     ```
   </TabItem>
@@ -444,20 +443,20 @@ To send error details to the client, throw an `HttpError`:
     import { HttpError } from "wasp/errors"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, {
+        message: "You can't do this!",
+        data: { foo: "bar" },
+      })
     }
     ```
   </TabItem>
 </Tabs>
 
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+To also set response headers, e.g. `Retry-After`, pass `headers`:
 
 ```js
-throw new HttpError(429, "Too many requests", undefined, {
+throw new HttpError(429, {
+  message: "Too many requests",
   headers: { "Retry-After": "60" },
 })
 ```
@@ -473,7 +472,7 @@ import { HttpError } from "wasp/errors";
 export const MainPage = () => {
   const { data: tasks, error } = useQuery(getAllTasks);
 
-  if (error instanceof HttpError && error.statusCode === 403) {
+  if (error instanceof HttpError && error.status === 403) {
     return <div>{error.message}</div>;
   }
   // ...

@@ -414,11 +414,10 @@ To send error details to the client, throw an `HttpError`:
     import { HttpError } from "wasp/errors"
 
     export const createTask = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, {
+        message: "You can't do this!",
+        data: { foo: "bar" },
+      })
     }
     ```
   </TabItem>
@@ -429,20 +428,20 @@ To send error details to the client, throw an `HttpError`:
     import { HttpError } from "wasp/errors"
 
     export const createTask: CreateTask = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, {
+        message: "You can't do this!",
+        data: { foo: "bar" },
+      })
     }
     ```
   </TabItem>
 </Tabs>
 
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+To also set response headers, e.g. `Retry-After`, pass `headers`:
 
 ```js
-throw new HttpError(429, "Too many requests", undefined, {
+throw new HttpError(429, {
+  message: "Too many requests",
   headers: { "Retry-After": "60" },
 })
 ```
@@ -459,7 +458,7 @@ async function handleSubmit(description: string) {
   try {
     await createTask({ description });
   } catch (error: unknown) {
-    if (error instanceof HttpError && error.statusCode === 403) {
+    if (error instanceof HttpError && error.status === 403) {
       window.alert(error.message);
     }
   }

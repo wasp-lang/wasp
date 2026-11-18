@@ -13,18 +13,24 @@ export function setupOneTimeCodeRoute(router: Router) {
       const { code } = req.body;
 
       if (code === undefined) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code is missing.");
+        throw new HttpError(400, {
+          message: "Unable to login with the OAuth provider. The code is missing.",
+        });
       }
 
       if (tokenStore.isUsed(code)) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
+        throw new HttpError(400, {
+          message: "Unable to login with the OAuth provider. The code has already been used.",
+        });
       }
 
       const { id: authId } = await tokenStore.verifyToken(code);
       const auth = await findAuthWithUserBy({ id: authId })
 
       if (auth === null) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
+        throw new HttpError(400, {
+          message: "Unable to login with the OAuth provider. The code is invalid.",
+        });
       }
 
       const session = await createSession(auth.id);

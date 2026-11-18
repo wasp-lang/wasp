@@ -30,7 +30,7 @@ const SignupPage = () => {
 
       navigate("/");
     } catch (error: unknown) {
-      if (error instanceof HttpError && error.statusCode === 422) {
+      if (error instanceof HttpError && error.status === 422) {
         const description =
           typeof error.data?.message === "string"
             ? error.data.message

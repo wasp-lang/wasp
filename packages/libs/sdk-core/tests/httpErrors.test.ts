@@ -4,17 +4,16 @@ import { HttpError, isHttpErrorBody, toHttpErrorBody } from "../src/HttpError";
 describe("HttpError", () => {
   it("is an `Error` with its status code, message, and data", () => {
     const cause = new Error("Upstream failed");
-    const error = new HttpError(
-      429,
-      "Too many requests",
-      { limitPerMinute: 60 },
-      { cause },
-    );
+    const error = new HttpError(429, {
+      message: "Too many requests",
+      data: { limitPerMinute: 60 },
+      cause,
+    });
 
     expect(error).toBeInstanceOf(Error);
     expect(error).toMatchObject({
       name: "HttpError",
-      statusCode: 429,
+      status: 429,
       message: "Too many requests",
       data: { limitPerMinute: 60 },
       cause,
@@ -22,18 +21,15 @@ describe("HttpError", () => {
   });
 
   it("builds the response it stands for", async () => {
-    const error = new HttpError(
-      429,
-      "Too many requests",
-      { limitPerMinute: 60 },
-      {
-        headers: [
-          ["Retry-After", "60"],
-          ["Set-Cookie", "a=1"],
-          ["Set-Cookie", "b=2"],
-        ],
-      },
-    );
+    const error = new HttpError(429, {
+      message: "Too many requests",
+      data: { limitPerMinute: 60 },
+      headers: [
+        ["Retry-After", "60"],
+        ["Set-Cookie", "a=1"],
+        ["Set-Cookie", "b=2"],
+      ],
+    });
 
     expect(error.response.status).toBe(429);
     expect(error.response.headers.get("Retry-After")).toBe("60");
@@ -44,19 +40,38 @@ describe("HttpError", () => {
     });
   });
 
-  it.each([200, 399, 600, 404.5])(
-    "rejects the status code %d",
-    (statusCode) => {
-      expect(() => new HttpError(statusCode)).toThrow(
-        "statusCode has to be integer in range [400, 600).",
-      );
-    },
-  );
+  it.each([200, 399, 600, 404.5])("rejects the status code %d", (status) => {
+    expect(() => new HttpError(status)).toThrow(
+      "status has to be an integer in the range [400, 600).",
+    );
+  });
+
+  it("still takes the message and the data as arguments", () => {
+    const cause = new Error("Upstream failed");
+    const error = new HttpError(
+      429,
+      "Too many requests",
+      { limitPerMinute: 60 },
+      { cause, headers: { "Retry-After": "60" } },
+    );
+
+    expect(error).toMatchObject({
+      status: 429,
+      message: "Too many requests",
+      data: { limitPerMinute: 60 },
+      cause,
+    });
+    expect(error.response.headers.get("Retry-After")).toBe("60");
+  });
+
+  it("still has its status as `statusCode`", () => {
+    expect(new HttpError(404).statusCode).toBe(404);
+  });
 
   it("names classes that extend it without setting a name", () => {
     class PaymentRequiredError extends HttpError {
       constructor() {
-        super(402, "Payment required");
+        super(402, { message: "Payment required" });
       }
     }
 
@@ -76,7 +91,7 @@ describe("HttpError", () => {
 
     expect(error.response).toBe(response);
     expect(error).toMatchObject({
-      statusCode: 403,
+      status: 403,
       message: "Not allowed",
       data: { reason: "owner" },
     });
@@ -85,7 +100,10 @@ describe("HttpError", () => {
 
 describe("HttpErrorBody", () => {
   it("is built from an error's message and data", () => {
-    const error = new HttpError(403, "Not allowed", { reason: "owner" });
+    const error = new HttpError(403, {
+      message: "Not allowed",
+      data: { reason: "owner" },
+    });
 
     expect(toHttpErrorBody(error)).toEqual({
       message: "Not allowed",

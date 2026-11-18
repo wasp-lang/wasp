@@ -2,8 +2,8 @@
  * An error for an HTTP error response, which has a status code in the range
  * `[400, 600)`.
  *
- * Its `statusCode`, `message`, and `data` are part of the response, so only
- * put information in them that is safe to show to the user.
+ * Its `status`, `message`, and `data` are part of the response, so only put
+ * information in them that is safe to show to the user.
  *
  * @typeParam Data The type of the error's `data`. It defaults to
  * {@link HttpErrorData}, an object with any fields.
@@ -14,7 +14,7 @@
  *
  * export const getTask = async ({ id }, context) => {
  *   if (!context.user) {
- *     throw new HttpError(401, "You must be logged in.");
+ *     throw new HttpError(401, { message: "You must be logged in." });
  *   }
  *   // ...
  * };
@@ -26,12 +26,11 @@
  * ```ts
  * import { HttpError } from "wasp/errors";
  *
- * throw new HttpError(
- *   429, // status code
- *   "Too many requests", // message
- *   { limitPerMinute: 60 }, // data
- *   { headers: { "Retry-After": "60" } }, // options
- * );
+ * throw new HttpError(429, {
+ *   message: "Too many requests",
+ *   data: { limitPerMinute: 60 },
+ *   headers: { "Retry-After": "60" },
+ * });
  * ```
  *
  * @example
@@ -44,7 +43,7 @@
  * try {
  *   await createTask({ description: "Buy milk" });
  * } catch (error: unknown) {
- *   if (error instanceof HttpError && error.statusCode === 429) {
+ *   if (error instanceof HttpError && error.status === 429) {
  *     const retryAfter = error.response.headers.get("Retry-After");
  *   }
  * }
@@ -74,25 +73,49 @@ export class HttpError<
    * The HTTP status code of the response, an integer in the range
    * `[400, 600)`.
    */
-  public get statusCode(): number {
+  public get status(): number {
     return this.response.status;
   }
 
   /**
-   * @param statusCode The HTTP status code. It must be an integer in the
-   * range `[400, 600)`, otherwise the constructor throws an `Error`.
-   * @param message The error message.
-   * @param data An object with any extra information about the error.
-   * @param options The standard `Error` options (e.g. `cause`), and `headers`
-   * for the response.
+   * @deprecated Use {@link HttpError.status | status} instead.
+   */
+  public get statusCode(): number {
+    return this.status;
+  }
+
+  /**
+   * @param status The HTTP status code. It must be an integer in the range
+   * `[400, 600)`, otherwise the constructor throws an `Error`.
+   * @param options The message, the data, the headers for the response, and
+   * the standard `Error` options (e.g. `cause`).
+   */
+  constructor(status: number, options?: HttpErrorOptions<Data>);
+  /**
+   * @deprecated Pass the message and the data in the options instead, e.g.
+   * `new HttpError(403, { message, data })`.
    */
   constructor(
-    statusCode: number,
+    status: number,
     message?: string,
     data?: Data,
-    options?: HttpErrorOptions,
+    options?: Omit<HttpErrorOptions<Data>, "message" | "data">,
+  );
+  constructor(
+    status: number,
+    messageOrOptions?: string | HttpErrorOptions<Data>,
+    deprecatedData?: Data,
+    deprecatedOptions?: Omit<HttpErrorOptions<Data>, "message" | "data">,
   ) {
-    super(message, options);
+    const options: HttpErrorOptions<Data> =
+      typeof messageOrOptions === "object"
+        ? messageOrOptions
+        : {
+            ...deprecatedOptions,
+            message: messageOrOptions,
+            data: deprecatedData,
+          };
+    super(options.message, options);
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, new.target);
@@ -102,15 +125,15 @@ export class HttpError<
     // Classes that extend `HttpError` set their own name.
     this.name = "HttpError";
 
-    if (!isHttpErrorStatusCode(statusCode)) {
-      throw new Error("statusCode has to be integer in range [400, 600).");
+    if (!isHttpErrorStatusCode(status)) {
+      throw new Error("status has to be an integer in the range [400, 600).");
     }
-    this.data = data;
+    this.data = options.data;
     this.response =
-      (options as InternalHttpErrorOptions | undefined)?.[existingResponse] ??
+      (options as InternalHttpErrorOptions<Data>)[existingResponse] ??
       Response.json(toHttpErrorBody(this), {
-        status: statusCode,
-        headers: options?.headers,
+        status,
+        headers: options.headers,
       });
   }
 
@@ -128,11 +151,13 @@ export class HttpError<
     { message, data }: HttpErrorBody,
     options?: ErrorOptions,
   ): HttpError {
-    const internalOptions: InternalHttpErrorOptions = {
+    const internalOptions: InternalHttpErrorOptions<HttpErrorData> = {
       ...options,
+      message,
+      data,
       [existingResponse]: response,
     };
-    return new HttpError(response.status, message, data, internalOptions);
+    return new HttpError(response.status, internalOptions);
   }
 }
 
@@ -149,7 +174,9 @@ export type HttpErrorData = { [fieldName: string]: unknown };
 
 /**
  * The options of an {@link HttpError}. It takes the standard `Error` options
- * (e.g. `cause`), and `headers`.
+ * (e.g. `cause`), and what the error's response consists of.
+ *
+ * @typeParam Data The type of `data`.
  *
  * @example
  * ```ts
@@ -158,14 +185,22 @@ export type HttpErrorData = { [fieldName: string]: unknown };
  * try {
  *   await chargeCard(card);
  * } catch (error: unknown) {
- *   throw new HttpError(503, "Payments are unavailable", undefined, {
- *     cause: error,
+ *   throw new HttpError(503, {
+ *     message: "Payments are unavailable",
  *     headers: { "Retry-After": "60" },
+ *     cause: error,
  *   });
  * }
  * ```
  */
-export interface HttpErrorOptions extends ErrorOptions {
+export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
+  extends ErrorOptions {
+  /** The error message. */
+  message?: string;
+
+  /** An object with any extra information about the error. */
+  data?: Data;
+
   /**
    * Headers for the error response, e.g. `Retry-After`. To repeat a header,
    * like `Set-Cookie`, pass a list of name and value pairs.
@@ -184,7 +219,8 @@ export interface HttpErrorOptions extends ErrorOptions {
 // Lets `fromResponse` hand the constructor a response to keep, without making
 // that part of the public options.
 const existingResponse = Symbol("existingResponse");
-interface InternalHttpErrorOptions extends HttpErrorOptions {
+interface InternalHttpErrorOptions<Data extends HttpErrorData>
+  extends HttpErrorOptions<Data> {
   [existingResponse]?: Response;
 }
 

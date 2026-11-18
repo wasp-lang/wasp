@@ -156,8 +156,9 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
 export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-    throw new HttpError(422, 'Save failed', {
-      message: `user with the same identity already exists`,
+    throw new HttpError(422, {
+      message: 'Save failed',
+      data: { message: `user with the same identity already exists` },
     })
   }
 
@@ -166,8 +167,9 @@ export function rethrowPossibleAuthError(e: unknown): void {
     // required fields missing in the request, we want the developer
     // to know about it.
     console.error(e)
-    throw new HttpError(422, 'Save failed', {
-      message: 'there was a database error'
+    throw new HttpError(422, {
+      message: 'Save failed',
+      data: { message: 'there was a database error' },
     })
   }
 
@@ -177,8 +179,9 @@ export function rethrowPossibleAuthError(e: unknown): void {
     // migrations weren't run, we want the developer to know about it.
     console.error(e)
     console.info('🐝 This error can happen if you did\'t run the database migrations.')
-    throw new HttpError(500, 'Save failed', {
-      message: `there was a database error`,
+    throw new HttpError(500, {
+      message: 'Save failed',
+      data: { message: `there was a database error` },
     })
   }
 
@@ -188,8 +191,9 @@ export function rethrowPossibleAuthError(e: unknown): void {
     console.info(`🐝 This error can happen if you have some relation on your {= userEntityUpper =} entity
    but you didn't specify the "onDelete" behaviour to either "Cascade" or "SetNull".
    Read more at: https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions`)
-    throw new HttpError(500, 'Save failed', {
-      message: `there was a database error`,
+    throw new HttpError(500, {
+      message: 'Save failed',
+      data: { message: `there was a database error` },
     })
   }
 

@@ -110,10 +110,9 @@ function validateOAuthState(
 }
 
 function createLoginExpiredError(provider: ProviderConfig): HttpError {
-  return new HttpError(
-    400,
-    `Your login attempt with ${provider.displayName} expired. Please try again.`
-  );
+  return new HttpError(400, {
+    message: `Your login attempt with ${provider.displayName} expired. Please try again.`,
+  });
 }
 
 function generateState(): { state: string } {
@@ -141,19 +140,17 @@ function getCode(
   // but some (e.g. Keycloak, Auth0) also send it when their own policy denies
   // the login.
   if (error === 'access_denied') {
-    throw new HttpError(
-      400,
-      `Login with ${provider.displayName} was cancelled or denied.`,
-      providerErrorDetails
-    );
+    throw new HttpError(400, {
+      message: `Login with ${provider.displayName} was cancelled or denied.`,
+      data: providerErrorDetails,
+    });
   }
 
   if (error !== undefined || typeof code !== 'string' || code === '') {
-    throw new HttpError(
-      400,
-      `Unable to log in with ${provider.displayName}. Please try again later.`,
-      providerErrorDetails
-    );
+    throw new HttpError(400, {
+      message: `Unable to log in with ${provider.displayName}. Please try again later.`,
+      data: providerErrorDetails,
+    });
   }
 
   return { code };

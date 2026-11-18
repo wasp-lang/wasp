@@ -13,7 +13,7 @@ export const requestUppercaseText: RequestUppercaseText<{
   text: string;
 }> = async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, "Unauthorized");
+    throw new HttpError(401, { message: "Unauthorized" });
   }
 
   const { text } = args;
@@ -42,7 +42,7 @@ export const getTextUppercaseRequests: GetTextUppercaseRequests<
   UppercaseTextRequest[]
 > = (_args, context) => {
   if (!context.user) {
-    throw new HttpError(401, "Unauthorized");
+    throw new HttpError(401, { message: "Unauthorized" });
   }
   return context.entities.UppercaseTextRequest.findMany({
     where: { userId: context.user.id },

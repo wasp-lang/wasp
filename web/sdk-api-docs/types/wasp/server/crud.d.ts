@@ -57,7 +57,7 @@
  *   context,
  * ) => {
  *   if (!context.user) {
- *     throw new HttpError(401, "User not authenticated.");
+ *     throw new HttpError(401, { message: "User not authenticated." });
  *   }
  *
  *   return context.entities.Task.findMany({

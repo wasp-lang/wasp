@@ -545,7 +545,7 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
       await signup({ username, password })
     } catch (error: unknown) {
       // highlight-next-line
-      if (error instanceof HttpError && error.statusCode === 422) {
+      if (error instanceof HttpError && error.status === 422) {
         // highlight-next-line
         setErrorMessage(String(error.data?.message))
       }
@@ -554,6 +554,39 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
   </TabItem>
 </Tabs>
 
-### 13. Enjoy your updated Wasp app
+### 13. Switch to the new `HttpError` options
+
+**This step is optional.** The old forms still work, but they are deprecated.
+
+`HttpError` now takes its message and data in an options object, and its status code is called `status`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    throw new HttpError(403, "Not allowed", { reason: "NOT_OWNER" })
+
+    if (error.statusCode === 403) {
+      // ...
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    // highlight-start
+    throw new HttpError(403, {
+      message: "Not allowed",
+      data: { reason: "NOT_OWNER" },
+    })
+    // highlight-end
+
+    // highlight-next-line
+    if (error.status === 403) {
+      // ...
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 14. Enjoy your updated Wasp app
 
 That's it!

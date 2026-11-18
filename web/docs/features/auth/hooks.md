@@ -121,14 +121,14 @@ export default app({
       console.log("provider user ID", providerId.providerUserId)
 
       if (count > 100) {
-        throw new HttpError(403, "Too many users")
+        throw new HttpError(403, { message: "Too many users" })
       }
 
       if (
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "This email is not allowed")
+        throw new HttpError(403, { message: "This email is not allowed" })
       }
     }
     ```
@@ -150,14 +150,14 @@ export default app({
       console.log("provider user ID", providerId.providerUserId)
 
       if (count > 100) {
-        throw new HttpError(403, "Too many users")
+        throw new HttpError(403, { message: "Too many users" })
       }
 
       if (
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "This email is not allowed")
+        throw new HttpError(403, { message: "This email is not allowed" })
       }
     }
     ```
@@ -423,7 +423,9 @@ export default app({
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "You cannot log in with this email")
+        throw new HttpError(403, {
+          message: "You cannot log in with this email",
+        })
       }
     }
     ```
@@ -444,7 +446,9 @@ export default app({
         providerId.providerName === "email" &&
         providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, "You cannot log in with this email")
+        throw new HttpError(403, {
+          message: "You cannot log in with this email",
+        })
       }
     }
     ```

@@ -34,7 +34,9 @@ export const embedDocument: EmbedDocument<
   EmbedDocumentOutput
 > = async (args, { user }) => {
   if (!user) {
-    throw new HttpError(401, "You must be logged in to embed documents");
+    throw new HttpError(401, {
+      message: "You must be logged in to embed documents",
+    });
   }
   const { url, selector } = args;
 
@@ -75,7 +77,9 @@ export const searchDocuments: SearchDocuments<
   SearchDocumentsOutput
 > = async (args, { user }) => {
   if (!user) {
-    throw new HttpError(401, "You must be logged in to search documents");
+    throw new HttpError(401, {
+      message: "You must be logged in to search documents",
+    });
   }
   const { query } = args;
 
@@ -119,7 +123,9 @@ export const deleteDocument: DeleteDocument<
   DeleteDocumentOutput
 > = async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, "You must be logged in to delete documents");
+    throw new HttpError(401, {
+      message: "You must be logged in to delete documents",
+    });
   }
   const { id } = args;
   await context.entities.Document.delete({
@@ -135,7 +141,9 @@ export const deleteAllDocuments: DeleteAllDocuments<
   DeleteAllDocumentsOutput
 > = async (_args, context) => {
   if (!context.user) {
-    throw new HttpError(401, "You must be logged in to delete documents");
+    throw new HttpError(401, {
+      message: "You must be logged in to delete documents",
+    });
   }
 
   await context.entities.Document.deleteMany();

@@ -52,7 +52,7 @@ import { HttpError } from "wasp/errors"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, "This sign-up method is disabled")
+  throw new HttpError(403, { message: "This sign-up method is disabled" })
 }
 ```
 
@@ -100,7 +100,7 @@ export const customSignup: CustomSignup<
       // User already exists, handle accordingly
 
       // For example, throw an error or return a message
-      throw new HttpError(400, "Email already exists.");
+      throw new HttpError(400, { message: "Email already exists." });
 
       // Or, another example, you can check if the user is already
       // verified and re-send the verification email if not
@@ -108,7 +108,7 @@ export const customSignup: CustomSignup<
         existingAuthIdentity.providerData,
       );
       if (providerData.isEmailVerified)
-        throw new HttpError(400, "Email already verified.");
+        throw new HttpError(400, { message: "Email already verified." });
     }
 
     if (!providerData) {
@@ -148,7 +148,9 @@ export const customSignup: CustomSignup<
       });
     } catch (e: unknown) {
       console.error("Failed to send email verification email:", e);
-      throw new HttpError(500, "Failed to send email verification email.");
+      throw new HttpError(500, {
+        message: "Failed to send email verification email.",
+      });
     }
   } catch (e: any) {
     return {
@@ -193,7 +195,7 @@ import { HttpError } from "wasp/errors"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, "This sign-up method is disabled")
+  throw new HttpError(403, { message: "This sign-up method is disabled" })
 }
 ```
 

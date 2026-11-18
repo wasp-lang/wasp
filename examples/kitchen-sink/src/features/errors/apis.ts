@@ -14,12 +14,15 @@ export const throwUnexpectedError: ThrowUnexpectedError = async () => {
 };
 
 export const throwHttpError: ThrowHttpError = async () => {
-  throw new HttpError(418, "I'm a teapot", { reason: "short and stout" });
+  throw new HttpError(418, {
+    message: "I'm a teapot",
+    data: { reason: "short and stout" },
+  });
 };
 
 class PaymentRequiredError extends HttpError<{ plan: string }> {
   constructor(plan: string) {
-    super(402, "Payment required", { plan });
+    super(402, { message: "Payment required", data: { plan } });
   }
 }
 

@@ -22,7 +22,9 @@ export async function resetPassword(
     const { token, password } = args;
     const { email } = await validateJWT<{ email: string }>(token)
         .catch(() => {
-            throw new HttpError(400, "Password reset failed, invalid token");
+            throw new HttpError(400, {
+              message: "Password reset failed, invalid token",
+            });
         });
 
     ensureValidPasswordArg(args);
@@ -30,7 +32,9 @@ export async function resetPassword(
     const providerId = createProviderId('email', email);
     const authIdentity = await findAuthIdentity(providerId);
     if (!authIdentity) {
-        throw new HttpError(400, "Password reset failed, invalid token");
+        throw new HttpError(400, {
+          message: "Password reset failed, invalid token",
+        });
     }
 
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);

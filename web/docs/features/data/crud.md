@@ -167,7 +167,7 @@ Here's the `src/tasks.{js,ts}` file:
 
     export const createTask = async (args, context) => {
       if (!context.user) {
-        throw new HttpError(401, "User not authenticated.")
+        throw new HttpError(401, { message: "User not authenticated." })
       }
 
       const { description, isDone } = args
@@ -204,7 +204,7 @@ Here's the `src/tasks.{js,ts}` file:
       context
     ) => {
       if (!context.user) {
-        throw new HttpError(401, "User not authenticated.")
+        throw new HttpError(401, { message: "User not authenticated." })
       }
 
       const { description, isDone } = args
