@@ -23,6 +23,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspBuildFailed, WaspDockerBuildPreparationFailed))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
@@ -75,11 +76,11 @@ build = ProjectLock.acquireExclusive $ do
   liftIO $ printCompilationResult (warnings, errors)
   unless (null errors)
     $ throwError
-    $ makeCommandError "Building of wasp project failed"
+    $ makeCommandError WaspBuildFailed "Building of wasp project failed"
     $ show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-    Left err -> throwError $ makeCommandError "Failed to prepare files necessary for docker build" err
+    Left err -> throwError $ makeCommandError WaspDockerBuildPreparationFailed "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
   cliSendMessageC

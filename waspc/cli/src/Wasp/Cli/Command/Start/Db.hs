@@ -28,6 +28,7 @@ import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspCustomDbInUse, WaspDevDbFailed, WaspDockerNotRunning))
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -124,7 +125,7 @@ throwIfCustomDbAlreadyInUse spec = do
 
     throwCustomDbAlreadyInUseError :: String -> Command ()
     throwCustomDbAlreadyInUseError msg =
-      E.throwError $ makeCommandError "You are using custom database already" msg
+      E.throwError $ makeCommandError WaspCustomDbInUse "You are using custom database already" msg
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> Command ()
 startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath = do
@@ -144,6 +145,7 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
         Left dockerError ->
           E.throwError $
             makeCommandError
+              WaspDockerNotRunning
               "Couldn't connect to the Docker daemon"
               ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
                   <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
@@ -176,7 +178,7 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
             <> dockerRunInfoLines
       cliSendMessageC $ Msg.Info "..."
       exitCode <- Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
-      either (E.throwError . makeCommandError "Dev database failed") return $
+      either (E.throwError . makeCommandError WaspDevDbFailed "Dev database failed") return $
         checkExitSuccess "Running the PostgreSQL dev database" exitCode
 
     additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]

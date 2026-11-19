@@ -12,6 +12,7 @@ import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Terminal (title)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspSpecAnalysisFailed))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -28,7 +29,7 @@ deps = do
     liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either
-      (throwError . makeCommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
+      (throwError . makeCommandError WaspSpecAnalysisFailed "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
       return
       appSpecOrAnalyzerErrors
 

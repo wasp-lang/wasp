@@ -8,7 +8,9 @@ module Wasp.Diagnostic
   )
 where
 
-data DiagnosticKind = Error | Warning | Success
+import Wasp.Diagnostic.ErrorId (ErrorId)
+
+data DiagnosticKind = Error ErrorId | Warning | Success
 
 data Diagnostic = Diagnostic
   { kind :: DiagnosticKind,
@@ -20,8 +22,8 @@ makeDiagnostic :: DiagnosticKind -> String -> Diagnostic
 makeDiagnostic diagnosticKind diagnosticTitle =
   Diagnostic {kind = diagnosticKind, title = diagnosticTitle, details = Nothing}
 
-makeError :: String -> Diagnostic
-makeError = makeDiagnostic Error
+makeError :: ErrorId -> String -> Diagnostic
+makeError = makeDiagnostic . Error
 
 makeWarning :: String -> Diagnostic
 makeWarning = makeDiagnostic Warning

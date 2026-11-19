@@ -41,6 +41,7 @@ import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Diagnostic (Diagnostic)
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId)
 import qualified Wasp.Message as Msg
 import Wasp.Util.IO.Retry (MonadRetry (..))
 import qualified Wasp.Util.Interactive as Interactive
@@ -63,14 +64,12 @@ runCommand cmd =
       exitFailure
     Right (Right _) -> return ()
 
--- TODO: What if we want to recognize errors in order to handle them?
---   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
 newtype CommandError = CommandError Diagnostic
 
-makeCommandError :: String -> String -> CommandError
-makeCommandError errorTitle errorDetails =
+makeCommandError :: ErrorId -> String -> String -> CommandError
+makeCommandError errorId errorTitle errorDetails =
   CommandError $
-    Diagnostic.makeError errorTitle & Diagnostic.setDetails errorDetails
+    Diagnostic.makeError errorId errorTitle & Diagnostic.setDetails errorDetails
 
 data Requirement where
   Requirement :: (Requirable r) => r -> Requirement

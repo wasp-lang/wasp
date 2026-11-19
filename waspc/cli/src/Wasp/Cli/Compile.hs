@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WaspProcessId, WatcherStatus (..))
 import Wasp.CompileOptions (CompileOptions (..))
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspProjectLocked, WaspWatcherCompilationFailed))
 import qualified Wasp.Message as Msg
 import Wasp.Util (secondsToMicroSeconds)
 import Wasp.Util.IO.Retry (constPause, retryWithCallback)
@@ -62,7 +63,7 @@ waitEnsureCompile options =
 
 makeProjectBusyError :: Maybe WaspProcessId -> CommandError
 makeProjectBusyError maybeProcessId =
-  makeCommandError "Wasp project is busy" $
+  makeCommandError WaspProjectLocked "Wasp project is busy" $
     ProjectLock.describeLockHolder maybeProcessId
       ++ " is working on this project right now. Run this command again once it finishes."
 
@@ -87,6 +88,6 @@ attemptEnsureCompile options =
           ++ " is already watching this project, skipping compilation."
 
     makeCompilationFailedError pid =
-      makeCommandError "Wasp project failed to compile" $
+      makeCommandError WaspWatcherCompilationFailed "Wasp project failed to compile" $
         ProjectLock.describeLockHolder (Just pid)
           ++ " is running for this project, but it failed to compile it. Fix its compilation errors first."

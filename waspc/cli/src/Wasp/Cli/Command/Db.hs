@@ -16,6 +16,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Compile (waitEnsureCompile)
 import Wasp.Cli.ProjectRunConfig (makeDefaultDevProjectRunConfig)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspDbConnectionFailed))
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal)
@@ -53,6 +54,7 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
   where
     noDbError =
       makeCommandError
+        WaspDbConnectionFailed
         "Can not connect to database"
         ( "The database needs to be running in order to execute this command."
             ++ " You can easily start a managed dev database with `wasp start db`."

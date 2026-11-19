@@ -31,6 +31,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspStudioFailed))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import qualified Wasp.Project.Studio
@@ -148,7 +149,7 @@ studio = do
   result <- liftIO $ do
     Wasp.Project.Studio.startStudio $ SP.toFilePath waspStudioDataJsonFilePath
 
-  either (throwError . makeCommandError "Studio command failed") return result
+  either (throwError . makeCommandError WaspStudioFailed "Studio command failed") return result
   where
     getLinkedEntitiesData spec entityRefs =
       map

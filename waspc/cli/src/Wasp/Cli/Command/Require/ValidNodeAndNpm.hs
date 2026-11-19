@@ -7,6 +7,7 @@ import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
 import Wasp.Cli.Command (Requirable (checkRequirement), makeCommandError)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspNodeRequirementNotMet))
 import qualified Wasp.Node.Version as NodeVersion
 
 -- | Require that the Node.js and npm installed on the user's machine meet
@@ -19,5 +20,5 @@ instance Requirable ValidNodeAndNpm where
   checkRequirement =
     liftIO NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
       Left errorMsg ->
-        throwError $ makeCommandError "Node/NPM requirement not met" errorMsg
+        throwError $ makeCommandError WaspNodeRequirementNotMet "Node/NPM requirement not met" errorMsg
       Right () -> return ValidNodeAndNpm

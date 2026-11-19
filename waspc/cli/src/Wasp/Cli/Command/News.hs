@@ -29,11 +29,12 @@ import Wasp.Cli.Command.News.Listing
     shouldWaspListMustSeeNews,
   )
 import Wasp.Cli.Command.News.LocalNewsState (loadLocalNewsState)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspNewsFetchFailed))
 import Wasp.Util (checkIfOnCi, whenM)
 
 news :: Command ()
 news = do
-  newsEntries <- either (throwError . makeCommandError "Getting Wasp news failed") pure =<< liftIO fetchNews
+  newsEntries <- either (throwError . makeCommandError WaspNewsFetchFailed "Getting Wasp news failed") pure =<< liftIO fetchNews
   liftIO $ do
     localNewsState <- loadLocalNewsState
     listNews localNewsState $ UserListingAllNews newsEntries

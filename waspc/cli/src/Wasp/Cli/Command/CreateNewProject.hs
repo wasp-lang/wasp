@@ -35,6 +35,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspNewProjectMigrationSkipped))
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -106,6 +107,7 @@ migrateDbForNewProject absWaspProjectDir =
       when isDbUrlInEnvironment
         $ throwError
         $ makeCommandError
+          WaspNewProjectMigrationSkipped
           "Migration skipped"
           (databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
 

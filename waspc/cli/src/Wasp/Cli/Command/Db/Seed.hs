@@ -23,6 +23,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspDbSeedFailed, WaspDbSeedNameInvalid, WaspDbSeedsNotDefined))
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
@@ -42,7 +43,7 @@ seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCli
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
   liftIO (dbSeed (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun) >>= \case
-    Left errorMsg -> E.throwError $ makeCommandError "Database seeding failed" errorMsg
+    Left errorMsg -> E.throwError $ makeCommandError WaspDbSeedFailed "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Database seeded successfully!")
 
 newtype SeedArgs = SeedArgs
@@ -79,7 +80,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
       if userProvidedSeedName `elem` seedNames
         then return userProvidedSeedName
         else
-          (E.throwError . makeCommandError "Invalid seed name") $
+          (E.throwError . makeCommandError WaspDbSeedNameInvalid "Invalid seed name") $
             "There is no seed with the name "
               <> userProvidedSeedName
               <> "."
@@ -89,7 +90,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     getSeedsFromAppSpecOrThrowIfNone = case getDbSeeds spec of
       Just seeds@(_ : _) -> return $ NE.fromList seeds
       _noSeeds ->
-        (E.throwError . makeCommandError "No seeds defined") $
+        (E.throwError . makeCommandError WaspDbSeedsNotDefined "No seeds defined") $
           "You haven't defined any database seeding functions, so there is nothing to run!\n"
             <> "To do so, define seeding functions via app.db.seeds in your Wasp spec."
 

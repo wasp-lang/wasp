@@ -11,6 +11,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List ((\\))
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, makeCommandError)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspFreePortNotFound))
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
@@ -63,7 +64,7 @@ resolvePort specifiedPort defaultPort skipPorts specifiedPortTakenMessage noFree
         )
         >>= either throwResolvingError return
 
-    throwResolvingError = throwError . makeCommandError "Failed to find a free port"
+    throwResolvingError = throwError . makeCommandError WaspFreePortNotFound "Failed to find a free port"
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
 checkIfLocalPortIsTaken port =

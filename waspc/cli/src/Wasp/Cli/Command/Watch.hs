@@ -22,6 +22,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspRecompilationFailed))
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
@@ -168,7 +169,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
-          cliSendMessage (Msg.Diagnostic $ Diagnostic.makeError "Recompilation on file change failed." & Diagnostic.setDetails (show (length errors) ++ " errors found"))
+          cliSendMessage (Msg.Diagnostic $ Diagnostic.makeError WaspRecompilationFailed "Recompilation on file change failed." & Diagnostic.setDetails (show (length errors) ++ " errors found"))
           return FailedCompile
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
