@@ -16,6 +16,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
+import Wasp.Cli.Command.CreateNewProject.NpmInstall (installProjectNpmDependencies)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     getAbsWaspProjectDir,
@@ -35,7 +36,6 @@ import Wasp.Cli.DevWaspNpmPackages (checkDirectlyRunWaspCanCreateProjects)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
-import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
