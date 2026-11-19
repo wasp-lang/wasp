@@ -1,12 +1,12 @@
 {
-  "name": "@wasp/lib-test-utils",
+  "name": "@wasp/test-utils",
   "version": "0.27.0",
   "type": "module",
   "description": "Test helpers for Wasp apps.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
-    "directory": "packages/libs/test-utils"
+    "directory": "packages/test-utils"
   },
   "homepage": "https://wasp.sh/",
   "bugs": {
@@ -39,7 +39,7 @@
   "peerDependencies": {
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/react": "^16.3.1",
-    "@wasp/lib-sdk-core": "workspace:^",
+    "@wasp/sdk-core": "workspace:^",
     "jsdom": "*",
     "msw": "^3.0.0",
     "react": "^19.2.1",
@@ -67,7 +67,7 @@
     "@types/node": "catalog:",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@wasp/lib-sdk-core": "workspace:*",
+    "@wasp/sdk-core": "workspace:*",
     "msw": "^3.0.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

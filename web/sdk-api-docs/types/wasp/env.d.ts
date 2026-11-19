@@ -64,4 +64,4 @@
  *
  * @see [Custom env var validations](https://wasp.sh/docs/advanced/env-vars#custom-env-var-validations)
  */
-export { defineEnvValidationSchema } from "@wasp/lib-sdk-core";
+export { defineEnvValidationSchema } from "@wasp/sdk-core";

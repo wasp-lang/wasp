@@ -40,7 +40,7 @@ run = "{{vars.wasp_cli_dev}}"
 description = "Executes all tests (waspc + Wasp CLI + examples + starters). Builds the project first if needed."
 dir = "waspc"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-run = ["cabal test", { task = "test:starters" }, { task = "test:examples" }, { task = "test:libs" }, { task = "test:packages" }]
+run = ["cabal test", { task = "test:starters" }, { task = "test:examples" }, { task = "test:packages" }]
 
 ["test:waspc"]
 description = "Executes all waspc tests (unit + e2e). Builds the project first if needed."

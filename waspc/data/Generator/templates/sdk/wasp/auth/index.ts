@@ -9,4 +9,4 @@ export {
 export type { AuthUser } from './user.js'
 
 // PUBLIC API
-export { definePasswordValidationSchema } from '@wasp/lib-sdk-core'
+export { definePasswordValidationSchema } from '@wasp/sdk-core'

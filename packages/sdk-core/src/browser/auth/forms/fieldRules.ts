@@ -1,4 +1,4 @@
-import { isValidEmail } from "@wasp/lib-auth";
+import { isValidEmail } from "@wasp/auth";
 import {
   getFirstErrorMessage,
   type PasswordValidationSchema,
