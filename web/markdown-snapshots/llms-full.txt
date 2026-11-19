@@ -12456,7 +12456,7 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 
 A few things to keep in mind:
 
-- An HTTP error response is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for an [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling) or for the error the `api` client throws.
+- Wasp calls the function for an [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling), or for the error the `api` client throws, only when its status is 500 or above. A lower status means the server sent the error on purpose. An error of the Wasp server with a status of 500 or above also reaches [`server.onError`](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors).
 - Wasp doesn't call the function for a failed Query or Action that your code handles. A failed Action that nobody catches reaches it as a `"window"` error.
 - Wasp calls the function once per error, even if the error surfaces in more than one place.
 - Wasp calls the function for every render error, including the ones your own error boundaries catch.
