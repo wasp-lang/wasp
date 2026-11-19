@@ -66,6 +66,10 @@
   "dependencies": {
     "@wasp/cli": "workspace:*",
     "@wasp/deploy": "workspace:*",
+    "@wasp/lib-auth": "workspace:*",
+    "@wasp/lib-sdk-core": "workspace:*",
+    "@wasp/lib-test-utils": "workspace:*",
+    "@wasp/lib-vite-ssr": "workspace:*",
     "@wasp/spec": "workspace:*",
     "@wasp/studio": "workspace:*"
   },
