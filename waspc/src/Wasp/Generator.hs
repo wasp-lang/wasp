@@ -30,7 +30,6 @@ import qualified Wasp.Generator.Start
 import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath, synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -67,7 +66,6 @@ genApp spec = do
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTypeAugmentation spec
-    <++> genWaspLibs
 
 warnOverriddenDeps :: AppSpec -> Generator ()
 warnOverriddenDeps spec =
