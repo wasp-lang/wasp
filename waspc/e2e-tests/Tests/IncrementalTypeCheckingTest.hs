@@ -18,7 +18,6 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 incrementalTypeCheckingTest :: Test
 incrementalTypeCheckingTest =
@@ -91,13 +90,9 @@ incrementalTypeCheckingTest =
         export default app({
           name: "operationTypes",
           title: "Operation types",
-          wasp: { version: "$textWaspVersion" },
           spec: [
             route("RootRoute", "/", page(MainPage)),
             query(getTasks),
           ],
         });
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion

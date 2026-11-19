@@ -17,7 +17,6 @@ import StrongPath (File', Path', Rel, relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Version (waspVersion)
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
 -- client tests that use the `wasp/client/test` helpers.
@@ -65,7 +64,6 @@ vitestTest =
         export default app({
           name: "vitestPackage",
           title: "Vitest package",
-          wasp: { version: "$textWaspVersion" },
           spec: [
             route("RootRoute", "/", page(MainPage)),
             query(getTasks),
@@ -143,6 +141,3 @@ vitestTest =
           test: waspTestConfig(),
         });
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
