@@ -3,12 +3,12 @@ import {
   type SpecificOptimisticUpdateDefinition,
   registerActionInProgress,
   registerActionDone,
-} from '@wasp/lib-sdk-core/browser'
+} from '@wasp/sdk-core/browser'
 import {
   makeOperationRoute,
   type OperationRpcFor,
   type GenericBackendOperation,
-} from '@wasp/lib-sdk-core'
+} from '@wasp/sdk-core'
 import { callOperation } from '../internal/index.js'
 
 // PRIVATE API
