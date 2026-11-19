@@ -2,11 +2,11 @@
 
 TypeScript packages of the Wasp monorepo:
 
-- `wasp/` -> `@wasp/wasp`, the package Wasp projects depend on. It pins `@wasp/cli`, `@wasp/spec`, `@wasp/deploy` and `@wasp/studio` to the same version. Published to npm.
+- `wasp/` -> `@wasp/wasp`, the package Wasp projects depend on. It pins `@wasp/cli`, `@wasp/spec`, `@wasp/deploy`, `@wasp/studio` and the Wasp libs to the same version. Published to npm.
 - `cli/` -> `@wasp/cli`, the `wasp` executable wrapper. `cli/scripts/make-cli-npm-packages` turns it into the published package with the platform-specific binaries as optional dependencies.
 - `spec/` -> `@wasp/spec`, the package that exports the Wasp Spec, which users import in `main.wasp.ts`. Published to npm.
 - `deploy/`, `studio/` -> `@wasp/deploy` and `@wasp/studio`, the implementations of `wasp deploy` and `wasp studio`. Published to npm.
-- `libs/` -> Wasp libs, internal npm packages installed into generated apps. See [`libs/README.md`](libs/README.md).
+- `libs/` -> Wasp libs, internal npm packages that the generated code imports. Published to npm. See [`libs/README.md`](libs/README.md).
 - `wasp-app-runner/` -> CLI for running Wasp apps in e2e tests. Published to npm.
 
 Together with `packages/cli/scripts/make-cli-npm-packages` and `waspc/tools`, these form the repo's pnpm workspace
@@ -15,12 +15,9 @@ below do it for you.
 
 ## Build outputs
 
-`waspc` expects the libs under `waspc/data/Generator/libs/`, and Wasp projects in this repo
-depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs (gitignored):
-
-- `mise run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
-- `mise run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
-  into `waspc/.dev-packages/`.
+Wasp projects in this repo depend on the dev tarballs under `waspc/.dev-packages/`, a build
+output (gitignored). `mise run build:dev-packages` builds and packs `wasp` and every package it
+depends on into it.
 
 Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`. A globally
 installed `wasp-cli` needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` only for `wasp-cli new`,
