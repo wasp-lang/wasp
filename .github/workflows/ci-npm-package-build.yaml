@@ -73,7 +73,7 @@ jobs:
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
           EXCLUDE_BUILD: ${{ inputs.exclude-build }}
           JQ_PROGRAM:
-            # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
+            # The schema for this file is at `packages/cli/scripts/make-cli-npm-packages/src/schema/input-data.ts`.
             # We'll list one tarball per build that has an npm target here.
             |
             {
@@ -97,14 +97,14 @@ jobs:
           cat "$PACKAGES_INPUT_DATA_FILE_PATH" # For debugging purposes
 
       - name: Install dependencies for script
-        run: pnpm install --filter make-npm-packages --filter @wasp/cli
+        run: pnpm install --filter make-cli-npm-packages --filter @wasp/cli
 
       - name: Build the CLI package
         run: pnpm --filter @wasp/cli run build
 
       - name: Run packager script
         run: >
-          node ./scripts/make-npm-packages/src/index.ts
+          node ./packages/cli/scripts/make-cli-npm-packages/src/index.ts
           --input-dir "$PACKAGES_INPUT_DIR_PATH"
           --output-dir "$PACKAGES_OUTPUT_DIR_PATH"
 
