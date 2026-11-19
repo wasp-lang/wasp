@@ -1,8 +1,6 @@
-// TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, they run the
-// workspace's `@wasp/cli`, which has no `overrides` to find the dev packages
-// through. Point it at the dev binary directly then.
-//
-// The dev stand-in for the platform packages of `@wasp/cli`.
+// The dev stand-in for the platform packages of `@wasp/cli`, for the dev
+// `@wasp/cli` tarball. The `@wasp/cli` of the repo's pnpm workspace has its
+// own, `packages/cli/src/repo-dev-sub-package.ts`.
 //
 // `tasks/build/dev-packages.ts` strips the types and puts the result into the
 // dev `@wasp/cli`, so this file can only import types and Node.js built-ins.
