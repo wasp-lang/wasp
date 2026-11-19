@@ -1,12 +1,12 @@
 {
-  "name": "@wasp/lib-auth",
+  "name": "@wasp/auth",
   "version": "0.27.0",
   "type": "module",
   "description": "Auth code for Wasp apps.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
-    "directory": "packages/libs/auth"
+    "directory": "packages/auth"
   },
   "homepage": "https://wasp.sh/",
   "bugs": {
